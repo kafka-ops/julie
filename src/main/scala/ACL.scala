@@ -6,7 +6,7 @@ trait ACLCommand {
 abstract class AclAppCommand(users: Array[String]) extends ACLCommand {
   def isEmpty: Boolean = users.isEmpty
 }
-case class ConsumerACLCommand(users: Array[String], topics: Array[String]) extends AclAppCommand(users) {
+case class ConsumerACLCommand(users: Array[String], topics: Array[String], zookeepers: Array[String]) extends AclAppCommand(users) {
 
   // bin/kafka-acls --authorizer-properties zookeeper.connect=localhost:2181 \
   //  --add --allow-principal User:Bob \
@@ -16,7 +16,7 @@ case class ConsumerACLCommand(users: Array[String], topics: Array[String]) exten
     if (users.isEmpty)
       return "\n"
 
-    val basicACL = "kafka-acls --authorizer-properties zookeeper.connect=localhost:2181 --add --group '*' --consumer"
+    val basicACL = s"kafka-acls --authorizer-properties zookeeper.connect=${zookeepers.mkString(",")} --add --group '*' --consumer"
     val allowedPrincipals: String = users.map(user => s"--allow-principal User:$user").mkString(" ")
     val allowedTopics: String = topics.map(topic => s"--topic $topic").mkString(" ")
     s"$basicACL $allowedPrincipals $allowedTopics"
@@ -24,7 +24,7 @@ case class ConsumerACLCommand(users: Array[String], topics: Array[String]) exten
 
 }
 
-case class ProducerACLCommand(users: Array[String], topics: Array[String]) extends AclAppCommand(users) {
+case class ProducerACLCommand(users: Array[String], topics: Array[String], zookeepers: Array[String]) extends AclAppCommand(users) {
 
   // bin/kafka-acls --authorizer-properties zookeeper.connect=localhost:2181 \
   //  --add --allow-principal User:Bob \
@@ -34,14 +34,14 @@ case class ProducerACLCommand(users: Array[String], topics: Array[String]) exten
     if (users.isEmpty)
       return "\n"
 
-    val basicACL = "kafka-acls --authorizer-properties zookeeper.connect=localhost:2181 --add --group '*' --producer"
+    val basicACL = s"kafka-acls --authorizer-properties zookeeper.connect=${zookeepers.mkString(",")} --add --group '*' --producer"
     val allowedPrincipals: String = users.map(user => s"--allow-principal User:$user").mkString(" ")
     val allowedTopics: String = topics.map(topic => s"--topic $topic").mkString(" ")
     s"$basicACL $allowedPrincipals $allowedTopics"
   }
 }
 
-case class ConnectACLCommand(users: Array[String], topics: Array[String]) extends AclAppCommand(users) {
+case class ConnectACLCommand(users: Array[String], topics: Array[String], zookeepers: Array[String]) extends AclAppCommand(users) {
 
   /*
    ./bin/kafka-acls --authorizer kafka.security.auth.SimpleAclAuthorizer --authorizer-properties zookeeper.connect=localhost:2181 --add --allow-principal User:Bob --operation Create --cluster
@@ -59,7 +59,7 @@ case class ConnectACLCommand(users: Array[String], topics: Array[String]) extend
     if (users.isEmpty)
       return "\n"
 
-    val basicACL = "kafka-acls  --authorizer kafka.security.auth.SimpleAclAuthorizer --authorizer-properties zookeeper.connect=localhost:2181 --add"
+    val basicACL = s"kafka-acls  --authorizer kafka.security.auth.SimpleAclAuthorizer --authorizer-properties zookeeper.connect=${zookeepers.mkString(",")} --add"
     val allowedPrincipals: String = users.map(user => s"--allow-principal User:$user").mkString(" ")
 
     val internalTopics = Array("connect-status", "connect-offsets", "connect-configs" ).map(topic => s"--topic $topic").mkString(" ")
@@ -73,7 +73,7 @@ case class ConnectACLCommand(users: Array[String], topics: Array[String]) extend
   }
 }
 
-case class KafkaStreamsACLCommand(users: Array[KStreamApp], group: String, projectName: String) extends AclAppCommand(users.map(_.name)) {
+case class KafkaStreamsACLCommand(users: Array[KStreamApp], group: String, projectName: String, zookeepers: Array[String]) extends AclAppCommand(users.map(_.name)) {
 
   // # Allow Streams to read the input topics:
   //kafka-acls -authorizer-properties zookeeper.connect=zookeeper:2181 --add --allow-principal User:alice --operation Read --topic source-topic
@@ -88,7 +88,7 @@ case class KafkaStreamsACLCommand(users: Array[KStreamApp], group: String, proje
     if (users.isEmpty)
       return "\n"
 
-    val basicACL = "kafka-acls --authorizer-properties zookeeper.connect=localhost:2181 --add --group '*'"
+    val basicACL = s"kafka-acls --authorizer-properties zookeeper.connect=${zookeepers.mkString(",")} --add --group '*'"
 
     /**
       * TODO: This operation could be optimised by grouping per topic and operation, so if User2 and User3
@@ -117,12 +117,13 @@ class ACL(consumers: Array[String],
           connectors: Array[String],
           streams: Array[KStreamApp]) {
 
-  def build(group: String, projectName: String, topics: Array[String]) : List[ACLCommand] = {
+  def build(group: String, projectName: String, topics: Array[String], zookeepers: Array[String]) : List[ACLCommand] = {
 
-    List(ConsumerACLCommand(consumers, topics),
-         ProducerACLCommand(producers, topics),
-         KafkaStreamsACLCommand(streams, group, projectName),
-      ConnectACLCommand(connectors, Array.empty)
+    List(
+      ConsumerACLCommand(consumers, topics, zookeepers),
+      ProducerACLCommand(producers, topics,  zookeepers),
+      KafkaStreamsACLCommand(streams, group, projectName, zookeepers),
+      ConnectACLCommand(connectors, Array.empty, zookeepers)
     ).filterNot(_.isEmpty)
   }
 }

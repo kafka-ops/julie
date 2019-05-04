@@ -18,7 +18,12 @@ class PrepareCommand extends TopologyCommand {
           producers = project.users.producers,
           connectors = project.users.connectors,
           streams = project.users.streams
-        ).build("projects", project.name, project.topics.map(topic => s"projects.${project.name}.${topic.name}"))
+        ).build(
+          "projects",
+          project.name,
+          project.topics.map(topic => s"projects.${project.name}.${topic.name}"),
+          project.zookeepers
+        )
       }
 
     cmds.foreach { cmd: ACLCommand =>
