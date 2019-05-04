@@ -20,7 +20,7 @@ object TopologyBuilder {
   def main(args: Array[String]): Unit = {
 
     val cmd = new PrepareCommand()
-    val projects = parse(args(0))
+    val projects = parse("descriptor.yaml")
     cmd.execute(projects)
   }
 }
