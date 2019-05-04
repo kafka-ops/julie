@@ -25,6 +25,8 @@ projects:
   - name: "bar" # generated name: projects.data-lake.bar
     config:
       partitions: 1
+  zookeepers:
+    - "zk1:2181"
 - name: "monitoring"
   users:
     consumers:
@@ -34,3 +36,4 @@ projects:
     connectors:
     - "conn1"
   topics: []
+  zookeepers: []
