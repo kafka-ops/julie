@@ -1,6 +1,6 @@
 case class Projects(projects: Array[Project]);
 
-case class Project(name: String, users: Accounts, topics: Array[ProjectTopic]=Array.empty);
+case class Project(name: String, users: Accounts, topics: Array[ProjectTopic]=Array.empty, zookeepers: Array[String]=Array("localhost:2181"));
 
 case class Accounts(consumers: Array[String], producers: Array[String], streams: Array[KStreamApp], connectors: Array[String] )
 
