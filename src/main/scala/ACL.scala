@@ -1,10 +1,13 @@
 
 trait ACLCommand {
 
+  def build:List[String]
 }
 
 abstract class AclAppCommand(users: Array[String]) extends ACLCommand {
   def isEmpty: Boolean = users.isEmpty
+
+  override def toString : String = build.mkString("\n")
 }
 case class ConsumerACLCommand(users: Array[String], topics: Array[String], zookeepers: Array[String]) extends AclAppCommand(users) {
 
@@ -12,14 +15,14 @@ case class ConsumerACLCommand(users: Array[String], topics: Array[String], zooke
   //  --add --allow-principal User:Bob \
   //  --consumer --topic test-topic --group Group-1
 
-  override def toString : String = {
-    if (users.isEmpty)
-      return "\n"
+  override def build: List[String] = {
+    if (users.isEmpty || topics.isEmpty)
+      return List.empty
 
     val basicACL = s"kafka-acls --authorizer-properties zookeeper.connect=${zookeepers.mkString(",")} --add --group '*' --consumer"
     val allowedPrincipals: String = users.map(user => s"--allow-principal User:$user").mkString(" ")
     val allowedTopics: String = topics.map(topic => s"--topic $topic").mkString(" ")
-    s"$basicACL $allowedPrincipals $allowedTopics"
+    List(s"$basicACL $allowedPrincipals $allowedTopics")
   }
 
 }
@@ -30,15 +33,17 @@ case class ProducerACLCommand(users: Array[String], topics: Array[String], zooke
   //  --add --allow-principal User:Bob \
   //  --producer --topic test-topic --group Group-1
 
-  override def toString : String = {
+  override def build: List[String] = {
     if (users.isEmpty)
-      return "\n"
+      return List.empty
 
     val basicACL = s"kafka-acls --authorizer-properties zookeeper.connect=${zookeepers.mkString(",")} --add --group '*' --producer"
     val allowedPrincipals: String = users.map(user => s"--allow-principal User:$user").mkString(" ")
     val allowedTopics: String = topics.map(topic => s"--topic $topic").mkString(" ")
-    s"$basicACL $allowedPrincipals $allowedTopics"
+    List(s"$basicACL $allowedPrincipals $allowedTopics")
   }
+
+
 }
 
 case class ConnectACLCommand(users: Array[String], topics: Array[String], zookeepers: Array[String]) extends AclAppCommand(users) {
@@ -55,9 +60,9 @@ case class ConnectACLCommand(users: Array[String], topics: Array[String], zookee
 */
 
 
-  override def toString : String = {
+  override def build: List[String] = {
     if (users.isEmpty)
-      return "\n"
+      return List.empty
 
     val basicACL = s"kafka-acls  --authorizer kafka.security.auth.SimpleAclAuthorizer --authorizer-properties zookeeper.connect=${zookeepers.mkString(",")} --add"
     val allowedPrincipals: String = users.map(user => s"--allow-principal User:$user").mkString(" ")
@@ -69,7 +74,7 @@ case class ConnectACLCommand(users: Array[String], topics: Array[String], zookee
       s"$basicACL $allowedPrincipals --operation Read --group *",
       s"$basicACL $allowedPrincipals --operation Read $internalTopics",
       s"$basicACL $allowedPrincipals --operation Write $internalTopics"
-    ).mkString("\n")
+    )
   }
 }
 
@@ -84,9 +89,9 @@ case class KafkaStreamsACLCommand(users: Array[KStreamApp], group: String, proje
   //# Allow Streams to manage its own internal topics and consumer groups:
   //kafka-acls -authorizer-properties zookeeper.connect=zookeeper:2181 --add --allow-principal User:alice --operation All --resource-pattern-type prefixed --topic porsche-streams-app --group porsche-streams-app
 
-  override def toString : String = {
+  override def build: List[String] = {
     if (users.isEmpty)
-      return "\n"
+      return List.empty
 
     val basicACL = s"kafka-acls --authorizer-properties zookeeper.connect=${zookeepers.mkString(",")} --add --group '*'"
 
@@ -107,7 +112,7 @@ case class KafkaStreamsACLCommand(users: Array[KStreamApp], group: String, proje
       s"$basicACL --allow-principal User:${user.name} --operation All $pattern"
     }
 
-    singleTopics ++ internalTopics mkString("\n")
+    singleTopics ++ internalTopics toList
   }
 
 }
