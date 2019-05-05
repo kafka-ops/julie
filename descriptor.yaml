@@ -36,6 +36,3 @@ projects:
     connectors:
     - "conn1"
   topics: []
-  zookeepers:
-    - "zk1:2181"
-    - "zk2:2181"
