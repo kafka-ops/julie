@@ -15,24 +15,25 @@ class ACLCommandSpec extends FunSpec {
       assert(cmd.build.size == 1)
     }
 
-    it("return empty if no users passed")  {
+    describe("when params are empty") {
+      it("if no users passed, should return an empty list") {
 
-      val users = Array.empty[String]
-      val topics = Array("topic0", "topic1")
+        val users = Array.empty[String]
+        val topics = Array("topic0", "topic1")
 
-      val cmd = ConsumerACLCommand(users, topics, defaultZookeeper);
-      assert(cmd.build.isEmpty)
+        val cmd = ConsumerACLCommand(users, topics, defaultZookeeper);
+        assert(cmd.build.isEmpty)
+      }
+
+      it("if no topics passed, should return an empty list") {
+
+        val users = Array("user0", "user1")
+        val topics = Array.empty[String]
+
+        val cmd = ConsumerACLCommand(users, topics, defaultZookeeper);
+        assert(cmd.build.isEmpty)
+      }
     }
-
-    it("return empty if no topics passed")  {
-
-      val users = Array("user0", "user1")
-      val topics = Array.empty[String]
-
-      val cmd = ConsumerACLCommand(users, topics, defaultZookeeper);
-      assert(cmd.build.isEmpty)
-    }
-
   }
 
   describe("Producer ACL") {
@@ -44,5 +45,26 @@ class ACLCommandSpec extends FunSpec {
       val cmd = ProducerACLCommand(users, topics, defaultZookeeper);
       assert(cmd.build.size == 1)
     }
+
+    describe("when params are empty") {
+      it("if no users passed, should return an empty list") {
+
+        val users = Array.empty[String]
+        val topics = Array("topic0", "topic1")
+
+        val cmd = ProducerACLCommand(users, topics, defaultZookeeper);
+        assert(cmd.build.isEmpty)
+      }
+
+      it("if no topics passed, should return an empty list") {
+
+        val users = Array("user0", "user1")
+        val topics = Array.empty[String]
+
+        val cmd = ProducerACLCommand(users, topics, defaultZookeeper);
+        assert(cmd.build.isEmpty)
+      }
+    }
+
   }
 }

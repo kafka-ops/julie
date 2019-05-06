@@ -34,7 +34,7 @@ case class ProducerACLCommand(users: Array[String], topics: Array[String], zooke
   //  --producer --topic test-topic --group Group-1
 
   override def build: List[String] = {
-    if (users.isEmpty)
+    if (users.isEmpty || topics.isEmpty)
       return List.empty
 
     val basicACL = s"kafka-acls --authorizer-properties zookeeper.connect=${zookeepers.mkString(",")} --add --group '*' --producer"
