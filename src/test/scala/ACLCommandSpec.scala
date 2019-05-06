@@ -1,4 +1,5 @@
 import org.scalatest.FunSpec
+import org.scalatest.Matchers._
 
 class ACLCommandSpec extends FunSpec {
 
@@ -6,13 +7,22 @@ class ACLCommandSpec extends FunSpec {
 
   describe("Consumer ACL")
   {
-    it("always generate one request")  {
+    it("always generate one request, with the default right values")  {
 
       val users = Array("user0", "user1")
       val topics = Array("topic0", "topic1")
 
       val cmd = ConsumerACLCommand(users, topics, defaultZookeeper);
-      assert(cmd.build.size == 1)
+      val listOfActions = cmd.build
+
+      assert(listOfActions.size == 1)
+
+      listOfActions.foreach { action =>
+        assert( action.action == "add" )
+        action.principals shouldBe users
+        action.topics shouldBe topics
+        action.zookeeperHosts shouldBe defaultZookeeper
+      }
     }
 
     describe("when params are empty") {
@@ -65,6 +75,26 @@ class ACLCommandSpec extends FunSpec {
         assert(cmd.build.isEmpty)
       }
     }
+  }
 
+  describe("Connect ACLs") {
+
+    it("should generate enought internal and external acls") {
+
+      val users = Array("user0", "user1")
+
+      val cmd = ConnectACLCommand(users = users, zookeepers = defaultZookeeper)
+
+      val actions = cmd.build
+
+      actions should have length 4
+
+      // should have only two actions with --topics, this are the ones for the internal topics.
+      actions.filterNot(_.topics.isEmpty) should have length 2
+      // should have one acl action with --cluster scope
+      actions.filter(_.role.isDefined).foreach { action =>
+        action.role.get shouldBe ClusterRole
+      }
+    }
   }
 }
