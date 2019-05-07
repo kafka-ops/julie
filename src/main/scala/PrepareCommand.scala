@@ -5,13 +5,10 @@ trait TopologyCommand {
   def execute(topology: Projects);
 }
 
-class PrepareCommand extends TopologyCommand {
+abstract class BasePrepareCommand extends TopologyCommand {
 
-
-  override def execute(topology: Projects): Unit = {
-
-
-    val cmds: Array[ACLCommand] = topology
+  def buildACLsActions(topology: Projects): Array[ACLCommand] = {
+    topology
       .projects
       .flatMap { project: Project =>
         new ACL(
@@ -26,13 +23,14 @@ class PrepareCommand extends TopologyCommand {
           zookeepers = project.zookeepers.getOrElse(Array("localhost:2181"))
         )
       }
-
-    printCommands(cmds)
   }
+}
 
-  private def printCommands(cmds: Array[ACLCommand]): Unit = {
-    cmds.foreach { cmd: ACLCommand =>
+class PrepareCommand extends BasePrepareCommand {
 
+  override def execute(topology: Projects): Unit = {
+
+    buildACLsActions(topology).foreach { cmd: ACLCommand =>
       cmd match {
         case _:ConsumerACLCommand => {
           println("# Consumers: ")
@@ -51,7 +49,9 @@ class PrepareCommand extends TopologyCommand {
       println(cmd)
       println
     }
+
   }
+
 }
 
 
