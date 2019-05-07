@@ -92,6 +92,7 @@ class ACLCommandSpec extends FunSpec {
       // should have only two actions with --topics, this are the ones for the internal topics.
       actions.filterNot(_.topics.isEmpty) should have length 2
       // should have one acl action with --cluster scope
+      actions.filter(_.role.isDefined) should have length 1
       actions.filter(_.role.isDefined).foreach { action =>
         action.role.get shouldBe ClusterRole
       }
