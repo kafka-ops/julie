@@ -28,7 +28,7 @@ case class ConsumerACLCommand(users: Array[String], topics: Array[String], zooke
       return List.empty
 
     List(
-      new ACLAction(zookeeperHosts = zookeepers, action = "add", principals = users, topics = topics, role = Some(ConsumerRole))
+      BasicACLAction(zookeeperHosts = zookeepers, action = "add", principals = users, topics = topics, role = Some(ConsumerRole))
     )
   }
 
@@ -41,7 +41,7 @@ case class ProducerACLCommand(users: Array[String], topics: Array[String], zooke
       return List.empty
 
     List(
-      new ACLAction(zookeeperHosts = zookeepers, action = "add", principals = users, topics = topics, role = Some(ProducerRole))
+      BasicACLAction(zookeeperHosts = zookeepers, action = "add", principals = users, topics = topics, role = Some(ProducerRole))
     )
 
   }
@@ -69,7 +69,7 @@ case class ConnectACLCommand(users: Array[String], zookeepers: Array[String]) ex
 
     val internalTopics = Array("connect-status", "connect-offsets", "connect-configs" )
 
-    val aclAction = new ACLAction(zookeeperHosts = zookeepers, action = "add", principals = users)
+    val aclAction = BasicACLAction(zookeeperHosts = zookeepers, action = "add", principals = users)
 
     List(
       aclAction.copy(operation = Some("Create"), role=Some(ClusterRole)),
@@ -117,6 +117,26 @@ case class KafkaStreamsACLCommand(users: Array[KStreamApp], group: String, proje
     singleTopics ++ internalTopics toList
   }
 
+  override def build: List[ACLAction] = {
+
+    val aclAction = BasicACLAction(zookeeperHosts = zookeepers, action = "add", group = "*", principals = Array.empty[String])
+
+    val singleTopics: Array[ACLAction] = users.flatMap { user =>
+       List(
+         aclAction.copy(topics = user.topics.read, operation = Some("Read"), principals = Array(user.name)),
+         aclAction.copy(topics = user.topics.write, operation = Some("Write"), principals = Array(user.name))
+       )
+    }
+
+    val internalTopics = users.map { user =>
+      aclAction.copy(principals = Array(user.name),
+        topics = Array(s"$group.$projectName"),
+        group = s"$group.$projectName"
+      ).asPrefixedACL
+    }
+
+    singleTopics ++ internalTopics toList
+  }
 }
 
 class ACL(consumers: Array[String],
