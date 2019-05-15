@@ -98,4 +98,23 @@ class ACLCommandSpec extends FunSpec {
       }
     }
   }
+
+  describe("Kafka Streams ACLs") {
+
+    it("should generate enought internal and external acls") {
+
+      val users = Array(
+        KStreamApp(name = "app0", topics = KStreamTopics(read = Array("topic0"), write = Array("topic1") ))
+      )
+
+      val cmd = KafkaStreamsACLCommand(users = users, group = "foo", projectName = "bar", zookeepers = defaultZookeeper)
+
+      val actions = cmd.build
+
+      actions should have length 3
+
+      actions.filter(_.isInstanceOf[BasicACLAction]) should have length 2
+      actions.filter(_.isInstanceOf[PrefixedACLAction]) should have length 1
+    }
+  }
 }
