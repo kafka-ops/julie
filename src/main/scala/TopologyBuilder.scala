@@ -17,7 +17,7 @@ object TopologyBuilder {
   mapper.registerModule(DefaultScalaModule)
 
   val cli = new OptionParser[Config] {
-    reqd[String]("-f", "--file STRING", "filename") { (value, cfg) => cfg.copy(descriptorFile = value) }
+    reqd[String]("-f", "--file STRING", "topology file") { (value, cfg) => cfg.copy(descriptorFile = value) }
   }
 
 
