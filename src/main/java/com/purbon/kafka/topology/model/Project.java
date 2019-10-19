@@ -16,6 +16,8 @@ public class Project {
   private List<KStream> streams;
   private List<Connector> connectors;
 
+  private List<Topic> topics;
+
   public Project() {
 
   }
@@ -67,5 +69,13 @@ public class Project {
 
   public void setConnectors(List<Connector> connectors) {
     this.connectors = connectors;
+  }
+
+  public List<Topic> getTopics() {
+    return topics;
+  }
+
+  public void setTopics(List<Topic> topics) {
+    this.topics = topics;
   }
 }
