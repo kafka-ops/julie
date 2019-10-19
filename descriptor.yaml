@@ -1,13 +1,15 @@
 ---
+team: "foo"
+source: "db"
 projects:
 - name: "data-lake"
   users:
     consumers:
-    - "app0"
-    - "app1"
+      - "app0"
+      - "app1"
     producers:
-    - "app0"
-    - "app3"
+      - "app0"
+      - "app3"
     streams:
     - name: "app2"
       topics:
