@@ -1,6 +1,7 @@
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.purbon.kafka.topology.TopologySerdes;
 import com.purbon.kafka.topology.model.Project;
+import com.purbon.kafka.topology.model.Topic;
 import com.purbon.kafka.topology.model.Topology;
 import com.purbon.kafka.topology.model.User;
 import com.purbon.kafka.topology.model.users.Consumer;
@@ -13,10 +14,18 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
 
 public class TopologySerdesTest {
 
+
+  private TopologySerdes parser;
+
+  @Before
+  public void setup() {
+    parser = new TopologySerdes();
+  }
 
   @Test
   public void testTopologySerialisation() throws IOException {
@@ -26,13 +35,39 @@ public class TopologySerdesTest {
     topology.setSource("source");
     topology.setProjects(buildProjects());
 
-    TopologySerdes parser = new TopologySerdes();
     String topologyYamlString = parser.serialise(topology);
-
     Topology deserTopology = parser.deserialise(topologyYamlString);
 
     Assert.assertEquals(topology.getTeam(), deserTopology.getTeam());
     Assert.assertEquals(topology.getProjects().size(), deserTopology.getProjects().size());
+  }
+
+  @Test
+  public void testTopicConfigSerdes() throws IOException {
+
+    Topology topology = new Topology();
+    topology.setTeam("team");
+    topology.setSource("source");
+
+    Topic topic = new Topic();
+    topic.setName("foo");
+    HashMap<String, String> topicConfig = new HashMap<>();
+    topicConfig.put("num.partitions", "3");
+    topicConfig.put("replication.factor", "2");
+    topic.setConfig(topicConfig);
+    Project project = new Project("foo");
+    project.setTopics(Collections.singletonList(topic));
+    topology.setProjects(Collections.singletonList(project));
+
+    String topologyYamlString = parser.serialise(topology);
+    Topology deserTopology = parser.deserialise(topologyYamlString);
+
+    Project serdesProject = deserTopology.getProjects().get(0);
+    Topic serdesTopic = serdesProject.getTopics().get(0);
+
+    Assert.assertEquals(topic.getName(), serdesTopic.getName());
+    Assert.assertEquals(topic.getConfig().get("num.partitions"), serdesTopic.getConfig().get("num.partitions"));
+
   }
 
 

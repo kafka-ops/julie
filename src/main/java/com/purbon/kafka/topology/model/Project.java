@@ -19,7 +19,11 @@ public class Project {
   private List<Topic> topics;
 
   public Project() {
+    this("");
+  }
 
+  public Project(String name) {
+    this.name = name;
   }
 
   public String getName() {
