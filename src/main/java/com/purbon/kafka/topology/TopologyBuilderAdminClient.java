@@ -57,8 +57,14 @@ public class TopologyBuilderAdminClient {
           }
         });
 
-    adminClient
-        .incrementalAlterConfigs(configs);
+    try {
+      adminClient
+          .incrementalAlterConfigs(configs).all().get();
+    } catch (InterruptedException e) {
+      e.printStackTrace();
+    } catch (ExecutionException e) {
+      e.printStackTrace();
+    }
   }
 
   public void createTopic(Topic topic, String fullTopicName) {
@@ -86,6 +92,12 @@ public class TopologyBuilderAdminClient {
   }
 
   public void deleteTopics(Collection<String> topics) {
-    adminClient.deleteTopics(topics);
+    try {
+      adminClient.deleteTopics(topics).all().get();
+    } catch (InterruptedException e) {
+      e.printStackTrace();
+    } catch (ExecutionException e) {
+      e.printStackTrace();
+    }
   }
 }
