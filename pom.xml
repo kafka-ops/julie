@@ -30,8 +30,28 @@
     </plugins>
   </build>
 
+  <reporting>
+    <plugins>
+
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-pmd-plugin</artifactId>
+        <version>3.12.0</version>
+      </plugin>
+
+    </plugins>
+  </reporting>
+
 
   <dependencies>
+
+    <!-- https://mvnrepository.com/artifact/org.apache.maven.plugins/maven-pmd-plugin -->
+    <dependency>
+      <groupId>org.apache.maven.plugins</groupId>
+      <artifactId>maven-pmd-plugin</artifactId>
+      <version>3.12.0</version>
+    </dependency>
+
 
     <dependency>
       <groupId>org.apache.kafka</groupId>

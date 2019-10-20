@@ -2,7 +2,6 @@ package com.purbon.kafka.topology;
 
 import static java.lang.System.exit;
 
-import java.nio.file.Watchable;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.DefaultParser;
