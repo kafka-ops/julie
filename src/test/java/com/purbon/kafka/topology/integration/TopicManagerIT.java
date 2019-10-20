@@ -72,6 +72,53 @@ public class TopicManagerIT {
         topicB.composeTopicName(topology, project.getName())));
   }
 
+  @Test
+  public void testTopicDelete() throws ExecutionException, InterruptedException {
+
+
+    Project project = new Project("project");
+    Topic topicA = new Topic("topicA");
+    topicA.setConfig(buildDummyTopicConfig());
+    project.addTopic(topicA);
+
+    Topic topicB = new Topic("topicB");
+    topicB.setConfig(buildDummyTopicConfig());
+    project.addTopic(topicB);
+
+    Topology topology = new Topology();
+    topology.setTeam("integration-test");
+    topology.setSource("testTopicDelete");
+    topology.addProject(project);
+
+    topicManager.syncTopics(topology);
+
+    Topic topicC = new Topic("topicC");
+    topicC.setConfig(buildDummyTopicConfig());
+    project.addTopic(topicB);
+
+    topology = new Topology();
+    topology.setTeam("integration-test");
+    topology.setSource("testTopicDelete");
+
+    project = new Project("project");
+    project.addTopic(topicA);
+    project.addTopic(topicC);
+
+    topology.addProject(project);
+
+    topicManager.syncTopics(topology);
+
+    verifyTopics(Arrays.asList(topicA.composeTopicName(topology, project.getName()),
+        topicC.composeTopicName(topology, project.getName())));
+  }
+
+  private HashMap<String, String> buildDummyTopicConfig() {
+    HashMap<String, String> config = new HashMap<>();
+    config.put(TopicManager.NUM_PARTITIONS, "1");
+    config.put(TopicManager.REPLICATION_FACTOR, "1");
+    return config;
+  }
+
   private void verifyTopics(List<String> topics) throws ExecutionException, InterruptedException {
 
     Set<String> topicNames = kafkaAdminClient
