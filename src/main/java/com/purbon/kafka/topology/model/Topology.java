@@ -1,5 +1,6 @@
 package com.purbon.kafka.topology.model;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class Topology {
@@ -10,7 +11,9 @@ public class Topology {
   private List<Project> projects;
 
   public Topology() {
-
+    this.team = "default";
+    this.source = "default";
+    this.projects = new ArrayList<>();
   }
 
   public String getTeam() {
@@ -31,6 +34,10 @@ public class Topology {
 
   public List<Project> getProjects() {
     return projects;
+  }
+
+  public void addProject(Project project) {
+    this.projects.add(project);
   }
 
   public void setProjects(List<Project> projects) {
