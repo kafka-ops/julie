@@ -20,6 +20,7 @@ import org.apache.kafka.common.config.ConfigResource.Type;
 public class TopologyBuilderAdminClient {
 
 
+
   private final AdminClient adminClient;
 
   public TopologyBuilderAdminClient(AdminClient adminClient) {
@@ -61,13 +62,23 @@ public class TopologyBuilderAdminClient {
   }
 
   public void createTopic(Topic topic, String fullTopicName) {
-    int numPartitions = Integer.parseInt(topic.getConfig().getOrDefault("num.partitions", "3"));
-    short replicationFactor = Short.parseShort(topic.getConfig().getOrDefault("replicationFactor", "2"));
+
+    int numPartitions = Integer.parseInt(topic.getConfig().getOrDefault(TopicManager.NUM_PARTITIONS, "3"));
+    short replicationFactor = Short.parseShort(topic.getConfig().getOrDefault(TopicManager.REPLICATION_FACTOR, "2"));
+
+    topic.getConfig().remove(TopicManager.NUM_PARTITIONS);
+    topic.getConfig().remove(TopicManager.REPLICATION_FACTOR);
 
     NewTopic newTopic = new NewTopic(fullTopicName, numPartitions, replicationFactor)
         .configs(topic.getConfig());
     Collection<NewTopic> newTopics = Collections.singleton(newTopic);
-    adminClient.createTopics(newTopics);
+    try {
+      adminClient.createTopics(newTopics).all().get();
+    } catch (InterruptedException e) {
+      e.printStackTrace();
+    } catch (ExecutionException e) {
+      e.printStackTrace();
+    }
   }
 
   public void deleteTopic(String topic) {
