@@ -4,6 +4,7 @@ import com.purbon.kafka.topology.model.users.Connector;
 import com.purbon.kafka.topology.model.users.Consumer;
 import com.purbon.kafka.topology.model.users.KStream;
 import com.purbon.kafka.topology.model.users.Producer;
+import java.util.ArrayList;
 import java.util.List;
 
 public class Project {
@@ -19,11 +20,16 @@ public class Project {
   private List<Topic> topics;
 
   public Project() {
-    this("");
+    this("default");
   }
 
   public Project(String name) {
     this.name = name;
+    this.topics = new ArrayList<>();
+    this.consumers = new ArrayList<>();
+    this.producers = new ArrayList<>();
+    this.streams = new ArrayList<>();
+    this.consumers = new ArrayList<>();
   }
 
   public String getName() {
@@ -77,6 +83,10 @@ public class Project {
 
   public List<Topic> getTopics() {
     return topics;
+  }
+
+  public void addTopic(Topic topic) {
+    this.topics.add(topic);
   }
 
   public void setTopics(List<Topic> topics) {

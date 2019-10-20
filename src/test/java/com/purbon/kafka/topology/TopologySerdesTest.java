@@ -1,9 +1,8 @@
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.purbon.kafka.topology.TopologySerdes;
+package com.purbon.kafka.topology;
+
 import com.purbon.kafka.topology.model.Project;
 import com.purbon.kafka.topology.model.Topic;
 import com.purbon.kafka.topology.model.Topology;
-import com.purbon.kafka.topology.model.User;
 import com.purbon.kafka.topology.model.users.Consumer;
 import com.purbon.kafka.topology.model.users.KStream;
 import com.purbon.kafka.topology.model.users.Producer;

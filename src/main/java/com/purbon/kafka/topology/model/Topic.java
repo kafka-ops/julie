@@ -7,13 +7,34 @@ public class Topic {
   private String name;
   private HashMap<String, String> config;
 
-  public Topic() {
+  public Topic(String name) {
+    this(name, new HashMap<>());
+  }
 
+  public Topic(String name, HashMap<String, String> config) {
+    this.name = name;
+    this.config = config;
+  }
+
+  public Topic() {
+    this("default", new HashMap<>());
   }
 
 
   public String getName() {
     return name;
+  }
+
+  public String composeTopicName(Topology topology, String projectName) {
+    StringBuilder sb = new StringBuilder();
+    sb.append(topology.getTeam());
+    sb.append(".");
+    sb.append(topology.getSource());
+    sb.append(".");
+    sb.append(projectName);
+    sb.append(".");
+    sb.append(getName());
+    return sb.toString();
   }
 
   public void setName(String name) {
