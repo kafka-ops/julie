@@ -69,4 +69,12 @@ public class TopologyBuilderAdminClient {
     Collection<NewTopic> newTopics = Collections.singleton(newTopic);
     adminClient.createTopics(newTopics);
   }
+
+  public void deleteTopic(String topic) {
+    deleteTopics(Collections.singletonList(topic));
+  }
+
+  public void deleteTopics(Collection<String> topics) {
+    adminClient.deleteTopics(topics);
+  }
 }
