@@ -61,8 +61,8 @@ public class TopologyBuilderAdminClient {
   }
 
   public void createTopic(Topic topic, String fullTopicName) {
-    int numPartitions = Integer.valueOf(topic.getConfig().getOrDefault("num.partitions", "3"));
-    short replicationFactor = Short.valueOf(topic.getConfig().getOrDefault("replicationFactor", "2"));
+    int numPartitions = Integer.parseInt(topic.getConfig().getOrDefault("num.partitions", "3"));
+    short replicationFactor = Short.parseShort(topic.getConfig().getOrDefault("replicationFactor", "2"));
 
     NewTopic newTopic = new NewTopic(fullTopicName, numPartitions, replicationFactor)
         .configs(topic.getConfig());
