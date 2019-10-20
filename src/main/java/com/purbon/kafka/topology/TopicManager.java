@@ -10,6 +10,9 @@ import java.util.Set;
 
 public class TopicManager {
 
+  public static final String NUM_PARTITIONS = "num.partitions";
+  public static final String REPLICATION_FACTOR = "replication.factor";
+
   private final TopologyBuilderAdminClient adminClient;
 
   public TopicManager(TopologyBuilderAdminClient adminClient) {
