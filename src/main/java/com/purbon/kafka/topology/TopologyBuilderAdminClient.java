@@ -1,10 +1,12 @@
 package com.purbon.kafka.topology;
 
 import com.purbon.kafka.topology.model.Topic;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ExecutionException;
@@ -14,8 +16,15 @@ import org.apache.kafka.clients.admin.AlterConfigOp;
 import org.apache.kafka.clients.admin.AlterConfigOp.OpType;
 import org.apache.kafka.clients.admin.ConfigEntry;
 import org.apache.kafka.clients.admin.NewTopic;
+import org.apache.kafka.common.acl.AccessControlEntry;
+import org.apache.kafka.common.acl.AclBinding;
+import org.apache.kafka.common.acl.AclOperation;
+import org.apache.kafka.common.acl.AclPermissionType;
 import org.apache.kafka.common.config.ConfigResource;
 import org.apache.kafka.common.config.ConfigResource.Type;
+import org.apache.kafka.common.resource.PatternType;
+import org.apache.kafka.common.resource.ResourcePattern;
+import org.apache.kafka.common.resource.ResourceType;
 
 public class TopologyBuilderAdminClient {
 
@@ -100,4 +109,42 @@ public class TopologyBuilderAdminClient {
       e.printStackTrace();
     }
   }
+
+
+  public void setAclsForProducer(String principal, String topic) {
+    List<AclBinding> acls = new ArrayList<>();
+
+    ResourcePattern resourcePattern = new ResourcePattern(ResourceType.TOPIC, topic, PatternType.LITERAL);
+    AccessControlEntry entry = new AccessControlEntry(principal,"*", AclOperation.WRITE, AclPermissionType.ALLOW);
+    acls.add(new AclBinding(resourcePattern, entry));
+
+    createAcls(acls);
+  }
+
+  public void setAclsForConsumer(String principal, String topic) {
+
+    List<AclBinding> acls = new ArrayList<>();
+
+    ResourcePattern resourcePattern = new ResourcePattern(ResourceType.TOPIC, topic, PatternType.LITERAL);
+    AccessControlEntry entry = new AccessControlEntry(principal,"*", AclOperation.READ, AclPermissionType.ALLOW);
+    acls.add(new AclBinding(resourcePattern, entry));
+    resourcePattern = new ResourcePattern(ResourceType.GROUP, "*", PatternType.LITERAL);
+    entry = new AccessControlEntry(principal,"*", AclOperation.READ, AclPermissionType.ALLOW);
+    acls.add(new AclBinding(resourcePattern, entry));
+
+    createAcls(acls);
+  }
+
+  private void createAcls(Collection<AclBinding> acls) {
+    try {
+      adminClient
+          .createAcls(acls).all().get();
+    } catch (InterruptedException e) {
+      e.printStackTrace();
+    } catch (ExecutionException e) {
+      e.printStackTrace();
+    }
+  }
+
+
 }

@@ -1,59 +1,64 @@
 package com.purbon.kafka.topology;
 
-import java.util.ArrayList;
+import com.purbon.kafka.topology.model.Project;
+import com.purbon.kafka.topology.model.Topic;
+import com.purbon.kafka.topology.model.Topology;
+import java.util.Collection;
 import java.util.List;
-import org.apache.kafka.clients.admin.KafkaAdminClient;
-import org.apache.kafka.common.acl.AccessControlEntry;
-import org.apache.kafka.common.acl.AclBinding;
-import org.apache.kafka.common.acl.AclOperation;
-import org.apache.kafka.common.acl.AclPermissionType;
-import org.apache.kafka.common.resource.PatternType;
-import org.apache.kafka.common.resource.ResourcePattern;
-import org.apache.kafka.common.resource.ResourceType;
+import java.util.function.Consumer;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 public class ACLManager {
 
-  private final KafkaAdminClient adminClient;
+  private final TopologyBuilderAdminClient adminClient;
 
-  public ACLManager(KafkaAdminClient adminClient) {
+  public ACLManager(TopologyBuilderAdminClient adminClient) {
     this.adminClient = adminClient;
   }
 
-  public void deleteAclsForPrincipals(List<String> principals) {
-    throw new NotImplementedException();
+  public void syncAcls(Topology topology) {
+
+    topology
+        .getProjects()
+        .stream()
+        .forEach(new Consumer<Project>() {
+          @Override
+          public void accept(Project project) {
+            project
+            .getTopics()
+            .stream()
+            .forEach(new Consumer<Topic>() {
+              @Override
+              public void accept(Topic topic) {
+                String fullTopicName = topic.composeTopicName(topology, project.getName());
+                Collection<String> consumers = project
+                    .getConsumers()
+                    .stream()
+                    .map(consumer -> consumer.getPrincipal())
+                    .collect(Collectors.toList());
+                setAclsForConsumers(consumers, fullTopicName);
+
+                Collection<String> producers = project
+                    .getProducers()
+                    .stream()
+                    .map(producer -> producer.getPrincipal())
+                    .collect(Collectors.toList());
+                setAclsForProducers(producers, fullTopicName);
+
+              }
+            });
+          }
+        });
   }
-  public void setAclsForConsumers(List<String> principals, String topic) {
-    principals.forEach(principal -> setAclsForConsumer(principal, topic));
+
+  public void setAclsForConsumers(Collection<String> principals, String topic) {
+    principals.forEach(principal -> adminClient.setAclsForConsumer(principal, topic));
   }
 
-  public void setAclsForProducers(List<String> principals, String topic) {
-    principals.forEach(principal -> setAclsForProducer(principal, topic));
+  public void setAclsForProducers(Collection<String> principals, String topic) {
+    principals.forEach(principal -> adminClient.setAclsForProducer(principal, topic));
   }
 
-  private void setAclsForProducer(String principal, String topic) {
-    List<AclBinding> acls = new ArrayList<>();
-
-    ResourcePattern resourcePattern = new ResourcePattern(ResourceType.TOPIC, topic, PatternType.LITERAL);
-    AccessControlEntry entry = new AccessControlEntry(principal,"*", AclOperation.WRITE, AclPermissionType.ALLOW);
-    acls.add(new AclBinding(resourcePattern, entry));
-
-    adminClient
-        .createAcls(acls);
-  }
-
-  private void setAclsForConsumer(String principal, String topic) {
-
-    List<AclBinding> acls = new ArrayList<>();
-
-    ResourcePattern resourcePattern = new ResourcePattern(ResourceType.TOPIC, topic, PatternType.LITERAL);
-    AccessControlEntry entry = new AccessControlEntry(principal,"*", AclOperation.READ, AclPermissionType.ALLOW);
-    acls.add(new AclBinding(resourcePattern, entry));
-    resourcePattern = new ResourcePattern(ResourceType.GROUP, "*", PatternType.LITERAL);
-    entry = new AccessControlEntry(principal,"*", AclOperation.READ, AclPermissionType.ALLOW);
-    acls.add(new AclBinding(resourcePattern, entry));
-
-    adminClient
-        .createAcls(acls);
-  }
 }
