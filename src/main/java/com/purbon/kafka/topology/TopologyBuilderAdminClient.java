@@ -30,8 +30,6 @@ import org.apache.logging.log4j.Logger;
 
 public class TopologyBuilderAdminClient {
 
-
-
   private static final Logger logger = LogManager.getLogger(TopologyBuilderAdminClient.class);
 
   private final AdminClient adminClient;
