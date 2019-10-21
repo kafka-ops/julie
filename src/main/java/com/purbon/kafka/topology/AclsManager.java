@@ -7,11 +7,11 @@ import java.util.Collection;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
-public class ACLManager {
+public class AclsManager {
 
   private final TopologyBuilderAdminClient adminClient;
 
-  public ACLManager(TopologyBuilderAdminClient adminClient) {
+  public AclsManager(TopologyBuilderAdminClient adminClient) {
     this.adminClient = adminClient;
   }
 

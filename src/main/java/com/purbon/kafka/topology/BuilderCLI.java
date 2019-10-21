@@ -95,10 +95,10 @@ public class BuilderCLI {
       TopologyBuilderAdminClient builderAdminClient = new TopologyBuilderAdminClient(
           kafkaAdminClient);
       TopicManager topicManager = new TopicManager(builderAdminClient);
-      ACLManager aclManager = new ACLManager(builderAdminClient);
+      AclsManager aclsManager = new AclsManager(builderAdminClient);
 
       topicManager.syncTopics(topology);
-      aclManager.syncAcls(topology);
+      aclsManager.syncAcls(topology);
     }
     finally {
       if (kafkaAdminClient != null)
