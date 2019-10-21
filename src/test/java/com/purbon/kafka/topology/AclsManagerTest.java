@@ -1,12 +1,9 @@
 package com.purbon.kafka.topology;
 
-import static org.mockito.Matchers.anyCollection;
-import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
 import com.purbon.kafka.topology.model.Project;
 import com.purbon.kafka.topology.model.Topic;
@@ -14,7 +11,6 @@ import com.purbon.kafka.topology.model.Topology;
 import com.purbon.kafka.topology.model.users.Consumer;
 import com.purbon.kafka.topology.model.users.Producer;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import org.junit.Before;
 import org.junit.Rule;
@@ -23,7 +19,7 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnit;
 import org.mockito.junit.MockitoRule;
 
-public class ACLManagerTest {
+public class AclsManagerTest {
 
 
   @Mock
@@ -33,11 +29,11 @@ public class ACLManagerTest {
   public MockitoRule mockitoRule = MockitoJUnit.rule();
 
 
-  private ACLManager aclManager;
+  private AclsManager aclsManager;
 
   @Before
   public void setup() {
-    aclManager = new ACLManager(adminClient);
+    aclsManager = new AclsManager(adminClient);
   }
 
   @Test
@@ -57,7 +53,7 @@ public class ACLManagerTest {
     doNothing()
         .when(adminClient)
         .setAclsForConsumer("app1", topicA.composeTopicName(topology, project.getName()));
-    aclManager.syncAcls(topology);
+    aclsManager.syncAcls(topology);
     verify(adminClient, times(1))
         .setAclsForConsumer(eq("app1"), eq(topicA.composeTopicName(topology, project.getName())));
   }
@@ -78,7 +74,7 @@ public class ACLManagerTest {
 
     doNothing().when(adminClient)
         .setAclsForProducer("app1", topicA.composeTopicName(topology, project.getName()));
-    aclManager.syncAcls(topology);
+    aclsManager.syncAcls(topology);
     verify(adminClient, times(1))
         .setAclsForProducer(eq("app1"), eq(topicA.composeTopicName(topology, project.getName())));
   }
