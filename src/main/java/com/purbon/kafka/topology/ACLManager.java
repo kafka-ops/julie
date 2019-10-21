@@ -4,11 +4,8 @@ import com.purbon.kafka.topology.model.Project;
 import com.purbon.kafka.topology.model.Topic;
 import com.purbon.kafka.topology.model.Topology;
 import java.util.Collection;
-import java.util.List;
 import java.util.function.Consumer;
-import java.util.function.Function;
 import java.util.stream.Collectors;
-import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 public class ACLManager {
 
