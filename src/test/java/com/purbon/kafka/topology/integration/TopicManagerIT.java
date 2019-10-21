@@ -6,13 +6,21 @@ import com.purbon.kafka.topology.model.Project;
 import com.purbon.kafka.topology.model.Topic;
 import com.purbon.kafka.topology.model.Topology;
 import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.List;
 import java.util.Properties;
 import java.util.Set;
 import java.util.concurrent.ExecutionException;
+import java.util.function.Consumer;
 import org.apache.kafka.clients.admin.AdminClient;
 import org.apache.kafka.clients.admin.AdminClientConfig;
+import org.apache.kafka.clients.admin.Config;
+import org.apache.kafka.clients.admin.ConfigEntry;
+import org.apache.kafka.common.config.ConfigResource;
+import org.apache.kafka.common.config.ConfigResource.Type;
 import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.Before;
@@ -110,6 +118,51 @@ public class TopicManagerIT {
 
     verifyTopics(Arrays.asList(topicA.composeTopicName(topology, project.getName()),
         topicC.composeTopicName(topology, project.getName())));
+  }
+
+  @Test
+  public void testConfigUpdate() throws ExecutionException, InterruptedException {
+
+    HashMap<String, String> config = buildDummyTopicConfig();
+    config.put("retention.bytes", "104857600"); // set the retention.bytes per partition to 100mb
+    Project project = new Project("project");
+    Topic topicA = new Topic("topicA");
+    topicA.setConfig(config);
+    project.addTopic(topicA);
+
+    Topology topology = new Topology();
+    topology.setTeam("integration-test");
+    topology.setSource("testConfigUpdate");
+    topology.addProject(project);
+
+    topicManager.syncTopics(topology);
+
+    verifyTopicConfiguration(topicA.composeTopicName(topology, project.getName()), config);
+
+  }
+
+  private void verifyTopicConfiguration(String topic, HashMap<String, String> config)
+      throws ExecutionException, InterruptedException {
+
+    ConfigResource resource = new ConfigResource(Type.TOPIC, topic);
+    Collection<ConfigResource> resources = Collections.singletonList(resource);
+
+    Map<ConfigResource, Config> configs = kafkaAdminClient
+        .describeConfigs(resources)
+        .all()
+        .get();
+
+    Config topicConfig = configs.get(resource);
+    Assert.assertNotNull(topicConfig);
+
+    topicConfig
+        .entries()
+        .forEach(entry -> {
+          if (!entry.isDefault() && config.get(entry.name()) != null) {
+            Assert.assertEquals(config.get(entry.name()), entry.value());
+          }
+        });
+
   }
 
   private HashMap<String, String> buildDummyTopicConfig() {

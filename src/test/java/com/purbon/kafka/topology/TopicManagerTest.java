@@ -52,7 +52,7 @@ public class TopicManagerTest {
   }
 
   @Test
-  public void newTopicUpdateTest() {
+  public void topicUpdateTest() {
 
     Project project = new Project("project");
     Topic topicA = new Topic("topicA");
@@ -73,7 +73,7 @@ public class TopicManagerTest {
   }
 
   @Test
-  public void newTopicDeleteTest() {
+  public void topicDeleteTest() {
 
     Topic topicC = new Topic("topicC");
 
