@@ -25,10 +25,14 @@ import org.apache.kafka.common.config.ConfigResource.Type;
 import org.apache.kafka.common.resource.PatternType;
 import org.apache.kafka.common.resource.ResourcePattern;
 import org.apache.kafka.common.resource.ResourceType;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 public class TopologyBuilderAdminClient {
 
 
+
+  private static final Logger logger = LogManager.getLogger(TopologyBuilderAdminClient.class);
 
   private final AdminClient adminClient;
 
@@ -44,9 +48,9 @@ public class TopologyBuilderAdminClient {
           .names()
           .get();
     } catch (InterruptedException e) {
-      e.printStackTrace();
+      logger.error(e);
     } catch (ExecutionException e) {
-      e.printStackTrace();
+      logger.error(e);
     }
     return listOfTopics;
   }
@@ -70,9 +74,9 @@ public class TopologyBuilderAdminClient {
       adminClient
           .incrementalAlterConfigs(configs).all().get();
     } catch (InterruptedException e) {
-      e.printStackTrace();
+      logger.error(e);
     } catch (ExecutionException e) {
-      e.printStackTrace();
+      logger.error(e);
     }
   }
 
@@ -90,9 +94,9 @@ public class TopologyBuilderAdminClient {
     try {
       adminClient.createTopics(newTopics).all().get();
     } catch (InterruptedException e) {
-      e.printStackTrace();
+      logger.error(e);
     } catch (ExecutionException e) {
-      e.printStackTrace();
+      logger.error(e);
     }
   }
 
@@ -104,9 +108,9 @@ public class TopologyBuilderAdminClient {
     try {
       adminClient.deleteTopics(topics).all().get();
     } catch (InterruptedException e) {
-      e.printStackTrace();
+      logger.error(e);
     } catch (ExecutionException e) {
-      e.printStackTrace();
+      logger.error(e);
     }
   }
 
@@ -140,9 +144,9 @@ public class TopologyBuilderAdminClient {
       adminClient
           .createAcls(acls).all().get();
     } catch (InterruptedException e) {
-      e.printStackTrace();
+      logger.error(e);
     } catch (ExecutionException e) {
-      e.printStackTrace();
+      logger.error(e);
     }
   }
 
