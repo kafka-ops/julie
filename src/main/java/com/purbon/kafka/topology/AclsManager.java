@@ -11,11 +11,11 @@ public class AclsManager {
 
   private final TopologyBuilderAdminClient adminClient;
 
-  public AclsManager(TopologyBuilderAdminClient adminClient) {
+  public AclsManager(final TopologyBuilderAdminClient adminClient) {
     this.adminClient = adminClient;
   }
 
-  public void syncAcls(Topology topology) {
+  public void syncAcls(final Topology topology) {
 
     topology
         .getProjects()
@@ -29,15 +29,15 @@ public class AclsManager {
             .forEach(new Consumer<Topic>() {
               @Override
               public void accept(Topic topic) {
-                String fullTopicName = topic.composeTopicName(topology, project.getName());
-                Collection<String> consumers = project
+                final String fullTopicName = topic.composeTopicName(topology, project.getName());
+                final Collection<String> consumers = project
                     .getConsumers()
                     .stream()
                     .map(consumer -> consumer.getPrincipal())
                     .collect(Collectors.toList());
                 setAclsForConsumers(consumers, fullTopicName);
 
-                Collection<String> producers = project
+                final Collection<String> producers = project
                     .getProducers()
                     .stream()
                     .map(producer -> producer.getPrincipal())
