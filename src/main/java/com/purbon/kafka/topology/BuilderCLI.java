@@ -4,6 +4,8 @@ import static java.lang.System.exit;
 
 import com.purbon.kafka.topology.model.Topology;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
@@ -24,6 +26,7 @@ public class BuilderCLI {
 
   public static final String BROKERS_OPTION = "brokers";
   public static final String TOPOLOGY_OPTION = "topology";
+  public static final String ADMIN_CLIENT_CONFIG_OPTION = "client.config";
   public static final String DESTROY_OPTION = "destroy";
   public static final String ALLOW_DELETE_CONFIG = "allow.delete";
 
@@ -41,6 +44,12 @@ public class BuilderCLI {
         .create(BROKERS_OPTION);
     brokersListOption.setRequired(true);
 
+
+    Option adminClientConfigFileOption = Option.builder("adminClientConfigFile")
+        .argName(ADMIN_CLIENT_CONFIG_OPTION)
+        .desc("AdminClient configuration file")
+        .build();
+
     Option destroyOption = new Option(DESTROY_OPTION, "Allow delete operations for topics and configs");
 
     Option help = new Option( "help", "print this message" );
@@ -49,6 +58,7 @@ public class BuilderCLI {
     Options options = new Options();
     options.addOption(topologyFileOption);
     options.addOption(brokersListOption);
+    options.addOption(adminClientConfigFileOption);
     options.addOption(destroyOption);
     options.addOption(help);
 
@@ -77,10 +87,12 @@ public class BuilderCLI {
       String topology = cmd.getOptionValue(TOPOLOGY_OPTION);
       String [] brokersList = cmd.getOptionValues(BROKERS_OPTION);
       boolean allowDelete = cmd.hasOption(DESTROY_OPTION);
+      String adminClientConfigFile = cmd.getOptionValue(ADMIN_CLIENT_CONFIG_OPTION);
 
       Map<String, String> config = new HashMap<>();
       config.put(BROKERS_OPTION, StringUtils.join(brokersList, ",") );
       config.put(ALLOW_DELETE_CONFIG, String.valueOf(allowDelete));
+      config.put(ADMIN_CLIENT_CONFIG_OPTION, adminClientConfigFile);
       processTopology(topology, config);
 
     }
@@ -112,16 +124,19 @@ public class BuilderCLI {
     }
   }
 
-  private static AdminClient buildKafkaAdminClient(Map<String, String> topologyConfig) {
-    return AdminClient.create(config(topologyConfig));
-  }
+  private static AdminClient buildKafkaAdminClient(Map<String, String> config)
+      throws IOException {
+    Properties props = new Properties();
+    if (config.get(ADMIN_CLIENT_CONFIG_OPTION) != null) {
 
-  private static Properties config(Map<String, String> config) {
-    final Properties props = new Properties();
-    props.put(AdminClientConfig.BOOTSTRAP_SERVERS_CONFIG, config.get(BROKERS_OPTION));
-    props.put(AdminClientConfig.RETRIES_CONFIG, Integer.MAX_VALUE);
-    return props;
-  }
+      props.load(new FileInputStream(config.get(ADMIN_CLIENT_CONFIG_OPTION)));
+      return AdminClient.create(props);
+    } else {
+      props.put(AdminClientConfig.BOOTSTRAP_SERVERS_CONFIG, config.get(BROKERS_OPTION));
+      props.put(AdminClientConfig.RETRIES_CONFIG, Integer.MAX_VALUE);
+    }
 
+    return AdminClient.create(props);
+  }
 
 }
