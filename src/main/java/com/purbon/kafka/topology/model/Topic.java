@@ -27,13 +27,13 @@ public class Topic {
 
   public String composeTopicName(Topology topology, String projectName) {
     StringBuilder sb = new StringBuilder();
-    sb.append(topology.getTeam());
-    sb.append(".");
-    sb.append(topology.getSource());
-    sb.append(".");
-    sb.append(projectName);
-    sb.append(".");
-    sb.append(getName());
+    sb.append(topology.getTeam())
+        .append(".")
+        .append(topology.getSource())
+        .append(".")
+        .append(projectName)
+        .append(".")
+        .append(getName());
     return sb.toString();
   }
 

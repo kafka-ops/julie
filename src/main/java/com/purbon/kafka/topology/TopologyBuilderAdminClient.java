@@ -30,7 +30,7 @@ import org.apache.logging.log4j.Logger;
 
 public class TopologyBuilderAdminClient {
 
-  private static final Logger logger = LogManager.getLogger(TopologyBuilderAdminClient.class);
+  private static final Logger LOGGER = LogManager.getLogger(TopologyBuilderAdminClient.class);
 
   private final AdminClient adminClient;
 
@@ -46,9 +46,9 @@ public class TopologyBuilderAdminClient {
           .names()
           .get();
     } catch (InterruptedException e) {
-      logger.error(e);
+      LOGGER.error(e);
     } catch (ExecutionException e) {
-      logger.error(e);
+      LOGGER.error(e);
     }
     return listOfTopics;
   }
@@ -72,9 +72,9 @@ public class TopologyBuilderAdminClient {
       adminClient
           .incrementalAlterConfigs(configs).all().get();
     } catch (InterruptedException e) {
-      logger.error(e);
+      LOGGER.error(e);
     } catch (ExecutionException e) {
-      logger.error(e);
+      LOGGER.error(e);
     }
   }
 
@@ -92,9 +92,9 @@ public class TopologyBuilderAdminClient {
     try {
       adminClient.createTopics(newTopics).all().get();
     } catch (InterruptedException e) {
-      logger.error(e);
+      LOGGER.error(e);
     } catch (ExecutionException e) {
-      logger.error(e);
+      LOGGER.error(e);
     }
   }
 
@@ -106,9 +106,9 @@ public class TopologyBuilderAdminClient {
     try {
       adminClient.deleteTopics(topics).all().get();
     } catch (InterruptedException e) {
-      logger.error(e);
+      LOGGER.error(e);
     } catch (ExecutionException e) {
-      logger.error(e);
+      LOGGER.error(e);
     }
   }
 
@@ -142,9 +142,9 @@ public class TopologyBuilderAdminClient {
       adminClient
           .createAcls(acls).all().get();
     } catch (InterruptedException e) {
-      logger.error(e);
+      LOGGER.error(e);
     } catch (ExecutionException e) {
-      logger.error(e);
+      LOGGER.error(e);
     }
   }
 

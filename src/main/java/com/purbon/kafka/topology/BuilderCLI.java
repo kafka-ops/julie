@@ -22,21 +22,26 @@ import org.apache.kafka.clients.admin.AdminClientConfig;
 
 public class BuilderCLI {
 
+  public static final String BROKERS_OPTION = "brokers";
+  public static final String TOPOLOGY_OPTION = "topology";
+  public static final String DESTROY_OPTION = "destroy";
+  public static final String ALLOW_DELETE_CONFIG = "allow.delete";
+
   public static Options buildOptions() {
 
-    Option topologyFileOption = OptionBuilder.withArgName( "topology" )
-        .hasArg()
-        .withDescription(  "use the given topology file" )
-        .create( "topologyFile");
-    topologyFileOption.setRequired(true);
+    Option topologyFileOption = Option.builder("topologyFile")
+        .argName(TOPOLOGY_OPTION)
+        .desc("use the given topology file")
+        .required()
+        .build();
 
-    Option brokersListOption = OptionBuilder.withArgName( "brokers" )
+    Option brokersListOption = OptionBuilder.withArgName(BROKERS_OPTION)
         .hasArg()
         .withDescription(  "use the given Apache Kafka brokers list" )
-        .create( "brokers");
+        .create(BROKERS_OPTION);
     brokersListOption.setRequired(true);
 
-    Option destroyOption = new Option( "destroy", "Allow delete operations for topics and configs");
+    Option destroyOption = new Option(DESTROY_OPTION, "Allow delete operations for topics and configs");
 
     Option help = new Option( "help", "print this message" );
 
@@ -69,13 +74,13 @@ public class BuilderCLI {
     if (cmd.hasOption("help")) {
       formatter.printHelp( "kafka-topology-builder", options );
     } else {
-      String topology = cmd.getOptionValue("topology");
-      String [] brokersList = cmd.getOptionValues("brokers");
-      boolean allowDelete = cmd.hasOption("destroy");
+      String topology = cmd.getOptionValue(TOPOLOGY_OPTION);
+      String [] brokersList = cmd.getOptionValues(BROKERS_OPTION);
+      boolean allowDelete = cmd.hasOption(DESTROY_OPTION);
 
       Map<String, String> config = new HashMap<>();
-      config.put("brokers", StringUtils.join(brokersList, ",") );
-      config.put("allow.delete", String.valueOf(allowDelete));
+      config.put(BROKERS_OPTION, StringUtils.join(brokersList, ",") );
+      config.put(ALLOW_DELETE_CONFIG, String.valueOf(allowDelete));
       processTopology(topology, config);
 
     }
@@ -101,8 +106,9 @@ public class BuilderCLI {
       aclsManager.syncAcls(topology);
     }
     finally {
-      if (kafkaAdminClient != null)
-          kafkaAdminClient.close();
+      if (kafkaAdminClient != null) {
+        kafkaAdminClient.close();
+      }
     }
   }
 
@@ -111,8 +117,8 @@ public class BuilderCLI {
   }
 
   private static Properties config(Map<String, String> config) {
-    Properties props = new Properties();
-    props.put(AdminClientConfig.BOOTSTRAP_SERVERS_CONFIG, config.get("brokers"));
+    final Properties props = new Properties();
+    props.put(AdminClientConfig.BOOTSTRAP_SERVERS_CONFIG, config.get(BROKERS_OPTION));
     props.put(AdminClientConfig.RETRIES_CONFIG, Integer.MAX_VALUE);
     return props;
   }

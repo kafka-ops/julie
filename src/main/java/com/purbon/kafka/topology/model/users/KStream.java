@@ -14,7 +14,7 @@ public class KStream extends User {
 
   public KStream(String principal, HashMap<String, List<String>> topics) {
     super(principal);
-    setTopics(topics);
+    this.topics = topics;
   }
 
   public HashMap<String, List<String>> getTopics() {
