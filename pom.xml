@@ -101,6 +101,32 @@
         <version>3.0.0</version>
       </plugin>
 
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>rpm-maven-plugin</artifactId>
+        <version>2.2.0</version>
+        <executions>
+          <execution>
+            <id>generate-rpm</id>
+            <goals>
+              <goal>rpm</goal>
+            </goals>
+          </execution>
+        </executions>
+        <configuration>
+          <license>Apache Version 2 (c) 2019</license>
+          <distribution>Urbon-Bayes, Pere 2019</distribution>
+          <group>Application/Collectors</group>
+          <icon>src/main/resources/icon.gif</icon>
+          <packager>Urbon-Bayes Pere</packager>
+          <prefix>/usr/local</prefix>
+          <changelogFile>src/changelog</changelogFile>
+          <defineStatements>
+            <defineStatement>_unpackaged_files_terminate_build 0</defineStatement>
+          </defineStatements>
+        </configuration>
+      </plugin>
+
     </plugins>
   </build>
 
