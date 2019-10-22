@@ -1,0 +1,12 @@
+#!/usr/bin/env bash
+
+docker-compose up -d --build
+
+#docker-compose exec kafka kafka-configs --zookeeper zookeeper:2181 --alter --add-config 'SCRAM-SHA-256=[password=kafka],SCRAM-SHA-512=[password=kafka]' --entity-type users --entity-name kafka
+
+#docker-compose exec kafka kafka-configs --zookeeper zookeeper:2181 --alter --add-config 'SCRAM-SHA-256=[password=alice-secret],SCRAM-SHA-512=[password=alice-secret]' --entity-type users --entity-name alice
+#docker-compose exec kafka kafka-configs --zookeeper zookeeper:2181 --alter --add-config 'SCRAM-SHA-256=[password=bob-secret],SCRAM-SHA-512=[password=bob-secret]' --entity-type users --entity-name bob
+
+
+docker-compose exec kafka kafka-acls --authorizer-properties zookeeper.connect=zookeeper:2181 --add --cluster --operation=All --allow-principal=User:kafka
+
