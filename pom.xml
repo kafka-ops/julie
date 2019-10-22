@@ -58,6 +58,7 @@
             </execution>
           </executions>
         </plugin>
+
       </plugins>
     </build>
     </profile>
@@ -101,6 +102,30 @@
         <version>3.0.0</version>
       </plugin>
 
+      <plugin>
+        <groupId>org.jacoco</groupId>
+        <artifactId>jacoco-maven-plugin</artifactId>
+        <version>0.8.2</version>
+        <executions>
+          <execution>
+            <goals>
+              <goal>prepare-agent</goal>
+            </goals>
+          </execution>
+          <execution>
+            <id>jacoco-report</id>
+            <phase>test</phase>
+            <goals>
+              <goal>report</goal>
+            </goals>
+            <!-- default target/jscoco/site/* -->
+            <configuration>
+              <outputDirectory>target/jacoco-report</outputDirectory>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+
     </plugins>
   </build>
 
@@ -137,6 +162,7 @@
         </configuration>
 
       </plugin>
+
 
     </plugins>
   </reporting>
