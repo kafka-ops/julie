@@ -81,6 +81,11 @@
           <descriptorRefs>
             <descriptorRef>jar-with-dependencies</descriptorRef>
           </descriptorRefs>
+            <archive>
+              <manifest>
+                <mainClass>com.purbon.kafka.topology.BuilderCLI</mainClass>
+              </manifest>
+            </archive>
         </configuration>
       </plugin>
 
