@@ -101,7 +101,6 @@
 
   <reporting>
     <plugins>
-
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-pmd-plugin</artifactId>
@@ -110,6 +109,12 @@
           <rulesets>
             <!-- A rule set, that comes bundled with PMD -->
             <ruleset>/category/java/bestpractices.xml</ruleset>
+            <ruleset>/category/java/design.xml</ruleset>
+            <ruleset>category/java/codestyle.xml</ruleset>
+            <ruleset>category/java/documentation.xml</ruleset>
+            <ruleset>category/java/errorprone.xml</ruleset>
+            <ruleset>category/java/multithreading.xml</ruleset>
+            <ruleset>category/java/performance.xml</ruleset>
           </rulesets>
         </configuration>
       </plugin>
