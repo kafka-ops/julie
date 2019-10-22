@@ -14,7 +14,7 @@ public class User {
 
 
   public String getPrincipal() {
-    return principal;
+    return "User:"+principal;
   }
 
   public void setPrincipal(String principal) {
