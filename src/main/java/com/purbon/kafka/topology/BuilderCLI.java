@@ -5,7 +5,6 @@ import static java.lang.System.exit;
 import com.purbon.kafka.topology.model.Topology;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
@@ -18,7 +17,6 @@ import org.apache.commons.cli.Option;
 import org.apache.commons.cli.OptionBuilder;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
-import org.apache.commons.lang.StringUtils;
 import org.apache.kafka.clients.admin.AdminClient;
 import org.apache.kafka.clients.admin.AdminClientConfig;
 
@@ -32,11 +30,11 @@ public class BuilderCLI {
 
   public static Options buildOptions() {
 
-    Option topologyFileOption = Option.builder("topologyFile")
-        .argName(TOPOLOGY_OPTION)
-        .desc("use the given topology file")
-        .required()
-        .build();
+    Option topologyFileOption = OptionBuilder.withArgName(TOPOLOGY_OPTION)
+        .hasArg()
+        .withDescription(  "topology file" )
+        .create(TOPOLOGY_OPTION);
+    topologyFileOption.setRequired(true);
 
     Option brokersListOption = OptionBuilder.withArgName(BROKERS_OPTION)
         .hasArg()
@@ -53,7 +51,6 @@ public class BuilderCLI {
     Option destroyOption = new Option(DESTROY_OPTION, "Allow delete operations for topics and configs");
 
     Option help = new Option( "help", "print this message" );
-
 
     Options options = new Options();
     options.addOption(topologyFileOption);
@@ -85,12 +82,12 @@ public class BuilderCLI {
       formatter.printHelp( "kafka-topology-builder", options );
     } else {
       String topology = cmd.getOptionValue(TOPOLOGY_OPTION);
-      String [] brokersList = cmd.getOptionValues(BROKERS_OPTION);
+      String brokersList = cmd.getOptionValue(BROKERS_OPTION);
       boolean allowDelete = cmd.hasOption(DESTROY_OPTION);
       String adminClientConfigFile = cmd.getOptionValue(ADMIN_CLIENT_CONFIG_OPTION);
 
       Map<String, String> config = new HashMap<>();
-      config.put(BROKERS_OPTION, StringUtils.join(brokersList, ",") );
+      config.put(BROKERS_OPTION, brokersList );
       config.put(ALLOW_DELETE_CONFIG, String.valueOf(allowDelete));
       config.put(ADMIN_CLIENT_CONFIG_OPTION, adminClientConfigFile);
       processTopology(topology, config);

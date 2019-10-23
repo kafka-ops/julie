@@ -90,12 +90,18 @@ public class TopologyBuilderAdminClient {
         .configs(topic.getConfig());
     Collection<NewTopic> newTopics = Collections.singleton(newTopic);
     try {
-      adminClient.createTopics(newTopics).all().get();
+     createAllTopics(newTopics);
     } catch (InterruptedException e) {
       LOGGER.error(e);
     } catch (ExecutionException e) {
       LOGGER.error(e);
     }
+  }
+
+  private void createAllTopics(Collection<NewTopic> newTopics ) throws ExecutionException, InterruptedException {
+    adminClient.createTopics(newTopics)
+        .all()
+        .get();
   }
 
   public void deleteTopic(String topic) {
