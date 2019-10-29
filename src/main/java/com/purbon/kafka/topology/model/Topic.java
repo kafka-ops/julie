@@ -27,6 +27,15 @@ public class Topic {
     return name;
   }
 
+
+  public String composeTopicName(Topology topology, Project project) {
+    StringBuilder sb = new StringBuilder();
+    sb.append(project.buildTopicPrefix(topology))
+        .append(".")
+        .append(getName());
+    return sb.toString();
+  }
+
   public String composeTopicName(Topology topology, String projectName) {
     StringBuilder sb = new StringBuilder();
     sb.append(topology.getTeam())

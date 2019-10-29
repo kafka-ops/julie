@@ -43,4 +43,12 @@ public class Topology {
   public void setProjects(List<Project> projects) {
     this.projects = projects;
   }
+
+  public String buildNamePrefix() {
+    StringBuilder sb = new StringBuilder();
+    sb.append(getTeam())
+        .append(".")
+        .append(getSource());
+    return sb.toString();
+  }
 }

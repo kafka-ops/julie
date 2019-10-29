@@ -94,4 +94,12 @@ public class Project {
   public void setTopics(List<Topic> topics) {
     this.topics = topics;
   }
+
+  public String buildTopicPrefix(Topology topology) {
+    StringBuilder sb = new StringBuilder();
+    sb.append(topology.buildNamePrefix())
+        .append(".")
+        .append(name);
+    return sb.toString();
+  }
 }
