@@ -13,6 +13,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
+import javax.sound.midi.SysexMessage;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -56,6 +57,13 @@ public class TopologySerdesTest {
     topicConfig.put("replication.factor", "2");
     topic.setConfig(topicConfig);
 
+    Topic topicBar = new Topic();
+    topicBar.setName("bar");
+    HashMap<String, String> topicBarConfig = new HashMap<>();
+    topicBarConfig.put("num.partitions", "3");
+    topicBarConfig.put("replication.factor", "2");
+    topicBar.setConfig(topicBarConfig);
+
     Project project = new Project("foo");
 
     KStream kstreamApp = new KStream();
@@ -77,11 +85,18 @@ public class TopologySerdesTest {
     HashMap<String, List<String>> topics2 = new HashMap<>();
     topics2.put(KStream.WRITE_TOPICS, Arrays.asList("topicC", "topicD"));
     connector2.setTopics(topics2);
-
     project.setConnectors(Arrays.asList(connector1, connector2));
 
-    project.setTopics(Collections.singletonList(topic));
-    topology.setProjects(Collections.singletonList(project));
+    Consumer consumer0 = new Consumer("app0");
+    Consumer consumer1 = new Consumer("app1");
+    project.setConsumers(Arrays.asList(consumer0, consumer1));
+
+    project.setTopics(Arrays.asList(topic, topicBar));
+
+    Project project2 = new Project("bar");
+    project2.setTopics(Arrays.asList(topicBar));
+
+    topology.setProjects(Arrays.asList(project, project2));
 
     String topologyYamlString = parser.serialise(topology);
 
