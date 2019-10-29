@@ -51,7 +51,7 @@ public class Topic {
     this.config = config;
   }
 
-  public Map<String, String> getRawConfig() {
+  public Map<String, String> rawConfig() {
     getConfig().remove(TopicManager.NUM_PARTITIONS);
     getConfig().remove(TopicManager.REPLICATION_FACTOR);
     return getConfig();
