@@ -1,0 +1,30 @@
+---
+team: "team"
+source: "source"
+projects:
+- name: "foo"
+  zookeepers: []
+  consumers: []
+  producers: []
+  streams: []
+  connectors: []
+  topics:
+  - name: "foo"
+    config:
+      replication.factor: "2"
+      num.partitions: "3"
+  - name: "bar"
+    config:
+      replication.factor: "2"
+      num.partitions: "3"
+- name: "zet"
+  zookeepers: []
+  consumers: []
+  producers: []
+  streams: []
+  connectors: []
+  topics:
+  - name: "boo"
+    config:
+      replication.factor: "2"
+      num.partitions: "3"
