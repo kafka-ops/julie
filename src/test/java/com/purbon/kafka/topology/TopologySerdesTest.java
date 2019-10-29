@@ -3,6 +3,7 @@ package com.purbon.kafka.topology;
 import com.purbon.kafka.topology.model.Project;
 import com.purbon.kafka.topology.model.Topic;
 import com.purbon.kafka.topology.model.Topology;
+import com.purbon.kafka.topology.model.users.Connector;
 import com.purbon.kafka.topology.model.users.Consumer;
 import com.purbon.kafka.topology.model.users.KStream;
 import com.purbon.kafka.topology.model.users.Producer;
@@ -64,12 +65,25 @@ public class TopologySerdesTest {
     topics.put(KStream.WRITE_TOPICS, Arrays.asList("topicC", "topicD"));
     kstreamApp.setTopics(topics);
     project.setStreams(Collections.singletonList(kstreamApp));
+
+    Connector connector1 = new Connector();
+    connector1.setPrincipal("Connect1");
+    HashMap<String, List<String>> topics1 = new HashMap<>();
+    topics1.put(KStream.READ_TOPICS, Arrays.asList("topicA", "topicB"));
+    connector1.setTopics(topics1);
+
+    Connector connector2 = new Connector();
+    connector2.setPrincipal("Connect2");
+    HashMap<String, List<String>> topics2 = new HashMap<>();
+    topics2.put(KStream.WRITE_TOPICS, Arrays.asList("topicC", "topicD"));
+    connector2.setTopics(topics2);
+
+    project.setConnectors(Arrays.asList(connector1, connector2));
+
     project.setTopics(Collections.singletonList(topic));
     topology.setProjects(Collections.singletonList(project));
 
     String topologyYamlString = parser.serialise(topology);
-
-    System.out.println(topologyYamlString);
 
     Topology deserTopology = parser.deserialise(topologyYamlString);
 

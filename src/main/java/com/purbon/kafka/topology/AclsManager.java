@@ -3,6 +3,7 @@ package com.purbon.kafka.topology;
 import com.purbon.kafka.topology.model.Project;
 import com.purbon.kafka.topology.model.Topic;
 import com.purbon.kafka.topology.model.Topology;
+import com.purbon.kafka.topology.model.users.Connector;
 import com.purbon.kafka.topology.model.users.KStream;
 import java.util.Collection;
 import java.util.List;
@@ -57,8 +58,21 @@ public class AclsManager {
                   List<String> writeTopics = app.getTopics().get(KStream.WRITE_TOPICS);
                   setAclsForStreamsApp(app.getPrincipal(), topicPrefix, readTopics, writeTopics);
                 });
+            project
+                .getConnectors()
+                .stream()
+                .forEach(connector -> {
+                  List<String> readTopics = connector.getTopics().get(Connector.READ_TOPICS);
+                  List<String> writeTopics = connector.getTopics().get(Connector.WRITE_TOPICS);
+                  setAclsForConnect(connector.getPrincipal(), topicPrefix, readTopics, writeTopics);
+                });
           }
         });
+  }
+
+  private void setAclsForConnect(String principal, String topicPrefix, List<String> readTopics, List<String> writeTopics) {
+    adminClient
+        .setAclsForConnect(principal, topicPrefix, readTopics, writeTopics);
   }
 
   private void setAclsForStreamsApp(String principal, String topicPrefix, List<String> readTopics, List<String> writeTopics) {

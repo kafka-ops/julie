@@ -8,6 +8,7 @@ import static org.mockito.Mockito.verify;
 import com.purbon.kafka.topology.model.Project;
 import com.purbon.kafka.topology.model.Topic;
 import com.purbon.kafka.topology.model.Topology;
+import com.purbon.kafka.topology.model.users.Connector;
 import com.purbon.kafka.topology.model.users.Consumer;
 import com.purbon.kafka.topology.model.users.KStream;
 import com.purbon.kafka.topology.model.users.Producer;
@@ -108,5 +109,32 @@ public class AclsManagerTest {
     verify(adminClient, times(1))
         .setAclsForStreamsApp(eq("User:App0"), eq(topicPrefix), eq(topics.get(KStream.READ_TOPICS)), eq(topics.get(KStream.WRITE_TOPICS)) );
   }
+
+  @Test
+  public void newKafkaConnectACLsCreation() {
+
+    Project project = new Project();
+
+    Connector connector1 = new Connector();
+    connector1.setPrincipal("Connect1");
+    HashMap<String, List<String>> topics = new HashMap<>();
+    topics.put(Connector.READ_TOPICS, Arrays.asList("topicA", "topicB"));
+    connector1.setTopics(topics);
+
+    project.setConnectors(Arrays.asList(connector1));
+
+    Topology topology = new Topology();
+    topology.addProject(project);
+
+    aclsManager.syncAcls(topology);
+    String topicPrefix = project.buildTopicPrefix(topology);
+
+    doNothing()
+        .when(adminClient)
+        .setAclsForConnect("User:Connect1", topicPrefix, topics.get(KStream.READ_TOPICS), topics.get(KStream.WRITE_TOPICS));
+    verify(adminClient, times(1))
+        .setAclsForConnect(eq("User:Connect1"), eq(topicPrefix), eq(topics.get(KStream.READ_TOPICS)), eq(topics.get(KStream.WRITE_TOPICS)) );
+  }
+
 }
 
