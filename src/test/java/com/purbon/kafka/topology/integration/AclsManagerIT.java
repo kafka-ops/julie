@@ -6,9 +6,13 @@ import com.purbon.kafka.topology.model.Project;
 import com.purbon.kafka.topology.model.Topic;
 import com.purbon.kafka.topology.model.Topology;
 import com.purbon.kafka.topology.model.users.Consumer;
+import com.purbon.kafka.topology.model.users.KStream;
 import com.purbon.kafka.topology.model.users.Producer;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Properties;
 import java.util.concurrent.ExecutionException;
@@ -86,8 +90,75 @@ public class AclsManagerIT {
     verifyProducerAcls(producers, topicA.composeTopicName(topology, project.getName()));
   }
 
-  private void verifyProducerAcls(List<Producer> producers, String topic)
-      throws InterruptedException, ExecutionException {
+  @Test
+  public void kstreamsAclsCreation() throws ExecutionException, InterruptedException {
+    Project project = new Project();
+
+    KStream app = new KStream();
+    app.setPrincipal("App0");
+    HashMap<String, List<String>> topics = new HashMap<>();
+    topics.put(KStream.READ_TOPICS, Arrays.asList("topicA", "topicB"));
+    topics.put(KStream.WRITE_TOPICS, Arrays.asList("topicC", "topicD"));
+    app.setTopics(topics);
+    project.setStreams(Collections.singletonList(app));
+
+    Topology topology = new Topology();
+    topology.setTeam("integration-test");
+    topology.setSource("kstreamsAclsCreation");
+    topology.addProject(project);
+
+    aclsManager.syncAcls(topology);
+
+    verifyKStreamsAcls(app);
+  }
+
+  private void verifyKStreamsAcls(KStream app) throws ExecutionException, InterruptedException {
+    ResourcePatternFilter resourceFilter = ResourcePatternFilter.ANY;
+
+    AccessControlEntryFilter entryFilter = new AccessControlEntryFilter(app.getPrincipal(),
+        null, AclOperation.WRITE, AclPermissionType.ALLOW);
+
+    AclBindingFilter filter = new AclBindingFilter(resourceFilter, entryFilter);
+
+    Collection<AclBinding> acls = kafkaAdminClient
+        .describeAcls(filter)
+        .values()
+        .get();
+
+    // two acls created for the write topics
+    Assert.assertEquals(2, acls.size());
+
+    entryFilter = new AccessControlEntryFilter(app.getPrincipal(), null,
+        AclOperation.READ, AclPermissionType.ALLOW);
+
+    filter = new AclBindingFilter(resourceFilter, entryFilter);
+
+    acls = kafkaAdminClient
+        .describeAcls(filter)
+        .values()
+        .get();
+
+    // two acls created for the read topics
+    Assert.assertEquals(2, acls.size());
+
+    entryFilter = new AccessControlEntryFilter(app.getPrincipal(), null,
+        AclOperation.ALL, AclPermissionType.ALLOW);
+
+    filter = new AclBindingFilter(resourceFilter, entryFilter);
+
+    acls = kafkaAdminClient
+        .describeAcls(filter)
+        .values()
+        .get();
+
+    // 1 acls created for the prefix internal topics
+    Assert.assertEquals(1, acls.size());
+
+
+
+  }
+
+  private void verifyProducerAcls(List<Producer> producers, String topic) throws InterruptedException, ExecutionException {
 
     for (Producer producer : producers) {
       ResourcePatternFilter resourceFilter = ResourcePatternFilter.ANY;
@@ -111,8 +182,7 @@ public class AclsManagerIT {
     }
   }
 
-  private void verifyConsumerAcls(List<Consumer> consumers, String topic)
-      throws InterruptedException, ExecutionException {
+  private void verifyConsumerAcls(List<Consumer> consumers, String topic) throws InterruptedException, ExecutionException {
 
     for(Consumer consumer : consumers) {
       ResourcePatternFilter resourceFilter = ResourcePatternFilter.ANY;

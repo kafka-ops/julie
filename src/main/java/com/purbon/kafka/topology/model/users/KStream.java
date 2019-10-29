@@ -8,6 +8,9 @@ public class KStream extends User {
 
   private HashMap<String, List<String>> topics;
 
+  public static final String READ_TOPICS = "read";
+  public static final String WRITE_TOPICS = "write";
+
   public KStream() {
     super();
   }

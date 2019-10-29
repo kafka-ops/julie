@@ -54,11 +54,23 @@ public class TopologySerdesTest {
     topicConfig.put("num.partitions", "3");
     topicConfig.put("replication.factor", "2");
     topic.setConfig(topicConfig);
+
     Project project = new Project("foo");
+
+    KStream kstreamApp = new KStream();
+    kstreamApp.setPrincipal("App0");
+    HashMap<String, List<String>> topics = new HashMap<>();
+    topics.put(KStream.READ_TOPICS, Arrays.asList("topicA", "topicB"));
+    topics.put(KStream.WRITE_TOPICS, Arrays.asList("topicC", "topicD"));
+    kstreamApp.setTopics(topics);
+    project.setStreams(Collections.singletonList(kstreamApp));
     project.setTopics(Collections.singletonList(topic));
     topology.setProjects(Collections.singletonList(project));
 
     String topologyYamlString = parser.serialise(topology);
+
+    System.out.println(topologyYamlString);
+
     Topology deserTopology = parser.deserialise(topologyYamlString);
 
     Project serdesProject = deserTopology.getProjects().get(0);

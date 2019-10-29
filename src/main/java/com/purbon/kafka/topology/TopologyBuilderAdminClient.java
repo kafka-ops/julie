@@ -57,12 +57,7 @@ public class TopologyBuilderAdminClient {
   public void updateTopicConfig(Topic topic, String fullTopicName) {
 
     try {
-      String clusterVersion = findKafkaVersion();
-      if (clusterVersion.compareTo("2.3") < 0) {
-        updateTopicConfigPreAK23(topic, fullTopicName);
-      } else {
         updateTopicConfigPostAK23(topic, fullTopicName);
-      }
     } catch (ExecutionException ex) {
       LOGGER.error(ex);
     }
@@ -213,4 +208,27 @@ public class TopologyBuilderAdminClient {
   }
 
 
+  public void setAclsForStreamsApp(String principal, String topicPrefix, List<String> readTopics, List<String> writeTopics) {
+
+    List<AclBinding> acls = new ArrayList<>();
+
+    readTopics.forEach(topic -> {
+      ResourcePattern resourcePattern = new ResourcePattern(ResourceType.TOPIC, topic, PatternType.LITERAL);
+      AccessControlEntry entry = new AccessControlEntry(principal,"*", AclOperation.READ, AclPermissionType.ALLOW);
+      acls.add(new AclBinding(resourcePattern, entry));
+    });
+
+    writeTopics.forEach(topic -> {
+      ResourcePattern resourcePattern = new ResourcePattern(ResourceType.TOPIC, topic, PatternType.LITERAL);
+      AccessControlEntry entry = new AccessControlEntry(principal,"*", AclOperation.WRITE, AclPermissionType.ALLOW);
+      acls.add(new AclBinding(resourcePattern, entry));
+    });
+
+    ResourcePattern resourcePattern = new ResourcePattern(ResourceType.TOPIC, topicPrefix, PatternType.PREFIXED);
+    AccessControlEntry entry = new AccessControlEntry(principal,"*", AclOperation.ALL, AclPermissionType.ALLOW);
+    acls.add(new AclBinding(resourcePattern, entry));
+
+    createAcls(acls);
+
+  }
 }
