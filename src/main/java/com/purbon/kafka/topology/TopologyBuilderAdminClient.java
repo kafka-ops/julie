@@ -58,7 +58,7 @@ public class TopologyBuilderAdminClient {
     Map<ConfigResource,Collection<AlterConfigOp>> configs = new HashMap<>();
 
     topic
-        .getConfig()
+        .getRawConfig()
         .forEach(new BiConsumer<String, String>() {
           @Override
           public void accept(String configKey, String configValue) {
@@ -83,11 +83,8 @@ public class TopologyBuilderAdminClient {
     int numPartitions = Integer.parseInt(topic.getConfig().getOrDefault(TopicManager.NUM_PARTITIONS, "3"));
     short replicationFactor = Short.parseShort(topic.getConfig().getOrDefault(TopicManager.REPLICATION_FACTOR, "2"));
 
-    topic.getConfig().remove(TopicManager.NUM_PARTITIONS);
-    topic.getConfig().remove(TopicManager.REPLICATION_FACTOR);
-
     NewTopic newTopic = new NewTopic(fullTopicName, numPartitions, replicationFactor)
-        .configs(topic.getConfig());
+        .configs(topic.getRawConfig());
     Collection<NewTopic> newTopics = Collections.singleton(newTopic);
     try {
      createAllTopics(newTopics);

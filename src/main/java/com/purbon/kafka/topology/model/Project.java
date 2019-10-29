@@ -30,6 +30,8 @@ public class Project {
     this.producers = new ArrayList<>();
     this.streams = new ArrayList<>();
     this.consumers = new ArrayList<>();
+    this.zookeepers = new ArrayList<>();
+    this.connectors = new ArrayList<>();
   }
 
   public String getName() {

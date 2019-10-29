@@ -1,6 +1,8 @@
 package com.purbon.kafka.topology.model;
 
+import com.purbon.kafka.topology.TopicManager;
 import java.util.HashMap;
+import java.util.Map;
 
 public class Topic {
 
@@ -47,5 +49,11 @@ public class Topic {
 
   public void setConfig(HashMap<String, String> config) {
     this.config = config;
+  }
+
+  public Map<String, String> getRawConfig() {
+    getConfig().remove(TopicManager.NUM_PARTITIONS);
+    getConfig().remove(TopicManager.REPLICATION_FACTOR);
+    return getConfig();
   }
 }
