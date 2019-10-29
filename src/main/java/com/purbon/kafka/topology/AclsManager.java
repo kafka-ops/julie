@@ -23,50 +23,44 @@ public class AclsManager {
     topology
         .getProjects()
         .stream()
-        .forEach(new Consumer<Project>() {
-          @Override
-          public void accept(Project project) {
-            project
-            .getTopics()
-            .stream()
-            .forEach(new Consumer<Topic>() {
-              @Override
-              public void accept(Topic topic) {
-                final String fullTopicName = topic.composeTopicName(topology, project.getName());
-                final Collection<String> consumers = project
-                    .getConsumers()
-                    .stream()
-                    .map(consumer -> consumer.getPrincipal())
-                    .collect(Collectors.toList());
-                setAclsForConsumers(consumers, fullTopicName);
+        .forEach(project -> {
+          project
+          .getTopics()
+          .stream()
+          .forEach(topic -> {
+            final String fullTopicName = topic.composeTopicName(topology, project.getName());
+            final Collection<String> consumers = project
+                .getConsumers()
+                .stream()
+                .map(consumer -> consumer.getPrincipal())
+                .collect(Collectors.toList());
+            setAclsForConsumers(consumers, fullTopicName);
 
-                final Collection<String> producers = project
-                    .getProducers()
-                    .stream()
-                    .map(producer -> producer.getPrincipal())
-                    .collect(Collectors.toList());
-                setAclsForProducers(producers, fullTopicName);
-              }
-            });
-            // Setup global Kafka Stream Access control lists
-            String topicPrefix = project.buildTopicPrefix(topology);
-            project
-                .getStreams()
+            final Collection<String> producers = project
+                .getProducers()
                 .stream()
-                .forEach(app -> {
-                  List<String> readTopics = app.getTopics().get(KStream.READ_TOPICS);
-                  List<String> writeTopics = app.getTopics().get(KStream.WRITE_TOPICS);
-                  setAclsForStreamsApp(app.getPrincipal(), topicPrefix, readTopics, writeTopics);
-                });
-            project
-                .getConnectors()
-                .stream()
-                .forEach(connector -> {
-                  List<String> readTopics = connector.getTopics().get(Connector.READ_TOPICS);
-                  List<String> writeTopics = connector.getTopics().get(Connector.WRITE_TOPICS);
-                  setAclsForConnect(connector.getPrincipal(), topicPrefix, readTopics, writeTopics);
-                });
-          }
+                .map(producer -> producer.getPrincipal())
+                .collect(Collectors.toList());
+            setAclsForProducers(producers, fullTopicName);
+          });
+          // Setup global Kafka Stream Access control lists
+          String topicPrefix = project.buildTopicPrefix(topology);
+          project
+              .getStreams()
+              .stream()
+              .forEach(app -> {
+                List<String> readTopics = app.getTopics().get(KStream.READ_TOPICS);
+                List<String> writeTopics = app.getTopics().get(KStream.WRITE_TOPICS);
+                setAclsForStreamsApp(app.getPrincipal(), topicPrefix, readTopics, writeTopics);
+              });
+          project
+              .getConnectors()
+              .stream()
+              .forEach(connector -> {
+                List<String> readTopics = connector.getTopics().get(Connector.READ_TOPICS);
+                List<String> writeTopics = connector.getTopics().get(Connector.WRITE_TOPICS);
+                setAclsForConnect(connector.getPrincipal(), topicPrefix, readTopics, writeTopics);
+              });
         });
   }
 

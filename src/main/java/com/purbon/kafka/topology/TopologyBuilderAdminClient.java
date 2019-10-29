@@ -11,7 +11,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ExecutionException;
-import java.util.function.BiConsumer;
 import org.apache.kafka.clients.admin.AdminClient;
 import org.apache.kafka.clients.admin.AlterConfigOp;
 import org.apache.kafka.clients.admin.AlterConfigOp.OpType;
@@ -67,43 +66,16 @@ public class TopologyBuilderAdminClient {
     }
   }
 
-  private void updateTopicConfigPreAK23(Topic topic, String fullTopicName)
-      throws ExecutionException, InterruptedException {
-
-    Map<ConfigResource, Config> configs = new HashMap<>();
-
-    topic
-        .rawConfig()
-        .forEach(new BiConsumer<String, String>() {
-          @Override
-          public void accept(String configKey, String configValue) {
-            ConfigResource resource = new ConfigResource(Type.TOPIC, fullTopicName);
-            ConfigEntry entry = new ConfigEntry(configKey, configValue);
-            Config value = new Config(Collections.singleton(entry));
-            configs.put(resource, value);
-          }
-        });
-
-    adminClient
-        .alterConfigs(configs)
-        .all()
-        .get();
-  }
-
   private void updateTopicConfigPostAK23(Topic topic, String fullTopicName)
       throws ExecutionException, InterruptedException {
     Map<ConfigResource,Collection<AlterConfigOp>> configs = new HashMap<>();
 
     topic
         .rawConfig()
-        .forEach(new BiConsumer<String, String>() {
-          @Override
-          public void accept(String configKey, String configValue) {
-            configs.put(new ConfigResource(Type.TOPIC, fullTopicName),
+        .forEach(
+            (configKey, configValue) -> configs.put(new ConfigResource(Type.TOPIC, fullTopicName),
                 Collections
-                    .singleton(new AlterConfigOp(new ConfigEntry(configKey, configValue), OpType.SET)));
-          }
-        });
+                    .singleton(new AlterConfigOp(new ConfigEntry(configKey, configValue), OpType.SET))));
 
       adminClient
           .incrementalAlterConfigs(configs)
