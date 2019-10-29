@@ -5,6 +5,7 @@ import com.purbon.kafka.topology.TopologyBuilderAdminClient;
 import com.purbon.kafka.topology.model.Project;
 import com.purbon.kafka.topology.model.Topic;
 import com.purbon.kafka.topology.model.Topology;
+import com.purbon.kafka.topology.model.users.Connector;
 import com.purbon.kafka.topology.model.users.Consumer;
 import com.purbon.kafka.topology.model.users.KStream;
 import com.purbon.kafka.topology.model.users.Producer;
@@ -110,6 +111,65 @@ public class AclsManagerIT {
     aclsManager.syncAcls(topology);
 
     verifyKStreamsAcls(app);
+  }
+
+  @Test
+  public void connectAclsCreation() throws ExecutionException, InterruptedException {
+    Project project = new Project();
+
+    Connector connector = new Connector();
+    connector.setPrincipal("Connect");
+    HashMap<String, List<String>> topics = new HashMap<>();
+    topics.put(KStream.READ_TOPICS, Arrays.asList("topicA", "topicB"));
+    connector.setTopics(topics);
+    project.setConnectors(Collections.singletonList(connector));
+
+    Topology topology = new Topology();
+    topology.setTeam("integration-test");
+    topology.setSource("connectAclsCreation");
+    topology.addProject(project);
+
+    aclsManager.syncAcls(topology);
+
+    verifyConnectAcls(connector);
+
+  }
+
+  private void verifyConnectAcls(Connector connector) throws ExecutionException, InterruptedException {
+
+    ResourcePatternFilter resourceFilter = new ResourcePatternFilter(ResourceType.TOPIC, null, PatternType.ANY);
+
+    AccessControlEntryFilter entryFilter = new AccessControlEntryFilter(connector.getPrincipal(),
+        null, AclOperation.READ, AclPermissionType.ALLOW);
+
+    AclBindingFilter filter = new AclBindingFilter(resourceFilter, entryFilter);
+
+    Collection<AclBinding> acls = kafkaAdminClient
+        .describeAcls(filter)
+        .values()
+        .get();
+
+    Assert.assertEquals(5, acls.size());
+
+    entryFilter = new AccessControlEntryFilter(connector.getPrincipal(), null, AclOperation.WRITE, AclPermissionType.ALLOW);
+    filter = new AclBindingFilter(resourceFilter, entryFilter);
+    acls = kafkaAdminClient
+        .describeAcls(filter)
+        .values()
+        .get();
+
+    Assert.assertEquals(3, acls.size());
+
+    resourceFilter = new ResourcePatternFilter(ResourceType.GROUP, null, PatternType.ANY);
+    entryFilter = new AccessControlEntryFilter(connector.getPrincipal(), null, AclOperation.READ, AclPermissionType.ALLOW);
+    filter = new AclBindingFilter(resourceFilter, entryFilter);
+    acls = kafkaAdminClient
+        .describeAcls(filter)
+        .values()
+        .get();
+
+    Assert.assertEquals(1, acls.size());
+
   }
 
   private void verifyKStreamsAcls(KStream app) throws ExecutionException, InterruptedException {

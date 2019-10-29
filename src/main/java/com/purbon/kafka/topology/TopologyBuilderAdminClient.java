@@ -2,6 +2,7 @@ package com.purbon.kafka.topology;
 
 import com.purbon.kafka.topology.model.Topic;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -199,7 +200,9 @@ public class TopologyBuilderAdminClient {
   private void createAcls(Collection<AclBinding> acls) {
     try {
       adminClient
-          .createAcls(acls).all().get();
+          .createAcls(acls)
+          .all()
+          .get();
     } catch (InterruptedException e) {
       LOGGER.error(e);
     } catch (ExecutionException e) {
@@ -230,5 +233,48 @@ public class TopologyBuilderAdminClient {
 
     createAcls(acls);
 
+  }
+
+
+  public void setAclsForConnect(String principal, String topicPrefix, List<String> readTopics, List<String> writeTopics) {
+
+    List<AclBinding> acls = new ArrayList<>();
+
+    List<String> topics = Arrays.asList("connect-status", "connect-offsets", "connect-configs");
+    for(String topic: topics) {
+      ResourcePattern resourcePattern = new ResourcePattern(ResourceType.TOPIC, topic, PatternType.LITERAL);
+      AccessControlEntry entry = new AccessControlEntry(principal, "*", AclOperation.READ, AclPermissionType.ALLOW);
+      acls.add(new AclBinding(resourcePattern, entry));
+
+      resourcePattern = new ResourcePattern(ResourceType.TOPIC, topic, PatternType.LITERAL);
+      entry = new AccessControlEntry(principal, "*", AclOperation.WRITE, AclPermissionType.ALLOW);
+      acls.add(new AclBinding(resourcePattern, entry));
+    }
+
+    ResourcePattern resourcePattern = new ResourcePattern(ResourceType.CLUSTER, "foobar", PatternType.LITERAL);
+    AccessControlEntry entry = new AccessControlEntry(principal, "*", AclOperation.CREATE, AclPermissionType.ALLOW);
+    acls.add(new AclBinding(resourcePattern, entry));
+
+    resourcePattern = new ResourcePattern(ResourceType.GROUP, "*", PatternType.LITERAL);
+    entry = new AccessControlEntry(principal,"*", AclOperation.READ, AclPermissionType.ALLOW);
+    acls.add(new AclBinding(resourcePattern, entry));
+
+    if (readTopics != null) {
+      readTopics.forEach(topic -> {
+        ResourcePattern resourcePatternR = new ResourcePattern(ResourceType.TOPIC, topic, PatternType.LITERAL);
+        AccessControlEntry entryR = new AccessControlEntry(principal, "*", AclOperation.READ, AclPermissionType.ALLOW);
+        acls.add(new AclBinding(resourcePatternR, entryR));
+      });
+    }
+
+    if (writeTopics != null) {
+      writeTopics.forEach(topic -> {
+        ResourcePattern resourcePatternW = new ResourcePattern(ResourceType.TOPIC, topic, PatternType.LITERAL);
+        AccessControlEntry entryW = new AccessControlEntry(principal, "*", AclOperation.WRITE, AclPermissionType.ALLOW);
+        acls.add(new AclBinding(resourcePatternW, entryW));
+      });
+    }
+
+    createAcls(acls);
   }
 }

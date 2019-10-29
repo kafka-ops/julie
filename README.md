@@ -22,26 +22,39 @@ permissions to use them (Access Control List).
 
 ```yaml 
 ---
-team: "foo"
-source: "db"
+---
+team: "team"
+source: "source"
 projects:
-- name: "data-lake"
-  users:
-    consumers:
-      - "app0"
-      - "app1"
-    producers:
-      - "app0"
-      - "app3"
-    streams:
-    - name: "app2"
-      topics:
-        read:
-        - "foo"
-        write:
-        - "bar"
-    connectors:
-      - "conn1"
+- name: "foo"
+  zookeepers: []
+  consumers: []
+  producers: []
+  streams:
+  - principal: "User:App0"
+    topics:
+      read:
+      - "topicA"
+      - "topicB"
+      write:
+      - "topicC"
+      - "topicD"
+  connectors:
+  - principal: "User:Connect1"
+    topics:
+      read:
+      - "topicA"
+      - "topicB"
+  - principal: "User:Connect2"
+    topics:
+      write:
+      - "topicC"
+      - "topicD"
+  topics:
+  - name: "foo"
+    config:
+      replication.factor: "2"
+      num.partitions: "3"
   topics:
   - name: "foo" # generated name: projects.data-lake.foo
     config:
