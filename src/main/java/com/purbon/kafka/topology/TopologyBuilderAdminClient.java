@@ -14,6 +14,7 @@ import java.util.function.BiConsumer;
 import org.apache.kafka.clients.admin.AdminClient;
 import org.apache.kafka.clients.admin.AlterConfigOp;
 import org.apache.kafka.clients.admin.AlterConfigOp.OpType;
+import org.apache.kafka.clients.admin.Config;
 import org.apache.kafka.clients.admin.ConfigEntry;
 import org.apache.kafka.clients.admin.NewTopic;
 import org.apache.kafka.common.acl.AccessControlEntry;
@@ -55,6 +56,46 @@ public class TopologyBuilderAdminClient {
 
   public void updateTopicConfig(Topic topic, String fullTopicName) {
 
+    try {
+      String clusterVersion = findKafkaVersion();
+      if (clusterVersion.compareTo("2.3") < 0) {
+        updateTopicConfigPreAK23(topic, fullTopicName);
+      } else {
+        updateTopicConfigPostAK23(topic, fullTopicName);
+      }
+    } catch (ExecutionException ex) {
+      LOGGER.error(ex);
+    }
+    catch (InterruptedException ex) {
+      LOGGER.error(ex);
+    }
+  }
+
+  private void updateTopicConfigPreAK23(Topic topic, String fullTopicName)
+      throws ExecutionException, InterruptedException {
+
+    Map<ConfigResource, Config> configs = new HashMap<>();
+
+    topic
+        .getRawConfig()
+        .forEach(new BiConsumer<String, String>() {
+          @Override
+          public void accept(String configKey, String configValue) {
+            ConfigResource resource = new ConfigResource(Type.TOPIC, fullTopicName);
+            ConfigEntry entry = new ConfigEntry(configKey, configValue);
+            Config value = new Config(Collections.singleton(entry));
+            configs.put(resource, value);
+          }
+        });
+
+    adminClient
+        .alterConfigs(configs)
+        .all()
+        .get();
+  }
+
+  private void updateTopicConfigPostAK23(Topic topic, String fullTopicName)
+      throws ExecutionException, InterruptedException {
     Map<ConfigResource,Collection<AlterConfigOp>> configs = new HashMap<>();
 
     topic
@@ -68,14 +109,11 @@ public class TopologyBuilderAdminClient {
           }
         });
 
-    try {
       adminClient
-          .incrementalAlterConfigs(configs).all().get();
-    } catch (InterruptedException e) {
-      LOGGER.error(e);
-    } catch (ExecutionException e) {
-      LOGGER.error(e);
-    }
+          .incrementalAlterConfigs(configs)
+          .all()
+          .get();
+
   }
 
   public void createTopic(Topic topic, String fullTopicName) {
@@ -115,6 +153,29 @@ public class TopologyBuilderAdminClient {
     }
   }
 
+  /**
+   * Find cluster inter protocol version, used to determine the minimum level of Api
+   * compatibility
+   * @return String, the current Kafka Protocol version
+   */
+  private String findKafkaVersion() {
+    ConfigResource resource = new ConfigResource(Type.BROKER, "inter.broker.protocol.version");
+    String kafkaVersion = "";
+    try {
+      Map<ConfigResource, Config> configs =  adminClient
+          .describeConfigs(Collections.singletonList(resource))
+          .all()
+          .get();
+      kafkaVersion = configs.get(resource).get("inter.broker.protocol.version")
+          .value()
+          .split("-")[0];
+    } catch (InterruptedException e) {
+      LOGGER.error(e);
+    } catch (ExecutionException e) {
+      LOGGER.error(e);
+    }
+    return kafkaVersion;
+  }
 
   public void setAclsForProducer(String principal, String topic) {
     List<AclBinding> acls = new ArrayList<>();
