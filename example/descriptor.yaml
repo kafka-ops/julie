@@ -4,27 +4,47 @@ source: "source"
 projects:
 - name: "foo"
   zookeepers: []
-  consumers: []
+  consumers:
+  - principal: "User:app0"
+  - principal: "User:app1"
   producers: []
-  streams: []
-  connectors: []
+  streams:
+  - principal: "User:App0"
+    topics:
+      read:
+      - "topicA"
+      - "topicB"
+      write:
+      - "topicC"
+      - "topicD"
+  connectors:
+  - principal: "User:Connect1"
+    topics:
+      read:
+      - "topicA"
+      - "topicB"
+  - principal: "User:Connect2"
+    topics:
+      write:
+      - "topicC"
+      - "topicD"
   topics:
-  - name: "foo"
+  - name: "foo" # topicName: team.source.foo.foo
     config:
       replication.factor: "2"
       num.partitions: "3"
-  - name: "bar"
+  - name: "bar" # topicName: team.source.foo.bar
     config:
       replication.factor: "2"
       num.partitions: "3"
-- name: "zet"
+- name: "bar"
   zookeepers: []
   consumers: []
   producers: []
   streams: []
   connectors: []
   topics:
-  - name: "boo"
+  - name: "bar" # topicName: team.source.bar.bar
     config:
       replication.factor: "2"
       num.partitions: "3"

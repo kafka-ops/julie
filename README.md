@@ -22,13 +22,14 @@ permissions to use them (Access Control List).
 
 ```yaml 
 ---
----
 team: "team"
 source: "source"
 projects:
 - name: "foo"
   zookeepers: []
-  consumers: []
+  consumers:
+  - principal: "User:app0"
+  - principal: "User:app1"
   producers: []
   streams:
   - principal: "User:App0"
@@ -51,27 +52,23 @@ projects:
       - "topicC"
       - "topicD"
   topics:
-  - name: "foo"
+  - name: "foo" # topicName: team.source.foo.foo
     config:
       replication.factor: "2"
       num.partitions: "3"
+  - name: "bar" # topicName: team.source.foo.bar
+    config:
+      replication.factor: "2"
+      num.partitions: "3"
+- name: "bar"
+  zookeepers: []
+  consumers: []
+  producers: []
+  streams: []
+  connectors: []
   topics:
-  - name: "foo" # generated name: projects.data-lake.foo
+  - name: "bar" # topicName: team.source.bar.bar
     config:
-      partitions: 1
-      retention.ms: 100
-  - name: "bar" # generated name: projects.data-lake.bar
-    config:
-      partitions: 1
-  zookeepers:
-    - "zk1:2181"
-- name: "monitoring"
-  users:
-    consumers:
-    - "app2"
-    producers: []
-    streams: []
-    connectors:
-    - "conn1"
-  topics: []
+      replication.factor: "2"
+      num.partitions: "3"
 ```
