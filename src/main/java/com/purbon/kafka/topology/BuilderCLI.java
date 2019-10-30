@@ -91,6 +91,7 @@ public class BuilderCLI {
       config.put(ALLOW_DELETE_CONFIG, String.valueOf(allowDelete));
       config.put(ADMIN_CLIENT_CONFIG_OPTION, adminClientConfigFile);
       processTopology(topology, config);
+      System.out.println("Kafka Topology updated");
 
     }
 
