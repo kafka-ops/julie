@@ -28,20 +28,8 @@ public class AclsManager {
           .getTopics()
           .stream()
           .forEach(topic -> {
-            final String fullTopicName = topic.composeTopicName(topology, project.getName());
-            final Collection<String> consumers = project
-                .getConsumers()
-                .stream()
-                .map(consumer -> consumer.getPrincipal())
-                .collect(Collectors.toList());
-            setAclsForConsumers(consumers, fullTopicName);
-
-            final Collection<String> producers = project
-                .getProducers()
-                .stream()
-                .map(producer -> producer.getPrincipal())
-                .collect(Collectors.toList());
-            setAclsForProducers(producers, fullTopicName);
+            syncConsumerAcls(topology, project, topic);
+            syncProducerAcls(topology, project, topic);
           });
           // Setup global Kafka Stream Access control lists
           String topicPrefix = project.buildTopicPrefix(topology);
@@ -49,19 +37,47 @@ public class AclsManager {
               .getStreams()
               .stream()
               .forEach(app -> {
-                List<String> readTopics = app.getTopics().get(KStream.READ_TOPICS);
-                List<String> writeTopics = app.getTopics().get(KStream.WRITE_TOPICS);
-                setAclsForStreamsApp(app.getPrincipal(), topicPrefix, readTopics, writeTopics);
+                syncKafkaStreamsAcls(app, topicPrefix);
               });
           project
               .getConnectors()
               .stream()
               .forEach(connector -> {
-                List<String> readTopics = connector.getTopics().get(Connector.READ_TOPICS);
-                List<String> writeTopics = connector.getTopics().get(Connector.WRITE_TOPICS);
-                setAclsForConnect(connector.getPrincipal(), topicPrefix, readTopics, writeTopics);
+                syncKafkaConnectAcls(connector, topicPrefix);
               });
         });
+  }
+
+  private void syncKafkaConnectAcls(Connector connector, String topicPrefix) {
+    List<String> readTopics = connector.getTopics().get(Connector.READ_TOPICS);
+    List<String> writeTopics = connector.getTopics().get(Connector.WRITE_TOPICS);
+    setAclsForConnect(connector.getPrincipal(), topicPrefix, readTopics, writeTopics);
+  }
+
+  private void syncKafkaStreamsAcls(KStream app, String topicPrefix) {
+    List<String> readTopics = app.getTopics().get(KStream.READ_TOPICS);
+    List<String> writeTopics = app.getTopics().get(KStream.WRITE_TOPICS);
+    setAclsForStreamsApp(app.getPrincipal(), topicPrefix, readTopics, writeTopics);
+  }
+
+  private void syncConsumerAcls(Topology topology, Project project, Topic topic) {
+    final String fullTopicName = topic.composeTopicName(topology, project.getName());
+    final Collection<String> consumers = project
+        .getConsumers()
+        .stream()
+        .map(consumer -> consumer.getPrincipal())
+        .collect(Collectors.toList());
+    setAclsForConsumers(consumers, fullTopicName);
+  }
+
+  private void syncProducerAcls(Topology topology, Project project, Topic topic) {
+    final String fullTopicName = topic.composeTopicName(topology, project.getName());
+    final Collection<String> producers = project
+        .getProducers()
+        .stream()
+        .map(producer -> producer.getPrincipal())
+        .collect(Collectors.toList());
+    setAclsForProducers(producers, fullTopicName);
   }
 
   private void setAclsForConnect(String principal, String topicPrefix, List<String> readTopics, List<String> writeTopics) {
