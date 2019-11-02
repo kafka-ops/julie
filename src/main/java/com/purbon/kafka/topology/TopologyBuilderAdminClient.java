@@ -225,26 +225,40 @@ public class TopologyBuilderAdminClient {
   }
 
   private AclBinding buildTopicLevelAcl(String principal, String topic, PatternType patternType, AclOperation op) {
-    return buildTopicLevelAcl(principal, topic, patternType, "*", op, AclPermissionType.ALLOW);
-  }
-
-  private AclBinding buildTopicLevelAcl(String principal, String topic, PatternType patternType,
-      String host, AclOperation op, AclPermissionType permissionType) {
-    return buildResourceLevelAcl(principal, ResourceType.TOPIC, topic, host, patternType, op, permissionType);
+    return new AclBuilder(principal)
+        .addResource(ResourceType.TOPIC, topic, patternType)
+        .addControlEntry("*", op, AclPermissionType.ALLOW)
+        .build();
   }
 
   private AclBinding buildGroupLevelAcl(String principal, String group, PatternType patternType, AclOperation op) {
-    return buildGroupLevelAcl(principal, group, "*", patternType, op, AclPermissionType.ALLOW);
-  }
-  private AclBinding buildGroupLevelAcl(String principal, String group, String host,
-      PatternType patternType, AclOperation op, AclPermissionType permissionType) {
-    return buildResourceLevelAcl(principal, ResourceType.GROUP, group, host, patternType, op, permissionType);
+    return new AclBuilder(principal)
+        .addResource(ResourceType.GROUP, group, patternType)
+        .addControlEntry("*", op, AclPermissionType.ALLOW)
+        .build();
   }
 
-  private AclBinding buildResourceLevelAcl(String principal, ResourceType resourceType, String name,
-      String host, PatternType patternType, AclOperation op, AclPermissionType permissionType) {
-    ResourcePattern resourcePattern = new ResourcePattern(resourceType, name, patternType);
-    AccessControlEntry entry = new AccessControlEntry(principal,host, op, permissionType);
-    return new AclBinding(resourcePattern, entry);
+  private class AclBuilder {
+
+    private ResourcePattern resourcePattern;
+    private AccessControlEntry entry;
+    private String principal;
+
+    public AclBuilder(String principal) {
+      this.principal = principal;
+    }
+    public AclBuilder addResource(ResourceType resourceType, String name, PatternType patternType) {
+      resourcePattern = new ResourcePattern(resourceType, name, patternType);
+      return this;
+    }
+
+    public AclBuilder addControlEntry(String host, AclOperation op, AclPermissionType permissionType) {
+      entry  = new AccessControlEntry(principal, host, op, permissionType);
+      return this;
+    }
+
+    public AclBinding build() {
+      return new AclBinding(resourcePattern, entry);
+    }
   }
 }
