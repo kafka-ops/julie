@@ -16,15 +16,12 @@ public class AclsManager {
     this.adminClient = adminClient;
   }
 
-  public void syncAcls(final Topology topology) {
-
+  public void sync(final Topology topology) {
     topology
         .getProjects()
-        .stream()
         .forEach(project -> {
           project
           .getTopics()
-          .stream()
           .forEach(topic -> {
             final String fullTopicName = topic.composeTopicName(topology, project.getName());
 
@@ -39,13 +36,11 @@ public class AclsManager {
           String topicPrefix = project.buildTopicPrefix(topology);
           project
               .getStreams()
-              .stream()
               .forEach(app -> {
                 syncKafkaStreamsAcls(app, topicPrefix);
               });
           project
               .getConnectors()
-              .stream()
               .forEach(connector -> {
                 syncKafkaConnectAcls(connector, topicPrefix);
               });

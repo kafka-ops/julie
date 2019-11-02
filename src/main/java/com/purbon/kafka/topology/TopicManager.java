@@ -19,7 +19,7 @@ public class TopicManager {
     this.adminClient = adminClient;
   }
 
-  public void syncTopics(Topology topology) {
+  public void sync(Topology topology) {
 
     //List all topics existing in the cluster
     Set<String> listOfTopics = adminClient.listTopics();

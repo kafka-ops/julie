@@ -14,11 +14,9 @@ import java.util.List;
 import java.util.Properties;
 import java.util.Set;
 import java.util.concurrent.ExecutionException;
-import java.util.function.Consumer;
 import org.apache.kafka.clients.admin.AdminClient;
 import org.apache.kafka.clients.admin.AdminClientConfig;
 import org.apache.kafka.clients.admin.Config;
-import org.apache.kafka.clients.admin.ConfigEntry;
 import org.apache.kafka.common.config.ConfigResource;
 import org.apache.kafka.common.config.ConfigResource.Type;
 import org.junit.AfterClass;
@@ -74,7 +72,7 @@ public class TopicManagerIT {
     Topology topology = new Topology();
     topology.addProject(project);
 
-    topicManager.syncTopics(topology);
+    topicManager.sync(topology);
 
     verifyTopics(Arrays.asList(topicA.composeTopicName(topology, project.getName()),
         topicB.composeTopicName(topology, project.getName())));
@@ -98,7 +96,7 @@ public class TopicManagerIT {
     topology.setSource("testTopicDelete");
     topology.addProject(project);
 
-    topicManager.syncTopics(topology);
+    topicManager.sync(topology);
 
     Topic topicC = new Topic("topicC");
     topicC.setConfig(buildDummyTopicConfig());
@@ -114,7 +112,7 @@ public class TopicManagerIT {
 
     topology.addProject(project);
 
-    topicManager.syncTopics(topology);
+    topicManager.sync(topology);
 
     verifyTopics(Arrays.asList(topicA.composeTopicName(topology, project.getName()),
         topicC.composeTopicName(topology, project.getName())));
@@ -135,7 +133,7 @@ public class TopicManagerIT {
     topology.setSource("testConfigUpdate");
     topology.addProject(project);
 
-    topicManager.syncTopics(topology);
+    topicManager.sync(topology);
 
     verifyTopicConfiguration(topicA.composeTopicName(topology, project.getName()), config);
 
