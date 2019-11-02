@@ -147,11 +147,7 @@ public class TopologyBuilderAdminClient {
 
   public void setAclsForProducer(String principal, String topic) {
     List<AclBinding> acls = new ArrayList<>();
-
-    ResourcePattern resourcePattern = new ResourcePattern(ResourceType.TOPIC, topic, PatternType.LITERAL);
-    AccessControlEntry entry = new AccessControlEntry(principal,"*", AclOperation.WRITE, AclPermissionType.ALLOW);
-    acls.add(new AclBinding(resourcePattern, entry));
-
+    acls.add(buildTopicLevelAcl(principal, topic, PatternType.LITERAL, AclOperation.WRITE));
     createAcls(acls);
   }
 
@@ -159,13 +155,8 @@ public class TopologyBuilderAdminClient {
 
     List<AclBinding> acls = new ArrayList<>();
 
-    ResourcePattern resourcePattern = new ResourcePattern(ResourceType.TOPIC, topic, PatternType.LITERAL);
-    AccessControlEntry entry = new AccessControlEntry(principal,"*", AclOperation.READ, AclPermissionType.ALLOW);
-    acls.add(new AclBinding(resourcePattern, entry));
-    resourcePattern = new ResourcePattern(ResourceType.GROUP, "*", PatternType.LITERAL);
-    entry = new AccessControlEntry(principal,"*", AclOperation.READ, AclPermissionType.ALLOW);
-    acls.add(new AclBinding(resourcePattern, entry));
-
+    acls.add(buildTopicLevelAcl(principal, topic, PatternType.LITERAL, AclOperation.READ));
+    acls.add(buildGroupLevelAcl(principal, "*", PatternType.LITERAL, AclOperation.READ));
     createAcls(acls);
   }
 
@@ -188,23 +179,15 @@ public class TopologyBuilderAdminClient {
     List<AclBinding> acls = new ArrayList<>();
 
     readTopics.forEach(topic -> {
-      ResourcePattern resourcePattern = new ResourcePattern(ResourceType.TOPIC, topic, PatternType.LITERAL);
-      AccessControlEntry entry = new AccessControlEntry(principal,"*", AclOperation.READ, AclPermissionType.ALLOW);
-      acls.add(new AclBinding(resourcePattern, entry));
+      acls.add(buildTopicLevelAcl(principal, topic, PatternType.LITERAL, AclOperation.READ));
     });
 
     writeTopics.forEach(topic -> {
-      ResourcePattern resourcePattern = new ResourcePattern(ResourceType.TOPIC, topic, PatternType.LITERAL);
-      AccessControlEntry entry = new AccessControlEntry(principal,"*", AclOperation.WRITE, AclPermissionType.ALLOW);
-      acls.add(new AclBinding(resourcePattern, entry));
+      acls.add(buildTopicLevelAcl(principal, topic, PatternType.LITERAL, AclOperation.WRITE));
     });
 
-    ResourcePattern resourcePattern = new ResourcePattern(ResourceType.TOPIC, topicPrefix, PatternType.PREFIXED);
-    AccessControlEntry entry = new AccessControlEntry(principal,"*", AclOperation.ALL, AclPermissionType.ALLOW);
-    acls.add(new AclBinding(resourcePattern, entry));
-
+    acls.add(buildTopicLevelAcl(principal, topicPrefix, PatternType.PREFIXED, AclOperation.ALL));
     createAcls(acls);
-
   }
 
 
@@ -214,13 +197,8 @@ public class TopologyBuilderAdminClient {
 
     List<String> topics = Arrays.asList("connect-status", "connect-offsets", "connect-configs");
     for(String topic: topics) {
-      ResourcePattern resourcePattern = new ResourcePattern(ResourceType.TOPIC, topic, PatternType.LITERAL);
-      AccessControlEntry entry = new AccessControlEntry(principal, "*", AclOperation.READ, AclPermissionType.ALLOW);
-      acls.add(new AclBinding(resourcePattern, entry));
-
-      resourcePattern = new ResourcePattern(ResourceType.TOPIC, topic, PatternType.LITERAL);
-      entry = new AccessControlEntry(principal, "*", AclOperation.WRITE, AclPermissionType.ALLOW);
-      acls.add(new AclBinding(resourcePattern, entry));
+      acls.add(buildTopicLevelAcl(principal, topic, PatternType.LITERAL, AclOperation.READ));
+      acls.add(buildTopicLevelAcl(principal, topic, PatternType.LITERAL, AclOperation.WRITE));
     }
 
     ResourcePattern resourcePattern = new ResourcePattern(ResourceType.CLUSTER, "foobar", PatternType.LITERAL);
@@ -233,20 +211,36 @@ public class TopologyBuilderAdminClient {
 
     if (readTopics != null) {
       readTopics.forEach(topic -> {
-        ResourcePattern resourcePatternR = new ResourcePattern(ResourceType.TOPIC, topic, PatternType.LITERAL);
-        AccessControlEntry entryR = new AccessControlEntry(principal, "*", AclOperation.READ, AclPermissionType.ALLOW);
-        acls.add(new AclBinding(resourcePatternR, entryR));
+        acls.add(buildTopicLevelAcl(principal, topic, PatternType.LITERAL, AclOperation.READ));
       });
     }
 
     if (writeTopics != null) {
       writeTopics.forEach(topic -> {
-        ResourcePattern resourcePatternW = new ResourcePattern(ResourceType.TOPIC, topic, PatternType.LITERAL);
-        AccessControlEntry entryW = new AccessControlEntry(principal, "*", AclOperation.WRITE, AclPermissionType.ALLOW);
-        acls.add(new AclBinding(resourcePatternW, entryW));
+        acls.add(buildTopicLevelAcl(principal, topic, PatternType.LITERAL, AclOperation.WRITE));
       });
     }
 
     createAcls(acls);
+  }
+
+  private AclBinding buildTopicLevelAcl(String principal, String topic, PatternType patternType, AclOperation op) {
+    return buildTopicLevelAcl(principal, topic, patternType, "*", op, AclPermissionType.ALLOW);
+  }
+
+  private AclBinding buildTopicLevelAcl(String principal, String topic, PatternType patternType,
+      String host, AclOperation op, AclPermissionType permission) {
+    ResourcePattern resourcePattern = new ResourcePattern(ResourceType.TOPIC, topic, patternType);
+    AccessControlEntry entry = new AccessControlEntry(principal,host, op, permission);
+    return new AclBinding(resourcePattern, entry);
+  }
+
+  private AclBinding buildGroupLevelAcl(String principal, String group, PatternType patternType, AclOperation op) {
+    return buildGroupLevelAcl(principal, group, "*", patternType, op, AclPermissionType.ALLOW);
+  }
+  private AclBinding buildGroupLevelAcl(String principal, String group, String host, PatternType patternType, AclOperation op, AclPermissionType permissionType) {
+    ResourcePattern resourcePattern = new ResourcePattern(ResourceType.GROUP, group, patternType);
+    AccessControlEntry entry = new AccessControlEntry(principal,host, op, permissionType);
+    return new AclBinding(resourcePattern, entry);
   }
 }
