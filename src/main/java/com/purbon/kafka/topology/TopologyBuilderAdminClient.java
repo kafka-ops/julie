@@ -229,17 +229,21 @@ public class TopologyBuilderAdminClient {
   }
 
   private AclBinding buildTopicLevelAcl(String principal, String topic, PatternType patternType,
-      String host, AclOperation op, AclPermissionType permission) {
-    ResourcePattern resourcePattern = new ResourcePattern(ResourceType.TOPIC, topic, patternType);
-    AccessControlEntry entry = new AccessControlEntry(principal,host, op, permission);
-    return new AclBinding(resourcePattern, entry);
+      String host, AclOperation op, AclPermissionType permissionType) {
+    return buildResourceLevelAcl(principal, ResourceType.TOPIC, topic, host, patternType, op, permissionType);
   }
 
   private AclBinding buildGroupLevelAcl(String principal, String group, PatternType patternType, AclOperation op) {
     return buildGroupLevelAcl(principal, group, "*", patternType, op, AclPermissionType.ALLOW);
   }
-  private AclBinding buildGroupLevelAcl(String principal, String group, String host, PatternType patternType, AclOperation op, AclPermissionType permissionType) {
-    ResourcePattern resourcePattern = new ResourcePattern(ResourceType.GROUP, group, patternType);
+  private AclBinding buildGroupLevelAcl(String principal, String group, String host,
+      PatternType patternType, AclOperation op, AclPermissionType permissionType) {
+    return buildResourceLevelAcl(principal, ResourceType.GROUP, group, host, patternType, op, permissionType);
+  }
+
+  private AclBinding buildResourceLevelAcl(String principal, ResourceType resourceType, String name,
+      String host, PatternType patternType, AclOperation op, AclPermissionType permissionType) {
+    ResourcePattern resourcePattern = new ResourcePattern(resourceType, name, patternType);
     AccessControlEntry entry = new AccessControlEntry(principal,host, op, permissionType);
     return new AclBinding(resourcePattern, entry);
   }
