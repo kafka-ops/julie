@@ -112,8 +112,8 @@ public class BuilderCLI {
       TopicManager topicManager = new TopicManager(builderAdminClient);
       AclsManager aclsManager = new AclsManager(builderAdminClient);
 
-      topicManager.syncTopics(topology);
-      aclsManager.syncAcls(topology);
+      topicManager.sync(topology);
+      aclsManager.sync(topology);
     }
     finally {
       if (kafkaAdminClient != null) {

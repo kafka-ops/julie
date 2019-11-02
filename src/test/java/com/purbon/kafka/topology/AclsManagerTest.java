@@ -58,7 +58,7 @@ public class AclsManagerTest {
     doNothing()
         .when(adminClient)
         .setAclsForConsumer("User:app1", topicA.composeTopicName(topology, project.getName()));
-    aclsManager.syncAcls(topology);
+    aclsManager.sync(topology);
     verify(adminClient, times(1))
         .setAclsForConsumer(eq("User:app1"), eq(topicA.composeTopicName(topology, project.getName())));
   }
@@ -79,7 +79,7 @@ public class AclsManagerTest {
 
     doNothing().when(adminClient)
         .setAclsForProducer("User:app1", topicA.composeTopicName(topology, project.getName()));
-    aclsManager.syncAcls(topology);
+    aclsManager.sync(topology);
     verify(adminClient, times(1))
         .setAclsForProducer(eq("User:app1"), eq(topicA.composeTopicName(topology, project.getName())));
   }
@@ -100,7 +100,7 @@ public class AclsManagerTest {
     Topology topology = new Topology();
     topology.addProject(project);
 
-    aclsManager.syncAcls(topology);
+    aclsManager.sync(topology);
     String topicPrefix = project.buildTopicPrefix(topology);
 
     doNothing()
@@ -126,7 +126,7 @@ public class AclsManagerTest {
     Topology topology = new Topology();
     topology.addProject(project);
 
-    aclsManager.syncAcls(topology);
+    aclsManager.sync(topology);
     String topicPrefix = project.buildTopicPrefix(topology);
 
     doNothing()

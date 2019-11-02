@@ -45,7 +45,7 @@ public class TopicManagerTest {
     topology.addProject(project);
 
     when(adminClient.listTopics()).thenReturn(new HashSet<>());
-    topicManager.syncTopics(topology);
+    topicManager.sync(topology);
 
     verify(adminClient, times(1)).createTopic(topicA, topicA.composeTopicName(topology, project.getName()));
     verify(adminClient, times(1)).createTopic(topicB, topicB.composeTopicName(topology, project.getName()));
@@ -66,7 +66,7 @@ public class TopicManagerTest {
     dummyTopicList.add(topicB.composeTopicName(topology, project.getName()));
     when(adminClient.listTopics()).thenReturn(dummyTopicList);
 
-    topicManager.syncTopics(topology);
+    topicManager.sync(topology);
 
     verify(adminClient, times(1)).createTopic(topicA, topicA.composeTopicName(topology, project.getName()));
     verify(adminClient, times(1)).updateTopicConfig(topicB, topicB.composeTopicName(topology, project.getName()));
@@ -90,7 +90,7 @@ public class TopicManagerTest {
     dummyTopicList.add(topicCFullName);
     when(adminClient.listTopics()).thenReturn(dummyTopicList);
 
-    topicManager.syncTopics(topology);
+    topicManager.sync(topology);
 
     verify(adminClient, times(1)).createTopic(topicA, topicA.composeTopicName(topology, project.getName()));
     verify(adminClient, times(1)).createTopic(topicB, topicB.composeTopicName(topology, project.getName()));

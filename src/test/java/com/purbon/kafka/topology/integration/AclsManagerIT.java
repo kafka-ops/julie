@@ -17,19 +17,15 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Properties;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
 import java.util.stream.Collectors;
 import org.apache.kafka.clients.admin.AdminClient;
 import org.apache.kafka.clients.admin.AdminClientConfig;
-import org.apache.kafka.common.acl.AccessControlEntry;
 import org.apache.kafka.common.acl.AccessControlEntryFilter;
 import org.apache.kafka.common.acl.AclBinding;
 import org.apache.kafka.common.acl.AclBindingFilter;
 import org.apache.kafka.common.acl.AclOperation;
 import org.apache.kafka.common.acl.AclPermissionType;
 import org.apache.kafka.common.resource.PatternType;
-import org.apache.kafka.common.resource.ResourcePattern;
 import org.apache.kafka.common.resource.ResourcePatternFilter;
 import org.apache.kafka.common.resource.ResourceType;
 import org.junit.Assert;
@@ -65,7 +61,7 @@ public class AclsManagerIT {
     topology.setSource("testConsumerAclsCreation");
     topology.addProject(project);
 
-    aclsManager.syncAcls(topology);
+    aclsManager.sync(topology);
 
     verifyConsumerAcls(consumers, topicA.composeTopicName(topology, project.getName()));
   }
@@ -86,7 +82,7 @@ public class AclsManagerIT {
     topology.setSource("producerAclsCreation");
     topology.addProject(project);
 
-    aclsManager.syncAcls(topology);
+    aclsManager.sync(topology);
 
     verifyProducerAcls(producers, topicA.composeTopicName(topology, project.getName()));
   }
@@ -108,7 +104,7 @@ public class AclsManagerIT {
     topology.setSource("kstreamsAclsCreation");
     topology.addProject(project);
 
-    aclsManager.syncAcls(topology);
+    aclsManager.sync(topology);
 
     verifyKStreamsAcls(app);
   }
@@ -129,7 +125,7 @@ public class AclsManagerIT {
     topology.setSource("connectAclsCreation");
     topology.addProject(project);
 
-    aclsManager.syncAcls(topology);
+    aclsManager.sync(topology);
 
     verifyConnectAcls(connector);
 
