@@ -1,5 +1,6 @@
 package com.purbon.kafka.topology;
 
+import com.purbon.kafka.topology.model.DynamicUser;
 import com.purbon.kafka.topology.model.Topology;
 import com.purbon.kafka.topology.model.User;
 import com.purbon.kafka.topology.model.users.Connector;
@@ -37,17 +38,17 @@ public class AclsManager {
           project
               .getStreams()
               .forEach(app -> {
-                syncKafkaStreamsAcls(app, topicPrefix);
+                syncApplicationAcls(app, topicPrefix);
               });
           project
               .getConnectors()
               .forEach(connector -> {
-                syncKafkaConnectAcls(connector, topicPrefix);
+                syncApplicationAcls(connector, topicPrefix);
               });
         });
   }
 
-  private void syncKafkaConnectAcls(Connector connector, String topicPrefix) {
+  /*private void syncKafkaConnectAcls(Connector connector, String topicPrefix) {
     List<String> readTopics = connector.getTopics().get(Connector.READ_TOPICS);
     List<String> writeTopics = connector.getTopics().get(Connector.WRITE_TOPICS);
     setAclsForConnect(connector.getPrincipal(), topicPrefix, readTopics, writeTopics);
@@ -57,8 +58,17 @@ public class AclsManager {
     List<String> readTopics = app.getTopics().get(KStream.READ_TOPICS);
     List<String> writeTopics = app.getTopics().get(KStream.WRITE_TOPICS);
     setAclsForStreamsApp(app.getPrincipal(), topicPrefix, readTopics, writeTopics);
-  }
+  }*/
 
+  private void syncApplicationAcls(DynamicUser app, String topicPrefix) {
+    List<String> readTopics = app.getTopics().get(KStream.READ_TOPICS);
+    List<String> writeTopics = app.getTopics().get(KStream.WRITE_TOPICS);
+    if (app instanceof KStream) {
+      setAclsForStreamsApp(app.getPrincipal(), topicPrefix, readTopics, writeTopics);
+    } else if (app instanceof Connector) {
+      setAclsForConnect(app.getPrincipal(), topicPrefix, readTopics, writeTopics);
+    }
+  }
 
   private Collection<String> extractUsersToPrincipals(List<? extends User> users) {
     return users
