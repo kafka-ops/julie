@@ -1,13 +1,11 @@
 package com.purbon.kafka.topology;
 
-import com.purbon.kafka.topology.model.Project;
-import com.purbon.kafka.topology.model.Topic;
 import com.purbon.kafka.topology.model.Topology;
+import com.purbon.kafka.topology.model.User;
 import com.purbon.kafka.topology.model.users.Connector;
 import com.purbon.kafka.topology.model.users.KStream;
 import java.util.Collection;
 import java.util.List;
-import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 public class AclsManager {
@@ -28,8 +26,14 @@ public class AclsManager {
           .getTopics()
           .stream()
           .forEach(topic -> {
-            syncConsumerAcls(topology, project, topic);
-            syncProducerAcls(topology, project, topic);
+            final String fullTopicName = topic.composeTopicName(topology, project.getName());
+
+            Collection<String> consumerPrincipals = extractUsersToPrincipals(project.getConsumers());
+            setAclsForConsumers(consumerPrincipals, fullTopicName);
+
+            Collection<String> producerPrincipals = extractUsersToPrincipals(project.getProducers());
+            setAclsForProducers(producerPrincipals, fullTopicName);
+
           });
           // Setup global Kafka Stream Access control lists
           String topicPrefix = project.buildTopicPrefix(topology);
@@ -60,24 +64,12 @@ public class AclsManager {
     setAclsForStreamsApp(app.getPrincipal(), topicPrefix, readTopics, writeTopics);
   }
 
-  private void syncConsumerAcls(Topology topology, Project project, Topic topic) {
-    final String fullTopicName = topic.composeTopicName(topology, project.getName());
-    final Collection<String> consumers = project
-        .getConsumers()
-        .stream()
-        .map(consumer -> consumer.getPrincipal())
-        .collect(Collectors.toList());
-    setAclsForConsumers(consumers, fullTopicName);
-  }
 
-  private void syncProducerAcls(Topology topology, Project project, Topic topic) {
-    final String fullTopicName = topic.composeTopicName(topology, project.getName());
-    final Collection<String> producers = project
-        .getProducers()
+  private Collection<String> extractUsersToPrincipals(List<? extends User> users) {
+    return users
         .stream()
-        .map(producer -> producer.getPrincipal())
+        .map( user -> user.getPrincipal())
         .collect(Collectors.toList());
-    setAclsForProducers(producers, fullTopicName);
   }
 
   private void setAclsForConnect(String principal, String topicPrefix, List<String> readTopics, List<String> writeTopics) {
