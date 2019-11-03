@@ -48,18 +48,6 @@ public class AclsManager {
         });
   }
 
-  /*private void syncKafkaConnectAcls(Connector connector, String topicPrefix) {
-    List<String> readTopics = connector.getTopics().get(Connector.READ_TOPICS);
-    List<String> writeTopics = connector.getTopics().get(Connector.WRITE_TOPICS);
-    setAclsForConnect(connector.getPrincipal(), topicPrefix, readTopics, writeTopics);
-  }
-
-  private void syncKafkaStreamsAcls(KStream app, String topicPrefix) {
-    List<String> readTopics = app.getTopics().get(KStream.READ_TOPICS);
-    List<String> writeTopics = app.getTopics().get(KStream.WRITE_TOPICS);
-    setAclsForStreamsApp(app.getPrincipal(), topicPrefix, readTopics, writeTopics);
-  }*/
-
   private void syncApplicationAcls(DynamicUser app, String topicPrefix) {
     List<String> readTopics = app.getTopics().get(KStream.READ_TOPICS);
     List<String> writeTopics = app.getTopics().get(KStream.WRITE_TOPICS);

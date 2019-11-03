@@ -37,7 +37,7 @@ services:
       KAFKA_MECHANISMS_INTER_BROKER_PROTOCOL: 'SASL_PLAINTEXT'
       KAFKA_SASL_MECHANISM_INTER_BROKER_PROTOCOL: 'PLAIN'
       KAFKA_ALLOW_EVERYONE_IF_NO_ACL_FOUND: 'false'
-      KAFKA_SUPER_USER: 'User:kafka'
+      KAFKA_SUPER_USERS: 'User:kafka'
       KAFKA_OPTS: '-Djava.security.auth.login.config=/etc/kafka/kafka_server_jaas.conf'
       KAFKA_LOG4J_LOGGERS: "kafka.authorizer.logger=DEBUG"
 
