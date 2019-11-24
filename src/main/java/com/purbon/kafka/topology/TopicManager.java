@@ -33,7 +33,7 @@ public class TopicManager {
         .forEach(project -> project
             .getTopics()
             .forEach(topic -> {
-              String fullTopicName = topic.composeTopicName(topology, project);
+              String fullTopicName = topic.buildTopicName(topology, project);
               syncTopic(topic, fullTopicName, listOfTopics);
               updatedListOfTopics.add(fullTopicName);
             }));
@@ -60,7 +60,7 @@ public class TopicManager {
   }
 
   public void syncTopic(Topic topic, Set<String> listOfTopics, Topology topology, Project project) {
-    String fullTopicName = topic.composeTopicName(topology, project);
+    String fullTopicName = topic.buildTopicName(topology, project);
     syncTopic(topic, fullTopicName, listOfTopics);
   }
 

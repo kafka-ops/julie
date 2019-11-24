@@ -27,14 +27,14 @@ public class TopicTest {
   @Test
   public void buildTopicNameTest() {
     Topic topic = new Topic("topic");
-    String fulllName = topic.composeTopicName(topology, project);
+    String fulllName = topic.buildTopicName(topology, project);
     Assert.assertEquals("team.source.project.topic", fulllName);
   }
 
   @Test
   public void buildTopicNameWithDataTypeTest() {
     Topic topic = new Topic("topic", "type");
-    String fulllName = topic.composeTopicName(topology, project);
+    String fulllName = topic.buildTopicName(topology, project);
     Assert.assertEquals("team.source.project.topic.type", fulllName);
   }
 

@@ -24,7 +24,7 @@ public class AclsManager {
           project
           .getTopics()
           .forEach(topic -> {
-            final String fullTopicName = topic.composeTopicName(topology, project);
+            final String fullTopicName = topic.buildTopicName(topology, project);
 
             Collection<String> consumerPrincipals = extractUsersToPrincipals(project.getConsumers());
             setAclsForConsumers(consumerPrincipals, fullTopicName);

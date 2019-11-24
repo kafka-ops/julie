@@ -36,7 +36,7 @@ public class Topic {
   }
 
 
-  public String composeTopicName(Topology topology, Project project) {
+  public String buildTopicName(Topology topology, Project project) {
     StringBuilder sb = new StringBuilder();
     sb.append(project.buildTopicPrefix(topology))
         .append(".")
