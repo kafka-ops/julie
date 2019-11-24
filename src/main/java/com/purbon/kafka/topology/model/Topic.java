@@ -50,24 +50,6 @@ public class Topic {
     return sb.toString();
   }
 
-  public String composeTopicName(Topology topology, String projectName) {
-    StringBuilder sb = new StringBuilder();
-    sb.append(topology.getTeam())
-        .append(".")
-        .append(topology.getSource())
-        .append(".")
-        .append(projectName)
-        .append(".")
-        .append(getName());
-
-    if (!getDataType().equals(UNKNOWN_DATATYPE)) {
-      sb.append(".")
-          .append(getDataType());
-    }
-
-    return sb.toString();
-  }
-
   public void setName(String name) {
     this.name = name;
   }

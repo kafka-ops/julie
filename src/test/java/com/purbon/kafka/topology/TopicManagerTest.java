@@ -47,8 +47,8 @@ public class TopicManagerTest {
     when(adminClient.listTopics()).thenReturn(new HashSet<>());
     topicManager.sync(topology);
 
-    verify(adminClient, times(1)).createTopic(topicA, topicA.composeTopicName(topology, project.getName()));
-    verify(adminClient, times(1)).createTopic(topicB, topicB.composeTopicName(topology, project.getName()));
+    verify(adminClient, times(1)).createTopic(topicA, topicA.composeTopicName(topology, project));
+    verify(adminClient, times(1)).createTopic(topicB, topicB.composeTopicName(topology, project));
   }
 
   @Test
@@ -63,13 +63,13 @@ public class TopicManagerTest {
     topology.addProject(project);
 
     Set<String> dummyTopicList = new HashSet<>();
-    dummyTopicList.add(topicB.composeTopicName(topology, project.getName()));
+    dummyTopicList.add(topicB.composeTopicName(topology, project));
     when(adminClient.listTopics()).thenReturn(dummyTopicList);
 
     topicManager.sync(topology);
 
-    verify(adminClient, times(1)).createTopic(topicA, topicA.composeTopicName(topology, project.getName()));
-    verify(adminClient, times(1)).updateTopicConfig(topicB, topicB.composeTopicName(topology, project.getName()));
+    verify(adminClient, times(1)).createTopic(topicA, topicA.composeTopicName(topology, project));
+    verify(adminClient, times(1)).updateTopicConfig(topicB, topicB.composeTopicName(topology, project));
   }
 
   @Test
@@ -86,14 +86,14 @@ public class TopicManagerTest {
     topology.addProject(project);
 
     Set<String> dummyTopicList = new HashSet<>();
-    String topicCFullName = topicC.composeTopicName(topology, project.getName());
+    String topicCFullName = topicC.composeTopicName(topology, project);
     dummyTopicList.add(topicCFullName);
     when(adminClient.listTopics()).thenReturn(dummyTopicList);
 
     topicManager.sync(topology);
 
-    verify(adminClient, times(1)).createTopic(topicA, topicA.composeTopicName(topology, project.getName()));
-    verify(adminClient, times(1)).createTopic(topicB, topicB.composeTopicName(topology, project.getName()));
+    verify(adminClient, times(1)).createTopic(topicA, topicA.composeTopicName(topology, project));
+    verify(adminClient, times(1)).createTopic(topicB, topicB.composeTopicName(topology, project));
     verify(adminClient, times(1)).deleteTopics(Collections.singletonList(topicCFullName));
   }
 }
