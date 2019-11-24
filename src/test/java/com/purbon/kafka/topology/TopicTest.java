@@ -17,6 +17,7 @@ public class TopicTest {
   public void before() {
     topology = new Topology();
     project = new Project();
+    project.setTopology(topology);
     topology.setSource("source");
     topology.setTeam("team");
 
@@ -27,14 +28,16 @@ public class TopicTest {
   @Test
   public void buildTopicNameTest() {
     Topic topic = new Topic("topic");
-    String fulllName = topic.buildTopicName(topology, project);
+    topic.setProject(project);
+    String fulllName = topic.toString();
     Assert.assertEquals("team.source.project.topic", fulllName);
   }
 
   @Test
   public void buildTopicNameWithDataTypeTest() {
     Topic topic = new Topic("topic", "type");
-    String fulllName = topic.buildTopicName(topology, project);
+    topic.setProject(project);
+    String fulllName = topic.toString();
     Assert.assertEquals("team.source.project.topic.type", fulllName);
   }
 

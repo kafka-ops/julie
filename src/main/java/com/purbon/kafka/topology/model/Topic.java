@@ -12,6 +12,8 @@ public class Topic {
   private String name;
   private HashMap<String, String> config;
 
+  private Project project;
+
   public Topic(String name) {
     this(name, UNKNOWN_DATATYPE, new HashMap<>());
   }
@@ -30,15 +32,13 @@ public class Topic {
     this(DEFAULT_TOPIC_NAME, UNKNOWN_DATATYPE, new HashMap<>());
   }
 
-
   public String getName() {
     return name;
   }
 
-
-  public String buildTopicName(Topology topology, Project project) {
+  private String toString(Project project) {
     StringBuilder sb = new StringBuilder();
-    sb.append(project.buildTopicPrefix(topology))
+    sb.append(project.buildTopicPrefix())
         .append(".")
         .append(getName());
 
@@ -48,6 +48,11 @@ public class Topic {
     }
 
     return sb.toString();
+  }
+
+  @Override
+  public String toString() {
+    return toString(project);
   }
 
   public void setName(String name) {
@@ -70,5 +75,9 @@ public class Topic {
 
   public String getDataType() {
     return dataType;
+  }
+
+  public void setProject(Project project) {
+    this.project = project;
   }
 }

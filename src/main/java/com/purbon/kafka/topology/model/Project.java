@@ -19,6 +19,8 @@ public class Project {
 
   private List<Topic> topics;
 
+  private Topology topology;
+
   public Project() {
     this("default");
   }
@@ -88,6 +90,7 @@ public class Project {
   }
 
   public void addTopic(Topic topic) {
+    topic.setProject(this);
     this.topics.add(topic);
   }
 
@@ -95,6 +98,9 @@ public class Project {
     this.topics = topics;
   }
 
+  public String buildTopicPrefix() {
+    return buildTopicPrefix(topology);
+  }
   public String buildTopicPrefix(Topology topology) {
     StringBuilder sb = new StringBuilder();
     sb.append(topology.buildNamePrefix())
@@ -102,4 +108,9 @@ public class Project {
         .append(name);
     return sb.toString();
   }
+
+  public void setTopology(Topology topology) {
+    this.topology = topology;
+  }
+
 }

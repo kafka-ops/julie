@@ -47,8 +47,8 @@ public class TopicManagerTest {
     when(adminClient.listTopics()).thenReturn(new HashSet<>());
     topicManager.sync(topology);
 
-    verify(adminClient, times(1)).createTopic(topicA, topicA.buildTopicName(topology, project));
-    verify(adminClient, times(1)).createTopic(topicB, topicB.buildTopicName(topology, project));
+    verify(adminClient, times(1)).createTopic(topicA, topicA.toString());
+    verify(adminClient, times(1)).createTopic(topicB, topicB.toString());
   }
 
   @Test
@@ -63,37 +63,45 @@ public class TopicManagerTest {
     topology.addProject(project);
 
     Set<String> dummyTopicList = new HashSet<>();
-    dummyTopicList.add(topicB.buildTopicName(topology, project));
+    dummyTopicList.add(topicB.toString());
     when(adminClient.listTopics()).thenReturn(dummyTopicList);
 
     topicManager.sync(topology);
 
-    verify(adminClient, times(1)).createTopic(topicA, topicA.buildTopicName(topology, project));
-    verify(adminClient, times(1)).updateTopicConfig(topicB, topicB.buildTopicName(topology, project));
+    verify(adminClient, times(1)).createTopic(topicA, topicA.toString());
+    verify(adminClient, times(1)).updateTopicConfig(topicB, topicB.toString());
   }
 
   @Test
   public void topicDeleteTest() {
 
-    Topic topicC = new Topic("topicC");
+    // Original Topology
+    Topology topology0 = new Topology();
+    Project project0 = new Project("project");
+    topology0.addProject(project0);
 
+    Topic topicC = new Topic("topicC");
+    project0.addTopic(topicC);
+
+    // Topology after delete action
+    Topology topology = new Topology();
     Project project = new Project("project");
+    topology.addProject(project);
+
     Topic topicA = new Topic("topicA");
     project.addTopic(topicA);
     Topic topicB = new Topic("topicB");
     project.addTopic(topicB);
-    Topology topology = new Topology();
-    topology.addProject(project);
 
     Set<String> dummyTopicList = new HashSet<>();
-    String topicCFullName = topicC.buildTopicName(topology, project);
+    String topicCFullName = topicC.toString();
     dummyTopicList.add(topicCFullName);
     when(adminClient.listTopics()).thenReturn(dummyTopicList);
 
     topicManager.sync(topology);
 
-    verify(adminClient, times(1)).createTopic(topicA, topicA.buildTopicName(topology, project));
-    verify(adminClient, times(1)).createTopic(topicB, topicB.buildTopicName(topology, project));
+    verify(adminClient, times(1)).createTopic(topicA, topicA.toString());
+    verify(adminClient, times(1)).createTopic(topicB, topicB.toString());
     verify(adminClient, times(1)).deleteTopics(Collections.singletonList(topicCFullName));
   }
 }

@@ -63,7 +63,7 @@ public class AclsManagerIT {
 
     aclsManager.sync(topology);
 
-    verifyConsumerAcls(consumers, topicA.buildTopicName(topology, project));
+    verifyConsumerAcls(consumers, topicA.toString());
   }
 
   @Test
@@ -84,7 +84,7 @@ public class AclsManagerIT {
 
     aclsManager.sync(topology);
 
-    verifyProducerAcls(producers, topicA.buildTopicName(topology, project));
+    verifyProducerAcls(producers, topicA.toString());
   }
 
   @Test
