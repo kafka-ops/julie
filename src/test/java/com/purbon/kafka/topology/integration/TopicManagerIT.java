@@ -74,8 +74,8 @@ public class TopicManagerIT {
 
     topicManager.sync(topology);
 
-    verifyTopics(Arrays.asList(topicA.composeTopicName(topology, project.getName()),
-        topicB.composeTopicName(topology, project.getName())));
+    verifyTopics(Arrays.asList(topicA.composeTopicName(topology, project),
+        topicB.composeTopicName(topology, project)));
   }
 
   @Test
@@ -114,8 +114,8 @@ public class TopicManagerIT {
 
     topicManager.sync(topology);
 
-    verifyTopics(Arrays.asList(topicA.composeTopicName(topology, project.getName()),
-        topicC.composeTopicName(topology, project.getName())));
+    verifyTopics(Arrays.asList(topicA.composeTopicName(topology, project),
+        topicC.composeTopicName(topology, project)));
   }
 
   @Test
@@ -135,7 +135,7 @@ public class TopicManagerIT {
 
     topicManager.sync(topology);
 
-    verifyTopicConfiguration(topicA.composeTopicName(topology, project.getName()), config);
+    verifyTopicConfiguration(topicA.composeTopicName(topology, project), config);
 
   }
 
