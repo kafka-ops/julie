@@ -57,10 +57,10 @@ public class AclsManagerTest {
 
     doNothing()
         .when(adminClient)
-        .setAclsForConsumer("User:app1", topicA.buildTopicName(topology, project));
+        .setAclsForConsumer("User:app1", topicA.toString());
     aclsManager.sync(topology);
     verify(adminClient, times(1))
-        .setAclsForConsumer(eq("User:app1"), eq(topicA.buildTopicName(topology, project)));
+        .setAclsForConsumer(eq("User:app1"), eq(topicA.toString()));
   }
 
   @Test
@@ -78,10 +78,10 @@ public class AclsManagerTest {
     topology.addProject(project);
 
     doNothing().when(adminClient)
-        .setAclsForProducer("User:app1", topicA.buildTopicName(topology, project));
+        .setAclsForProducer("User:app1", topicA.toString());
     aclsManager.sync(topology);
     verify(adminClient, times(1))
-        .setAclsForProducer(eq("User:app1"), eq(topicA.buildTopicName(topology, project)));
+        .setAclsForProducer(eq("User:app1"), eq(topicA.toString()));
   }
 
   @Test

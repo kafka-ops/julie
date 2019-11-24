@@ -37,6 +37,7 @@ public class Topology {
   }
 
   public void addProject(Project project) {
+    project.setTopology(this);
     this.projects.add(project);
   }
 
