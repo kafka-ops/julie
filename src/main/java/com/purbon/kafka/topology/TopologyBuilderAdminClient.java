@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ExecutionException;
+import java.util.function.Consumer;
 import org.apache.kafka.clients.admin.AdminClient;
 import org.apache.kafka.clients.admin.AlterConfigOp;
 import org.apache.kafka.clients.admin.AlterConfigOp.OpType;
@@ -68,20 +69,47 @@ public class TopologyBuilderAdminClient {
 
   private void updateTopicConfigPostAK23(Topic topic, String fullTopicName)
       throws ExecutionException, InterruptedException {
+
+    Config currentConfigs = getActualTopicConfig(fullTopicName);
+
     Map<ConfigResource,Collection<AlterConfigOp>> configs = new HashMap<>();
+    ArrayList<AlterConfigOp> listOfValues = new ArrayList<>();
 
     topic
         .rawConfig()
-        .forEach(
-            (configKey, configValue) -> configs.put(new ConfigResource(Type.TOPIC, fullTopicName),
-                Collections
-                    .singleton(new AlterConfigOp(new ConfigEntry(configKey, configValue), OpType.SET))));
+        .forEach((configKey, configValue) -> {
+          listOfValues.add(new AlterConfigOp(new ConfigEntry(configKey, configValue), OpType.SET));
+
+        });
+    Set<String> newEntryKeys = topic.rawConfig().keySet();
+
+    currentConfigs
+        .entries()
+        .forEach(entry -> {
+          if (!newEntryKeys.contains(entry.name())) {
+            listOfValues.add(new AlterConfigOp(entry, OpType.DELETE));
+          }
+        });
+
+      configs.put(new ConfigResource(Type.TOPIC, fullTopicName), listOfValues);
 
       adminClient
           .incrementalAlterConfigs(configs)
           .all()
           .get();
 
+  }
+
+  private Config getActualTopicConfig(String topic) throws ExecutionException, InterruptedException {
+    ConfigResource resource = new ConfigResource(Type.TOPIC, topic);
+    Collection<ConfigResource> resources = Collections.singletonList(resource);
+
+    Map<ConfigResource, Config> configs = adminClient
+        .describeConfigs(resources)
+        .all()
+        .get();
+
+    return configs.get(resource);
   }
 
   public void createTopic(Topic topic, String fullTopicName) {

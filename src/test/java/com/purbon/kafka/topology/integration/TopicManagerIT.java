@@ -5,6 +5,7 @@ import com.purbon.kafka.topology.TopologyBuilderAdminClient;
 import com.purbon.kafka.topology.model.Project;
 import com.purbon.kafka.topology.model.Topic;
 import com.purbon.kafka.topology.model.Topology;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
@@ -119,7 +120,7 @@ public class TopicManagerIT {
   }
 
   @Test
-  public void testConfigUpdate() throws ExecutionException, InterruptedException {
+  public void testTopicCreationWithConfig() throws ExecutionException, InterruptedException {
 
     HashMap<String, String> config = buildDummyTopicConfig();
     config.put("retention.bytes", "104857600"); // set the retention.bytes per partition to 100mb
@@ -130,16 +131,53 @@ public class TopicManagerIT {
 
     Topology topology = new Topology();
     topology.setTeam("integration-test");
-    topology.setSource("testConfigUpdate");
+    topology.setSource("testTopicCreationWithConfig");
     topology.addProject(project);
 
     topicManager.sync(topology);
 
     verifyTopicConfiguration(topicA.toString(), config);
+  }
 
+  @Test
+  public void testTopicConfigUpdate() throws ExecutionException, InterruptedException {
+
+    HashMap<String, String> config = buildDummyTopicConfig();
+    config.put("retention.bytes", "104857600"); // set the retention.bytes per partition to 100mb
+    config.put("segment.bytes" ,"104857600");
+
+    Project project = new Project("project");
+    Topic topicA = new Topic("topicA");
+    topicA.setConfig(config);
+    project.addTopic(topicA);
+
+    Topology topology = new Topology();
+    topology.setTeam("integration-test");
+    topology.setSource("testTopicConfigUpdate");
+    topology.addProject(project);
+
+    topicManager.sync(topology);
+    verifyTopicConfiguration(topicA.toString(), config);
+
+    config.put("retention.bytes", "104");
+    config.remove("segment.bytes");
+
+    topicA.setConfig(config);
+    project.setTopics(Collections.singletonList(topicA));
+    topology.setTeam("integration-test");
+    topology.setSource("testTopicConfigUpdate");
+    topology.setProjects(Collections.singletonList(project));
+
+    topicManager.sync(topology);
+
+    verifyTopicConfiguration(topicA.toString(), config, Collections.singletonList("segment.bytes"));
   }
 
   private void verifyTopicConfiguration(String topic, HashMap<String, String> config)
+      throws ExecutionException, InterruptedException {
+    verifyTopicConfiguration(topic, config, new ArrayList<>());
+  }
+  private void verifyTopicConfiguration(String topic, HashMap<String, String> config, List<String> removedConfigs)
       throws ExecutionException, InterruptedException {
 
     ConfigResource resource = new ConfigResource(Type.TOPIC, topic);
@@ -156,11 +194,12 @@ public class TopicManagerIT {
     topicConfig
         .entries()
         .forEach(entry -> {
-          if (!entry.isDefault() && config.get(entry.name()) != null) {
-            Assert.assertEquals(config.get(entry.name()), entry.value());
+          if (!entry.isDefault()) {
+            if (config.get(entry.name()) != null)
+              Assert.assertEquals(config.get(entry.name()), entry.value());
+            Assert.assertFalse(removedConfigs.contains(entry.name()));
           }
         });
-
   }
 
   private HashMap<String, String> buildDummyTopicConfig() {
