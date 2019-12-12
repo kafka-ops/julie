@@ -24,9 +24,9 @@ public class BuilderCLI {
 
   public static final String BROKERS_OPTION = "brokers";
   public static final String TOPOLOGY_OPTION = "topology";
-  public static final String ADMIN_CLIENT_CONFIG_OPTION = "client.config";
+  public static final String ADMIN_CLIENT_CONFIG_OPTION = "clientConfig";
   public static final String DESTROY_OPTION = "destroy";
-  public static final String ALLOW_DELETE_CONFIG = "allow.delete";
+  public static final String ALLOW_DELETE_CONFIG = "allowDelete";
 
   public static Options buildOptions() {
 
@@ -42,11 +42,11 @@ public class BuilderCLI {
         .create(BROKERS_OPTION);
     brokersListOption.setRequired(true);
 
-
-    Option adminClientConfigFileOption = Option.builder("adminClientConfigFile")
-        .argName(ADMIN_CLIENT_CONFIG_OPTION)
-        .desc("AdminClient configuration file")
-        .build();
+    Option adminClientConfigFileOption = OptionBuilder.withArgName(ADMIN_CLIENT_CONFIG_OPTION)
+        .hasArg()
+        .withDescription( "AdminClient configuration file" )
+        .create(ADMIN_CLIENT_CONFIG_OPTION);
+    brokersListOption.setRequired(true);
 
     Option destroyOption = new Option(DESTROY_OPTION, "Allow delete operations for topics and configs");
 
@@ -126,7 +126,6 @@ public class BuilderCLI {
       throws IOException {
     Properties props = new Properties();
     if (config.get(ADMIN_CLIENT_CONFIG_OPTION) != null) {
-
       props.load(new FileInputStream(config.get(ADMIN_CLIENT_CONFIG_OPTION)));
       return AdminClient.create(props);
     } else {
