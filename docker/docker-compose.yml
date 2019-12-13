@@ -2,7 +2,7 @@
 version: '2'
 services:
   zookeeper:
-    image: confluentinc/cp-zookeeper:5.1.0
+    image: confluentinc/cp-zookeeper:5.3.1
     container_name: zookeeper
     volumes:
       - "$PWD/zookeeper:/etc/kafka"
@@ -14,7 +14,7 @@ services:
       KAFKA_OPTS: ' -Djava.security.auth.login.config=/etc/kafka/zookeeper.sasl.jaas.config -Dzookeeper.authProvider.1=org.apache.zookeeper.server.auth.SASLAuthenticationProvider -DrequireClientAuthScheme=sasl'
 
   kafka:
-    image: confluentinc/cp-enterprise-kafka:5.1.0
+    image: confluentinc/cp-enterprise-kafka:5.3.1
     depends_on:
       - zookeeper
     container_name: kafka
