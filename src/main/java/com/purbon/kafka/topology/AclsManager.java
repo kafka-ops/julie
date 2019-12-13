@@ -18,6 +18,9 @@ public class AclsManager {
   }
 
   public void sync(final Topology topology) {
+
+    adminClient.clearAcls();
+
     topology
         .getProjects()
         .forEach(project -> {
@@ -31,7 +34,6 @@ public class AclsManager {
 
             Collection<String> producerPrincipals = extractUsersToPrincipals(project.getProducers());
             setAclsForProducers(producerPrincipals, fullTopicName);
-
           });
           // Setup global Kafka Stream Access control lists
           String topicPrefix = project.buildTopicPrefix(topology);

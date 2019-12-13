@@ -11,7 +11,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ExecutionException;
-import java.util.function.Consumer;
 import org.apache.kafka.clients.admin.AdminClient;
 import org.apache.kafka.clients.admin.AlterConfigOp;
 import org.apache.kafka.clients.admin.AlterConfigOp.OpType;
@@ -19,13 +18,16 @@ import org.apache.kafka.clients.admin.Config;
 import org.apache.kafka.clients.admin.ConfigEntry;
 import org.apache.kafka.clients.admin.NewTopic;
 import org.apache.kafka.common.acl.AccessControlEntry;
+import org.apache.kafka.common.acl.AccessControlEntryFilter;
 import org.apache.kafka.common.acl.AclBinding;
+import org.apache.kafka.common.acl.AclBindingFilter;
 import org.apache.kafka.common.acl.AclOperation;
 import org.apache.kafka.common.acl.AclPermissionType;
 import org.apache.kafka.common.config.ConfigResource;
 import org.apache.kafka.common.config.ConfigResource.Type;
 import org.apache.kafka.common.resource.PatternType;
 import org.apache.kafka.common.resource.ResourcePattern;
+import org.apache.kafka.common.resource.ResourcePatternFilter;
 import org.apache.kafka.common.resource.ResourceType;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -64,6 +66,21 @@ public class TopologyBuilderAdminClient {
     }
     catch (InterruptedException ex) {
       LOGGER.error(ex);
+    }
+  }
+
+  public void clearAcls() {
+
+    Collection<AclBindingFilter> filters = new ArrayList<>();
+    filters.add(AclBindingFilter.ANY);
+
+    try {
+      adminClient
+          .deleteAcls(filters)
+          .all()
+          .get();
+    } catch (Exception e) {
+      e.printStackTrace();
     }
   }
 
@@ -182,7 +199,6 @@ public class TopologyBuilderAdminClient {
   public void setAclsForConsumer(String principal, String topic) {
 
     List<AclBinding> acls = new ArrayList<>();
-
     acls.add(buildTopicLevelAcl(principal, topic, PatternType.LITERAL, AclOperation.READ));
     acls.add(buildGroupLevelAcl(principal, "*", PatternType.LITERAL, AclOperation.READ));
     createAcls(acls);
@@ -199,6 +215,47 @@ public class TopologyBuilderAdminClient {
     } catch (ExecutionException e) {
       LOGGER.error(e);
     }
+  }
+
+  public Map<String, Collection<AclBinding>> fetchAclsList() {
+    Map<String, Collection<AclBinding>> acls = new HashMap<>();
+
+    try{
+      Collection<AclBinding> list = adminClient
+          .describeAcls(AclBindingFilter.ANY)
+          .values()
+          .get();
+      list.forEach(aclBinding -> {
+        String name = aclBinding.pattern().name();
+        if (acls.get(name) == null) {
+          acls.put(name, new ArrayList<>());
+        }
+        Collection<AclBinding> updatedList = acls.get(name);
+        updatedList.add(aclBinding);
+        acls.put(name, updatedList);
+      });
+    } catch (Exception e) {
+      return new HashMap<>();
+    }
+    return acls;
+  }
+
+  public Collection<AclBinding> fetchAclsList(String principal, String topic) {
+    Collection<AclBinding> aclsList = null;
+
+      ResourcePatternFilter resourceFilter = new ResourcePatternFilter(ResourceType.TOPIC, topic, PatternType.ANY);
+      AccessControlEntryFilter accessControlEntryFilter = new AccessControlEntryFilter(principal, "*", AclOperation.ALL, AclPermissionType.ANY);
+      AclBindingFilter filter = new AclBindingFilter(resourceFilter, accessControlEntryFilter);
+
+    try{
+      aclsList = adminClient
+          .describeAcls(filter)
+          .values()
+          .get();
+    } catch (Exception e) {
+      return new ArrayList<>();
+    }
+    return aclsList;
   }
 
 
