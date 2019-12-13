@@ -229,7 +229,7 @@ public class TopologyBuilderAdminClient {
       acls.add(buildTopicLevelAcl(principal, topic, PatternType.LITERAL, AclOperation.WRITE));
     }
 
-    ResourcePattern resourcePattern = new ResourcePattern(ResourceType.CLUSTER, "foobar", PatternType.LITERAL);
+    ResourcePattern resourcePattern = new ResourcePattern(ResourceType.CLUSTER, "kafka-cluster", PatternType.LITERAL);
     AccessControlEntry entry = new AccessControlEntry(principal, "*", AclOperation.CREATE, AclPermissionType.ALLOW);
     acls.add(new AclBinding(resourcePattern, entry));
 
