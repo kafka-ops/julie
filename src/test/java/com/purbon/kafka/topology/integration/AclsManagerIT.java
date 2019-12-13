@@ -49,7 +49,7 @@ public class AclsManagerIT {
   public void consumerAclsCreation() throws ExecutionException, InterruptedException {
 
     List<Consumer> consumers = new ArrayList<>();
-    consumers.add(new Consumer("app1"));
+    consumers.add(new Consumer("User:app1"));
 
     Project project = new Project("project");
     project.setConsumers(consumers);
@@ -70,7 +70,7 @@ public class AclsManagerIT {
   public void producerAclsCreation() throws ExecutionException, InterruptedException {
 
     List<Producer> producers = new ArrayList<>();
-    producers.add(new Producer("app1"));
+    producers.add(new Producer("User:app1"));
 
     Project project = new Project("project");
     project.setProducers(producers);
@@ -92,7 +92,7 @@ public class AclsManagerIT {
     Project project = new Project();
 
     KStream app = new KStream();
-    app.setPrincipal("App0");
+    app.setPrincipal("User:App0");
     HashMap<String, List<String>> topics = new HashMap<>();
     topics.put(KStream.READ_TOPICS, Arrays.asList("topicA", "topicB"));
     topics.put(KStream.WRITE_TOPICS, Arrays.asList("topicC", "topicD"));
@@ -114,7 +114,7 @@ public class AclsManagerIT {
     Project project = new Project();
 
     Connector connector = new Connector();
-    connector.setPrincipal("Connect");
+    connector.setPrincipal("User:Connect");
     HashMap<String, List<String>> topics = new HashMap<>();
     topics.put(KStream.READ_TOPICS, Arrays.asList("topicA", "topicB"));
     connector.setTopics(topics);

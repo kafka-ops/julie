@@ -45,7 +45,7 @@ public class AclsManagerTest {
   public void newConsumerACLsCreation() {
 
     List<Consumer> consumers = new ArrayList<>();
-    consumers.add(new Consumer("app1"));
+    consumers.add(new Consumer("User:app1"));
     Project project = new Project();
     project.setConsumers(consumers);
 
@@ -67,7 +67,7 @@ public class AclsManagerTest {
   public void newProducerACLsCreation() {
 
     List<Producer> producers = new ArrayList<>();
-    producers.add(new Producer("app1"));
+    producers.add(new Producer("User:app1"));
     Project project = new Project();
     project.setProducers(producers);
 
@@ -90,7 +90,7 @@ public class AclsManagerTest {
     Project project = new Project();
 
     KStream app = new KStream();
-    app.setPrincipal("App0");
+    app.setPrincipal("User:App0");
     HashMap<String, List<String>> topics = new HashMap<>();
     topics.put(KStream.READ_TOPICS, Arrays.asList("topicA", "topicB"));
     topics.put(KStream.WRITE_TOPICS, Arrays.asList("topicC", "topicD"));
@@ -116,7 +116,7 @@ public class AclsManagerTest {
     Project project = new Project();
 
     Connector connector1 = new Connector();
-    connector1.setPrincipal("Connect1");
+    connector1.setPrincipal("User:Connect1");
     HashMap<String, List<String>> topics = new HashMap<>();
     topics.put(Connector.READ_TOPICS, Arrays.asList("topicA", "topicB"));
     connector1.setTopics(topics);

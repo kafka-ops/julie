@@ -13,7 +13,6 @@ projects:
       - principal: "User:App0"
         topics:
           read:
-            - "topicA"
             - "topicB"
           write:
             - "topicC"
@@ -33,13 +32,13 @@ projects:
       - dataType: "unknown"
         name: "foo"
         config:
-          replication.factor: "2"
-          num.partitions: "3"
+          replication.factor: "1"
+          num.partitions: "1"
       - dataType: "unknown"
         name: "bar"
         config:
-          replication.factor: "2"
-          num.partitions: "3"
+          replication.factor: "1"
+          num.partitions: "1"
   - name: "bar"
     zookeepers: []
     consumers: []
@@ -50,5 +49,5 @@ projects:
       - dataType: "unknown"
         name: "bar"
         config:
-          replication.factor: "2"
-          num.partitions: "3"
+          replication.factor: "1"
+          num.partitions: "1"
