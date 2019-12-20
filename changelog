@@ -1,2 +1,5 @@
-1.0:
- - release
+v0.9:
+* RPM package for installation in Redhat based systems.
+* Fully descriptive managed ACLs (via a descriptor file) - Create, Read, Update and Delete.
+* Fully descriptive and structured topic management (via a descriptor file) - Create, Read, Update and Delete.
+* Simple Roles for Connectors, Streams application, Consumers and Producers.
