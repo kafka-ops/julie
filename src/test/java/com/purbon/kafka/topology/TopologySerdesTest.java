@@ -98,8 +98,6 @@ public class TopologySerdesTest {
     topology.setProjects(Arrays.asList(project, project2));
 
     String topologyYamlString = parser.serialise(topology);
-    System.out.println(topologyYamlString);
-
     Topology deserTopology = parser.deserialise(topologyYamlString);
 
     Project serdesProject = deserTopology.getProjects().get(0);
