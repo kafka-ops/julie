@@ -169,7 +169,7 @@
               <groupname>ktb-kafka</groupname>
               <sources>
                 <source>
-                  <location>target/</location>
+                  <location>target/kafka-topology-builder.jar</location>
                 </source>
               </sources>
             </mapping>
