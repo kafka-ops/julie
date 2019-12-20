@@ -143,14 +143,14 @@
         <groupId>org.codehaus.mojo</groupId>
         <artifactId>rpm-maven-plugin</artifactId>
         <version>2.2.0</version>
-        <executions>
+        <!--<executions>
           <execution>
             <id>generate-rpm</id>
             <goals>
-              <goal>attached-rpm</goal>
+              <goal>>attached-rpm</goal>
             </goals>
           </execution>
-        </executions>
+        </executions>-->
         <configuration>
           <license>MIT (c) 2019, Pere Urbon</license>
           <distribution>Trash 2019</distribution>
