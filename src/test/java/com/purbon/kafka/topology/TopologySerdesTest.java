@@ -53,15 +53,14 @@ public class TopologySerdesTest {
     Topic topic = new Topic();
     topic.setName("foo");
     HashMap<String, String> topicConfig = new HashMap<>();
-    topicConfig.put("num.partitions", "3");
-    topicConfig.put("replication.factor", "2");
+    topicConfig.put("num.partitions", "1");
+    topicConfig.put("replication.factor", "1");
     topic.setConfig(topicConfig);
 
-    Topic topicBar = new Topic();
-    topicBar.setName("bar");
+    Topic topicBar = new Topic("bar", "avro");
     HashMap<String, String> topicBarConfig = new HashMap<>();
-    topicBarConfig.put("num.partitions", "3");
-    topicBarConfig.put("replication.factor", "2");
+    topicBarConfig.put("num.partitions", "1");
+    topicBarConfig.put("replication.factor", "1");
     topicBar.setConfig(topicBarConfig);
 
     Project project = new Project("foo");
@@ -99,6 +98,7 @@ public class TopologySerdesTest {
     topology.setProjects(Arrays.asList(project, project2));
 
     String topologyYamlString = parser.serialise(topology);
+    System.out.println(topologyYamlString);
 
     Topology deserTopology = parser.deserialise(topologyYamlString);
 
@@ -107,9 +107,45 @@ public class TopologySerdesTest {
 
     Assert.assertEquals(topic.getName(), serdesTopic.getName());
     Assert.assertEquals(topic.getConfig().get("num.partitions"), serdesTopic.getConfig().get("num.partitions"));
-
   }
 
+  @Test
+  public void testTopicWithDataType() throws IOException {
+
+    Project project = new Project("foo");
+
+    Topology topology = new Topology();
+    topology.setTeam("team");
+    topology.setSource("source");
+
+    project.setTopology(topology);
+    topology.addProject(project);
+
+    Topic topic = new Topic("foo", "json");
+    HashMap<String, String> topicConfig = new HashMap<>();
+    topicConfig.put("num.partitions", "3");
+    topicConfig.put("replication.factor", "2");
+    topic.setConfig(topicConfig);
+
+    project.addTopic(topic);
+
+    Topic topic2 = new Topic("topic2");
+    topic.setConfig(topicConfig);
+    project.addTopic(topic2);
+
+    String topologyYamlString = parser.serialise(topology);
+    Topology deserTopology = parser.deserialise(topologyYamlString);
+
+    Project serdesProject = deserTopology.getProjects().get(0);
+    Topic serdesTopic = serdesProject.getTopics().get(0);
+
+    Assert.assertEquals(topic.getDataType(), serdesTopic.getDataType());
+    Assert.assertEquals(topic.getDataType().get(), serdesTopic.getDataType().get());
+
+    Topic serdesTopic2 = serdesProject.getTopics().get(1);
+    Assert.assertEquals(topic2.getDataType(), serdesTopic2.getDataType());
+
+  }
 
 
   private List<Project> buildProjects() {

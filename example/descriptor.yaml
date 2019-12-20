@@ -1,4 +1,3 @@
-
 ---
 team: "team"
 source: "source"
@@ -6,13 +5,14 @@ projects:
   - name: "foo"
     zookeepers: []
     consumers:
-      - principal: "User:app0"
-      - principal: "User:app1"
+      - principal: "User:App0"
+      - principal: "User:App1"
     producers: []
     streams:
       - principal: "User:App0"
         topics:
           read:
+            - "topicA"
             - "topicB"
           write:
             - "topicC"
@@ -29,12 +29,11 @@ projects:
             - "topicC"
             - "topicD"
     topics:
-      - dataType: "unknown"
-        name: "foo"
+      - name: "foo"
         config:
           replication.factor: "1"
           num.partitions: "1"
-      - dataType: "unknown"
+      - dataType: "avro"
         name: "bar"
         config:
           replication.factor: "1"
@@ -46,7 +45,7 @@ projects:
     streams: []
     connectors: []
     topics:
-      - dataType: "unknown"
+      - dataType: "avro"
         name: "bar"
         config:
           replication.factor: "1"
