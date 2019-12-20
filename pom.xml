@@ -5,8 +5,19 @@
   <modelVersion>4.0.0</modelVersion>
 
   <groupId>com.purbon.kafka</groupId>
-  <artifactId>topology-builder</artifactId>
-  <version>1.0-SNAPSHOT</version>
+  <artifactId>kafka-topology-builder</artifactId>
+  <version>0.9</version>
+
+  <name>A Kafka topology builder tool</name>
+  <description>
+    This tool is a helper project to orient Kafka Platform teams to build proper topic and configuration management automation
+  </description>
+  <url>https://github.com/purbon/</url>
+
+  <organization>
+    <name>Pere Urbon</name>
+    <url>https://github.com/purbon/</url>
+  </organization>
 
   <profiles>
     <profile>
@@ -67,6 +78,7 @@
   </profiles>
 
   <build>
+    <finalName>${project.artifactId}</finalName>
     <plugins>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
@@ -127,6 +139,80 @@
         </executions>
       </plugin>
 
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>rpm-maven-plugin</artifactId>
+        <version>2.2.0</version>
+        <!--<executions>
+          <execution>
+            <id>generate-rpm</id>
+            <goals>
+              <goal>>attached-rpm</goal>
+            </goals>
+          </execution>
+        </executions>-->
+        <configuration>
+          <license>MIT (c) 2019, Pere Urbon</license>
+          <distribution>Trash 2019</distribution>
+          <group>Application/Collectors</group>
+          <packager>Pere Urbon</packager>
+          <prefix>/usr/local</prefix>
+          <changelogFile>src/changelog</changelogFile>
+          <defineStatements>
+            <defineStatement>_unpackaged_files_terminate_build 0</defineStatement>
+          </defineStatements>
+          <mappings>
+            <mapping>
+              <directory>/usr/local/kafka-topology-builder/bin</directory>
+              <filemode>440</filemode>
+              <username>ktb-kafka</username>
+              <groupname>ktb-kafka</groupname>
+              <sources>
+                <source>
+                  <location>target/kafka-topology-builder-jar-with-dependencies.jar</location>
+                </source>
+              </sources>
+            </mapping>
+            <mapping>
+              <directory>/usr/local/kafka-topology-builder/conf</directory>
+              <configuration>true</configuration>
+              <filemode>640</filemode>
+              <username>ktb-kafka</username>
+              <groupname>ktb-kafka</groupname>
+              <sources>
+                <source>
+                  <location>src/main/conf</location>
+                </source>
+              </sources>
+            </mapping>
+            <mapping>
+              <directory>/usr/local/bin</directory>
+              <filemode>750</filemode>
+              <username>ktb-kafka</username>
+              <groupname>ktb-kafka</groupname>
+              <sources>
+                <source>
+                  <location>src/main/scripts</location>
+                </source>
+              </sources>
+            </mapping>
+          </mappings>
+         <!-- <preinstallScriptlet>
+            <script>echo "installing ${project.name} now"</script>
+          </preinstallScriptlet>
+          <postinstallScriptlet>
+            <scriptFile>src/main/scripts/postinstall</scriptFile>
+            <fileEncoding>utf-8</fileEncoding>
+            <filter>true</filter>
+          </postinstallScriptlet>
+          <preremoveScriptlet>
+            <scriptFile>src/main/scripts/preremove</scriptFile>
+            <fileEncoding>utf-8</fileEncoding>
+          </preremoveScriptlet>
+
+-->        </configuration>
+      </plugin>
+
     </plugins>
   </build>
 
@@ -170,10 +256,12 @@
 
 
   <properties>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <jackson.version>2.10.0</jackson.version>
     <kafka.version>2.3.0</kafka.version>
     <log4j.version>2.12.1</log4j.version>
   </properties>
+
   <dependencies>
 
     <!-- https://mvnrepository.com/artifact/org.apache.maven.plugins/maven-pmd-plugin -->
