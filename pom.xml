@@ -194,10 +194,6 @@
                 <source>
                   <location>src/main/scripts</location>
                 </source>
-                <softlinkSource>
-                  <location>/usr/local/bin/new.sh</location>
-                  <destination>old.sh</destination>
-                </softlinkSource>
               </sources>
             </mapping>
           </mappings>
