@@ -155,7 +155,6 @@
           <license>MIT (c) 2019, Pere Urbon</license>
           <distribution>Trash 2019</distribution>
           <group>Application/Collectors</group>
-          <icon>src/main/resources/icon.gif</icon>
           <packager>Pere Urbon</packager>
           <prefix>/usr/local</prefix>
           <changelogFile>src/changelog</changelogFile>
