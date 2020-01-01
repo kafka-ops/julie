@@ -28,7 +28,7 @@
   <logger name="application" level="DEBUG" />
 
   <root level="WARN">
-    <appender-ref ref="ASYNCFILE" />
+    <!--<appender-ref ref="ASYNCFILE" />-->
     <appender-ref ref="ASYNCSTDOUT" />
   </root>
 

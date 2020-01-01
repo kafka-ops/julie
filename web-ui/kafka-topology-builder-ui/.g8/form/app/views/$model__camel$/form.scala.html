@@ -1,8 +1,8 @@
-@($model;format="camel"$Form: Form[$model;format="Camel"$Data])
+@($model;format="camel"$Form: Form[$model;format="Camel"$Data])(implicit request: MessagesRequestHeader)
 
 <h1>$model;format="camel"$ form</h1>
 
-@flash.getOrDefault("success", "")
+@request.flash.get("success").getOrElse("")
 
 @helper.form(action = routes.$model;format="Camel"$Controller.$model;format="camel"$Post()) {
   @helper.CSRF.formField
