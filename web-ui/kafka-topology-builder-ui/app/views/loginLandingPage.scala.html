@@ -1,0 +1,13 @@
+@(logoutUrl: Call)(implicit flash: Flash)
+
+@main("Kafka Topology Builder") {
+<h1>Kafka Topology Builder!</h1>
+
+@* show the flash message (Option 1) *@
+@flash.get("info").getOrElse("")
+
+<div>
+  <a href="@logoutUrl">logout</a>
+</div>
+
+}
