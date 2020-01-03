@@ -5,3 +5,8 @@
 #
 #   movies = Movie.create([{ name: 'Star Wars' }, { name: 'Lord of the Rings' }])
 #   Character.create(name: 'Luke', movie: movies.first)
+
+
+topology = Topology.create(team: "Team", source: "Source")
+Project.create(name: "project", topology: topology)
+Project.create(name: "another", topology: topology)
