@@ -1,0 +1,6 @@
+<h1> Projects </h1>
+
+Project: <%= select_tag "project", options_from_collection_for_select(@projects, "id", "name") %>
+
+<%= button_to "Add Topic" %>
+<%= button_to "Add User" %>
