@@ -1,0 +1,15 @@
+<h1> A Kafka Topology Builder UI </h1>
+
+<% if current_user %>
+<%= link_to "Sign Out", destroy_user_session_path, method: :delete %>
+<% else %>
+<%= link_to "Sign In", new_user_session_path %>
+<%= link_to  "Sign Up", new_user_registration_path %>
+<% end %>
+
+
+<%= form_with model: @topology, class: "nifty_form" do |f| %>
+  Team: <%= f.text_field :team %> <br/>
+  Source: <%= f.text_field :source %> <br/>
+  <%= f.submit "Create" %>
+<% end %>
