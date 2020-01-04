@@ -1,0 +1,27 @@
+<h1>Edit User</h1>
+
+User email: <%= @user.email %>
+
+<h3>Current Projects</h3>
+
+<table>
+  <th>
+    <td>Project</td>
+    <td>Edit</td>
+  </th>
+
+  <% @user_projects.each do |project| %>
+  <tr>
+    <td><%= project.name %></td>
+    <td><%= button_to 'Edit' %></td>
+  </tr>
+  <% end %>
+</table>
+
+<h3>Add Project </h3>
+
+
+<%= form_with(url: {action: :user_add_project}) do %>
+  Project: <%= select_tag "project", options_from_collection_for_select(@all_projects, "id", "name") %> <br/>
+  <%= submit_tag %>
+<% end %>

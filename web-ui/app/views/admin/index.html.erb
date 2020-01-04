@@ -1,0 +1,17 @@
+<h1>Admin Page</h1>
+
+<table>
+  <th>
+    <td>Email</td>
+    <td>Projects</td>
+    <td>Edit</td>
+  </th>
+
+  <% @users.each do |user| %>
+  <tr>
+    <td><%= user.email %></td>
+    <td><%= user.projects.map { |e| e.name } %> </td>
+    <td><%= button_to 'Edit', admin_users_path(user), :method => :get %></td>
+  </tr>
+  <% end %>
+</table>
