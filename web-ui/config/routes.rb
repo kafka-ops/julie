@@ -14,4 +14,6 @@ Rails.application.routes.draw do
 
   post 'admin/:id/add_project', to: 'admin#user_add_project', as: 'admin_user_add_project'
 
+  delete 'admin/:id/delete', to: 'admin#delete'
+
 end

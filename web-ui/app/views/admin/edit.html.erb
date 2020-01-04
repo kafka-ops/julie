@@ -13,7 +13,8 @@ User email: <%= @user.email %>
   <% @user_projects.each do |project| %>
   <tr>
     <td><%= project.name %></td>
-    <td><%= button_to 'Edit' %></td>
+    <td><%= button_to "Remove", { action: "delete", project_id: project.id, user_id: @user.id },
+                                  method: :delete, data: { confirm: "Are you sure?" }%></td>
   </tr>
   <% end %>
 </table>

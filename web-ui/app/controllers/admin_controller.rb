@@ -20,4 +20,13 @@ class AdminController < ApplicationController
     redirect_to admin_path
   end
 
+  def delete
+    puts params
+    user    = User.find(params[:user_id])
+    project_to_delete = Project.find(params[:project_id])
+
+    user.projects.delete(project_to_delete)
+    redirect_to admin_path
+  end
+
 end
