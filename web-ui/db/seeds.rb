@@ -9,4 +9,12 @@
 
 topology = Topology.create(team: "Team", source: "Source")
 Project.create(name: "project", topology: topology)
-Project.create(name: "another", topology: topology)
+p = Project.create(name: "another", topology: topology)
+
+t = Topic.create(name: "foo", config: "")
+t2 = Topic.create(name: "bar", config: "")
+
+p.topics << t
+p.topics << t2
+
+p.save

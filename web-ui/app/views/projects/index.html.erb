@@ -1,5 +1,25 @@
 <h1> Projects </h1>
 
+<% @projects.each do |project| %>
+  <div>
+    <b><%= project.name %></b>
+    <table>
+      <th>
+        <td>Name</td>
+        <td>Config</td>
+      </th>
+
+      <% project.topics.each do |topic| %>
+      <tr>
+        <td><%= topic.name %></td>
+        <td><%= topic.config %></td>
+      </tr>
+      <% end %>
+    </table>
+  </div>
+<% end %>
+
+
 <h2>Add topic </h2>
 <%= form_with(url: {action: :add_topic}) do %>
   <%= label_tag 'Project' %>:
