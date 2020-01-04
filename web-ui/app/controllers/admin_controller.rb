@@ -1,5 +1,8 @@
 class AdminController < ApplicationController
 
+  before_action :authenticate_user!
+  before_action :validate_user!
+
   def index
     @users = User.all
   end
@@ -26,6 +29,16 @@ class AdminController < ApplicationController
 
     user.projects.delete(project_to_delete)
     redirect_to admin_path
+  end
+
+  private
+
+  def validate_user!
+    redirect_to new_user_session_path unless current_user
+    unless current_user.id == User.first.id
+      flash[:alert] = "Only super users are allowed to see the admin panel"
+      redirect_to root_path
+    end
   end
 
 end
