@@ -1,6 +1,27 @@
 <h1> Projects </h1>
 
-Project: <%= select_tag "project", options_from_collection_for_select(@projects, "id", "name") %>
+<h2>Add topic </h2>
+<%= form_with(url: {action: :add_topic}) do %>
+  <%= label_tag 'Project' %>:
+  <%= select_tag "project", options_from_collection_for_select(@projects, "id", "name") %><br/>
 
-<%= button_to "Add Topic" %>
-<%= button_to "Add User" %>
+  <%= label_tag 'Name' %>:
+  <%= text_field_tag 'name' %> <br/>
+
+  <%= submit_tag %>
+<% end %>
+
+<h2>Add user </h2>
+<%= form_with(url: {action: :add_user}) do %>
+  <%= label_tag 'Project' %>:
+  <%= select_tag "project", options_from_collection_for_select(@projects, "id", "name") %><br/>
+
+  <%= label_tag 'Type' %>:
+  <%= select_tag "user_types", options_for_select(@user_types) %><br/>
+
+
+  <%= label_tag 'Name' %>:
+  <%= text_field_tag 'name' %> <br/>
+
+  <%= submit_tag %>
+<% end %>

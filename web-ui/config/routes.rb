@@ -16,4 +16,7 @@ Rails.application.routes.draw do
 
   delete 'admin/:id/delete', to: 'admin#delete'
 
+  post 'projects/add_topic', to: 'projects#add_topic', as: 'projects_add_topic'
+  post 'projects/add_user', to: 'projects#add_user', as: 'projects_add_user'
+
 end
