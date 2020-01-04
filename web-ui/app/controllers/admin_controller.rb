@@ -21,7 +21,6 @@ class AdminController < ApplicationController
   end
 
   def delete
-    puts params
     user    = User.find(params[:user_id])
     project_to_delete = Project.find(params[:project_id])
 
