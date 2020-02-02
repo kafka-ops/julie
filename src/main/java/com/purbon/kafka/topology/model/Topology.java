@@ -13,11 +13,13 @@ public class Topology {
   private Map<String, String> others;
 
   private List<Project> projects;
+  private List<String> order;
 
   public Topology() {
     this.team = "default";
     this.source = "default";
     this.others = new HashMap<>();
+    this.order = new ArrayList<>();
     this.projects = new ArrayList<>();
   }
 
@@ -55,7 +57,7 @@ public class Topology {
     sb.append(getTeam())
         .append(".")
         .append(getSource());
-    for(String key : others.keySet()) {
+    for(String key : order) {
       String value = others.get(key);
       sb.append(".");
       sb.append(value);
@@ -63,9 +65,8 @@ public class Topology {
     return sb.toString();
   }
 
-  public void addDynamicAttrs(Map<String, String> others) {
-    for(String key : others.keySet()) {
-      this.others.put(key, others.get(key));
-    }
+  public void addOther(String fieldName, String value) {
+    order.add(fieldName);
+    others.put(fieldName, value);
   }
 }

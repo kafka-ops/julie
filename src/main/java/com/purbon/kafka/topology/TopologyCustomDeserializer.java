@@ -9,6 +9,7 @@ import com.purbon.kafka.topology.model.Topology;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Iterator;
 
@@ -41,16 +42,13 @@ public class TopologyCustomDeserializer extends StdDeserializer<Topology> {
     excludeAttributes.add("team");
     excludeAttributes.add("source");
 
-    Map<String, String> others = new HashMap<>();
-
     Iterator<String> fieldNames = rootNode.fieldNames();
     while(fieldNames.hasNext()) {
         String fieldName = fieldNames.next();
         if (!excludeAttributes.contains(fieldName)) {
-          others.put(fieldName, rootNode.get(fieldName).asText());
+          topology.addOther(fieldName, rootNode.get(fieldName).asText());
         }
     }
-    topology.addDynamicAttrs(others);
     topology.setTeam(rootNode.get("team").asText());
     topology.setSource(rootNode.get("source").asText());
     return topology;
