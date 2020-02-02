@@ -8,24 +8,40 @@ import com.purbon.kafka.topology.model.users.Consumer;
 import com.purbon.kafka.topology.model.users.KStream;
 import com.purbon.kafka.topology.model.users.Producer;
 import java.io.IOException;
+import java.net.URISyntaxException;
+import java.net.URL;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
-import javax.sound.midi.SysexMessage;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
 public class TopologySerdesTest {
 
-
   private TopologySerdes parser;
 
   @Before
   public void setup() {
     parser = new TopologySerdes();
+  }
+
+  @Test
+  public void testDynamicFirstLevelAttributes() throws IOException, URISyntaxException {
+
+    URL descriptorWithOptionals = getClass().getResource("/descriptor-with-others.yml");
+
+    Topology topology = parser.deserialise(Paths.get(descriptorWithOptionals.toURI()).toFile());
+    Assert.assertEquals("team.source.foo.bar.zet", topology.buildNamePrefix());
+
+    URL descriptorWithoutOptionals = getClass().getResource("/descriptor.yaml");
+
+    Topology anotherTopology = parser.deserialise(Paths.get(descriptorWithoutOptionals.toURI()).toFile());
+    Assert.assertEquals("team.source", anotherTopology.buildNamePrefix());
+
   }
 
   @Test
