@@ -12,6 +12,7 @@ import com.purbon.kafka.topology.model.users.Connector;
 import com.purbon.kafka.topology.model.users.Consumer;
 import com.purbon.kafka.topology.model.users.KStream;
 import com.purbon.kafka.topology.model.users.Producer;
+import com.purbon.kafka.topology.roles.SimpleAclsProvider;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -24,21 +25,21 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnit;
 import org.mockito.junit.MockitoRule;
 
-public class AclsManagerTest {
+public class AccessControlManagerTest {
 
 
   @Mock
-  TopologyBuilderAdminClient adminClient;
+  SimpleAclsProvider aclsProvider;
 
   @Rule
   public MockitoRule mockitoRule = MockitoJUnit.rule();
 
 
-  private AclsManager aclsManager;
+  private AccessControlManager accessControlManager;
 
   @Before
   public void setup() {
-    aclsManager = new AclsManager(adminClient);
+    accessControlManager = new AccessControlManager(aclsProvider);
   }
 
   @Test
@@ -55,12 +56,13 @@ public class AclsManagerTest {
     Topology topology = new Topology();
     topology.addProject(project);
 
+    List<String> users = Arrays.asList(new String[]{"User:app1"});
     doNothing()
-        .when(adminClient)
-        .setAclsForConsumer("User:app1", topicA.toString());
-    aclsManager.sync(topology);
-    verify(adminClient, times(1))
-        .setAclsForConsumer(eq("User:app1"), eq(topicA.toString()));
+        .when(aclsProvider)
+        .setAclsForConsumers(users, topicA.toString());
+    accessControlManager.sync(topology);
+    verify(aclsProvider, times(1))
+        .setAclsForConsumers(eq(users), eq(topicA.toString()));
   }
 
   @Test
@@ -77,11 +79,14 @@ public class AclsManagerTest {
     Topology topology = new Topology();
     topology.addProject(project);
 
-    doNothing().when(adminClient)
-        .setAclsForProducer("User:app1", topicA.toString());
-    aclsManager.sync(topology);
-    verify(adminClient, times(1))
-        .setAclsForProducer(eq("User:app1"), eq(topicA.toString()));
+    List<String> users = Arrays.asList(new String[]{"User:app1"});
+
+
+    doNothing().when(aclsProvider)
+        .setAclsForProducers(users, topicA.toString());
+    accessControlManager.sync(topology);
+    verify(aclsProvider, times(1))
+        .setAclsForProducers(eq(users), eq(topicA.toString()));
   }
 
   @Test
@@ -100,13 +105,13 @@ public class AclsManagerTest {
     Topology topology = new Topology();
     topology.addProject(project);
 
-    aclsManager.sync(topology);
+    accessControlManager.sync(topology);
     String topicPrefix = project.buildTopicPrefix(topology);
 
     doNothing()
-        .when(adminClient)
+        .when(aclsProvider)
         .setAclsForStreamsApp("User:App0", topicPrefix, topics.get(KStream.READ_TOPICS), topics.get(KStream.WRITE_TOPICS));
-    verify(adminClient, times(1))
+    verify(aclsProvider, times(1))
         .setAclsForStreamsApp(eq("User:App0"), eq(topicPrefix), eq(topics.get(KStream.READ_TOPICS)), eq(topics.get(KStream.WRITE_TOPICS)) );
   }
 
@@ -126,13 +131,13 @@ public class AclsManagerTest {
     Topology topology = new Topology();
     topology.addProject(project);
 
-    aclsManager.sync(topology);
+    accessControlManager.sync(topology);
     String topicPrefix = project.buildTopicPrefix(topology);
 
     doNothing()
-        .when(adminClient)
+        .when(aclsProvider)
         .setAclsForConnect("User:Connect1", topicPrefix, topics.get(KStream.READ_TOPICS), topics.get(KStream.WRITE_TOPICS));
-    verify(adminClient, times(1))
+    verify(aclsProvider, times(1))
         .setAclsForConnect(eq("User:Connect1"), eq(topicPrefix), eq(topics.get(KStream.READ_TOPICS)), eq(topics.get(KStream.WRITE_TOPICS)) );
   }
 
