@@ -3,6 +3,7 @@ package com.purbon.kafka.topology;
 import static java.lang.System.exit;
 
 import com.purbon.kafka.topology.model.Topology;
+import com.purbon.kafka.topology.roles.SimpleAclsProvider;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -107,13 +108,15 @@ public class BuilderCLI {
 
     try {
       kafkaAdminClient = buildKafkaAdminClient(config);
-      TopologyBuilderAdminClient builderAdminClient = new TopologyBuilderAdminClient(
-          kafkaAdminClient);
+      TopologyBuilderAdminClient builderAdminClient = new TopologyBuilderAdminClient(kafkaAdminClient);
       TopicManager topicManager = new TopicManager(builderAdminClient);
-      AclsManager aclsManager = new AclsManager(builderAdminClient);
+
+      SimpleAclsProvider aclsProvider = new SimpleAclsProvider(builderAdminClient);
+
+      AccessControlManager accessControlManager = new AccessControlManager(aclsProvider);
 
       topicManager.sync(topology);
-      aclsManager.sync(topology);
+      accessControlManager.sync(topology);
     }
     finally {
       if (kafkaAdminClient != null) {

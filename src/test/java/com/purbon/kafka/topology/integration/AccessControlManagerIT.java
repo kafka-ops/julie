@@ -1,6 +1,6 @@
 package com.purbon.kafka.topology.integration;
 
-import com.purbon.kafka.topology.AclsManager;
+import com.purbon.kafka.topology.AccessControlManager;
 import com.purbon.kafka.topology.TopologyBuilderAdminClient;
 import com.purbon.kafka.topology.model.Project;
 import com.purbon.kafka.topology.model.Topic;
@@ -9,6 +9,7 @@ import com.purbon.kafka.topology.model.users.Connector;
 import com.purbon.kafka.topology.model.users.Consumer;
 import com.purbon.kafka.topology.model.users.KStream;
 import com.purbon.kafka.topology.model.users.Producer;
+import com.purbon.kafka.topology.roles.SimpleAclsProvider;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -32,16 +33,17 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-public class AclsManagerIT {
+public class AccessControlManagerIT {
 
   private static AdminClient kafkaAdminClient;
-  private AclsManager aclsManager;
+  private AccessControlManager accessControlManager;
 
   @Before
   public void before() {
     kafkaAdminClient = AdminClient.create(config());
     TopologyBuilderAdminClient adminClient = new TopologyBuilderAdminClient(kafkaAdminClient);
-    aclsManager = new AclsManager(adminClient);
+    SimpleAclsProvider aclsProvider = new SimpleAclsProvider(adminClient);
+    accessControlManager = new AccessControlManager(aclsProvider);
   }
 
 
@@ -61,7 +63,7 @@ public class AclsManagerIT {
     topology.setSource("testConsumerAclsCreation");
     topology.addProject(project);
 
-    aclsManager.sync(topology);
+    accessControlManager.sync(topology);
 
     verifyConsumerAcls(consumers, topicA.toString());
   }
@@ -82,7 +84,7 @@ public class AclsManagerIT {
     topology.setSource("producerAclsCreation");
     topology.addProject(project);
 
-    aclsManager.sync(topology);
+    accessControlManager.sync(topology);
 
     verifyProducerAcls(producers, topicA.toString());
   }
@@ -104,7 +106,7 @@ public class AclsManagerIT {
     topology.setSource("kstreamsAclsCreation");
     topology.addProject(project);
 
-    aclsManager.sync(topology);
+    accessControlManager.sync(topology);
 
     verifyKStreamsAcls(app);
   }
@@ -125,7 +127,7 @@ public class AclsManagerIT {
     topology.setSource("connectAclsCreation");
     topology.addProject(project);
 
-    aclsManager.sync(topology);
+    accessControlManager.sync(topology);
 
     verifyConnectAcls(connector);
 
