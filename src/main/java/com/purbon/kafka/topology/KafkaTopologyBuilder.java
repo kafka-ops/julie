@@ -4,7 +4,12 @@ import static com.purbon.kafka.topology.BuilderCLI.ADMIN_CLIENT_CONFIG_OPTION;
 import static com.purbon.kafka.topology.BuilderCLI.BROKERS_OPTION;
 import static com.purbon.kafka.topology.TopologyBuilderConfig.ACCESS_CONTROL_DEFAULT_CLASS;
 import static com.purbon.kafka.topology.TopologyBuilderConfig.ACCESS_CONTROL_IMPLEMENTATION_CLASS;
+import static com.purbon.kafka.topology.TopologyBuilderConfig.MDS_PASSWORD_CONFIG;
+import static com.purbon.kafka.topology.TopologyBuilderConfig.MDS_SERVER;
+import static com.purbon.kafka.topology.TopologyBuilderConfig.MDS_USER_CONFIG;
+import static com.purbon.kafka.topology.TopologyBuilderConfig.RBAC_ACCESS_CONTROL_CLASS;
 
+import com.purbon.kafka.topology.api.mds.MDSApiClient;
 import com.purbon.kafka.topology.model.Topology;
 import com.purbon.kafka.topology.roles.RBACProvider;
 import com.purbon.kafka.topology.roles.SimpleAclsProvider;
@@ -40,13 +45,7 @@ public class KafkaTopologyBuilder {
 
     Topology topology = parser.deserialise(new File(topologyFile));
 
-    AccessControlProvider aclsProvider = null;
-    try {
-      aclsProvider = buildAccessControlProvider();
-    } catch (ClassNotFoundException | IllegalAccessException | NoSuchMethodException | InvocationTargetException | InstantiationException e) {
-      e.printStackTrace();
-      throw new IOException(e);
-    }
+    AccessControlProvider aclsProvider = buildAccessControlProvider();
     AccessControlManager accessControlManager = new AccessControlManager(aclsProvider);
 
     TopicManager topicManager = new TopicManager(builderAdminClient);
@@ -56,22 +55,34 @@ public class KafkaTopologyBuilder {
 
   }
 
-  private AccessControlProvider buildAccessControlProvider()
-      throws ClassNotFoundException, NoSuchMethodException, IllegalAccessException, InvocationTargetException, InstantiationException {
+  private AccessControlProvider buildAccessControlProvider() throws IOException {
     String accessControlClass = config.getOrDefault(
         ACCESS_CONTROL_IMPLEMENTATION_CLASS,
         "com.purbon.kafka.topology.roles.SimpleAclsProvider"
     );
 
-    Class<?>  clazz = Class.forName(accessControlClass);
+    try {
+      Class<?> clazz = Class.forName(accessControlClass);
 
-    if (accessControlClass.equalsIgnoreCase(ACCESS_CONTROL_DEFAULT_CLASS)) {
-      Constructor<?> constructor = clazz.getConstructor(TopologyBuilderAdminClient.class);
-      return (SimpleAclsProvider)constructor.newInstance(builderAdminClient);
-    } else { // RBAC
-      return (RBACProvider) clazz.getDeclaredConstructor().newInstance();
+      if (accessControlClass.equalsIgnoreCase(ACCESS_CONTROL_DEFAULT_CLASS)) {
+        Constructor<?> constructor = clazz.getConstructor(TopologyBuilderAdminClient.class);
+        return (SimpleAclsProvider) constructor.newInstance(builderAdminClient);
+      } else if (accessControlClass.equalsIgnoreCase(RBAC_ACCESS_CONTROL_CLASS)) {
+
+        String mdsServer = config.get(MDS_SERVER);
+        String mdsUser = config.get(MDS_USER_CONFIG);
+        String mdsPassword = config.get(MDS_PASSWORD_CONFIG);
+
+        MDSApiClient apiClient = new MDSApiClient(mdsServer);
+        apiClient.login(mdsUser, mdsPassword);
+        Constructor<?> constructor = clazz.getConstructor(MDSApiClient.class);
+        return (RBACProvider) constructor.newInstance(apiClient);
+      } else {
+        throw new IOException(accessControlClass + " Unknown access control provided.");
+      }
+    } catch (Exception ex) {
+      throw new IOException(ex);
     }
-
   }
 
   private Properties buildProperties(Map<String, String> config) {
