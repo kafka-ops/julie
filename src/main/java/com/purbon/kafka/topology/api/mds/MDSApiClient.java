@@ -57,15 +57,35 @@ public class MDSApiClient {
     }
   }
 
-  public void bind(String principal, String role) {
+  public void bind(String principal, String role, String topic, String patternType) {
 
-    HttpPost postRequest = new HttpPost(mdsServer + "/principals/"+principal+"/roles/"+role);
+    HttpPost postRequest = new HttpPost(mdsServer + "/principals/"+principal+"/roles/"+role+"/bindings");
     try {
+      Map<String, Object> scope = buildResourceScope("Topic", topic, patternType);
       postRequest.setEntity(new StringEntity(JSON.asString(getClusterIds())));
       post(postRequest);
     } catch (IOException e) {
       e.printStackTrace();
     }
+  }
+
+  private Map<String, Object> buildResourceScope(String resourceType, String name, String patternType) {
+
+    Map<String, Map<String, String>> clusters = getClusterIds();
+
+    Map<String, String> resource = new HashMap<>();
+    resource.put("resourceType", resourceType);
+    resource.put("name", name);
+    resource.put("patternType", patternType);
+
+    List<Map<String, String>> resourcePatterns = new ArrayList<>();
+    resourcePatterns.add(resource);
+
+    Map<String, Object> scope = new HashMap<>();
+    scope.put("scope", clusters );
+    scope.put("resourcePatterns", resourcePatterns);
+
+    return scope;
   }
 
   public List<String> lookupRoles(String principal) {
