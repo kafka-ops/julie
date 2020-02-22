@@ -75,6 +75,7 @@ public class KafkaTopologyBuilder {
 
         MDSApiClient apiClient = new MDSApiClient(mdsServer);
         apiClient.login(mdsUser, mdsPassword);
+        apiClient.authenticate();
         Constructor<?> constructor = clazz.getConstructor(MDSApiClient.class);
         return (RBACProvider) constructor.newInstance(apiClient);
       } else {

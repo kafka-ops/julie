@@ -35,6 +35,10 @@ public class MDSApiClient {
     basicCredentials = Base64.getEncoder().encodeToString(userAndPassword.getBytes());
   }
 
+  public AuthenticationCredentials getCredentials() {
+    return authenticationCredentials;
+  }
+
   public void authenticate() {
 
     HttpGet request = new HttpGet(mdsServer + "/security/1.0/authenticate");
@@ -44,12 +48,12 @@ public class MDSApiClient {
     try {
       String responseAsString = get(request);
       if (!responseAsString.isEmpty()) {
-        Map<String, String> responseMap = JSON.toMap(responseAsString);
+        Map<String, Object> responseMap = JSON.toMap(responseAsString);
 
         authenticationCredentials = new AuthenticationCredentials(
-            responseMap.get("auth_token"),
-            responseMap.get("token_type"),
-            Double.valueOf(responseMap.get("expires_in"))
+            responseMap.get("auth_token").toString(),
+            responseMap.get("token_type").toString(),
+            Integer.valueOf(responseMap.get("expires_in").toString())
         );
       }
     } catch (IOException e) {
@@ -151,10 +155,5 @@ public class MDSApiClient {
       return result;
     }
 
-  }
-
-
-  public AuthenticationCredentials getAuthenticationCredentials() {
-    return authenticationCredentials;
   }
 }

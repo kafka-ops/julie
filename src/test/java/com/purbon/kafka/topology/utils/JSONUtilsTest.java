@@ -26,7 +26,7 @@ public class JSONUtilsTest {
         + "\t\"test\": \"boo\"\n"
         + "}";
 
-    Map<String, String> jsonAsMap = JSON.toMap(jsonString);
+    Map<String, Object> jsonAsMap = JSON.toMap(jsonString);
 
     assertEquals(2, jsonAsMap.get("foo"));
     assertEquals("boo", jsonAsMap.get("test"));
