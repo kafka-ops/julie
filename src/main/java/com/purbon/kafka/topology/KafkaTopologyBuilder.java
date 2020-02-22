@@ -69,9 +69,9 @@ public class KafkaTopologyBuilder {
         return (SimpleAclsProvider) constructor.newInstance(builderAdminClient);
       } else if (accessControlClass.equalsIgnoreCase(RBAC_ACCESS_CONTROL_CLASS)) {
 
-        String mdsServer = config.get(MDS_SERVER);
-        String mdsUser = config.get(MDS_USER_CONFIG);
-        String mdsPassword = config.get(MDS_PASSWORD_CONFIG);
+        String mdsServer = properties.getProperty(MDS_USER_CONFIG);
+        String mdsUser = properties.getProperty(MDS_USER_CONFIG);
+        String mdsPassword = properties.getProperty(MDS_PASSWORD_CONFIG);
 
         MDSApiClient apiClient = new MDSApiClient(mdsServer);
         apiClient.login(mdsUser, mdsPassword);
