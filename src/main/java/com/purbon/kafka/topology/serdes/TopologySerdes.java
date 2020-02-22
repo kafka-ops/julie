@@ -1,4 +1,4 @@
-package com.purbon.kafka.topology;
+package com.purbon.kafka.topology.serdes;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -8,6 +8,7 @@ import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
 import com.purbon.kafka.topology.model.Project;
 import com.purbon.kafka.topology.model.Topic;
 import com.purbon.kafka.topology.model.Topology;
+import com.purbon.kafka.topology.serdes.TopologyCustomDeserializer;
 import java.io.File;
 import java.io.IOException;
 import java.util.function.Consumer;
@@ -20,6 +21,7 @@ public class TopologySerdes {
     mapper = new ObjectMapper(new YAMLFactory());
     SimpleModule module = new SimpleModule();
     module.addDeserializer(Topology.class, new TopologyCustomDeserializer());
+    module.addDeserializer(Project.class, new ProjectCustomDeserializer());
     mapper.registerModule(module);
     mapper.registerModule(new Jdk8Module());
     mapper.findAndRegisterModules();
