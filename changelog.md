@@ -1,5 +1,7 @@
 v0.10.1:
+* Fix the RPM builder script, build an rpm that create proper users for running the application.
 * Fix param passing to the RBAC provider from the properties file.
+* Add more clear example configuration within the RPM artifacts.
 
 v0.10:
 * Separate access control providers between simple ACLs and RBAC provider.

@@ -1,0 +1,37 @@
+#!/usr/bin/env bash
+
+if [[ $# -ne 3 ]]; then
+    echo "Illegal number of parameters"
+    echo "usage: acls-for-metrics-reporters.sh [interceptors-user] [bootstrap-server] [command-config]"
+    exit 1
+fi
+
+INTERCEPTORS_PRINCIPAL=$1
+BOOTSTRAP_SERVER=$2
+COMMAND_CONFIG=$3
+
+# Confluent interceptors minimum permissions
+kafka-acls --bootstrap-server $BOOTSTRAP_SERVER --command-config $COMMAND_CONFIG \
+           --add --allow-principal $INTERCEPTORS_PRINCIPAL --operation Describe  \
+           --topic __confluent.support.metrics --group '*'
+
+kafka-acls --bootstrap-server $BOOTSTRAP_SERVER --command-config $COMMAND_CONFIG \
+           --add --allow-principal $INTERCEPTORS_PRINCIPAL --operation Write \
+           --topic __confluent.support.metrics
+
+kafka-acls --bootstrap-server $BOOTSTRAP_SERVER --command-config $COMMAND_CONFIG \
+           --add --allow-principal $INTERCEPTORS_PRINCIPAL --operation Write \
+           --operation Describe --topic _confluent-metrics
+
+## Necessary as the first one reporting metrics will try to create the topic in the cluster
+kafka-acls --bootstrap-server $BOOTSTRAP_SERVER --command-config $COMMAND_CONFIG \
+           --add --cluster --operation=Create --allow-principal User:ANONYMOUS
+
+## Confluent Interceptors
+kafka-acls --bootstrap-server $BOOTSTRAP_SERVER --command-config $COMMAND_CONFIG \
+           --add --allow-principal $INTERCEPTORS_PRINCIPAL --operation Write \
+           --operation Describe --topic  _confluent-monitoring
+
+## Only for inspection purposes and seeing metrics are being produced
+kafka-acls --bootstrap-server $BOOTSTRAP_SERVER --command-config $COMMAND_CONFIG \
+           --add --allow-principal  $INTERCEPTORS_PRINCIPAL --operation Read --topic  _confluent-monitoring

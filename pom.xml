@@ -157,7 +157,7 @@
           <group>Application/Collectors</group>
           <packager>Pere Urbon</packager>
           <prefix>/usr/local</prefix>
-          <changelogFile>src/changelog</changelogFile>
+          <changelogFile>changelog.md</changelogFile>
           <defineStatements>
             <defineStatement>_unpackaged_files_terminate_build 0</defineStatement>
           </defineStatements>
@@ -174,6 +174,17 @@
               </sources>
             </mapping>
             <mapping>
+              <directory>/usr/local/kafka-topology-builder/bin</directory>
+              <filemode>775</filemode>
+              <username>ktb-kafka</username>
+              <groupname>ktb-kafka</groupname>
+              <sources>
+                <source>
+                  <location>src/main/scripts/kafka-topology-builder.sh</location>
+                </source>
+              </sources>
+            </mapping>
+            <mapping>
               <directory>/usr/local/kafka-topology-builder/conf</directory>
               <configuration>true</configuration>
               <filemode>640</filemode>
@@ -185,32 +196,27 @@
                 </source>
               </sources>
             </mapping>
-            <mapping>
-              <directory>/usr/local/bin</directory>
-              <filemode>750</filemode>
-              <username>ktb-kafka</username>
-              <groupname>ktb-kafka</groupname>
-              <sources>
-                <source>
-                  <location>src/main/scripts</location>
-                </source>
-              </sources>
-            </mapping>
           </mappings>
-         <!-- <preinstallScriptlet>
-            <script>echo "installing ${project.name} now"</script>
+          <preinstallScriptlet>
+            <scriptFile>src/main/scripts/preinstall.sh</scriptFile>
+            <fileEncoding>utf-8</fileEncoding>
+            <filter>true</filter>
           </preinstallScriptlet>
+          <postremoveScriptlet>
+            <scriptFile>src/main/scripts/remove.sh</scriptFile>
+            <fileEncoding>utf-8</fileEncoding>
+            <filter>true</filter>
+          </postremoveScriptlet>
           <postinstallScriptlet>
-            <scriptFile>src/main/scripts/postinstall</scriptFile>
+            <scriptFile>src/main/scripts/postinstall.sh</scriptFile>
             <fileEncoding>utf-8</fileEncoding>
             <filter>true</filter>
           </postinstallScriptlet>
-          <preremoveScriptlet>
-            <scriptFile>src/main/scripts/preremove</scriptFile>
-            <fileEncoding>utf-8</fileEncoding>
-          </preremoveScriptlet>
-
--->        </configuration>
+          <!-- <preremoveScriptlet>
+             <scriptFile>src/main/scripts/preremove</scriptFile>
+             <fileEncoding>utf-8</fileEncoding>
+           </preremoveScriptlet>
+ -->        </configuration>
       </plugin>
 
     </plugins>
