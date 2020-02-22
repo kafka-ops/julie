@@ -58,10 +58,14 @@ public class MDSApiClient {
   }
 
   public void bind(String principal, String role, String topic, String patternType) {
+   bind(principal, role, topic, "Topic", patternType);
+  }
+
+  public void bind(String principal, String role, String resource, String resourceType, String patternType) {
 
     HttpPost postRequest = new HttpPost(mdsServer + "/principals/"+principal+"/roles/"+role+"/bindings");
     try {
-      Map<String, Object> scope = buildResourceScope("Topic", topic, patternType);
+      Map<String, Object> scope = buildResourceScope(resourceType, resource, patternType);
       postRequest.setEntity(new StringEntity(JSON.asString(getClusterIds())));
       post(postRequest);
     } catch (IOException e) {
