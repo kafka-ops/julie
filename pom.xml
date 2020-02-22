@@ -46,33 +46,63 @@
     </profile>
 
     <profile>
-    <id>surefire</id>
-    <build>
-      <plugins>
-        <plugin>
-          <artifactId>maven-surefire-plugin</artifactId>
-          <version>2.22.0</version>
-          <executions>
-            <execution>
-              <phase>integration-test</phase>
-              <goals>
-                <goal>test</goal>
-              </goals>
-              <configuration>
-                <trimStackTrace>false</trimStackTrace>
-                <excludes>
-                  <exclude>none</exclude>
-                </excludes>
-                <includes>
-                  <include>**/*IT</include>
-                </includes>
-              </configuration>
-            </execution>
-          </executions>
-        </plugin>
+      <id>surefire</id>
+      <build>
+        <plugins>
+          <plugin>
+            <artifactId>maven-surefire-plugin</artifactId>
+            <version>2.22.0</version>
+            <executions>
+              <execution>
+                <phase>integration-test</phase>
+                <goals>
+                  <goal>test</goal>
+                </goals>
+                <configuration>
+                  <trimStackTrace>false</trimStackTrace>
+                  <excludes>
+                    <exclude>none</exclude>
+                  </excludes>
+                  <includes>
+                    <include>**/*IT</include>
+                  </includes>
+                </configuration>
+              </execution>
+            </executions>
+          </plugin>
 
-      </plugins>
-    </build>
+        </plugins>
+      </build>
+    </profile>
+
+    <profile>
+      <id>rbac</id>
+      <build>
+        <plugins>
+          <plugin>
+            <artifactId>maven-surefire-plugin</artifactId>
+            <version>2.22.0</version>
+            <executions>
+              <execution>
+                <phase>integration-test</phase>
+                <goals>
+                  <goal>test</goal>
+                </goals>
+                <configuration>
+                  <trimStackTrace>false</trimStackTrace>
+                  <excludes>
+                    <exclude>none</exclude>
+                  </excludes>
+                  <includes>
+                    <include>**/*RbacIT</include>
+                  </includes>
+                </configuration>
+              </execution>
+            </executions>
+          </plugin>
+
+        </plugins>
+      </build>
     </profile>
 
   </profiles>

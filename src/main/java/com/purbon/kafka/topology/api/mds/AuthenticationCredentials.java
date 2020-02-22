@@ -4,9 +4,9 @@ public class AuthenticationCredentials {
 
   private final String authToken;
   private final String tokenType;
-  private final double expiresIn;
+  private final Integer expiresIn;
 
-  public AuthenticationCredentials(String authToken, String tokenType, double expriresIn) {
+  public AuthenticationCredentials(String authToken, String tokenType, Integer expriresIn) {
     this.authToken = authToken;
     this.tokenType = tokenType;
     this.expiresIn = expriresIn;
@@ -20,7 +20,7 @@ public class AuthenticationCredentials {
     return tokenType;
   }
 
-  public double getExpiresIn() {
+  public Integer getExpiresIn() {
     return expiresIn;
   }
 }
