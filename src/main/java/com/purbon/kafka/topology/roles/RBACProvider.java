@@ -1,6 +1,5 @@
 package com.purbon.kafka.topology.roles;
 
-import static com.purbon.kafka.topology.roles.RBACPredefinedRoles.DEVELOPER_MANAGE;
 import static com.purbon.kafka.topology.roles.RBACPredefinedRoles.DEVELOPER_READ;
 import static com.purbon.kafka.topology.roles.RBACPredefinedRoles.DEVELOPER_WRITE;
 import static com.purbon.kafka.topology.roles.RBACPredefinedRoles.RESOURCE_OWNER;
@@ -10,7 +9,6 @@ import com.purbon.kafka.topology.api.mds.MDSApiClient;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
-import java.util.function.Consumer;
 
 public class RBACProvider implements AccessControlProvider {
 
@@ -72,6 +70,10 @@ public class RBACProvider implements AccessControlProvider {
   @Override
   public void setAclsForProducers(Collection<String> principals, String topic) {
     principals.forEach(principal -> apiClient.bind(principal, DEVELOPER_WRITE, topic, LITERAL));
+  }
 
+  @Override
+  public void setPredefinedRole(String principal, String predefinedRole, String topicPrefix) {
+    apiClient.bind(principal, predefinedRole, topicPrefix, PREFIX);
   }
 }

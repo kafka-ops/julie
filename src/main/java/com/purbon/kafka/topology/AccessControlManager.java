@@ -8,6 +8,8 @@ import com.purbon.kafka.topology.model.users.Connector;
 import com.purbon.kafka.topology.model.users.KStream;
 import java.util.Collection;
 import java.util.List;
+import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 public class AccessControlManager {
@@ -48,6 +50,11 @@ public class AccessControlManager {
               .forEach(connector -> {
                 syncApplicationAcls(connector, topicPrefix);
               });
+          project
+              .getRbacRawRoles()
+              .forEach((predefinedRole, principals) -> principals
+                  .forEach(principal -> accessControlProvider
+                      .setPredefinedRole(principal, predefinedRole, topicPrefix)));
         });
   }
 

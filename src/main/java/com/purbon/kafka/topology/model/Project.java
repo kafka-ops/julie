@@ -5,7 +5,9 @@ import com.purbon.kafka.topology.model.users.Consumer;
 import com.purbon.kafka.topology.model.users.KStream;
 import com.purbon.kafka.topology.model.users.Producer;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class Project {
 
@@ -16,6 +18,7 @@ public class Project {
   private List<Producer> producers;
   private List<KStream> streams;
   private List<Connector> connectors;
+  private Map<String, List<String>> rbacRawRoles;
 
   private List<Topic> topics;
 
@@ -34,6 +37,7 @@ public class Project {
     this.consumers = new ArrayList<>();
     this.zookeepers = new ArrayList<>();
     this.connectors = new ArrayList<>();
+    this.rbacRawRoles = new HashMap<>();
   }
 
   public String getName() {
@@ -113,4 +117,11 @@ public class Project {
     this.topology = topology;
   }
 
+  public void setRbacRawRoles(Map<String, List<String>> rbacRawRoles) {
+      this.rbacRawRoles = rbacRawRoles;
+  }
+
+  public Map<String, List<String>> getRbacRawRoles() {
+    return rbacRawRoles;
+  }
 }
