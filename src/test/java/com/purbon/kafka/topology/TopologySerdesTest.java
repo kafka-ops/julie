@@ -7,6 +7,7 @@ import com.purbon.kafka.topology.model.users.Connector;
 import com.purbon.kafka.topology.model.users.Consumer;
 import com.purbon.kafka.topology.model.users.KStream;
 import com.purbon.kafka.topology.model.users.Producer;
+import com.purbon.kafka.topology.serdes.TopologySerdes;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.net.URL;
