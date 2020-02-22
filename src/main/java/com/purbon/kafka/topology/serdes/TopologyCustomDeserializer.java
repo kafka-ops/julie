@@ -1,4 +1,4 @@
-package com.purbon.kafka.topology;
+package com.purbon.kafka.topology.serdes;
 
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.DeserializationContext;

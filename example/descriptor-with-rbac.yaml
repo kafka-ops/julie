@@ -1,0 +1,57 @@
+---
+team: "team"
+source: "source"
+projects:
+  - name: "foo"
+    zookeepers: []
+    consumers:
+      - principal: "User:App0"
+      - principal: "User:App1"
+    producers: []
+    streams:
+      - principal: "User:App0"
+        topics:
+          read:
+            - "topicA"
+            - "topicB"
+          write:
+            - "topicC"
+            - "topicD"
+    connectors:
+      - principal: "User:Connect1"
+        topics:
+          read:
+            - "topicA"
+            - "topicB"
+      - principal: "User:Connect2"
+        topics:
+          write:
+            - "topicC"
+            - "topicD"
+    rbac:
+      - ResourceOwner:
+        - principal: "User:Foo"
+      - SecurityAdmin:
+        - principal: "User:Boo"
+    topics:
+      - name: "foo"
+        config:
+          replication.factor: "1"
+          num.partitions: "1"
+      - dataType: "avro"
+        name: "bar"
+        config:
+          replication.factor: "1"
+          num.partitions: "1"
+  - name: "bar"
+    zookeepers: []
+    consumers: []
+    producers: []
+    streams: []
+    connectors: []
+    topics:
+      - dataType: "avro"
+        name: "bar"
+        config:
+          replication.factor: "1"
+          num.partitions: "1"

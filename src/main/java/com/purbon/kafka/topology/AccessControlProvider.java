@@ -11,4 +11,7 @@ public interface AccessControlProvider {
   void setAclsForConsumers(Collection<String> principals, String topic);
   void setAclsForProducers(Collection<String> principals, String topic);
 
+  default void setPredefinedRole(String principal, String predefinedRole, String topicPrefix) {
+   //NOOP
+  }
 }
