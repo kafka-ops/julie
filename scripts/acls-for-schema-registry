@@ -1,0 +1,23 @@
+#!/usr/bin/env bash
+
+if [[ $# -ne 3 ]]; then
+    echo "Illegal number of parameters"
+    echo "usage: acls-for-schema-registry.sh [schema-registry-user] [bootstrap-server] [command-config]"
+    exit 1
+fi
+
+SCHEMA_REGISTRY_PRINCIPAL=$1
+BOOTSTRAP_SERVER=$2
+COMMAND_CONFIG=$3
+
+kafka-acls --bootstrap-server $BOOTSTRAP_SERVER --command-config $COMMAND_CONFIG --add \
+           --allow-principal $SCHEMA_REGISTRY_PRINCIPAL --allow-host '*' \
+           --operation DescribeConfigs --topic _schemas
+
+kafka-acls --bootstrap-server $BOOTSTRAP_SERVER --command-config $COMMAND_CONFIG --add \
+           --allow-principal $SCHEMA_REGISTRY_PRINCIPAL --allow-host '*' \
+           --operation Read --topic _schemas --group '*'
+
+kafka-acls --bootstrap-server $BOOTSTRAP_SERVER --command-config $COMMAND_CONFIG --add \
+           --allow-principal $SCHEMA_REGISTRY_PRINCIPAL --allow-host '*' \
+           --operation Write --topic _schemas
