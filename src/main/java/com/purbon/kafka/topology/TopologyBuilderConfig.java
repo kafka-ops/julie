@@ -10,5 +10,5 @@ public class TopologyBuilderConfig {
   public static final String MDS_SERVER = "topology.builder.mds.server";
   public static final String MDS_USER_CONFIG = "topology.builder.mds.user";
   public static final String MDS_PASSWORD_CONFIG = "topology.builder.mds.password";
-
+  public static final String MDS_KAFKA_CLUSTER_ID_CONFIG = "topology.builder.mds.kafka.cluster.id";
 }
