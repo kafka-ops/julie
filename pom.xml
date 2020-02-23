@@ -61,7 +61,7 @@
                 <configuration>
                   <trimStackTrace>false</trimStackTrace>
                   <excludes>
-                    <exclude>none</exclude>
+                    <exclude>**/*RbacIT</exclude>
                   </excludes>
                   <includes>
                     <include>**/*IT</include>
