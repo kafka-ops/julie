@@ -1,3 +1,7 @@
+v0.10.2:
+* Add improved connection handling when talking with the RBAC MDS server
+* Extended the test suite for rbac and isoleted test with the SASL plain suit. 
+
 v0.10.1:
 * Fix the RPM builder script, build an rpm that create proper users for running the application.
 * Fix param passing to the RBAC provider from the properties file.
