@@ -4,6 +4,7 @@ import static com.purbon.kafka.topology.BuilderCLI.ADMIN_CLIENT_CONFIG_OPTION;
 import static com.purbon.kafka.topology.BuilderCLI.BROKERS_OPTION;
 import static com.purbon.kafka.topology.TopologyBuilderConfig.ACCESS_CONTROL_DEFAULT_CLASS;
 import static com.purbon.kafka.topology.TopologyBuilderConfig.ACCESS_CONTROL_IMPLEMENTATION_CLASS;
+import static com.purbon.kafka.topology.TopologyBuilderConfig.MDS_KAFKA_CLUSTER_ID_CONFIG;
 import static com.purbon.kafka.topology.TopologyBuilderConfig.MDS_PASSWORD_CONFIG;
 import static com.purbon.kafka.topology.TopologyBuilderConfig.MDS_SERVER;
 import static com.purbon.kafka.topology.TopologyBuilderConfig.MDS_USER_CONFIG;
@@ -74,8 +75,15 @@ public class KafkaTopologyBuilder {
         String mdsPassword = properties.getProperty(MDS_PASSWORD_CONFIG);
 
         MDSApiClient apiClient = new MDSApiClient(mdsServer);
+
+        // Pass Cluster IDS
+        String kafkaClusterID = properties.getProperty(MDS_KAFKA_CLUSTER_ID_CONFIG);
+        apiClient.setKafkaClusterId(kafkaClusterID);
+
+        // Login and authenticate with the server
         apiClient.login(mdsUser, mdsPassword);
         apiClient.authenticate();
+
         Constructor<?> constructor = clazz.getConstructor(MDSApiClient.class);
         return (RBACProvider) constructor.newInstance(apiClient);
       } else {

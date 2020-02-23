@@ -29,8 +29,12 @@ public class RBACProvider implements AccessControlProvider {
   public void setAclsForConnect(String principal, String topicPrefix, List<String> readTopics, List<String> writeTopics) {
 
     apiClient.bind(principal, DEVELOPER_READ, topicPrefix, PREFIX);
-    readTopics.forEach(topic -> apiClient.bind(principal, DEVELOPER_READ, topic, LITERAL));
-    writeTopics.forEach(topic -> apiClient.bind(principal, DEVELOPER_WRITE, topic, LITERAL));
+    if (readTopics != null && readTopics.isEmpty()) {
+      readTopics.forEach(topic -> apiClient.bind(principal, DEVELOPER_READ, topic, LITERAL));
+    }
+    if (writeTopics != null && readTopics.isEmpty()) {
+      writeTopics.forEach(topic -> apiClient.bind(principal, DEVELOPER_WRITE, topic, LITERAL));
+    }
 
     String[] resources = new String[]{"Topic:connect-configs",
         "Topic:connect-offsets",

@@ -25,9 +25,11 @@ public class MDSApiClient {
   private String basicCredentials;
 
   private AuthenticationCredentials authenticationCredentials;
+  private String kafkaClusterID;
 
   public MDSApiClient(String mdsServer) {
     this.mdsServer = mdsServer;
+    this.kafkaClusterID = "";
   }
 
   public void login(String user, String password) {
@@ -40,7 +42,6 @@ public class MDSApiClient {
   }
 
   public void authenticate() {
-
     HttpGet request = new HttpGet(mdsServer + "/security/1.0/authenticate");
     request.addHeader("accept", " application/json");
     request.addHeader("Authorization", "Basic "+ basicCredentials);
@@ -67,10 +68,14 @@ public class MDSApiClient {
 
   public void bind(String principal, String role, String resource, String resourceType, String patternType) {
 
-    HttpPost postRequest = new HttpPost(mdsServer + "/principals/"+principal+"/roles/"+role+"/bindings");
+    HttpPost postRequest = new HttpPost(mdsServer + "/security/1.0/principals/"+principal+"/roles/"+role+"/bindings");
+    postRequest.addHeader("accept", " application/json");
+    postRequest.addHeader("Content-Type", "application/json");
+    postRequest.addHeader("Authorization", "Basic "+ basicCredentials);
+
     try {
       Map<String, Object> scope = buildResourceScope(resourceType, resource, patternType);
-      postRequest.setEntity(new StringEntity(JSON.asString(getClusterIds())));
+      postRequest.setEntity(new StringEntity(JSON.asString(scope)));
       post(postRequest);
     } catch (IOException e) {
       e.printStackTrace();
@@ -97,7 +102,12 @@ public class MDSApiClient {
   }
 
   public List<String> lookupRoles(String principal) {
-    HttpPost postRequest = new HttpPost(mdsServer + "/lookup/principals/"+principal+"/roleNames");
+    HttpPost postRequest = new HttpPost(mdsServer + "/security/1.0/lookup/principals/"+principal+"/roleNames");
+    postRequest.addHeader("accept", " application/json");
+    postRequest.addHeader("Content-Type", "application/json");
+    postRequest.addHeader("Authorization", "Basic "+ basicCredentials);
+
+
     List<String> roles = new ArrayList<>();
 
     try {
@@ -115,10 +125,11 @@ public class MDSApiClient {
 
   private Map<String,Map<String, String>> getClusterIds() {
     HashMap<String, String> clusterIds = new HashMap<>();
-    clusterIds.put("kafka-cluster", "kafka-cluster");
-    clusterIds.put("connect-cluster", "connect-cluster");
-    clusterIds.put("ksql-cluster", "ksqlCluster");
-    clusterIds.put("schema-registry-cluster", "schemaRegistryClusterId");
+    if (!kafkaClusterID.isEmpty())
+      clusterIds.put("kafka-cluster", kafkaClusterID);
+    //clusterIds.put("connect-cluster", "connect-cluster");
+    //clusterIds.put("ksql-cluster", "ksqlCluster");
+    //clusterIds.put("schema-registry-cluster", "schemaRegistryClusterId");
 
     Map<String, Map<String, String>> clusters = new HashMap<>();
     clusters.put("clusters", clusterIds);
@@ -155,5 +166,9 @@ public class MDSApiClient {
       return result;
     }
 
+  }
+
+  public void setKafkaClusterId(String kafkaClusterID) {
+    this.kafkaClusterID = kafkaClusterID;
   }
 }
