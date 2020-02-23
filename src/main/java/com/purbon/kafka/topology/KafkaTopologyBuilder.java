@@ -6,7 +6,6 @@ import static com.purbon.kafka.topology.TopologyBuilderConfig.ACCESS_CONTROL_DEF
 import static com.purbon.kafka.topology.TopologyBuilderConfig.ACCESS_CONTROL_IMPLEMENTATION_CLASS;
 import static com.purbon.kafka.topology.TopologyBuilderConfig.MDS_KAFKA_CLUSTER_ID_CONFIG;
 import static com.purbon.kafka.topology.TopologyBuilderConfig.MDS_PASSWORD_CONFIG;
-import static com.purbon.kafka.topology.TopologyBuilderConfig.MDS_SERVER;
 import static com.purbon.kafka.topology.TopologyBuilderConfig.MDS_USER_CONFIG;
 import static com.purbon.kafka.topology.TopologyBuilderConfig.RBAC_ACCESS_CONTROL_CLASS;
 
@@ -27,18 +26,16 @@ import org.apache.kafka.clients.admin.AdminClientConfig;
 public class KafkaTopologyBuilder {
 
   private final String topologyFile;
-  private final Map<String, String> config;
   private final TopologySerdes parser;
   private final Properties properties;
   private final TopologyBuilderAdminClient builderAdminClient;
 
-  public KafkaTopologyBuilder(String topologyFile, Map<String, String> config) {
+  public KafkaTopologyBuilder(String topologyFile, Map<String, String> cliParams) {
     this.topologyFile = topologyFile;
-    this.config = config;
     this.parser = new TopologySerdes();
 
-    this.properties = buildProperties(config);
-    this.builderAdminClient = buildTopologyAdminClient(config);
+    this.properties = buildProperties(cliParams);
+    this.builderAdminClient = buildTopologyAdminClient(cliParams);
 
   }
 
@@ -57,10 +54,10 @@ public class KafkaTopologyBuilder {
   }
 
   private AccessControlProvider buildAccessControlProvider() throws IOException {
-    String accessControlClass = config.getOrDefault(
+    String accessControlClass = properties.getOrDefault(
         ACCESS_CONTROL_IMPLEMENTATION_CLASS,
         "com.purbon.kafka.topology.roles.SimpleAclsProvider"
-    );
+    ).toString();
 
     try {
       Class<?> clazz = Class.forName(accessControlClass);
@@ -94,29 +91,29 @@ public class KafkaTopologyBuilder {
     }
   }
 
-  private Properties buildProperties(Map<String, String> config) {
+  private Properties buildProperties(Map<String, String> cliParams) {
     Properties props = new Properties();
-    if (config.get(ADMIN_CLIENT_CONFIG_OPTION) != null) {
+    if (cliParams.get(ADMIN_CLIENT_CONFIG_OPTION) != null) {
       try {
-        props.load(new FileInputStream(config.get(ADMIN_CLIENT_CONFIG_OPTION)));
+        props.load(new FileInputStream(cliParams.get(ADMIN_CLIENT_CONFIG_OPTION)));
       } catch (IOException e) {
         //TODO: Can be ignored
       }
     } else {
-      props.put(AdminClientConfig.BOOTSTRAP_SERVERS_CONFIG, config.get(BROKERS_OPTION));
+      props.put(AdminClientConfig.BOOTSTRAP_SERVERS_CONFIG, cliParams.get(BROKERS_OPTION));
     }
     props.put(AdminClientConfig.RETRIES_CONFIG, Integer.MAX_VALUE);
 
     return props;
   }
 
-  private TopologyBuilderAdminClient buildTopologyAdminClient(Map<String, String> config) {
-    AdminClient kafkaAdminClient = buildKafkaAdminClient(config);
+  private TopologyBuilderAdminClient buildTopologyAdminClient(Map<String, String> cliParams) {
+    AdminClient kafkaAdminClient = buildKafkaAdminClient(cliParams);
     return new TopologyBuilderAdminClient(kafkaAdminClient);
   }
 
-  private AdminClient buildKafkaAdminClient(Map<String, String> config) {
-    Properties props = buildProperties(config);
+  private AdminClient buildKafkaAdminClient(Map<String, String> cliParams) {
+    Properties props = buildProperties(cliParams);
     return AdminClient.create(props);
   }
 
