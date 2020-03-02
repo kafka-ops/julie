@@ -192,6 +192,7 @@ public class TopologyBuilderAdminClient {
 
   public void setAclsForProducer(String principal, String topic) {
     List<AclBinding> acls = new ArrayList<>();
+    acls.add(buildTopicLevelAcl(principal, topic, PatternType.LITERAL, AclOperation.DESCRIBE));
     acls.add(buildTopicLevelAcl(principal, topic, PatternType.LITERAL, AclOperation.WRITE));
     createAcls(acls);
   }
@@ -199,6 +200,7 @@ public class TopologyBuilderAdminClient {
   public void setAclsForConsumer(String principal, String topic) {
 
     List<AclBinding> acls = new ArrayList<>();
+    acls.add(buildTopicLevelAcl(principal, topic, PatternType.LITERAL, AclOperation.DESCRIBE));
     acls.add(buildTopicLevelAcl(principal, topic, PatternType.LITERAL, AclOperation.READ));
     acls.add(buildGroupLevelAcl(principal, "*", PatternType.LITERAL, AclOperation.READ));
     createAcls(acls);

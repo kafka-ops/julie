@@ -46,7 +46,7 @@
     </profile>
 
     <profile>
-      <id>surefire</id>
+      <id>acls</id>
       <build>
         <plugins>
           <plugin>

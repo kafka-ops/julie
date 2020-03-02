@@ -1,3 +1,7 @@
+MASTER:
+* updated ACLs for producers and consumers to include the describe permission in order to properly
+allow for metadata recollection.
+
 v0.10.2:
 * Add improved connection handling when talking with the RBAC MDS server
 * Extended the test suite for rbac and isoleted test with the SASL plain suit. 
