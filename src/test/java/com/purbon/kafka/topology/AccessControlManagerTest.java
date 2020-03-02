@@ -2,6 +2,7 @@ package com.purbon.kafka.topology;
 
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
@@ -13,6 +14,7 @@ import com.purbon.kafka.topology.model.users.Consumer;
 import com.purbon.kafka.topology.model.users.KStream;
 import com.purbon.kafka.topology.model.users.Producer;
 import com.purbon.kafka.topology.roles.SimpleAclsProvider;
+import com.purbon.kafka.topology.roles.TopologyAclBinding;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -21,6 +23,7 @@ import java.util.List;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+import org.mockito.Matchers;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnit;
 import org.mockito.junit.MockitoRule;
@@ -31,6 +34,9 @@ public class AccessControlManagerTest {
   @Mock
   SimpleAclsProvider aclsProvider;
 
+  @Mock
+  ClusterState clusterState;
+
   @Rule
   public MockitoRule mockitoRule = MockitoJUnit.rule();
 
@@ -39,7 +45,13 @@ public class AccessControlManagerTest {
 
   @Before
   public void setup() {
-    accessControlManager = new AccessControlManager(aclsProvider);
+    accessControlManager = new AccessControlManager(aclsProvider, clusterState);
+    doNothing()
+        .when(clusterState)
+        .update(Matchers.anyList());
+    doNothing()
+        .when(clusterState)
+        .flushAndClose();
   }
 
   @Test
@@ -57,7 +69,8 @@ public class AccessControlManagerTest {
     topology.addProject(project);
 
     List<String> users = Arrays.asList(new String[]{"User:app1"});
-    doNothing()
+
+    doReturn(new ArrayList<TopologyAclBinding>())
         .when(aclsProvider)
         .setAclsForConsumers(users, topicA.toString());
     accessControlManager.sync(topology);

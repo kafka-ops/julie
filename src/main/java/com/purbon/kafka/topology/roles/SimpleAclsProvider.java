@@ -1,9 +1,12 @@
 package com.purbon.kafka.topology.roles;
 
 import com.purbon.kafka.topology.AccessControlProvider;
+import com.purbon.kafka.topology.ClusterState;
 import com.purbon.kafka.topology.TopologyBuilderAdminClient;
 import java.util.Collection;
 import java.util.List;
+import java.util.stream.Collectors;
+import org.apache.kafka.common.acl.AclBinding;
 
 public class SimpleAclsProvider implements AccessControlProvider {
 
@@ -14,8 +17,8 @@ public class SimpleAclsProvider implements AccessControlProvider {
   }
 
   @Override
-  public void clearAcls() {
-    adminClient.clearAcls();
+  public void clearAcls(ClusterState clusterState) {
+
   }
 
   @Override
@@ -31,8 +34,16 @@ public class SimpleAclsProvider implements AccessControlProvider {
   }
 
   @Override
-  public void setAclsForConsumers(Collection<String> principals, String topic) {
-    principals.forEach(principal -> adminClient.setAclsForConsumer(principal, topic));
+  public List<TopologyAclBinding> setAclsForConsumers(Collection<String> principals, String topic) {
+    return principals
+        .stream()
+        .flatMap(principal -> {
+          List<AclBinding> acls = adminClient.setAclsForConsumer(principal, topic);
+          return acls
+              .stream()
+              .map(aclBinding -> new TopologyAclBinding(aclBinding));
+        })
+        .collect(Collectors.toList());
   }
 
   @Override

@@ -1,28 +1,32 @@
 package com.purbon.kafka.topology;
 
-import com.purbon.kafka.topology.TopologyBuilderAdminClient;
 import com.purbon.kafka.topology.model.DynamicUser;
 import com.purbon.kafka.topology.model.Topology;
 import com.purbon.kafka.topology.model.User;
 import com.purbon.kafka.topology.model.users.Connector;
 import com.purbon.kafka.topology.model.users.KStream;
+import com.purbon.kafka.topology.roles.TopologyAclBinding;
 import java.util.Collection;
 import java.util.List;
-import java.util.function.BiConsumer;
-import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 public class AccessControlManager {
 
-  private final AccessControlProvider accessControlProvider;
+  private AccessControlProvider controlProvider;
+  private ClusterState clusterState;
 
-  public AccessControlManager(final AccessControlProvider accessControlProvider) {
-    this.accessControlProvider = accessControlProvider;
+  public AccessControlManager(AccessControlProvider controlProvider) {
+    this(controlProvider, new ClusterState());
+  }
+
+  public AccessControlManager(AccessControlProvider controlProvider, ClusterState clusterState) {
+    this.controlProvider = controlProvider;
+    this.clusterState = clusterState;
   }
 
   public void sync(final Topology topology) {
 
-    accessControlProvider.clearAcls();
+    controlProvider.clearAcls(clusterState);
 
     topology
         .getProjects()
@@ -33,10 +37,13 @@ public class AccessControlManager {
             final String fullTopicName = topic.toString();
 
             Collection<String> consumerPrincipals = extractUsersToPrincipals(project.getConsumers());
-            accessControlProvider.setAclsForConsumers(consumerPrincipals, fullTopicName);
+
+            List<TopologyAclBinding> bindings = controlProvider
+                .setAclsForConsumers(consumerPrincipals, fullTopicName);
+            clusterState.update(bindings);
 
             Collection<String> producerPrincipals = extractUsersToPrincipals(project.getProducers());
-            accessControlProvider.setAclsForProducers(producerPrincipals, fullTopicName);
+            controlProvider.setAclsForProducers(producerPrincipals, fullTopicName);
           });
           // Setup global Kafka Stream Access control lists
           String topicPrefix = project.buildTopicPrefix(topology);
@@ -53,18 +60,20 @@ public class AccessControlManager {
           project
               .getRbacRawRoles()
               .forEach((predefinedRole, principals) -> principals
-                  .forEach(principal -> accessControlProvider
+                  .forEach(principal -> controlProvider
                       .setPredefinedRole(principal, predefinedRole, topicPrefix)));
         });
+
+    clusterState.flushAndClose();
   }
 
   private void syncApplicationAcls(DynamicUser app, String topicPrefix) {
     List<String> readTopics = app.getTopics().get(KStream.READ_TOPICS);
     List<String> writeTopics = app.getTopics().get(KStream.WRITE_TOPICS);
     if (app instanceof KStream) {
-      accessControlProvider.setAclsForStreamsApp(app.getPrincipal(), topicPrefix, readTopics, writeTopics);
+      controlProvider.setAclsForStreamsApp(app.getPrincipal(), topicPrefix, readTopics, writeTopics);
     } else if (app instanceof Connector) {
-      accessControlProvider.setAclsForConnect(app.getPrincipal(), topicPrefix, readTopics, writeTopics);
+      controlProvider.setAclsForConnect(app.getPrincipal(), topicPrefix, readTopics, writeTopics);
     }
   }
 

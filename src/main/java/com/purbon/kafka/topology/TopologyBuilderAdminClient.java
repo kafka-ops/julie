@@ -1,6 +1,7 @@
 package com.purbon.kafka.topology;
 
 import com.purbon.kafka.topology.model.Topic;
+import com.purbon.kafka.topology.roles.TopologyAclBinding;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -11,6 +12,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ExecutionException;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 import org.apache.kafka.clients.admin.AdminClient;
 import org.apache.kafka.clients.admin.AlterConfigOp;
 import org.apache.kafka.clients.admin.AlterConfigOp.OpType;
@@ -197,13 +200,14 @@ public class TopologyBuilderAdminClient {
     createAcls(acls);
   }
 
-  public void setAclsForConsumer(String principal, String topic) {
+  public List<AclBinding> setAclsForConsumer(String principal, String topic) {
 
     List<AclBinding> acls = new ArrayList<>();
     acls.add(buildTopicLevelAcl(principal, topic, PatternType.LITERAL, AclOperation.DESCRIBE));
     acls.add(buildTopicLevelAcl(principal, topic, PatternType.LITERAL, AclOperation.READ));
     acls.add(buildGroupLevelAcl(principal, "*", PatternType.LITERAL, AclOperation.READ));
     createAcls(acls);
+    return acls;
   }
 
   private void createAcls(Collection<AclBinding> acls) {
