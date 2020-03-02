@@ -28,7 +28,7 @@ public class RBACProvider implements AccessControlProvider {
   }
 
   @Override
-  public void setAclsForConnect(String principal, String topicPrefix, List<String> readTopics, List<String> writeTopics) {
+  public List<TopologyAclBinding> setAclsForConnect(String principal, String topicPrefix, List<String> readTopics, List<String> writeTopics) {
 
     apiClient.bind(principal, DEVELOPER_READ, topicPrefix, PREFIX);
     if (readTopics != null && readTopics.isEmpty()) {
@@ -53,10 +53,11 @@ public class RBACProvider implements AccessControlProvider {
           String resourceType = elements[1];
           apiClient.bind(principal, RESOURCE_OWNER, resource, resourceType, LITERAL);
         });
+    return new ArrayList<>();
   }
 
   @Override
-  public void setAclsForStreamsApp(String principal, String topicPrefix, List<String> readTopics,
+  public List<TopologyAclBinding> setAclsForStreamsApp(String principal, String topicPrefix, List<String> readTopics,
       List<String> writeTopics) {
 
     apiClient.bind(principal, DEVELOPER_READ, topicPrefix, PREFIX);
@@ -66,6 +67,7 @@ public class RBACProvider implements AccessControlProvider {
     apiClient.bind(principal, RESOURCE_OWNER, topicPrefix, PREFIX);
     apiClient.bind(principal, RESOURCE_OWNER, topicPrefix, "Group", PREFIX);
 
+    return new ArrayList<>();
   }
 
   @Override

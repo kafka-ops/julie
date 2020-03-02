@@ -121,7 +121,7 @@ public class AccessControlManagerTest {
     accessControlManager.sync(topology);
     String topicPrefix = project.buildTopicPrefix(topology);
 
-    doNothing()
+    doReturn(new ArrayList<TopologyAclBinding>())
         .when(aclsProvider)
         .setAclsForStreamsApp("User:App0", topicPrefix, topics.get(KStream.READ_TOPICS), topics.get(KStream.WRITE_TOPICS));
     verify(aclsProvider, times(1))
@@ -147,7 +147,7 @@ public class AccessControlManagerTest {
     accessControlManager.sync(topology);
     String topicPrefix = project.buildTopicPrefix(topology);
 
-    doNothing()
+    doReturn(new ArrayList<TopologyAclBinding>())
         .when(aclsProvider)
         .setAclsForConnect("User:Connect1", topicPrefix, topics.get(KStream.READ_TOPICS), topics.get(KStream.WRITE_TOPICS));
     verify(aclsProvider, times(1))

@@ -1,6 +1,7 @@
 package com.purbon.kafka.topology;
 
 import com.purbon.kafka.topology.model.Topic;
+import com.purbon.kafka.topology.roles.TopologyAclBinding;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -263,7 +264,7 @@ public class TopologyBuilderAdminClient {
   }
 
 
-  public void setAclsForStreamsApp(String principal, String topicPrefix, List<String> readTopics, List<String> writeTopics) {
+  public List<AclBinding>  setAclsForStreamsApp(String principal, String topicPrefix, List<String> readTopics, List<String> writeTopics) {
 
     List<AclBinding> acls = new ArrayList<>();
 
@@ -277,10 +278,11 @@ public class TopologyBuilderAdminClient {
 
     acls.add(buildTopicLevelAcl(principal, topicPrefix, PatternType.PREFIXED, AclOperation.ALL));
     createAcls(acls);
+    return acls;
   }
 
 
-  public void setAclsForConnect(String principal, String topicPrefix, List<String> readTopics, List<String> writeTopics) {
+  public List<AclBinding> setAclsForConnect(String principal, String topicPrefix, List<String> readTopics, List<String> writeTopics) {
 
     List<AclBinding> acls = new ArrayList<>();
 
@@ -311,6 +313,7 @@ public class TopologyBuilderAdminClient {
     }
 
     createAcls(acls);
+    return acls;
   }
 
   private AclBinding buildTopicLevelAcl(String principal, String topic, PatternType patternType, AclOperation op) {

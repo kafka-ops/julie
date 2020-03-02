@@ -6,6 +6,7 @@ import com.purbon.kafka.topology.model.User;
 import com.purbon.kafka.topology.model.users.Connector;
 import com.purbon.kafka.topology.model.users.KStream;
 import com.purbon.kafka.topology.roles.TopologyAclBinding;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -72,11 +73,13 @@ public class AccessControlManager {
   private void syncApplicationAcls(DynamicUser app, String topicPrefix) {
     List<String> readTopics = app.getTopics().get(KStream.READ_TOPICS);
     List<String> writeTopics = app.getTopics().get(KStream.WRITE_TOPICS);
+    List<TopologyAclBinding> bindings = new ArrayList<>();
     if (app instanceof KStream) {
-      controlProvider.setAclsForStreamsApp(app.getPrincipal(), topicPrefix, readTopics, writeTopics);
+      bindings = controlProvider.setAclsForStreamsApp(app.getPrincipal(), topicPrefix, readTopics, writeTopics);
     } else if (app instanceof Connector) {
-      controlProvider.setAclsForConnect(app.getPrincipal(), topicPrefix, readTopics, writeTopics);
+      bindings = controlProvider.setAclsForConnect(app.getPrincipal(), topicPrefix, readTopics, writeTopics);
     }
+    clusterState.update(bindings);
   }
 
   private Collection<String> extractUsersToPrincipals(List<? extends User> users) {

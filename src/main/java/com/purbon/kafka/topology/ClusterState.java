@@ -8,10 +8,12 @@ import java.util.List;
 
 public class ClusterState {
 
+  private String type;
   private PrintWriter writer;
   private List<TopologyAclBinding> bindings;
 
   public ClusterState() {
+    this.type = "acls";
     this.bindings = new ArrayList<>();
     try {
       this.writer = new PrintWriter(".cluster-state");
@@ -25,6 +27,7 @@ public class ClusterState {
   }
 
   public void flushAndClose() {
+    writer.println(type);
     bindings.forEach(binding -> writer.println(binding));
     this.writer.close();
   }

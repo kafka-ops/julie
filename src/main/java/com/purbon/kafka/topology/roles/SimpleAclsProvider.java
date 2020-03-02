@@ -5,7 +5,9 @@ import com.purbon.kafka.topology.ClusterState;
 import com.purbon.kafka.topology.TopologyBuilderAdminClient;
 import java.util.Collection;
 import java.util.List;
+import java.util.function.Function;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import org.apache.kafka.common.acl.AclBinding;
 
 public class SimpleAclsProvider implements AccessControlProvider {
@@ -22,15 +24,21 @@ public class SimpleAclsProvider implements AccessControlProvider {
   }
 
   @Override
-  public void setAclsForConnect(String principal, String topicPrefix, List<String> readTopics, List<String> writeTopics) {
-    adminClient
-        .setAclsForConnect(principal, topicPrefix, readTopics, writeTopics);
+  public List<TopologyAclBinding> setAclsForConnect(String principal, String topicPrefix, List<String> readTopics, List<String> writeTopics) {
+    return
+        adminClient
+         .setAclsForConnect(principal, topicPrefix, readTopics, writeTopics)
+        .stream()
+        .map(aclBinding -> new TopologyAclBinding(aclBinding))
+        .collect(Collectors.toList());
   }
 
   @Override
-  public void setAclsForStreamsApp(String principal, String topicPrefix, List<String> readTopics, List<String> writeTopics) {
-    adminClient
-        .setAclsForStreamsApp(principal, topicPrefix, readTopics, writeTopics);
+  public List<TopologyAclBinding> setAclsForStreamsApp(String principal, String topicPrefix, List<String> readTopics, List<String> writeTopics) {
+    return adminClient
+        .setAclsForStreamsApp(principal, topicPrefix, readTopics, writeTopics)
+        .stream()
+        .map(aclBinding -> new TopologyAclBinding(aclBinding)).collect(Collectors.toList());
   }
 
   @Override
