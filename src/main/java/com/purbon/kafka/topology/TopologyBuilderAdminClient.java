@@ -190,11 +190,12 @@ public class TopologyBuilderAdminClient {
     return kafkaVersion;
   }
 
-  public void setAclsForProducer(String principal, String topic) {
+  public List<AclBinding> setAclsForProducer(String principal, String topic) {
     List<AclBinding> acls = new ArrayList<>();
     acls.add(buildTopicLevelAcl(principal, topic, PatternType.LITERAL, AclOperation.DESCRIBE));
     acls.add(buildTopicLevelAcl(principal, topic, PatternType.LITERAL, AclOperation.WRITE));
     createAcls(acls);
+    return acls;
   }
 
   public List<AclBinding> setAclsForConsumer(String principal, String topic) {

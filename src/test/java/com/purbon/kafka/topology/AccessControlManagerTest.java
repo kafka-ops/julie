@@ -94,8 +94,8 @@ public class AccessControlManagerTest {
 
     List<String> users = Arrays.asList(new String[]{"User:app1"});
 
-
-    doNothing().when(aclsProvider)
+    doReturn(new ArrayList<TopologyAclBinding>())
+        .when(aclsProvider)
         .setAclsForProducers(users, topicA.toString());
     accessControlManager.sync(topology);
     verify(aclsProvider, times(1))

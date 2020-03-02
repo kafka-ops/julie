@@ -38,12 +38,14 @@ public class AccessControlManager {
 
             Collection<String> consumerPrincipals = extractUsersToPrincipals(project.getConsumers());
 
-            List<TopologyAclBinding> bindings = controlProvider
+            List<TopologyAclBinding> consumerBindings = controlProvider
                 .setAclsForConsumers(consumerPrincipals, fullTopicName);
-            clusterState.update(bindings);
+            clusterState.update(consumerBindings);
 
             Collection<String> producerPrincipals = extractUsersToPrincipals(project.getProducers());
-            controlProvider.setAclsForProducers(producerPrincipals, fullTopicName);
+            List<TopologyAclBinding> producerBindings = controlProvider
+                .setAclsForProducers(producerPrincipals, fullTopicName);
+            clusterState.update(producerBindings);
           });
           // Setup global Kafka Stream Access control lists
           String topicPrefix = project.buildTopicPrefix(topology);

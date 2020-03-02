@@ -10,7 +10,7 @@ public interface AccessControlProvider {
   void setAclsForConnect(String principal, String topicPrefix, List<String> readTopics, List<String> writeTopics);
   void setAclsForStreamsApp(String principal, String topicPrefix, List<String> readTopics, List<String> writeTopics);
   List<TopologyAclBinding> setAclsForConsumers(Collection<String> principals, String topic);
-  void setAclsForProducers(Collection<String> principals, String topic);
+  List<TopologyAclBinding> setAclsForProducers(Collection<String> principals, String topic);
 
   default void setPredefinedRole(String principal, String predefinedRole, String topicPrefix) {
    //NOOP

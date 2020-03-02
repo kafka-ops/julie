@@ -47,7 +47,16 @@ public class SimpleAclsProvider implements AccessControlProvider {
   }
 
   @Override
-  public void setAclsForProducers(Collection<String> principals, String topic) {
-    principals.forEach(principal -> adminClient.setAclsForProducer(principal, topic));
+  public List<TopologyAclBinding> setAclsForProducers(Collection<String> principals, String topic) {
+    return principals
+        .stream()
+        .flatMap(principal -> {
+          List<AclBinding> acls = adminClient.setAclsForProducer(principal, topic);
+          return acls
+              .stream()
+              .map(aclBinding -> new TopologyAclBinding(aclBinding));
+        })
+        .collect(Collectors.toList());
+
   }
 }
