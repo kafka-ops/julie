@@ -42,6 +42,7 @@ public class AccessControlManagerIT {
   public void before() {
     kafkaAdminClient = AdminClient.create(config());
     TopologyBuilderAdminClient adminClient = new TopologyBuilderAdminClient(kafkaAdminClient);
+    adminClient.clearAcls();
     SimpleAclsProvider aclsProvider = new SimpleAclsProvider(adminClient);
     accessControlManager = new AccessControlManager(aclsProvider);
   }
@@ -72,7 +73,7 @@ public class AccessControlManagerIT {
   public void producerAclsCreation() throws ExecutionException, InterruptedException {
 
     List<Producer> producers = new ArrayList<>();
-    producers.add(new Producer("User:app1"));
+    producers.add(new Producer("User:Producer1"));
 
     Project project = new Project("project");
     project.setProducers(producers);
