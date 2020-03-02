@@ -221,7 +221,7 @@ public class AccessControlManagerIT {
     for (Producer producer : producers) {
       ResourcePatternFilter resourceFilter = ResourcePatternFilter.ANY;
       AccessControlEntryFilter entryFilter = new AccessControlEntryFilter(producer.getPrincipal(),
-          null, AclOperation.WRITE, AclPermissionType.ALLOW);
+          null, AclOperation.ANY, AclPermissionType.ALLOW);
 
       AclBindingFilter filter = new AclBindingFilter(resourceFilter, entryFilter);
       Collection<AclBinding> acls = kafkaAdminClient
@@ -229,7 +229,7 @@ public class AccessControlManagerIT {
           .values()
           .get();
 
-      Assert.assertEquals(1, acls.size());
+      Assert.assertEquals(2, acls.size());
 
       List<ResourceType> types = acls
           .stream()
@@ -237,6 +237,14 @@ public class AccessControlManagerIT {
           .collect(Collectors.toList());
 
       Assert.assertTrue(types.contains(ResourceType.TOPIC));
+
+      List<AclOperation> ops = acls
+          .stream()
+          .map(aclsBinding -> aclsBinding.entry().operation())
+          .collect(Collectors.toList());
+
+      Assert.assertTrue(ops.contains(AclOperation.DESCRIBE));
+      Assert.assertTrue(ops.contains(AclOperation.WRITE));
     }
   }
 
@@ -244,7 +252,7 @@ public class AccessControlManagerIT {
 
     for(Consumer consumer : consumers) {
       ResourcePatternFilter resourceFilter = ResourcePatternFilter.ANY;
-      AccessControlEntryFilter entryFilter = new AccessControlEntryFilter(consumer.getPrincipal(), null, AclOperation.READ, AclPermissionType.ALLOW);
+      AccessControlEntryFilter entryFilter = new AccessControlEntryFilter(consumer.getPrincipal(), null, AclOperation.ANY, AclPermissionType.ALLOW);
 
       AclBindingFilter filter = new AclBindingFilter(resourceFilter, entryFilter);
       Collection<AclBinding> acls = kafkaAdminClient
@@ -252,7 +260,7 @@ public class AccessControlManagerIT {
           .values()
           .get();
 
-        Assert.assertEquals(2, acls.size());
+        Assert.assertEquals(3, acls.size());
 
         List<ResourceType> types = acls
             .stream()
@@ -261,6 +269,14 @@ public class AccessControlManagerIT {
 
         Assert.assertTrue(types.contains(ResourceType.GROUP));
         Assert.assertTrue(types.contains(ResourceType.TOPIC));
+
+      List<AclOperation> ops = acls
+          .stream()
+          .map(aclsBinding -> aclsBinding.entry().operation())
+          .collect(Collectors.toList());
+
+      Assert.assertTrue(ops.contains(AclOperation.DESCRIBE));
+      Assert.assertTrue(ops.contains(AclOperation.READ));
     }
 
   }
