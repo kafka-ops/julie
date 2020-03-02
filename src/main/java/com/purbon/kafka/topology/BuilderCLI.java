@@ -2,18 +2,11 @@ package com.purbon.kafka.topology;
 
 import static java.lang.System.exit;
 
-import com.purbon.kafka.topology.model.Topology;
-import com.purbon.kafka.topology.roles.SimpleAclsProvider;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.net.URI;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Properties;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.DefaultParser;
@@ -22,8 +15,6 @@ import org.apache.commons.cli.Option;
 import org.apache.commons.cli.OptionBuilder;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
-import org.apache.kafka.clients.admin.AdminClient;
-import org.apache.kafka.clients.admin.AdminClientConfig;
 
 public class BuilderCLI {
 
@@ -113,12 +104,12 @@ public class BuilderCLI {
 
   private static void verifyRequiredParameters(String topologyFile, Map<String, String> config)
       throws IOException {
-    if (Files.exists(Paths.get(topologyFile))) {
+    if (!Files.exists(Paths.get(topologyFile))) {
       throw new IOException("Topology file does not exist");
     }
 
     String configFilePath = config.get(BuilderCLI.ADMIN_CLIENT_CONFIG_OPTION);
-    if (Files.exists(Paths.get(configFilePath))) {
+    if (!Files.exists(Paths.get(configFilePath))) {
       throw new IOException("App Config file does not exist");
     }
   }
