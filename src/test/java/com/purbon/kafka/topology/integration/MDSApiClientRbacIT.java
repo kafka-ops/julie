@@ -10,22 +10,30 @@ import com.purbon.kafka.topology.AccessControlManager;
 import com.purbon.kafka.topology.api.mds.AuthenticationCredentials;
 import com.purbon.kafka.topology.api.mds.MDSApiClient;
 import com.purbon.kafka.topology.roles.RBACProvider;
+import com.purbon.kafka.topology.roles.SimpleAclsProvider;
+import com.purbon.kafka.topology.utils.JSON;
+import com.purbon.kafka.topology.utils.ZKClient;
+import java.io.IOException;
 import java.util.List;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.junit.Before;
 import org.junit.Test;
 
-public class MDSApiClientRbacIT {
+public class MDSApiClientRbacIT extends MDSBaseTest {
+
+  private static final Logger LOGGER = LogManager.getLogger(MDSApiClientRbacIT.class);
 
   private String mdsServer = "http://localhost:8090";
   private String mdsUser = "professor";
   private String mdsPassword = "professor";
 
-
   private MDSApiClient apiClient;
   private AccessControlManager accessControlManager;
 
   @Before
-  public void before() {
+  public void before() throws IOException, InterruptedException {
+    super.beforeEach();
     apiClient = new MDSApiClient(mdsServer);
     RBACProvider rbacProvider = new RBACProvider(apiClient);
     accessControlManager = new AccessControlManager(rbacProvider);
@@ -70,11 +78,6 @@ public class MDSApiClientRbacIT {
     assertTrue(roles.contains(DEVELOPER_READ));
 
 
-  }
-
-
-  private String getKafkaClusterID() {
-    return  "0CQkCGPMRn2rQwyn8Zqu9A";
   }
 
 }

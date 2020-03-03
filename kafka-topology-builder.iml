@@ -121,6 +121,19 @@
     <orderEntry type="library" name="Maven: org.apache.httpcomponents:httpclient:4.5.11" level="project" />
     <orderEntry type="library" name="Maven: org.apache.httpcomponents:httpcore:4.4.13" level="project" />
     <orderEntry type="library" name="Maven: commons-logging:commons-logging:1.2" level="project" />
+    <orderEntry type="library" name="Maven: org.apache.zookeeper:zookeeper:3.5.7" level="project" />
+    <orderEntry type="library" name="Maven: org.apache.zookeeper:zookeeper-jute:3.5.7" level="project" />
+    <orderEntry type="library" name="Maven: org.apache.yetus:audience-annotations:0.5.0" level="project" />
+    <orderEntry type="library" name="Maven: io.netty:netty-handler:4.1.45.Final" level="project" />
+    <orderEntry type="library" name="Maven: io.netty:netty-common:4.1.45.Final" level="project" />
+    <orderEntry type="library" name="Maven: io.netty:netty-buffer:4.1.45.Final" level="project" />
+    <orderEntry type="library" name="Maven: io.netty:netty-transport:4.1.45.Final" level="project" />
+    <orderEntry type="library" name="Maven: io.netty:netty-resolver:4.1.45.Final" level="project" />
+    <orderEntry type="library" name="Maven: io.netty:netty-codec:4.1.45.Final" level="project" />
+    <orderEntry type="library" name="Maven: io.netty:netty-transport-native-epoll:4.1.45.Final" level="project" />
+    <orderEntry type="library" name="Maven: io.netty:netty-transport-native-unix-common:4.1.45.Final" level="project" />
+    <orderEntry type="library" name="Maven: org.slf4j:slf4j-log4j12:1.7.25" level="project" />
+    <orderEntry type="library" name="Maven: log4j:log4j:1.2.17" level="project" />
     <orderEntry type="library" name="Maven: org.apache.kafka:kafka-clients:2.3.0" level="project" />
     <orderEntry type="library" name="Maven: com.github.luben:zstd-jni:1.4.0-1" level="project" />
     <orderEntry type="library" name="Maven: org.lz4:lz4-java:1.6.0" level="project" />

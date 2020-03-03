@@ -1,6 +1,5 @@
 package com.purbon.kafka.topology.roles;
 
-import java.io.IOException;
 import org.apache.kafka.common.acl.AccessControlEntry;
 import org.apache.kafka.common.acl.AclBinding;
 import org.apache.kafka.common.resource.ResourcePattern;
