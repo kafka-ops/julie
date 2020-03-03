@@ -39,7 +39,12 @@ Configuration:
         AppenderRef:
           - ref: LogToConsole
           - ref: LogToRollingFile
-
+      - name: com.purbon.kafka.topology.api.mds
+        level: info
+        additivity: true
+        AppenderRef:
+          - ref: LogToConsole
+          - ref: LogToRollingFile
     Root:
       level: error
       AppenderRef:

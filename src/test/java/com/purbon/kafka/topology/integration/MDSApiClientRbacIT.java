@@ -16,7 +16,6 @@ import org.junit.Test;
 
 public class MDSApiClientRbacIT {
 
-
   private String mdsServer = "http://localhost:8090";
   private String mdsUser = "professor";
   private String mdsPassword = "professor";
@@ -75,7 +74,7 @@ public class MDSApiClientRbacIT {
 
 
   private String getKafkaClusterID() {
-    return  "mjrOhX4vTpySMOlX64gqag";
+    return  "0CQkCGPMRn2rQwyn8Zqu9A";
   }
 
 }

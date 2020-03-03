@@ -1,15 +1,14 @@
 package com.purbon.kafka.topology.api.mds;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
+import com.purbon.kafka.topology.roles.RBACProvider;
 import com.purbon.kafka.topology.utils.JSON;
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import org.apache.http.HttpEntity;
-import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
@@ -17,9 +16,12 @@ import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.util.EntityUtils;
-import java.util.Map;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 public class MDSApiClient {
+
+  private static final Logger LOGGER = LogManager.getLogger(MDSApiClient.class);
 
   private final String mdsServer;
   private String basicCredentials;
@@ -76,6 +78,7 @@ public class MDSApiClient {
     try {
       Map<String, Object> scope = buildResourceScope(resourceType, resource, patternType);
       postRequest.setEntity(new StringEntity(JSON.asString(scope)));
+      LOGGER.debug("bind.entity: "+JSON.asString(scope));
       post(postRequest);
     } catch (IOException e) {
       e.printStackTrace();
@@ -139,8 +142,10 @@ public class MDSApiClient {
   private final CloseableHttpClient httpClient = HttpClients.createDefault();
 
   private String get(HttpGet request) throws IOException {
+    LOGGER.debug("GET.request: "+request);
 
     try (CloseableHttpResponse response = httpClient.execute(request)) {
+      LOGGER.debug("GET.response: "+response);
       HttpEntity entity = response.getEntity();
       //Header headers = entity.getContentType();
       String result = "";
@@ -154,9 +159,10 @@ public class MDSApiClient {
   }
 
   private String post(HttpPost request) throws IOException {
+    LOGGER.debug("POST.request: "+request);
 
     try (CloseableHttpResponse response = httpClient.execute(request)) {
-      System.out.println(response);
+      LOGGER.debug("POST.response: "+response);
       HttpEntity entity = response.getEntity();
       //Header headers = entity.getContentType();
       String result = "";

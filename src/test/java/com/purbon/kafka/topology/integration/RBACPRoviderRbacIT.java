@@ -49,8 +49,6 @@ public class RBACPRoviderRbacIT {
     accessControlManager = new AccessControlManager(rbacProvider);
   }
 
-
-
   @Test
   public void consumerAclsCreation() {
 
@@ -169,7 +167,7 @@ public class RBACPRoviderRbacIT {
 
 
   private String getKafkaClusterID() {
-    return  "mjrOhX4vTpySMOlX64gqag";
+    return  "0CQkCGPMRn2rQwyn8Zqu9A";
   }
 
 }
