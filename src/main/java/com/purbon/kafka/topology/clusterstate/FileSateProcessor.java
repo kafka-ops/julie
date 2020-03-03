@@ -23,7 +23,7 @@ public class FileSateProcessor implements StateProcessor {
   private static final Logger LOGGER = LogManager.getLogger(FileSateProcessor.class);
 
   private Writer writer;
-  private String expression = "^\\'(\\S+)\\',\\s*\\'(\\S+)\\',\\s*\\'(\\S+)\\',\\s*\\'(\\S+)\\',\\s*\\'(\\S+)\\',\\s*\\'(\\S+)\\',\\s*\\'(\\S+)\\',\\s*\\'(\\S+)\\'";
+  private String expression = "^\\'(\\S+)\\',\\s*\\'(\\S+)\\',\\s*\\'(\\S+)\\',\\s*\\'(\\S+)\\',\\s*\\'(\\S+)\\',\\s*\\'(\\S+)\\'";
   private Pattern regexp;
 
   public FileSateProcessor() {
@@ -71,12 +71,13 @@ public class FileSateProcessor implements StateProcessor {
   }
 
   private TopologyAclBinding buildAclBinding(String line) throws IOException {
-    //'GROUP', 'null', '*', 'READ', 'User:Connect1', 'null', '*', 'LITERAL'
+    //'GROUP',  '*', 'READ', 'User:Connect1',  '*', 'LITERAL'
     Matcher matches = regexp.matcher(line);
 
-    if (matches.groupCount() != 8 || !matches.matches()) {
-      throw new IOException(("line does not match"));
+    if (matches.groupCount() != 6 || !matches.matches()) {
+      throw new IOException(("line ("+ line +") does not match"));
     }
+
 
     return TopologyAclBinding.build(
         matches.group(1),
@@ -84,9 +85,7 @@ public class FileSateProcessor implements StateProcessor {
         matches.group(3),
         matches.group(4),
         matches.group(5),
-        matches.group(6),
-        matches.group(7),
-        matches.group(8)
+        matches.group(6)
     );
   }
 
