@@ -5,12 +5,14 @@ import com.purbon.kafka.topology.ClusterState;
 import com.purbon.kafka.topology.TopologyBuilderAdminClient;
 import java.util.Collection;
 import java.util.List;
-import java.util.function.Function;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 import org.apache.kafka.common.acl.AclBinding;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 public class SimpleAclsProvider implements AccessControlProvider {
+
+  private static final Logger LOGGER = LogManager.getLogger(SimpleAclsProvider.class);
 
   private final TopologyBuilderAdminClient adminClient;
 
@@ -20,7 +22,8 @@ public class SimpleAclsProvider implements AccessControlProvider {
 
   @Override
   public void clearAcls(ClusterState clusterState) {
-
+    LOGGER.debug("AclsProvider: clearAcls");
+    clusterState.forEachBinding(aclBinding -> adminClient.clearAcls(aclBinding));
   }
 
   @Override

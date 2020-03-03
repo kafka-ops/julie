@@ -71,17 +71,38 @@ public class TopologyBuilderAdminClient {
   }
 
   public void clearAcls() {
-
     Collection<AclBindingFilter> filters = new ArrayList<>();
     filters.add(AclBindingFilter.ANY);
+    clearAcls(filters);
+  }
 
+  public void clearAcls(TopologyAclBinding aclBinding) {
+    Collection<AclBindingFilter> filters = new ArrayList<>();
+
+    LOGGER.debug("clearAcl = "+aclBinding);
+    ResourcePatternFilter resourceFilter = new ResourcePatternFilter(aclBinding.getResourceType(),
+        aclBinding.getResourceName(),
+        PatternType.valueOf(aclBinding.getPattern()));
+
+    AccessControlEntryFilter accessControlEntryFilter = new AccessControlEntryFilter(
+        aclBinding.getPrincipal(),
+        aclBinding.getHost(),
+        AclOperation.valueOf(aclBinding.getOperation()),
+        AclPermissionType.ANY);
+
+    AclBindingFilter filter = new AclBindingFilter(resourceFilter, accessControlEntryFilter);
+    filters.add(filter);
+    clearAcls(filters);
+  }
+
+  private void clearAcls(Collection<AclBindingFilter> filters) {
     try {
       adminClient
           .deleteAcls(filters)
           .all()
           .get();
     } catch (Exception e) {
-      e.printStackTrace();
+      LOGGER.error(e);
     }
   }
 
@@ -329,6 +350,7 @@ public class TopologyBuilderAdminClient {
         .addControlEntry("*", op, AclPermissionType.ALLOW)
         .build();
   }
+
 
   private class AclBuilder {
 

@@ -27,12 +27,18 @@ Configuration:
 
   Loggers:
     logger:
-    - name: com.purbon.kafka
-      level: debug
-      additivity: false
-      AppenderRef:
-      - ref: LogToConsole
-      - ref: LogToRollingFile
+      - name: com.purbon.kafka
+        level: debug
+        additivity: false
+        AppenderRef:
+          - ref: LogToConsole
+          - ref: LogToRollingFile
+      - name: com.purbon.kafka.topology
+        level: info
+        additivity: true
+        AppenderRef:
+          - ref: LogToConsole
+          - ref: LogToRollingFile
 
     Root:
       level: error

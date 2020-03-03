@@ -1,6 +1,7 @@
 package com.purbon.kafka.topology.integration;
 
 import com.purbon.kafka.topology.AccessControlManager;
+import com.purbon.kafka.topology.ClusterState;
 import com.purbon.kafka.topology.TopologyBuilderAdminClient;
 import com.purbon.kafka.topology.model.Project;
 import com.purbon.kafka.topology.model.Topic;
@@ -37,16 +38,54 @@ public class AccessControlManagerIT {
 
   private static AdminClient kafkaAdminClient;
   private AccessControlManager accessControlManager;
+  private ClusterState cs;
+  private SimpleAclsProvider aclsProvider;
 
   @Before
   public void before() {
     kafkaAdminClient = AdminClient.create(config());
     TopologyBuilderAdminClient adminClient = new TopologyBuilderAdminClient(kafkaAdminClient);
     adminClient.clearAcls();
-    SimpleAclsProvider aclsProvider = new SimpleAclsProvider(adminClient);
-    accessControlManager = new AccessControlManager(aclsProvider);
+
+    cs = new ClusterState();
+    aclsProvider = new SimpleAclsProvider(adminClient);
+    accessControlManager = new AccessControlManager(aclsProvider, cs);
   }
 
+  @Test
+  public void testAclsCleanup() throws ExecutionException, InterruptedException {
+
+    // Crate an ACL outside of the control of the state manager.
+    aclsProvider
+        .setAclsForProducers(Collections.singleton("User:foo"), "bar");
+
+    // Add a collection of ACLs using the control manager, so keeping everything
+    // in the loop of the cluster state
+    List<Consumer> consumers = new ArrayList<>();
+    consumers.add(new Consumer("User:testAclsCleanupApp1"));
+
+    Project project = new Project("project");
+    project.setConsumers(consumers);
+    Topic topicA = new Topic("topicA");
+    project.addTopic(topicA);
+
+    Topology topology = new Topology();
+    topology.setTeam("integration-test");
+    topology.setSource("testAclsCleanup");
+    topology.addProject(project);
+
+    accessControlManager.sync(topology);
+
+    // Verify the cluster state, only has acls created using the access control manager.
+    Assert.assertEquals(3, cs.size());
+    // there should be 5 acls currently in the cluster, 3 for the consumer and 2 for the producer
+    verifyAclsOfSize(5);
+    // clear all acls within the control of the manager.
+    accessControlManager.clearAcls();
+    // in the cluster should be only 2 acl staying, the one we created outside the CS
+    verifyAclsOfSize(2);
+
+  }
 
   @Test
   public void consumerAclsCreation() throws ExecutionException, InterruptedException {
@@ -132,6 +171,16 @@ public class AccessControlManagerIT {
 
     verifyConnectAcls(connector);
 
+  }
+
+  private void verifyAclsOfSize(int size) throws ExecutionException, InterruptedException {
+
+    Collection<AclBinding> acls = kafkaAdminClient
+        .describeAcls(AclBindingFilter.ANY)
+        .values()
+        .get();
+
+    Assert.assertEquals(size, acls.size());
   }
 
   private void verifyConnectAcls(Connector connector) throws ExecutionException, InterruptedException {

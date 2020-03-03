@@ -156,6 +156,7 @@ public class MDSApiClient {
   private String post(HttpPost request) throws IOException {
 
     try (CloseableHttpResponse response = httpClient.execute(request)) {
+      System.out.println(response);
       HttpEntity entity = response.getEntity();
       //Header headers = entity.getContentType();
       String result = "";

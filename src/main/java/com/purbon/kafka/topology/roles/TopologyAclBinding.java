@@ -1,5 +1,6 @@
 package com.purbon.kafka.topology.roles;
 
+import java.io.IOException;
 import org.apache.kafka.common.acl.AccessControlEntry;
 import org.apache.kafka.common.acl.AclBinding;
 import org.apache.kafka.common.resource.ResourcePattern;
@@ -15,6 +16,46 @@ public class TopologyAclBinding {
   private String topic;
   private String group;
   private String pattern;
+
+  public TopologyAclBinding(
+      ResourceType resourceType,
+      String cluster,
+      String host,
+      String operation,
+      String principal,
+      String topic,
+      String group,
+      String pattern
+  ) {
+    this.resourceType = resourceType;
+    this.cluster = cluster;
+    this.host = host;
+    this.operation =  operation;
+    this.principal = principal;
+    this.topic = topic;
+    this.group = group;
+    this.pattern = pattern;
+  }
+
+  public static TopologyAclBinding build(String resourceTypeString,
+      String cluster,
+      String host,
+      String operation,
+      String principal,
+      String topic,
+      String group,
+      String pattern) {
+
+    ResourceType resourceType = ResourceType.valueOf(resourceTypeString);
+    return new TopologyAclBinding(resourceType,
+        cluster,
+        host,
+        operation,
+        principal,
+        topic,
+        group,
+        pattern);
+  }
 
   public TopologyAclBinding(AclBinding binding) {
 
@@ -39,8 +80,8 @@ public class TopologyAclBinding {
 
   }
 
-  public String getResourceType() {
-    return resourceType.name();
+  public ResourceType getResourceType() {
+    return resourceType;
   }
 
   public String getPattern() {
@@ -71,6 +112,39 @@ public class TopologyAclBinding {
     return cluster;
   }
 
+  public void setResourceType(ResourceType resourceType) {
+    this.resourceType = resourceType;
+  }
+
+  public void setCluster(String cluster) {
+    this.cluster = cluster;
+  }
+
+  public void setHost(String host) {
+    this.host = host;
+  }
+
+  public void setOperation(String operation) {
+    this.operation = operation;
+  }
+
+  public void setPrincipal(String principal) {
+    this.principal = principal;
+  }
+
+  public void setTopic(String topic) {
+    this.topic = topic;
+  }
+
+  public void setGroup(String group) {
+    this.group = group;
+  }
+
+  public void setPattern(String pattern) {
+    this.pattern = pattern;
+  }
+
+
   @Override
   public String toString() {
     return  "\'" + resourceType + '\'' +
@@ -81,5 +155,17 @@ public class TopologyAclBinding {
         ", '" + topic + '\'' +
         ", '" + group + '\'' +
         ", '" + pattern + '\'' ;
+  }
+
+  public String getResourceName() {
+    if (resourceType.equals(ResourceType.TOPIC)) {
+      return topic;
+    } else if (resourceType.equals(ResourceType.GROUP)) {
+      return group;
+    } else if (resourceType.equals(ResourceType.CLUSTER)) {
+      return cluster;
+    } else {
+      return "";
+    }
   }
 }

@@ -10,8 +10,12 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 public class AccessControlManager {
+
+  private static final Logger LOGGER = LogManager.getLogger(AccessControlManager.class);
 
   private AccessControlProvider controlProvider;
   private ClusterState clusterState;
@@ -25,9 +29,20 @@ public class AccessControlManager {
     this.clusterState = clusterState;
   }
 
+  public void clearAcls() {
+    try {
+      clusterState.load();
+      controlProvider.clearAcls(clusterState);
+    } catch (Exception e) {
+      LOGGER.error(e);
+    } finally {
+      clusterState.reset();
+    }
+  }
+
   public void sync(final Topology topology) {
 
-    controlProvider.clearAcls(clusterState);
+    clearAcls();
 
     topology
         .getProjects()
