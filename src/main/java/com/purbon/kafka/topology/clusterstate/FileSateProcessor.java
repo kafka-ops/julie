@@ -71,21 +71,20 @@ public class FileSateProcessor implements StateProcessor {
   }
 
   private TopologyAclBinding buildAclBinding(String line) throws IOException {
-    //'GROUP',  '*', 'READ', 'User:Connect1',  '*', 'LITERAL'
+    // 'TOPIC', 'topicB', '*', 'READ', 'User:Connect1', 'LITERAL'
     Matcher matches = regexp.matcher(line);
 
     if (matches.groupCount() != 6 || !matches.matches()) {
       throw new IOException(("line ("+ line +") does not match"));
     }
 
-
     return TopologyAclBinding.build(
-        matches.group(1),
-        matches.group(2),
-        matches.group(3),
-        matches.group(4),
-        matches.group(5),
-        matches.group(6)
+        matches.group(1), // resourceType
+        matches.group(2), // resourceName
+        matches.group(3), // host
+        matches.group(4), // operation
+        matches.group(5), // principal
+        matches.group(6)  // pattern
     );
   }
 
