@@ -5,15 +5,21 @@ import static com.purbon.kafka.topology.roles.RBACPredefinedRoles.DEVELOPER_WRIT
 import static com.purbon.kafka.topology.roles.RBACPredefinedRoles.RESOURCE_OWNER;
 
 import com.purbon.kafka.topology.AccessControlProvider;
+import com.purbon.kafka.topology.ClusterState;
 import com.purbon.kafka.topology.api.mds.MDSApiClient;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 public class RBACProvider implements AccessControlProvider {
 
+  private static final Logger LOGGER = LogManager.getLogger(RBACProvider.class);
+
   public static final String LITERAL = "LITERAL";
-  public static final String PREFIX = "PREFIX";
+  public static final String PREFIX = "PREFIXED";
   private final MDSApiClient apiClient;
 
   public RBACProvider(MDSApiClient apiClient) {
@@ -21,12 +27,12 @@ public class RBACProvider implements AccessControlProvider {
   }
 
   @Override
-  public void clearAcls() {
+  public void clearAcls(ClusterState clusterState) {
 
   }
 
   @Override
-  public void setAclsForConnect(String principal, String topicPrefix, List<String> readTopics, List<String> writeTopics) {
+  public List<TopologyAclBinding> setAclsForConnect(String principal, String topicPrefix, List<String> readTopics, List<String> writeTopics) {
 
     apiClient.bind(principal, DEVELOPER_READ, topicPrefix, PREFIX);
     if (readTopics != null && readTopics.isEmpty()) {
@@ -51,10 +57,11 @@ public class RBACProvider implements AccessControlProvider {
           String resourceType = elements[1];
           apiClient.bind(principal, RESOURCE_OWNER, resource, resourceType, LITERAL);
         });
+    return new ArrayList<>();
   }
 
   @Override
-  public void setAclsForStreamsApp(String principal, String topicPrefix, List<String> readTopics,
+  public List<TopologyAclBinding> setAclsForStreamsApp(String principal, String topicPrefix, List<String> readTopics,
       List<String> writeTopics) {
 
     apiClient.bind(principal, DEVELOPER_READ, topicPrefix, PREFIX);
@@ -64,16 +71,19 @@ public class RBACProvider implements AccessControlProvider {
     apiClient.bind(principal, RESOURCE_OWNER, topicPrefix, PREFIX);
     apiClient.bind(principal, RESOURCE_OWNER, topicPrefix, "Group", PREFIX);
 
+    return new ArrayList<>();
   }
 
   @Override
-  public void setAclsForConsumers(Collection<String> principals, String topic) {
+  public List<TopologyAclBinding> setAclsForConsumers(Collection<String> principals, String topic) {
     principals.forEach(principal -> apiClient.bind(principal, DEVELOPER_READ, topic, LITERAL));
+    return new ArrayList<>();
   }
 
   @Override
-  public void setAclsForProducers(Collection<String> principals, String topic) {
+  public List<TopologyAclBinding> setAclsForProducers(Collection<String> principals, String topic) {
     principals.forEach(principal -> apiClient.bind(principal, DEVELOPER_WRITE, topic, LITERAL));
+    return new ArrayList<>();
   }
 
   @Override

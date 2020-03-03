@@ -6,7 +6,7 @@
 
   <groupId>com.purbon.kafka</groupId>
   <artifactId>kafka-topology-builder</artifactId>
-  <version>0.10.3</version>
+  <version>0.11</version>
 
   <name>A Kafka topology builder tool</name>
   <description>
@@ -300,27 +300,29 @@
 
   <dependencies>
 
-    <!-- https://mvnrepository.com/artifact/org.apache.maven.plugins/maven-pmd-plugin -->
     <dependency>
       <groupId>org.apache.maven.plugins</groupId>
       <artifactId>maven-pmd-plugin</artifactId>
       <version>3.12.0</version>
     </dependency>
 
-    <!-- https://mvnrepository.com/artifact/com.github.spotbugs/spotbugs-maven-plugin -->
     <dependency>
       <groupId>com.github.spotbugs</groupId>
       <artifactId>spotbugs-maven-plugin</artifactId>
       <version>3.1.12.2</version>
     </dependency>
 
-    <!-- https://mvnrepository.com/artifact/org.apache.httpcomponents/httpclient -->
     <dependency>
       <groupId>org.apache.httpcomponents</groupId>
       <artifactId>httpclient</artifactId>
       <version>4.5.11</version>
     </dependency>
 
+    <dependency>
+      <groupId>org.apache.zookeeper</groupId>
+      <artifactId>zookeeper</artifactId>
+      <version>3.5.7</version>
+    </dependency>
 
     <dependency>
       <groupId>org.apache.kafka</groupId>
