@@ -1,11 +1,18 @@
 package com.purbon.kafka.topology.roles;
 
 import com.purbon.kafka.topology.AccessControlProvider;
+import com.purbon.kafka.topology.ClusterState;
 import com.purbon.kafka.topology.TopologyBuilderAdminClient;
 import java.util.Collection;
 import java.util.List;
+import java.util.stream.Collectors;
+import org.apache.kafka.common.acl.AclBinding;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 public class SimpleAclsProvider implements AccessControlProvider {
+
+  private static final Logger LOGGER = LogManager.getLogger(SimpleAclsProvider.class);
 
   private final TopologyBuilderAdminClient adminClient;
 
@@ -14,29 +21,53 @@ public class SimpleAclsProvider implements AccessControlProvider {
   }
 
   @Override
-  public void clearAcls() {
-    adminClient.clearAcls();
+  public void clearAcls(ClusterState clusterState) {
+    LOGGER.debug("AclsProvider: clearAcls");
+    clusterState.forEachBinding(aclBinding -> adminClient.clearAcls(aclBinding));
   }
 
   @Override
-  public void setAclsForConnect(String principal, String topicPrefix, List<String> readTopics, List<String> writeTopics) {
-    adminClient
-        .setAclsForConnect(principal, topicPrefix, readTopics, writeTopics);
+  public List<TopologyAclBinding> setAclsForConnect(String principal, String topicPrefix, List<String> readTopics, List<String> writeTopics) {
+    return
+        adminClient
+         .setAclsForConnect(principal, topicPrefix, readTopics, writeTopics)
+        .stream()
+        .map(aclBinding -> new TopologyAclBinding(aclBinding))
+        .collect(Collectors.toList());
   }
 
   @Override
-  public void setAclsForStreamsApp(String principal, String topicPrefix, List<String> readTopics, List<String> writeTopics) {
-    adminClient
-        .setAclsForStreamsApp(principal, topicPrefix, readTopics, writeTopics);
+  public List<TopologyAclBinding> setAclsForStreamsApp(String principal, String topicPrefix, List<String> readTopics, List<String> writeTopics) {
+    return adminClient
+        .setAclsForStreamsApp(principal, topicPrefix, readTopics, writeTopics)
+        .stream()
+        .map(aclBinding -> new TopologyAclBinding(aclBinding)).collect(Collectors.toList());
   }
 
   @Override
-  public void setAclsForConsumers(Collection<String> principals, String topic) {
-    principals.forEach(principal -> adminClient.setAclsForConsumer(principal, topic));
+  public List<TopologyAclBinding> setAclsForConsumers(Collection<String> principals, String topic) {
+    return principals
+        .stream()
+        .flatMap(principal -> {
+          List<AclBinding> acls = adminClient.setAclsForConsumer(principal, topic);
+          return acls
+              .stream()
+              .map(aclBinding -> new TopologyAclBinding(aclBinding));
+        })
+        .collect(Collectors.toList());
   }
 
   @Override
-  public void setAclsForProducers(Collection<String> principals, String topic) {
-    principals.forEach(principal -> adminClient.setAclsForProducer(principal, topic));
+  public List<TopologyAclBinding> setAclsForProducers(Collection<String> principals, String topic) {
+    return principals
+        .stream()
+        .flatMap(principal -> {
+          List<AclBinding> acls = adminClient.setAclsForProducer(principal, topic);
+          return acls
+              .stream()
+              .map(aclBinding -> new TopologyAclBinding(aclBinding));
+        })
+        .collect(Collectors.toList());
+
   }
 }

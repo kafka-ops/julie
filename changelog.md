@@ -1,3 +1,7 @@
+v0.11:
+* Add support for storing the current generated acls within a state file. This is useful to delete
+acls that are known and generated previously by the topology builder.
+
 v0.10.3:
 * updated ACLs for producers and consumers to include the describe permission in order to properly
 allow for metadata recollection.

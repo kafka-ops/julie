@@ -1,6 +1,7 @@
 package com.purbon.kafka.topology;
 
 import com.purbon.kafka.topology.model.Topic;
+import com.purbon.kafka.topology.roles.TopologyAclBinding;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -70,17 +71,38 @@ public class TopologyBuilderAdminClient {
   }
 
   public void clearAcls() {
-
     Collection<AclBindingFilter> filters = new ArrayList<>();
     filters.add(AclBindingFilter.ANY);
+    clearAcls(filters);
+  }
 
+  public void clearAcls(TopologyAclBinding aclBinding) {
+    Collection<AclBindingFilter> filters = new ArrayList<>();
+
+    LOGGER.debug("clearAcl = "+aclBinding);
+    ResourcePatternFilter resourceFilter = new ResourcePatternFilter(aclBinding.getResourceType(),
+        aclBinding.getResourceName(),
+        PatternType.valueOf(aclBinding.getPattern()));
+
+    AccessControlEntryFilter accessControlEntryFilter = new AccessControlEntryFilter(
+        aclBinding.getPrincipal(),
+        aclBinding.getHost(),
+        AclOperation.valueOf(aclBinding.getOperation()),
+        AclPermissionType.ANY);
+
+    AclBindingFilter filter = new AclBindingFilter(resourceFilter, accessControlEntryFilter);
+    filters.add(filter);
+    clearAcls(filters);
+  }
+
+  private void clearAcls(Collection<AclBindingFilter> filters) {
     try {
       adminClient
           .deleteAcls(filters)
           .all()
           .get();
     } catch (Exception e) {
-      e.printStackTrace();
+      LOGGER.error(e);
     }
   }
 
@@ -190,20 +212,22 @@ public class TopologyBuilderAdminClient {
     return kafkaVersion;
   }
 
-  public void setAclsForProducer(String principal, String topic) {
+  public List<AclBinding> setAclsForProducer(String principal, String topic) {
     List<AclBinding> acls = new ArrayList<>();
     acls.add(buildTopicLevelAcl(principal, topic, PatternType.LITERAL, AclOperation.DESCRIBE));
     acls.add(buildTopicLevelAcl(principal, topic, PatternType.LITERAL, AclOperation.WRITE));
     createAcls(acls);
+    return acls;
   }
 
-  public void setAclsForConsumer(String principal, String topic) {
+  public List<AclBinding> setAclsForConsumer(String principal, String topic) {
 
     List<AclBinding> acls = new ArrayList<>();
     acls.add(buildTopicLevelAcl(principal, topic, PatternType.LITERAL, AclOperation.DESCRIBE));
     acls.add(buildTopicLevelAcl(principal, topic, PatternType.LITERAL, AclOperation.READ));
     acls.add(buildGroupLevelAcl(principal, "*", PatternType.LITERAL, AclOperation.READ));
     createAcls(acls);
+    return acls;
   }
 
   private void createAcls(Collection<AclBinding> acls) {
@@ -261,7 +285,7 @@ public class TopologyBuilderAdminClient {
   }
 
 
-  public void setAclsForStreamsApp(String principal, String topicPrefix, List<String> readTopics, List<String> writeTopics) {
+  public List<AclBinding>  setAclsForStreamsApp(String principal, String topicPrefix, List<String> readTopics, List<String> writeTopics) {
 
     List<AclBinding> acls = new ArrayList<>();
 
@@ -275,10 +299,11 @@ public class TopologyBuilderAdminClient {
 
     acls.add(buildTopicLevelAcl(principal, topicPrefix, PatternType.PREFIXED, AclOperation.ALL));
     createAcls(acls);
+    return acls;
   }
 
 
-  public void setAclsForConnect(String principal, String topicPrefix, List<String> readTopics, List<String> writeTopics) {
+  public List<AclBinding> setAclsForConnect(String principal, String topicPrefix, List<String> readTopics, List<String> writeTopics) {
 
     List<AclBinding> acls = new ArrayList<>();
 
@@ -309,6 +334,7 @@ public class TopologyBuilderAdminClient {
     }
 
     createAcls(acls);
+    return acls;
   }
 
   private AclBinding buildTopicLevelAcl(String principal, String topic, PatternType patternType, AclOperation op) {
@@ -324,6 +350,7 @@ public class TopologyBuilderAdminClient {
         .addControlEntry("*", op, AclPermissionType.ALLOW)
         .build();
   }
+
 
   private class AclBuilder {
 
