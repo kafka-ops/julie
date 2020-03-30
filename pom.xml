@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0"
-  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
 
   <groupId>com.purbon.kafka</groupId>
@@ -10,7 +10,7 @@
 
   <name>A Kafka topology builder tool</name>
   <description>
-    This tool is a helper project to orient Kafka Platform teams to build proper topic and configuration management automation
+    A helper project for Kafka Platform teams to build a proper topic and configuration management automation.
   </description>
   <url>https://github.com/purbon/</url>
 
@@ -26,7 +26,7 @@
         <plugins>
           <plugin>
             <artifactId>maven-failsafe-plugin</artifactId>
-            <version>2.22.0</version>
+            <version>2.22.2</version>
             <configuration>
               <includes>
                 <include>**/*IT</include>
@@ -51,7 +51,7 @@
         <plugins>
           <plugin>
             <artifactId>maven-surefire-plugin</artifactId>
-            <version>2.22.0</version>
+            <version>2.22.2</version>
             <executions>
               <execution>
                 <phase>integration-test</phase>
@@ -70,7 +70,6 @@
               </execution>
             </executions>
           </plugin>
-
         </plugins>
       </build>
     </profile>
@@ -81,7 +80,7 @@
         <plugins>
           <plugin>
             <artifactId>maven-surefire-plugin</artifactId>
-            <version>2.22.0</version>
+            <version>2.22.2</version>
             <executions>
               <execution>
                 <phase>integration-test</phase>
@@ -100,11 +99,9 @@
               </execution>
             </executions>
           </plugin>
-
         </plugins>
       </build>
     </profile>
-
   </profiles>
 
   <build>
@@ -126,18 +123,18 @@
           <descriptorRefs>
             <descriptorRef>jar-with-dependencies</descriptorRef>
           </descriptorRefs>
-            <archive>
-              <manifest>
-                <mainClass>com.purbon.kafka.topology.BuilderCLI</mainClass>
-              </manifest>
-            </archive>
+          <archive>
+            <manifest>
+              <mainClass>com.purbon.kafka.topology.BuilderCLI</mainClass>
+            </manifest>
+          </archive>
         </configuration>
       </plugin>
 
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-site-plugin</artifactId>
-        <version>3.7.1</version>
+        <version>3.9.0</version>
       </plugin>
 
       <plugin>
@@ -149,7 +146,7 @@
       <plugin>
         <groupId>org.jacoco</groupId>
         <artifactId>jacoco-maven-plugin</artifactId>
-        <version>0.8.2</version>
+        <version>0.8.5</version>
         <executions>
           <execution>
             <goals>
@@ -247,7 +244,8 @@
              <scriptFile>src/main/scripts/preremove</scriptFile>
              <fileEncoding>utf-8</fileEncoding>
            </preremoveScriptlet>
- -->        </configuration>
+ -->
+        </configuration>
       </plugin>
 
     </plugins>
@@ -286,11 +284,8 @@
         </configuration>
 
       </plugin>
-
-
     </plugins>
   </reporting>
-
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -366,6 +361,7 @@
       <artifactId>log4j-api</artifactId>
       <version>${log4j.version}</version>
     </dependency>
+
     <dependency>
       <groupId>org.apache.logging.log4j</groupId>
       <artifactId>log4j-core</artifactId>
@@ -392,11 +388,10 @@
       <scope>test</scope>
     </dependency>
 
-
     <dependency>
       <groupId>org.testcontainers</groupId>
       <artifactId>kafka</artifactId>
-      <version>1.12.2</version>
+      <version>1.13.0</version>
       <scope>test</scope>
     </dependency>
 
