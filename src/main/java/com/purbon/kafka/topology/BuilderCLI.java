@@ -30,19 +30,19 @@ public class BuilderCLI {
     public static Options buildOptions() {
 
         final Option topologyFileOption = Option.builder()
-                .argName(TOPOLOGY_OPTION).hasArg().desc(TOPOLOGY_DESC).required().build();
+                .longOpt(TOPOLOGY_OPTION).hasArg().desc(TOPOLOGY_DESC).required().build();
 
         final Option brokersListOption = Option.builder()
-                .argName(BROKERS_OPTION).hasArg().desc(BROKERS_DESC).required().build();
+                .longOpt(BROKERS_OPTION).hasArg().desc(BROKERS_DESC).required().build();
 
         final Option adminClientConfigFileOption = Option.builder()
-                .argName(ADMIN_CLIENT_CONFIG_OPTION).hasArg().desc(ADMIN_CLIENT_CONFIG_DESC).required().build();
+                .longOpt(ADMIN_CLIENT_CONFIG_OPTION).hasArg().desc(ADMIN_CLIENT_CONFIG_DESC).required().build();
 
         final Option allowDeleteOption = Option.builder()
-                .argName(ALLOW_DELETE_OPTION).hasArg(false).desc(ALLOW_DELETE_DESC).required(false).build();
+                .longOpt(ALLOW_DELETE_OPTION).hasArg(false).desc(ALLOW_DELETE_DESC).required(false).build();
 
         final Option helpOption = Option.builder()
-                .argName(HELP_OPTION).hasArg(false).desc(HELP_DESC).required(false).build();
+                .longOpt(HELP_OPTION).hasArg(false).desc(HELP_DESC).required(false).build();
 
         final Options options = new Options();
         options.addOption(topologyFileOption);
