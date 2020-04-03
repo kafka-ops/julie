@@ -11,7 +11,7 @@ import java.util.function.Consumer;
 
 public class ClusterState {
 
-  private static final String STATE_TYPE = "acls";
+  private static final String STORE_TYPE = "acls";
 
   private final StateProcessor stateProcessor;
   private List<TopologyAclBinding> bindings;
@@ -34,7 +34,7 @@ public class ClusterState {
   }
 
   public void flushAndClose() {
-    stateProcessor.saveType(STATE_TYPE);
+    stateProcessor.saveType(STORE_TYPE);
     stateProcessor.saveBindings(bindings);
     stateProcessor.close();
   }

@@ -13,7 +13,7 @@ import static java.lang.System.exit;
 public class BuilderCLI {
 
   public static final String TOPOLOGY_OPTION = "topology";
-  public static final String TOPOLOGY_DESC = "Topology config yaml file.";
+  public static final String TOPOLOGY_DESC = "Topology config file.";
 
   public static final String BROKERS_OPTION = "brokers";
   public static final String BROKERS_DESC = "The Apache Kafka server(s) to connect to.";
@@ -26,6 +26,8 @@ public class BuilderCLI {
 
   public static final String HELP_OPTION = "help";
   public static final String HELP_DESC = "Prints usage information.";
+
+  public static final String APP_NAME = "kafka-topology-builder";
 
   public static Options buildOptions() {
 
@@ -61,8 +63,8 @@ public class BuilderCLI {
     CommandLineParser parser = new DefaultParser();
     CommandLine cmd = parseArgsOrExit(parser, options, args, formatter);
 
-    if (cmd.hasOption("help")) {
-      formatter.printHelp("kafka-topology-builder", options);
+    if (cmd.hasOption(HELP_OPTION)) {
+      formatter.printHelp(APP_NAME, options);
     } else {
       String topology = cmd.getOptionValue(TOPOLOGY_OPTION);
       String brokersList = cmd.getOptionValue(BROKERS_OPTION);
