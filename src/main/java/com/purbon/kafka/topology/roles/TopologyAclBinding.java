@@ -14,6 +14,9 @@ public class TopologyAclBinding {
   private String principal;
   private String pattern;
 
+  public TopologyAclBinding() {
+  }
+
   public TopologyAclBinding(
       ResourceType resourceType,
       String resourceName,
@@ -96,24 +99,12 @@ public class TopologyAclBinding {
 
   @Override
   public String toString() {
-    return "\'"
-        + resourceType
-        + '\''
-        + ", '"
-        + resourceName
-        + '\''
-        + ", '"
-        + host
-        + '\''
-        + ", '"
-        + operation
-        + '\''
-        + ", '"
-        + principal
-        + '\''
-        + ", '"
-        + pattern
-        + '\'';
+    return "'" + resourceType + '\'' +
+        ", '" + resourceName + '\'' +
+        ", '" + host + '\'' +
+        ", '" + operation + '\'' +
+        ", '" + principal + '\'' +
+        ", '" + pattern + '\'' ;
   }
 
   public String getResourceName() {

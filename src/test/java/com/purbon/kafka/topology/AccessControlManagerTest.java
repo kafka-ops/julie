@@ -32,7 +32,7 @@ public class AccessControlManagerTest {
 
   @Mock SimpleAclsProvider aclsProvider;
 
-  @Mock ClusterState clusterState;
+  @Mock ClusterStateManager clusterState;
 
   @Rule public MockitoRule mockitoRule = MockitoJUnit.rule();
 

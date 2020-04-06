@@ -19,13 +19,13 @@ public class AccessControlManager {
   private static final Logger LOGGER = LogManager.getLogger(AccessControlManager.class);
 
   private AccessControlProvider controlProvider;
-  private ClusterState clusterState;
+  private ClusterStateManager clusterState;
 
   public AccessControlManager(AccessControlProvider controlProvider) {
-    this(controlProvider, new ClusterState());
+    this(controlProvider, new ClusterStateManager());
   }
 
-  public AccessControlManager(AccessControlProvider controlProvider, ClusterState clusterState) {
+  public AccessControlManager(AccessControlProvider controlProvider, ClusterStateManager clusterState) {
     this.controlProvider = controlProvider;
     this.clusterState = clusterState;
   }

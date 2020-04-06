@@ -1,7 +1,7 @@
 package com.purbon.kafka.topology.integration;
 
 import com.purbon.kafka.topology.AccessControlManager;
-import com.purbon.kafka.topology.ClusterState;
+import com.purbon.kafka.topology.ClusterStateManager;
 import com.purbon.kafka.topology.TopologyBuilderAdminClient;
 import com.purbon.kafka.topology.model.Project;
 import com.purbon.kafka.topology.model.Topic;
@@ -38,7 +38,7 @@ public class AccessControlManagerIT {
 
   private static AdminClient kafkaAdminClient;
   private AccessControlManager accessControlManager;
-  private ClusterState cs;
+  private ClusterStateManager cs;
   private SimpleAclsProvider aclsProvider;
 
   @Before
@@ -47,7 +47,7 @@ public class AccessControlManagerIT {
     TopologyBuilderAdminClient adminClient = new TopologyBuilderAdminClient(kafkaAdminClient);
     adminClient.clearAcls();
 
-    cs = new ClusterState();
+    cs = new ClusterStateManager();
     aclsProvider = new SimpleAclsProvider(adminClient);
     accessControlManager = new AccessControlManager(aclsProvider, cs);
   }
