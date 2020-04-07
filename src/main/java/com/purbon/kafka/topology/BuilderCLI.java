@@ -1,117 +1,112 @@
 package com.purbon.kafka.topology;
 
-import static java.lang.System.exit;
+import org.apache.commons.cli.*;
 
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.Map;
-import org.apache.commons.cli.CommandLine;
-import org.apache.commons.cli.CommandLineParser;
-import org.apache.commons.cli.DefaultParser;
-import org.apache.commons.cli.HelpFormatter;
-import org.apache.commons.cli.Option;
-import org.apache.commons.cli.OptionBuilder;
-import org.apache.commons.cli.Options;
-import org.apache.commons.cli.ParseException;
+
+import static java.lang.System.exit;
 
 public class BuilderCLI {
 
-  public static final String BROKERS_OPTION = "brokers";
   public static final String TOPOLOGY_OPTION = "topology";
+  public static final String TOPOLOGY_DESC = "Topology config file.";
+
+  public static final String BROKERS_OPTION = "brokers";
+  public static final String BROKERS_DESC = "The Apache Kafka server(s) to connect to.";
+
   public static final String ADMIN_CLIENT_CONFIG_OPTION = "clientConfig";
-  public static final String DESTROY_OPTION = "destroy";
-  public static final String ALLOW_DELETE_CONFIG = "allowDelete";
+  public static final String ADMIN_CLIENT_CONFIG_DESC = "The AdminClient configuration file.";
+
+  public static final String ALLOW_DELETE_OPTION = "allowDelete";
+  public static final String ALLOW_DELETE_DESC = "Permits delete operations for topics and configs.";
+
+  public static final String HELP_OPTION = "help";
+  public static final String HELP_DESC = "Prints usage information.";
+
+  public static final String APP_NAME = "kafka-topology-builder";
 
   public static Options buildOptions() {
 
-    Option topologyFileOption = OptionBuilder.withArgName(TOPOLOGY_OPTION)
-        .hasArg()
-        .withDescription(  "topology file" )
-        .create(TOPOLOGY_OPTION);
-    topologyFileOption.setRequired(true);
+    final Option topologyFileOption = Option.builder()
+        .longOpt(TOPOLOGY_OPTION).hasArg().desc(TOPOLOGY_DESC).required().build();
 
-    Option brokersListOption = OptionBuilder.withArgName(BROKERS_OPTION)
-        .hasArg()
-        .withDescription(  "use the given Apache Kafka brokers list" )
-        .create(BROKERS_OPTION);
-    brokersListOption.setRequired(true);
+    final Option brokersListOption = Option.builder()
+        .longOpt(BROKERS_OPTION).hasArg().desc(BROKERS_DESC).required().build();
 
-    Option adminClientConfigFileOption = OptionBuilder.withArgName(ADMIN_CLIENT_CONFIG_OPTION)
-        .hasArg()
-        .withDescription( "AdminClient configuration file" )
-        .create(ADMIN_CLIENT_CONFIG_OPTION);
-    brokersListOption.setRequired(true);
+    final Option adminClientConfigFileOption = Option.builder()
+        .longOpt(ADMIN_CLIENT_CONFIG_OPTION).hasArg().desc(ADMIN_CLIENT_CONFIG_DESC).required().build();
 
-    Option destroyOption = new Option(DESTROY_OPTION, "Allow delete operations for topics and configs");
+    final Option allowDeleteOption = Option.builder()
+        .longOpt(ALLOW_DELETE_OPTION).hasArg(false).desc(ALLOW_DELETE_DESC).required(false).build();
 
-    Option help = new Option( "help", "print this message" );
+    final Option helpOption = Option.builder()
+        .longOpt(HELP_OPTION).hasArg(false).desc(HELP_DESC).required(false).build();
 
-    Options options = new Options();
+    final Options options = new Options();
     options.addOption(topologyFileOption);
     options.addOption(brokersListOption);
     options.addOption(adminClientConfigFileOption);
-    options.addOption(destroyOption);
-    options.addOption(help);
+    options.addOption(allowDeleteOption);
+    options.addOption(helpOption);
 
     return options;
   }
 
-  public static void main(String [] args) throws IOException {
-
-    HelpFormatter formatter = new HelpFormatter();
+  public static void main(String[] args) throws IOException {
 
     Options options = buildOptions();
-
+    HelpFormatter formatter = new HelpFormatter();
     CommandLineParser parser = new DefaultParser();
-    CommandLine cmd = null;
-    try {
-      cmd = parser.parse( options, args);
-    } catch (ParseException e) {
-      System.out.println( "Parsing failed.  Reason: " + e.getMessage() );
-      formatter.printHelp( "cli", options );
-      exit(1);
-    }
+    CommandLine cmd = parseArgsOrExit(parser, options, args, formatter);
 
-    if (cmd.hasOption("help")) {
-      formatter.printHelp( "kafka-topology-builder", options );
+    if (cmd.hasOption(HELP_OPTION)) {
+      formatter.printHelp(APP_NAME, options);
     } else {
       String topology = cmd.getOptionValue(TOPOLOGY_OPTION);
       String brokersList = cmd.getOptionValue(BROKERS_OPTION);
-      boolean allowDelete = cmd.hasOption(DESTROY_OPTION);
+      boolean allowDelete = cmd.hasOption(ALLOW_DELETE_OPTION);
       String adminClientConfigFile = cmd.getOptionValue(ADMIN_CLIENT_CONFIG_OPTION);
 
       Map<String, String> config = new HashMap<>();
-      config.put(BROKERS_OPTION, brokersList );
-      config.put(ALLOW_DELETE_CONFIG, String.valueOf(allowDelete));
+      config.put(BROKERS_OPTION, brokersList);
+      config.put(ALLOW_DELETE_OPTION, String.valueOf(allowDelete));
       config.put(ADMIN_CLIENT_CONFIG_OPTION, adminClientConfigFile);
       processTopology(topology, config);
       System.out.println("Kafka Topology updated");
-
     }
-
   }
 
-  private static void processTopology(String topologyFile, Map<String, String> config)
-      throws IOException {
+  private static CommandLine parseArgsOrExit(CommandLineParser parser, Options options, String[] args, HelpFormatter formatter) {
+    CommandLine cmd = null;
+    try {
+      cmd = parser.parse(options, args);
+    } catch (ParseException e) {
+      System.out.println("Parsing failed cause of " + e.getMessage());
+      formatter.printHelp("cli", options);
+      exit(1);
+    }
+    return cmd;
+  }
+
+  private static void processTopology(String topologyFile, Map<String, String> config) throws IOException {
     verifyRequiredParameters(topologyFile, config);
     KafkaTopologyBuilder builder = new KafkaTopologyBuilder(topologyFile, config);
     builder.run();
-
   }
 
-
-  private static void verifyRequiredParameters(String topologyFile, Map<String, String> config)
-      throws IOException {
+  private static void verifyRequiredParameters(String topologyFile, Map<String, String> config) throws IOException {
     if (!Files.exists(Paths.get(topologyFile))) {
       throw new IOException("Topology file does not exist");
     }
 
     String configFilePath = config.get(BuilderCLI.ADMIN_CLIENT_CONFIG_OPTION);
+
     if (!Files.exists(Paths.get(configFilePath))) {
-      throw new IOException("App Config file does not exist");
+      throw new IOException("AdminClient config file does not exist");
     }
   }
-
 }

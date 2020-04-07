@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0"
-  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
 
   <groupId>com.purbon.kafka</groupId>
@@ -10,7 +10,8 @@
 
   <name>A Kafka topology builder tool</name>
   <description>
-    This tool is a helper project to orient Kafka Platform teams to build proper topic and configuration management automation
+    A helper project for Kafka Platform teams to build an automated Topic, Configuration (and Schemas in the future)
+    Management solution.
   </description>
   <url>https://github.com/purbon/</url>
 
@@ -26,7 +27,7 @@
         <plugins>
           <plugin>
             <artifactId>maven-failsafe-plugin</artifactId>
-            <version>2.22.0</version>
+            <version>${maven-failsafe-plugin.version}</version>
             <configuration>
               <includes>
                 <include>**/*IT</include>
@@ -51,7 +52,7 @@
         <plugins>
           <plugin>
             <artifactId>maven-surefire-plugin</artifactId>
-            <version>2.22.0</version>
+            <version>${maven-surefire-plugin.version}</version>
             <executions>
               <execution>
                 <phase>integration-test</phase>
@@ -70,7 +71,6 @@
               </execution>
             </executions>
           </plugin>
-
         </plugins>
       </build>
     </profile>
@@ -81,7 +81,7 @@
         <plugins>
           <plugin>
             <artifactId>maven-surefire-plugin</artifactId>
-            <version>2.22.0</version>
+            <version>${maven-surefire-plugin.version}</version>
             <executions>
               <execution>
                 <phase>integration-test</phase>
@@ -100,11 +100,9 @@
               </execution>
             </executions>
           </plugin>
-
         </plugins>
       </build>
     </profile>
-
   </profiles>
 
   <build>
@@ -113,7 +111,7 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-compiler-plugin</artifactId>
-        <version>3.1</version>
+        <version>${maven-compiler-plugin.version}</version>
         <configuration>
           <source>8</source>
           <target>8</target>
@@ -126,30 +124,39 @@
           <descriptorRefs>
             <descriptorRef>jar-with-dependencies</descriptorRef>
           </descriptorRefs>
-            <archive>
-              <manifest>
-                <mainClass>com.purbon.kafka.topology.BuilderCLI</mainClass>
-              </manifest>
-            </archive>
+          <archive>
+            <manifest>
+              <mainClass>com.purbon.kafka.topology.BuilderCLI</mainClass>
+            </manifest>
+          </archive>
         </configuration>
+        <executions>
+          <execution>
+            <id>make-assembly</id>
+            <phase>package</phase>
+            <goals>
+              <goal>single</goal>
+            </goals>
+          </execution>
+        </executions>
       </plugin>
 
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-site-plugin</artifactId>
-        <version>3.7.1</version>
+        <version>${maven-site-plugin.version}</version>
       </plugin>
 
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-project-info-reports-plugin</artifactId>
-        <version>3.0.0</version>
+        <version>${maven-project-info-reports-plugin.version}</version>
       </plugin>
 
       <plugin>
         <groupId>org.jacoco</groupId>
         <artifactId>jacoco-maven-plugin</artifactId>
-        <version>0.8.2</version>
+        <version>${jacoco-maven-plugin.version}</version>
         <executions>
           <execution>
             <goals>
@@ -162,7 +169,7 @@
             <goals>
               <goal>report</goal>
             </goals>
-            <!-- default target/jscoco/site/* -->
+            <!-- default target/jacoco/site/* -->
             <configuration>
               <outputDirectory>target/jacoco-report</outputDirectory>
             </configuration>
@@ -173,7 +180,7 @@
       <plugin>
         <groupId>org.codehaus.mojo</groupId>
         <artifactId>rpm-maven-plugin</artifactId>
-        <version>2.2.0</version>
+        <version>${rpm-maven-plugin.version}</version>
         <!--<executions>
           <execution>
             <id>generate-rpm</id>
@@ -243,11 +250,7 @@
             <fileEncoding>utf-8</fileEncoding>
             <filter>true</filter>
           </postinstallScriptlet>
-          <!-- <preremoveScriptlet>
-             <scriptFile>src/main/scripts/preremove</scriptFile>
-             <fileEncoding>utf-8</fileEncoding>
-           </preremoveScriptlet>
- -->        </configuration>
+        </configuration>
       </plugin>
 
     </plugins>
@@ -258,7 +261,7 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-pmd-plugin</artifactId>
-        <version>3.12.0</version>
+        <version>${maven-pmd-plugin.version}</version>
         <configuration>
           <rulesets>
             <!-- A rule set, that comes bundled with PMD -->
@@ -277,52 +280,53 @@
       <plugin>
         <groupId>com.github.spotbugs</groupId>
         <artifactId>spotbugs-maven-plugin</artifactId>
-        <version>3.1.12.2</version>
+        <version>${spotbugs-maven-plugin.version}</version>
 
         <configuration>
           <xmlOutput>true</xmlOutput>
           <!-- Optional directory to put spotbugs xdoc xml report -->
           <xmlOutputDirectory>target/site</xmlOutputDirectory>
         </configuration>
-
       </plugin>
-
-
     </plugins>
   </reporting>
 
-
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <jackson.version>2.10.0</jackson.version>
-    <kafka.version>2.3.0</kafka.version>
-    <log4j.version>2.12.1</log4j.version>
+    <!-- plugins -->
+    <maven-pmd-plugin.version>3.12.0</maven-pmd-plugin.version>
+    <spotbugs-maven-plugin.version>3.1.12.2</spotbugs-maven-plugin.version>
+    <maven-site-plugin.version>3.9.0</maven-site-plugin.version>
+    <maven-project-info-reports-plugin.version>3.0.0</maven-project-info-reports-plugin.version>
+    <jacoco-maven-plugin.version>0.8.5</jacoco-maven-plugin.version>
+    <rpm-maven-plugin.version>2.2.0</rpm-maven-plugin.version>
+    <maven-compiler-plugin.version>3.1</maven-compiler-plugin.version>
+    <maven-surefire-plugin.version>2.22.2</maven-surefire-plugin.version>
+    <maven-failsafe-plugin.version>2.22.2</maven-failsafe-plugin.version>
+    <!-- dependencies -->
+    <jackson.version>2.10.3</jackson.version>
+    <kafka.version>2.4.1</kafka.version>
+    <log4j.version>2.13.1</log4j.version>
+    <httpclient.version>4.5.11</httpclient.version>
+    <zookeeper.version>3.5.7</zookeeper.version>
+    <commons.version>1.4</commons.version>
+    <mockito.version>1.10.19</mockito.version>
+    <junit.version>4.12</junit.version>
+    <testcontainers.version>1.13.0</testcontainers.version>
   </properties>
 
   <dependencies>
 
     <dependency>
-      <groupId>org.apache.maven.plugins</groupId>
-      <artifactId>maven-pmd-plugin</artifactId>
-      <version>3.12.0</version>
-    </dependency>
-
-    <dependency>
-      <groupId>com.github.spotbugs</groupId>
-      <artifactId>spotbugs-maven-plugin</artifactId>
-      <version>3.1.12.2</version>
-    </dependency>
-
-    <dependency>
       <groupId>org.apache.httpcomponents</groupId>
       <artifactId>httpclient</artifactId>
-      <version>4.5.11</version>
+      <version>${httpclient.version}</version>
     </dependency>
 
     <dependency>
       <groupId>org.apache.zookeeper</groupId>
       <artifactId>zookeeper</artifactId>
-      <version>3.5.7</version>
+      <version>${zookeeper.version}</version>
     </dependency>
 
     <dependency>
@@ -366,6 +370,7 @@
       <artifactId>log4j-api</artifactId>
       <version>${log4j.version}</version>
     </dependency>
+
     <dependency>
       <groupId>org.apache.logging.log4j</groupId>
       <artifactId>log4j-core</artifactId>
@@ -375,28 +380,27 @@
     <dependency>
       <groupId>commons-cli</groupId>
       <artifactId>commons-cli</artifactId>
-      <version>1.4</version>
+      <version>${commons.version}</version>
     </dependency>
 
     <dependency>
       <groupId>org.mockito</groupId>
       <artifactId>mockito-all</artifactId>
-      <version>1.10.19</version>
+      <version>${mockito.version}</version>
       <scope>test</scope>
     </dependency>
 
     <dependency>
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>
-      <version>4.12</version>
+      <version>${junit.version}</version>
       <scope>test</scope>
     </dependency>
-
 
     <dependency>
       <groupId>org.testcontainers</groupId>
       <artifactId>kafka</artifactId>
-      <version>1.12.2</version>
+      <version>${testcontainers.version}</version>
       <scope>test</scope>
     </dependency>
 
