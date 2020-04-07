@@ -19,12 +19,9 @@ import org.mockito.junit.MockitoRule;
 
 public class TopicManagerTest {
 
-  @Mock
-  TopologyBuilderAdminClient adminClient;
+  @Mock TopologyBuilderAdminClient adminClient;
 
-  @Rule
-  public MockitoRule mockitoRule = MockitoJUnit.rule();
-
+  @Rule public MockitoRule mockitoRule = MockitoJUnit.rule();
 
   private TopicManager topicManager;
 

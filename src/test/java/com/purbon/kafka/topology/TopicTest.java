@@ -40,5 +40,4 @@ public class TopicTest {
     String fulllName = topic.toString();
     Assert.assertEquals("team.source.project.topic.type", fulllName);
   }
-
 }

@@ -12,7 +12,6 @@ public class User {
     this.principal = principal;
   }
 
-
   public String getPrincipal() {
     return principal;
   }
@@ -20,5 +19,4 @@ public class User {
   public void setPrincipal(String principal) {
     this.principal = principal;
   }
-
 }

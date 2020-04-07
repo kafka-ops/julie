@@ -27,47 +27,41 @@ public class SimpleAclsProvider implements AccessControlProvider {
   }
 
   @Override
-  public List<TopologyAclBinding> setAclsForConnect(String principal, String topicPrefix, List<String> readTopics, List<String> writeTopics) {
-    return
-        adminClient
-         .setAclsForConnect(principal, topicPrefix, readTopics, writeTopics)
+  public List<TopologyAclBinding> setAclsForConnect(
+      String principal, String topicPrefix, List<String> readTopics, List<String> writeTopics) {
+    return adminClient.setAclsForConnect(principal, topicPrefix, readTopics, writeTopics).stream()
+        .map(aclBinding -> new TopologyAclBinding(aclBinding))
+        .collect(Collectors.toList());
+  }
+
+  @Override
+  public List<TopologyAclBinding> setAclsForStreamsApp(
+      String principal, String topicPrefix, List<String> readTopics, List<String> writeTopics) {
+    return adminClient.setAclsForStreamsApp(principal, topicPrefix, readTopics, writeTopics)
         .stream()
         .map(aclBinding -> new TopologyAclBinding(aclBinding))
         .collect(Collectors.toList());
   }
 
   @Override
-  public List<TopologyAclBinding> setAclsForStreamsApp(String principal, String topicPrefix, List<String> readTopics, List<String> writeTopics) {
-    return adminClient
-        .setAclsForStreamsApp(principal, topicPrefix, readTopics, writeTopics)
-        .stream()
-        .map(aclBinding -> new TopologyAclBinding(aclBinding)).collect(Collectors.toList());
-  }
-
-  @Override
   public List<TopologyAclBinding> setAclsForConsumers(Collection<String> principals, String topic) {
-    return principals
-        .stream()
-        .flatMap(principal -> {
-          List<AclBinding> acls = adminClient.setAclsForConsumer(principal, topic);
-          return acls
-              .stream()
-              .map(aclBinding -> new TopologyAclBinding(aclBinding));
-        })
+    return principals.stream()
+        .flatMap(
+            principal -> {
+              List<AclBinding> acls = adminClient.setAclsForConsumer(principal, topic);
+              return acls.stream().map(aclBinding -> new TopologyAclBinding(aclBinding));
+            })
         .collect(Collectors.toList());
   }
 
   @Override
   public List<TopologyAclBinding> setAclsForProducers(Collection<String> principals, String topic) {
-    return principals
-        .stream()
-        .flatMap(principal -> {
-          List<AclBinding> acls = adminClient.setAclsForProducer(principal, topic);
-          return acls
-              .stream()
-              .map(aclBinding -> new TopologyAclBinding(aclBinding));
-        })
+    return principals.stream()
+        .flatMap(
+            principal -> {
+              List<AclBinding> acls = adminClient.setAclsForProducer(principal, topic);
+              return acls.stream().map(aclBinding -> new TopologyAclBinding(aclBinding));
+            })
         .collect(Collectors.toList());
-
   }
 }

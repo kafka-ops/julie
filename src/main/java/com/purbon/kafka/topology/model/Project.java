@@ -48,7 +48,6 @@ public class Project {
     this.name = name;
   }
 
-
   public List<String> getZookeepers() {
     return zookeepers;
   }
@@ -105,11 +104,10 @@ public class Project {
   public String buildTopicPrefix() {
     return buildTopicPrefix(topology);
   }
+
   public String buildTopicPrefix(Topology topology) {
     StringBuilder sb = new StringBuilder();
-    sb.append(topology.buildNamePrefix())
-        .append(".")
-        .append(name);
+    sb.append(topology.buildNamePrefix()).append(".").append(name);
     return sb.toString();
   }
 
@@ -118,7 +116,7 @@ public class Project {
   }
 
   public void setRbacRawRoles(Map<String, List<String>> rbacRawRoles) {
-      this.rbacRawRoles = rbacRawRoles;
+    this.rbacRawRoles = rbacRawRoles;
   }
 
   public Map<String, List<String>> getRbacRawRoles() {

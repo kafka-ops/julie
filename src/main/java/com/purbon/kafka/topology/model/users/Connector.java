@@ -12,5 +12,4 @@ public class Connector extends DynamicUser {
   public Connector(String principal) {
     super(principal, new HashMap<>());
   }
-
 }

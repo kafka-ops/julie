@@ -20,17 +20,17 @@ public class TopologyAclBinding {
       String host,
       String operation,
       String principal,
-      String pattern
-  ) {
+      String pattern) {
     this.resourceType = resourceType;
     this.resourceName = resourceName;
     this.host = host;
-    this.operation =  operation;
+    this.operation = operation;
     this.principal = principal;
     this.pattern = pattern;
   }
 
-  public static TopologyAclBinding build(String resourceTypeString,
+  public static TopologyAclBinding build(
+      String resourceTypeString,
       String resourceName,
       String host,
       String operation,
@@ -38,12 +38,7 @@ public class TopologyAclBinding {
       String pattern) {
 
     ResourceType resourceType = ResourceType.valueOf(resourceTypeString);
-    return new TopologyAclBinding(resourceType,
-        resourceName,
-        host,
-        operation,
-        principal,
-        pattern);
+    return new TopologyAclBinding(resourceType, resourceName, host, operation, principal, pattern);
   }
 
   public TopologyAclBinding(AclBinding binding) {
@@ -57,7 +52,6 @@ public class TopologyAclBinding {
     this.operation = entry.operation().name();
     this.pattern = pattern.patternType().name();
     this.host = entry.host();
-
   }
 
   public ResourceType getResourceType() {
@@ -84,7 +78,6 @@ public class TopologyAclBinding {
     this.resourceType = resourceType;
   }
 
-
   public void setHost(String host) {
     this.host = host;
   }
@@ -101,15 +94,26 @@ public class TopologyAclBinding {
     this.pattern = pattern;
   }
 
-
   @Override
   public String toString() {
-    return  "\'" + resourceType + '\'' +
-        ", '" + resourceName + '\'' +
-        ", '" + host + '\'' +
-        ", '" + operation + '\'' +
-        ", '" + principal + '\'' +
-        ", '" + pattern + '\'' ;
+    return "\'"
+        + resourceType
+        + '\''
+        + ", '"
+        + resourceName
+        + '\''
+        + ", '"
+        + host
+        + '\''
+        + ", '"
+        + operation
+        + '\''
+        + ", '"
+        + principal
+        + '\''
+        + ", '"
+        + pattern
+        + '\'';
   }
 
   public String getResourceName() {

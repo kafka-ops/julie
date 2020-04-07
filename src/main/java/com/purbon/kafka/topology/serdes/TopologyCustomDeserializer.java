@@ -25,14 +25,15 @@ public class TopologyCustomDeserializer extends StdDeserializer<Topology> {
   }
 
   @Override
-  public Topology deserialize(JsonParser parser, DeserializationContext context) throws IOException {
+  public Topology deserialize(JsonParser parser, DeserializationContext context)
+      throws IOException {
 
     JsonNode rootNode = parser.getCodec().readTree(parser);
 
     JsonNode projects = rootNode.get(PROJECTS_KEY);
     Topology topology = new Topology();
 
-    for(int i=0; i < projects.size(); i++) {
+    for (int i = 0; i < projects.size(); i++) {
       JsonNode node = projects.get(i);
       Project project = parser.getCodec().treeToValue(node, Project.class);
       topology.addProject(project);
@@ -44,11 +45,11 @@ public class TopologyCustomDeserializer extends StdDeserializer<Topology> {
     excludeAttributes.add(SOURCE_KEY);
 
     Iterator<String> fieldNames = rootNode.fieldNames();
-    while(fieldNames.hasNext()) {
-        String fieldName = fieldNames.next();
-        if (!excludeAttributes.contains(fieldName)) {
-          topology.addOther(fieldName, rootNode.get(fieldName).asText());
-        }
+    while (fieldNames.hasNext()) {
+      String fieldName = fieldNames.next();
+      if (!excludeAttributes.contains(fieldName)) {
+        topology.addOther(fieldName, rootNode.get(fieldName).asText());
+      }
     }
     topology.setTeam(rootNode.get(TEAM_KEY).asText());
     topology.setSource(rootNode.get(SOURCE_KEY).asText());

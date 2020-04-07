@@ -10,9 +10,6 @@ import com.purbon.kafka.topology.AccessControlManager;
 import com.purbon.kafka.topology.api.mds.AuthenticationCredentials;
 import com.purbon.kafka.topology.api.mds.MDSApiClient;
 import com.purbon.kafka.topology.roles.RBACProvider;
-import com.purbon.kafka.topology.roles.SimpleAclsProvider;
-import com.purbon.kafka.topology.utils.JSON;
-import com.purbon.kafka.topology.utils.ZKClient;
 import java.io.IOException;
 import java.util.List;
 import org.apache.logging.log4j.LogManager;
@@ -71,13 +68,10 @@ public class MDSApiClientRbacIT extends MDSBaseTest {
     apiClient.authenticate();
     apiClient.setKafkaClusterId(getKafkaClusterID());
 
-    apiClient.bind("User:fry", DEVELOPER_READ, "connect-configs", LITERAL  );
+    apiClient.bind("User:fry", DEVELOPER_READ, "connect-configs", LITERAL);
 
     List<String> roles = apiClient.lookupRoles("User:fry");
     assertEquals(2, roles.size());
     assertTrue(roles.contains(DEVELOPER_READ));
-
-
   }
-
 }

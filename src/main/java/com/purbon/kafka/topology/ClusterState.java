@@ -3,7 +3,6 @@ package com.purbon.kafka.topology;
 import com.purbon.kafka.topology.clusterstate.FileSateProcessor;
 import com.purbon.kafka.topology.clusterstate.StateProcessor;
 import com.purbon.kafka.topology.roles.TopologyAclBinding;
-
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;

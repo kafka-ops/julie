@@ -8,10 +8,10 @@ import java.util.List;
 
 public class JsonSerdesUtils<T> {
 
-  public  List<T> parseApplicationUser(JsonParser parser, JsonNode userNode, Class<T>  clazz)
+  public List<T> parseApplicationUser(JsonParser parser, JsonNode userNode, Class<T> clazz)
       throws JsonProcessingException {
     List<T> usersList = new ArrayList<>();
-    for(int i=0; i < userNode.size(); i++) {
+    for (int i = 0; i < userNode.size(); i++) {
       JsonNode node = userNode.get(i);
       T user = parser.getCodec().treeToValue(node, clazz);
       usersList.add(user);
