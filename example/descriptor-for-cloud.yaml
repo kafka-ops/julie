@@ -50,5 +50,5 @@ projects:
       - dataType: "avro"
         name: "bar"
         config:
-          replication.factor: "12"
+          replication.factor: "3"
           num.partitions: "12"
