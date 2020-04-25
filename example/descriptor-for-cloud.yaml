@@ -41,7 +41,8 @@ projects:
           num.partitions: "12"
   - name: "bar"
     zookeepers: []
-    consumers: []
+    consumers:
+      - principal: "User:App234"
     producers: []
     streams: []
     connectors: []
