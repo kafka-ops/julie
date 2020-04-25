@@ -52,3 +52,8 @@ projects:
         config:
           replication.factor: "3"
           num.partitions: "12"
+      - dataType: "json"
+        name: "test"
+        config:
+          replication.factor: "3"
+          num.partitions: "12"
