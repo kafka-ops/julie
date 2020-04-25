@@ -47,7 +47,7 @@ projects:
     connectors: []
     topics:
       - dataType: "avro"
-        name: "bar"
+        name: "events"
         config:
           replication.factor: "3"
           num.partitions: "12"
