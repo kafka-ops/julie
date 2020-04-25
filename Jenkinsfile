@@ -8,7 +8,6 @@ pipeline {
     }
 
    stages {
-      when { branch 'master' }
       stage('checkout') {
          steps {
             git branch: 'demo-setup', url: 'https://github.com/purbon/kafka-topology-builder.git'
