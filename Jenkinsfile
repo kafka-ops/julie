@@ -1,8 +1,6 @@
 pipeline {
 
-    agent {
-        docker { image 'maven:3.6.3-jdk-8-openj9' }
-    }
+    agent any
 
     tools {
         maven 'maven'
@@ -11,6 +9,7 @@ pipeline {
 
    stages {
       stage('checkout') {
+        when { branch 'master' }
          steps {
             git branch: 'demo-setup', url: 'https://github.com/purbon/kafka-topology-builder.git'
          }
