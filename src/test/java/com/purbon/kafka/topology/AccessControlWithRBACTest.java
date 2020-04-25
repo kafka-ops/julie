@@ -8,9 +8,7 @@ import static org.mockito.Mockito.verify;
 import com.purbon.kafka.topology.model.Project;
 import com.purbon.kafka.topology.model.Topic;
 import com.purbon.kafka.topology.model.Topology;
-import com.purbon.kafka.topology.model.users.Consumer;
 import com.purbon.kafka.topology.roles.RBACProvider;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -24,12 +22,9 @@ import org.mockito.junit.MockitoRule;
 
 public class AccessControlWithRBACTest {
 
-  @Mock
-  RBACProvider aclsProvider;
+  @Mock RBACProvider aclsProvider;
 
-  @Rule
-  public MockitoRule mockitoRule = MockitoJUnit.rule();
-
+  @Rule public MockitoRule mockitoRule = MockitoJUnit.rule();
 
   private AccessControlManager accessControlManager;
 
@@ -41,9 +36,8 @@ public class AccessControlWithRBACTest {
   @Test
   public void testPredefinedRoles() {
 
-    Map<String, List<String>>  predefinedRoles = new HashMap<>();
-    predefinedRoles
-        .put("ResourceOwner", Arrays.asList("User:Foo"));
+    Map<String, List<String>> predefinedRoles = new HashMap<>();
+    predefinedRoles.put("ResourceOwner", Arrays.asList("User:Foo"));
 
     Project project = new Project();
     project.setRbacRawRoles(predefinedRoles);
@@ -62,9 +56,5 @@ public class AccessControlWithRBACTest {
 
     verify(aclsProvider, times(1))
         .setPredefinedRole(eq("User:Foo"), eq("ResourceOwner"), eq(project.buildTopicPrefix()));
-
-
   }
-
 }
-

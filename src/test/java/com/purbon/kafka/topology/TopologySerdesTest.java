@@ -40,9 +40,9 @@ public class TopologySerdesTest {
 
     URL descriptorWithoutOptionals = getClass().getResource("/descriptor.yaml");
 
-    Topology anotherTopology = parser.deserialise(Paths.get(descriptorWithoutOptionals.toURI()).toFile());
+    Topology anotherTopology =
+        parser.deserialise(Paths.get(descriptorWithoutOptionals.toURI()).toFile());
     Assert.assertEquals("team.source", anotherTopology.buildNamePrefix());
-
   }
 
   @Test
@@ -121,7 +121,8 @@ public class TopologySerdesTest {
     Topic serdesTopic = serdesProject.getTopics().get(0);
 
     Assert.assertEquals(topic.getName(), serdesTopic.getName());
-    Assert.assertEquals(topic.getConfig().get("num.partitions"), serdesTopic.getConfig().get("num.partitions"));
+    Assert.assertEquals(
+        topic.getConfig().get("num.partitions"), serdesTopic.getConfig().get("num.partitions"));
   }
 
   @Test
@@ -159,9 +160,7 @@ public class TopologySerdesTest {
 
     Topic serdesTopic2 = serdesProject.getTopics().get(1);
     Assert.assertEquals(topic2.getDataType(), serdesTopic2.getDataType());
-
   }
-
 
   private List<Project> buildProjects() {
 

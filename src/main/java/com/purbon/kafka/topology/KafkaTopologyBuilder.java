@@ -36,7 +36,6 @@ public class KafkaTopologyBuilder {
 
     this.properties = buildProperties(cliParams);
     this.builderAdminClient = buildTopologyAdminClient(cliParams);
-
   }
 
   public void run() throws IOException {
@@ -50,14 +49,15 @@ public class KafkaTopologyBuilder {
 
     topicManager.sync(topology);
     accessControlManager.sync(topology);
-
   }
 
   private AccessControlProvider buildAccessControlProvider() throws IOException {
-    String accessControlClass = properties.getOrDefault(
-        ACCESS_CONTROL_IMPLEMENTATION_CLASS,
-        "com.purbon.kafka.topology.roles.SimpleAclsProvider"
-    ).toString();
+    String accessControlClass =
+        properties
+            .getOrDefault(
+                ACCESS_CONTROL_IMPLEMENTATION_CLASS,
+                "com.purbon.kafka.topology.roles.SimpleAclsProvider")
+            .toString();
 
     try {
       Class<?> clazz = Class.forName(accessControlClass);
@@ -97,7 +97,7 @@ public class KafkaTopologyBuilder {
       try {
         props.load(new FileInputStream(cliParams.get(ADMIN_CLIENT_CONFIG_OPTION)));
       } catch (IOException e) {
-        //TODO: Can be ignored
+        // TODO: Can be ignored
       }
     } else {
       props.put(AdminClientConfig.BOOTSTRAP_SERVERS_CONFIG, cliParams.get(BROKERS_OPTION));
@@ -116,5 +116,4 @@ public class KafkaTopologyBuilder {
     Properties props = buildProperties(cliParams);
     return AdminClient.create(props);
   }
-
 }

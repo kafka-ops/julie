@@ -27,12 +27,11 @@ public class RBACProvider implements AccessControlProvider {
   }
 
   @Override
-  public void clearAcls(ClusterState clusterState) {
-
-  }
+  public void clearAcls(ClusterState clusterState) {}
 
   @Override
-  public List<TopologyAclBinding> setAclsForConnect(String principal, String topicPrefix, List<String> readTopics, List<String> writeTopics) {
+  public List<TopologyAclBinding> setAclsForConnect(
+      String principal, String topicPrefix, List<String> readTopics, List<String> writeTopics) {
 
     apiClient.bind(principal, DEVELOPER_READ, topicPrefix, PREFIX);
     if (readTopics != null && readTopics.isEmpty()) {
@@ -42,27 +41,30 @@ public class RBACProvider implements AccessControlProvider {
       writeTopics.forEach(topic -> apiClient.bind(principal, DEVELOPER_WRITE, topic, LITERAL));
     }
 
-    String[] resources = new String[]{"Topic:connect-configs",
-        "Topic:connect-offsets",
-        "Topic:connect-status",
-        "Group:connect-cluster",
-        "Group:secret-registry",
-        "Topic:_confluent-secrets"};
+    String[] resources =
+        new String[] {
+          "Topic:connect-configs",
+          "Topic:connect-offsets",
+          "Topic:connect-status",
+          "Group:connect-cluster",
+          "Group:secret-registry",
+          "Topic:_confluent-secrets"
+        };
 
-    Arrays
-        .asList(resources)
-        .forEach(resourceObject -> {
-          String[] elements = resourceObject.split(":");
-          String resource = elements[0];
-          String resourceType = elements[1];
-          apiClient.bind(principal, RESOURCE_OWNER, resource, resourceType, LITERAL);
-        });
+    Arrays.asList(resources)
+        .forEach(
+            resourceObject -> {
+              String[] elements = resourceObject.split(":");
+              String resource = elements[0];
+              String resourceType = elements[1];
+              apiClient.bind(principal, RESOURCE_OWNER, resource, resourceType, LITERAL);
+            });
     return new ArrayList<>();
   }
 
   @Override
-  public List<TopologyAclBinding> setAclsForStreamsApp(String principal, String topicPrefix, List<String> readTopics,
-      List<String> writeTopics) {
+  public List<TopologyAclBinding> setAclsForStreamsApp(
+      String principal, String topicPrefix, List<String> readTopics, List<String> writeTopics) {
 
     apiClient.bind(principal, DEVELOPER_READ, topicPrefix, PREFIX);
     readTopics.forEach(topic -> apiClient.bind(principal, DEVELOPER_READ, topic, LITERAL));

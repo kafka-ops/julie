@@ -46,41 +46,50 @@ public class AccessControlManager {
 
     topology
         .getProjects()
-        .forEach(project -> {
-          project
-          .getTopics()
-          .forEach(topic -> {
-            final String fullTopicName = topic.toString();
+        .forEach(
+            project -> {
+              project
+                  .getTopics()
+                  .forEach(
+                      topic -> {
+                        final String fullTopicName = topic.toString();
 
-            Collection<String> consumerPrincipals = extractUsersToPrincipals(project.getConsumers());
+                        Collection<String> consumerPrincipals =
+                            extractUsersToPrincipals(project.getConsumers());
 
-            List<TopologyAclBinding> consumerBindings = controlProvider
-                .setAclsForConsumers(consumerPrincipals, fullTopicName);
-            clusterState.update(consumerBindings);
+                        List<TopologyAclBinding> consumerBindings =
+                            controlProvider.setAclsForConsumers(consumerPrincipals, fullTopicName);
+                        clusterState.update(consumerBindings);
 
-            Collection<String> producerPrincipals = extractUsersToPrincipals(project.getProducers());
-            List<TopologyAclBinding> producerBindings = controlProvider
-                .setAclsForProducers(producerPrincipals, fullTopicName);
-            clusterState.update(producerBindings);
-          });
-          // Setup global Kafka Stream Access control lists
-          String topicPrefix = project.buildTopicPrefix(topology);
-          project
-              .getStreams()
-              .forEach(app -> {
-                syncApplicationAcls(app, topicPrefix);
-              });
-          project
-              .getConnectors()
-              .forEach(connector -> {
-                syncApplicationAcls(connector, topicPrefix);
-              });
-          project
-              .getRbacRawRoles()
-              .forEach((predefinedRole, principals) -> principals
-                  .forEach(principal -> controlProvider
-                      .setPredefinedRole(principal, predefinedRole, topicPrefix)));
-        });
+                        Collection<String> producerPrincipals =
+                            extractUsersToPrincipals(project.getProducers());
+                        List<TopologyAclBinding> producerBindings =
+                            controlProvider.setAclsForProducers(producerPrincipals, fullTopicName);
+                        clusterState.update(producerBindings);
+                      });
+              // Setup global Kafka Stream Access control lists
+              String topicPrefix = project.buildTopicPrefix(topology);
+              project
+                  .getStreams()
+                  .forEach(
+                      app -> {
+                        syncApplicationAcls(app, topicPrefix);
+                      });
+              project
+                  .getConnectors()
+                  .forEach(
+                      connector -> {
+                        syncApplicationAcls(connector, topicPrefix);
+                      });
+              project
+                  .getRbacRawRoles()
+                  .forEach(
+                      (predefinedRole, principals) ->
+                          principals.forEach(
+                              principal ->
+                                  controlProvider.setPredefinedRole(
+                                      principal, predefinedRole, topicPrefix)));
+            });
 
     clusterState.flushAndClose();
   }
@@ -90,18 +99,18 @@ public class AccessControlManager {
     List<String> writeTopics = app.getTopics().get(KStream.WRITE_TOPICS);
     List<TopologyAclBinding> bindings = new ArrayList<>();
     if (app instanceof KStream) {
-      bindings = controlProvider.setAclsForStreamsApp(app.getPrincipal(), topicPrefix, readTopics, writeTopics);
+      bindings =
+          controlProvider.setAclsForStreamsApp(
+              app.getPrincipal(), topicPrefix, readTopics, writeTopics);
     } else if (app instanceof Connector) {
-      bindings = controlProvider.setAclsForConnect(app.getPrincipal(), topicPrefix, readTopics, writeTopics);
+      bindings =
+          controlProvider.setAclsForConnect(
+              app.getPrincipal(), topicPrefix, readTopics, writeTopics);
     }
     clusterState.update(bindings);
   }
 
   private Collection<String> extractUsersToPrincipals(List<? extends User> users) {
-    return users
-        .stream()
-        .map( user -> user.getPrincipal())
-        .collect(Collectors.toList());
+    return users.stream().map(user -> user.getPrincipal()).collect(Collectors.toList());
   }
-
 }

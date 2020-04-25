@@ -1,6 +1,5 @@
 package com.purbon.kafka.topology.clusterstate;
 
-import com.purbon.kafka.topology.AccessControlManager;
 import com.purbon.kafka.topology.roles.TopologyAclBinding;
 import java.io.BufferedReader;
 import java.io.File;
@@ -23,7 +22,8 @@ public class FileSateProcessor implements StateProcessor {
   private static final Logger LOGGER = LogManager.getLogger(FileSateProcessor.class);
 
   private Writer writer;
-  private String expression = "^\\'(\\S+)\\',\\s*\\'(\\S+)\\',\\s*\\'(\\S+)\\',\\s*\\'(\\S+)\\',\\s*\\'(\\S+)\\',\\s*\\'(\\S+)\\'";
+  private String expression =
+      "^\\'(\\S+)\\',\\s*\\'(\\S+)\\',\\s*\\'(\\S+)\\',\\s*\\'(\\S+)\\',\\s*\\'(\\S+)\\',\\s*\\'(\\S+)\\'";
   private Pattern regexp;
 
   public FileSateProcessor() {
@@ -52,14 +52,14 @@ public class FileSateProcessor implements StateProcessor {
     BufferedReader in = new BufferedReader(new FileReader(filePath.toFile()));
     String type = in.readLine();
     String line = null;
-    while ( (line = in.readLine()) != null ) {
+    while ((line = in.readLine()) != null) {
       TopologyAclBinding binding = null;
       if (type.equalsIgnoreCase("acls")) {
         binding = buildAclBinding(line);
       } else if (type.equalsIgnoreCase("rbac")) {
         binding = buildRBACBinding(line);
       } else {
-        throw new IOException("Binding type ( "+type+" )not supported.");
+        throw new IOException("Binding type ( " + type + " )not supported.");
       }
       bindings.add(binding);
     }
@@ -75,7 +75,7 @@ public class FileSateProcessor implements StateProcessor {
     Matcher matches = regexp.matcher(line);
 
     if (matches.groupCount() != 6 || !matches.matches()) {
-      throw new IOException(("line ("+ line +") does not match"));
+      throw new IOException(("line (" + line + ") does not match"));
     }
 
     return TopologyAclBinding.build(
@@ -84,8 +84,8 @@ public class FileSateProcessor implements StateProcessor {
         matches.group(3), // host
         matches.group(4), // operation
         matches.group(5), // principal
-        matches.group(6)  // pattern
-    );
+        matches.group(6) // pattern
+        );
   }
 
   public void saveType(String type) {
@@ -99,14 +99,15 @@ public class FileSateProcessor implements StateProcessor {
 
   @Override
   public void saveBindings(List<TopologyAclBinding> bindings) {
-    bindings.forEach(binding -> {
-      try {
-        writer.write(binding.toString());
-        writer.write("\n");
-      } catch (IOException e) {
-        LOGGER.error(e);
-      }
-    });
+    bindings.forEach(
+        binding -> {
+          try {
+            writer.write(binding.toString());
+            writer.write("\n");
+          } catch (IOException e) {
+            LOGGER.error(e);
+          }
+        });
   }
 
   @Override
@@ -120,4 +121,5 @@ public class FileSateProcessor implements StateProcessor {
 
   private String filename() {
     return ".cluster-state";
-  }}
+  }
+}

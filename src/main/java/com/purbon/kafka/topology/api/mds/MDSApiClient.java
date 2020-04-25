@@ -1,6 +1,5 @@
 package com.purbon.kafka.topology.api.mds;
 
-import com.purbon.kafka.topology.roles.RBACProvider;
 import com.purbon.kafka.topology.utils.JSON;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -46,18 +45,18 @@ public class MDSApiClient {
   public void authenticate() {
     HttpGet request = new HttpGet(mdsServer + "/security/1.0/authenticate");
     request.addHeader("accept", " application/json");
-    request.addHeader("Authorization", "Basic "+ basicCredentials);
+    request.addHeader("Authorization", "Basic " + basicCredentials);
 
     try {
       String responseAsString = get(request);
       if (!responseAsString.isEmpty()) {
         Map<String, Object> responseMap = JSON.toMap(responseAsString);
 
-        authenticationCredentials = new AuthenticationCredentials(
-            responseMap.get("auth_token").toString(),
-            responseMap.get("token_type").toString(),
-            Integer.valueOf(responseMap.get("expires_in").toString())
-        );
+        authenticationCredentials =
+            new AuthenticationCredentials(
+                responseMap.get("auth_token").toString(),
+                responseMap.get("token_type").toString(),
+                Integer.valueOf(responseMap.get("expires_in").toString()));
       }
     } catch (IOException e) {
       e.printStackTrace();
@@ -65,27 +64,31 @@ public class MDSApiClient {
   }
 
   public void bind(String principal, String role, String topic, String patternType) {
-   bind(principal, role, topic, "Topic", patternType);
+    bind(principal, role, topic, "Topic", patternType);
   }
 
-  public void bind(String principal, String role, String resource, String resourceType, String patternType) {
+  public void bind(
+      String principal, String role, String resource, String resourceType, String patternType) {
 
-    HttpPost postRequest = new HttpPost(mdsServer + "/security/1.0/principals/"+principal+"/roles/"+role+"/bindings");
+    HttpPost postRequest =
+        new HttpPost(
+            mdsServer + "/security/1.0/principals/" + principal + "/roles/" + role + "/bindings");
     postRequest.addHeader("accept", " application/json");
     postRequest.addHeader("Content-Type", "application/json");
-    postRequest.addHeader("Authorization", "Basic "+ basicCredentials);
+    postRequest.addHeader("Authorization", "Basic " + basicCredentials);
 
     try {
       Map<String, Object> scope = buildResourceScope(resourceType, resource, patternType);
       postRequest.setEntity(new StringEntity(JSON.asString(scope)));
-      LOGGER.debug("bind.entity: "+JSON.asString(scope));
+      LOGGER.debug("bind.entity: " + JSON.asString(scope));
       post(postRequest);
     } catch (IOException e) {
       e.printStackTrace();
     }
   }
 
-  private Map<String, Object> buildResourceScope(String resourceType, String name, String patternType) {
+  private Map<String, Object> buildResourceScope(
+      String resourceType, String name, String patternType) {
 
     Map<String, Map<String, String>> clusters = getClusterIds();
 
@@ -98,18 +101,18 @@ public class MDSApiClient {
     resourcePatterns.add(resource);
 
     Map<String, Object> scope = new HashMap<>();
-    scope.put("scope", clusters );
+    scope.put("scope", clusters);
     scope.put("resourcePatterns", resourcePatterns);
 
     return scope;
   }
 
   public List<String> lookupRoles(String principal) {
-    HttpPost postRequest = new HttpPost(mdsServer + "/security/1.0/lookup/principals/"+principal+"/roleNames");
+    HttpPost postRequest =
+        new HttpPost(mdsServer + "/security/1.0/lookup/principals/" + principal + "/roleNames");
     postRequest.addHeader("accept", " application/json");
     postRequest.addHeader("Content-Type", "application/json");
-    postRequest.addHeader("Authorization", "Basic "+ basicCredentials);
-
+    postRequest.addHeader("Authorization", "Basic " + basicCredentials);
 
     List<String> roles = new ArrayList<>();
 
@@ -126,13 +129,12 @@ public class MDSApiClient {
     return roles;
   }
 
-  private Map<String,Map<String, String>> getClusterIds() {
+  private Map<String, Map<String, String>> getClusterIds() {
     HashMap<String, String> clusterIds = new HashMap<>();
-    if (!kafkaClusterID.isEmpty())
-      clusterIds.put("kafka-cluster", kafkaClusterID);
-    //clusterIds.put("connect-cluster", "connect-cluster");
-    //clusterIds.put("ksql-cluster", "ksqlCluster");
-    //clusterIds.put("schema-registry-cluster", "schemaRegistryClusterId");
+    if (!kafkaClusterID.isEmpty()) clusterIds.put("kafka-cluster", kafkaClusterID);
+    // clusterIds.put("connect-cluster", "connect-cluster");
+    // clusterIds.put("ksql-cluster", "ksqlCluster");
+    // clusterIds.put("schema-registry-cluster", "schemaRegistryClusterId");
 
     Map<String, Map<String, String>> clusters = new HashMap<>();
     clusters.put("clusters", clusterIds);
@@ -142,12 +144,12 @@ public class MDSApiClient {
   private final CloseableHttpClient httpClient = HttpClients.createDefault();
 
   private String get(HttpGet request) throws IOException {
-    LOGGER.debug("GET.request: "+request);
+    LOGGER.debug("GET.request: " + request);
 
     try (CloseableHttpResponse response = httpClient.execute(request)) {
-      LOGGER.debug("GET.response: "+response);
+      LOGGER.debug("GET.response: " + response);
       HttpEntity entity = response.getEntity();
-      //Header headers = entity.getContentType();
+      // Header headers = entity.getContentType();
       String result = "";
       if (entity != null) {
         result = EntityUtils.toString(entity);
@@ -155,16 +157,15 @@ public class MDSApiClient {
 
       return result;
     }
-
   }
 
   private String post(HttpPost request) throws IOException {
-    LOGGER.debug("POST.request: "+request);
+    LOGGER.debug("POST.request: " + request);
 
     try (CloseableHttpResponse response = httpClient.execute(request)) {
-      LOGGER.debug("POST.response: "+response);
+      LOGGER.debug("POST.response: " + response);
       HttpEntity entity = response.getEntity();
-      //Header headers = entity.getContentType();
+      // Header headers = entity.getContentType();
       String result = "";
       if (entity != null) {
         result = EntityUtils.toString(entity);
@@ -172,7 +173,6 @@ public class MDSApiClient {
 
       return result;
     }
-
   }
 
   public void setKafkaClusterId(String kafkaClusterID) {

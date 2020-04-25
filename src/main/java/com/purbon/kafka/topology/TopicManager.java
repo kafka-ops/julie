@@ -21,33 +21,34 @@ public class TopicManager {
 
   public void sync(Topology topology) {
 
-    //List all topics existing in the cluster
+    // List all topics existing in the cluster
     Set<String> listOfTopics = adminClient.listTopics();
 
     Set<String> updatedListOfTopics = new HashSet<>();
     // Foreach topic in the topology, sync it's content
     // if topics does not exist already it's created
-    topology
-        .getProjects()
-        .stream()
-        .forEach(project -> project
-            .getTopics()
-            .forEach(topic -> {
-              String fullTopicName = topic.toString();
-              syncTopic(topic, fullTopicName, listOfTopics);
-              updatedListOfTopics.add(fullTopicName);
-            }));
+    topology.getProjects().stream()
+        .forEach(
+            project ->
+                project
+                    .getTopics()
+                    .forEach(
+                        topic -> {
+                          String fullTopicName = topic.toString();
+                          syncTopic(topic, fullTopicName, listOfTopics);
+                          updatedListOfTopics.add(fullTopicName);
+                        }));
 
     // Handle topic delete: Topics in the initial list, but not present anymore after a
     // full topic sync should be deleted
     List<String> topicsToBeDeleted = new ArrayList<>();
-    listOfTopics
-        .stream()
-        .forEach(originalTopic -> {
-          if (!updatedListOfTopics.contains(originalTopic)) {
-            topicsToBeDeleted.add(originalTopic);
-          }
-        });
+    listOfTopics.stream()
+        .forEach(
+            originalTopic -> {
+              if (!updatedListOfTopics.contains(originalTopic)) {
+                topicsToBeDeleted.add(originalTopic);
+              }
+            });
     adminClient.deleteTopics(topicsToBeDeleted);
   }
 
@@ -67,5 +68,4 @@ public class TopicManager {
   private boolean existTopic(String topic, Set<String> listOfTopics) {
     return listOfTopics.contains(topic);
   }
-
 }
