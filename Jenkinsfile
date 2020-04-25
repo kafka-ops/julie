@@ -1,5 +1,8 @@
 pipeline {
-   agent any
+
+    agent {
+        docker { image 'ubuntu:xenial-20200326' }
+    }
 
     tools {
         maven 'maven'
