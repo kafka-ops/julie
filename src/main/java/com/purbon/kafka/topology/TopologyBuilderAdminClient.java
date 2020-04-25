@@ -46,10 +46,7 @@ public class TopologyBuilderAdminClient {
   public Set<String> listTopics() {
     Set<String> listOfTopics = new HashSet<>();
     try {
-      listOfTopics = adminClient
-          .listTopics()
-          .names()
-          .get();
+      listOfTopics = adminClient.listTopics().names().get();
     } catch (InterruptedException e) {
       LOGGER.error(e);
     } catch (ExecutionException e) {
@@ -61,11 +58,10 @@ public class TopologyBuilderAdminClient {
   public void updateTopicConfig(Topic topic, String fullTopicName) {
 
     try {
-        updateTopicConfigPostAK23(topic, fullTopicName);
+      updateTopicConfigPostAK23(topic, fullTopicName);
     } catch (ExecutionException ex) {
       LOGGER.error(ex);
-    }
-    catch (InterruptedException ex) {
+    } catch (InterruptedException ex) {
       LOGGER.error(ex);
     }
   }
@@ -79,16 +75,19 @@ public class TopologyBuilderAdminClient {
   public void clearAcls(TopologyAclBinding aclBinding) {
     Collection<AclBindingFilter> filters = new ArrayList<>();
 
-    LOGGER.debug("clearAcl = "+aclBinding);
-    ResourcePatternFilter resourceFilter = new ResourcePatternFilter(aclBinding.getResourceType(),
-        aclBinding.getResourceName(),
-        PatternType.valueOf(aclBinding.getPattern()));
+    LOGGER.debug("clearAcl = " + aclBinding);
+    ResourcePatternFilter resourceFilter =
+        new ResourcePatternFilter(
+            aclBinding.getResourceType(),
+            aclBinding.getResourceName(),
+            PatternType.valueOf(aclBinding.getPattern()));
 
-    AccessControlEntryFilter accessControlEntryFilter = new AccessControlEntryFilter(
-        aclBinding.getPrincipal(),
-        aclBinding.getHost(),
-        AclOperation.valueOf(aclBinding.getOperation()),
-        AclPermissionType.ANY);
+    AccessControlEntryFilter accessControlEntryFilter =
+        new AccessControlEntryFilter(
+            aclBinding.getPrincipal(),
+            aclBinding.getHost(),
+            AclOperation.valueOf(aclBinding.getOperation()),
+            AclPermissionType.ANY);
 
     AclBindingFilter filter = new AclBindingFilter(resourceFilter, accessControlEntryFilter);
     filters.add(filter);
@@ -97,10 +96,7 @@ public class TopologyBuilderAdminClient {
 
   private void clearAcls(Collection<AclBindingFilter> filters) {
     try {
-      adminClient
-          .deleteAcls(filters)
-          .all()
-          .get();
+      adminClient.deleteAcls(filters).all().get();
     } catch (Exception e) {
       LOGGER.error(e);
     }
@@ -111,56 +107,54 @@ public class TopologyBuilderAdminClient {
 
     Config currentConfigs = getActualTopicConfig(fullTopicName);
 
-    Map<ConfigResource,Collection<AlterConfigOp>> configs = new HashMap<>();
+    Map<ConfigResource, Collection<AlterConfigOp>> configs = new HashMap<>();
     ArrayList<AlterConfigOp> listOfValues = new ArrayList<>();
 
     topic
         .rawConfig()
-        .forEach((configKey, configValue) -> {
-          listOfValues.add(new AlterConfigOp(new ConfigEntry(configKey, configValue), OpType.SET));
-
-        });
+        .forEach(
+            (configKey, configValue) -> {
+              listOfValues.add(
+                  new AlterConfigOp(new ConfigEntry(configKey, configValue), OpType.SET));
+            });
     Set<String> newEntryKeys = topic.rawConfig().keySet();
 
     currentConfigs
         .entries()
-        .forEach(entry -> {
-          if (!newEntryKeys.contains(entry.name())) {
-            listOfValues.add(new AlterConfigOp(entry, OpType.DELETE));
-          }
-        });
+        .forEach(
+            entry -> {
+              if (!newEntryKeys.contains(entry.name())) {
+                listOfValues.add(new AlterConfigOp(entry, OpType.DELETE));
+              }
+            });
 
-      configs.put(new ConfigResource(Type.TOPIC, fullTopicName), listOfValues);
+    configs.put(new ConfigResource(Type.TOPIC, fullTopicName), listOfValues);
 
-      adminClient
-          .incrementalAlterConfigs(configs)
-          .all()
-          .get();
-
+    adminClient.incrementalAlterConfigs(configs).all().get();
   }
 
-  private Config getActualTopicConfig(String topic) throws ExecutionException, InterruptedException {
+  private Config getActualTopicConfig(String topic)
+      throws ExecutionException, InterruptedException {
     ConfigResource resource = new ConfigResource(Type.TOPIC, topic);
     Collection<ConfigResource> resources = Collections.singletonList(resource);
 
-    Map<ConfigResource, Config> configs = adminClient
-        .describeConfigs(resources)
-        .all()
-        .get();
+    Map<ConfigResource, Config> configs = adminClient.describeConfigs(resources).all().get();
 
     return configs.get(resource);
   }
 
   public void createTopic(Topic topic, String fullTopicName) {
 
-    int numPartitions = Integer.parseInt(topic.getConfig().getOrDefault(TopicManager.NUM_PARTITIONS, "3"));
-    short replicationFactor = Short.parseShort(topic.getConfig().getOrDefault(TopicManager.REPLICATION_FACTOR, "2"));
+    int numPartitions =
+        Integer.parseInt(topic.getConfig().getOrDefault(TopicManager.NUM_PARTITIONS, "3"));
+    short replicationFactor =
+        Short.parseShort(topic.getConfig().getOrDefault(TopicManager.REPLICATION_FACTOR, "2"));
 
-    NewTopic newTopic = new NewTopic(fullTopicName, numPartitions, replicationFactor)
-        .configs(topic.rawConfig());
+    NewTopic newTopic =
+        new NewTopic(fullTopicName, numPartitions, replicationFactor).configs(topic.rawConfig());
     Collection<NewTopic> newTopics = Collections.singleton(newTopic);
     try {
-     createAllTopics(newTopics);
+      createAllTopics(newTopics);
     } catch (InterruptedException e) {
       LOGGER.error(e);
     } catch (ExecutionException e) {
@@ -168,10 +162,9 @@ public class TopologyBuilderAdminClient {
     }
   }
 
-  private void createAllTopics(Collection<NewTopic> newTopics ) throws ExecutionException, InterruptedException {
-    adminClient.createTopics(newTopics)
-        .all()
-        .get();
+  private void createAllTopics(Collection<NewTopic> newTopics)
+      throws ExecutionException, InterruptedException {
+    adminClient.createTopics(newTopics).all().get();
   }
 
   public void deleteTopic(String topic) {
@@ -189,21 +182,18 @@ public class TopologyBuilderAdminClient {
   }
 
   /**
-   * Find cluster inter protocol version, used to determine the minimum level of Api
-   * compatibility
+   * Find cluster inter protocol version, used to determine the minimum level of Api compatibility
+   *
    * @return String, the current Kafka Protocol version
    */
   private String findKafkaVersion() {
     ConfigResource resource = new ConfigResource(Type.BROKER, "inter.broker.protocol.version");
     String kafkaVersion = "";
     try {
-      Map<ConfigResource, Config> configs =  adminClient
-          .describeConfigs(Collections.singletonList(resource))
-          .all()
-          .get();
-      kafkaVersion = configs.get(resource).get("inter.broker.protocol.version")
-          .value()
-          .split("-")[0];
+      Map<ConfigResource, Config> configs =
+          adminClient.describeConfigs(Collections.singletonList(resource)).all().get();
+      kafkaVersion =
+          configs.get(resource).get("inter.broker.protocol.version").value().split("-")[0];
     } catch (InterruptedException e) {
       LOGGER.error(e);
     } catch (ExecutionException e) {
@@ -232,10 +222,7 @@ public class TopologyBuilderAdminClient {
 
   private void createAcls(Collection<AclBinding> acls) {
     try {
-      adminClient
-          .createAcls(acls)
-          .all()
-          .get();
+      adminClient.createAcls(acls).all().get();
     } catch (InterruptedException e) {
       LOGGER.error(e);
     } catch (ExecutionException e) {
@@ -246,20 +233,18 @@ public class TopologyBuilderAdminClient {
   public Map<String, Collection<AclBinding>> fetchAclsList() {
     Map<String, Collection<AclBinding>> acls = new HashMap<>();
 
-    try{
-      Collection<AclBinding> list = adminClient
-          .describeAcls(AclBindingFilter.ANY)
-          .values()
-          .get();
-      list.forEach(aclBinding -> {
-        String name = aclBinding.pattern().name();
-        if (acls.get(name) == null) {
-          acls.put(name, new ArrayList<>());
-        }
-        Collection<AclBinding> updatedList = acls.get(name);
-        updatedList.add(aclBinding);
-        acls.put(name, updatedList);
-      });
+    try {
+      Collection<AclBinding> list = adminClient.describeAcls(AclBindingFilter.ANY).values().get();
+      list.forEach(
+          aclBinding -> {
+            String name = aclBinding.pattern().name();
+            if (acls.get(name) == null) {
+              acls.put(name, new ArrayList<>());
+            }
+            Collection<AclBinding> updatedList = acls.get(name);
+            updatedList.add(aclBinding);
+            acls.put(name, updatedList);
+          });
     } catch (Exception e) {
       return new HashMap<>();
     }
@@ -269,88 +254,94 @@ public class TopologyBuilderAdminClient {
   public Collection<AclBinding> fetchAclsList(String principal, String topic) {
     Collection<AclBinding> aclsList = null;
 
-      ResourcePatternFilter resourceFilter = new ResourcePatternFilter(ResourceType.TOPIC, topic, PatternType.ANY);
-      AccessControlEntryFilter accessControlEntryFilter = new AccessControlEntryFilter(principal, "*", AclOperation.ALL, AclPermissionType.ANY);
-      AclBindingFilter filter = new AclBindingFilter(resourceFilter, accessControlEntryFilter);
+    ResourcePatternFilter resourceFilter =
+        new ResourcePatternFilter(ResourceType.TOPIC, topic, PatternType.ANY);
+    AccessControlEntryFilter accessControlEntryFilter =
+        new AccessControlEntryFilter(principal, "*", AclOperation.ALL, AclPermissionType.ANY);
+    AclBindingFilter filter = new AclBindingFilter(resourceFilter, accessControlEntryFilter);
 
-    try{
-      aclsList = adminClient
-          .describeAcls(filter)
-          .values()
-          .get();
+    try {
+      aclsList = adminClient.describeAcls(filter).values().get();
     } catch (Exception e) {
       return new ArrayList<>();
     }
     return aclsList;
   }
 
-
-  public List<AclBinding>  setAclsForStreamsApp(String principal, String topicPrefix, List<String> readTopics, List<String> writeTopics) {
+  public List<AclBinding> setAclsForStreamsApp(
+      String principal, String topicPrefix, List<String> readTopics, List<String> writeTopics) {
 
     List<AclBinding> acls = new ArrayList<>();
 
-    readTopics.forEach(topic -> {
-      acls.add(buildTopicLevelAcl(principal, topic, PatternType.LITERAL, AclOperation.READ));
-    });
+    readTopics.forEach(
+        topic -> {
+          acls.add(buildTopicLevelAcl(principal, topic, PatternType.LITERAL, AclOperation.READ));
+        });
 
-    writeTopics.forEach(topic -> {
-      acls.add(buildTopicLevelAcl(principal, topic, PatternType.LITERAL, AclOperation.WRITE));
-    });
+    writeTopics.forEach(
+        topic -> {
+          acls.add(buildTopicLevelAcl(principal, topic, PatternType.LITERAL, AclOperation.WRITE));
+        });
 
     acls.add(buildTopicLevelAcl(principal, topicPrefix, PatternType.PREFIXED, AclOperation.ALL));
     createAcls(acls);
     return acls;
   }
 
-
-  public List<AclBinding> setAclsForConnect(String principal, String topicPrefix, List<String> readTopics, List<String> writeTopics) {
+  public List<AclBinding> setAclsForConnect(
+      String principal, String topicPrefix, List<String> readTopics, List<String> writeTopics) {
 
     List<AclBinding> acls = new ArrayList<>();
 
     List<String> topics = Arrays.asList("connect-status", "connect-offsets", "connect-configs");
-    for(String topic: topics) {
+    for (String topic : topics) {
       acls.add(buildTopicLevelAcl(principal, topic, PatternType.LITERAL, AclOperation.READ));
       acls.add(buildTopicLevelAcl(principal, topic, PatternType.LITERAL, AclOperation.WRITE));
     }
 
-    ResourcePattern resourcePattern = new ResourcePattern(ResourceType.CLUSTER, "kafka-cluster", PatternType.LITERAL);
-    AccessControlEntry entry = new AccessControlEntry(principal, "*", AclOperation.CREATE, AclPermissionType.ALLOW);
+    ResourcePattern resourcePattern =
+        new ResourcePattern(ResourceType.CLUSTER, "kafka-cluster", PatternType.LITERAL);
+    AccessControlEntry entry =
+        new AccessControlEntry(principal, "*", AclOperation.CREATE, AclPermissionType.ALLOW);
     acls.add(new AclBinding(resourcePattern, entry));
 
     resourcePattern = new ResourcePattern(ResourceType.GROUP, "*", PatternType.LITERAL);
-    entry = new AccessControlEntry(principal,"*", AclOperation.READ, AclPermissionType.ALLOW);
+    entry = new AccessControlEntry(principal, "*", AclOperation.READ, AclPermissionType.ALLOW);
     acls.add(new AclBinding(resourcePattern, entry));
 
     if (readTopics != null) {
-      readTopics.forEach(topic -> {
-        acls.add(buildTopicLevelAcl(principal, topic, PatternType.LITERAL, AclOperation.READ));
-      });
+      readTopics.forEach(
+          topic -> {
+            acls.add(buildTopicLevelAcl(principal, topic, PatternType.LITERAL, AclOperation.READ));
+          });
     }
 
     if (writeTopics != null) {
-      writeTopics.forEach(topic -> {
-        acls.add(buildTopicLevelAcl(principal, topic, PatternType.LITERAL, AclOperation.WRITE));
-      });
+      writeTopics.forEach(
+          topic -> {
+            acls.add(buildTopicLevelAcl(principal, topic, PatternType.LITERAL, AclOperation.WRITE));
+          });
     }
 
     createAcls(acls);
     return acls;
   }
 
-  private AclBinding buildTopicLevelAcl(String principal, String topic, PatternType patternType, AclOperation op) {
+  private AclBinding buildTopicLevelAcl(
+      String principal, String topic, PatternType patternType, AclOperation op) {
     return new AclBuilder(principal)
         .addResource(ResourceType.TOPIC, topic, patternType)
         .addControlEntry("*", op, AclPermissionType.ALLOW)
         .build();
   }
 
-  private AclBinding buildGroupLevelAcl(String principal, String group, PatternType patternType, AclOperation op) {
+  private AclBinding buildGroupLevelAcl(
+      String principal, String group, PatternType patternType, AclOperation op) {
     return new AclBuilder(principal)
         .addResource(ResourceType.GROUP, group, patternType)
         .addControlEntry("*", op, AclPermissionType.ALLOW)
         .build();
   }
-
 
   private class AclBuilder {
 
@@ -361,13 +352,15 @@ public class TopologyBuilderAdminClient {
     public AclBuilder(String principal) {
       this.principal = principal;
     }
+
     public AclBuilder addResource(ResourceType resourceType, String name, PatternType patternType) {
       resourcePattern = new ResourcePattern(resourceType, name, patternType);
       return this;
     }
 
-    public AclBuilder addControlEntry(String host, AclOperation op, AclPermissionType permissionType) {
-      entry  = new AccessControlEntry(principal, host, op, permissionType);
+    public AclBuilder addControlEntry(
+        String host, AclOperation op, AclPermissionType permissionType) {
+      entry = new AccessControlEntry(principal, host, op, permissionType);
       return this;
     }
 

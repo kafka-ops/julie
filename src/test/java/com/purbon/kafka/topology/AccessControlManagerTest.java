@@ -30,28 +30,19 @@ import org.mockito.junit.MockitoRule;
 
 public class AccessControlManagerTest {
 
+  @Mock SimpleAclsProvider aclsProvider;
 
-  @Mock
-  SimpleAclsProvider aclsProvider;
+  @Mock ClusterState clusterState;
 
-  @Mock
-  ClusterState clusterState;
-
-  @Rule
-  public MockitoRule mockitoRule = MockitoJUnit.rule();
-
+  @Rule public MockitoRule mockitoRule = MockitoJUnit.rule();
 
   private AccessControlManager accessControlManager;
 
   @Before
   public void setup() {
     accessControlManager = new AccessControlManager(aclsProvider, clusterState);
-    doNothing()
-        .when(clusterState)
-        .update(Matchers.anyList());
-    doNothing()
-        .when(clusterState)
-        .flushAndClose();
+    doNothing().when(clusterState).update(Matchers.anyList());
+    doNothing().when(clusterState).flushAndClose();
   }
 
   @Test
@@ -68,14 +59,13 @@ public class AccessControlManagerTest {
     Topology topology = new Topology();
     topology.addProject(project);
 
-    List<String> users = Arrays.asList(new String[]{"User:app1"});
+    List<String> users = Arrays.asList(new String[] {"User:app1"});
 
     doReturn(new ArrayList<TopologyAclBinding>())
         .when(aclsProvider)
         .setAclsForConsumers(users, topicA.toString());
     accessControlManager.sync(topology);
-    verify(aclsProvider, times(1))
-        .setAclsForConsumers(eq(users), eq(topicA.toString()));
+    verify(aclsProvider, times(1)).setAclsForConsumers(eq(users), eq(topicA.toString()));
   }
 
   @Test
@@ -92,14 +82,13 @@ public class AccessControlManagerTest {
     Topology topology = new Topology();
     topology.addProject(project);
 
-    List<String> users = Arrays.asList(new String[]{"User:app1"});
+    List<String> users = Arrays.asList(new String[] {"User:app1"});
 
     doReturn(new ArrayList<TopologyAclBinding>())
         .when(aclsProvider)
         .setAclsForProducers(users, topicA.toString());
     accessControlManager.sync(topology);
-    verify(aclsProvider, times(1))
-        .setAclsForProducers(eq(users), eq(topicA.toString()));
+    verify(aclsProvider, times(1)).setAclsForProducers(eq(users), eq(topicA.toString()));
   }
 
   @Test
@@ -123,9 +112,17 @@ public class AccessControlManagerTest {
 
     doReturn(new ArrayList<TopologyAclBinding>())
         .when(aclsProvider)
-        .setAclsForStreamsApp("User:App0", topicPrefix, topics.get(KStream.READ_TOPICS), topics.get(KStream.WRITE_TOPICS));
+        .setAclsForStreamsApp(
+            "User:App0",
+            topicPrefix,
+            topics.get(KStream.READ_TOPICS),
+            topics.get(KStream.WRITE_TOPICS));
     verify(aclsProvider, times(1))
-        .setAclsForStreamsApp(eq("User:App0"), eq(topicPrefix), eq(topics.get(KStream.READ_TOPICS)), eq(topics.get(KStream.WRITE_TOPICS)) );
+        .setAclsForStreamsApp(
+            eq("User:App0"),
+            eq(topicPrefix),
+            eq(topics.get(KStream.READ_TOPICS)),
+            eq(topics.get(KStream.WRITE_TOPICS)));
   }
 
   @Test
@@ -149,10 +146,16 @@ public class AccessControlManagerTest {
 
     doReturn(new ArrayList<TopologyAclBinding>())
         .when(aclsProvider)
-        .setAclsForConnect("User:Connect1", topicPrefix, topics.get(KStream.READ_TOPICS), topics.get(KStream.WRITE_TOPICS));
+        .setAclsForConnect(
+            "User:Connect1",
+            topicPrefix,
+            topics.get(KStream.READ_TOPICS),
+            topics.get(KStream.WRITE_TOPICS));
     verify(aclsProvider, times(1))
-        .setAclsForConnect(eq("User:Connect1"), eq(topicPrefix), eq(topics.get(KStream.READ_TOPICS)), eq(topics.get(KStream.WRITE_TOPICS)) );
+        .setAclsForConnect(
+            eq("User:Connect1"),
+            eq(topicPrefix),
+            eq(topics.get(KStream.READ_TOPICS)),
+            eq(topics.get(KStream.WRITE_TOPICS)));
   }
-
 }
-

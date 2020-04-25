@@ -47,17 +47,20 @@ public class ProjectCustomDeserializer extends StdDeserializer<Project> {
 
     JsonSerdesUtils<Consumer> consumerSerdes = new JsonSerdesUtils<>();
     JsonNode consumers = rootNode.get(CONSUMERS_KEY);
-    List<Consumer> consumersList = consumerSerdes.parseApplicationUser(parser, consumers, Consumer.class);
+    List<Consumer> consumersList =
+        consumerSerdes.parseApplicationUser(parser, consumers, Consumer.class);
     project.setConsumers(consumersList);
 
     JsonSerdesUtils<Producer> producerSerdes = new JsonSerdesUtils<>();
     JsonNode producers = rootNode.get(PRODUCERS_KEY);
-    List<Producer> producersList = producerSerdes.parseApplicationUser(parser, producers, Producer.class);
+    List<Producer> producersList =
+        producerSerdes.parseApplicationUser(parser, producers, Producer.class);
     project.setProducers(producersList);
 
     JsonSerdesUtils<Connector> connectorSerdes = new JsonSerdesUtils<>();
     JsonNode connectors = rootNode.get(CONNECTORS_KEY);
-    List<Connector> connectorList = connectorSerdes.parseApplicationUser(parser, connectors, Connector.class);
+    List<Connector> connectorList =
+        connectorSerdes.parseApplicationUser(parser, connectors, Connector.class);
     project.setConnectors(connectorList);
 
     JsonSerdesUtils<KStream> streamsSerdes = new JsonSerdesUtils<>();
@@ -69,14 +72,14 @@ public class ProjectCustomDeserializer extends StdDeserializer<Project> {
     Map<String, List<String>> roles = new HashMap<>();
     JsonNode rbacRootNode = rootNode.get(RBAC_KEY);
     if (rbacRootNode != null) {
-      for(int i=0; i < rbacRootNode.size(); i++) {
+      for (int i = 0; i < rbacRootNode.size(); i++) {
         JsonNode elem = rbacRootNode.get(i);
         Iterator<String> fields = elem.fieldNames();
-        while(fields.hasNext()) {
+        while (fields.hasNext()) {
           String field = fields.next(); // field == RoleName
           List<String> principalsByRole = new ArrayList<>();
           JsonNode principals = elem.get(field);
-          for(int j=0; j < principals.size(); j++) {
+          for (int j = 0; j < principals.size(); j++) {
             JsonNode principalNode = principals.get(j);
             String principal = principalNode.get(PRINCIPAL_KEY).asText();
             principalsByRole.add(principal);
@@ -87,9 +90,8 @@ public class ProjectCustomDeserializer extends StdDeserializer<Project> {
       project.setRbacRawRoles(roles);
     }
 
-
     JsonNode topics = rootNode.get(TOPICS_KEY);
-    for(int i=0; i < topics.size(); i++) {
+    for (int i = 0; i < topics.size(); i++) {
       JsonNode topicNode = topics.get(i);
       Topic topic = parser.getCodec().treeToValue(topicNode, Topic.class);
       project.addTopic(topic);
@@ -97,7 +99,4 @@ public class ProjectCustomDeserializer extends StdDeserializer<Project> {
 
     return project;
   }
-
-
-
 }

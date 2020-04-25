@@ -54,10 +54,8 @@ public class Topology {
 
   public String buildNamePrefix() {
     StringBuilder sb = new StringBuilder();
-    sb.append(getTeam())
-        .append(".")
-        .append(getSource());
-    for(String key : order) {
+    sb.append(getTeam()).append(".").append(getSource());
+    for (String key : order) {
       String value = others.get(key);
       sb.append(".");
       sb.append(value);

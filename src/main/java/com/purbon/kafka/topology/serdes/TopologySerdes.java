@@ -8,7 +8,6 @@ import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
 import com.purbon.kafka.topology.model.Project;
 import com.purbon.kafka.topology.model.Topic;
 import com.purbon.kafka.topology.model.Topology;
-import com.purbon.kafka.topology.serdes.TopologyCustomDeserializer;
 import java.io.File;
 import java.io.IOException;
 import java.util.function.Consumer;
@@ -44,21 +43,22 @@ public class TopologySerdes {
   private Topology updateTopology(Topology topology) {
     topology
         .getProjects()
-        .forEach(new Consumer<Project>() {
-          @Override
-          public void accept(Project project) {
-            project.setTopology(topology);
-            project
-                .getTopics()
-                .forEach(new Consumer<Topic>() {
-                  @Override
-                  public void accept(Topic topic) {
-                    topic.setProject(project);
-                  }
-                });
-          }
-        });
+        .forEach(
+            new Consumer<Project>() {
+              @Override
+              public void accept(Project project) {
+                project.setTopology(topology);
+                project
+                    .getTopics()
+                    .forEach(
+                        new Consumer<Topic>() {
+                          @Override
+                          public void accept(Topic topic) {
+                            topic.setProject(project);
+                          }
+                        });
+              }
+            });
     return topology;
   }
-
 }

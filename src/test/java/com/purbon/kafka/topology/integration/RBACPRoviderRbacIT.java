@@ -128,37 +128,36 @@ public class RBACPRoviderRbacIT extends MDSBaseTest {
     accessControlManager.sync(topology);
 
     verifyConnectAcls(connector);
-
   }
 
   private void verifyConnectAcls(Connector app) {
     List<String> roles = apiClient.lookupRoles(app.getPrincipal());
     assertTrue(roles.contains(DEVELOPER_READ));
-    //assertTrue(roles.contains(RESOURCE_OWNER));
+    // assertTrue(roles.contains(RESOURCE_OWNER));
   }
 
   private void verifyKStreamsAcls(KStream app) {
     List<String> roles = apiClient.lookupRoles(app.getPrincipal());
     assertTrue(roles.contains(DEVELOPER_READ));
     assertTrue(roles.contains(DEVELOPER_WRITE));
-    //assertTrue(roles.contains(RESOURCE_OWNER));
+    // assertTrue(roles.contains(RESOURCE_OWNER));
   }
 
   private void verifyProducerAcls(List<Producer> producers, String topic) {
-    producers.forEach(producer -> {
-      List<String> roles = apiClient.lookupRoles(producer.getPrincipal());
-      assertEquals(1, roles.size());
-      assertTrue(roles.contains(DEVELOPER_WRITE));
-    });
+    producers.forEach(
+        producer -> {
+          List<String> roles = apiClient.lookupRoles(producer.getPrincipal());
+          assertEquals(1, roles.size());
+          assertTrue(roles.contains(DEVELOPER_WRITE));
+        });
   }
 
   private void verifyConsumerAcls(List<Consumer> consumers, String topic) {
-    consumers.forEach(consumer -> {
-      List<String> roles = apiClient.lookupRoles(consumer.getPrincipal());
-      assertEquals(1, roles.size());
-      assertTrue(roles.contains(DEVELOPER_READ));
-    });
-
+    consumers.forEach(
+        consumer -> {
+          List<String> roles = apiClient.lookupRoles(consumer.getPrincipal());
+          assertEquals(1, roles.size());
+          assertTrue(roles.contains(DEVELOPER_READ));
+        });
   }
-
 }

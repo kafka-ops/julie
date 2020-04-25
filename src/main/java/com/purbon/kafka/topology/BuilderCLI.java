@@ -1,14 +1,13 @@
 package com.purbon.kafka.topology;
 
-import org.apache.commons.cli.*;
+import static java.lang.System.exit;
 
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.Map;
-
-import static java.lang.System.exit;
+import org.apache.commons.cli.*;
 
 public class BuilderCLI {
 
@@ -22,7 +21,8 @@ public class BuilderCLI {
   public static final String ADMIN_CLIENT_CONFIG_DESC = "The AdminClient configuration file.";
 
   public static final String ALLOW_DELETE_OPTION = "allowDelete";
-  public static final String ALLOW_DELETE_DESC = "Permits delete operations for topics and configs.";
+  public static final String ALLOW_DELETE_DESC =
+      "Permits delete operations for topics and configs.";
 
   public static final String HELP_OPTION = "help";
   public static final String HELP_DESC = "Prints usage information.";
@@ -31,20 +31,30 @@ public class BuilderCLI {
 
   public static Options buildOptions() {
 
-    final Option topologyFileOption = Option.builder()
-        .longOpt(TOPOLOGY_OPTION).hasArg().desc(TOPOLOGY_DESC).required().build();
+    final Option topologyFileOption =
+        Option.builder().longOpt(TOPOLOGY_OPTION).hasArg().desc(TOPOLOGY_DESC).required().build();
 
-    final Option brokersListOption = Option.builder()
-        .longOpt(BROKERS_OPTION).hasArg().desc(BROKERS_DESC).required().build();
+    final Option brokersListOption =
+        Option.builder().longOpt(BROKERS_OPTION).hasArg().desc(BROKERS_DESC).required().build();
 
-    final Option adminClientConfigFileOption = Option.builder()
-        .longOpt(ADMIN_CLIENT_CONFIG_OPTION).hasArg().desc(ADMIN_CLIENT_CONFIG_DESC).required().build();
+    final Option adminClientConfigFileOption =
+        Option.builder()
+            .longOpt(ADMIN_CLIENT_CONFIG_OPTION)
+            .hasArg()
+            .desc(ADMIN_CLIENT_CONFIG_DESC)
+            .required()
+            .build();
 
-    final Option allowDeleteOption = Option.builder()
-        .longOpt(ALLOW_DELETE_OPTION).hasArg(false).desc(ALLOW_DELETE_DESC).required(false).build();
+    final Option allowDeleteOption =
+        Option.builder()
+            .longOpt(ALLOW_DELETE_OPTION)
+            .hasArg(false)
+            .desc(ALLOW_DELETE_DESC)
+            .required(false)
+            .build();
 
-    final Option helpOption = Option.builder()
-        .longOpt(HELP_OPTION).hasArg(false).desc(HELP_DESC).required(false).build();
+    final Option helpOption =
+        Option.builder().longOpt(HELP_OPTION).hasArg(false).desc(HELP_DESC).required(false).build();
 
     final Options options = new Options();
     options.addOption(topologyFileOption);
@@ -80,7 +90,8 @@ public class BuilderCLI {
     }
   }
 
-  private static CommandLine parseArgsOrExit(CommandLineParser parser, Options options, String[] args, HelpFormatter formatter) {
+  private static CommandLine parseArgsOrExit(
+      CommandLineParser parser, Options options, String[] args, HelpFormatter formatter) {
     CommandLine cmd = null;
     try {
       cmd = parser.parse(options, args);
@@ -92,13 +103,15 @@ public class BuilderCLI {
     return cmd;
   }
 
-  private static void processTopology(String topologyFile, Map<String, String> config) throws IOException {
+  private static void processTopology(String topologyFile, Map<String, String> config)
+      throws IOException {
     verifyRequiredParameters(topologyFile, config);
     KafkaTopologyBuilder builder = new KafkaTopologyBuilder(topologyFile, config);
     builder.run();
   }
 
-  private static void verifyRequiredParameters(String topologyFile, Map<String, String> config) throws IOException {
+  private static void verifyRequiredParameters(String topologyFile, Map<String, String> config)
+      throws IOException {
     if (!Files.exists(Paths.get(topologyFile))) {
       throw new IOException("Topology file does not exist");
     }

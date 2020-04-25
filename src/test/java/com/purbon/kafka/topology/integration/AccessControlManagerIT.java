@@ -56,8 +56,7 @@ public class AccessControlManagerIT {
   public void testAclsCleanup() throws ExecutionException, InterruptedException {
 
     // Crate an ACL outside of the control of the state manager.
-    aclsProvider
-        .setAclsForProducers(Collections.singleton("User:foo"), "bar");
+    aclsProvider.setAclsForProducers(Collections.singleton("User:foo"), "bar");
 
     // Add a collection of ACLs using the control manager, so keeping everything
     // in the loop of the cluster state
@@ -84,7 +83,6 @@ public class AccessControlManagerIT {
     accessControlManager.clearAcls();
     // in the cluster should be only 2 acl staying, the one we created outside the CS
     verifyAclsOfSize(2);
-
   }
 
   @Test
@@ -170,167 +168,149 @@ public class AccessControlManagerIT {
     accessControlManager.sync(topology);
 
     verifyConnectAcls(connector);
-
   }
 
   private void verifyAclsOfSize(int size) throws ExecutionException, InterruptedException {
 
-    Collection<AclBinding> acls = kafkaAdminClient
-        .describeAcls(AclBindingFilter.ANY)
-        .values()
-        .get();
+    Collection<AclBinding> acls =
+        kafkaAdminClient.describeAcls(AclBindingFilter.ANY).values().get();
 
     Assert.assertEquals(size, acls.size());
   }
 
-  private void verifyConnectAcls(Connector connector) throws ExecutionException, InterruptedException {
+  private void verifyConnectAcls(Connector connector)
+      throws ExecutionException, InterruptedException {
 
-    ResourcePatternFilter resourceFilter = new ResourcePatternFilter(ResourceType.TOPIC, null, PatternType.ANY);
+    ResourcePatternFilter resourceFilter =
+        new ResourcePatternFilter(ResourceType.TOPIC, null, PatternType.ANY);
 
-    AccessControlEntryFilter entryFilter = new AccessControlEntryFilter(connector.getPrincipal(),
-        null, AclOperation.READ, AclPermissionType.ALLOW);
+    AccessControlEntryFilter entryFilter =
+        new AccessControlEntryFilter(
+            connector.getPrincipal(), null, AclOperation.READ, AclPermissionType.ALLOW);
 
     AclBindingFilter filter = new AclBindingFilter(resourceFilter, entryFilter);
 
-    Collection<AclBinding> acls = kafkaAdminClient
-        .describeAcls(filter)
-        .values()
-        .get();
+    Collection<AclBinding> acls = kafkaAdminClient.describeAcls(filter).values().get();
 
     Assert.assertEquals(5, acls.size());
 
-    entryFilter = new AccessControlEntryFilter(connector.getPrincipal(), null, AclOperation.WRITE, AclPermissionType.ALLOW);
+    entryFilter =
+        new AccessControlEntryFilter(
+            connector.getPrincipal(), null, AclOperation.WRITE, AclPermissionType.ALLOW);
     filter = new AclBindingFilter(resourceFilter, entryFilter);
-    acls = kafkaAdminClient
-        .describeAcls(filter)
-        .values()
-        .get();
+    acls = kafkaAdminClient.describeAcls(filter).values().get();
 
     Assert.assertEquals(3, acls.size());
 
     resourceFilter = new ResourcePatternFilter(ResourceType.GROUP, null, PatternType.ANY);
-    entryFilter = new AccessControlEntryFilter(connector.getPrincipal(), null, AclOperation.READ, AclPermissionType.ALLOW);
+    entryFilter =
+        new AccessControlEntryFilter(
+            connector.getPrincipal(), null, AclOperation.READ, AclPermissionType.ALLOW);
     filter = new AclBindingFilter(resourceFilter, entryFilter);
-    acls = kafkaAdminClient
-        .describeAcls(filter)
-        .values()
-        .get();
+    acls = kafkaAdminClient.describeAcls(filter).values().get();
 
     Assert.assertEquals(1, acls.size());
-
   }
 
   private void verifyKStreamsAcls(KStream app) throws ExecutionException, InterruptedException {
     ResourcePatternFilter resourceFilter = ResourcePatternFilter.ANY;
 
-    AccessControlEntryFilter entryFilter = new AccessControlEntryFilter(app.getPrincipal(),
-        null, AclOperation.WRITE, AclPermissionType.ALLOW);
+    AccessControlEntryFilter entryFilter =
+        new AccessControlEntryFilter(
+            app.getPrincipal(), null, AclOperation.WRITE, AclPermissionType.ALLOW);
 
     AclBindingFilter filter = new AclBindingFilter(resourceFilter, entryFilter);
 
-    Collection<AclBinding> acls = kafkaAdminClient
-        .describeAcls(filter)
-        .values()
-        .get();
+    Collection<AclBinding> acls = kafkaAdminClient.describeAcls(filter).values().get();
 
     // two acls created for the write topics
     Assert.assertEquals(2, acls.size());
 
-    entryFilter = new AccessControlEntryFilter(app.getPrincipal(), null,
-        AclOperation.READ, AclPermissionType.ALLOW);
+    entryFilter =
+        new AccessControlEntryFilter(
+            app.getPrincipal(), null, AclOperation.READ, AclPermissionType.ALLOW);
 
     filter = new AclBindingFilter(resourceFilter, entryFilter);
 
-    acls = kafkaAdminClient
-        .describeAcls(filter)
-        .values()
-        .get();
+    acls = kafkaAdminClient.describeAcls(filter).values().get();
 
     // two acls created for the read topics
     Assert.assertEquals(2, acls.size());
 
-    entryFilter = new AccessControlEntryFilter(app.getPrincipal(), null,
-        AclOperation.ALL, AclPermissionType.ALLOW);
+    entryFilter =
+        new AccessControlEntryFilter(
+            app.getPrincipal(), null, AclOperation.ALL, AclPermissionType.ALLOW);
 
     filter = new AclBindingFilter(resourceFilter, entryFilter);
 
-    acls = kafkaAdminClient
-        .describeAcls(filter)
-        .values()
-        .get();
+    acls = kafkaAdminClient.describeAcls(filter).values().get();
 
     // 1 acls created for the prefix internal topics
     Assert.assertEquals(1, acls.size());
-
-
-
   }
 
-  private void verifyProducerAcls(List<Producer> producers, String topic) throws InterruptedException, ExecutionException {
+  private void verifyProducerAcls(List<Producer> producers, String topic)
+      throws InterruptedException, ExecutionException {
 
     for (Producer producer : producers) {
       ResourcePatternFilter resourceFilter = ResourcePatternFilter.ANY;
-      AccessControlEntryFilter entryFilter = new AccessControlEntryFilter(producer.getPrincipal(),
-          null, AclOperation.ANY, AclPermissionType.ALLOW);
+      AccessControlEntryFilter entryFilter =
+          new AccessControlEntryFilter(
+              producer.getPrincipal(), null, AclOperation.ANY, AclPermissionType.ALLOW);
 
       AclBindingFilter filter = new AclBindingFilter(resourceFilter, entryFilter);
-      Collection<AclBinding> acls = kafkaAdminClient
-          .describeAcls(filter)
-          .values()
-          .get();
+      Collection<AclBinding> acls = kafkaAdminClient.describeAcls(filter).values().get();
 
       Assert.assertEquals(2, acls.size());
 
-      List<ResourceType> types = acls
-          .stream()
-          .map(aclBinding -> aclBinding.pattern().resourceType())
-          .collect(Collectors.toList());
+      List<ResourceType> types =
+          acls.stream()
+              .map(aclBinding -> aclBinding.pattern().resourceType())
+              .collect(Collectors.toList());
 
       Assert.assertTrue(types.contains(ResourceType.TOPIC));
 
-      List<AclOperation> ops = acls
-          .stream()
-          .map(aclsBinding -> aclsBinding.entry().operation())
-          .collect(Collectors.toList());
+      List<AclOperation> ops =
+          acls.stream()
+              .map(aclsBinding -> aclsBinding.entry().operation())
+              .collect(Collectors.toList());
 
       Assert.assertTrue(ops.contains(AclOperation.DESCRIBE));
       Assert.assertTrue(ops.contains(AclOperation.WRITE));
     }
   }
 
-  private void verifyConsumerAcls(List<Consumer> consumers, String topic) throws InterruptedException, ExecutionException {
+  private void verifyConsumerAcls(List<Consumer> consumers, String topic)
+      throws InterruptedException, ExecutionException {
 
-    for(Consumer consumer : consumers) {
+    for (Consumer consumer : consumers) {
       ResourcePatternFilter resourceFilter = ResourcePatternFilter.ANY;
-      AccessControlEntryFilter entryFilter = new AccessControlEntryFilter(consumer.getPrincipal(), null, AclOperation.ANY, AclPermissionType.ALLOW);
+      AccessControlEntryFilter entryFilter =
+          new AccessControlEntryFilter(
+              consumer.getPrincipal(), null, AclOperation.ANY, AclPermissionType.ALLOW);
 
       AclBindingFilter filter = new AclBindingFilter(resourceFilter, entryFilter);
-      Collection<AclBinding> acls = kafkaAdminClient
-          .describeAcls(filter)
-          .values()
-          .get();
+      Collection<AclBinding> acls = kafkaAdminClient.describeAcls(filter).values().get();
 
-        Assert.assertEquals(3, acls.size());
+      Assert.assertEquals(3, acls.size());
 
-        List<ResourceType> types = acls
-            .stream()
-            .map(aclBinding -> aclBinding.pattern().resourceType())
-            .collect(Collectors.toList());
+      List<ResourceType> types =
+          acls.stream()
+              .map(aclBinding -> aclBinding.pattern().resourceType())
+              .collect(Collectors.toList());
 
-        Assert.assertTrue(types.contains(ResourceType.GROUP));
-        Assert.assertTrue(types.contains(ResourceType.TOPIC));
+      Assert.assertTrue(types.contains(ResourceType.GROUP));
+      Assert.assertTrue(types.contains(ResourceType.TOPIC));
 
-      List<AclOperation> ops = acls
-          .stream()
-          .map(aclsBinding -> aclsBinding.entry().operation())
-          .collect(Collectors.toList());
+      List<AclOperation> ops =
+          acls.stream()
+              .map(aclsBinding -> aclsBinding.entry().operation())
+              .collect(Collectors.toList());
 
       Assert.assertTrue(ops.contains(AclOperation.DESCRIBE));
       Assert.assertTrue(ops.contains(AclOperation.READ));
     }
-
   }
-
 
   private Properties config() {
     Properties props = new Properties();
@@ -340,7 +320,9 @@ public class AccessControlManagerIT {
     props.put(AdminClientConfig.SECURITY_PROTOCOL_CONFIG, "SASL_PLAINTEXT");
     props.put("sasl.mechanism", "PLAIN");
 
-    props.put("sasl.jaas.config","org.apache.kafka.common.security.plain.PlainLoginModule required username=\"kafka\" password=\"kafka\";");
+    props.put(
+        "sasl.jaas.config",
+        "org.apache.kafka.common.security.plain.PlainLoginModule required username=\"kafka\" password=\"kafka\";");
 
     return props;
   }

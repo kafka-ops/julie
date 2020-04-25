@@ -10,8 +10,8 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.Map;
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 import java.util.concurrent.ExecutionException;
@@ -32,10 +32,11 @@ public class TopicManagerIT {
   private static KafkaContainer container;
   private TopicManager topicManager;
   private AdminClient kafkaAdminClient;
+
   @BeforeClass
   public static void setup() {
-   container =  new KafkaContainer("5.3.1");
-   container.start();
+    container = new KafkaContainer("5.3.1");
+    container.start();
   }
 
   @AfterClass
@@ -75,13 +76,11 @@ public class TopicManagerIT {
 
     topicManager.sync(topology);
 
-    verifyTopics(Arrays.asList(topicA.toString(),
-        topicB.toString()));
+    verifyTopics(Arrays.asList(topicA.toString(), topicB.toString()));
   }
 
   @Test
   public void testTopicDelete() throws ExecutionException, InterruptedException {
-
 
     Project project = new Project("project");
     Topic topicA = new Topic("topicA");
@@ -115,8 +114,7 @@ public class TopicManagerIT {
 
     topicManager.sync(topology);
 
-    verifyTopics(Arrays.asList(topicA.toString(),
-        topicC.toString()));
+    verifyTopics(Arrays.asList(topicA.toString(), topicC.toString()));
   }
 
   @Test
@@ -144,7 +142,7 @@ public class TopicManagerIT {
 
     HashMap<String, String> config = buildDummyTopicConfig();
     config.put("retention.bytes", "104857600"); // set the retention.bytes per partition to 100mb
-    config.put("segment.bytes" ,"104857600");
+    config.put("segment.bytes", "104857600");
 
     Project project = new Project("project");
     Topic topicA = new Topic("topicA");
@@ -177,29 +175,29 @@ public class TopicManagerIT {
       throws ExecutionException, InterruptedException {
     verifyTopicConfiguration(topic, config, new ArrayList<>());
   }
-  private void verifyTopicConfiguration(String topic, HashMap<String, String> config, List<String> removedConfigs)
+
+  private void verifyTopicConfiguration(
+      String topic, HashMap<String, String> config, List<String> removedConfigs)
       throws ExecutionException, InterruptedException {
 
     ConfigResource resource = new ConfigResource(Type.TOPIC, topic);
     Collection<ConfigResource> resources = Collections.singletonList(resource);
 
-    Map<ConfigResource, Config> configs = kafkaAdminClient
-        .describeConfigs(resources)
-        .all()
-        .get();
+    Map<ConfigResource, Config> configs = kafkaAdminClient.describeConfigs(resources).all().get();
 
     Config topicConfig = configs.get(resource);
     Assert.assertNotNull(topicConfig);
 
     topicConfig
         .entries()
-        .forEach(entry -> {
-          if (!entry.isDefault()) {
-            if (config.get(entry.name()) != null)
-              Assert.assertEquals(config.get(entry.name()), entry.value());
-            Assert.assertFalse(removedConfigs.contains(entry.name()));
-          }
-        });
+        .forEach(
+            entry -> {
+              if (!entry.isDefault()) {
+                if (config.get(entry.name()) != null)
+                  Assert.assertEquals(config.get(entry.name()), entry.value());
+                Assert.assertFalse(removedConfigs.contains(entry.name()));
+              }
+            });
   }
 
   private HashMap<String, String> buildDummyTopicConfig() {
@@ -211,10 +209,7 @@ public class TopicManagerIT {
 
   private void verifyTopics(List<String> topics) throws ExecutionException, InterruptedException {
 
-    Set<String> topicNames = kafkaAdminClient
-        .listTopics()
-        .names()
-        .get();
+    Set<String> topicNames = kafkaAdminClient.listTopics().names().get();
 
     topics.forEach(topic -> Assert.assertTrue(topicNames.contains(topic)));
   }

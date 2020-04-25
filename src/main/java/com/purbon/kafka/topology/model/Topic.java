@@ -10,8 +10,10 @@ import java.util.Optional;
 public class Topic {
 
   public static final String DEFAULT_TOPIC_NAME = "default";
+
   @JsonInclude(Include.NON_EMPTY)
   private Optional<String> dataType;
+
   private String name;
   private HashMap<String, String> config;
 
@@ -41,13 +43,10 @@ public class Topic {
 
   private String toString(Project project) {
     StringBuilder sb = new StringBuilder();
-    sb.append(project.buildTopicPrefix())
-        .append(".")
-        .append(getName());
+    sb.append(project.buildTopicPrefix()).append(".").append(getName());
 
     if (getDataType().isPresent()) {
-      sb.append(".")
-          .append(getDataType().get());
+      sb.append(".").append(getDataType().get());
     }
 
     return sb.toString();
