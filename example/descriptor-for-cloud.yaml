@@ -9,7 +9,6 @@ projects:
       - principal: "User:63002"
     producers:
       - principal: "User:App3"
-      - principal: "User:63002"
     streams:
       - principal: "User:Streams0"
         topics:
