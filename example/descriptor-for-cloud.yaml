@@ -6,10 +6,10 @@ projects:
     zookeepers: []
     consumers:
       - principal: "User:App0"
-      - principal: "63002"
+      - principal: "User:63002"
     producers:
       - principal: "User:App3"
-      - principal: "63002"
+      - principal: "User:63002"
     streams:
       - principal: "User:Streams0"
         topics:
@@ -20,7 +20,7 @@ projects:
             - "topicC"
             - "topicD"
     connectors:
-      - principal: "63002"
+      - principal: "User:63002"
         topics:
           read:
             - "topicA"
