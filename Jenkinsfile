@@ -7,18 +7,8 @@ pipeline {
     }
 
    stages {
-      stage('Hello') {
-         steps {
-            echo 'Hello World'
-              sh '''
-                    echo "PATH = ${PATH}"
-                    echo "M2_HOME = ${M2_HOME}"
-                '''
-         }
-      }
       stage('checkout') {
          steps {
-            //sh 'echo "Service user is Pere"'
             git branch: 'demo-setup', url: 'https://github.com/purbon/kafka-topology-builder.git'
          }
       }
