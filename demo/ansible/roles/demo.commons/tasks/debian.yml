@@ -1,0 +1,78 @@
+---
+- name: Install apt-transport-https
+  shell: apt-get install apt-transport-https -y --force-yes
+  args:
+    warn: no
+
+- name: Copy in repo skip valid check
+  copy:
+    content: 'Acquire::Check-Valid-Until "0";'
+    dest: /etc/apt/apt.conf.d/skip-check
+  notify:
+    - debian apt-get update
+  when:
+    - install_java|bool
+    - not custom_apt_repo|bool
+
+- name: Add jessie-backports Repo
+  lineinfile:
+    path: /etc/apt/sources.list
+    line: deb [check-valid-until=no] http://archive.debian.org/debian jessie-backports main
+    regexp: '.*jessie-backports.*'
+  notify:
+    - debian apt-get update
+  when:
+    - install_java|bool
+    - not custom_apt_repo|bool
+    - ansible_distribution_release == "jessie"
+
+- name: Add stretch-backports Repo
+  lineinfile:
+    path: /etc/apt/sources.list
+    line: deb [check-valid-until=no] http://ftp.debian.org/debian stretch-backports main
+    regexp: '.*stretch-backports.*'
+  notify:
+    - debian apt-get update
+  when:
+    - install_java|bool
+    - not custom_apt_repo|bool
+    - ansible_distribution_release == "stretch"
+
+- meta: flush_handlers
+
+- name: Install Java - jessie
+  apt:
+    name: "{{ debian_java_package_name }}"
+    state: present
+    default_release: jessie-backports
+  when:
+    - install_java|bool
+    - not custom_apt_repo|bool
+    - ansible_distribution_release == "jessie"
+
+- name: Install Java - stretch
+  apt:
+    name: "{{ debian_java_package_name }}"
+    state: present
+    default_release: stretch-backports
+  when:
+    - install_java|bool
+    - not custom_apt_repo|bool
+    - ansible_distribution_release == "stretch"
+
+- name: Install Java (Custom Repo)
+  apt:
+    name: "{{ debian_java_package_name }}"
+    state: present
+  when:
+    - install_java|bool
+    - custom_apt_repo|bool
+
+- name: Install unzip, rsync & CA Certs
+  apt:
+    name: "{{ item }}"
+    state: present
+  loop:
+    - rsync
+    - ca-certificates
+    - unzip

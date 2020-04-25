@@ -1,0 +1,14 @@
+all:
+  vars:
+    ansible_connection: ssh
+    ansible_user: ubuntu
+    ansible_become: true
+    ansible_ssh_private_key_file: ~/.ssh/purbon-ireland.pem
+ci:
+  hosts:
+    ec2-54-171-39-20.eu-west-1.compute.amazonaws.com:
+  vars:
+    jenkins_hostname: "{{inventory_hostname}}"
+    jenkins_http_port: 8080
+    jenkins_plugins_install_dependencies: true
+    jenkins_version: "2.222"

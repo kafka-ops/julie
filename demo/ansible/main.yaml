@@ -1,0 +1,13 @@
+- name: Host Prerequisites
+  hosts: ci:kafka
+  tags: common
+  tasks:
+  - import_role:
+      name: demo.commons
+
+- name: Jenkins Provisioning
+  hosts: ci
+  tags: jenkins
+  tasks:
+  - import_role:
+      name: ansible-role-jenkins

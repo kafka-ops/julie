@@ -1,0 +1,8 @@
+---
+
+install_java: true
+redhat_java_package_name: java-1.8.0-openjdk
+debian_java_package_name: openjdk-8-jdk
+ubuntu_java_package_name: openjdk-8-jdk
+ubuntu_java_repository: ppa:openjdk-r/ppa
+custom_apt_repo: false
