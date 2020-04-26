@@ -10,7 +10,9 @@ import com.purbon.kafka.topology.api.mds.MDSApiClient;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -91,5 +93,11 @@ public class RBACProvider implements AccessControlProvider {
   @Override
   public void setPredefinedRole(String principal, String predefinedRole, String topicPrefix) {
     apiClient.bind(principal, predefinedRole, topicPrefix, PREFIX);
+  }
+
+  @Override
+  public Map<String, List<TopologyAclBinding>> listAcls() {
+    LOGGER.warn("Not implemented yet!");
+    return new HashMap<>();
   }
 }

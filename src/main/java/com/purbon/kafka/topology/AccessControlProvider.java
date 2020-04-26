@@ -3,6 +3,7 @@ package com.purbon.kafka.topology;
 import com.purbon.kafka.topology.roles.TopologyAclBinding;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 
 public interface AccessControlProvider {
 
@@ -21,4 +22,6 @@ public interface AccessControlProvider {
   default void setPredefinedRole(String principal, String predefinedRole, String topicPrefix) {
     // NOOP
   }
+
+  Map<String, List<TopologyAclBinding>> listAcls();
 }

@@ -6,6 +6,7 @@ import com.purbon.kafka.topology.model.User;
 import com.purbon.kafka.topology.model.users.Connector;
 import com.purbon.kafka.topology.model.users.KStream;
 import com.purbon.kafka.topology.roles.TopologyAclBinding;
+import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -112,5 +113,16 @@ public class AccessControlManager {
 
   private Collection<String> extractUsersToPrincipals(List<? extends User> users) {
     return users.stream().map(user -> user.getPrincipal()).collect(Collectors.toList());
+  }
+
+  public void printCurrentState(PrintStream out) {
+    out.println("List of ACLs: ");
+    controlProvider
+        .listAcls()
+        .forEach(
+            (topic, aclBindings) -> {
+              out.println(topic);
+              aclBindings.forEach(binding -> out.println(binding));
+            });
   }
 }

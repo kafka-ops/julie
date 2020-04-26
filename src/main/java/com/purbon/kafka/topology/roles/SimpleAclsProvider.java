@@ -4,7 +4,9 @@ import com.purbon.kafka.topology.AccessControlProvider;
 import com.purbon.kafka.topology.ClusterState;
 import com.purbon.kafka.topology.TopologyBuilderAdminClient;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 import org.apache.kafka.common.acl.AclBinding;
 import org.apache.logging.log4j.LogManager;
@@ -63,5 +65,20 @@ public class SimpleAclsProvider implements AccessControlProvider {
               return acls.stream().map(aclBinding -> new TopologyAclBinding(aclBinding));
             })
         .collect(Collectors.toList());
+  }
+
+  @Override
+  public Map<String, List<TopologyAclBinding>> listAcls() {
+    Map<String, List<TopologyAclBinding>> map = new HashMap<>();
+    adminClient
+        .fetchAclsList()
+        .forEach(
+            (topic, aclBindings) ->
+                map.put(
+                    topic,
+                    aclBindings.stream()
+                        .map(aclBinding -> new TopologyAclBinding(aclBinding))
+                        .collect(Collectors.toList())));
+    return map;
   }
 }

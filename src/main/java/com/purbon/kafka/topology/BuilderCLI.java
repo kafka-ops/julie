@@ -24,6 +24,9 @@ public class BuilderCLI {
   public static final String ALLOW_DELETE_DESC =
       "Permits delete operations for topics and configs.";
 
+  public static final String QUITE_OPTION = "quite";
+  public static final String QUITE_DESC = "Print minimum status update";
+
   public static final String HELP_OPTION = "help";
   public static final String HELP_DESC = "Prints usage information.";
 
@@ -53,6 +56,14 @@ public class BuilderCLI {
             .required(false)
             .build();
 
+    final Option quiteOption =
+        Option.builder()
+            .longOpt(QUITE_OPTION)
+            .hasArg(false)
+            .desc(QUITE_DESC)
+            .required(false)
+            .build();
+
     final Option helpOption =
         Option.builder().longOpt(HELP_OPTION).hasArg(false).desc(HELP_DESC).required(false).build();
 
@@ -61,6 +72,7 @@ public class BuilderCLI {
     options.addOption(brokersListOption);
     options.addOption(adminClientConfigFileOption);
     options.addOption(allowDeleteOption);
+    options.addOption(quiteOption);
     options.addOption(helpOption);
 
     return options;
@@ -79,11 +91,13 @@ public class BuilderCLI {
       String topology = cmd.getOptionValue(TOPOLOGY_OPTION);
       String brokersList = cmd.getOptionValue(BROKERS_OPTION);
       boolean allowDelete = cmd.hasOption(ALLOW_DELETE_OPTION);
+      boolean quite = cmd.hasOption(QUITE_OPTION);
       String adminClientConfigFile = cmd.getOptionValue(ADMIN_CLIENT_CONFIG_OPTION);
 
       Map<String, String> config = new HashMap<>();
       config.put(BROKERS_OPTION, brokersList);
       config.put(ALLOW_DELETE_OPTION, String.valueOf(allowDelete));
+      config.put(QUITE_OPTION, String.valueOf(quite));
       config.put(ADMIN_CLIENT_CONFIG_OPTION, adminClientConfigFile);
       processTopology(topology, config);
       System.out.println("Kafka Topology updated");
