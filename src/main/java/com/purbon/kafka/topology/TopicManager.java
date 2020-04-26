@@ -3,12 +3,17 @@ package com.purbon.kafka.topology;
 import com.purbon.kafka.topology.model.Project;
 import com.purbon.kafka.topology.model.Topic;
 import com.purbon.kafka.topology.model.Topology;
+import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 public class TopicManager {
+
+  private static final Logger LOGGER = LogManager.getLogger(TopicManager.class);
 
   public static final String NUM_PARTITIONS = "num.partitions";
   public static final String REPLICATION_FACTOR = "replication.factor";
@@ -67,5 +72,15 @@ public class TopicManager {
 
   private boolean existTopic(String topic, Set<String> listOfTopics) {
     return listOfTopics.contains(topic);
+  }
+
+  public void printCurrentState(PrintStream os) {
+    os.println("List of Topics:");
+    adminClient
+        .listTopics()
+        .forEach(
+            topic -> {
+              os.println(topic);
+            });
   }
 }

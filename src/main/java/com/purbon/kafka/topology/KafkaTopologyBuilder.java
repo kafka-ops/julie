@@ -2,6 +2,7 @@ package com.purbon.kafka.topology;
 
 import static com.purbon.kafka.topology.BuilderCLI.ADMIN_CLIENT_CONFIG_OPTION;
 import static com.purbon.kafka.topology.BuilderCLI.BROKERS_OPTION;
+import static com.purbon.kafka.topology.BuilderCLI.QUITE_OPTION;
 import static com.purbon.kafka.topology.TopologyBuilderConfig.ACCESS_CONTROL_DEFAULT_CLASS;
 import static com.purbon.kafka.topology.TopologyBuilderConfig.ACCESS_CONTROL_IMPLEMENTATION_CLASS;
 import static com.purbon.kafka.topology.TopologyBuilderConfig.MDS_KAFKA_CLUSTER_ID_CONFIG;
@@ -29,6 +30,7 @@ public class KafkaTopologyBuilder {
   private final TopologySerdes parser;
   private final Properties properties;
   private final TopologyBuilderAdminClient builderAdminClient;
+  private final boolean quiteOut;
 
   public KafkaTopologyBuilder(String topologyFile, Map<String, String> cliParams) {
     this.topologyFile = topologyFile;
@@ -36,6 +38,7 @@ public class KafkaTopologyBuilder {
 
     this.properties = buildProperties(cliParams);
     this.builderAdminClient = buildTopologyAdminClient(cliParams);
+    this.quiteOut = Boolean.valueOf(cliParams.getOrDefault(QUITE_OPTION, "false"));
   }
 
   public void run() throws IOException {
@@ -49,6 +52,10 @@ public class KafkaTopologyBuilder {
 
     topicManager.sync(topology);
     accessControlManager.sync(topology);
+    if (!quiteOut) {
+      topicManager.printCurrentState(System.out);
+      accessControlManager.printCurrentState(System.out);
+    }
   }
 
   private AccessControlProvider buildAccessControlProvider() throws IOException {
