@@ -1,12 +1,11 @@
 package com.purbon.kafka.topology;
 
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 import com.purbon.kafka.topology.model.Project;
 import com.purbon.kafka.topology.model.Topic;
 import com.purbon.kafka.topology.model.Topology;
+import com.purbon.kafka.topology.schemas.SchemaRegistryManager;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
@@ -21,13 +20,15 @@ public class TopicManagerTest {
 
   @Mock TopologyBuilderAdminClient adminClient;
 
+  @Mock SchemaRegistryManager schemaRegistryManager;
+
   @Rule public MockitoRule mockitoRule = MockitoJUnit.rule();
 
   private TopicManager topicManager;
 
   @Before
   public void setup() {
-    topicManager = new TopicManager(adminClient);
+    topicManager = new TopicManager(adminClient, schemaRegistryManager);
   }
 
   @Test

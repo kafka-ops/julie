@@ -1,20 +1,16 @@
 package com.purbon.kafka.topology;
 
-import static com.purbon.kafka.topology.BuilderCLI.ADMIN_CLIENT_CONFIG_OPTION;
-import static com.purbon.kafka.topology.BuilderCLI.BROKERS_OPTION;
-import static com.purbon.kafka.topology.BuilderCLI.QUITE_OPTION;
-import static com.purbon.kafka.topology.TopologyBuilderConfig.ACCESS_CONTROL_DEFAULT_CLASS;
-import static com.purbon.kafka.topology.TopologyBuilderConfig.ACCESS_CONTROL_IMPLEMENTATION_CLASS;
-import static com.purbon.kafka.topology.TopologyBuilderConfig.MDS_KAFKA_CLUSTER_ID_CONFIG;
-import static com.purbon.kafka.topology.TopologyBuilderConfig.MDS_PASSWORD_CONFIG;
-import static com.purbon.kafka.topology.TopologyBuilderConfig.MDS_USER_CONFIG;
-import static com.purbon.kafka.topology.TopologyBuilderConfig.RBAC_ACCESS_CONTROL_CLASS;
+import static com.purbon.kafka.topology.BuilderCLI.*;
+import static com.purbon.kafka.topology.TopologyBuilderConfig.*;
 
 import com.purbon.kafka.topology.api.mds.MDSApiClient;
 import com.purbon.kafka.topology.model.Topology;
 import com.purbon.kafka.topology.roles.RBACProvider;
 import com.purbon.kafka.topology.roles.SimpleAclsProvider;
+import com.purbon.kafka.topology.schemas.SchemaRegistryManager;
 import com.purbon.kafka.topology.serdes.TopologySerdes;
+import io.confluent.kafka.schemaregistry.client.CachedSchemaRegistryClient;
+import io.confluent.kafka.schemaregistry.client.SchemaRegistryClient;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -25,6 +21,8 @@ import org.apache.kafka.clients.admin.AdminClient;
 import org.apache.kafka.clients.admin.AdminClientConfig;
 
 public class KafkaTopologyBuilder {
+
+  public static final String SCHEMA_REGISTRY_URL = "confluent.schema.registry.url";
 
   private final String topologyFile;
   private final TopologySerdes parser;
@@ -48,7 +46,11 @@ public class KafkaTopologyBuilder {
     AccessControlProvider aclsProvider = buildAccessControlProvider();
     AccessControlManager accessControlManager = new AccessControlManager(aclsProvider);
 
-    TopicManager topicManager = new TopicManager(builderAdminClient);
+    SchemaRegistryClient schemaRegistryClient =
+        new CachedSchemaRegistryClient(properties.getProperty(SCHEMA_REGISTRY_URL), 10);
+    SchemaRegistryManager schemaRegistryManager = new SchemaRegistryManager(schemaRegistryClient);
+
+    TopicManager topicManager = new TopicManager(builderAdminClient, schemaRegistryManager);
 
     topicManager.sync(topology);
     accessControlManager.sync(topology);

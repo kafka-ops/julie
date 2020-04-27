@@ -65,11 +65,6 @@ public class ProjectCustomDeserializer extends StdDeserializer<Project> {
     List<KStream> streamsList = streamsSerdes.parseApplicationUser(parser, streams, KStream.class);
     project.setStreams(streamsList);
 
-    JsonSerdesUtils<KStream> schemasSerdes = new JsonSerdesUtils<>();
-    JsonNode schemas = rootNode.get(SCHEMAS_KEY);
-    List<KStream> streamsList = schemasSerdes.parseApplicationUser(parser, streams, KStream.class);
-    project.setStreams(streamsList);
-
     // Parser optional RBAC object, only there if using RBAC provider
     Map<String, List<String>> roles = new HashMap<>();
     JsonNode rbacRootNode = rootNode.get(RBAC_KEY);

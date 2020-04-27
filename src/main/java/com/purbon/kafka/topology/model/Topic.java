@@ -3,7 +3,6 @@ package com.purbon.kafka.topology.model;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.purbon.kafka.topology.TopicManager;
-import com.purbon.kafka.topology.model.users.Schemas;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -13,11 +12,13 @@ public class Topic {
   public static final String DEFAULT_TOPIC_NAME = "default";
 
   @JsonInclude(Include.NON_EMPTY)
-  private Optional<String> dataType;
+  private Optional<String> dataType; // TODO -> null
+
+  @JsonInclude(Include.NON_EMPTY)
+  private TopicSchemas schemas;
 
   private String name;
   private HashMap<String, String> config;
-  private Schemas schemas;
   private Project project;
 
   public Topic(String name) {
@@ -36,6 +37,14 @@ public class Topic {
 
   public Topic() {
     this(DEFAULT_TOPIC_NAME, Optional.empty(), new HashMap<>());
+  }
+
+  public TopicSchemas getSchemas() {
+    return schemas;
+  }
+
+  public void setSchemas(TopicSchemas schemas) {
+    this.schemas = schemas;
   }
 
   public String getName() {
