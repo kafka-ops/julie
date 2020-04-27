@@ -3,6 +3,8 @@ package com.purbon.kafka.topology.model;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.purbon.kafka.topology.TopicManager;
+import com.purbon.kafka.topology.model.users.Schemas;
+
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -16,7 +18,7 @@ public class Topic {
 
   private String name;
   private HashMap<String, String> config;
-
+  private Schemas schemas;
   private Project project;
 
   public Topic(String name) {
