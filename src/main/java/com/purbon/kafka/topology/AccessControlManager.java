@@ -25,7 +25,8 @@ public class AccessControlManager {
     this(controlProvider, new ClusterStateManager());
   }
 
-  public AccessControlManager(AccessControlProvider controlProvider, ClusterStateManager clusterState) {
+  public AccessControlManager(
+      AccessControlProvider controlProvider, ClusterStateManager clusterState) {
     this.controlProvider = controlProvider;
     this.clusterState = clusterState;
   }

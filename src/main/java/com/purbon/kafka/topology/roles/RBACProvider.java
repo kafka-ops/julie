@@ -29,9 +29,7 @@ public class RBACProvider implements AccessControlProvider {
   }
 
   @Override
-  public void clearAcls(ClusterStateManager clusterState) {
-
-  }
+  public void clearAcls(ClusterStateManager clusterState) {}
 
   @Override
   public List<TopologyAclBinding> setAclsForConnect(

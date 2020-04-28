@@ -4,7 +4,6 @@ import com.purbon.kafka.topology.clusterstate.ClusterState;
 import com.purbon.kafka.topology.clusterstate.StateProcessor;
 import com.purbon.kafka.topology.clusterstate.YAMLStateProcessor;
 import com.purbon.kafka.topology.roles.TopologyAclBinding;
-
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -50,7 +49,8 @@ public class ClusterStateManager {
   }
 
   public void load() {
-    this.clusterState.setAclBindings(this.stateProcessor.readState(this.stateFileReader).getAclBindings());
+    this.clusterState.setAclBindings(
+        this.stateProcessor.readState(this.stateFileReader).getAclBindings());
   }
 
   public void reset() {

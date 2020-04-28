@@ -2,7 +2,6 @@ package com.purbon.kafka.topology.clusterstate;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
-
 import java.io.Reader;
 import java.io.Writer;
 
@@ -14,7 +13,8 @@ public class YAMLStateProcessor implements StateProcessor {
     }
   }
 
-  private final ObjectMapper mapper = new ObjectMapper(new YAMLFactory()); // .disable(Feature.WRITE_DOC_START_MARKER)
+  private final ObjectMapper mapper =
+      new ObjectMapper(new YAMLFactory()); // .disable(Feature.WRITE_DOC_START_MARKER)
 
   @Override
   public ClusterState readState(Reader reader) {
