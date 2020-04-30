@@ -5,3 +5,7 @@ target/*
 logs/*
 .cluster-state
 *.iml
+.classpath
+.factorypath
+.project
+.settings/
