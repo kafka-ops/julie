@@ -6,6 +6,7 @@ import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
+import com.purbon.kafka.topology.model.Platform;
 import com.purbon.kafka.topology.model.Project;
 import com.purbon.kafka.topology.model.Topic;
 import com.purbon.kafka.topology.model.Topology;
@@ -13,6 +14,7 @@ import com.purbon.kafka.topology.model.users.Connector;
 import com.purbon.kafka.topology.model.users.Consumer;
 import com.purbon.kafka.topology.model.users.KStream;
 import com.purbon.kafka.topology.model.users.Producer;
+import com.purbon.kafka.topology.model.users.SchemaRegistry;
 import com.purbon.kafka.topology.roles.SimpleAclsProvider;
 import com.purbon.kafka.topology.roles.TopologyAclBinding;
 import java.util.ArrayList;
@@ -123,6 +125,28 @@ public class AccessControlManagerTest {
             eq(topicPrefix),
             eq(topics.get(KStream.READ_TOPICS)),
             eq(topics.get(KStream.WRITE_TOPICS)));
+  }
+
+  @Test
+  public void newSchemaRegistryACLCreation() {
+
+    Project project = new Project();
+    Topology topology = new Topology();
+    topology.addProject(project);
+
+    Platform platform = new Platform();
+    SchemaRegistry sr = new SchemaRegistry();
+    sr.setPrincipal("User:foo");
+    platform.addSchemaRegistry(sr);
+    topology.setPlatform(platform);
+
+    accessControlManager.sync(topology);
+
+    doReturn(new ArrayList<TopologyAclBinding>())
+        .when(aclsProvider)
+        .setAclsForSchemaRegistry("User:foo");
+
+    verify(aclsProvider, times(1)).setAclsForSchemaRegistry("User:foo");
   }
 
   @Test

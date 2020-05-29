@@ -14,6 +14,7 @@ public class Topology {
 
   private List<Project> projects;
   private List<String> order;
+  private Platform platform;
 
   public Topology() {
     this.team = "default";
@@ -21,6 +22,7 @@ public class Topology {
     this.others = new HashMap<>();
     this.order = new ArrayList<>();
     this.projects = new ArrayList<>();
+    this.platform = new Platform();
   }
 
   public String getTeam() {
@@ -66,5 +68,14 @@ public class Topology {
   public void addOther(String fieldName, String value) {
     order.add(fieldName);
     others.put(fieldName, value);
+  }
+
+  public void setPlatform(Platform platform) {
+    platform.setTopology(this);
+    this.platform = platform;
+  }
+
+  public Platform getPlatform() {
+    return this.platform;
   }
 }

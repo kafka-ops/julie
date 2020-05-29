@@ -1,5 +1,7 @@
 package com.purbon.kafka.topology;
 
+import static org.junit.Assert.assertEquals;
+
 import com.purbon.kafka.topology.model.Project;
 import com.purbon.kafka.topology.model.Topic;
 import com.purbon.kafka.topology.model.Topology;
@@ -7,6 +9,7 @@ import com.purbon.kafka.topology.model.users.Connector;
 import com.purbon.kafka.topology.model.users.Consumer;
 import com.purbon.kafka.topology.model.users.KStream;
 import com.purbon.kafka.topology.model.users.Producer;
+import com.purbon.kafka.topology.model.users.SchemaRegistry;
 import com.purbon.kafka.topology.serdes.TopologySerdes;
 import java.io.IOException;
 import java.net.URISyntaxException;
@@ -17,7 +20,6 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -36,13 +38,13 @@ public class TopologySerdesTest {
     URL descriptorWithOptionals = getClass().getResource("/descriptor-with-others.yml");
 
     Topology topology = parser.deserialise(Paths.get(descriptorWithOptionals.toURI()).toFile());
-    Assert.assertEquals("team.source.foo.bar.zet", topology.buildNamePrefix());
+    assertEquals("team.source.foo.bar.zet", topology.buildNamePrefix());
 
     URL descriptorWithoutOptionals = getClass().getResource("/descriptor.yaml");
 
     Topology anotherTopology =
         parser.deserialise(Paths.get(descriptorWithoutOptionals.toURI()).toFile());
-    Assert.assertEquals("team.source", anotherTopology.buildNamePrefix());
+    assertEquals("team.source", anotherTopology.buildNamePrefix());
   }
 
   @Test
@@ -56,8 +58,8 @@ public class TopologySerdesTest {
     String topologyYamlString = parser.serialise(topology);
     Topology deserTopology = parser.deserialise(topologyYamlString);
 
-    Assert.assertEquals(topology.getTeam(), deserTopology.getTeam());
-    Assert.assertEquals(topology.getProjects().size(), deserTopology.getProjects().size());
+    assertEquals(topology.getTeam(), deserTopology.getTeam());
+    assertEquals(topology.getProjects().size(), deserTopology.getProjects().size());
   }
 
   @Test
@@ -120,8 +122,8 @@ public class TopologySerdesTest {
     Project serdesProject = deserTopology.getProjects().get(0);
     Topic serdesTopic = serdesProject.getTopics().get(0);
 
-    Assert.assertEquals(topic.getName(), serdesTopic.getName());
-    Assert.assertEquals(
+    assertEquals(topic.getName(), serdesTopic.getName());
+    assertEquals(
         topic.getConfig().get("num.partitions"), serdesTopic.getConfig().get("num.partitions"));
   }
 
@@ -155,11 +157,24 @@ public class TopologySerdesTest {
     Project serdesProject = deserTopology.getProjects().get(0);
     Topic serdesTopic = serdesProject.getTopics().get(0);
 
-    Assert.assertEquals(topic.getDataType(), serdesTopic.getDataType());
-    Assert.assertEquals(topic.getDataType().get(), serdesTopic.getDataType().get());
+    assertEquals(topic.getDataType(), serdesTopic.getDataType());
+    assertEquals(topic.getDataType().get(), serdesTopic.getDataType().get());
 
     Topic serdesTopic2 = serdesProject.getTopics().get(1);
-    Assert.assertEquals(topic2.getDataType(), serdesTopic2.getDataType());
+    assertEquals(topic2.getDataType(), serdesTopic2.getDataType());
+  }
+
+  @Test
+  public void testPlaformProcessing() throws IOException, URISyntaxException {
+
+    URL topologyDescriptor = getClass().getResource("/descriptor.yaml");
+
+    Topology topology = parser.deserialise(Paths.get(topologyDescriptor.toURI()).toFile());
+
+    List<SchemaRegistry> listOfSR = topology.getPlatform().getSchemaRegistry();
+    assertEquals(2, listOfSR.size());
+    assertEquals("User:SchemaRegistry01", listOfSR.get(0).getPrincipal());
+    assertEquals("User:SchemaRegistry02", listOfSR.get(1).getPrincipal());
   }
 
   private List<Project> buildProjects() {

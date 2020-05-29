@@ -52,3 +52,6 @@ projects:
         config:
           replication.factor: "1"
           num.partitions: "1"
+platform:
+  schema_registry:
+    - principal: "User:SchemaRegistry"

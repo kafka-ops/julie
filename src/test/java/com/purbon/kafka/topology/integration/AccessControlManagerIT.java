@@ -3,6 +3,7 @@ package com.purbon.kafka.topology.integration;
 import com.purbon.kafka.topology.AccessControlManager;
 import com.purbon.kafka.topology.ClusterState;
 import com.purbon.kafka.topology.TopologyBuilderAdminClient;
+import com.purbon.kafka.topology.model.Platform;
 import com.purbon.kafka.topology.model.Project;
 import com.purbon.kafka.topology.model.Topic;
 import com.purbon.kafka.topology.model.Topology;
@@ -10,6 +11,7 @@ import com.purbon.kafka.topology.model.users.Connector;
 import com.purbon.kafka.topology.model.users.Consumer;
 import com.purbon.kafka.topology.model.users.KStream;
 import com.purbon.kafka.topology.model.users.Producer;
+import com.purbon.kafka.topology.model.users.SchemaRegistry;
 import com.purbon.kafka.topology.roles.SimpleAclsProvider;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -150,6 +152,31 @@ public class AccessControlManagerIT {
   }
 
   @Test
+  public void schemaRegistryAclsCreation() throws ExecutionException, InterruptedException {
+    Project project = new Project();
+
+    Topology topology = new Topology();
+    topology.setTeam("integration-test");
+    topology.setSource("schemaRegistryAclsCreation");
+    topology.addProject(project);
+
+    Platform platform = new Platform();
+    SchemaRegistry sr = new SchemaRegistry();
+    sr.setPrincipal("User:foo");
+    platform.addSchemaRegistry(sr);
+
+    SchemaRegistry sr2 = new SchemaRegistry();
+    sr2.setPrincipal("User:banana");
+    platform.addSchemaRegistry(sr2);
+
+    topology.setPlatform(platform);
+
+    accessControlManager.sync(topology);
+
+    verifySchemaRegistryAcls(platform);
+  }
+
+  @Test
   public void connectAclsCreation() throws ExecutionException, InterruptedException {
     Project project = new Project();
 
@@ -210,6 +237,28 @@ public class AccessControlManagerIT {
     acls = kafkaAdminClient.describeAcls(filter).values().get();
 
     Assert.assertEquals(1, acls.size());
+  }
+
+  private void verifySchemaRegistryAcls(Platform platform)
+      throws ExecutionException, InterruptedException {
+
+    List<SchemaRegistry> srs = platform.getSchemaRegistry();
+
+    for (SchemaRegistry sr : srs) {
+
+      ResourcePatternFilter resourceFilter =
+          new ResourcePatternFilter(ResourceType.TOPIC, null, PatternType.ANY);
+
+      AccessControlEntryFilter entryFilter =
+          new AccessControlEntryFilter(
+              sr.getPrincipal(), null, AclOperation.ANY, AclPermissionType.ALLOW);
+
+      AclBindingFilter filter = new AclBindingFilter(resourceFilter, entryFilter);
+
+      Collection<AclBinding> acls = kafkaAdminClient.describeAcls(filter).values().get();
+
+      Assert.assertEquals(3, acls.size());
+    }
   }
 
   private void verifyKStreamsAcls(KStream app) throws ExecutionException, InterruptedException {
