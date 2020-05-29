@@ -35,5 +35,4 @@ public class JsonSerdesUtils<T> {
         .parseApplicationUser(parser, topics, Topic.class)
         .forEach(topic -> project.addTopic(topic));
   }
-
 }
