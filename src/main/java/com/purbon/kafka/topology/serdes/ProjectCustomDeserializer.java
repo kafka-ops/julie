@@ -70,24 +70,9 @@ public class ProjectCustomDeserializer extends StdDeserializer<Project> {
     project.setStreams(streamsList);
 
     // Parser optional RBAC object, only there if using RBAC provider
-    Map<String, List<String>> roles = new HashMap<>();
     JsonNode rbacRootNode = rootNode.get(RBAC_KEY);
     if (rbacRootNode != null) {
-      for (int i = 0; i < rbacRootNode.size(); i++) {
-        JsonNode elem = rbacRootNode.get(i);
-        Iterator<String> fields = elem.fieldNames();
-        while (fields.hasNext()) {
-          String field = fields.next(); // field == RoleName
-          List<String> principalsByRole = new ArrayList<>();
-          JsonNode principals = elem.get(field);
-          for (int j = 0; j < principals.size(); j++) {
-            JsonNode principalNode = principals.get(j);
-            String principal = principalNode.get(PRINCIPAL_KEY).asText();
-            principalsByRole.add(principal);
-          }
-          roles.put(field, principalsByRole);
-        }
-      }
+      Map<String, List<String>> roles = parseOptionalRbacRoles(rbacRootNode);
       project.setRbacRawRoles(roles);
     }
 
@@ -95,5 +80,25 @@ public class ProjectCustomDeserializer extends StdDeserializer<Project> {
     addTopics2Project(parser, project, topics);
 
     return project;
+  }
+
+  private Map<String, List<String>> parseOptionalRbacRoles(JsonNode rbacRootNode) {
+    Map<String, List<String>> roles = new HashMap<>();
+    for (int i = 0; i < rbacRootNode.size(); i++) {
+      JsonNode elem = rbacRootNode.get(i);
+      Iterator<String> fields = elem.fieldNames();
+      while (fields.hasNext()) {
+        String field = fields.next(); // field == RoleName
+        List<String> principalsByRole = new ArrayList<>();
+        JsonNode principals = elem.get(field);
+        for (int j = 0; j < principals.size(); j++) {
+          JsonNode principalNode = principals.get(j);
+          String principal = principalNode.get(PRINCIPAL_KEY).asText();
+          principalsByRole.add(principal);
+        }
+        roles.put(field, principalsByRole);
+      }
+    }
+    return roles;
   }
 }
