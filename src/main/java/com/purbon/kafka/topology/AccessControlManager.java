@@ -92,6 +92,16 @@ public class AccessControlManager {
                                       principal, predefinedRole, topicPrefix)));
             });
 
+    // Sync platform relevant Access Control List.
+    topology
+        .getPlatform()
+        .getSchemaRegistry()
+        .forEach(
+            schemaRegistry -> {
+              List<TopologyAclBinding> bindings =
+                  controlProvider.setAclsForSchemaRegistry(schemaRegistry.getPrincipal());
+              clusterState.update(bindings);
+            });
     clusterState.flushAndClose();
   }
 

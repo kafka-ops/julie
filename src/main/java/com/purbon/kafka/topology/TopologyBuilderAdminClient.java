@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ExecutionException;
+import java.util.stream.Collectors;
 import org.apache.kafka.clients.admin.AdminClient;
 import org.apache.kafka.clients.admin.AlterConfigOp;
 import org.apache.kafka.clients.admin.AlterConfigOp.OpType;
@@ -266,6 +267,19 @@ public class TopologyBuilderAdminClient {
       return new ArrayList<>();
     }
     return aclsList;
+  }
+
+  public List<AclBinding> setAclForSchemaRegistry(String principal) {
+    List<AclBinding> bindings =
+        Arrays.asList(AclOperation.DESCRIBE_CONFIGS, AclOperation.WRITE, AclOperation.READ).stream()
+            .map(
+                aclOperation -> {
+                  return buildTopicLevelAcl(
+                      principal, "_schemas", PatternType.LITERAL, aclOperation);
+                })
+            .collect(Collectors.toList());
+    createAcls(bindings);
+    return bindings;
   }
 
   public List<AclBinding> setAclsForStreamsApp(

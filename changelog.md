@@ -1,3 +1,6 @@
+latest:
+* Add support for platform wide acls for schema registry in the topology description file. 
+
 v0.11:
 * Add support for storing the current generated acls within a state file. This is useful to delete
 acls that are known and generated previously by the topology builder.
