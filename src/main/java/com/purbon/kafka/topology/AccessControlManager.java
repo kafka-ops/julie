@@ -10,6 +10,7 @@ import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -82,16 +83,14 @@ public class AccessControlManager {
                       connector -> {
                         syncApplicationAcls(connector, topicPrefix);
                       });
-              project
-                  .getRbacRawRoles()
-                  .forEach(
-                      (predefinedRole, principals) ->
-                          principals.forEach(
-                              principal ->
-                                  controlProvider.setPredefinedRole(
-                                      principal, predefinedRole, topicPrefix)));
+              syncRbacRawRoles(project.getRbacRawRoles(), topicPrefix);
             });
 
+    syncPlatformAcls(topology);
+    clusterState.flushAndClose();
+  }
+
+  private void syncPlatformAcls(final Topology topology) {
     // Sync platform relevant Access Control List.
     topology
         .getPlatform()
@@ -102,7 +101,14 @@ public class AccessControlManager {
                   controlProvider.setAclsForSchemaRegistry(schemaRegistry.getPrincipal());
               clusterState.update(bindings);
             });
-    clusterState.flushAndClose();
+  }
+
+  private void syncRbacRawRoles(Map<String, List<String>> rbacRawRoles, String topicPrefix) {
+    rbacRawRoles.forEach(
+        (predefinedRole, principals) ->
+            principals.forEach(
+                principal ->
+                    controlProvider.setPredefinedRole(principal, predefinedRole, topicPrefix)));
   }
 
   private void syncApplicationAcls(DynamicUser app, String topicPrefix) {
