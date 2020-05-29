@@ -71,9 +71,9 @@ This tool is available in multiple formats:
 - As an RPM package
 - Directly as a fat jar (zip/tar.gz)
 
-The latest version are available from the [https://github.com/purbon/kafka-topology-builder/releases](releases) page
+The latest version are available from the [releases](https://github.com/purbon/kafka-topology-builder/releases) page.
 
-The release is as well available in [https://hub.docker.com/r/purbon/kafka-topology-builder](docker hub).
+The release is as well available in [docker hub](https://hub.docker.com/r/purbon/kafka-topology-builder).
 
 #### How to execute the tool
 
