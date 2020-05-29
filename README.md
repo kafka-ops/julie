@@ -151,4 +151,4 @@ projects:
       num.partitions: "3"
 ```
 
-more eamples can be found at the [examplesi/](examples/) directory.
+more eamples can be found at the [example/](example/) directory.
