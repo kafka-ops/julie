@@ -31,11 +31,12 @@ public class KafkaTopologyBuilder {
   private final Properties properties;
   private final TopologyBuilderAdminClient builderAdminClient;
   private final boolean quiteOut;
+  private final Map<String, String> cliParams;
 
   public KafkaTopologyBuilder(String topologyFile, Map<String, String> cliParams) {
     this.topologyFile = topologyFile;
     this.parser = new TopologySerdes();
-
+    this.cliParams = cliParams;
     this.properties = buildProperties(cliParams);
     this.builderAdminClient = buildTopologyAdminClient(cliParams);
     this.quiteOut = Boolean.valueOf(cliParams.getOrDefault(QUITE_OPTION, "false"));
@@ -46,9 +47,9 @@ public class KafkaTopologyBuilder {
     Topology topology = parser.deserialise(new File(topologyFile));
 
     AccessControlProvider aclsProvider = buildAccessControlProvider();
-    AccessControlManager accessControlManager = new AccessControlManager(aclsProvider);
+    AccessControlManager accessControlManager = new AccessControlManager(aclsProvider, cliParams);
 
-    TopicManager topicManager = new TopicManager(builderAdminClient);
+    TopicManager topicManager = new TopicManager(builderAdminClient, cliParams);
 
     topicManager.sync(topology);
     accessControlManager.sync(topology);

@@ -1,5 +1,7 @@
 package com.purbon.kafka.topology;
 
+import static com.purbon.kafka.topology.BuilderCLI.ALLOW_DELETE_OPTION;
+
 import com.purbon.kafka.topology.model.DynamicUser;
 import com.purbon.kafka.topology.model.Topology;
 import com.purbon.kafka.topology.model.User;
@@ -9,6 +11,7 @@ import com.purbon.kafka.topology.roles.TopologyAclBinding;
 import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -18,23 +21,42 @@ import org.apache.logging.log4j.Logger;
 public class AccessControlManager {
 
   private static final Logger LOGGER = LogManager.getLogger(AccessControlManager.class);
+  private final Boolean allowDelete;
 
   private AccessControlProvider controlProvider;
   private ClusterState clusterState;
+  private Map<String, String> cliParams;
 
   public AccessControlManager(AccessControlProvider controlProvider) {
-    this(controlProvider, new ClusterState());
+    this(controlProvider, new ClusterState(), new HashMap<>());
+  }
+
+  public AccessControlManager(
+      AccessControlProvider controlProvider, Map<String, String> cliParams) {
+    this(controlProvider, new ClusterState(), cliParams);
   }
 
   public AccessControlManager(AccessControlProvider controlProvider, ClusterState clusterState) {
+    this(controlProvider, clusterState, new HashMap<>());
+  }
+
+  public AccessControlManager(
+      AccessControlProvider controlProvider,
+      ClusterState clusterState,
+      Map<String, String> cliParams) {
     this.controlProvider = controlProvider;
     this.clusterState = clusterState;
+    this.cliParams = cliParams;
+
+    this.allowDelete = Boolean.valueOf(cliParams.getOrDefault(ALLOW_DELETE_OPTION, "true"));
   }
 
   public void clearAcls() {
     try {
       clusterState.load();
-      controlProvider.clearAcls(clusterState);
+      if (allowDelete) {
+        controlProvider.clearAcls(clusterState);
+      }
     } catch (Exception e) {
       LOGGER.error(e);
     } finally {

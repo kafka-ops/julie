@@ -1,5 +1,6 @@
 latest:
-* Add support for platform wide acls for schema registry in the topology description file. 
+* Add support for platform wide acls for schema registry in the topology description file.
+* Rebird the option to disable deletes when not required anymore. 
 
 v0.11:
 * Add support for storing the current generated acls within a state file. This is useful to delete
