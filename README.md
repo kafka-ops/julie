@@ -4,6 +4,7 @@
 
 [![Build Status](https://travis-ci.org/purbon/kafka-topology-builder.svg?branch=master)](https://travis-ci.org/purbon/kafka-topology-builder)
 
+[![Gitter](https://badges.gitter.im/kafka-topology-builder/community.svg)](https://gitter.im/kafka-topology-builder/community?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge)
 
 This tool helps you build proper ACLs for Apache Kafka. The Kafka ACL builder tool knows what do you
 need for each of the products/projects you are planning, either Kafka Connect, Kafka Streams or others.
@@ -40,6 +41,14 @@ Considerations:
 * Using webhooks, the git server (github, gitlab or bitbucket) will inform the CI/CD system changes had happened and they need to be applied to the cluster.
 * All changes (git push) to master branch are disabled directly. 
 Changes only can happen with a pull request.
+
+## Help??
+
+If you are using the Kafka Topology Builder, or plan to use it in your project? might be you have encounter a bug? or a challenge?
+need a certain future? feel free to reach out into our [gitter community](https://gitter.im/kafka-topology-builder/community).
+
+[![Gitter](https://badges.gitter.im/kafka-topology-builder/community.svg)](https://gitter.im/kafka-topology-builder/community?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge)
+
 
 ## Feature list, not only bugs ;-)
 
