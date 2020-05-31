@@ -1,2 +1,2 @@
-Workflow Setup
+Workflow setup
 *******************************
