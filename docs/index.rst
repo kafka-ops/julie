@@ -16,7 +16,6 @@ To get you started we recommend:
 * New to gitops and kafka, check the :doc:`core-concepts` page.
 * If you are ready to jump in, start with the :doc:`workflow-setup`.
 
-
 Installation
 -----------
 
