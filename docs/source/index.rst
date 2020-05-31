@@ -22,6 +22,9 @@ Installation
 Help?
 ------------------------------
 
+If case you require any help regarding the usage or development of the Kafka Topology Builder, don't hesitate to contact our `gitter community  <https://gitter.im/kafka-topology-builder/community#>`.
+In the future, when there is the request we might as well create a mailing list or other method of communication that help people using this project.
+
 
 Indices and tables
 ==================
