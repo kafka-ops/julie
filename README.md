@@ -1,10 +1,8 @@
 # The Kafka Topology builder tool
 
-<a href="https://codeclimate.com/github/purbon/kafka-topology-builder/maintainability"><img src="https://api.codeclimate.com/v1/badges/ef4bcda7d1b5fd0a4f1e/maintainability" /></a>
+<a href="https://codeclimate.com/github/purbon/kafka-topology-builder/maintainability"><img src="https://api.codeclimate.com/v1/badges/ef4bcda7d1b5fd0a4f1e/maintainability" /></a> [![Build Status](https://travis-ci.org/purbon/kafka-topology-builder.svg?branch=master)](https://travis-ci.org/purbon/kafka-topology-builder)
 
-[![Build Status](https://travis-ci.org/purbon/kafka-topology-builder.svg?branch=master)](https://travis-ci.org/purbon/kafka-topology-builder)
-
-[![Gitter](https://badges.gitter.im/kafka-topology-builder/community.svg)](https://gitter.im/kafka-topology-builder/community?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge)
+[![Gitter](https://badges.gitter.im/kafka-topology-builder/community.svg)](https://gitter.im/kafka-topology-builder/community?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge) [![Documentation Status](https://readthedocs.org/projects/kafka-topology-builder/badge/?version=latest)](https://kafka-topology-builder.readthedocs.io/?badge=latest)
 
 This tool helps you build proper ACLs for Apache Kafka. The Kafka ACL builder tool knows what do you
 need for each of the products/projects you are planning, either Kafka Connect, Kafka Streams or others.
@@ -13,7 +11,12 @@ need for each of the products/projects you are planning, either Kafka Connect, K
 
 One of the typical questions while building an Apache Kafka infrastructure is how to handle topics, 
 configurations and the required permissions to use them (Access Control List).
-The Kafka Topology Builder, in close collaboration with GIT and Jenkins (CI/CD) is here to help you setup an orgnised and automated way of managing your Kafka Cluster.
+The Kafka Topology Builder, in close collaboration with GIT and Jenkins (CI/CD) is here to help you setup an organised and automated way of managing your Kafka Cluster.
+
+## Where's the docs?
+
+We recommend taking time to [read the docs](https://kafka-topology-builder.readthedocs.io/).
+There's quite a bit of detailed information about gitops, Apache Kafka and how this project can help you automate your basic operations tasks.
 
 ## Automating the Topic Management with CI/CD (Jenkins) and gitops
 
