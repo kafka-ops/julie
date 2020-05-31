@@ -6,13 +6,6 @@
 Welcome to Kafka Topology Builder's documentation!
 ==================================================
 
-.. toctree::
-   :maxdepth: 2
-   :caption: Contents:
-
-   core-concepts
-
-
 Getting started
 -------------------------------
 
@@ -28,6 +21,11 @@ If case you require any help regarding the usage or development of the Kafka Top
 In the future, when there is the request we might as well create a mailing list or other method of communication that help people using this project.
 
 
+.. toctree::
+   :maxdepth: 2
+   :caption: Contents:
+
+   core-concepts
 
 Indices and tables
 ==================
