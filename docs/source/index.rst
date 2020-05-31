@@ -24,7 +24,6 @@ Contents
 -------------------------------
 
 .. toctree::
-   :caption: Contents:
    :maxdepth: 2
 
    core-concepts
