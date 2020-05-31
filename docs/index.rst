@@ -13,6 +13,13 @@ Getting started
 Installation
 -----------
 
+To install the Kafka Topology Builder and enable your teams to use a gitops approach when managing Apache Kafka you need:
+
+* A CI/CD server, for example Jenkins, but any other will serve the purpose
+* A git repository where the Topology description will be stored
+* And for sure a Kafka cluster :-)
+
+See the  :doc:`workflow-setup` section to learn more how to setup the required components to enable the full workflow.
 
 Help?
 ------------------------------
@@ -26,6 +33,7 @@ In the future, when there is the request we might as well create a mailing list 
    :caption: Contents:
 
    core-concepts
+   workflow-setup
 
 Indices and tables
 ==================
