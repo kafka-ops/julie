@@ -163,4 +163,19 @@ projects:
       num.partitions: "3"
 ```
 
-more eamples can be found at the [example/](example/) directory.
+more examples can be found at the [example/](example/) directory.
+
+## Interested in contributing back?
+
+Interested on contributing back? might be have an idea for a great future? or wanna fix a bug? Check our [contributing](CONTRIBUTTING.md) doc for guidance.
+
+## Building the Kafka Topology Builder from scratch (source code)
+
+The project is build using Java and Maven, so both are required if you aim to build the tool from scratch.
+The minimum version of Java supported is Java 8, note it soon will be deprecated here, it is only keep as supported for very legacy environments.
+
+It is recommended to run the Kafka Topology Builder with Java 11 and an open JDK version.
+
+### Building a release
+
+If you are interested on building a release artifact from the source code, check our [release](RELEASE.md) doc for guidance.
