@@ -28,5 +28,5 @@ As introduced earlier, to build the artifact we are going to take advantage of t
 
 ## Releasing a version to a docker registry
 
-To release a version to a docker registry, for example docker hub, you can use the build.sh script under the release/docker directory.
+To release a version to a docker registry, for example docker hub, you can use the build.sh script under the [release/docker/](release/docker/) directory.
 Once the new image is build, the reader will be required to push to the docker repository of interest.
