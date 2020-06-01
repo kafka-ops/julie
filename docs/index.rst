@@ -6,6 +6,14 @@
 Welcome to Kafka Topology Builder's documentation!
 ==================================================
 
+Welcome to the Kafka Topology Builder documentation, in this site we recollected notes and guides to provide the beginners, but as well reference for the most experienced on implementing a gitops
+approach for operations in Apache Kafka.
+
+.. image:: _static/images/kafka-topology-builder.png
+  :width: 400
+  :align: center
+  :alt: Webhook events
+
 Getting started
 -------------------------------
 
@@ -46,10 +54,3 @@ Contents
 
    core-concepts
    workflow-setup
-
-Indices and tables
-==================
-
-* :ref:`genindex`
-* :ref:`modindex`
-* :ref:`search`

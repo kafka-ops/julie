@@ -60,11 +60,38 @@ GitOps requires us to describe and observe systems with declarative specificatio
 </div>
 <div class="section" id="what-do-i-need-to-use-gitops">
 <h2>What do I need to use gitops?<a class="headerlink" href="#what-do-i-need-to-use-gitops" title="Permalink to this headline">¶</a></h2>
-<p>TBA</p>
+<p>To setup a gitops flow you need three basic components:</p>
+<ul class="simple">
+<li>A git server, anything will work from Github, Gitlab or Bitbucket</li>
+<li>A CI/CD pipeline, for example the master Jenkins!</li>
+<li>And the Kafka Topology Builder project</li>
+</ul>
+<p>This building blocks will build up necessary integration steps:</p>
+<ul class="simple">
+<li>In the git server, ex. Gitlab, we’re going to store the topology definition, so how we want the cluster to look like in terms of topics, acls, etc.</li>
+<li>The git server will manage as well the change management flow using Change Requests (or pull request :-P)</li>
+<li>Jenkins will be the muscle of the operation, in charge of retrieving the git content, do an initial verification and run the topology builder to apply the changes in Apache Kafka.</li>
+<li>And The Kafka Topology Builder project, the responsible of interpreting the configuration files (topologies) and apply the changes directly into Apache Kafka and related components.</li>
+</ul>
 </div>
 <div class="section" id="how-are-the-users-dev-teams-leveraging-gitops">
 <h2>How are the users / dev teams leveraging gitops?<a class="headerlink" href="#how-are-the-users-dev-teams-leveraging-gitops" title="Permalink to this headline">¶</a></h2>
-<p>TBA</p>
+<p>This flow is in place, at most the organisations, in order to enable individual cluster users request the resources they need for their project, and do this without very tied formal processes or even worst a Jira ticket :-).</p>
+<p>The traditional flow for this approach is:</p>
+<ul class="simple">
+<li>A user (dev team) has the need of more topics (for example)</li>
+<li>This same user, does a new branch in git, and apply the required changes in the configuration file</li>
+<li>Once happy with the required changes, it will be submitting a change request (PR) to merge this changes to the master branch</li>
+</ul>
+<p>then (in more controlled environments) :</p>
+<ul class="simple">
+<li>An authorised agent of change, for example people from the operations team, will do a manual review of the changes. If required will request changes to the original requester</li>
+<li>An automatic verification, using the CI/CD pipeline, is run automatically once the change request is created</li>
+<li>Once the agent is happy with the change request, it will merge it into master</li>
+<li>From master a CI/CD job will be triggered automatically to perform the requested changes into the cluster</li>
+</ul>
+<p><em>NOTE</em>: In environments, or organisations, less restrictive you might like to approve the change request automatically if the CI/CD pipeline verification is greed.</p>
+<p>It should be noted as well that thanks to the change request mechanism offered by Gitlab, Github and Bitbucket, the change management chain and audit is fulfilled.</p>
 </div>
 </div>
 

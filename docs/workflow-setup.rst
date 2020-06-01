@@ -9,6 +9,11 @@ For this example we're going to use:
 
 Configuration is possible with other technologies such as Gitlab or Concourse for example.
 
+.. image:: _static/images/kafka-topology-builder.png
+  :width: 400
+  :align: center
+  :alt: Webhook events
+
 Configure the git server
 -----------
 
@@ -23,6 +28,14 @@ For Github the webhook events to be selected are:
 
 - *Pull requests*: _Pull request opened, closed, reopened, edited, assigned, unassigned, review requested, review request removed, labeled, unlabeled, synchronized, ready for review, converted to draft, locked, or unlocked._
 - push event.
+
+it should look like this:
+
+.. image:: _static/images/webhook.png
+  :width: 400
+  :align: center
+  :alt: Webhook events
+
 
 Setup CI/CD
 -----------

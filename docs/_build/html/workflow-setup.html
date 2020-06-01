@@ -40,9 +40,30 @@
             
   <div class="section" id="workflow-setup">
 <h1>Workflow setup<a class="headerlink" href="#workflow-setup" title="Permalink to this headline">¶</a></h1>
+<p>This section describe the configuration steps need to setup a flow with the Kafka Topology Builder.
+For this example we’re going to use:</p>
+<ul class="simple">
+<li>Github as the git server.</li>
+<li>Jenkins as the CI/CD pipeline.</li>
+</ul>
+<p>Configuration is possible with other technologies such as Gitlab or Concourse for example.</p>
+<a class="reference internal image-reference" href="_images/kafka-topology-builder.png"><img alt="Webhook events" class="align-center" src="_images/kafka-topology-builder.png" style="width: 400px;" /></a>
 <div class="section" id="configure-the-git-server">
 <h2>Configure the git server<a class="headerlink" href="#configure-the-git-server" title="Permalink to this headline">¶</a></h2>
-<p>TBA</p>
+<p>From the git server perspective you are going to need to setup the next steps:</p>
+<ul class="simple">
+<li>Block the master branch to push commits, so everyone is required to perform changes using a pull request.</li>
+<li>Configure a webhook to inform the CI/CD pipeline every time:
+* A pull request is created or changed.
+* A merge happened to the master branch.</li>
+</ul>
+<p>For Github the webhook events to be selected are:</p>
+<ul class="simple">
+<li><em>Pull requests</em>: _Pull request opened, closed, reopened, edited, assigned, unassigned, review requested, review request removed, labeled, unlabeled, synchronized, ready for review, converted to draft, locked, or unlocked._</li>
+<li>push event.</li>
+</ul>
+<p>it should look like this:</p>
+<a class="reference internal image-reference" href="_images/webhook.png"><img alt="Webhook events" class="align-center" src="_images/webhook.png" style="width: 400px;" /></a>
 </div>
 <div class="section" id="setup-ci-cd">
 <h2>Setup CI/CD<a class="headerlink" href="#setup-ci-cd" title="Permalink to this headline">¶</a></h2>
