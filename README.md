@@ -167,7 +167,7 @@ more examples can be found at the [example/](example/) directory.
 
 ## Interested in contributing back?
 
-Interested on contributing back? might be have an idea for a great future? or wanna fix a bug? Check our [contributing](CONTRIBUTTING.md) doc for guidance.
+Interested on contributing back? might be have an idea for a great future? or wanna fix a bug? Check our [contributing](CONTRIBUTING.md) doc for guidance.
 
 ## Building the Kafka Topology Builder from scratch (source code)
 
