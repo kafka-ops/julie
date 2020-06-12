@@ -12,6 +12,7 @@ import com.purbon.kafka.topology.model.Topic;
 import com.purbon.kafka.topology.model.Topology;
 import com.purbon.kafka.topology.model.users.Connector;
 import com.purbon.kafka.topology.model.users.Consumer;
+import com.purbon.kafka.topology.model.users.ControlCenter;
 import com.purbon.kafka.topology.model.users.KStream;
 import com.purbon.kafka.topology.model.users.Producer;
 import com.purbon.kafka.topology.model.users.SchemaRegistry;
@@ -147,6 +148,29 @@ public class AccessControlManagerTest {
         .setAclsForSchemaRegistry("User:foo");
 
     verify(aclsProvider, times(1)).setAclsForSchemaRegistry("User:foo");
+  }
+
+  @Test
+  public void newControlCenterACLCreation() {
+
+    Project project = new Project();
+    Topology topology = new Topology();
+    topology.addProject(project);
+
+    Platform platform = new Platform();
+    ControlCenter c3 = new ControlCenter();
+    c3.setPrincipal("User:foo");
+    c3.setAppId("appid");
+    platform.addControlCenter(c3);
+    topology.setPlatform(platform);
+
+    accessControlManager.sync(topology);
+
+    doReturn(new ArrayList<TopologyAclBinding>())
+        .when(aclsProvider)
+        .setAclsForControlCenter("User:foo", "appid");
+
+    verify(aclsProvider, times(1)).setAclsForControlCenter("User:foo", "appid");
   }
 
   @Test

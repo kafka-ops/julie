@@ -7,6 +7,7 @@ import com.purbon.kafka.topology.model.Topic;
 import com.purbon.kafka.topology.model.Topology;
 import com.purbon.kafka.topology.model.users.Connector;
 import com.purbon.kafka.topology.model.users.Consumer;
+import com.purbon.kafka.topology.model.users.ControlCenter;
 import com.purbon.kafka.topology.model.users.KStream;
 import com.purbon.kafka.topology.model.users.Producer;
 import com.purbon.kafka.topology.model.users.SchemaRegistry;
@@ -175,6 +176,12 @@ public class TopologySerdesTest {
     assertEquals(2, listOfSR.size());
     assertEquals("User:SchemaRegistry01", listOfSR.get(0).getPrincipal());
     assertEquals("User:SchemaRegistry02", listOfSR.get(1).getPrincipal());
+
+    List<ControlCenter> listOfC3 = topology.getPlatform().getControlCenter();
+
+    assertEquals(1, listOfC3.size());
+    assertEquals("User:ControlCenter", listOfC3.get(0).getPrincipal());
+    assertEquals("controlcenter", listOfC3.get(0).getAppId());
   }
 
   private List<Project> buildProjects() {
