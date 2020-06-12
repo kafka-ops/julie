@@ -137,9 +137,33 @@ As in the previous pipeline, we should note here the relevant steps:
 Using it in the day to day
 -----------
 
-TBA
+As a development team, or basically as a user of the kafka infra, you will be provided with an one or multiple yaml files (the descriptors), usually they will be hosted in a shared repository but they
+could be as well in your own project repo.
+
+Following your very same project setup, for example by using the GitLab flow <https://docs.gitlab.com/ee/topics/gitlab_flow.html> where you will have environment branches <https://docs.gitlab.com/ee/topics/gitlab_flow.html#environment-branches-with-gitlab-flow>
+you can expect to find a descriptors in each environment branch.
+
+As a user, when you require a new topic, configuration or user permission, you will simply need to:
+
+* create a new branch.
+* alter the required files (the descriptors)
+* create a pull request (PR) and request a review by a peer.
+* Once the PR is approved, it will be merged.
+
+Once the PR is merged, the peer jenkins job will pick up the files and apply the required changes directly to your shared infra.
 
 Taking advantage of the Kafka topology Builder across environments
 -----------
 
-TBA
+As introduced in the previous section, in any software project, there are many environments. This environments could be:
+
+* test, where users run they specific story development tests.
+* staging, or pre production, where the integration and smoke test are executed.
+* production, where basically stuff runs.
+
+If your project is following the Gitlab flow <https://docs.gitlab.com/ee/topics/gitlab_flow.html#environment-branches-with-gitlab-flow> or anything similar, you might be having environment branch, one per each one in your setup.
+
+Moving changes across environment will be as easy as following the same approach you are already taking for releasing commits across environments. This could be cherry pick, pull requests, etc.
+
+*NOTE*: as a team, you might like to move towards a more controlled setup, going from complete freedom in the lower environment, to a more restricted setup as soon as you get into production. But with a flexible approach like gitops, continous release is as well possible,
+the limits are only on yourself and the stability of your platform.
