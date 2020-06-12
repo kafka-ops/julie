@@ -9,4 +9,5 @@ public class RBACPredefinedRoles {
   public static final String DEVELOPER_MANAGE = "DeveloperManage";
 
   public static final String SECURITY_ADMIN = "SecurityAdmin";
+  public static final String SYSTEM_ADMIN = "SystemAdmin";
 }
