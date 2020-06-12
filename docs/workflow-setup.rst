@@ -95,7 +95,7 @@ In the previous pipeline definition, using the Jenkins Pipeline DSL, we can noti
 - Is using docker as an agent. We suggest this as a best practise, but it is possible as well to run this with any agent available that has access to a host where the Kafka Topology Builder is installed.
 - There are a few verification, or test, steps. This are checks that run automatically for every Pull Request.
 - In the pipeline the reader can see the topology files are passes as jenkins parameters, see *${TopologyFiles}*
-- An important post step is configured where the pipeline will inform back to the git server the result of the verification. This step needs access to each server token, for the case of this pipeline a previosly configured github token.
+- An important post step is configured where the pipeline will inform back to the git server the result of the verification. This step needs access to each server token, for the case of this pipeline a previously configured github token.
 
 
 Setting up the main pipeline
@@ -140,7 +140,7 @@ Using it in the day to day
 As a development team, or basically as a user of the kafka infra, you will be provided with an one or multiple yaml files (the descriptors), usually they will be hosted in a shared repository but they
 could be as well in your own project repo.
 
-Following your very same project setup, for example by using the GitLab flow <https://docs.gitlab.com/ee/topics/gitlab_flow.html> where you will have environment branches <https://docs.gitlab.com/ee/topics/gitlab_flow.html#environment-branches-with-gitlab-flow>
+Following your very same project setup, for example by using the `GitLab flow <https://docs.gitlab.com/ee/topics/gitlab_flow.html>`_ where you will have `environment branches <https://docs.gitlab.com/ee/topics/gitlab_flow.html#environment-branches-with-gitlab-flow>`_
 you can expect to find a descriptors in each environment branch.
 
 As a user, when you require a new topic, configuration or user permission, you will simply need to:
@@ -161,9 +161,9 @@ As introduced in the previous section, in any software project, there are many e
 * staging, or pre production, where the integration and smoke test are executed.
 * production, where basically stuff runs.
 
-If your project is following the Gitlab flow <https://docs.gitlab.com/ee/topics/gitlab_flow.html#environment-branches-with-gitlab-flow> or anything similar, you might be having environment branch, one per each one in your setup.
+If your project is following the `Gitlab flow <https://docs.gitlab.com/ee/topics/gitlab_flow.html#environment-branches-with-gitlab-flow>`_ or anything similar, you might be having environment branch, one per each one in your setup.
 
 Moving changes across environment will be as easy as following the same approach you are already taking for releasing commits across environments. This could be cherry pick, pull requests, etc.
 
-*NOTE*: as a team, you might like to move towards a more controlled setup, going from complete freedom in the lower environment, to a more restricted setup as soon as you get into production. But with a flexible approach like gitops, continous release is as well possible,
+*NOTE*: as a team, you might like to move towards a more controlled setup, going from complete freedom in the lower environment, to a more restricted setup as soon as you get into production. But with a flexible approach like gitops, continuous release is as well possible,
 the limits are only on yourself and the stability of your platform.
