@@ -2,11 +2,13 @@ package com.purbon.kafka.topology.integration;
 
 import static com.purbon.kafka.topology.roles.RBACPredefinedRoles.DEVELOPER_READ;
 import static com.purbon.kafka.topology.roles.RBACPredefinedRoles.DEVELOPER_WRITE;
+import static com.purbon.kafka.topology.roles.RBACPredefinedRoles.RESOURCE_OWNER;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 import com.purbon.kafka.topology.AccessControlManager;
 import com.purbon.kafka.topology.api.mds.MDSApiClient;
+import com.purbon.kafka.topology.model.Platform;
 import com.purbon.kafka.topology.model.Project;
 import com.purbon.kafka.topology.model.Topic;
 import com.purbon.kafka.topology.model.Topology;
@@ -14,6 +16,7 @@ import com.purbon.kafka.topology.model.users.Connector;
 import com.purbon.kafka.topology.model.users.Consumer;
 import com.purbon.kafka.topology.model.users.KStream;
 import com.purbon.kafka.topology.model.users.Producer;
+import com.purbon.kafka.topology.model.users.SchemaRegistry;
 import com.purbon.kafka.topology.roles.RBACProvider;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -40,6 +43,7 @@ public class RBACPRoviderRbacIT extends MDSBaseTest {
     apiClient.login(mdsUser, mdsPassword);
     apiClient.authenticate();
     apiClient.setKafkaClusterId(getKafkaClusterID());
+    apiClient.setSchemaRegistryClusterID(getSchemaRegistryClusterID());
 
     RBACProvider rbacProvider = new RBACProvider(apiClient);
     accessControlManager = new AccessControlManager(rbacProvider);
@@ -128,6 +132,38 @@ public class RBACPRoviderRbacIT extends MDSBaseTest {
     accessControlManager.sync(topology);
 
     verifyConnectAcls(connector);
+  }
+
+  @Test
+  public void schemaRegistryAclsCreation() {
+    Project project = new Project();
+
+    Topology topology = new Topology();
+    topology.setTeam("integration-test");
+    topology.setSource("schemaRegistryAclsCreation");
+    topology.addProject(project);
+
+    Platform platform = new Platform();
+    SchemaRegistry sr = new SchemaRegistry();
+    sr.setPrincipal("User:foo");
+    platform.addSchemaRegistry(sr);
+
+    SchemaRegistry sr2 = new SchemaRegistry();
+    sr2.setPrincipal("User:banana");
+    platform.addSchemaRegistry(sr2);
+
+    topology.setPlatform(platform);
+
+    accessControlManager.sync(topology);
+
+    verifySchemaRegistryAcls(platform);
+  }
+
+  private void verifySchemaRegistryAcls(Platform platform) {
+    SchemaRegistry sr = platform.getSchemaRegistry().get(0);
+    List<String> roles = apiClient.lookupRoles(sr.getPrincipal());
+    assertTrue(roles.contains(RESOURCE_OWNER));
+    // assertTrue(roles.contains(SECURITY_ADMIN));
   }
 
   private void verifyConnectAcls(Connector app) {

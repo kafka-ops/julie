@@ -26,4 +26,8 @@ public class MDSBaseTest {
     }
     return "-1";
   }
+
+  protected String getSchemaRegistryClusterID() {
+    return "schema-registry";
+  }
 }
