@@ -8,6 +8,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.purbon.kafka.topology.model.Platform;
 import com.purbon.kafka.topology.model.Topology;
+import com.purbon.kafka.topology.model.users.ControlCenter;
 import com.purbon.kafka.topology.model.users.SchemaRegistry;
 import java.io.IOException;
 import java.util.Arrays;
@@ -22,6 +23,7 @@ public class TopologyCustomDeserializer extends StdDeserializer<Topology> {
 
   public static final String PLATFORM_KEY = "platform";
   public static final String SCHEMA_REGISTRY_KEY = "schema_registry";
+  public static final String CONTROL_CENTER_KEY = "control_center";
 
   protected TopologyCustomDeserializer() {
     this(null);
@@ -64,6 +66,14 @@ public class TopologyCustomDeserializer extends StdDeserializer<Topology> {
           JsonNode node = schemaRegistryNode.get(i);
           SchemaRegistry schemaRegistry = parser.getCodec().treeToValue(node, SchemaRegistry.class);
           platform.addSchemaRegistry(schemaRegistry);
+        }
+      }
+      JsonNode controlCenterNode = platformNode.get(CONTROL_CENTER_KEY);
+      if (controlCenterNode != null) {
+        for (int i = 0; i < controlCenterNode.size(); i++) {
+          JsonNode node = controlCenterNode.get(i);
+          ControlCenter controlCenter = parser.getCodec().treeToValue(node, ControlCenter.class);
+          platform.addControlCenter(controlCenter);
         }
       }
     }

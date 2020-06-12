@@ -55,3 +55,6 @@ projects:
 platform:
   schema_registry:
     - principal: "User:SchemaRegistry"
+  control_center:
+    - principal: "User:ControlCenter"
+      appId: "controlcenter"

@@ -9,6 +9,7 @@ import com.purbon.kafka.topology.model.Topic;
 import com.purbon.kafka.topology.model.Topology;
 import com.purbon.kafka.topology.model.users.Connector;
 import com.purbon.kafka.topology.model.users.Consumer;
+import com.purbon.kafka.topology.model.users.ControlCenter;
 import com.purbon.kafka.topology.model.users.KStream;
 import com.purbon.kafka.topology.model.users.Producer;
 import com.purbon.kafka.topology.model.users.SchemaRegistry;
@@ -177,6 +178,28 @@ public class AccessControlManagerIT {
   }
 
   @Test
+  public void controlcenterAclsCreation() throws ExecutionException, InterruptedException {
+    Project project = new Project();
+
+    Topology topology = new Topology();
+    topology.setTeam("integration-test");
+    topology.setSource("controlcenterAclsCreation");
+    topology.addProject(project);
+
+    Platform platform = new Platform();
+    ControlCenter c3 = new ControlCenter();
+    c3.setPrincipal("User:foo");
+    c3.setAppId("appid");
+    platform.addControlCenter(c3);
+
+    topology.setPlatform(platform);
+
+    accessControlManager.sync(topology);
+
+    verifyControlCenterAcls(platform);
+  }
+
+  @Test
   public void connectAclsCreation() throws ExecutionException, InterruptedException {
     Project project = new Project();
 
@@ -258,6 +281,27 @@ public class AccessControlManagerIT {
       Collection<AclBinding> acls = kafkaAdminClient.describeAcls(filter).values().get();
 
       Assert.assertEquals(3, acls.size());
+    }
+  }
+
+  private void verifyControlCenterAcls(Platform platform)
+      throws ExecutionException, InterruptedException {
+
+    List<ControlCenter> c3List = platform.getControlCenter();
+
+    for (ControlCenter c3 : c3List) {
+      ResourcePatternFilter resourceFilter =
+          new ResourcePatternFilter(ResourceType.TOPIC, null, PatternType.ANY);
+
+      AccessControlEntryFilter entryFilter =
+          new AccessControlEntryFilter(
+              c3.getPrincipal(), null, AclOperation.ANY, AclPermissionType.ALLOW);
+
+      AclBindingFilter filter = new AclBindingFilter(resourceFilter, entryFilter);
+
+      Collection<AclBinding> acls = kafkaAdminClient.describeAcls(filter).values().get();
+
+      Assert.assertEquals(16, acls.size());
     }
   }
 

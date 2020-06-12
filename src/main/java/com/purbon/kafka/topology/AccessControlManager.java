@@ -3,6 +3,7 @@ package com.purbon.kafka.topology;
 import static com.purbon.kafka.topology.BuilderCLI.ALLOW_DELETE_OPTION;
 
 import com.purbon.kafka.topology.model.DynamicUser;
+import com.purbon.kafka.topology.model.Platform;
 import com.purbon.kafka.topology.model.Topology;
 import com.purbon.kafka.topology.model.User;
 import com.purbon.kafka.topology.model.users.Connector;
@@ -114,13 +115,23 @@ public class AccessControlManager {
 
   private void syncPlatformAcls(final Topology topology) {
     // Sync platform relevant Access Control List.
-    topology
-        .getPlatform()
+    Platform platform = topology.getPlatform();
+    platform
         .getSchemaRegistry()
         .forEach(
             schemaRegistry -> {
               List<TopologyAclBinding> bindings =
                   controlProvider.setAclsForSchemaRegistry(schemaRegistry.getPrincipal());
+              clusterState.update(bindings);
+            });
+
+    platform
+        .getControlCenter()
+        .forEach(
+            controlCenter -> {
+              List<TopologyAclBinding> bindings =
+                  controlProvider.setAclsForControlCenter(
+                      controlCenter.getPrincipal(), controlCenter.getAppId());
               clusterState.update(bindings);
             });
   }

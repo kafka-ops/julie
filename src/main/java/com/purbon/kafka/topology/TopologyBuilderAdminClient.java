@@ -14,6 +14,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import org.apache.kafka.clients.admin.AdminClient;
 import org.apache.kafka.clients.admin.AlterConfigOp;
 import org.apache.kafka.clients.admin.AlterConfigOp.OpType;
@@ -248,6 +249,47 @@ public class TopologyBuilderAdminClient {
                       principal, "_schemas", PatternType.LITERAL, aclOperation);
                 })
             .collect(Collectors.toList());
+    createAcls(bindings);
+    return bindings;
+  }
+
+  public List<AclBinding> setAclsForControlCenter(String principal, String appId) {
+    List<AclBinding> bindings = new ArrayList<>();
+
+    bindings.add(buildGroupLevelAcl(principal, appId, PatternType.PREFIXED, AclOperation.READ));
+    bindings.add(
+        buildGroupLevelAcl(principal, appId + "-command", PatternType.PREFIXED, AclOperation.READ));
+
+    Arrays.asList("_confluent-monitoring", "_confluent-command", " _confluent-metrics")
+        .forEach(
+            topic ->
+                Stream.of(
+                        AclOperation.WRITE,
+                        AclOperation.READ,
+                        AclOperation.CREATE,
+                        AclOperation.DESCRIBE)
+                    .map(
+                        aclOperation ->
+                            buildTopicLevelAcl(principal, topic, PatternType.LITERAL, aclOperation))
+                    .forEach(aclBinding -> bindings.add(aclBinding)));
+
+    Stream.of(AclOperation.WRITE, AclOperation.READ, AclOperation.CREATE, AclOperation.DESCRIBE)
+        .map(
+            aclOperation ->
+                buildTopicLevelAcl(
+                    principal, "_confluent-controlcenter", PatternType.PREFIXED, aclOperation))
+        .forEach(aclBinding -> bindings.add(aclBinding));
+
+    ResourcePattern resourcePattern =
+        new ResourcePattern(ResourceType.CLUSTER, "kafka-cluster", PatternType.LITERAL);
+    AccessControlEntry entry =
+        new AccessControlEntry(principal, "*", AclOperation.DESCRIBE, AclPermissionType.ALLOW);
+    bindings.add(new AclBinding(resourcePattern, entry));
+
+    entry =
+        new AccessControlEntry(
+            principal, "*", AclOperation.DESCRIBE_CONFIGS, AclPermissionType.ALLOW);
+    bindings.add(new AclBinding(resourcePattern, entry));
     createAcls(bindings);
     return bindings;
   }

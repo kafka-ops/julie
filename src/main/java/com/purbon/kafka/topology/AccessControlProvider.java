@@ -30,4 +30,9 @@ public interface AccessControlProvider {
     // NOOP
     return new ArrayList<>();
   }
+
+  default List<TopologyAclBinding> setAclsForControlCenter(String principal, String appId) {
+    // NOOP
+    return new ArrayList<>();
+  }
 }
