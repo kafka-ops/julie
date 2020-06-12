@@ -10,6 +10,7 @@ import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -17,28 +18,44 @@ import org.apache.logging.log4j.Logger;
 public class AccessControlManager {
 
   private static final Logger LOGGER = LogManager.getLogger(AccessControlManager.class);
+  private static final Boolean DEFAULT_ALLOW_DELETE = true;
 
-  private AccessControlProvider controlProvider;
-  private ClusterStateManager clusterState;
+  private final AccessControlProvider accessControlProvider;
+  private final ClusterStateManager clusterStateManager;
+  private final Boolean allowDelete;
 
-  public AccessControlManager(AccessControlProvider controlProvider) {
-    this(controlProvider, new ClusterStateManager());
+  public AccessControlManager(AccessControlProvider accessControlProvider) {
+    this(accessControlProvider, new ClusterStateManager(), DEFAULT_ALLOW_DELETE);
+  }
+
+  public AccessControlManager(AccessControlProvider accessControlProvider, Boolean allowDelete) {
+    this(accessControlProvider, new ClusterStateManager(), allowDelete);
   }
 
   public AccessControlManager(
-      AccessControlProvider controlProvider, ClusterStateManager clusterState) {
-    this.controlProvider = controlProvider;
-    this.clusterState = clusterState;
+      AccessControlProvider accessControlProvider, ClusterStateManager clusterStateManager) {
+    this(accessControlProvider, clusterStateManager, DEFAULT_ALLOW_DELETE);
+  }
+
+  public AccessControlManager(
+      AccessControlProvider accessControlProvider,
+      ClusterStateManager clusterStateManager,
+      Boolean allowDelete) {
+    this.accessControlProvider = accessControlProvider;
+    this.clusterStateManager = clusterStateManager;
+    this.allowDelete = allowDelete;
   }
 
   public void clearAcls() {
     try {
-      clusterState.load();
-      controlProvider.clearAcls(clusterState);
+      clusterStateManager.load();
+      if (allowDelete) {
+        accessControlProvider.clearAcls(clusterStateManager);
+      }
     } catch (Exception e) {
       LOGGER.error(e);
     } finally {
-      clusterState.reset();
+      clusterStateManager.reset();
     }
   }
 
@@ -60,14 +77,16 @@ public class AccessControlManager {
                             extractUsersToPrincipals(project.getConsumers());
 
                         List<TopologyAclBinding> consumerBindings =
-                            controlProvider.setAclsForConsumers(consumerPrincipals, fullTopicName);
-                        clusterState.update(consumerBindings);
+                            accessControlProvider.setAclsForConsumers(
+                                consumerPrincipals, fullTopicName);
+                        clusterStateManager.update(consumerBindings);
 
                         Collection<String> producerPrincipals =
                             extractUsersToPrincipals(project.getProducers());
                         List<TopologyAclBinding> producerBindings =
-                            controlProvider.setAclsForProducers(producerPrincipals, fullTopicName);
-                        clusterState.update(producerBindings);
+                            accessControlProvider.setAclsForProducers(
+                                producerPrincipals, fullTopicName);
+                        clusterStateManager.update(producerBindings);
                       });
               // Setup global Kafka Stream Access control lists
               String topicPrefix = project.buildTopicPrefix(topology);
@@ -83,17 +102,33 @@ public class AccessControlManager {
                       connector -> {
                         syncApplicationAcls(connector, topicPrefix);
                       });
-              project
-                  .getRbacRawRoles()
-                  .forEach(
-                      (predefinedRole, principals) ->
-                          principals.forEach(
-                              principal ->
-                                  controlProvider.setPredefinedRole(
-                                      principal, predefinedRole, topicPrefix)));
+              syncRbacRawRoles(project.getRbacRawRoles(), topicPrefix);
             });
 
-    clusterState.flushAndClose();
+    syncPlatformAcls(topology);
+    clusterStateManager.flushAndClose();
+  }
+
+  private void syncPlatformAcls(final Topology topology) {
+    // Sync platform relevant Access Control List.
+    topology
+        .getPlatform()
+        .getSchemaRegistry()
+        .forEach(
+            schemaRegistry -> {
+              List<TopologyAclBinding> bindings =
+                  accessControlProvider.setAclsForSchemaRegistry(schemaRegistry.getPrincipal());
+              clusterStateManager.update(bindings);
+            });
+  }
+
+  private void syncRbacRawRoles(Map<String, List<String>> rbacRawRoles, String topicPrefix) {
+    rbacRawRoles.forEach(
+        (predefinedRole, principals) ->
+            principals.forEach(
+                principal ->
+                    accessControlProvider.setPredefinedRole(
+                        principal, predefinedRole, topicPrefix)));
   }
 
   private void syncApplicationAcls(DynamicUser app, String topicPrefix) {
@@ -102,28 +137,28 @@ public class AccessControlManager {
     List<TopologyAclBinding> bindings = new ArrayList<>();
     if (app instanceof KStream) {
       bindings =
-          controlProvider.setAclsForStreamsApp(
+          accessControlProvider.setAclsForStreamsApp(
               app.getPrincipal(), topicPrefix, readTopics, writeTopics);
     } else if (app instanceof Connector) {
       bindings =
-          controlProvider.setAclsForConnect(
+          accessControlProvider.setAclsForConnect(
               app.getPrincipal(), topicPrefix, readTopics, writeTopics);
     }
-    clusterState.update(bindings);
+    clusterStateManager.update(bindings);
   }
 
   private Collection<String> extractUsersToPrincipals(List<? extends User> users) {
-    return users.stream().map(user -> user.getPrincipal()).collect(Collectors.toList());
+    return users.stream().map(User::getPrincipal).collect(Collectors.toList());
   }
 
   public void printCurrentState(PrintStream out) {
     out.println("List of ACLs: ");
-    controlProvider
+    accessControlProvider
         .listAcls()
         .forEach(
             (topic, aclBindings) -> {
               out.println(topic);
-              aclBindings.forEach(binding -> out.println(binding));
+              aclBindings.forEach(out::println);
             });
   }
 }

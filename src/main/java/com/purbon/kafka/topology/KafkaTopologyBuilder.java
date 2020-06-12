@@ -1,14 +1,7 @@
 package com.purbon.kafka.topology;
 
-import static com.purbon.kafka.topology.BuilderCLI.ADMIN_CLIENT_CONFIG_OPTION;
-import static com.purbon.kafka.topology.BuilderCLI.BROKERS_OPTION;
-import static com.purbon.kafka.topology.BuilderCLI.QUITE_OPTION;
-import static com.purbon.kafka.topology.TopologyBuilderConfig.ACCESS_CONTROL_DEFAULT_CLASS;
-import static com.purbon.kafka.topology.TopologyBuilderConfig.ACCESS_CONTROL_IMPLEMENTATION_CLASS;
-import static com.purbon.kafka.topology.TopologyBuilderConfig.MDS_KAFKA_CLUSTER_ID_CONFIG;
-import static com.purbon.kafka.topology.TopologyBuilderConfig.MDS_PASSWORD_CONFIG;
-import static com.purbon.kafka.topology.TopologyBuilderConfig.MDS_USER_CONFIG;
-import static com.purbon.kafka.topology.TopologyBuilderConfig.RBAC_ACCESS_CONTROL_CLASS;
+import static com.purbon.kafka.topology.BuilderCLI.*;
+import static com.purbon.kafka.topology.TopologyBuilderConfig.*;
 
 import com.purbon.kafka.topology.api.mds.MDSApiClient;
 import com.purbon.kafka.topology.model.Topology;
@@ -31,11 +24,12 @@ public class KafkaTopologyBuilder {
   private final Properties properties;
   private final TopologyBuilderAdminClient builderAdminClient;
   private final boolean quiteOut;
+  private final Map<String, String> cliParams;
 
   public KafkaTopologyBuilder(String topologyFile, Map<String, String> cliParams) {
     this.topologyFile = topologyFile;
     this.parser = new TopologySerdes();
-
+    this.cliParams = cliParams;
     this.properties = buildProperties(cliParams);
     this.builderAdminClient = buildTopologyAdminClient(cliParams);
     this.quiteOut = Boolean.valueOf(cliParams.getOrDefault(QUITE_OPTION, "false"));
@@ -46,9 +40,11 @@ public class KafkaTopologyBuilder {
     Topology topology = parser.deserialise(new File(topologyFile));
 
     AccessControlProvider aclsProvider = buildAccessControlProvider();
-    AccessControlManager accessControlManager = new AccessControlManager(aclsProvider);
+    final Boolean allowDelete =
+        Boolean.valueOf(cliParams.getOrDefault(ALLOW_DELETE_OPTION, "true"));
+    AccessControlManager accessControlManager = new AccessControlManager(aclsProvider, allowDelete);
 
-    TopicManager topicManager = new TopicManager(builderAdminClient);
+    TopicManager topicManager = new TopicManager(builderAdminClient, cliParams);
 
     topicManager.sync(topology);
     accessControlManager.sync(topology);

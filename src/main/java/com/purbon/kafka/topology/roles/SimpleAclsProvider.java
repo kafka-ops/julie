@@ -68,6 +68,14 @@ public class SimpleAclsProvider implements AccessControlProvider {
   }
 
   @Override
+  public List<TopologyAclBinding> setAclsForSchemaRegistry(String principal) {
+
+    return adminClient.setAclForSchemaRegistry(principal).stream()
+        .map(aclBinding -> new TopologyAclBinding(aclBinding))
+        .collect(Collectors.toList());
+  }
+
+  @Override
   public Map<String, List<TopologyAclBinding>> listAcls() {
     Map<String, List<TopologyAclBinding>> map = new HashMap<>();
     adminClient

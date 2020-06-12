@@ -1,11 +1,12 @@
 package com.purbon.kafka.topology.serdes;
 
+import static com.purbon.kafka.topology.serdes.JsonSerdesUtils.addTopics2Project;
+
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.purbon.kafka.topology.model.Project;
-import com.purbon.kafka.topology.model.Topic;
 import com.purbon.kafka.topology.model.users.Connector;
 import com.purbon.kafka.topology.model.users.Consumer;
 import com.purbon.kafka.topology.model.users.KStream;
@@ -69,34 +70,35 @@ public class ProjectCustomDeserializer extends StdDeserializer<Project> {
     project.setStreams(streamsList);
 
     // Parser optional RBAC object, only there if using RBAC provider
-    Map<String, List<String>> roles = new HashMap<>();
     JsonNode rbacRootNode = rootNode.get(RBAC_KEY);
     if (rbacRootNode != null) {
-      for (int i = 0; i < rbacRootNode.size(); i++) {
-        JsonNode elem = rbacRootNode.get(i);
-        Iterator<String> fields = elem.fieldNames();
-        while (fields.hasNext()) {
-          String field = fields.next(); // field == RoleName
-          List<String> principalsByRole = new ArrayList<>();
-          JsonNode principals = elem.get(field);
-          for (int j = 0; j < principals.size(); j++) {
-            JsonNode principalNode = principals.get(j);
-            String principal = principalNode.get(PRINCIPAL_KEY).asText();
-            principalsByRole.add(principal);
-          }
-          roles.put(field, principalsByRole);
-        }
-      }
+      Map<String, List<String>> roles = parseOptionalRbacRoles(rbacRootNode);
       project.setRbacRawRoles(roles);
     }
 
     JsonNode topics = rootNode.get(TOPICS_KEY);
-    for (int i = 0; i < topics.size(); i++) {
-      JsonNode topicNode = topics.get(i);
-      Topic topic = parser.getCodec().treeToValue(topicNode, Topic.class);
-      project.addTopic(topic);
-    }
+    addTopics2Project(parser, project, topics);
 
     return project;
+  }
+
+  private Map<String, List<String>> parseOptionalRbacRoles(JsonNode rbacRootNode) {
+    Map<String, List<String>> roles = new HashMap<>();
+    for (int i = 0; i < rbacRootNode.size(); i++) {
+      JsonNode elem = rbacRootNode.get(i);
+      Iterator<String> fields = elem.fieldNames();
+      while (fields.hasNext()) {
+        String field = fields.next(); // field == RoleName
+        List<String> principalsByRole = new ArrayList<>();
+        JsonNode principals = elem.get(field);
+        for (int j = 0; j < principals.size(); j++) {
+          JsonNode principalNode = principals.get(j);
+          String principal = principalNode.get(PRINCIPAL_KEY).asText();
+          principalsByRole.add(principal);
+        }
+        roles.put(field, principalsByRole);
+      }
+    }
+    return roles;
   }
 }

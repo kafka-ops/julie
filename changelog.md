@@ -1,4 +1,11 @@
 v0.11:
+* Add support for platform wide acls for schema registry in the topology description file.
+* Rebird the option to disable deletes when not required anymore.
+* Code refactoring in several classes
+* add a option, activated by default to print the current status of topics created and acls being set after each run. this is very valuable to know the current state of the cluster after each execution
+* add release mechanism for docker images with the kafka topology builder (#21)
+* Add version number to maven-compiler-plugin (#16)
+* Add support to keeping notes of generated acls (#15)
 * Add support for storing the current generated acls within a state file. This is useful to delete
 acls that are known and generated previously by the topology builder.
 

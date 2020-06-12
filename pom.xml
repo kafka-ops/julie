@@ -211,7 +211,7 @@
           <group>Application/Collectors</group>
           <packager>Pere Urbon</packager>
           <prefix>/usr/local</prefix>
-          <changelogFile>changelog.md</changelogFile>
+          <!--<changelogFile>changelog.md</changelogFile>-->
           <defineStatements>
             <defineStatement>_unpackaged_files_terminate_build 0</defineStatement>
           </defineStatements>
