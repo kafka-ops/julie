@@ -4,6 +4,7 @@ import static com.purbon.kafka.topology.roles.RBACPredefinedRoles.DEVELOPER_READ
 import static com.purbon.kafka.topology.roles.RBACPredefinedRoles.DEVELOPER_WRITE;
 import static com.purbon.kafka.topology.roles.RBACPredefinedRoles.RESOURCE_OWNER;
 import static com.purbon.kafka.topology.roles.RBACPredefinedRoles.SECURITY_ADMIN;
+import static com.purbon.kafka.topology.roles.RBACPredefinedRoles.SYSTEM_ADMIN;
 
 import com.purbon.kafka.topology.AccessControlProvider;
 import com.purbon.kafka.topology.ClusterState;
@@ -106,6 +107,14 @@ public class RBACProvider implements AccessControlProvider {
     apiClient.bind(principal, SECURITY_ADMIN).forSchemaRegistry().apply();
     apiClient.bind(principal, RESOURCE_OWNER, "_schemas", LITERAL);
     apiClient.bind(principal, RESOURCE_OWNER, "schema-registry", "Group", LITERAL);
+    return new ArrayList<>();
+  }
+
+  @Override
+  public List<TopologyAclBinding> setAclsForControlCenter(String principal, String appId) {
+
+    apiClient.bind(principal, SYSTEM_ADMIN).forControlCenter().apply();
+
     return new ArrayList<>();
   }
 

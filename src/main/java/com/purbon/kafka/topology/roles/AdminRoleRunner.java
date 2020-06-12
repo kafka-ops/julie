@@ -37,4 +37,10 @@ public class AdminRoleRunner {
   public void apply() {
     client.bind(principal, role, scope);
   }
+
+  public AdminRoleRunner forControlCenter() {
+    Map<String, Map<String, String>> clusters = client.getKafkaClusterIds();
+    scope = client.buildResourceScope("ALL", "Cluster", "LITERAL", clusters);
+    return this;
+  }
 }

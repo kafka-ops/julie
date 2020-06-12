@@ -1,7 +1,6 @@
 package com.purbon.kafka.topology;
 
 import com.purbon.kafka.topology.roles.TopologyAclBinding;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -28,8 +27,5 @@ public interface AccessControlProvider {
 
   List<TopologyAclBinding> setAclsForSchemaRegistry(String principal);
 
-  default List<TopologyAclBinding> setAclsForControlCenter(String principal, String appId) {
-    // NOOP
-    return new ArrayList<>();
-  }
+  List<TopologyAclBinding> setAclsForControlCenter(String principal, String appId);
 }

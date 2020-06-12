@@ -14,6 +14,7 @@ import com.purbon.kafka.topology.model.Topic;
 import com.purbon.kafka.topology.model.Topology;
 import com.purbon.kafka.topology.model.users.Connector;
 import com.purbon.kafka.topology.model.users.Consumer;
+import com.purbon.kafka.topology.model.users.ControlCenter;
 import com.purbon.kafka.topology.model.users.KStream;
 import com.purbon.kafka.topology.model.users.Producer;
 import com.purbon.kafka.topology.model.users.SchemaRegistry;
@@ -157,6 +158,34 @@ public class RBACPRoviderRbacIT extends MDSBaseTest {
     accessControlManager.sync(topology);
 
     verifySchemaRegistryAcls(platform);
+  }
+
+  @Test
+  public void controlcenterAclsCreation() {
+    Project project = new Project();
+
+    Topology topology = new Topology();
+    topology.setTeam("integration-test");
+    topology.setSource("controlcenterAclsCreation");
+    topology.addProject(project);
+
+    Platform platform = new Platform();
+    ControlCenter c3 = new ControlCenter();
+    c3.setPrincipal("User:foo");
+    c3.setAppId("appid");
+    platform.addControlCenter(c3);
+
+    topology.setPlatform(platform);
+
+    accessControlManager.sync(topology);
+
+    verifyControlCenterAcls(platform);
+  }
+
+  private void verifyControlCenterAcls(Platform platform) {
+    ControlCenter c3 = platform.getControlCenter().get(0);
+    List<String> roles = apiClient.lookupRoles(c3.getPrincipal());
+    assertTrue(roles.contains(RESOURCE_OWNER));
   }
 
   private void verifySchemaRegistryAcls(Platform platform) {
