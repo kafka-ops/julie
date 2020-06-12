@@ -1,5 +1,6 @@
 v0.12:
 * Add support for platform wide acls for control center in teh topology description file.
+* Port support for schema registry and confluent control center roles in the rbac provider. Now the two providers are future pair.
 
 v0.11:
 * Add support for platform wide acls for schema registry in the topology description file.
