@@ -1,3 +1,6 @@
+v0.12:
+* Add support for platform wide acls for control center in teh topology description file.
+
 v0.11:
 * Add support for platform wide acls for schema registry in the topology description file.
 * Rebird the option to disable deletes when not required anymore.
