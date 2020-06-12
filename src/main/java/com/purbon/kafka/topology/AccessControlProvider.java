@@ -26,10 +26,7 @@ public interface AccessControlProvider {
 
   Map<String, List<TopologyAclBinding>> listAcls();
 
-  default List<TopologyAclBinding> setAclsForSchemaRegistry(String principal) {
-    // NOOP
-    return new ArrayList<>();
-  }
+  List<TopologyAclBinding> setAclsForSchemaRegistry(String principal);
 
   default List<TopologyAclBinding> setAclsForControlCenter(String principal, String appId) {
     // NOOP

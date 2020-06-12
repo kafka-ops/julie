@@ -7,6 +7,7 @@ import static com.purbon.kafka.topology.TopologyBuilderConfig.ACCESS_CONTROL_DEF
 import static com.purbon.kafka.topology.TopologyBuilderConfig.ACCESS_CONTROL_IMPLEMENTATION_CLASS;
 import static com.purbon.kafka.topology.TopologyBuilderConfig.MDS_KAFKA_CLUSTER_ID_CONFIG;
 import static com.purbon.kafka.topology.TopologyBuilderConfig.MDS_PASSWORD_CONFIG;
+import static com.purbon.kafka.topology.TopologyBuilderConfig.MDS_SR_CLUSTER_ID_CONFIG;
 import static com.purbon.kafka.topology.TopologyBuilderConfig.MDS_USER_CONFIG;
 import static com.purbon.kafka.topology.TopologyBuilderConfig.RBAC_ACCESS_CONTROL_CLASS;
 
@@ -84,6 +85,8 @@ public class KafkaTopologyBuilder {
         // Pass Cluster IDS
         String kafkaClusterID = properties.getProperty(MDS_KAFKA_CLUSTER_ID_CONFIG);
         apiClient.setKafkaClusterId(kafkaClusterID);
+        String schemaRegistryClusterID = properties.getProperty(MDS_SR_CLUSTER_ID_CONFIG);
+        apiClient.setSchemaRegistryClusterID(schemaRegistryClusterID);
 
         // Login and authenticate with the server
         apiClient.login(mdsUser, mdsPassword);
