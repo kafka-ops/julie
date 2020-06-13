@@ -30,4 +30,8 @@ public class MDSBaseTest {
   protected String getSchemaRegistryClusterID() {
     return "schema-registry";
   }
+
+  protected String getKafkaConnectClusterID() {
+    return "connect-cluster";
+  }
 }

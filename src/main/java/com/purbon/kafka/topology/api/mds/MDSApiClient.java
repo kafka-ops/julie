@@ -29,9 +29,11 @@ public class MDSApiClient {
   private AuthenticationCredentials authenticationCredentials;
   private String kafkaClusterID;
   private String schemaRegistryClusterID;
+  private String connectClusterID;
 
   public static String KAFKA_CLUSTER_ID_LABEL = "kafka-cluster";
   public static String SCHEMA_REGISTRY_CLUSTER_ID_LABEL = "schema-registry-cluster";
+  public static String CONNECT_CLUSTER_ID_LABEL = "connect-cluster";
 
   public MDSApiClient(String mdsServer) {
     this.mdsServer = mdsServer;
@@ -163,6 +165,8 @@ public class MDSApiClient {
     if (!kafkaClusterID.isEmpty()) clusterIds.put(KAFKA_CLUSTER_ID_LABEL, kafkaClusterID);
     if (!schemaRegistryClusterID.isEmpty())
       clusterIds.put(SCHEMA_REGISTRY_CLUSTER_ID_LABEL, schemaRegistryClusterID);
+    if (!connectClusterID.isEmpty()) clusterIds.put(CONNECT_CLUSTER_ID_LABEL, connectClusterID);
+
     // clusterIds.put("connect-cluster", "connect-cluster");
     // clusterIds.put("ksql-cluster", "ksqlCluster");
 
@@ -211,5 +215,9 @@ public class MDSApiClient {
 
   public void setSchemaRegistryClusterID(String schemaRegistryClusterID) {
     this.schemaRegistryClusterID = schemaRegistryClusterID;
+  }
+
+  public void setConnectClusterID(String connectClusterID) {
+    this.connectClusterID = connectClusterID;
   }
 }
