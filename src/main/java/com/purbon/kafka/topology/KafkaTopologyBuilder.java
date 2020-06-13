@@ -20,6 +20,7 @@ import com.purbon.kafka.topology.serdes.TopologySerdes;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.lang.reflect.Constructor;
 import java.util.Map;
 import java.util.Properties;
@@ -58,6 +59,20 @@ public class KafkaTopologyBuilder {
     if (!quiteOut) {
       topicManager.printCurrentState(System.out);
       accessControlManager.printCurrentState(System.out);
+    }
+  }
+
+  public static String getVersion() {
+    InputStream resourceAsStream =
+        KafkaTopologyBuilder.class.getResourceAsStream(
+            "/META-INF/maven/com.purbon.kafka/kafka-topology-builder/pom.properties");
+    Properties prop = new Properties();
+    try {
+      prop.load(resourceAsStream);
+      return prop.getProperty("version");
+    } catch (IOException e) {
+      e.printStackTrace();
+      return "unkown";
     }
   }
 
