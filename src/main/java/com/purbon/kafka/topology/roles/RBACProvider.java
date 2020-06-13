@@ -37,6 +37,8 @@ public class RBACProvider implements AccessControlProvider {
   public List<TopologyAclBinding> setAclsForConnect(
       String principal, String topicPrefix, List<String> readTopics, List<String> writeTopics) {
 
+    apiClient.bind(principal, SECURITY_ADMIN).forKafkaConnect().apply();
+
     apiClient.bind(principal, DEVELOPER_READ, topicPrefix, PREFIX);
     if (readTopics != null && readTopics.isEmpty()) {
       readTopics.forEach(topic -> apiClient.bind(principal, DEVELOPER_READ, topic, LITERAL));
@@ -59,8 +61,8 @@ public class RBACProvider implements AccessControlProvider {
         .forEach(
             resourceObject -> {
               String[] elements = resourceObject.split(":");
-              String resource = elements[0];
-              String resourceType = elements[1];
+              String resource = elements[1];
+              String resourceType = elements[0];
               apiClient.bind(principal, RESOURCE_OWNER, resource, resourceType, LITERAL);
             });
     return new ArrayList<>();
