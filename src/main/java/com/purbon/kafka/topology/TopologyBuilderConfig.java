@@ -16,4 +16,6 @@ public class TopologyBuilderConfig {
   public static final String MDS_KAFKA_CLUSTER_ID_CONFIG = "topology.builder.mds.kafka.cluster.id";
   public static final String MDS_SR_CLUSTER_ID_CONFIG =
       "topology.builder.mds.schema.registry.cluster.id";
+  public static final String MDS_KC_CLUSTER_ID_CONFIG =
+      "topology.builder.mds.kafka.connect.cluster.id";
 }
