@@ -1,7 +1,6 @@
 package com.purbon.kafka.topology.integration;
 
 import static com.purbon.kafka.topology.roles.RBACPredefinedRoles.DEVELOPER_READ;
-import static com.purbon.kafka.topology.roles.RBACPredefinedRoles.RESOURCE_OWNER;
 import static com.purbon.kafka.topology.roles.RBACProvider.LITERAL;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -59,7 +58,7 @@ public class MDSApiClientRbacIT extends MDSBaseTest {
     apiClient.setKafkaClusterId(getKafkaClusterID());
 
     List<String> roles = apiClient.lookupRoles("User:fry");
-    assertTrue(roles.contains(RESOURCE_OWNER));
+    assertTrue(roles.contains(DEVELOPER_READ));
   }
 
   @Test
@@ -71,7 +70,7 @@ public class MDSApiClientRbacIT extends MDSBaseTest {
     apiClient.bind("User:fry", DEVELOPER_READ, "connect-configs", LITERAL);
 
     List<String> roles = apiClient.lookupRoles("User:fry");
-    assertEquals(2, roles.size());
+    assertEquals(1, roles.size());
     assertTrue(roles.contains(DEVELOPER_READ));
   }
 }

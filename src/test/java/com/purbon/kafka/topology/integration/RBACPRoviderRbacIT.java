@@ -199,7 +199,7 @@ public class RBACPRoviderRbacIT extends MDSBaseTest {
   private void verifyConnectAcls(Connector app) {
     List<String> roles = apiClient.lookupRoles(app.getPrincipal());
     assertTrue(roles.contains(DEVELOPER_READ));
-    // assertTrue(roles.contains(RESOURCE_OWNER));
+    assertTrue(roles.contains(RESOURCE_OWNER));
   }
 
   private void verifyKStreamsAcls(KStream app) {

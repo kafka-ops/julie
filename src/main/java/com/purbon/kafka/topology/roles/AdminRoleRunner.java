@@ -1,5 +1,6 @@
 package com.purbon.kafka.topology.roles;
 
+import static com.purbon.kafka.topology.api.mds.MDSApiClient.CONNECT_CLUSTER_ID_LABEL;
 import static com.purbon.kafka.topology.api.mds.MDSApiClient.KAFKA_CLUSTER_ID_LABEL;
 import static com.purbon.kafka.topology.api.mds.MDSApiClient.SCHEMA_REGISTRY_CLUSTER_ID_LABEL;
 
@@ -18,29 +19,40 @@ public class AdminRoleRunner {
     this.principal = principal;
     this.role = role;
     this.client = client;
+    this.scope = new HashMap<>();
   }
 
   public AdminRoleRunner forSchemaRegistry() {
     Map<String, String> clusterIds = new HashMap<>();
+    Map<String, String> allClusterIds = client.getClusterIds().get("clusters");
+    clusterIds.put(KAFKA_CLUSTER_ID_LABEL, allClusterIds.get(KAFKA_CLUSTER_ID_LABEL));
     clusterIds.put(
-        KAFKA_CLUSTER_ID_LABEL, client.getClusterIds().get("clusters").get(KAFKA_CLUSTER_ID_LABEL));
-    clusterIds.put(
-        SCHEMA_REGISTRY_CLUSTER_ID_LABEL,
-        client.getClusterIds().get("clusters").get(SCHEMA_REGISTRY_CLUSTER_ID_LABEL));
+        SCHEMA_REGISTRY_CLUSTER_ID_LABEL, allClusterIds.get(SCHEMA_REGISTRY_CLUSTER_ID_LABEL));
 
-    Map<String, Map<String, String>> clusters = new HashMap<>();
-    clusters.put("clusters", clusterIds);
-    scope = client.buildResourceScope("ALL", "Cluster", "LITERAL", clusters);
+    scope.clear();
+    scope.put("clusters", clusterIds);
     return this;
   }
 
   public void apply() {
-    client.bind(principal, role, scope);
+    client.bindRole(principal, role, scope);
   }
 
   public AdminRoleRunner forControlCenter() {
-    Map<String, Map<String, String>> clusters = client.getKafkaClusterIds();
-    scope = client.buildResourceScope("ALL", "Cluster", "LITERAL", clusters);
+    scope.clear();
+    client.getKafkaClusterIds().forEach((key, value) -> scope.put(key, value));
+    return this;
+  }
+
+  public AdminRoleRunner forKafkaConnect() {
+    Map<String, String> clusterIds = new HashMap<>();
+    Map<String, String> allClusterIds = client.getClusterIds().get("clusters");
+    clusterIds.put(KAFKA_CLUSTER_ID_LABEL, allClusterIds.get(KAFKA_CLUSTER_ID_LABEL));
+    clusterIds.put(CONNECT_CLUSTER_ID_LABEL, allClusterIds.get(CONNECT_CLUSTER_ID_LABEL));
+
+    scope.clear();
+    scope.put("clusters", clusterIds);
+
     return this;
   }
 }

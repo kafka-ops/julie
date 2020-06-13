@@ -102,6 +102,22 @@ public class MDSApiClient {
     bind(principal, role, scope);
   }
 
+  public void bindRole(String principal, String role, Map<String, Object> scope) {
+    HttpPost postRequest =
+        new HttpPost(mdsServer + "/security/1.0/principals/" + principal + "/roles/" + role);
+    postRequest.addHeader("accept", " application/json");
+    postRequest.addHeader("Content-Type", "application/json");
+    postRequest.addHeader("Authorization", "Basic " + basicCredentials);
+
+    try {
+      postRequest.setEntity(new StringEntity(JSON.asString(scope)));
+      LOGGER.debug("bind.entity: " + JSON.asString(scope));
+      post(postRequest);
+    } catch (IOException e) {
+      e.printStackTrace();
+    }
+  }
+
   private Map<String, Object> buildResourceScope(
       String resourceType, String name, String patternType) {
     Map<String, Map<String, String>> clusters = getKafkaClusterIds();
