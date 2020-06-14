@@ -3,6 +3,10 @@ v0.12:
 * Port support for schema registry and confluent control center roles in the rbac provider. Now the two providers are future pair.
 * Fix the usage of the source field, it should not be mandatory as the others list and the custom topology serdes can cover a dynamic list 
 of fields between the team and the first project separator. 
+* Add code to support passing a directory, only topologies for a single team are supported for now.
+* Add support for passing a directory, instead of a single file as topology. If a directory is passed, all topologies are expected to be from
+the same team and all subsequent projects will be at append one after the other.
+
 
 v0.11:
 * Add support for platform wide acls for schema registry in the topology description file.
