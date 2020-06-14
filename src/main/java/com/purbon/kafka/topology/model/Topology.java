@@ -8,7 +8,6 @@ import java.util.Map;
 public class Topology {
 
   private String team;
-  private String source;
 
   private Map<String, String> others;
 
@@ -18,7 +17,6 @@ public class Topology {
 
   public Topology() {
     this.team = "default";
-    this.source = "default";
     this.others = new HashMap<>();
     this.order = new ArrayList<>();
     this.projects = new ArrayList<>();
@@ -31,14 +29,6 @@ public class Topology {
 
   public void setTeam(String team) {
     this.team = team;
-  }
-
-  public String getSource() {
-    return source;
-  }
-
-  public void setSource(String source) {
-    this.source = source;
   }
 
   public List<Project> getProjects() {
@@ -56,7 +46,7 @@ public class Topology {
 
   public String buildNamePrefix() {
     StringBuilder sb = new StringBuilder();
-    sb.append(getTeam()).append(".").append(getSource());
+    sb.append(getTeam());
     for (String key : order) {
       String value = others.get(key);
       sb.append(".");

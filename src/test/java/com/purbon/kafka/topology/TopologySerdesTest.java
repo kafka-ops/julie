@@ -53,7 +53,6 @@ public class TopologySerdesTest {
 
     Topology topology = new Topology();
     topology.setTeam("team");
-    topology.setSource("source");
     topology.setProjects(buildProjects());
 
     String topologyYamlString = parser.serialise(topology);
@@ -68,7 +67,6 @@ public class TopologySerdesTest {
 
     Topology topology = new Topology();
     topology.setTeam("team");
-    topology.setSource("source");
 
     Topic topic = new Topic();
     topic.setName("foo");
@@ -135,7 +133,6 @@ public class TopologySerdesTest {
 
     Topology topology = new Topology();
     topology.setTeam("team");
-    topology.setSource("source");
 
     project.setTopology(topology);
     topology.addProject(project);
