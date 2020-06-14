@@ -22,6 +22,10 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.Constructor;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import org.apache.kafka.clients.admin.AdminClient;
@@ -37,17 +41,33 @@ public class KafkaTopologyBuilder {
   private final Map<String, String> cliParams;
 
   public KafkaTopologyBuilder(String topologyFile, Map<String, String> cliParams) {
+    this(
+        topologyFile,
+        cliParams,
+        new TopologySerdes(),
+        buildProperties(cliParams),
+        buildTopologyAdminClient(cliParams),
+        Boolean.valueOf(cliParams.getOrDefault(QUITE_OPTION, "false")));
+  }
+
+  public KafkaTopologyBuilder(
+      String topologyFile,
+      Map<String, String> cliParams,
+      TopologySerdes parser,
+      Properties properties,
+      TopologyBuilderAdminClient adminClient,
+      boolean quiteOut) {
     this.topologyFile = topologyFile;
-    this.parser = new TopologySerdes();
+    this.parser = parser;
     this.cliParams = cliParams;
-    this.properties = buildProperties(cliParams);
-    this.builderAdminClient = buildTopologyAdminClient(cliParams);
-    this.quiteOut = Boolean.valueOf(cliParams.getOrDefault(QUITE_OPTION, "false"));
+    this.properties = properties;
+    this.builderAdminClient = adminClient;
+    this.quiteOut = quiteOut;
   }
 
   public void run() throws IOException {
 
-    Topology topology = parser.deserialise(new File(topologyFile));
+    Topology topology = buildTopology(topologyFile);
 
     AccessControlProvider aclsProvider = buildAccessControlProvider();
     AccessControlManager accessControlManager = new AccessControlManager(aclsProvider, cliParams);
@@ -60,6 +80,44 @@ public class KafkaTopologyBuilder {
       topicManager.printCurrentState(System.out);
       accessControlManager.printCurrentState(System.out);
     }
+  }
+
+  public Topology buildTopology(String fileOrDir) throws IOException {
+    List<Topology> topologies = parseListOfTopologies(fileOrDir);
+    Topology topology = topologies.get(0);
+    if (topologies.size() > 1) {
+      List<Topology> subTopologies = topologies.subList(1, topologies.size());
+      for (Topology subTopology : subTopologies) {
+        if (!topology.getTeam().equalsIgnoreCase(subTopology.getTeam())) {
+          throw new IOException("Topologies from different teams are not allowed");
+        }
+        subTopology.getProjects().forEach(project -> topology.addProject(project));
+      }
+    }
+    return topology;
+  }
+
+  private List<Topology> parseListOfTopologies(String fileOrDir) throws IOException {
+    List<Topology> topologies = new ArrayList<>();
+    boolean isDir = Files.isDirectory(Paths.get(fileOrDir));
+    if (isDir) {
+      Files.list(Paths.get(fileOrDir))
+          .sorted()
+          .map(
+              path -> {
+                try {
+                  return parser.deserialise(path.toFile());
+                } catch (IOException e) {
+                  e.printStackTrace();
+                  return new Topology();
+                }
+              })
+          .forEach(subTopology -> topologies.add(subTopology));
+    } else {
+      Topology firstTopology = parser.deserialise(new File(fileOrDir));
+      topologies.add(firstTopology);
+    }
+    return topologies;
   }
 
   public static String getVersion() {
@@ -120,7 +178,7 @@ public class KafkaTopologyBuilder {
     }
   }
 
-  private Properties buildProperties(Map<String, String> cliParams) {
+  private static Properties buildProperties(Map<String, String> cliParams) {
     Properties props = new Properties();
     if (cliParams.get(ADMIN_CLIENT_CONFIG_OPTION) != null) {
       try {
@@ -136,12 +194,13 @@ public class KafkaTopologyBuilder {
     return props;
   }
 
-  private TopologyBuilderAdminClient buildTopologyAdminClient(Map<String, String> cliParams) {
+  private static TopologyBuilderAdminClient buildTopologyAdminClient(
+      Map<String, String> cliParams) {
     AdminClient kafkaAdminClient = buildKafkaAdminClient(cliParams);
     return new TopologyBuilderAdminClient(kafkaAdminClient);
   }
 
-  private AdminClient buildKafkaAdminClient(Map<String, String> cliParams) {
+  private static AdminClient buildKafkaAdminClient(Map<String, String> cliParams) {
     Properties props = buildProperties(cliParams);
     return AdminClient.create(props);
   }
