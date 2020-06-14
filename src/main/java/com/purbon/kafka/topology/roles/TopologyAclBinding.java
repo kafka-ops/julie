@@ -14,6 +14,15 @@ public class TopologyAclBinding {
   private String principal;
   private String pattern;
 
+  /**
+   * Topology ACL binding wrapper class constructor
+   * @param resourceType The resource type as described in ResourceType
+   * @param resourceName The resource name
+   * @param host the host this acl is allowed to
+   * @param operation an operation
+   * @param principal the selected principal
+   * @param pattern a pattern to match this acl
+   */
   public TopologyAclBinding(
       ResourceType resourceType,
       String resourceName,

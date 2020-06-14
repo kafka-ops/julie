@@ -7,6 +7,8 @@ import static com.purbon.kafka.topology.api.mds.MDSApiClient.SCHEMA_REGISTRY_CLU
 import com.purbon.kafka.topology.api.mds.MDSApiClient;
 import java.util.HashMap;
 import java.util.Map;
+import org.apache.kafka.common.resource.PatternType;
+import org.apache.kafka.common.resource.ResourceType;
 
 public class AdminRoleRunner {
 
@@ -14,12 +16,14 @@ public class AdminRoleRunner {
   private final String role;
   private final MDSApiClient client;
   private Map<String, Object> scope;
+  private String resourceName;
 
   public AdminRoleRunner(String principal, String role, MDSApiClient client) {
     this.principal = principal;
     this.role = role;
     this.client = client;
     this.scope = new HashMap<>();
+    this.resourceName = "";
   }
 
   public AdminRoleRunner forSchemaRegistry() {
@@ -31,16 +35,20 @@ public class AdminRoleRunner {
 
     scope.clear();
     scope.put("clusters", clusterIds);
+    this.resourceName = "schema-registry";
     return this;
   }
 
-  public void apply() {
+  public TopologyAclBinding apply() {
     client.bindRole(principal, role, scope);
+    return new TopologyAclBinding(ResourceType.CLUSTER, resourceName, "*", "*", principal, PatternType.ANY.name());
   }
 
   public AdminRoleRunner forControlCenter() {
     scope.clear();
     client.getKafkaClusterIds().forEach((key, value) -> scope.put(key, value));
+
+    this.resourceName = "control-center";
     return this;
   }
 
@@ -53,6 +61,7 @@ public class AdminRoleRunner {
     scope.clear();
     scope.put("clusters", clusterIds);
 
+    this.resourceName = "kafka-connect";
     return this;
   }
 }
