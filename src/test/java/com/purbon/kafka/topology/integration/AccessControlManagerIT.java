@@ -73,7 +73,7 @@ public class AccessControlManagerIT {
 
     Topology topology = new Topology();
     topology.setTeam("integration-test");
-    topology.setSource("testAclsCleanup");
+    topology.addOther("source", "testAclsCleanup");
     topology.addProject(project);
 
     accessControlManager.sync(topology);
@@ -101,7 +101,7 @@ public class AccessControlManagerIT {
 
     Topology topology = new Topology();
     topology.setTeam("integration-test");
-    topology.setSource("testConsumerAclsCreation");
+    topology.addOther("source", "testConsumerAclsCreation");
     topology.addProject(project);
 
     accessControlManager.sync(topology);
@@ -122,7 +122,7 @@ public class AccessControlManagerIT {
 
     Topology topology = new Topology();
     topology.setTeam("integration-test");
-    topology.setSource("producerAclsCreation");
+    topology.addOther("source", "producerAclsCreation");
     topology.addProject(project);
 
     accessControlManager.sync(topology);
@@ -144,7 +144,7 @@ public class AccessControlManagerIT {
 
     Topology topology = new Topology();
     topology.setTeam("integration-test");
-    topology.setSource("kstreamsAclsCreation");
+    topology.addOther("source", "kstreamsAclsCreation");
     topology.addProject(project);
 
     accessControlManager.sync(topology);
@@ -158,7 +158,7 @@ public class AccessControlManagerIT {
 
     Topology topology = new Topology();
     topology.setTeam("integration-test");
-    topology.setSource("schemaRegistryAclsCreation");
+    topology.addOther("source", "schemaRegistryAclsCreation");
     topology.addProject(project);
 
     Platform platform = new Platform();
@@ -183,7 +183,7 @@ public class AccessControlManagerIT {
 
     Topology topology = new Topology();
     topology.setTeam("integration-test");
-    topology.setSource("controlcenterAclsCreation");
+    topology.addOther("source", "controlcenterAclsCreation");
     topology.addProject(project);
 
     Platform platform = new Platform();
@@ -212,7 +212,7 @@ public class AccessControlManagerIT {
 
     Topology topology = new Topology();
     topology.setTeam("integration-test");
-    topology.setSource("connectAclsCreation");
+    topology.addOther("source", "connectAclsCreation");
     topology.addProject(project);
 
     accessControlManager.sync(topology);

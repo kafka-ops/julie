@@ -19,7 +19,6 @@ public class TopologyCustomDeserializer extends StdDeserializer<Topology> {
 
   public static final String PROJECTS_KEY = "projects";
   public static final String TEAM_KEY = "team";
-  public static final String SOURCE_KEY = "source";
 
   public static final String PLATFORM_KEY = "platform";
   public static final String SCHEMA_REGISTRY_KEY = "schema_registry";
@@ -44,8 +43,7 @@ public class TopologyCustomDeserializer extends StdDeserializer<Topology> {
 
     addProject2Topology(parser, topology, projects);
 
-    List<String> excludeAttributes =
-        Arrays.asList(PROJECTS_KEY, TEAM_KEY, SOURCE_KEY, PLATFORM_KEY);
+    List<String> excludeAttributes = Arrays.asList(PROJECTS_KEY, TEAM_KEY, PLATFORM_KEY);
 
     Iterator<String> fieldNames = rootNode.fieldNames();
     while (fieldNames.hasNext()) {
@@ -55,7 +53,6 @@ public class TopologyCustomDeserializer extends StdDeserializer<Topology> {
       }
     }
     topology.setTeam(rootNode.get(TEAM_KEY).asText());
-    topology.setSource(rootNode.get(SOURCE_KEY).asText());
 
     JsonNode platformNode = rootNode.get(PLATFORM_KEY);
     Platform platform = new Platform();

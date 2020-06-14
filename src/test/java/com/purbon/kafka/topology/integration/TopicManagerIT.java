@@ -92,8 +92,7 @@ public class TopicManagerIT {
     project.addTopic(topicB);
 
     Topology topology = new Topology();
-    topology.setTeam("integration-test");
-    topology.setSource("testTopicDelete");
+    topology.setTeam("testTopicDelete-test");
     topology.addProject(project);
 
     topicManager.sync(topology);
@@ -103,8 +102,7 @@ public class TopicManagerIT {
     project.addTopic(topicB);
 
     topology = new Topology();
-    topology.setTeam("integration-test");
-    topology.setSource("testTopicDelete");
+    topology.setTeam("testTopicDelete-test");
 
     project = new Project("project");
     project.addTopic(topicA);
@@ -128,8 +126,7 @@ public class TopicManagerIT {
     project.addTopic(topicA);
 
     Topology topology = new Topology();
-    topology.setTeam("integration-test");
-    topology.setSource("testTopicCreationWithConfig");
+    topology.setTeam("testTopicCreationWithConfig-test");
     topology.addProject(project);
 
     topicManager.sync(topology);
@@ -150,8 +147,7 @@ public class TopicManagerIT {
     project.addTopic(topicA);
 
     Topology topology = new Topology();
-    topology.setTeam("integration-test");
-    topology.setSource("testTopicConfigUpdate");
+    topology.setTeam("testTopicConfigUpdate-test");
     topology.addProject(project);
 
     topicManager.sync(topology);
@@ -162,8 +158,7 @@ public class TopicManagerIT {
 
     topicA.setConfig(config);
     project.setTopics(Collections.singletonList(topicA));
-    topology.setTeam("integration-test");
-    topology.setSource("testTopicConfigUpdate");
+    topology.setTeam("testTopicConfigUpdate-test");
     topology.setProjects(Collections.singletonList(project));
 
     topicManager.sync(topology);

@@ -63,8 +63,7 @@ public class RBACPRoviderRbacIT extends MDSBaseTest {
     project.addTopic(topicA);
 
     Topology topology = new Topology();
-    topology.setTeam("integration-test");
-    topology.setSource("testConsumerAclsCreation");
+    topology.setTeam("testConsumerAclsCreation-test");
     topology.addProject(project);
 
     accessControlManager.sync(topology);
@@ -84,8 +83,7 @@ public class RBACPRoviderRbacIT extends MDSBaseTest {
     project.addTopic(topicA);
 
     Topology topology = new Topology();
-    topology.setTeam("integration-test");
-    topology.setSource("producerAclsCreation");
+    topology.setTeam("producerAclsCreation-test");
     topology.addProject(project);
 
     accessControlManager.sync(topology);
@@ -106,8 +104,7 @@ public class RBACPRoviderRbacIT extends MDSBaseTest {
     project.setStreams(Collections.singletonList(app));
 
     Topology topology = new Topology();
-    topology.setTeam("integration-test");
-    topology.setSource("kstreamsAclsCreation");
+    topology.setTeam("kstreamsAclsCreation-test");
     topology.addProject(project);
 
     accessControlManager.sync(topology);
@@ -127,8 +124,7 @@ public class RBACPRoviderRbacIT extends MDSBaseTest {
     project.setConnectors(Collections.singletonList(connector));
 
     Topology topology = new Topology();
-    topology.setTeam("integration-test");
-    topology.setSource("connectAclsCreation");
+    topology.setTeam("connectAclsCreation-test");
     topology.addProject(project);
 
     accessControlManager.sync(topology);
@@ -141,8 +137,7 @@ public class RBACPRoviderRbacIT extends MDSBaseTest {
     Project project = new Project();
 
     Topology topology = new Topology();
-    topology.setTeam("integration-test");
-    topology.setSource("schemaRegistryAclsCreation");
+    topology.setTeam("schemaRegistryAclsCreation-test");
     topology.addProject(project);
 
     Platform platform = new Platform();
@@ -166,8 +161,7 @@ public class RBACPRoviderRbacIT extends MDSBaseTest {
     Project project = new Project();
 
     Topology topology = new Topology();
-    topology.setTeam("integration-test");
-    topology.setSource("controlcenterAclsCreation");
+    topology.setTeam("controlcenterAclsCreation-test");
     topology.addProject(project);
 
     Platform platform = new Platform();
