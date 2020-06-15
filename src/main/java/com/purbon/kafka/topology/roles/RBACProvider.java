@@ -124,8 +124,13 @@ public class RBACProvider implements AccessControlProvider {
 
   @Override
   public List<TopologyAclBinding> setAclsForProducers(Collection<String> principals, String topic) {
-    principals.forEach(principal -> apiClient.bind(principal, DEVELOPER_WRITE, topic, LITERAL));
-    return new ArrayList<>();
+    List<TopologyAclBinding> bindings = new ArrayList<>();
+    principals.forEach(
+        principal -> {
+          TopologyAclBinding binding = apiClient.bind(principal, DEVELOPER_WRITE, topic, LITERAL);
+          bindings.add(binding);
+        });
+    return bindings;
   }
 
   @Override
