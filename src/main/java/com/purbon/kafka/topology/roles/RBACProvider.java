@@ -85,15 +85,30 @@ public class RBACProvider implements AccessControlProvider {
   @Override
   public List<TopologyAclBinding> setAclsForStreamsApp(
       String principal, String topicPrefix, List<String> readTopics, List<String> writeTopics) {
+    List<TopologyAclBinding> bindings = new ArrayList<>();
 
-    apiClient.bind(principal, DEVELOPER_READ, topicPrefix, PREFIX);
-    readTopics.forEach(topic -> apiClient.bind(principal, DEVELOPER_READ, topic, LITERAL));
-    writeTopics.forEach(topic -> apiClient.bind(principal, DEVELOPER_WRITE, topic, LITERAL));
+    TopologyAclBinding binding = apiClient.bind(principal, DEVELOPER_READ, topicPrefix, PREFIX);
+    bindings.add(binding);
 
-    apiClient.bind(principal, RESOURCE_OWNER, topicPrefix, PREFIX);
-    apiClient.bind(principal, RESOURCE_OWNER, topicPrefix, "Group", PREFIX);
+    readTopics.forEach(
+        topic -> {
+          TopologyAclBinding readBinding =
+              apiClient.bind(principal, DEVELOPER_READ, topic, LITERAL);
+          bindings.add(readBinding);
+        });
+    writeTopics.forEach(
+        topic -> {
+          TopologyAclBinding writeBinding =
+              apiClient.bind(principal, DEVELOPER_WRITE, topic, LITERAL);
+          bindings.add(writeBinding);
+        });
 
-    return new ArrayList<>();
+    binding = apiClient.bind(principal, RESOURCE_OWNER, topicPrefix, PREFIX);
+    bindings.add(binding);
+    binding = apiClient.bind(principal, RESOURCE_OWNER, topicPrefix, "Group", PREFIX);
+    bindings.add(binding);
+
+    return bindings;
   }
 
   @Override
