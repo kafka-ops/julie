@@ -100,7 +100,7 @@ public class MDSApiClient {
       ResourceType resourceType = ResourceType.fromString(scope.getResource(0).get(RESOURCE_TYPE));
       String resourceName = scope.getResource(0).get(RESOURCE_NAME);
       String patternType = scope.getResource(0).get(RESOURCE_PATTERN_TYPE);
-      return new TopologyAclBinding(resourceType, resourceName, "*", "*", principal, patternType);
+      return new TopologyAclBinding(resourceType, resourceName, "*", role, principal, patternType);
     } catch (IOException e) {
       e.printStackTrace();
       return null;
