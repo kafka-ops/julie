@@ -16,6 +16,7 @@ public class TopologyAclBinding {
 
   /**
    * Topology ACL binding wrapper class constructor
+   *
    * @param resourceType The resource type as described in ResourceType
    * @param resourceName The resource name
    * @param host the host this acl is allowed to

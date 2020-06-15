@@ -39,18 +39,24 @@ public class RBACProvider implements AccessControlProvider {
 
     List<TopologyAclBinding> bindings = new ArrayList<>();
 
-    TopologyAclBinding secAdminBinding = apiClient
-        .bind(principal, SECURITY_ADMIN)
-        .forKafkaConnect()
-        .apply();
+    TopologyAclBinding secAdminBinding =
+        apiClient.bind(principal, SECURITY_ADMIN).forKafkaConnect().apply();
     bindings.add(secAdminBinding);
 
     apiClient.bind(principal, DEVELOPER_READ, topicPrefix, PREFIX);
     if (readTopics != null && readTopics.isEmpty()) {
-      readTopics.forEach(topic -> apiClient.bind(principal, DEVELOPER_READ, topic, LITERAL));
+      readTopics.forEach(
+          topic -> {
+            TopologyAclBinding binding = apiClient.bind(principal, DEVELOPER_READ, topic, LITERAL);
+            bindings.add(binding);
+          });
     }
     if (writeTopics != null && readTopics.isEmpty()) {
-      writeTopics.forEach(topic -> apiClient.bind(principal, DEVELOPER_WRITE, topic, LITERAL));
+      writeTopics.forEach(
+          topic -> {
+            TopologyAclBinding binding = apiClient.bind(principal, DEVELOPER_WRITE, topic, LITERAL);
+            bindings.add(binding);
+          });
     }
 
     String[] resources =
@@ -69,7 +75,9 @@ public class RBACProvider implements AccessControlProvider {
               String[] elements = resourceObject.split(":");
               String resource = elements[1];
               String resourceType = elements[0];
-              apiClient.bind(principal, RESOURCE_OWNER, resource, resourceType, LITERAL);
+              TopologyAclBinding binding =
+                  apiClient.bind(principal, RESOURCE_OWNER, resource, resourceType, LITERAL);
+              bindings.add(binding);
             });
     return bindings;
   }

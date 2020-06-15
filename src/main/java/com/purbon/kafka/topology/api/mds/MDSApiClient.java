@@ -1,6 +1,11 @@
 package com.purbon.kafka.topology.api.mds;
 
+import static com.purbon.kafka.topology.api.mds.RequestScope.RESOURCE_NAME;
+import static com.purbon.kafka.topology.api.mds.RequestScope.RESOURCE_PATTERN_TYPE;
+import static com.purbon.kafka.topology.api.mds.RequestScope.RESOURCE_TYPE;
+
 import com.purbon.kafka.topology.roles.AdminRoleRunner;
+import com.purbon.kafka.topology.roles.TopologyAclBinding;
 import com.purbon.kafka.topology.utils.JSON;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -16,6 +21,7 @@ import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.util.EntityUtils;
+import org.apache.kafka.common.resource.ResourceType;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -75,11 +81,11 @@ public class MDSApiClient {
     return new AdminRoleRunner(principal, role, this);
   }
 
-  public void bind(String principal, String role, String topic, String patternType) {
-    bind(principal, role, topic, "Topic", patternType);
+  public TopologyAclBinding bind(String principal, String role, String topic, String patternType) {
+    return bind(principal, role, topic, "Topic", patternType);
   }
 
-  public void bind(String principal, String role, Map<String, Object> scope) {
+  public TopologyAclBinding bind(String principal, String role, RequestScope scope) {
     HttpPost postRequest =
         new HttpPost(
             mdsServer + "/security/1.0/principals/" + principal + "/roles/" + role + "/bindings");
@@ -88,18 +94,28 @@ public class MDSApiClient {
     postRequest.addHeader("Authorization", "Basic " + basicCredentials);
 
     try {
-      postRequest.setEntity(new StringEntity(JSON.asString(scope)));
-      LOGGER.debug("bind.entity: " + JSON.asString(scope));
+      postRequest.setEntity(new StringEntity(scope.asJson()));
+      LOGGER.debug("bind.entity: " + scope.asJson());
       post(postRequest);
+      ResourceType resourceType = ResourceType.fromString(scope.getResource(0).get(RESOURCE_TYPE));
+      String resourceName = scope.getResource(0).get(RESOURCE_NAME);
+      String patternType = scope.getResource(0).get(RESOURCE_PATTERN_TYPE);
+      return new TopologyAclBinding(resourceType, resourceName, "*", "*", principal, patternType);
     } catch (IOException e) {
       e.printStackTrace();
+      return null;
     }
   }
 
-  public void bind(
+  public TopologyAclBinding bind(
       String principal, String role, String resource, String resourceType, String patternType) {
-    Map<String, Object> scope = buildResourceScope(resourceType, resource, patternType);
-    bind(principal, role, scope);
+
+    RequestScope scope = new RequestScope();
+    scope.setClusters(getKafkaClusterIds());
+    scope.addResource(resourceType, resource, patternType);
+    scope.build();
+
+    return bind(principal, role, scope);
   }
 
   public void bindRole(String principal, String role, Map<String, Object> scope) {
@@ -116,33 +132,6 @@ public class MDSApiClient {
     } catch (IOException e) {
       e.printStackTrace();
     }
-  }
-
-  private Map<String, Object> buildResourceScope(
-      String resourceType, String name, String patternType) {
-    Map<String, Map<String, String>> clusters = getKafkaClusterIds();
-    return buildResourceScope(resourceType, name, patternType, clusters);
-  }
-
-  public Map<String, Object> buildResourceScope(
-      String resourceType,
-      String name,
-      String patternType,
-      Map<String, Map<String, String>> clusters) {
-
-    Map<String, String> resource = new HashMap<>();
-    resource.put("resourceType", resourceType);
-    resource.put("name", name);
-    resource.put("patternType", patternType);
-
-    List<Map<String, String>> resourcePatterns = new ArrayList<>();
-    resourcePatterns.add(resource);
-
-    Map<String, Object> scope = new HashMap<>();
-    scope.put("scope", clusters);
-    scope.put("resourcePatterns", resourcePatterns);
-
-    return scope;
   }
 
   public List<String> lookupRoles(String principal) {

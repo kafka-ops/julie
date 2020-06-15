@@ -41,7 +41,8 @@ public class AdminRoleRunner {
 
   public TopologyAclBinding apply() {
     client.bindRole(principal, role, scope);
-    return new TopologyAclBinding(ResourceType.CLUSTER, resourceName, "*", "*", principal, PatternType.ANY.name());
+    return new TopologyAclBinding(
+        ResourceType.CLUSTER, resourceName, "*", "*", principal, PatternType.ANY.name());
   }
 
   public AdminRoleRunner forControlCenter() {
