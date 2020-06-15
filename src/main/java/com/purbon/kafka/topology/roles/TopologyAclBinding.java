@@ -51,6 +51,10 @@ public class TopologyAclBinding {
     return new TopologyAclBinding(resourceType, resourceName, host, operation, principal, pattern);
   }
 
+  public TopologyAclBinding() {
+    this(ResourceType.ANY, "", "", "", "", "");
+  }
+
   public TopologyAclBinding(AclBinding binding) {
 
     AccessControlEntry entry = binding.entry();

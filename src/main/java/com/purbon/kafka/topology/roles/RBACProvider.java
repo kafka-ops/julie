@@ -134,8 +134,9 @@ public class RBACProvider implements AccessControlProvider {
   }
 
   @Override
-  public void setPredefinedRole(String principal, String predefinedRole, String topicPrefix) {
-    apiClient.bind(principal, predefinedRole, topicPrefix, PREFIX);
+  public TopologyAclBinding setPredefinedRole(
+      String principal, String predefinedRole, String topicPrefix) {
+    return apiClient.bind(principal, predefinedRole, topicPrefix, PREFIX);
   }
 
   @Override
@@ -153,10 +154,8 @@ public class RBACProvider implements AccessControlProvider {
 
   @Override
   public List<TopologyAclBinding> setAclsForControlCenter(String principal, String appId) {
-
-    apiClient.bind(principal, SYSTEM_ADMIN).forControlCenter().apply();
-
-    return new ArrayList<>();
+    TopologyAclBinding binding = apiClient.bind(principal, SYSTEM_ADMIN).forControlCenter().apply();
+    return Arrays.asList(binding);
   }
 
   @Override

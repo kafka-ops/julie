@@ -19,8 +19,10 @@ public interface AccessControlProvider {
 
   List<TopologyAclBinding> setAclsForProducers(Collection<String> principals, String topic);
 
-  default void setPredefinedRole(String principal, String predefinedRole, String topicPrefix) {
+  default TopologyAclBinding setPredefinedRole(
+      String principal, String predefinedRole, String topicPrefix) {
     // NOOP
+    return null;
   }
 
   Map<String, List<TopologyAclBinding>> listAcls();
