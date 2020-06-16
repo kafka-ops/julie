@@ -146,10 +146,15 @@ public class RBACProvider implements AccessControlProvider {
 
   @Override
   public List<TopologyAclBinding> setAclsForSchemaRegistry(String principal) {
-    apiClient.bind(principal, SECURITY_ADMIN).forSchemaRegistry().apply();
-    apiClient.bind(principal, RESOURCE_OWNER, "_schemas", LITERAL);
-    apiClient.bind(principal, RESOURCE_OWNER, "schema-registry", "Group", LITERAL);
-    return new ArrayList<>();
+    List<TopologyAclBinding> bindings = new ArrayList<>();
+    TopologyAclBinding binding =
+        apiClient.bind(principal, SECURITY_ADMIN).forSchemaRegistry().apply();
+    bindings.add(binding);
+    binding = apiClient.bind(principal, RESOURCE_OWNER, "_schemas", LITERAL);
+    bindings.add(binding);
+    binding = apiClient.bind(principal, RESOURCE_OWNER, "schema-registry", "Group", LITERAL);
+    bindings.add(binding);
+    return bindings;
   }
 
   @Override
