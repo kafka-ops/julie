@@ -4,6 +4,7 @@ import static com.purbon.kafka.topology.api.mds.RequestScope.RESOURCE_NAME;
 import static com.purbon.kafka.topology.api.mds.RequestScope.RESOURCE_PATTERN_TYPE;
 import static com.purbon.kafka.topology.api.mds.RequestScope.RESOURCE_TYPE;
 
+import com.purbon.kafka.topology.api.mds.http.HttpDeleteWithBody;
 import com.purbon.kafka.topology.roles.AdminRoleRunner;
 import com.purbon.kafka.topology.roles.TopologyAclBinding;
 import com.purbon.kafka.topology.utils.JSON;
@@ -118,6 +119,31 @@ public class MDSApiClient {
     return bind(principal, role, scope);
   }
 
+  /**
+   * Remove the role (cluster or resource scoped) from the principal at the given scope/cluster.
+   * No-op if the user doesn’t have the role. Callable by Admins.
+   *
+   * @param principal Fully-qualified KafkaPrincipal string for a user or group.
+   * @param role The name of the role.
+   * @param scope The request scope
+   */
+  public void deleteRole(String principal, String role, RequestScope scope) {
+    HttpDeleteWithBody request =
+        new HttpDeleteWithBody(
+            mdsServer + "/security/1.0/principals/" + principal + "/roles/" + role);
+    request.addHeader("accept", " application/json");
+    request.addHeader("Content-Type", "application/json");
+    request.addHeader("Authorization", "Basic " + basicCredentials);
+    LOGGER.debug("deleteRole: " + request.getURI());
+    try {
+      request.setEntity(new StringEntity(scope.asJson()));
+      LOGGER.debug("bind.entity: " + scope.asJson());
+      delete(request);
+    } catch (IOException e) {
+      e.printStackTrace();
+    }
+  }
+
   public void bindRole(String principal, String role, Map<String, Object> scope) {
     HttpPost postRequest =
         new HttpPost(mdsServer + "/security/1.0/principals/" + principal + "/roles/" + role);
@@ -203,6 +229,22 @@ public class MDSApiClient {
 
     try (CloseableHttpResponse response = httpClient.execute(request)) {
       LOGGER.debug("POST.response: " + response);
+      HttpEntity entity = response.getEntity();
+      // Header headers = entity.getContentType();
+      String result = "";
+      if (entity != null) {
+        result = EntityUtils.toString(entity);
+      }
+
+      return result;
+    }
+  }
+
+  private String delete(HttpDeleteWithBody request) throws IOException {
+    LOGGER.debug("DELETE.request: " + request);
+
+    try (CloseableHttpResponse response = httpClient.execute(request)) {
+      LOGGER.debug("DELETE.response: " + response);
       HttpEntity entity = response.getEntity();
       // Header headers = entity.getContentType();
       String result = "";

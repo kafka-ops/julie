@@ -9,6 +9,7 @@ import static com.purbon.kafka.topology.roles.RBACPredefinedRoles.SYSTEM_ADMIN;
 import com.purbon.kafka.topology.AccessControlProvider;
 import com.purbon.kafka.topology.ClusterState;
 import com.purbon.kafka.topology.api.mds.MDSApiClient;
+import com.purbon.kafka.topology.api.mds.RequestScope;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -31,7 +32,24 @@ public class RBACProvider implements AccessControlProvider {
   }
 
   @Override
-  public void clearAcls(ClusterState clusterState) {}
+  public void clearAcls(ClusterState clusterState) {
+    LOGGER.debug("RBACProvider: clearAcls");
+    clusterState.forEachBinding(
+        aclBinding -> {
+          String principal = aclBinding.getPrincipal();
+          String role = aclBinding.getOperation();
+
+          RequestScope scope = new RequestScope();
+          scope.setClusters(apiClient.getKafkaClusterIds());
+          scope.addResource(
+              aclBinding.getResourceType().name(),
+              aclBinding.getResourceName(),
+              aclBinding.getPattern());
+          scope.build();
+
+          apiClient.deleteRole(principal, role, scope);
+        });
+  }
 
   @Override
   public List<TopologyAclBinding> setAclsForConnect(
