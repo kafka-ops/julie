@@ -1,9 +1,9 @@
 package com.purbon.kafka.topology;
 
 import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import com.purbon.kafka.topology.model.Project;
 import com.purbon.kafka.topology.model.Topic;
@@ -14,7 +14,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -34,7 +33,6 @@ public class AccessControlWithRBACTest {
     accessControlManager = new AccessControlManager(aclsProvider);
   }
 
-  @Ignore
   @Test
   public void testPredefinedRoles() {
 
@@ -50,9 +48,8 @@ public class AccessControlWithRBACTest {
     Topology topology = new Topology();
     topology.addProject(project);
 
-    doNothing()
-        .when(aclsProvider)
-        .setPredefinedRole("User:Foo", "ResourceOwner", project.buildTopicPrefix());
+    when(aclsProvider.setPredefinedRole("User:Foo", "ResourceOwner", project.buildTopicPrefix()))
+        .thenReturn(null);
 
     accessControlManager.sync(topology);
 
