@@ -7,8 +7,6 @@ import static com.purbon.kafka.topology.api.mds.MDSApiClient.SCHEMA_REGISTRY_CLU
 import com.purbon.kafka.topology.api.mds.MDSApiClient;
 import java.util.HashMap;
 import java.util.Map;
-import org.apache.kafka.common.resource.PatternType;
-import org.apache.kafka.common.resource.ResourceType;
 
 public class AdminRoleRunner {
 
@@ -40,9 +38,7 @@ public class AdminRoleRunner {
   }
 
   public TopologyAclBinding apply() {
-    client.bindRole(principal, role, scope);
-    return new TopologyAclBinding(
-        ResourceType.CLUSTER, resourceName, "*", role, principal, PatternType.ANY.name());
+    return client.bindRole(principal, role, resourceName, scope);
   }
 
   public AdminRoleRunner forControlCenter() {

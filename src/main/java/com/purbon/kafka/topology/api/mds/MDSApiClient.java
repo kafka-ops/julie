@@ -22,6 +22,7 @@ import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.util.EntityUtils;
+import org.apache.kafka.common.resource.PatternType;
 import org.apache.kafka.common.resource.ResourceType;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -144,7 +145,8 @@ public class MDSApiClient {
     }
   }
 
-  public void bindRole(String principal, String role, Map<String, Object> scope) {
+  public TopologyAclBinding bindRole(
+      String principal, String role, String resourceName, Map<String, Object> scope) {
     HttpPost postRequest =
         new HttpPost(mdsServer + "/security/1.0/principals/" + principal + "/roles/" + role);
     postRequest.addHeader("accept", " application/json");
@@ -155,8 +157,11 @@ public class MDSApiClient {
       postRequest.setEntity(new StringEntity(JSON.asString(scope)));
       LOGGER.debug("bind.entity: " + JSON.asString(scope));
       post(postRequest);
+      return new TopologyAclBinding(
+          ResourceType.CLUSTER, resourceName, "*", role, principal, PatternType.ANY.name());
     } catch (IOException e) {
       e.printStackTrace();
+      return null;
     }
   }
 
