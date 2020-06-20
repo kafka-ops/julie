@@ -39,6 +39,17 @@ public class TopologyAclBinding {
     this.pattern = pattern;
   }
 
+  /**
+   * Build method
+   *
+   * @param resourceTypeString
+   * @param resourceName
+   * @param host
+   * @param operation
+   * @param principal
+   * @param pattern
+   * @return
+   */
   public static TopologyAclBinding build(
       String resourceTypeString,
       String resourceName,
