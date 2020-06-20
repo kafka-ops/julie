@@ -5,8 +5,12 @@ import static com.purbon.kafka.topology.roles.RBACPredefinedRoles.DEVELOPER_WRIT
 import static com.purbon.kafka.topology.roles.RBACPredefinedRoles.RESOURCE_OWNER;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
+import static org.mockito.Matchers.anyList;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 
 import com.purbon.kafka.topology.AccessControlManager;
+import com.purbon.kafka.topology.ClusterState;
 import com.purbon.kafka.topology.api.mds.MDSApiClient;
 import com.purbon.kafka.topology.model.Platform;
 import com.purbon.kafka.topology.model.Project;
@@ -27,7 +31,11 @@ import java.util.HashMap;
 import java.util.List;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
 
+@RunWith(MockitoJUnitRunner.class)
 public class RBACPRoviderRbacIT extends MDSBaseTest {
 
   private String mdsServer = "http://localhost:8090";
@@ -35,6 +43,8 @@ public class RBACPRoviderRbacIT extends MDSBaseTest {
   private String mdsPassword = "professor";
 
   private MDSApiClient apiClient;
+  @Mock private ClusterState cs;
+
   private AccessControlManager accessControlManager;
 
   @Before
@@ -48,7 +58,7 @@ public class RBACPRoviderRbacIT extends MDSBaseTest {
     apiClient.setConnectClusterID(getKafkaConnectClusterID());
 
     RBACProvider rbacProvider = new RBACProvider(apiClient);
-    accessControlManager = new AccessControlManager(rbacProvider);
+    accessControlManager = new AccessControlManager(rbacProvider, cs);
   }
 
   @Test
@@ -68,6 +78,9 @@ public class RBACPRoviderRbacIT extends MDSBaseTest {
 
     accessControlManager.sync(topology);
 
+    // this method is call twice, once for consumers and one for producers
+    verify(cs, times(2)).update(anyList());
+    verify(cs, times(1)).flushAndClose();
     verifyConsumerAcls(consumers, topicA.toString());
   }
 
@@ -88,6 +101,9 @@ public class RBACPRoviderRbacIT extends MDSBaseTest {
 
     accessControlManager.sync(topology);
 
+    // this method is call twice, once for consumers and one for consumers
+    verify(cs, times(2)).update(anyList());
+    verify(cs, times(1)).flushAndClose();
     verifyProducerAcls(producers, topicA.toString());
   }
 
@@ -109,6 +125,8 @@ public class RBACPRoviderRbacIT extends MDSBaseTest {
 
     accessControlManager.sync(topology);
 
+    verify(cs, times(1)).update(anyList());
+    verify(cs, times(1)).flushAndClose();
     verifyKStreamsAcls(app);
   }
 
@@ -129,6 +147,8 @@ public class RBACPRoviderRbacIT extends MDSBaseTest {
 
     accessControlManager.sync(topology);
 
+    verify(cs, times(1)).update(anyList());
+    verify(cs, times(1)).flushAndClose();
     verifyConnectAcls(connector);
   }
 
@@ -153,6 +173,8 @@ public class RBACPRoviderRbacIT extends MDSBaseTest {
 
     accessControlManager.sync(topology);
 
+    verify(cs, times(2)).update(anyList());
+    verify(cs, times(1)).flushAndClose();
     verifySchemaRegistryAcls(platform);
   }
 
@@ -174,6 +196,8 @@ public class RBACPRoviderRbacIT extends MDSBaseTest {
 
     accessControlManager.sync(topology);
 
+    verify(cs, times(1)).update(anyList());
+    verify(cs, times(1)).flushAndClose();
     verifyControlCenterAcls(platform);
   }
 

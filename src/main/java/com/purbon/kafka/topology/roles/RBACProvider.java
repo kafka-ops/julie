@@ -9,6 +9,7 @@ import static com.purbon.kafka.topology.roles.RBACPredefinedRoles.SYSTEM_ADMIN;
 import com.purbon.kafka.topology.AccessControlProvider;
 import com.purbon.kafka.topology.ClusterState;
 import com.purbon.kafka.topology.api.mds.MDSApiClient;
+import com.purbon.kafka.topology.api.mds.RequestScope;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -31,20 +32,49 @@ public class RBACProvider implements AccessControlProvider {
   }
 
   @Override
-  public void clearAcls(ClusterState clusterState) {}
+  public void clearAcls(ClusterState clusterState) {
+    LOGGER.debug("RBACProvider: clearAcls");
+    clusterState.forEachBinding(
+        aclBinding -> {
+          String principal = aclBinding.getPrincipal();
+          String role = aclBinding.getOperation();
+
+          RequestScope scope = new RequestScope();
+          scope.setClusters(apiClient.getKafkaClusterIds());
+          scope.addResource(
+              aclBinding.getResourceType().name(),
+              aclBinding.getResourceName(),
+              aclBinding.getPattern());
+          scope.build();
+
+          apiClient.deleteRole(principal, role, scope);
+        });
+  }
 
   @Override
   public List<TopologyAclBinding> setAclsForConnect(
       String principal, String topicPrefix, List<String> readTopics, List<String> writeTopics) {
 
-    apiClient.bind(principal, SECURITY_ADMIN).forKafkaConnect().apply();
+    List<TopologyAclBinding> bindings = new ArrayList<>();
+
+    TopologyAclBinding secAdminBinding =
+        apiClient.bind(principal, SECURITY_ADMIN).forKafkaConnect().apply();
+    bindings.add(secAdminBinding);
 
     apiClient.bind(principal, DEVELOPER_READ, topicPrefix, PREFIX);
     if (readTopics != null && readTopics.isEmpty()) {
-      readTopics.forEach(topic -> apiClient.bind(principal, DEVELOPER_READ, topic, LITERAL));
+      readTopics.forEach(
+          topic -> {
+            TopologyAclBinding binding = apiClient.bind(principal, DEVELOPER_READ, topic, LITERAL);
+            bindings.add(binding);
+          });
     }
     if (writeTopics != null && readTopics.isEmpty()) {
-      writeTopics.forEach(topic -> apiClient.bind(principal, DEVELOPER_WRITE, topic, LITERAL));
+      writeTopics.forEach(
+          topic -> {
+            TopologyAclBinding binding = apiClient.bind(principal, DEVELOPER_WRITE, topic, LITERAL);
+            bindings.add(binding);
+          });
     }
 
     String[] resources =
@@ -63,40 +93,68 @@ public class RBACProvider implements AccessControlProvider {
               String[] elements = resourceObject.split(":");
               String resource = elements[1];
               String resourceType = elements[0];
-              apiClient.bind(principal, RESOURCE_OWNER, resource, resourceType, LITERAL);
+              TopologyAclBinding binding =
+                  apiClient.bind(principal, RESOURCE_OWNER, resource, resourceType, LITERAL);
+              bindings.add(binding);
             });
-    return new ArrayList<>();
+    return bindings;
   }
 
   @Override
   public List<TopologyAclBinding> setAclsForStreamsApp(
       String principal, String topicPrefix, List<String> readTopics, List<String> writeTopics) {
+    List<TopologyAclBinding> bindings = new ArrayList<>();
 
-    apiClient.bind(principal, DEVELOPER_READ, topicPrefix, PREFIX);
-    readTopics.forEach(topic -> apiClient.bind(principal, DEVELOPER_READ, topic, LITERAL));
-    writeTopics.forEach(topic -> apiClient.bind(principal, DEVELOPER_WRITE, topic, LITERAL));
+    TopologyAclBinding binding = apiClient.bind(principal, DEVELOPER_READ, topicPrefix, PREFIX);
+    bindings.add(binding);
 
-    apiClient.bind(principal, RESOURCE_OWNER, topicPrefix, PREFIX);
-    apiClient.bind(principal, RESOURCE_OWNER, topicPrefix, "Group", PREFIX);
+    readTopics.forEach(
+        topic -> {
+          TopologyAclBinding readBinding =
+              apiClient.bind(principal, DEVELOPER_READ, topic, LITERAL);
+          bindings.add(readBinding);
+        });
+    writeTopics.forEach(
+        topic -> {
+          TopologyAclBinding writeBinding =
+              apiClient.bind(principal, DEVELOPER_WRITE, topic, LITERAL);
+          bindings.add(writeBinding);
+        });
 
-    return new ArrayList<>();
+    binding = apiClient.bind(principal, RESOURCE_OWNER, topicPrefix, PREFIX);
+    bindings.add(binding);
+    binding = apiClient.bind(principal, RESOURCE_OWNER, topicPrefix, "Group", PREFIX);
+    bindings.add(binding);
+
+    return bindings;
   }
 
   @Override
   public List<TopologyAclBinding> setAclsForConsumers(Collection<String> principals, String topic) {
-    principals.forEach(principal -> apiClient.bind(principal, DEVELOPER_READ, topic, LITERAL));
-    return new ArrayList<>();
+    List<TopologyAclBinding> bindings = new ArrayList<>();
+    principals.forEach(
+        principal -> {
+          TopologyAclBinding binding = apiClient.bind(principal, DEVELOPER_READ, topic, LITERAL);
+          bindings.add(binding);
+        });
+    return bindings;
   }
 
   @Override
   public List<TopologyAclBinding> setAclsForProducers(Collection<String> principals, String topic) {
-    principals.forEach(principal -> apiClient.bind(principal, DEVELOPER_WRITE, topic, LITERAL));
-    return new ArrayList<>();
+    List<TopologyAclBinding> bindings = new ArrayList<>();
+    principals.forEach(
+        principal -> {
+          TopologyAclBinding binding = apiClient.bind(principal, DEVELOPER_WRITE, topic, LITERAL);
+          bindings.add(binding);
+        });
+    return bindings;
   }
 
   @Override
-  public void setPredefinedRole(String principal, String predefinedRole, String topicPrefix) {
-    apiClient.bind(principal, predefinedRole, topicPrefix, PREFIX);
+  public TopologyAclBinding setPredefinedRole(
+      String principal, String predefinedRole, String topicPrefix) {
+    return apiClient.bind(principal, predefinedRole, topicPrefix, PREFIX);
   }
 
   @Override
@@ -106,18 +164,21 @@ public class RBACProvider implements AccessControlProvider {
 
   @Override
   public List<TopologyAclBinding> setAclsForSchemaRegistry(String principal) {
-    apiClient.bind(principal, SECURITY_ADMIN).forSchemaRegistry().apply();
-    apiClient.bind(principal, RESOURCE_OWNER, "_schemas", LITERAL);
-    apiClient.bind(principal, RESOURCE_OWNER, "schema-registry", "Group", LITERAL);
-    return new ArrayList<>();
+    List<TopologyAclBinding> bindings = new ArrayList<>();
+    TopologyAclBinding binding =
+        apiClient.bind(principal, SECURITY_ADMIN).forSchemaRegistry().apply();
+    bindings.add(binding);
+    binding = apiClient.bind(principal, RESOURCE_OWNER, "_schemas", LITERAL);
+    bindings.add(binding);
+    binding = apiClient.bind(principal, RESOURCE_OWNER, "schema-registry", "Group", LITERAL);
+    bindings.add(binding);
+    return bindings;
   }
 
   @Override
   public List<TopologyAclBinding> setAclsForControlCenter(String principal, String appId) {
-
-    apiClient.bind(principal, SYSTEM_ADMIN).forControlCenter().apply();
-
-    return new ArrayList<>();
+    TopologyAclBinding binding = apiClient.bind(principal, SYSTEM_ADMIN).forControlCenter().apply();
+    return Arrays.asList(binding);
   }
 
   @Override
