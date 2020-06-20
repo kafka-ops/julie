@@ -14,18 +14,18 @@ import redis.clients.jedis.Jedis;
 public class RedisSateProcessor implements StateProcessor {
 
   private static final Logger LOGGER = LogManager.getLogger(RedisSateProcessor.class);
+  private static final String KAFKA_TOPOLOGY_BUILDER_BINDINGS = "kafka.topology.builder.bindings";
+  private static final String KAFKA_TOPOLOGY_BUILDER_TYPE = "kafka.topology.builder.type";
 
   private String expression =
       "^\\'(\\S+)\\',\\s*\\'(\\S+)\\',\\s*\\'(\\S+)\\',\\s*\\'(\\S+)\\',\\s*\\'(\\S+)\\',\\s*\\'(\\S+)\\'";
   private Pattern regexp;
   private Jedis jedis;
 
-
   public RedisSateProcessor(String host, int port) {
     this.jedis = new Jedis(host, port);
     this.regexp = Pattern.compile(expression);
   }
-
 
   @Override
   public void createOrOpen() {
@@ -40,11 +40,11 @@ public class RedisSateProcessor implements StateProcessor {
   @Override
   public List<TopologyAclBinding> load(URI uri) throws IOException {
     List<TopologyAclBinding> bindings = new ArrayList<>();
-    String type = jedis.get("kafka.topology.builder.type");
+    String type = jedis.get(KAFKA_TOPOLOGY_BUILDER_TYPE);
 
-    long count = jedis.scard("kafka.topology.builder.bindings");
-    for(long i=0; i < count; i++) {
-      String elem = jedis.spop("kafka.topology.builder.bindings");
+    long count = jedis.scard(KAFKA_TOPOLOGY_BUILDER_BINDINGS);
+    for (long i = 0; i < count; i++) {
+      String elem = jedis.spop(KAFKA_TOPOLOGY_BUILDER_BINDINGS);
       TopologyAclBinding binding = buildAclBinding(elem);
       bindings.add(binding);
     }
@@ -54,18 +54,16 @@ public class RedisSateProcessor implements StateProcessor {
 
   @Override
   public void saveType(String type) {
-    jedis.set("kafka.topology.builder.type", type);
+    jedis.set(KAFKA_TOPOLOGY_BUILDER_TYPE, type);
   }
 
   @Override
   public void saveBindings(List<TopologyAclBinding> bindings) {
 
-    String[] members = bindings
-        .stream()
-        .map(binding -> binding.toString())
-        .toArray(size -> new String[size]);
+    String[] members =
+        bindings.stream().map(binding -> binding.toString()).toArray(size -> new String[size]);
 
-    jedis.sadd("kafka.topology.builder.bindings", members);
+    jedis.sadd(KAFKA_TOPOLOGY_BUILDER_BINDINGS, members);
   }
 
   @Override
@@ -88,6 +86,6 @@ public class RedisSateProcessor implements StateProcessor {
         matches.group(4), // operation
         matches.group(5), // principal
         matches.group(6) // pattern
-    );
+        );
   }
 }
