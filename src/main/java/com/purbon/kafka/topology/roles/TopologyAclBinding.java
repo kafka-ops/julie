@@ -14,6 +14,16 @@ public class TopologyAclBinding {
   private String principal;
   private String pattern;
 
+  /**
+   * Topology ACL binding wrapper class constructor
+   *
+   * @param resourceType The resource type as described in ResourceType
+   * @param resourceName The resource name
+   * @param host the host this acl is allowed to
+   * @param operation an operation
+   * @param principal the selected principal
+   * @param pattern a pattern to match this acl
+   */
   public TopologyAclBinding(
       ResourceType resourceType,
       String resourceName,
@@ -29,6 +39,17 @@ public class TopologyAclBinding {
     this.pattern = pattern;
   }
 
+  /**
+   * Build method
+   *
+   * @param resourceTypeString
+   * @param resourceName
+   * @param host
+   * @param operation
+   * @param principal
+   * @param pattern
+   * @return
+   */
   public static TopologyAclBinding build(
       String resourceTypeString,
       String resourceName,
@@ -39,6 +60,10 @@ public class TopologyAclBinding {
 
     ResourceType resourceType = ResourceType.valueOf(resourceTypeString);
     return new TopologyAclBinding(resourceType, resourceName, host, operation, principal, pattern);
+  }
+
+  public TopologyAclBinding() {
+    this(ResourceType.ANY, "", "", "", "", "");
   }
 
   public TopologyAclBinding(AclBinding binding) {
