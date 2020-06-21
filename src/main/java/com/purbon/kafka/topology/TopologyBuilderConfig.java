@@ -10,6 +10,18 @@ public class TopologyBuilderConfig {
   public static final String RBAC_ACCESS_CONTROL_CLASS =
       "\"com.purbon.kafka.topology.roles.RBACProvider";
 
+  public static final String STATE_PROCESSOR_IMPLEMENTATION_CLASS =
+      "topology.builder.state.processor.class";
+
+  public static final String STATE_PROCESSOR_DEFAULT_CLASS =
+      "com.purbon.kafka.topology.clusterstate.FileStateProcessor";
+  public static final String REDIS_STATE_PROCESSOR_CLASS =
+      "com.purbon.kafka.topology.clusterstate.RedisStateProcessor";
+
+  public static final String REDIS_HOST_CONFIG = "topology.builder.redis.host";
+
+  public static final String REDIS_PORT_CONFIG = "topology.builder.redis.port";
+
   public static final String MDS_SERVER = "topology.builder.mds.server";
   public static final String MDS_USER_CONFIG = "topology.builder.mds.user";
   public static final String MDS_PASSWORD_CONFIG = "topology.builder.mds.password";
