@@ -9,6 +9,7 @@ the same team and all subsequent projects will be at append one after the other.
 * Implement the necessary methods to pass back the status from the rbac modules, so the reply and clean up is possible with multiple runs
 * Added an option to use redis as external system to keep the acls status list. Now people can use either files or redis.
 Note in the future this subsystem should be externalised as plugins
+* raise up error handling in case of non available cluster
 
 
 v0.11:
