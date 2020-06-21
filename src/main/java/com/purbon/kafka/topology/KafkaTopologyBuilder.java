@@ -11,8 +11,15 @@ import static com.purbon.kafka.topology.TopologyBuilderConfig.MDS_PASSWORD_CONFI
 import static com.purbon.kafka.topology.TopologyBuilderConfig.MDS_SR_CLUSTER_ID_CONFIG;
 import static com.purbon.kafka.topology.TopologyBuilderConfig.MDS_USER_CONFIG;
 import static com.purbon.kafka.topology.TopologyBuilderConfig.RBAC_ACCESS_CONTROL_CLASS;
+import static com.purbon.kafka.topology.TopologyBuilderConfig.REDIS_HOST_CONFIG;
+import static com.purbon.kafka.topology.TopologyBuilderConfig.REDIS_PORT_CONFIG;
+import static com.purbon.kafka.topology.TopologyBuilderConfig.REDIS_STATE_PROCESSOR_CLASS;
+import static com.purbon.kafka.topology.TopologyBuilderConfig.STATE_PROCESSOR_DEFAULT_CLASS;
+import static com.purbon.kafka.topology.TopologyBuilderConfig.STATE_PROCESSOR_IMPLEMENTATION_CLASS;
 
 import com.purbon.kafka.topology.api.mds.MDSApiClient;
+import com.purbon.kafka.topology.clusterstate.FileSateProcessor;
+import com.purbon.kafka.topology.clusterstate.RedisSateProcessor;
 import com.purbon.kafka.topology.model.Topology;
 import com.purbon.kafka.topology.roles.RBACProvider;
 import com.purbon.kafka.topology.roles.SimpleAclsProvider;
@@ -68,9 +75,11 @@ public class KafkaTopologyBuilder {
   public void run() throws IOException {
 
     Topology topology = buildTopology(topologyFile);
-
     AccessControlProvider aclsProvider = buildAccessControlProvider();
-    AccessControlManager accessControlManager = new AccessControlManager(aclsProvider, cliParams);
+    ClusterState cs = buildStateProcessor();
+
+    AccessControlManager accessControlManager =
+        new AccessControlManager(aclsProvider, cs, cliParams);
 
     TopicManager topicManager = new TopicManager(builderAdminClient, cliParams);
 
@@ -131,6 +140,28 @@ public class KafkaTopologyBuilder {
     } catch (IOException e) {
       e.printStackTrace();
       return "unkown";
+    }
+  }
+
+  private ClusterState buildStateProcessor() throws IOException {
+
+    String stateProcessorClass =
+        properties
+            .getOrDefault(STATE_PROCESSOR_IMPLEMENTATION_CLASS, STATE_PROCESSOR_DEFAULT_CLASS)
+            .toString();
+
+    try {
+      if (stateProcessorClass.equalsIgnoreCase(STATE_PROCESSOR_DEFAULT_CLASS)) {
+        return new ClusterState(new FileSateProcessor());
+      } else if (stateProcessorClass.equalsIgnoreCase(REDIS_STATE_PROCESSOR_CLASS)) {
+        String host = properties.getProperty(REDIS_HOST_CONFIG);
+        int port = Integer.valueOf(properties.getProperty(REDIS_PORT_CONFIG));
+        return new ClusterState(new RedisSateProcessor(host, port));
+      } else {
+        throw new IOException(stateProcessorClass + " Unknown state processor provided.");
+      }
+    } catch (Exception ex) {
+      throw new IOException(ex);
     }
   }
 
