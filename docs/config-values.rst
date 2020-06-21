@@ -18,14 +18,12 @@ RBAC configuration
 
 To configure RBAC, as a user you need to setup the access to your MDS server location, for this you need to setup the user and password to access it.
 An example configuration looks like this:
-
 ::
     topology.builder.mds.server = "http://localhost:8090"
     topology.builder.mds.user = "mds"
     topology.builder.mds.password = "mds-secret"
 
 A part from that, you need to setup the UUID for each of your clusters. This is one like this:
-
 ::
     topology.builder.mds.kafka.cluster.id = "foobar"
     topology.builder.mds.schema.registry.cluster.id = "schema-registry-cluster"
@@ -46,7 +44,6 @@ Configure the state management system.
  - Redis: "com.purbon.kafka.topology.clusterstate.RedisStateProcessor"
 
 If you are using redis, you need to extend two other properties to setup the server location:
-
 ::
   topology.builder.redis.host = "example.com"
   topology.builder.redis.port = 6379
