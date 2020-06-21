@@ -32,4 +32,22 @@ A part from that, you need to setup the UUID for each of your clusters. This is 
     topology.builder.mds.kafka.connect.cluster.id = "connect-cluster"
 
 
+Topology Builder state management
+-----------
+
+The topology builder keeps necessary state list to manage differences internally. This method is by default using a file, however is possible to use external systems.
+To configure it you can use:
+
+Configure the state management system.
+**Property**: *topology.builder.state.processor.class*
+**Default value**: "com.purbon.kafka.topology.clusterstate.FileStateProcessor"
+**values**:
+ - File: "com.purbon.kafka.topology.clusterstate.FileStateProcessor"
+ - Redis: "com.purbon.kafka.topology.clusterstate.RedisStateProcessor"
+
+If you are using redis, you need to extend two other properties to setup the server location:
+
+::
+  topology.builder.redis.host = "example.com"
+  topology.builder.redis.port = 6379
 
