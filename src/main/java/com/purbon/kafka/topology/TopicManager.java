@@ -5,6 +5,7 @@ import static com.purbon.kafka.topology.BuilderCLI.ALLOW_DELETE_OPTION;
 import com.purbon.kafka.topology.model.Project;
 import com.purbon.kafka.topology.model.Topic;
 import com.purbon.kafka.topology.model.Topology;
+import java.io.IOException;
 import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -36,7 +37,7 @@ public class TopicManager {
     this.allowDelete = Boolean.valueOf(cliParams.getOrDefault(ALLOW_DELETE_OPTION, "true"));
   }
 
-  public void sync(Topology topology) {
+  public void sync(Topology topology) throws IOException {
 
     // List all topics existing in the cluster
     Set<String> listOfTopics = adminClient.listTopics();
@@ -52,8 +53,12 @@ public class TopicManager {
                     .forEach(
                         topic -> {
                           String fullTopicName = topic.toString();
-                          syncTopic(topic, fullTopicName, listOfTopics);
-                          updatedListOfTopics.add(fullTopicName);
+                          try {
+                            syncTopic(topic, fullTopicName, listOfTopics);
+                            updatedListOfTopics.add(fullTopicName);
+                          } catch (IOException e) {
+                            LOGGER.error(e);
+                          }
                         }));
 
     if (allowDelete) {
@@ -71,7 +76,8 @@ public class TopicManager {
     }
   }
 
-  public void syncTopic(Topic topic, String fullTopicName, Set<String> listOfTopics) {
+  public void syncTopic(Topic topic, String fullTopicName, Set<String> listOfTopics)
+      throws IOException {
     if (existTopic(fullTopicName, listOfTopics)) {
       adminClient.updateTopicConfig(topic, fullTopicName);
     } else {
@@ -79,7 +85,8 @@ public class TopicManager {
     }
   }
 
-  public void syncTopic(Topic topic, Set<String> listOfTopics, Topology topology, Project project) {
+  public void syncTopic(Topic topic, Set<String> listOfTopics, Topology topology, Project project)
+      throws IOException {
     String fullTopicName = topic.toString();
     syncTopic(topic, fullTopicName, listOfTopics);
   }
@@ -88,7 +95,7 @@ public class TopicManager {
     return listOfTopics.contains(topic);
   }
 
-  public void printCurrentState(PrintStream os) {
+  public void printCurrentState(PrintStream os) throws IOException {
     os.println("List of Topics:");
     adminClient
         .listTopics()

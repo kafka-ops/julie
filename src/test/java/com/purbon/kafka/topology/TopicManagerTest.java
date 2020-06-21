@@ -7,6 +7,7 @@ import static org.mockito.Mockito.when;
 import com.purbon.kafka.topology.model.Project;
 import com.purbon.kafka.topology.model.Topic;
 import com.purbon.kafka.topology.model.Topology;
+import java.io.IOException;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
@@ -31,7 +32,7 @@ public class TopicManagerTest {
   }
 
   @Test
-  public void newTopicCreationTest() {
+  public void newTopicCreationTest() throws IOException {
 
     Project project = new Project("project");
     Topic topicA = new Topic("topicA");
@@ -49,7 +50,7 @@ public class TopicManagerTest {
   }
 
   @Test
-  public void topicUpdateTest() {
+  public void topicUpdateTest() throws IOException {
 
     Project project = new Project("project");
     Topic topicA = new Topic("topicA");
@@ -70,7 +71,7 @@ public class TopicManagerTest {
   }
 
   @Test
-  public void topicDeleteTest() {
+  public void topicDeleteTest() throws IOException {
 
     // Original Topology
     Topology topology0 = new Topology();
