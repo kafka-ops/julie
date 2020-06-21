@@ -7,6 +7,8 @@ of fields between the team and the first project separator.
 * Add support for passing a directory, instead of a single file as topology. If a directory is passed, all topologies are expected to be from
 the same team and all subsequent projects will be at append one after the other.
 * Implement the necessary methods to pass back the status from the rbac modules, so the reply and clean up is possible with multiple runs
+* Added an option to use redis as external system to keep the acls status list. Now people can use either files or redis.
+Note in the future this subsystem should be externalised as plugins
 
 
 v0.11:
