@@ -233,6 +233,8 @@ public class KafkaTopologyBuilder {
 
   private static AdminClient buildKafkaAdminClient(Map<String, String> cliParams) {
     Properties props = buildProperties(cliParams);
+    // props.put("default.api.timeout.ms", 10000);
+    // props.put("request.timeout.ms", 10000);
     return AdminClient.create(props);
   }
 }

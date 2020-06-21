@@ -5,6 +5,7 @@ import com.purbon.kafka.topology.TopologyBuilderAdminClient;
 import com.purbon.kafka.topology.model.Project;
 import com.purbon.kafka.topology.model.Topic;
 import com.purbon.kafka.topology.model.Topology;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -53,7 +54,7 @@ public class TopicManagerIT {
   }
 
   @Test
-  public void testTopicCreation() throws ExecutionException, InterruptedException {
+  public void testTopicCreation() throws ExecutionException, InterruptedException, IOException {
     HashMap<String, String> config = new HashMap<>();
     config.put(TopicManager.NUM_PARTITIONS, "1");
     config.put(TopicManager.REPLICATION_FACTOR, "1");
@@ -80,7 +81,7 @@ public class TopicManagerIT {
   }
 
   @Test
-  public void testTopicDelete() throws ExecutionException, InterruptedException {
+  public void testTopicDelete() throws ExecutionException, InterruptedException, IOException {
 
     Project project = new Project("project");
     Topic topicA = new Topic("topicA");
@@ -116,7 +117,8 @@ public class TopicManagerIT {
   }
 
   @Test
-  public void testTopicCreationWithConfig() throws ExecutionException, InterruptedException {
+  public void testTopicCreationWithConfig()
+      throws ExecutionException, InterruptedException, IOException {
 
     HashMap<String, String> config = buildDummyTopicConfig();
     config.put("retention.bytes", "104857600"); // set the retention.bytes per partition to 100mb
@@ -135,7 +137,7 @@ public class TopicManagerIT {
   }
 
   @Test
-  public void testTopicConfigUpdate() throws ExecutionException, InterruptedException {
+  public void testTopicConfigUpdate() throws ExecutionException, InterruptedException, IOException {
 
     HashMap<String, String> config = buildDummyTopicConfig();
     config.put("retention.bytes", "104857600"); // set the retention.bytes per partition to 100mb

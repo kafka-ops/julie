@@ -3,12 +3,12 @@ package com.purbon.kafka.topology;
 import com.purbon.kafka.topology.adminclient.AclBuilder;
 import com.purbon.kafka.topology.model.Topic;
 import com.purbon.kafka.topology.roles.TopologyAclBinding;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -46,36 +46,33 @@ public class TopologyBuilderAdminClient {
     this.adminClient = adminClient;
   }
 
-  public Set<String> listTopics() {
-    Set<String> listOfTopics = new HashSet<>();
+  public Set<String> listTopics() throws IOException {
+    Set<String> listOfTopics;
     try {
       listOfTopics = adminClient.listTopics().names().get();
-    } catch (InterruptedException e) {
+    } catch (InterruptedException | ExecutionException e) {
       LOGGER.error(e);
-    } catch (ExecutionException e) {
-      LOGGER.error(e);
+      throw new IOException(e);
     }
     return listOfTopics;
   }
 
-  public void updateTopicConfig(Topic topic, String fullTopicName) {
-
+  public void updateTopicConfig(Topic topic, String fullTopicName) throws IOException {
     try {
       updateTopicConfigPostAK23(topic, fullTopicName);
-    } catch (ExecutionException ex) {
+    } catch (InterruptedException | ExecutionException ex) {
       LOGGER.error(ex);
-    } catch (InterruptedException ex) {
-      LOGGER.error(ex);
+      throw new IOException(ex);
     }
   }
 
-  public void clearAcls() {
+  public void clearAcls() throws IOException {
     Collection<AclBindingFilter> filters = new ArrayList<>();
     filters.add(AclBindingFilter.ANY);
     clearAcls(filters);
   }
 
-  public void clearAcls(TopologyAclBinding aclBinding) {
+  public void clearAcls(TopologyAclBinding aclBinding) throws IOException {
     Collection<AclBindingFilter> filters = new ArrayList<>();
 
     LOGGER.debug("clearAcl = " + aclBinding);
@@ -97,11 +94,12 @@ public class TopologyBuilderAdminClient {
     clearAcls(filters);
   }
 
-  private void clearAcls(Collection<AclBindingFilter> filters) {
+  private void clearAcls(Collection<AclBindingFilter> filters) throws IOException {
     try {
       adminClient.deleteAcls(filters).all().get();
-    } catch (Exception e) {
+    } catch (ExecutionException | InterruptedException e) {
       LOGGER.error(e);
+      throw new IOException(e);
     }
   }
 
@@ -146,7 +144,7 @@ public class TopologyBuilderAdminClient {
     return configs.get(resource);
   }
 
-  public void createTopic(Topic topic, String fullTopicName) {
+  public void createTopic(Topic topic, String fullTopicName) throws IOException {
 
     int numPartitions =
         Integer.parseInt(topic.getConfig().getOrDefault(TopicManager.NUM_PARTITIONS, "3"));
@@ -158,10 +156,9 @@ public class TopologyBuilderAdminClient {
     Collection<NewTopic> newTopics = Collections.singleton(newTopic);
     try {
       createAllTopics(newTopics);
-    } catch (InterruptedException e) {
+    } catch (ExecutionException | InterruptedException e) {
       LOGGER.error(e);
-    } catch (ExecutionException e) {
-      LOGGER.error(e);
+      throw new IOException(e);
     }
   }
 
@@ -170,13 +167,12 @@ public class TopologyBuilderAdminClient {
     adminClient.createTopics(newTopics).all().get();
   }
 
-  public void deleteTopics(Collection<String> topics) {
+  public void deleteTopics(Collection<String> topics) throws IOException {
     try {
       adminClient.deleteTopics(topics).all().get();
-    } catch (InterruptedException e) {
+    } catch (ExecutionException | InterruptedException e) {
       LOGGER.error(e);
-    } catch (ExecutionException e) {
-      LOGGER.error(e);
+      throw new IOException(e);
     }
   }
 
@@ -185,7 +181,7 @@ public class TopologyBuilderAdminClient {
    *
    * @return String, the current Kafka Protocol version
    */
-  private String findKafkaVersion() {
+  private String findKafkaVersion() throws IOException {
     ConfigResource resource = new ConfigResource(Type.BROKER, "inter.broker.protocol.version");
     String kafkaVersion = "";
     try {
@@ -193,15 +189,14 @@ public class TopologyBuilderAdminClient {
           adminClient.describeConfigs(Collections.singletonList(resource)).all().get();
       kafkaVersion =
           configs.get(resource).get("inter.broker.protocol.version").value().split("-")[0];
-    } catch (InterruptedException e) {
+    } catch (ExecutionException | InterruptedException e) {
       LOGGER.error(e);
-    } catch (ExecutionException e) {
-      LOGGER.error(e);
+      throw new IOException(e);
     }
     return kafkaVersion;
   }
 
-  public List<AclBinding> setAclsForProducer(String principal, String topic) {
+  public List<AclBinding> setAclsForProducer(String principal, String topic) throws IOException {
     List<AclBinding> acls = new ArrayList<>();
     acls.add(buildTopicLevelAcl(principal, topic, PatternType.LITERAL, AclOperation.DESCRIBE));
     acls.add(buildTopicLevelAcl(principal, topic, PatternType.LITERAL, AclOperation.WRITE));
@@ -209,7 +204,7 @@ public class TopologyBuilderAdminClient {
     return acls;
   }
 
-  public List<AclBinding> setAclsForConsumer(String principal, String topic) {
+  public List<AclBinding> setAclsForConsumer(String principal, String topic) throws IOException {
 
     List<AclBinding> acls = new ArrayList<>();
     acls.add(buildTopicLevelAcl(principal, topic, PatternType.LITERAL, AclOperation.DESCRIBE));
@@ -240,7 +235,7 @@ public class TopologyBuilderAdminClient {
     return acls;
   }
 
-  public List<AclBinding> setAclForSchemaRegistry(String principal) {
+  public List<AclBinding> setAclForSchemaRegistry(String principal) throws IOException {
     List<AclBinding> bindings =
         Arrays.asList(AclOperation.DESCRIBE_CONFIGS, AclOperation.WRITE, AclOperation.READ).stream()
             .map(
@@ -253,7 +248,8 @@ public class TopologyBuilderAdminClient {
     return bindings;
   }
 
-  public List<AclBinding> setAclsForControlCenter(String principal, String appId) {
+  public List<AclBinding> setAclsForControlCenter(String principal, String appId)
+      throws IOException {
     List<AclBinding> bindings = new ArrayList<>();
 
     bindings.add(buildGroupLevelAcl(principal, appId, PatternType.PREFIXED, AclOperation.READ));
@@ -295,7 +291,8 @@ public class TopologyBuilderAdminClient {
   }
 
   public List<AclBinding> setAclsForStreamsApp(
-      String principal, String topicPrefix, List<String> readTopics, List<String> writeTopics) {
+      String principal, String topicPrefix, List<String> readTopics, List<String> writeTopics)
+      throws IOException {
 
     List<AclBinding> acls = new ArrayList<>();
 
@@ -315,7 +312,8 @@ public class TopologyBuilderAdminClient {
   }
 
   public List<AclBinding> setAclsForConnect(
-      String principal, String topicPrefix, List<String> readTopics, List<String> writeTopics) {
+      String principal, String topicPrefix, List<String> readTopics, List<String> writeTopics)
+      throws IOException {
 
     List<AclBinding> acls = new ArrayList<>();
 
@@ -353,13 +351,12 @@ public class TopologyBuilderAdminClient {
     return acls;
   }
 
-  private void createAcls(Collection<AclBinding> acls) {
+  private void createAcls(Collection<AclBinding> acls) throws IOException {
     try {
       adminClient.createAcls(acls).all().get();
-    } catch (InterruptedException e) {
+    } catch (ExecutionException | InterruptedException e) {
       LOGGER.error(e);
-    } catch (ExecutionException e) {
-      LOGGER.error(e);
+      throw new IOException(e);
     }
   }
 

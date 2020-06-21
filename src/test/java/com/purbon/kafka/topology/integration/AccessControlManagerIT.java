@@ -14,6 +14,7 @@ import com.purbon.kafka.topology.model.users.KStream;
 import com.purbon.kafka.topology.model.users.Producer;
 import com.purbon.kafka.topology.model.users.SchemaRegistry;
 import com.purbon.kafka.topology.roles.SimpleAclsProvider;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -45,7 +46,7 @@ public class AccessControlManagerIT {
   private SimpleAclsProvider aclsProvider;
 
   @Before
-  public void before() {
+  public void before() throws IOException {
     kafkaAdminClient = AdminClient.create(config());
     TopologyBuilderAdminClient adminClient = new TopologyBuilderAdminClient(kafkaAdminClient);
     adminClient.clearAcls();
