@@ -66,6 +66,7 @@ What can you achieve with this tool:
     * Kafka Connect 
     * Kafka Streams applications ( microservices )
     * Schema Registry instances
+    * Confluent Control Center
 * Manage topic naming with a topic name convention
     * Including the definition of *projects*, *teams*, *datatypes* and for sure the topic name
     * Some of the topics are flexible defined by user requirements
@@ -80,7 +81,8 @@ More details and examples of the functionality can be found in the wiki.
 
 This tool is available in multiple formats:
 
-- As an RPM package
+- As an RPM package, for the RedHat alike distributions
+- As a DEB package, for Debian based distros
 - Directly as a fat jar (zip/tar.gz)
 
 The latest version are available from the [releases](https://github.com/purbon/kafka-topology-builder/releases) page.
