@@ -1,0 +1,96 @@
+#!/usr/bin/env bash
+
+set -e
+
+function usage {
+  echo "Illegal number of parameters"
+  echo "usage: acls-for-kafka-connect.sh [kafka-server-or-load-balancer] [command-config] [mode-of-operation] [operation] [topic-name]"
+  exit 1
+}
+
+function validate_parameters {
+  mode=$1
+  operation=$2
+
+  mode_array=( "default" "prefix" "literal" )
+
+  if [[ ! " ${mode_array[@]} " =~ " ${mode} " ]]; then
+      echo "usage: $mode is not valid, only valid values are prefix, literal."
+      exit 1
+  fi
+
+  operations_array=( "default" "Read" "Write" )
+
+  if [[ ! " ${operations_array[@]} " =~ " ${operation} " ]]; then
+      echo "usage: $operation is not valid, only valid values are Read, Write."
+      exit 1
+  fi
+}
+
+if [ $# -eq 0 ] || [ $# -gt 2 ] && [ $# -lt 5 ]
+then
+    usage
+fi
+
+
+
+KAFKA_SERVER=$1
+TLS_CONFIG_FILE=${2:-"/root/client.security"}
+MODE=${3:-"default"}
+OPERATION=${4:-"default"}
+TOPIC=${5:-"default"}
+
+validate_parameters $MODE $OPERATION
+
+BASE_CMD="kafka-acls --bootstrap-server $KAFKA_SERVER --command-config $TLS_CONFIG_FILE"
+# Set global ACLS
+
+function set_core_acls {
+
+  KAFKA_CONNECT_PRINCIPAL="KAFKA-CONNECT-$1"
+  ACTION="--add --allow-principal $KAFKA_CONNECT_PRINCIPAL"
+
+  $BASE_CMD $ACTION --operation Create --cluster
+  $BASE_CMD $ACTION --operation Read --group "*"
+  $BASE_CMD $ACTION --operation Read --topic connect-status
+  $BASE_CMD $ACTION --operation Read --topic connect-offsets
+  $BASE_CMD $ACTION --operation Read --topic connect-configs
+  $BASE_CMD $ACTION --operation Write --topic connect-status
+  $BASE_CMD $ACTION --operation Write --topic connect-offsets
+  $BASE_CMD $ACTION --operation Write --topic connect-configs
+}
+
+
+function set_topic_acls {
+
+  topic=$2
+  pattern="literal"
+  operation=$3
+
+  if [ "$MODE" == "prefix" ]; then
+    pattern="prefixed"
+  fi
+
+  KAFKA_CONNECT_PRINCIPAL="KAFKA-CONNECT-$1"
+  ACTION="--add --allow-principal $KAFKA_CONNECT_PRINCIPAL"
+
+  $BASE_CMD $ACTION --operation $operation --group "*" --topic $topic --resource-pattern-type $pattern
+}
+
+NODES=( "01" "02" )
+
+if [ "$MODE" == "default" ]; then
+  echo "Adding only core ACLS, Not applying topic level ACLS"
+  for node in "${NODES[@]}"
+  do
+    set_core_acls $node
+  done
+  exit 0
+else
+  echo "Applying topic level ACLs, so acls for the topics the connect will be using"
+  for node in "${NODES[@]}"
+  do
+    set_topic_acls $node $TOPIC $OPERATION
+  done
+  exit 0
+fi
