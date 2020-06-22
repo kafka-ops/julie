@@ -273,7 +273,7 @@ public class TopologyBuilderAdminClient {
         .map(
             aclOperation ->
                 buildTopicLevelAcl(
-                    principal, "_confluent-controlcenter", PatternType.PREFIXED, aclOperation))
+                    principal, appId, PatternType.PREFIXED, aclOperation))
         .forEach(aclBinding -> bindings.add(aclBinding));
 
     ResourcePattern resourcePattern =
