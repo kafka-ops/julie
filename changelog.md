@@ -10,6 +10,7 @@ the same team and all subsequent projects will be at append one after the other.
 * Added an option to use redis as external system to keep the acls status list. Now people can use either files or redis.
 Note in the future this subsystem should be externalised as plugins
 * raise up error handling in case of non available cluster
+* Make usage of the maven jdeb plugin to build a deb package to use in distributions such as Debian and relative like the Ubuntu family
 
 
 v0.11:
