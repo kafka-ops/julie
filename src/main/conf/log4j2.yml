@@ -7,12 +7,6 @@ Configuration:
       PatternLayout:
         Pattern: "[%-5level] %d{yyyy-MM-dd HH:mm:ss.SSS} [%t] %c{1} - %msg%n"
 
-    #File:
-    #  name: File
-    #  fileName: logs/app.log
-    #  PatternLayout:
-    #    Pattern: "%d %p %C{1.} [%t] %m%n"
-
     RollingFile:
     - name: LogToRollingFile
       fileName: logs/app.log
@@ -28,7 +22,7 @@ Configuration:
   Loggers:
     logger:
       - name: com.purbon.kafka
-        level: debug
+        level: info
         additivity: false
         AppenderRef:
           - ref: LogToConsole
@@ -46,6 +40,6 @@ Configuration:
           - ref: LogToConsole
           - ref: LogToRollingFile
     Root:
-      level: error
+      level: info
       AppenderRef:
         ref: LogToConsole
