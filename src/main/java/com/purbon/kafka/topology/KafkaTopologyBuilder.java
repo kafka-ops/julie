@@ -8,6 +8,7 @@ import static com.purbon.kafka.topology.TopologyBuilderConfig.ACCESS_CONTROL_IMP
 import static com.purbon.kafka.topology.TopologyBuilderConfig.MDS_KAFKA_CLUSTER_ID_CONFIG;
 import static com.purbon.kafka.topology.TopologyBuilderConfig.MDS_KC_CLUSTER_ID_CONFIG;
 import static com.purbon.kafka.topology.TopologyBuilderConfig.MDS_PASSWORD_CONFIG;
+import static com.purbon.kafka.topology.TopologyBuilderConfig.MDS_SERVER;
 import static com.purbon.kafka.topology.TopologyBuilderConfig.MDS_SR_CLUSTER_ID_CONFIG;
 import static com.purbon.kafka.topology.TopologyBuilderConfig.MDS_USER_CONFIG;
 import static com.purbon.kafka.topology.TopologyBuilderConfig.RBAC_ACCESS_CONTROL_CLASS;
@@ -82,7 +83,6 @@ public class KafkaTopologyBuilder {
         new AccessControlManager(aclsProvider, cs, cliParams);
 
     TopicManager topicManager = new TopicManager(builderAdminClient, cliParams);
-
     topicManager.sync(topology);
     accessControlManager.sync(topology);
     if (!quiteOut) {
@@ -165,7 +165,7 @@ public class KafkaTopologyBuilder {
     }
   }
 
-  private AccessControlProvider buildAccessControlProvider() throws IOException {
+  public AccessControlProvider buildAccessControlProvider() throws IOException {
     String accessControlClass =
         properties
             .getOrDefault(
@@ -181,7 +181,7 @@ public class KafkaTopologyBuilder {
         return (SimpleAclsProvider) constructor.newInstance(builderAdminClient);
       } else if (accessControlClass.equalsIgnoreCase(RBAC_ACCESS_CONTROL_CLASS)) {
 
-        String mdsServer = properties.getProperty(MDS_USER_CONFIG);
+        String mdsServer = properties.getProperty(MDS_SERVER);
         String mdsUser = properties.getProperty(MDS_USER_CONFIG);
         String mdsPassword = properties.getProperty(MDS_PASSWORD_CONFIG);
 
