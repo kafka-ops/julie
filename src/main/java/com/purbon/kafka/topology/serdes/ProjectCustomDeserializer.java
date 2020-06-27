@@ -48,26 +48,35 @@ public class ProjectCustomDeserializer extends StdDeserializer<Project> {
 
     JsonSerdesUtils<Consumer> consumerSerdes = new JsonSerdesUtils<>();
     JsonNode consumers = rootNode.get(CONSUMERS_KEY);
-    List<Consumer> consumersList =
-        consumerSerdes.parseApplicationUser(parser, consumers, Consumer.class);
-    project.setConsumers(consumersList);
+    if (consumers != null) {
+      List<Consumer> consumersList =
+          consumerSerdes.parseApplicationUser(parser, consumers, Consumer.class);
+      project.setConsumers(consumersList);
+    }
 
     JsonSerdesUtils<Producer> producerSerdes = new JsonSerdesUtils<>();
     JsonNode producers = rootNode.get(PRODUCERS_KEY);
-    List<Producer> producersList =
-        producerSerdes.parseApplicationUser(parser, producers, Producer.class);
-    project.setProducers(producersList);
+    if (producers != null) {
+      List<Producer> producersList =
+          producerSerdes.parseApplicationUser(parser, producers, Producer.class);
+      project.setProducers(producersList);
+    }
 
     JsonSerdesUtils<Connector> connectorSerdes = new JsonSerdesUtils<>();
     JsonNode connectors = rootNode.get(CONNECTORS_KEY);
-    List<Connector> connectorList =
-        connectorSerdes.parseApplicationUser(parser, connectors, Connector.class);
-    project.setConnectors(connectorList);
+    if (connectors != null) {
+      List<Connector> connectorList =
+          connectorSerdes.parseApplicationUser(parser, connectors, Connector.class);
+      project.setConnectors(connectorList);
+    }
 
     JsonSerdesUtils<KStream> streamsSerdes = new JsonSerdesUtils<>();
     JsonNode streams = rootNode.get(STREAMS_KEY);
-    List<KStream> streamsList = streamsSerdes.parseApplicationUser(parser, streams, KStream.class);
-    project.setStreams(streamsList);
+    if (streams != null) {
+      List<KStream> streamsList =
+          streamsSerdes.parseApplicationUser(parser, streams, KStream.class);
+      project.setStreams(streamsList);
+    }
 
     // Parser optional RBAC object, only there if using RBAC provider
     JsonNode rbacRootNode = rootNode.get(RBAC_KEY);

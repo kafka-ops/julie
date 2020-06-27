@@ -1,0 +1,27 @@
+---
+team: "team"
+source: "source"
+projects:
+  - name: "foo"
+    topics:
+      - name: "foo"
+        config:
+          replication.factor: "1"
+          num.partitions: "1"
+      - dataType: "avro"
+        name: "bar"
+        config:
+          replication.factor: "1"
+          num.partitions: "1"
+  - name: "bar"
+    zookeepers: []
+    consumers: []
+    producers: []
+    streams: []
+    connectors: []
+    topics:
+      - dataType: "avro"
+        name: "bar"
+        config:
+          replication.factor: "1"
+          num.partitions: "1"
