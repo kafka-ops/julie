@@ -1,6 +1,11 @@
 package com.purbon.kafka.topology;
 
 import static com.purbon.kafka.topology.BuilderCLI.BROKERS_OPTION;
+import static com.purbon.kafka.topology.TopologyBuilderConfig.ACCESS_CONTROL_IMPLEMENTATION_CLASS;
+import static com.purbon.kafka.topology.TopologyBuilderConfig.MDS_KAFKA_CLUSTER_ID_CONFIG;
+import static com.purbon.kafka.topology.TopologyBuilderConfig.MDS_PASSWORD_CONFIG;
+import static com.purbon.kafka.topology.TopologyBuilderConfig.MDS_SERVER;
+import static com.purbon.kafka.topology.TopologyBuilderConfig.MDS_USER_CONFIG;
 import static org.junit.Assert.assertEquals;
 
 import com.purbon.kafka.topology.model.Topology;
@@ -51,5 +56,23 @@ public class KafkaTopologyBuilderTest {
     Topology topology = builder.buildTopology(fileOrDirPath);
 
     assertEquals(4, topology.getProjects().size());
+  }
+
+  @Test
+  public void testRbacSetup() throws URISyntaxException, IOException {
+    URL dirOfDescriptors = getClass().getResource("/dir");
+    String fileOrDirPath = Paths.get(dirOfDescriptors.toURI()).toFile().toString();
+
+    props.put(ACCESS_CONTROL_IMPLEMENTATION_CLASS, "com.purbon.kafka.topology.roles.RBACProvider");
+    props.put(MDS_SERVER, "http://localhost:8090");
+    props.put(MDS_USER_CONFIG, "alice");
+    props.put(MDS_PASSWORD_CONFIG, "alice-secret");
+    props.put(MDS_KAFKA_CLUSTER_ID_CONFIG, "UtBZ3rTSRtypmmkAL1HbHw");
+
+    KafkaTopologyBuilder builder =
+        new KafkaTopologyBuilder(
+            fileOrDirPath, cliOps, new TopologySerdes(), props, topologyAdminClient, false);
+
+    builder.buildAccessControlProvider();
   }
 }
