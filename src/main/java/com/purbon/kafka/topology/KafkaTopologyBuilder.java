@@ -217,9 +217,8 @@ public class KafkaTopologyBuilder {
       } catch (IOException e) {
         // TODO: Can be ignored
       }
-    } else {
-      props.put(AdminClientConfig.BOOTSTRAP_SERVERS_CONFIG, cliParams.get(BROKERS_OPTION));
     }
+    props.put(AdminClientConfig.BOOTSTRAP_SERVERS_CONFIG, cliParams.get(BROKERS_OPTION));
     props.put(AdminClientConfig.RETRIES_CONFIG, Integer.MAX_VALUE);
 
     return props;
