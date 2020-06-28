@@ -117,6 +117,7 @@ public class BuilderCLI {
     config.put(ADMIN_CLIENT_CONFIG_OPTION, adminClientConfigFile);
     processTopology(topology, config);
     System.out.println("Kafka Topology updated");
+    exit(0);
   }
 
   private static void printHelpOrVersion(

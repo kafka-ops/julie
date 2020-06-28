@@ -8,7 +8,7 @@ public class TopologyBuilderConfig {
   public static final String ACCESS_CONTROL_DEFAULT_CLASS =
       "com.purbon.kafka.topology.roles.SimpleAclsProvider";
   public static final String RBAC_ACCESS_CONTROL_CLASS =
-      "\"com.purbon.kafka.topology.roles.RBACProvider";
+      "com.purbon.kafka.topology.roles.RBACProvider";
 
   public static final String STATE_PROCESSOR_IMPLEMENTATION_CLASS =
       "topology.builder.state.processor.class";

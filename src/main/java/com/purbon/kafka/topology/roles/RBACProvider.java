@@ -62,14 +62,14 @@ public class RBACProvider implements AccessControlProvider {
     bindings.add(secAdminBinding);
 
     apiClient.bind(principal, DEVELOPER_READ, topicPrefix, PREFIX);
-    if (readTopics != null && readTopics.isEmpty()) {
+    if (readTopics != null && !readTopics.isEmpty()) {
       readTopics.forEach(
           topic -> {
             TopologyAclBinding binding = apiClient.bind(principal, DEVELOPER_READ, topic, LITERAL);
             bindings.add(binding);
           });
     }
-    if (writeTopics != null && readTopics.isEmpty()) {
+    if (writeTopics != null && !writeTopics.isEmpty()) {
       writeTopics.forEach(
           topic -> {
             TopologyAclBinding binding = apiClient.bind(principal, DEVELOPER_WRITE, topic, LITERAL);

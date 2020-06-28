@@ -105,6 +105,13 @@
     </profile>
   </profiles>
 
+  <repositories>
+    <repository>
+      <id>confluent</id>
+      <url>https://packages.confluent.io/maven/</url>
+    </repository>
+  </repositories>
+
   <build>
     <finalName>${project.artifactId}</finalName>
     <plugins>
@@ -388,6 +395,8 @@
     <junit.version>4.12</junit.version>
     <testcontainers.version>1.13.0</testcontainers.version>
     <jedis.version>3.2.0</jedis.version>
+    <confluent.version>5.5.1-ce</confluent.version>
+    <jersey.version>2.22.2</jersey.version>
   </properties>
 
   <dependencies>
@@ -408,9 +417,14 @@
       <version>${zookeeper.version}</version>
     </dependency>
     <dependency>
-      <groupId>org.apache.kafka</groupId>
-      <artifactId>kafka-clients</artifactId>
-      <version>${kafka.version}</version>
+      <groupId>io.confluent</groupId>
+      <artifactId>kafka-client-plugins</artifactId>
+      <version>${confluent.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.glassfish.jersey.core</groupId>
+      <artifactId>jersey-common</artifactId>
+      <version>${jersey.version}</version>
     </dependency>
     <dependency>
       <groupId>com.fasterxml.jackson.core</groupId>
