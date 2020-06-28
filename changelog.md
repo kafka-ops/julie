@@ -1,4 +1,4 @@
-v0.12:
+v1.0.0-rc1:
 * Add support for platform wide acls for control center in teh topology description file.
 * Port support for schema registry and confluent control center roles in the rbac provider. Now the two providers are future pair.
 * Fix the usage of the source field, it should not be mandatory as the others list and the custom topology serdes can cover a dynamic list 
