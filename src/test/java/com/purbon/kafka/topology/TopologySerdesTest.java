@@ -1,6 +1,7 @@
 package com.purbon.kafka.topology;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 import com.purbon.kafka.topology.model.Project;
 import com.purbon.kafka.topology.model.Topic;
@@ -179,6 +180,18 @@ public class TopologySerdesTest {
     assertEquals(1, listOfC3.size());
     assertEquals("User:ControlCenter", listOfC3.get(0).getPrincipal());
     assertEquals("controlcenter", listOfC3.get(0).getAppId());
+  }
+
+  @Test
+  public void testOnlyTopics() throws URISyntaxException, IOException {
+
+    URL topologyDescriptor = getClass().getResource("/descriptor-only-topics.yaml");
+    Topology topology = parser.deserialise(Paths.get(topologyDescriptor.toURI()).toFile());
+
+    assertTrue(topology.getProjects().get(0).getConnectors().isEmpty());
+    assertTrue(topology.getProjects().get(0).getProducers().isEmpty());
+    assertTrue(topology.getProjects().get(0).getStreams().isEmpty());
+    assertTrue(topology.getProjects().get(0).getZookeepers().isEmpty());
   }
 
   private List<Project> buildProjects() {
