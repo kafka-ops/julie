@@ -11,7 +11,7 @@ the same team and all subsequent projects will be at append one after the other.
 Note in the future this subsystem should be externalised as plugins
 * raise up error handling in case of non available cluster
 * Make usage of the maven jdeb plugin to build a deb package to use in distributions such as Debian and relative like the Ubuntu family
-
+* Fix parser problem with non required parameters, such as the ones for the acls where an empty array had to be in place, now all principals for acls if not required can be ignored and will have no effect
 
 v0.11:
 * Add support for platform wide acls for schema registry in the topology description file.

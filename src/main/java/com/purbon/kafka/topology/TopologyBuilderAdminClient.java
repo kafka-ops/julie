@@ -272,8 +272,7 @@ public class TopologyBuilderAdminClient {
     Stream.of(AclOperation.WRITE, AclOperation.READ, AclOperation.CREATE, AclOperation.DESCRIBE)
         .map(
             aclOperation ->
-                buildTopicLevelAcl(
-                    principal, appId, PatternType.PREFIXED, aclOperation))
+                buildTopicLevelAcl(principal, appId, PatternType.PREFIXED, aclOperation))
         .forEach(aclBinding -> bindings.add(aclBinding));
 
     ResourcePattern resourcePattern =
