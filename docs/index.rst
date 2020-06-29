@@ -55,3 +55,4 @@ Contents
    core-concepts
    workflow-setup
    config-values
+   example-yaml

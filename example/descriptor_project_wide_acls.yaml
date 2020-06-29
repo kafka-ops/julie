@@ -1,0 +1,24 @@
+---
+# please read the docs for a detailed explanation fo the files:
+# https://kafka-topology-builder.readthedocs.io/example-files.html
+team: "planetexpress"
+source: "source"
+projects:
+  - name: "natas"
+    consumers:
+      - principal: "User: Bender"
+      - principal: "User: Fry"
+      - principal: "User: Lila"
+    producers:
+      - principal: "User: Bender"
+      - principal: "User: Lila"
+    topics:
+      - name: "foo"
+        config:
+          replication.factor: "1"
+          num.partitions: "1"
+      - dataType: "avro"
+        name: "bar"
+          config:
+            replication.factor: "1"
+            num.partitions: "1"
