@@ -2,6 +2,7 @@ package com.purbon.kafka.topology;
 
 import static com.purbon.kafka.topology.BuilderCLI.ALLOW_DELETE_OPTION;
 
+import com.purbon.kafka.topology.exceptions.ConfigurationException;
 import com.purbon.kafka.topology.model.DynamicUser;
 import com.purbon.kafka.topology.model.Platform;
 import com.purbon.kafka.topology.model.Project;
@@ -9,6 +10,7 @@ import com.purbon.kafka.topology.model.Topology;
 import com.purbon.kafka.topology.model.User;
 import com.purbon.kafka.topology.model.users.Connector;
 import com.purbon.kafka.topology.model.users.KStream;
+import com.purbon.kafka.topology.model.users.SchemaRegistry;
 import com.purbon.kafka.topology.roles.TopologyAclBinding;
 import java.io.IOException;
 import java.io.PrintStream;
@@ -106,17 +108,14 @@ public class AccessControlManager {
     clusterState.flushAndClose();
   }
 
-  private void syncPlatformAcls(final Topology topology) {
+  private void syncPlatformAcls(final Topology topology) throws ConfigurationException {
     // Sync platform relevant Access Control List.
     Platform platform = topology.getPlatform();
-    platform
-        .getSchemaRegistry()
-        .forEach(
-            schemaRegistry -> {
-              List<TopologyAclBinding> bindings =
-                  controlProvider.setAclsForSchemaRegistry(schemaRegistry.getPrincipal());
-              clusterState.update(bindings);
-            });
+    for (SchemaRegistry schemaRegistry : platform.getSchemaRegistry()) {
+      List<TopologyAclBinding> bindings =
+          controlProvider.setAclsForSchemaRegistry(schemaRegistry.getPrincipal());
+      clusterState.update(bindings);
+    }
 
     platform
         .getControlCenter()

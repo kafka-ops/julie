@@ -1,5 +1,6 @@
 package com.purbon.kafka.topology;
 
+import com.purbon.kafka.topology.exceptions.ConfigurationException;
 import com.purbon.kafka.topology.roles.TopologyAclBinding;
 import java.io.IOException;
 import java.util.Collection;
@@ -29,7 +30,7 @@ public interface AccessControlProvider {
 
   Map<String, List<TopologyAclBinding>> listAcls();
 
-  List<TopologyAclBinding> setAclsForSchemaRegistry(String principal);
+  List<TopologyAclBinding> setAclsForSchemaRegistry(String principal) throws ConfigurationException;
 
   List<TopologyAclBinding> setAclsForControlCenter(String principal, String appId);
 }

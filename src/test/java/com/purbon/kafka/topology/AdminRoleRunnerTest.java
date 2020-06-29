@@ -66,4 +66,28 @@ public class AdminRoleRunnerTest {
     AdminRoleRunner runner = new AdminRoleRunner("foo", SECURITY_ADMIN, apiClient);
     runner.forKafkaConnect();
   }
+
+  @Test
+  public void testWithAllClientIdsForSchemaRegistry() throws IOException {
+
+    when(apiClient.getClusterIds()).thenReturn(allClusterIds);
+
+    AdminRoleRunner runner = new AdminRoleRunner("foo", SECURITY_ADMIN, apiClient);
+    runner.forSchemaRegistry();
+
+    assertEquals("schema-registry", runner.getResourceName());
+
+    String connectClusterId = "4321";
+    Map<String, String> clusterIDs = (Map<String, String>) runner.getScope().get("clusters");
+    assertEquals(connectClusterId, clusterIDs.get(SCHEMA_REGISTRY_CLUSTER_ID_LABEL));
+  }
+
+  @Test(expected = ConfigurationException.class)
+  public void testWithMissingClientIdsForSchemaRegistry() throws IOException {
+
+    when(apiClient.getClusterIds()).thenReturn(noClusterIds);
+
+    AdminRoleRunner runner = new AdminRoleRunner("foo", SECURITY_ADMIN, apiClient);
+    runner.forSchemaRegistry();
+  }
 }

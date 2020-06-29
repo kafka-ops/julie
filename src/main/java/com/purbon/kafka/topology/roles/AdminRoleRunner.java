@@ -26,9 +26,11 @@ public class AdminRoleRunner {
     this.resourceName = "";
   }
 
-  public AdminRoleRunner forSchemaRegistry() {
+  public AdminRoleRunner forSchemaRegistry() throws ConfigurationException {
     Map<String, String> clusterIds = new HashMap<>();
     Map<String, String> allClusterIds = client.getClusterIds().get("clusters");
+    validateRequiredClusterLabels(
+        allClusterIds, KAFKA_CLUSTER_ID_LABEL, SCHEMA_REGISTRY_CLUSTER_ID_LABEL);
     clusterIds.put(KAFKA_CLUSTER_ID_LABEL, allClusterIds.get(KAFKA_CLUSTER_ID_LABEL));
     clusterIds.put(
         SCHEMA_REGISTRY_CLUSTER_ID_LABEL, allClusterIds.get(SCHEMA_REGISTRY_CLUSTER_ID_LABEL));

@@ -10,6 +10,7 @@ import com.purbon.kafka.topology.AccessControlProvider;
 import com.purbon.kafka.topology.ClusterState;
 import com.purbon.kafka.topology.api.mds.MDSApiClient;
 import com.purbon.kafka.topology.api.mds.RequestScope;
+import com.purbon.kafka.topology.exceptions.ConfigurationException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -165,7 +166,8 @@ public class RBACProvider implements AccessControlProvider {
   }
 
   @Override
-  public List<TopologyAclBinding> setAclsForSchemaRegistry(String principal) {
+  public List<TopologyAclBinding> setAclsForSchemaRegistry(String principal)
+      throws ConfigurationException {
     List<TopologyAclBinding> bindings = new ArrayList<>();
     TopologyAclBinding binding =
         apiClient.bind(principal, SECURITY_ADMIN).forSchemaRegistry().apply();
