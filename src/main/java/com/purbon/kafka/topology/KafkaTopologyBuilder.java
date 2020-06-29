@@ -21,6 +21,8 @@ import static com.purbon.kafka.topology.TopologyBuilderConfig.STATE_PROCESSOR_IM
 import com.purbon.kafka.topology.api.mds.MDSApiClient;
 import com.purbon.kafka.topology.clusterstate.FileSateProcessor;
 import com.purbon.kafka.topology.clusterstate.RedisSateProcessor;
+import com.purbon.kafka.topology.exceptions.ConfigurationException;
+import com.purbon.kafka.topology.model.Project;
 import com.purbon.kafka.topology.model.Topology;
 import com.purbon.kafka.topology.roles.RBACProvider;
 import com.purbon.kafka.topology.roles.SimpleAclsProvider;
@@ -77,6 +79,8 @@ public class KafkaTopologyBuilder {
 
     try {
       Topology topology = buildTopology(topologyFile);
+      validateConfiguration(topology, properties);
+
       AccessControlProvider aclsProvider = buildAccessControlProvider();
       ClusterState cs = buildStateProcessor();
 
@@ -239,5 +243,44 @@ public class KafkaTopologyBuilder {
     // props.put("default.api.timeout.ms", 10000);
     // props.put("request.timeout.ms", 10000);
     return AdminClient.create(props);
+  }
+
+  private void validateConfiguration(Topology topology, Properties properties)
+      throws ConfigurationException {
+
+    boolean isRbac =
+        properties
+            .getProperty(ACCESS_CONTROL_IMPLEMENTATION_CLASS)
+            .equalsIgnoreCase(RBAC_ACCESS_CONTROL_CLASS);
+    if (!isRbac) {
+      return;
+    }
+
+    raiseIfNull(MDS_SERVER, properties.getProperty(MDS_SERVER));
+    raiseIfNull(MDS_USER_CONFIG, properties.getProperty(MDS_USER_CONFIG));
+    raiseIfNull(MDS_PASSWORD_CONFIG, properties.getProperty(MDS_PASSWORD_CONFIG));
+
+    boolean hasSchemaRegistry = !topology.getPlatform().getSchemaRegistry().isEmpty();
+    boolean hasKafkaConnect = false;
+    List<Project> projects = topology.getProjects();
+    for (int i = 0; !hasKafkaConnect && i < projects.size(); i++) {
+      Project project = projects.get(i);
+      hasKafkaConnect = !project.getConnectors().isEmpty();
+    }
+
+    raiseIfNull(MDS_KAFKA_CLUSTER_ID_CONFIG, properties.getProperty(MDS_KAFKA_CLUSTER_ID_CONFIG));
+
+    if (hasSchemaRegistry) {
+      raiseIfNull(MDS_SR_CLUSTER_ID_CONFIG, properties.getProperty(MDS_SR_CLUSTER_ID_CONFIG));
+    } else if (hasKafkaConnect && properties.getProperty(MDS_KC_CLUSTER_ID_CONFIG) == null) {
+      raiseIfNull(MDS_KC_CLUSTER_ID_CONFIG, properties.getProperty(MDS_KC_CLUSTER_ID_CONFIG));
+    }
+  }
+
+  private void raiseIfNull(String key, String value) throws ConfigurationException {
+    if (value == null) {
+      throw new ConfigurationException(
+          "Required configuration " + key + " is missing, please add it to your configuration");
+    }
   }
 }
