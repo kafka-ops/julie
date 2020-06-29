@@ -5,6 +5,8 @@ import static com.purbon.kafka.topology.api.mds.MDSApiClient.KAFKA_CLUSTER_ID_LA
 import static com.purbon.kafka.topology.api.mds.MDSApiClient.SCHEMA_REGISTRY_CLUSTER_ID_LABEL;
 
 import com.purbon.kafka.topology.api.mds.MDSApiClient;
+import com.purbon.kafka.topology.exceptions.ConfigurationException;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -49,9 +51,10 @@ public class AdminRoleRunner {
     return this;
   }
 
-  public AdminRoleRunner forKafkaConnect() {
+  public AdminRoleRunner forKafkaConnect() throws IOException {
     Map<String, String> clusterIds = new HashMap<>();
     Map<String, String> allClusterIds = client.getClusterIds().get("clusters");
+    validateRequiredClusterLabels(allClusterIds, KAFKA_CLUSTER_ID_LABEL, CONNECT_CLUSTER_ID_LABEL);
     clusterIds.put(KAFKA_CLUSTER_ID_LABEL, allClusterIds.get(KAFKA_CLUSTER_ID_LABEL));
     clusterIds.put(CONNECT_CLUSTER_ID_LABEL, allClusterIds.get(CONNECT_CLUSTER_ID_LABEL));
 
@@ -60,5 +63,23 @@ public class AdminRoleRunner {
 
     this.resourceName = "kafka-connect";
     return this;
+  }
+
+  public Map<String, Object> getScope() {
+    return scope;
+  }
+
+  public String getResourceName() {
+    return resourceName;
+  }
+
+  private void validateRequiredClusterLabels(
+      Map<String, String> allClusterIds, String... clusterLabels) throws ConfigurationException {
+    for (String label : clusterLabels) {
+      if (allClusterIds.get(label) == null) {
+        throw new ConfigurationException(
+            "Required clusterID " + label + " is missing, please add it to your configuration");
+      }
+    }
   }
 }

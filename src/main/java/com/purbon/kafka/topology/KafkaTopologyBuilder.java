@@ -75,19 +75,23 @@ public class KafkaTopologyBuilder {
 
   public void run() throws IOException {
 
-    Topology topology = buildTopology(topologyFile);
-    AccessControlProvider aclsProvider = buildAccessControlProvider();
-    ClusterState cs = buildStateProcessor();
+    try {
+      Topology topology = buildTopology(topologyFile);
+      AccessControlProvider aclsProvider = buildAccessControlProvider();
+      ClusterState cs = buildStateProcessor();
 
-    AccessControlManager accessControlManager =
-        new AccessControlManager(aclsProvider, cs, cliParams);
+      AccessControlManager accessControlManager =
+          new AccessControlManager(aclsProvider, cs, cliParams);
 
-    TopicManager topicManager = new TopicManager(builderAdminClient, cliParams);
-    topicManager.sync(topology);
-    accessControlManager.sync(topology);
-    if (!quiteOut) {
-      topicManager.printCurrentState(System.out);
-      accessControlManager.printCurrentState(System.out);
+      TopicManager topicManager = new TopicManager(builderAdminClient, cliParams);
+      topicManager.sync(topology);
+      accessControlManager.sync(topology);
+      if (!quiteOut) {
+        topicManager.printCurrentState(System.out);
+        accessControlManager.printCurrentState(System.out);
+      }
+    } finally {
+      builderAdminClient.close();
     }
   }
 

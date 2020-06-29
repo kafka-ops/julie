@@ -4,11 +4,13 @@ import static com.purbon.kafka.topology.BuilderCLI.ALLOW_DELETE_OPTION;
 
 import com.purbon.kafka.topology.model.DynamicUser;
 import com.purbon.kafka.topology.model.Platform;
+import com.purbon.kafka.topology.model.Project;
 import com.purbon.kafka.topology.model.Topology;
 import com.purbon.kafka.topology.model.User;
 import com.purbon.kafka.topology.model.users.Connector;
 import com.purbon.kafka.topology.model.users.KStream;
 import com.purbon.kafka.topology.roles.TopologyAclBinding;
+import java.io.IOException;
 import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -65,49 +67,40 @@ public class AccessControlManager {
     }
   }
 
-  public void sync(final Topology topology) {
+  public void sync(final Topology topology) throws IOException {
 
     clearAcls();
 
-    topology
-        .getProjects()
-        .forEach(
-            project -> {
-              project
-                  .getTopics()
-                  .forEach(
-                      topic -> {
-                        final String fullTopicName = topic.toString();
+    for (Project project : topology.getProjects()) {
+      project
+          .getTopics()
+          .forEach(
+              topic -> {
+                final String fullTopicName = topic.toString();
 
-                        Collection<String> consumerPrincipals =
-                            extractUsersToPrincipals(project.getConsumers());
+                Collection<String> consumerPrincipals =
+                    extractUsersToPrincipals(project.getConsumers());
 
-                        List<TopologyAclBinding> consumerBindings =
-                            controlProvider.setAclsForConsumers(consumerPrincipals, fullTopicName);
-                        clusterState.update(consumerBindings);
+                List<TopologyAclBinding> consumerBindings =
+                    controlProvider.setAclsForConsumers(consumerPrincipals, fullTopicName);
+                clusterState.update(consumerBindings);
 
-                        Collection<String> producerPrincipals =
-                            extractUsersToPrincipals(project.getProducers());
-                        List<TopologyAclBinding> producerBindings =
-                            controlProvider.setAclsForProducers(producerPrincipals, fullTopicName);
-                        clusterState.update(producerBindings);
-                      });
-              // Setup global Kafka Stream Access control lists
-              String topicPrefix = project.buildTopicPrefix(topology);
-              project
-                  .getStreams()
-                  .forEach(
-                      app -> {
-                        syncApplicationAcls(app, topicPrefix);
-                      });
-              project
-                  .getConnectors()
-                  .forEach(
-                      connector -> {
-                        syncApplicationAcls(connector, topicPrefix);
-                      });
-              syncRbacRawRoles(project.getRbacRawRoles(), topicPrefix);
-            });
+                Collection<String> producerPrincipals =
+                    extractUsersToPrincipals(project.getProducers());
+                List<TopologyAclBinding> producerBindings =
+                    controlProvider.setAclsForProducers(producerPrincipals, fullTopicName);
+                clusterState.update(producerBindings);
+              });
+      // Setup global Kafka Stream Access control lists
+      String topicPrefix = project.buildTopicPrefix(topology);
+      for (KStream app : project.getStreams()) {
+        syncApplicationAcls(app, topicPrefix);
+      }
+      for (Connector connector : project.getConnectors()) {
+        syncApplicationAcls(connector, topicPrefix);
+      }
+      syncRbacRawRoles(project.getRbacRawRoles(), topicPrefix);
+    }
 
     syncPlatformAcls(topology);
     clusterState.flushAndClose();
@@ -144,7 +137,7 @@ public class AccessControlManager {
                     controlProvider.setPredefinedRole(principal, predefinedRole, topicPrefix)));
   }
 
-  private void syncApplicationAcls(DynamicUser app, String topicPrefix) {
+  private void syncApplicationAcls(DynamicUser app, String topicPrefix) throws IOException {
     List<String> readTopics = app.getTopics().get(KStream.READ_TOPICS);
     List<String> writeTopics = app.getTopics().get(KStream.WRITE_TOPICS);
     List<TopologyAclBinding> bindings = new ArrayList<>();

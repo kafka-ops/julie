@@ -10,6 +10,7 @@ import com.purbon.kafka.topology.AccessControlProvider;
 import com.purbon.kafka.topology.ClusterState;
 import com.purbon.kafka.topology.api.mds.MDSApiClient;
 import com.purbon.kafka.topology.api.mds.RequestScope;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -53,7 +54,8 @@ public class RBACProvider implements AccessControlProvider {
 
   @Override
   public List<TopologyAclBinding> setAclsForConnect(
-      String principal, String topicPrefix, List<String> readTopics, List<String> writeTopics) {
+      String principal, String topicPrefix, List<String> readTopics, List<String> writeTopics)
+      throws IOException {
 
     List<TopologyAclBinding> bindings = new ArrayList<>();
 
