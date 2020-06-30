@@ -1,8 +1,9 @@
 Example for a descriptor file
 *******************************
 
-The acutal topology will be defined then in a yaml file like the ones to be found in the example folder of the project.
-The following examples will try and explain the actual functionality a bit more in detail.
+The actual topology will be defined in one, or more yaml files.
+The following examples will explain the functionality a bit more in detail and
+can also be found in the example folder of the project.
 
 First Example - Deploying topics only
 -----------
@@ -17,20 +18,21 @@ The naming of actual topics follows this scheme:
 
 ``team_name = team + source(if given) + topic.name + topic.dataType(if given)``
 
-The config can contain any parameters that are allowed for topic-creation via admin-client (https://kafka.apache.org/documentation/#topicconfigs)
+The config can contain any parameters as described in the documentation
+(https://kafka.apache.org/documentation/#topicconfigs).
 
 In this very example you will get the following topics:
 
 - planetexpress.source.natas.foo
-- planetexpress.source.natas.avro
+- planetexpress.source.natas.bar.avro
 
 
-Second Example - Deploying topics with project wide ACLs
+Second Example - Deploying topics with ACLs
 -----------
 
-Going on step further one can also create project-wide ACLs for topics
+Going one step further one can also create ACLs for topics
 
-.. literalinclude:: ../example/descriptor_project_wide_acls.yaml
+.. literalinclude:: ../example/descriptor_topics_with_acls.yaml
   :language: YAML
 
 This descriptor will add the exact same topics as before.
