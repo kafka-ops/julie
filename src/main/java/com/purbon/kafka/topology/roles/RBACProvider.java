@@ -187,7 +187,7 @@ public class RBACProvider implements AccessControlProvider {
 
   @Override
   public Map<String, List<TopologyAclBinding>> listAcls() {
-    LOGGER.warn("Not implemented yet!");
+    LOGGER.info("Not implemented yet!");
     return new HashMap<>();
   }
 }
