@@ -1,5 +1,6 @@
 v1.0.0-rc2:
 * Check for required configuration values for the configuration of RBAC, if not present it raises a Configuration error
+* Update Log4j version to 2.13.3 to prevent CVE-2020-9488
 
 v1.0.0-rc1:
 * Add support for platform wide acls for control center in teh topology description file.
