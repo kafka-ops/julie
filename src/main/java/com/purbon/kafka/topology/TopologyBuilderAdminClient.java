@@ -374,4 +374,8 @@ public class TopologyBuilderAdminClient {
         .addControlEntry("*", op, AclPermissionType.ALLOW)
         .build();
   }
+
+  public void close() {
+    adminClient.close();
+  }
 }

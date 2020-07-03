@@ -9,6 +9,7 @@ import com.purbon.kafka.topology.model.Project;
 import com.purbon.kafka.topology.model.Topic;
 import com.purbon.kafka.topology.model.Topology;
 import com.purbon.kafka.topology.roles.RBACProvider;
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -34,7 +35,7 @@ public class AccessControlWithRBACTest {
   }
 
   @Test
-  public void testPredefinedRoles() {
+  public void testPredefinedRoles() throws IOException {
 
     Map<String, List<String>> predefinedRoles = new HashMap<>();
     predefinedRoles.put("ResourceOwner", Arrays.asList("User:Foo"));

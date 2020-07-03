@@ -43,51 +43,53 @@ public class KafkaTopologyBuilder {
 
   private final String topologyFile;
   private final TopologySerdes parser;
-  private final Properties properties;
   private final TopologyBuilderAdminClient builderAdminClient;
   private final boolean quiteOut;
-  private final Map<String, String> cliParams;
+  private final TopologyBuilderConfig config;
 
   public KafkaTopologyBuilder(String topologyFile, Map<String, String> cliParams) {
     this(
         topologyFile,
-        cliParams,
         new TopologySerdes(),
-        buildProperties(cliParams),
+        new TopologyBuilderConfig(cliParams, buildProperties(cliParams)),
         buildTopologyAdminClient(cliParams),
         Boolean.valueOf(cliParams.getOrDefault(QUITE_OPTION, "false")));
   }
 
   public KafkaTopologyBuilder(
       String topologyFile,
-      Map<String, String> cliParams,
       TopologySerdes parser,
-      Properties properties,
+      TopologyBuilderConfig config,
       TopologyBuilderAdminClient adminClient,
       boolean quiteOut) {
     this.topologyFile = topologyFile;
     this.parser = parser;
-    this.cliParams = cliParams;
-    this.properties = properties;
+    this.config = config;
     this.builderAdminClient = adminClient;
     this.quiteOut = quiteOut;
   }
 
   public void run() throws IOException {
 
-    Topology topology = buildTopology(topologyFile);
-    AccessControlProvider aclsProvider = buildAccessControlProvider();
-    ClusterState cs = buildStateProcessor();
+    try {
+      Topology topology = buildTopology(topologyFile);
+      config.validateWith(topology);
 
-    AccessControlManager accessControlManager =
-        new AccessControlManager(aclsProvider, cs, cliParams);
+      AccessControlProvider aclsProvider = buildAccessControlProvider();
+      ClusterState cs = buildStateProcessor();
 
-    TopicManager topicManager = new TopicManager(builderAdminClient, cliParams);
-    topicManager.sync(topology);
-    accessControlManager.sync(topology);
-    if (!quiteOut) {
-      topicManager.printCurrentState(System.out);
-      accessControlManager.printCurrentState(System.out);
+      AccessControlManager accessControlManager =
+          new AccessControlManager(aclsProvider, cs, config.params());
+
+      TopicManager topicManager = new TopicManager(builderAdminClient, config.params());
+      topicManager.sync(topology);
+      accessControlManager.sync(topology);
+      if (!quiteOut) {
+        topicManager.printCurrentState(System.out);
+        accessControlManager.printCurrentState(System.out);
+      }
+    } finally {
+      builderAdminClient.close();
     }
   }
 
@@ -146,7 +148,7 @@ public class KafkaTopologyBuilder {
   private ClusterState buildStateProcessor() throws IOException {
 
     String stateProcessorClass =
-        properties
+        config
             .getOrDefault(STATE_PROCESSOR_IMPLEMENTATION_CLASS, STATE_PROCESSOR_DEFAULT_CLASS)
             .toString();
 
@@ -154,8 +156,8 @@ public class KafkaTopologyBuilder {
       if (stateProcessorClass.equalsIgnoreCase(STATE_PROCESSOR_DEFAULT_CLASS)) {
         return new ClusterState(new FileSateProcessor());
       } else if (stateProcessorClass.equalsIgnoreCase(REDIS_STATE_PROCESSOR_CLASS)) {
-        String host = properties.getProperty(REDIS_HOST_CONFIG);
-        int port = Integer.valueOf(properties.getProperty(REDIS_PORT_CONFIG));
+        String host = config.getProperty(REDIS_HOST_CONFIG);
+        int port = Integer.valueOf(config.getProperty(REDIS_PORT_CONFIG));
         return new ClusterState(new RedisSateProcessor(host, port));
       } else {
         throw new IOException(stateProcessorClass + " Unknown state processor provided.");
@@ -167,7 +169,7 @@ public class KafkaTopologyBuilder {
 
   public AccessControlProvider buildAccessControlProvider() throws IOException {
     String accessControlClass =
-        properties
+        config
             .getOrDefault(
                 ACCESS_CONTROL_IMPLEMENTATION_CLASS,
                 "com.purbon.kafka.topology.roles.SimpleAclsProvider")
@@ -181,18 +183,18 @@ public class KafkaTopologyBuilder {
         return (SimpleAclsProvider) constructor.newInstance(builderAdminClient);
       } else if (accessControlClass.equalsIgnoreCase(RBAC_ACCESS_CONTROL_CLASS)) {
 
-        String mdsServer = properties.getProperty(MDS_SERVER);
-        String mdsUser = properties.getProperty(MDS_USER_CONFIG);
-        String mdsPassword = properties.getProperty(MDS_PASSWORD_CONFIG);
+        String mdsServer = config.getProperty(MDS_SERVER);
+        String mdsUser = config.getProperty(MDS_USER_CONFIG);
+        String mdsPassword = config.getProperty(MDS_PASSWORD_CONFIG);
 
         MDSApiClient apiClient = new MDSApiClient(mdsServer);
 
         // Pass Cluster IDS
-        String kafkaClusterID = properties.getProperty(MDS_KAFKA_CLUSTER_ID_CONFIG);
+        String kafkaClusterID = config.getProperty(MDS_KAFKA_CLUSTER_ID_CONFIG);
         apiClient.setKafkaClusterId(kafkaClusterID);
-        String schemaRegistryClusterID = properties.getProperty(MDS_SR_CLUSTER_ID_CONFIG);
+        String schemaRegistryClusterID = config.getProperty(MDS_SR_CLUSTER_ID_CONFIG);
         apiClient.setSchemaRegistryClusterID(schemaRegistryClusterID);
-        String kafkaConnectClusterID = properties.getProperty(MDS_KC_CLUSTER_ID_CONFIG);
+        String kafkaConnectClusterID = config.getProperty(MDS_KC_CLUSTER_ID_CONFIG);
         apiClient.setConnectClusterID(kafkaConnectClusterID);
 
         // Login and authenticate with the server
