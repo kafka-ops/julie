@@ -11,6 +11,7 @@ import com.purbon.kafka.topology.ClusterState;
 import com.purbon.kafka.topology.api.mds.MDSApiClient;
 import com.purbon.kafka.topology.api.mds.RequestScope;
 import com.purbon.kafka.topology.exceptions.ConfigurationException;
+import com.purbon.kafka.topology.model.users.SchemaRegistry;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -166,15 +167,17 @@ public class RBACProvider implements AccessControlProvider {
   }
 
   @Override
-  public List<TopologyAclBinding> setAclsForSchemaRegistry(String principal)
+  public List<TopologyAclBinding> setAclsForSchemaRegistry(SchemaRegistry schemaRegistry)
       throws ConfigurationException {
+    String principal = schemaRegistry.getPrincipal();
     List<TopologyAclBinding> bindings = new ArrayList<>();
     TopologyAclBinding binding =
         apiClient.bind(principal, SECURITY_ADMIN).forSchemaRegistry().apply();
     bindings.add(binding);
-    binding = apiClient.bind(principal, RESOURCE_OWNER, "_schemas", LITERAL);
+    binding = apiClient.bind(principal, RESOURCE_OWNER, schemaRegistry.getTopic(), LITERAL);
     bindings.add(binding);
-    binding = apiClient.bind(principal, RESOURCE_OWNER, "schema-registry", "Group", LITERAL);
+    binding =
+        apiClient.bind(principal, RESOURCE_OWNER, schemaRegistry.getGroup(), "Group", LITERAL);
     bindings.add(binding);
     return bindings;
   }

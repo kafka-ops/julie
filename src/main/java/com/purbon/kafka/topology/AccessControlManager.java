@@ -112,8 +112,7 @@ public class AccessControlManager {
     // Sync platform relevant Access Control List.
     Platform platform = topology.getPlatform();
     for (SchemaRegistry schemaRegistry : platform.getSchemaRegistry()) {
-      List<TopologyAclBinding> bindings =
-          controlProvider.setAclsForSchemaRegistry(schemaRegistry.getPrincipal());
+      List<TopologyAclBinding> bindings = controlProvider.setAclsForSchemaRegistry(schemaRegistry);
       clusterState.update(bindings);
     }
 

@@ -2,6 +2,7 @@ package com.purbon.kafka.topology;
 
 import com.purbon.kafka.topology.adminclient.AclBuilder;
 import com.purbon.kafka.topology.model.Topic;
+import com.purbon.kafka.topology.model.users.SchemaRegistry;
 import com.purbon.kafka.topology.roles.TopologyAclBinding;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -246,13 +247,17 @@ public class TopologyBuilderAdminClient {
     return acls;
   }
 
-  public List<AclBinding> setAclForSchemaRegistry(String principal) throws IOException {
+  public List<AclBinding> setAclForSchemaRegistry(SchemaRegistry schemaRegistry)
+      throws IOException {
     List<AclBinding> bindings =
         Arrays.asList(AclOperation.DESCRIBE_CONFIGS, AclOperation.WRITE, AclOperation.READ).stream()
             .map(
                 aclOperation -> {
                   return buildTopicLevelAcl(
-                      principal, "_schemas", PatternType.LITERAL, aclOperation);
+                      schemaRegistry.getPrincipal(),
+                      schemaRegistry.getTopic(),
+                      PatternType.LITERAL,
+                      aclOperation);
                 })
             .collect(Collectors.toList());
     createAcls(bindings);

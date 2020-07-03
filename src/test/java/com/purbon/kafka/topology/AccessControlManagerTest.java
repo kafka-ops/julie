@@ -144,11 +144,9 @@ public class AccessControlManagerTest {
 
     accessControlManager.sync(topology);
 
-    doReturn(new ArrayList<TopologyAclBinding>())
-        .when(aclsProvider)
-        .setAclsForSchemaRegistry("User:foo");
+    doReturn(new ArrayList<TopologyAclBinding>()).when(aclsProvider).setAclsForSchemaRegistry(sr);
 
-    verify(aclsProvider, times(1)).setAclsForSchemaRegistry("User:foo");
+    verify(aclsProvider, times(1)).setAclsForSchemaRegistry(sr);
   }
 
   @Test
