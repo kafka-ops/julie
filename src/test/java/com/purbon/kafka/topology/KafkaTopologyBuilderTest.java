@@ -51,7 +51,11 @@ public class KafkaTopologyBuilderTest {
 
     KafkaTopologyBuilder builder =
         new KafkaTopologyBuilder(
-            fileOrDirPath, cliOps, new TopologySerdes(), props, topologyAdminClient, false);
+            fileOrDirPath,
+            new TopologySerdes(),
+            new TopologyBuilderConfig(cliOps, props),
+            topologyAdminClient,
+            false);
 
     Topology topology = builder.buildTopology(fileOrDirPath);
 
@@ -71,7 +75,11 @@ public class KafkaTopologyBuilderTest {
 
     KafkaTopologyBuilder builder =
         new KafkaTopologyBuilder(
-            fileOrDirPath, cliOps, new TopologySerdes(), props, topologyAdminClient, false);
+            fileOrDirPath,
+            new TopologySerdes(),
+            new TopologyBuilderConfig(cliOps, props),
+            topologyAdminClient,
+            false);
 
     builder.buildAccessControlProvider();
   }
