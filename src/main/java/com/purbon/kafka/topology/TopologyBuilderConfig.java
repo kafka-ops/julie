@@ -3,11 +3,16 @@ package com.purbon.kafka.topology;
 import com.purbon.kafka.topology.exceptions.ConfigurationException;
 import com.purbon.kafka.topology.model.Project;
 import com.purbon.kafka.topology.model.Topology;
+import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
 public class TopologyBuilderConfig {
+
+  public static final String KAFKA_INTERNAL_TOPIC_PREFIXES = "kafka.internal.topic.prefixes";
+  public static final String KAFKA_INTERNAL_TOPIC_PREFIXES_DEFAULT = "_";
 
   public static final String ACCESS_CONTROL_IMPLEMENTATION_CLASS =
       "topology.builder.access.control.class";
@@ -40,6 +45,10 @@ public class TopologyBuilderConfig {
 
   private final Map<String, String> cliParams;
   private final Properties properties;
+
+  public TopologyBuilderConfig() {
+    this(new HashMap<>(), new Properties());
+  }
 
   public TopologyBuilderConfig(Map<String, String> cliParams, Properties properties) {
     this.cliParams = cliParams;
@@ -96,6 +105,11 @@ public class TopologyBuilderConfig {
 
   public String getProperty(String key) {
     return properties.getProperty(key);
+  }
+
+  public List<String> getPropertyAsList(String key, String def, String regexp) {
+    Object val = properties.getOrDefault(key, def);
+    return Arrays.asList(String.valueOf(val).split(regexp));
   }
 
   public Object getOrDefault(Object key, Object _default) {
