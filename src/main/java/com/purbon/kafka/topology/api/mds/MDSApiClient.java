@@ -198,17 +198,17 @@ public class MDSApiClient {
 
   public Map<String, Map<String, String>> getClusterIds() {
     HashMap<String, String> clusterIds = new HashMap<>();
-    if (!kafkaClusterID.isEmpty()) clusterIds.put(KAFKA_CLUSTER_ID_LABEL, kafkaClusterID);
-    if (!schemaRegistryClusterID.isEmpty())
-      clusterIds.put(SCHEMA_REGISTRY_CLUSTER_ID_LABEL, schemaRegistryClusterID);
-    if (!connectClusterID.isEmpty()) clusterIds.put(CONNECT_CLUSTER_ID_LABEL, connectClusterID);
-
-    // clusterIds.put("connect-cluster", "connect-cluster");
-    // clusterIds.put("ksql-cluster", "ksqlCluster");
+    setClusterID(clusterIds, KAFKA_CLUSTER_ID_LABEL, kafkaClusterID);
+    setClusterID(clusterIds, SCHEMA_REGISTRY_CLUSTER_ID_LABEL, schemaRegistryClusterID);
+    setClusterID(clusterIds, CONNECT_CLUSTER_ID_LABEL, connectClusterID);
 
     Map<String, Map<String, String>> clusters = new HashMap<>();
     clusters.put("clusters", clusterIds);
     return clusters;
+  }
+
+  private void setClusterID(Map<String, String> clusterIds, String label, String value) {
+    if (value != null && !value.isEmpty()) clusterIds.put(label, value);
   }
 
   private final CloseableHttpClient httpClient = HttpClients.createDefault();

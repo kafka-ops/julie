@@ -1,3 +1,6 @@
+v1.0.0-rc2:
+* Check for required configuration values for the configuration of RBAC, if not present it raises a Configuration error
+
 v1.0.0-rc1:
 * Add support for platform wide acls for control center in teh topology description file.
 * Port support for schema registry and confluent control center roles in the rbac provider. Now the two providers are future pair.

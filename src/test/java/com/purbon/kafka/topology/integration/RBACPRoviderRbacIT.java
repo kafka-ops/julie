@@ -62,7 +62,7 @@ public class RBACPRoviderRbacIT extends MDSBaseTest {
   }
 
   @Test
-  public void consumerAclsCreation() {
+  public void consumerAclsCreation() throws IOException {
 
     List<Consumer> consumers = new ArrayList<>();
     consumers.add(new Consumer("User:app1"));
@@ -85,7 +85,7 @@ public class RBACPRoviderRbacIT extends MDSBaseTest {
   }
 
   @Test
-  public void producerAclsCreation() {
+  public void producerAclsCreation() throws IOException {
 
     List<Producer> producers = new ArrayList<>();
     producers.add(new Producer("User:app2"));
@@ -108,7 +108,7 @@ public class RBACPRoviderRbacIT extends MDSBaseTest {
   }
 
   @Test
-  public void kstreamsAclsCreation() {
+  public void kstreamsAclsCreation() throws IOException {
     Project project = new Project();
 
     KStream app = new KStream();
@@ -131,7 +131,7 @@ public class RBACPRoviderRbacIT extends MDSBaseTest {
   }
 
   @Test
-  public void connectAclsCreation() {
+  public void connectAclsCreation() throws IOException {
     Project project = new Project();
 
     Connector connector = new Connector();
@@ -153,7 +153,7 @@ public class RBACPRoviderRbacIT extends MDSBaseTest {
   }
 
   @Test
-  public void schemaRegistryAclsCreation() {
+  public void schemaRegistryAclsCreation() throws IOException {
     Project project = new Project();
 
     Topology topology = new Topology();
@@ -179,7 +179,7 @@ public class RBACPRoviderRbacIT extends MDSBaseTest {
   }
 
   @Test
-  public void controlcenterAclsCreation() {
+  public void controlcenterAclsCreation() throws IOException {
     Project project = new Project();
 
     Topology topology = new Topology();

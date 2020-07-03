@@ -1,5 +1,12 @@
 package com.purbon.kafka.topology;
 
+import com.purbon.kafka.topology.exceptions.ConfigurationException;
+import com.purbon.kafka.topology.model.Project;
+import com.purbon.kafka.topology.model.Topology;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
+
 public class TopologyBuilderConfig {
 
   public static final String ACCESS_CONTROL_IMPLEMENTATION_CLASS =
@@ -30,4 +37,68 @@ public class TopologyBuilderConfig {
       "topology.builder.mds.schema.registry.cluster.id";
   public static final String MDS_KC_CLUSTER_ID_CONFIG =
       "topology.builder.mds.kafka.connect.cluster.id";
+
+  private final Map<String, String> cliParams;
+  private final Properties properties;
+
+  public TopologyBuilderConfig(Map<String, String> cliParams, Properties properties) {
+    this.cliParams = cliParams;
+    this.properties = properties;
+  }
+
+  public void validateWith(Topology topology) throws ConfigurationException {
+
+    raiseIfNull(ACCESS_CONTROL_IMPLEMENTATION_CLASS);
+
+    boolean isRbac =
+        properties
+            .getProperty(ACCESS_CONTROL_IMPLEMENTATION_CLASS)
+            .equalsIgnoreCase(RBAC_ACCESS_CONTROL_CLASS);
+    if (!isRbac) {
+      return;
+    }
+
+    raiseIfNull(MDS_SERVER, MDS_USER_CONFIG, MDS_PASSWORD_CONFIG);
+
+    boolean hasSchemaRegistry = !topology.getPlatform().getSchemaRegistry().isEmpty();
+    boolean hasKafkaConnect = false;
+    List<Project> projects = topology.getProjects();
+    for (int i = 0; !hasKafkaConnect && i < projects.size(); i++) {
+      Project project = projects.get(i);
+      hasKafkaConnect = !project.getConnectors().isEmpty();
+    }
+
+    raiseIfNull(MDS_KAFKA_CLUSTER_ID_CONFIG);
+
+    if (hasSchemaRegistry) {
+      raiseIfNull(MDS_SR_CLUSTER_ID_CONFIG);
+    } else if (hasKafkaConnect && properties.getProperty(MDS_KC_CLUSTER_ID_CONFIG) == null) {
+      raiseIfNull(MDS_KC_CLUSTER_ID_CONFIG);
+    }
+  }
+
+  private void raiseIfNull(String... keys) throws ConfigurationException {
+    for (String key : keys) {
+      raiseIfNull(key, properties.getProperty(key));
+    }
+  }
+
+  private void raiseIfNull(String key, String value) throws ConfigurationException {
+    if (value == null) {
+      throw new ConfigurationException(
+          "Required configuration " + key + " is missing, please add it to your configuration");
+    }
+  }
+
+  public Map<String, String> params() {
+    return cliParams;
+  }
+
+  public String getProperty(String key) {
+    return properties.getProperty(key);
+  }
+
+  public Object getOrDefault(Object key, Object _default) {
+    return properties.getOrDefault(key, _default);
+  }
 }

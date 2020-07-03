@@ -57,7 +57,7 @@ public class AccessControlManagerIT {
   }
 
   @Test
-  public void testAclsCleanup() throws ExecutionException, InterruptedException {
+  public void testAclsCleanup() throws ExecutionException, InterruptedException, IOException {
 
     // Crate an ACL outside of the control of the state manager.
     aclsProvider.setAclsForProducers(Collections.singleton("User:foo"), "bar");
@@ -90,7 +90,7 @@ public class AccessControlManagerIT {
   }
 
   @Test
-  public void consumerAclsCreation() throws ExecutionException, InterruptedException {
+  public void consumerAclsCreation() throws ExecutionException, InterruptedException, IOException {
 
     List<Consumer> consumers = new ArrayList<>();
     consumers.add(new Consumer("User:app1"));
@@ -111,7 +111,7 @@ public class AccessControlManagerIT {
   }
 
   @Test
-  public void producerAclsCreation() throws ExecutionException, InterruptedException {
+  public void producerAclsCreation() throws ExecutionException, InterruptedException, IOException {
 
     List<Producer> producers = new ArrayList<>();
     producers.add(new Producer("User:Producer1"));
@@ -132,7 +132,7 @@ public class AccessControlManagerIT {
   }
 
   @Test
-  public void kstreamsAclsCreation() throws ExecutionException, InterruptedException {
+  public void kstreamsAclsCreation() throws ExecutionException, InterruptedException, IOException {
     Project project = new Project();
 
     KStream app = new KStream();
@@ -154,7 +154,8 @@ public class AccessControlManagerIT {
   }
 
   @Test
-  public void schemaRegistryAclsCreation() throws ExecutionException, InterruptedException {
+  public void schemaRegistryAclsCreation()
+      throws ExecutionException, InterruptedException, IOException {
     Project project = new Project();
 
     Topology topology = new Topology();
@@ -179,7 +180,8 @@ public class AccessControlManagerIT {
   }
 
   @Test
-  public void controlcenterAclsCreation() throws ExecutionException, InterruptedException {
+  public void controlcenterAclsCreation()
+      throws ExecutionException, InterruptedException, IOException {
     Project project = new Project();
 
     Topology topology = new Topology();
@@ -201,7 +203,7 @@ public class AccessControlManagerIT {
   }
 
   @Test
-  public void connectAclsCreation() throws ExecutionException, InterruptedException {
+  public void connectAclsCreation() throws ExecutionException, InterruptedException, IOException {
     Project project = new Project();
 
     Connector connector = new Connector();
