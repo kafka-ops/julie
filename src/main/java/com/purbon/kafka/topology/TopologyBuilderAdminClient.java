@@ -2,6 +2,7 @@ package com.purbon.kafka.topology;
 
 import com.purbon.kafka.topology.adminclient.AclBuilder;
 import com.purbon.kafka.topology.model.Topic;
+import com.purbon.kafka.topology.model.users.Connector;
 import com.purbon.kafka.topology.model.users.SchemaRegistry;
 import com.purbon.kafka.topology.roles.TopologyAclBinding;
 import java.io.IOException;
@@ -331,13 +332,18 @@ public class TopologyBuilderAdminClient {
     return acls;
   }
 
-  public List<AclBinding> setAclsForConnect(
-      String principal, String topicPrefix, List<String> readTopics, List<String> writeTopics)
-      throws IOException {
+  public List<AclBinding> setAclsForConnect(Connector connector) throws IOException {
+
+    String principal = connector.getPrincipal();
+    List<String> readTopics = connector.getTopics().get("read");
+    List<String> writeTopics = connector.getTopics().get("write");
 
     List<AclBinding> acls = new ArrayList<>();
 
-    List<String> topics = Arrays.asList("connect-status", "connect-offsets", "connect-configs");
+    List<String> topics =
+        Arrays.asList(
+            connector.getStatus_topic(), connector.getOffset_topic(), connector.getConfigs_topic());
+
     for (String topic : topics) {
       acls.add(buildTopicLevelAcl(principal, topic, PatternType.LITERAL, AclOperation.READ));
       acls.add(buildTopicLevelAcl(principal, topic, PatternType.LITERAL, AclOperation.WRITE));

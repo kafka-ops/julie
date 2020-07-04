@@ -144,9 +144,7 @@ public class AccessControlManager {
           controlProvider.setAclsForStreamsApp(
               app.getPrincipal(), topicPrefix, readTopics, writeTopics);
     } else if (app instanceof Connector) {
-      bindings =
-          controlProvider.setAclsForConnect(
-              app.getPrincipal(), topicPrefix, readTopics, writeTopics);
+      bindings = controlProvider.setAclsForConnect((Connector) app, topicPrefix);
     }
     clusterState.update(bindings);
   }

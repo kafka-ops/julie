@@ -193,16 +193,8 @@ public class AccessControlManagerTest {
 
     doReturn(new ArrayList<TopologyAclBinding>())
         .when(aclsProvider)
-        .setAclsForConnect(
-            "User:Connect1",
-            topicPrefix,
-            topics.get(KStream.READ_TOPICS),
-            topics.get(KStream.WRITE_TOPICS));
-    verify(aclsProvider, times(1))
-        .setAclsForConnect(
-            eq("User:Connect1"),
-            eq(topicPrefix),
-            eq(topics.get(KStream.READ_TOPICS)),
-            eq(topics.get(KStream.WRITE_TOPICS)));
+        .setAclsForConnect(connector1, topicPrefix);
+
+    verify(aclsProvider, times(1)).setAclsForConnect(eq(connector1), eq(topicPrefix));
   }
 }

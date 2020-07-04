@@ -1,6 +1,7 @@
 package com.purbon.kafka.topology;
 
 import com.purbon.kafka.topology.exceptions.ConfigurationException;
+import com.purbon.kafka.topology.model.users.Connector;
 import com.purbon.kafka.topology.model.users.SchemaRegistry;
 import com.purbon.kafka.topology.roles.TopologyAclBinding;
 import java.io.IOException;
@@ -12,8 +13,7 @@ public interface AccessControlProvider {
 
   void clearAcls(ClusterState clusterState);
 
-  List<TopologyAclBinding> setAclsForConnect(
-      String principal, String topicPrefix, List<String> readTopics, List<String> writeTopics)
+  List<TopologyAclBinding> setAclsForConnect(Connector connector, String topicPrefix)
       throws IOException;
 
   List<TopologyAclBinding> setAclsForStreamsApp(

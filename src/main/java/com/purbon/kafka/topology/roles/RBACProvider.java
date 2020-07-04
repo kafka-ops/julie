@@ -11,6 +11,7 @@ import com.purbon.kafka.topology.ClusterState;
 import com.purbon.kafka.topology.api.mds.MDSApiClient;
 import com.purbon.kafka.topology.api.mds.RequestScope;
 import com.purbon.kafka.topology.exceptions.ConfigurationException;
+import com.purbon.kafka.topology.model.users.Connector;
 import com.purbon.kafka.topology.model.users.SchemaRegistry;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -55,9 +56,12 @@ public class RBACProvider implements AccessControlProvider {
   }
 
   @Override
-  public List<TopologyAclBinding> setAclsForConnect(
-      String principal, String topicPrefix, List<String> readTopics, List<String> writeTopics)
+  public List<TopologyAclBinding> setAclsForConnect(Connector connector, String topicPrefix)
       throws IOException {
+
+    String principal = connector.getPrincipal();
+    List<String> readTopics = connector.getTopics().get("read");
+    List<String> writeTopics = connector.getTopics().get("write");
 
     List<TopologyAclBinding> bindings = new ArrayList<>();
 
@@ -83,10 +87,10 @@ public class RBACProvider implements AccessControlProvider {
 
     String[] resources =
         new String[] {
-          "Topic:connect-configs",
-          "Topic:connect-offsets",
-          "Topic:connect-status",
-          "Group:connect-cluster",
+          "Topic:" + connector.getConfigs_topic(),
+          "Topic:" + connector.getOffset_topic(),
+          "Topic:" + connector.getStatus_topic(),
+          "Group:" + connector.getGroup(),
           "Group:secret-registry",
           "Topic:_confluent-secrets"
         };

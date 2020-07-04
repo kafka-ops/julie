@@ -17,6 +17,10 @@ projects:
             - "topicD"
     connectors:
       - principal: "User:Connect1"
+        group: "group"
+        status_topic: "status"
+        offset_topic: "offset"
+        configs_topic: "configs"
         topics:
           read:
             - "topicA"
