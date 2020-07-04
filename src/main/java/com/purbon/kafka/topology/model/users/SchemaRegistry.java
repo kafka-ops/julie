@@ -7,6 +7,10 @@ import java.util.Optional;
 
 public class SchemaRegistry extends User {
 
+  private static final String DEFAULT_SCHEMA_TOPIC = "_schemas";
+
+  private static final String DEFAULT_SCHEMA_REGISTRY_GROUP = "schema-registry";
+
   @JsonInclude(Include.NON_EMPTY)
   private Optional<String> topic;
 
@@ -27,7 +31,7 @@ public class SchemaRegistry extends User {
   }
 
   public String getTopic() {
-    return topic.orElse("_schemas");
+    return topic.orElse(DEFAULT_SCHEMA_TOPIC);
   }
 
   public void setTopic(Optional<String> topic) {
@@ -35,7 +39,7 @@ public class SchemaRegistry extends User {
   }
 
   public String getGroup() {
-    return group.orElse("schema-registry");
+    return group.orElse(DEFAULT_SCHEMA_REGISTRY_GROUP);
   }
 
   public void setGroup(Optional<String> group) {
