@@ -1,5 +1,7 @@
 package com.purbon.kafka.topology.integration;
 
+import static org.mockito.Mockito.when;
+
 import com.purbon.kafka.topology.AccessControlManager;
 import com.purbon.kafka.topology.ClusterState;
 import com.purbon.kafka.topology.TopologyBuilderAdminClient;
@@ -192,6 +194,11 @@ public class AccessControlManagerIT {
   @Test
   public void controlcenterAclsCreation()
       throws ExecutionException, InterruptedException, IOException {
+
+    when(config.getConfluentCommandTopic()).thenReturn("foo");
+    when(config.getConfluentMetricsTopic()).thenReturn("bar");
+    when(config.getConfluentMonitoringTopic()).thenReturn("zet");
+
     Project project = new Project();
 
     Topology topology = new Topology();
