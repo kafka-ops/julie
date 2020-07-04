@@ -3,6 +3,9 @@ v1.0.0-rc2:
 * Update Log4j version to 2.13.3 to prevent CVE-2020-9488
 * Add an option to not delete internal topics, including an option configure rules to filter internal topics that can't not be removed config with  _kafka.internal.topic.prefixes_,
 by default this filters all topics starting with underscore. Users can configure more than one filter in the property file.
+* Made internal topics for Kafka Connect, Schema Registry and Confluent Control Center configurable.
+By introducing this, users can now handle non-standard instances of Schema Registry or having for example more than
+a single Kafka Connect cluster (situation more than common).
 
 v1.0.0-rc1:
 * Add support for platform wide acls for control center in teh topology description file.
