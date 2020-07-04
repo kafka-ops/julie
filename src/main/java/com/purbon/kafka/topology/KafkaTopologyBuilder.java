@@ -52,7 +52,7 @@ public class KafkaTopologyBuilder {
         topologyFile,
         new TopologySerdes(),
         new TopologyBuilderConfig(cliParams, buildProperties(cliParams)),
-        buildTopologyAdminClient(cliParams),
+        buildTopologyAdminClient(new TopologyBuilderConfig(cliParams, buildProperties(cliParams))),
         Boolean.valueOf(cliParams.getOrDefault(QUITE_OPTION, "false")));
   }
 
@@ -226,10 +226,9 @@ public class KafkaTopologyBuilder {
     return props;
   }
 
-  private static TopologyBuilderAdminClient buildTopologyAdminClient(
-      Map<String, String> cliParams) {
-    AdminClient kafkaAdminClient = buildKafkaAdminClient(cliParams);
-    return new TopologyBuilderAdminClient(kafkaAdminClient);
+  private static TopologyBuilderAdminClient buildTopologyAdminClient(TopologyBuilderConfig config) {
+    AdminClient kafkaAdminClient = buildKafkaAdminClient(config.params());
+    return new TopologyBuilderAdminClient(kafkaAdminClient, config);
   }
 
   private static AdminClient buildKafkaAdminClient(Map<String, String> cliParams) {

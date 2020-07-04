@@ -4,6 +4,7 @@ import static org.junit.Assert.assertTrue;
 
 import com.purbon.kafka.topology.TopicManager;
 import com.purbon.kafka.topology.TopologyBuilderAdminClient;
+import com.purbon.kafka.topology.TopologyBuilderConfig;
 import com.purbon.kafka.topology.model.Project;
 import com.purbon.kafka.topology.model.Topic;
 import com.purbon.kafka.topology.model.Topology;
@@ -28,7 +29,11 @@ import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.BeforeClass;
+import org.junit.Rule;
 import org.junit.Test;
+import org.mockito.Mock;
+import org.mockito.junit.MockitoJUnit;
+import org.mockito.junit.MockitoRule;
 import org.testcontainers.containers.KafkaContainer;
 
 public class TopicManagerIT {
@@ -36,6 +41,10 @@ public class TopicManagerIT {
   private static KafkaContainer container;
   private TopicManager topicManager;
   private AdminClient kafkaAdminClient;
+
+  @Rule public MockitoRule mockitoRule = MockitoJUnit.rule();
+
+  @Mock private TopologyBuilderConfig config;
 
   @BeforeClass
   public static void setup() {
@@ -51,7 +60,8 @@ public class TopicManagerIT {
   @Before
   public void before() {
     kafkaAdminClient = AdminClient.create(config());
-    TopologyBuilderAdminClient adminClient = new TopologyBuilderAdminClient(kafkaAdminClient);
+    TopologyBuilderAdminClient adminClient =
+        new TopologyBuilderAdminClient(kafkaAdminClient, config);
 
     topicManager = new TopicManager(adminClient);
   }

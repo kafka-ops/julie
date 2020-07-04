@@ -43,9 +43,11 @@ public class TopologyBuilderAdminClient {
   private static final Logger LOGGER = LogManager.getLogger(TopologyBuilderAdminClient.class);
 
   private final AdminClient adminClient;
+  private final TopologyBuilderConfig config;
 
-  public TopologyBuilderAdminClient(AdminClient adminClient) {
+  public TopologyBuilderAdminClient(AdminClient adminClient, TopologyBuilderConfig config) {
     this.adminClient = adminClient;
+    this.config = config;
   }
 
   public Set<String> listTopics(ListTopicsOptions options) throws IOException {
@@ -272,7 +274,10 @@ public class TopologyBuilderAdminClient {
     bindings.add(
         buildGroupLevelAcl(principal, appId + "-command", PatternType.PREFIXED, AclOperation.READ));
 
-    Arrays.asList("_confluent-monitoring", "_confluent-command", " _confluent-metrics")
+    Arrays.asList(
+            config.getConfluentMonitoringTopic(),
+            config.getConfluentCommandTopic(),
+            config.getConfluentMetricsTopic())
         .forEach(
             topic ->
                 Stream.of(
