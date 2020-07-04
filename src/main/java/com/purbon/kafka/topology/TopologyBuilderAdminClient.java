@@ -355,7 +355,7 @@ public class TopologyBuilderAdminClient {
         new AccessControlEntry(principal, "*", AclOperation.CREATE, AclPermissionType.ALLOW);
     acls.add(new AclBinding(resourcePattern, entry));
 
-    resourcePattern = new ResourcePattern(ResourceType.GROUP, "*", PatternType.LITERAL);
+    resourcePattern = new ResourcePattern(ResourceType.GROUP, connector.getGroup(), PatternType.LITERAL);
     entry = new AccessControlEntry(principal, "*", AclOperation.READ, AclPermissionType.ALLOW);
     acls.add(new AclBinding(resourcePattern, entry));
 
