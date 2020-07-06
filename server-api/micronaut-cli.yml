@@ -1,0 +1,6 @@
+applicationType: default
+defaultPackage: com.purbon.kafka
+testFramework: junit
+sourceLanguage: java
+buildTool: maven
+features: [annotation-api, app-name, docker, file-watch, http-client, java, java-application, jmx, junit, kafka, log4j2, maven, netty-server, openapi, readme, shade, yaml]

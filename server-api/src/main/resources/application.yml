@@ -1,0 +1,4 @@
+micronaut:
+  application:
+    name: topologyBuilder
+kafka.bootstrap.servers: localhost:9092
