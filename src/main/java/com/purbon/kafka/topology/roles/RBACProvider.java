@@ -66,7 +66,7 @@ public class RBACProvider implements AccessControlProvider {
     List<TopologyAclBinding> bindings = new ArrayList<>();
 
     TopologyAclBinding secAdminBinding =
-        apiClient.bind(principal, SECURITY_ADMIN).forKafkaConnect().apply();
+        apiClient.bind(principal, SECURITY_ADMIN).forKafkaConnect(connector).apply();
     bindings.add(secAdminBinding);
 
     apiClient.bind(principal, DEVELOPER_READ, topicPrefix, PREFIX);

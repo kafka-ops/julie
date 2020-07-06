@@ -17,6 +17,7 @@ projects:
             - "topicD"
     connectors:
       - principal: "User:Connect1"
+        cluster_id: "foo"
         group: "group"
         status_topic: "status"
         offset_topic: "offset"

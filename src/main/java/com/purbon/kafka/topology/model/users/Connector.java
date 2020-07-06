@@ -14,6 +14,8 @@ public class Connector extends DynamicUser {
   private static final String DEFAULT_CONNECT_CONFIGS_TOPIC = "connect-configs";
   private static final String DEFAULT_CONNECT_GROUP = "connect-cluster";
 
+  private static final String DEFAULT_CONNECT_CLUSTER_ID = "connect-cluster";
+
   @JsonInclude(Include.NON_EMPTY)
   private Optional<String> status_topic;
 
@@ -26,6 +28,9 @@ public class Connector extends DynamicUser {
   @JsonInclude(Include.NON_EMPTY)
   private Optional<String> group;
 
+  @JsonInclude(Include.NON_EMPTY)
+  private Optional<String> cluster_id;
+
   public Connector() {
     this("");
   }
@@ -34,6 +39,7 @@ public class Connector extends DynamicUser {
     this(
         principal,
         new HashMap<>(),
+        Optional.empty(),
         Optional.empty(),
         Optional.empty(),
         Optional.empty(),
@@ -46,7 +52,8 @@ public class Connector extends DynamicUser {
       Optional<String> status_topic,
       Optional<String> offset_topic,
       Optional<String> configs_topic,
-      Optional<String> group) {
+      Optional<String> group,
+      Optional<String> cluster_id) {
 
     super(principal, topics);
 
@@ -54,6 +61,7 @@ public class Connector extends DynamicUser {
     this.status_topic = status_topic;
     this.offset_topic = offset_topic;
     this.group = group;
+    this.cluster_id = cluster_id;
   }
 
   public String getStatus_topic() {
@@ -86,5 +94,13 @@ public class Connector extends DynamicUser {
 
   public void setGroup(Optional<String> group) {
     this.group = group;
+  }
+
+  public Optional<String> getCluster_id() {
+    return cluster_id;
+  }
+
+  public void setCluster_id(Optional<String> cluster_id) {
+    this.cluster_id = cluster_id;
   }
 }
