@@ -19,6 +19,7 @@ import java.util.Map;
 import java.util.Properties;
 import org.apache.kafka.clients.admin.KafkaAdminClient;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -62,7 +63,7 @@ public class KafkaTopologyBuilderTest {
     assertEquals(4, topology.getProjects().size());
   }
 
-  @Test
+  @Ignore
   public void testRbacSetup() throws URISyntaxException, IOException {
     URL dirOfDescriptors = getClass().getResource("/dir");
     String fileOrDirPath = Paths.get(dirOfDescriptors.toURI()).toFile().toString();
