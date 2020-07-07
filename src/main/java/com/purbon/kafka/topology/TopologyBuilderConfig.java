@@ -1,13 +1,20 @@
 package com.purbon.kafka.topology;
 
+import static com.purbon.kafka.topology.BuilderCLI.ADMIN_CLIENT_CONFIG_OPTION;
+import static com.purbon.kafka.topology.BuilderCLI.BROKERS_OPTION;
+import static com.purbon.kafka.topology.BuilderCLI.QUITE_OPTION;
+
 import com.purbon.kafka.topology.exceptions.ConfigurationException;
 import com.purbon.kafka.topology.model.Project;
 import com.purbon.kafka.topology.model.Topology;
+import java.io.FileInputStream;
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import org.apache.kafka.clients.admin.AdminClientConfig;
 
 public class TopologyBuilderConfig {
 
@@ -57,6 +64,10 @@ public class TopologyBuilderConfig {
 
   public TopologyBuilderConfig() {
     this(new HashMap<>(), new Properties());
+  }
+
+  public TopologyBuilderConfig(Map<String, String> cliParams) {
+    this(cliParams, buildProperties(cliParams));
   }
 
   public TopologyBuilderConfig(Map<String, String> cliParams, Properties properties) {
@@ -141,5 +152,28 @@ public class TopologyBuilderConfig {
     return properties
         .getOrDefault(CONFLUENT_METRICS_TOPIC_CONFIG, CONFLUENT_METRICS_TOPIC_DEFAULT)
         .toString();
+  }
+
+  public boolean isQuite() {
+    return Boolean.valueOf(cliParams.getOrDefault(QUITE_OPTION, "false"));
+  }
+
+  private static Properties buildProperties(Map<String, String> cliParams) {
+    Properties props = new Properties();
+    if (cliParams.get(ADMIN_CLIENT_CONFIG_OPTION) != null) {
+      try {
+        props.load(new FileInputStream(cliParams.get(ADMIN_CLIENT_CONFIG_OPTION)));
+      } catch (IOException e) {
+        // TODO: Can be ignored
+      }
+    }
+    props.put(AdminClientConfig.BOOTSTRAP_SERVERS_CONFIG, cliParams.get(BROKERS_OPTION));
+    props.put(AdminClientConfig.RETRIES_CONFIG, Integer.MAX_VALUE);
+
+    return props;
+  }
+
+  public Properties getProperties() {
+    return this.properties;
   }
 }
