@@ -2,6 +2,7 @@ package com.purbon.kafka.topology;
 
 import static java.lang.System.exit;
 
+import com.purbon.kafka.topology.api.mds.MDSApiClientBuilder;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -150,8 +151,23 @@ public class BuilderCLI {
   private static void processTopology(String topologyFile, Map<String, String> config)
       throws IOException {
     verifyRequiredParameters(topologyFile, config);
-    KafkaTopologyBuilder builder = new KafkaTopologyBuilder(topologyFile, config);
-    builder.run();
+
+    TopologyBuilderConfig builderConfig = new TopologyBuilderConfig(config);
+    TopologyBuilderAdminClient adminClient =
+        new TopologyBuilderAdminClientBuilder(builderConfig).build();
+    AccessControlProviderFactory accessControlProviderFactory =
+        new AccessControlProviderFactory(
+            builderConfig, adminClient, new MDSApiClientBuilder(builderConfig));
+
+    KafkaTopologyBuilder builder =
+        new KafkaTopologyBuilder(
+            topologyFile, builderConfig, adminClient, accessControlProviderFactory.get());
+
+    try {
+      builder.run();
+    } finally {
+      adminClient.close();
+    }
   }
 
   private static void verifyRequiredParameters(String topologyFile, Map<String, String> config)

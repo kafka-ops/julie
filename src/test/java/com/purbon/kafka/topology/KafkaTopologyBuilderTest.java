@@ -1,15 +1,9 @@
 package com.purbon.kafka.topology;
 
 import static com.purbon.kafka.topology.BuilderCLI.BROKERS_OPTION;
-import static com.purbon.kafka.topology.TopologyBuilderConfig.ACCESS_CONTROL_IMPLEMENTATION_CLASS;
-import static com.purbon.kafka.topology.TopologyBuilderConfig.MDS_KAFKA_CLUSTER_ID_CONFIG;
-import static com.purbon.kafka.topology.TopologyBuilderConfig.MDS_PASSWORD_CONFIG;
-import static com.purbon.kafka.topology.TopologyBuilderConfig.MDS_SERVER;
-import static com.purbon.kafka.topology.TopologyBuilderConfig.MDS_USER_CONFIG;
 import static org.junit.Assert.assertEquals;
 
 import com.purbon.kafka.topology.model.Topology;
-import com.purbon.kafka.topology.serdes.TopologySerdes;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.net.URL;
@@ -17,9 +11,7 @@ import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
-import org.apache.kafka.clients.admin.KafkaAdminClient;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -28,9 +20,9 @@ import org.mockito.junit.MockitoRule;
 
 public class KafkaTopologyBuilderTest {
 
-  @Mock KafkaAdminClient kafkaAdminClient;
-
   @Mock TopologyBuilderAdminClient topologyAdminClient;
+
+  @Mock AccessControlProvider accessControlProvider;
 
   @Rule public MockitoRule mockitoRule = MockitoJUnit.rule();
 
@@ -50,38 +42,14 @@ public class KafkaTopologyBuilderTest {
     URL dirOfDescriptors = getClass().getResource("/dir");
     String fileOrDirPath = Paths.get(dirOfDescriptors.toURI()).toFile().toString();
 
+    TopologyBuilderConfig builderConfig = new TopologyBuilderConfig(cliOps);
+
     KafkaTopologyBuilder builder =
         new KafkaTopologyBuilder(
-            fileOrDirPath,
-            new TopologySerdes(),
-            new TopologyBuilderConfig(cliOps, props),
-            topologyAdminClient,
-            false);
+            fileOrDirPath, builderConfig, topologyAdminClient, accessControlProvider);
 
     Topology topology = builder.buildTopology(fileOrDirPath);
 
     assertEquals(4, topology.getProjects().size());
-  }
-
-  @Ignore
-  public void testRbacSetup() throws URISyntaxException, IOException {
-    URL dirOfDescriptors = getClass().getResource("/dir");
-    String fileOrDirPath = Paths.get(dirOfDescriptors.toURI()).toFile().toString();
-
-    props.put(ACCESS_CONTROL_IMPLEMENTATION_CLASS, "com.purbon.kafka.topology.roles.RBACProvider");
-    props.put(MDS_SERVER, "http://localhost:8090");
-    props.put(MDS_USER_CONFIG, "alice");
-    props.put(MDS_PASSWORD_CONFIG, "alice-secret");
-    props.put(MDS_KAFKA_CLUSTER_ID_CONFIG, "UtBZ3rTSRtypmmkAL1HbHw");
-
-    KafkaTopologyBuilder builder =
-        new KafkaTopologyBuilder(
-            fileOrDirPath,
-            new TopologySerdes(),
-            new TopologyBuilderConfig(cliOps, props),
-            topologyAdminClient,
-            false);
-
-    builder.buildAccessControlProvider();
   }
 }
