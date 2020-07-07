@@ -1,8 +1,11 @@
 package com.purbon.kafka.topology.integration;
 
+import static org.mockito.Mockito.when;
+
 import com.purbon.kafka.topology.AccessControlManager;
 import com.purbon.kafka.topology.ClusterState;
 import com.purbon.kafka.topology.TopologyBuilderAdminClient;
+import com.purbon.kafka.topology.TopologyBuilderConfig;
 import com.purbon.kafka.topology.model.Platform;
 import com.purbon.kafka.topology.model.Project;
 import com.purbon.kafka.topology.model.Topic;
@@ -36,7 +39,11 @@ import org.apache.kafka.common.resource.ResourcePatternFilter;
 import org.apache.kafka.common.resource.ResourceType;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.mockito.Mock;
+import org.mockito.junit.MockitoJUnit;
+import org.mockito.junit.MockitoRule;
 
 public class AccessControlManagerIT {
 
@@ -45,10 +52,15 @@ public class AccessControlManagerIT {
   private ClusterState cs;
   private SimpleAclsProvider aclsProvider;
 
+  @Rule public MockitoRule mockitoRule = MockitoJUnit.rule();
+
+  @Mock private TopologyBuilderConfig config;
+
   @Before
   public void before() throws IOException {
     kafkaAdminClient = AdminClient.create(config());
-    TopologyBuilderAdminClient adminClient = new TopologyBuilderAdminClient(kafkaAdminClient);
+    TopologyBuilderAdminClient adminClient =
+        new TopologyBuilderAdminClient(kafkaAdminClient, config);
     adminClient.clearAcls();
 
     cs = new ClusterState();
@@ -182,6 +194,11 @@ public class AccessControlManagerIT {
   @Test
   public void controlcenterAclsCreation()
       throws ExecutionException, InterruptedException, IOException {
+
+    when(config.getConfluentCommandTopic()).thenReturn("foo");
+    when(config.getConfluentMetricsTopic()).thenReturn("bar");
+    when(config.getConfluentMonitoringTopic()).thenReturn("zet");
+
     Project project = new Project();
 
     Topology topology = new Topology();

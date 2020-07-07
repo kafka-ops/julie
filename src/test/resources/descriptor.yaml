@@ -3,11 +3,9 @@ team: "team"
 source: "source"
 projects:
   - name: "foo"
-    zookeepers: []
     consumers:
       - principal: "User:App0"
       - principal: "User:App1"
-    producers: []
     streams:
       - principal: "User:App0"
         topics:
@@ -19,6 +17,11 @@ projects:
             - "topicD"
     connectors:
       - principal: "User:Connect1"
+        cluster_id: "foo"
+        group: "group"
+        status_topic: "status"
+        offset_topic: "offset"
+        configs_topic: "configs"
         topics:
           read:
             - "topicA"
@@ -39,11 +42,6 @@ projects:
           replication.factor: "1"
           num.partitions: "1"
   - name: "bar"
-    zookeepers: []
-    consumers: []
-    producers: []
-    streams: []
-    connectors: []
     topics:
       - dataType: "avro"
         name: "bar"
@@ -53,7 +51,10 @@ projects:
 platform:
   schema_registry:
     - principal: "User:SchemaRegistry01"
+      topic: "foo"
+      group: "bar"
     - principal: "User:SchemaRegistry02"
+      topic: "zet"
   control_center:
     - principal: "User:ControlCenter"
       appId: "controlcenter"

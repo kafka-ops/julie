@@ -11,6 +11,8 @@ import com.purbon.kafka.topology.ClusterState;
 import com.purbon.kafka.topology.api.mds.MDSApiClient;
 import com.purbon.kafka.topology.api.mds.RequestScope;
 import com.purbon.kafka.topology.exceptions.ConfigurationException;
+import com.purbon.kafka.topology.model.users.Connector;
+import com.purbon.kafka.topology.model.users.SchemaRegistry;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -54,14 +56,17 @@ public class RBACProvider implements AccessControlProvider {
   }
 
   @Override
-  public List<TopologyAclBinding> setAclsForConnect(
-      String principal, String topicPrefix, List<String> readTopics, List<String> writeTopics)
+  public List<TopologyAclBinding> setAclsForConnect(Connector connector, String topicPrefix)
       throws IOException {
+
+    String principal = connector.getPrincipal();
+    List<String> readTopics = connector.getTopics().get("read");
+    List<String> writeTopics = connector.getTopics().get("write");
 
     List<TopologyAclBinding> bindings = new ArrayList<>();
 
     TopologyAclBinding secAdminBinding =
-        apiClient.bind(principal, SECURITY_ADMIN).forKafkaConnect().apply();
+        apiClient.bind(principal, SECURITY_ADMIN).forKafkaConnect(connector).apply();
     bindings.add(secAdminBinding);
 
     apiClient.bind(principal, DEVELOPER_READ, topicPrefix, PREFIX);
@@ -82,10 +87,10 @@ public class RBACProvider implements AccessControlProvider {
 
     String[] resources =
         new String[] {
-          "Topic:connect-configs",
-          "Topic:connect-offsets",
-          "Topic:connect-status",
-          "Group:connect-cluster",
+          "Topic:" + connector.getConfigs_topic(),
+          "Topic:" + connector.getOffset_topic(),
+          "Topic:" + connector.getStatus_topic(),
+          "Group:" + connector.getGroup(),
           "Group:secret-registry",
           "Topic:_confluent-secrets"
         };
@@ -166,15 +171,17 @@ public class RBACProvider implements AccessControlProvider {
   }
 
   @Override
-  public List<TopologyAclBinding> setAclsForSchemaRegistry(String principal)
+  public List<TopologyAclBinding> setAclsForSchemaRegistry(SchemaRegistry schemaRegistry)
       throws ConfigurationException {
+    String principal = schemaRegistry.getPrincipal();
     List<TopologyAclBinding> bindings = new ArrayList<>();
     TopologyAclBinding binding =
         apiClient.bind(principal, SECURITY_ADMIN).forSchemaRegistry().apply();
     bindings.add(binding);
-    binding = apiClient.bind(principal, RESOURCE_OWNER, "_schemas", LITERAL);
+    binding = apiClient.bind(principal, RESOURCE_OWNER, schemaRegistry.getTopic(), LITERAL);
     bindings.add(binding);
-    binding = apiClient.bind(principal, RESOURCE_OWNER, "schema-registry", "Group", LITERAL);
+    binding =
+        apiClient.bind(principal, RESOURCE_OWNER, schemaRegistry.getGroup(), "Group", LITERAL);
     bindings.add(binding);
     return bindings;
   }
