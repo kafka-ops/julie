@@ -1,6 +1,8 @@
 package com.purbon.kafka.topology;
 
 import static com.purbon.kafka.topology.BuilderCLI.ALLOW_DELETE_OPTION;
+import static com.purbon.kafka.topology.TopologyBuilderConfig.KAFKA_INTERNAL_TOPIC_PREFIXES;
+import static com.purbon.kafka.topology.TopologyBuilderConfig.KAFKA_INTERNAL_TOPIC_PREFIXES_DEFAULT;
 
 import com.purbon.kafka.topology.model.Project;
 import com.purbon.kafka.topology.model.Topic;
@@ -8,11 +10,10 @@ import com.purbon.kafka.topology.model.Topology;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -24,23 +25,31 @@ public class TopicManager {
   public static final String REPLICATION_FACTOR = "replication.factor";
 
   private final TopologyBuilderAdminClient adminClient;
-  private final Map<String, String> cliParams;
+  private final TopologyBuilderConfig config;
   private final Boolean allowDelete;
+  private final List<String> internalTopicPrefixes;
 
   public TopicManager(TopologyBuilderAdminClient adminClient) {
-    this(adminClient, new HashMap<>());
+    this(adminClient, new TopologyBuilderConfig());
   }
 
-  public TopicManager(TopologyBuilderAdminClient adminClient, Map<String, String> cliParams) {
+  public TopicManager(TopologyBuilderAdminClient adminClient, TopologyBuilderConfig config) {
     this.adminClient = adminClient;
-    this.cliParams = cliParams;
-    this.allowDelete = Boolean.valueOf(cliParams.getOrDefault(ALLOW_DELETE_OPTION, "true"));
+    this.config = config;
+    this.allowDelete = Boolean.valueOf(config.params().getOrDefault(ALLOW_DELETE_OPTION, "true"));
+    this.internalTopicPrefixes =
+        config
+            .getPropertyAsList(
+                KAFKA_INTERNAL_TOPIC_PREFIXES, KAFKA_INTERNAL_TOPIC_PREFIXES_DEFAULT, ",")
+            .stream()
+            .map(s -> s.trim())
+            .collect(Collectors.toList());
   }
 
   public void sync(Topology topology) throws IOException {
 
-    // List all topics existing in the cluster
-    Set<String> listOfTopics = adminClient.listTopics();
+    // List all topics existing in the cluster, excluding internal topics
+    Set<String> listOfTopics = adminClient.listApplicationTopics();
 
     Set<String> updatedListOfTopics = new HashSet<>();
     // Foreach topic in the topology, sync it's content
@@ -67,13 +76,20 @@ public class TopicManager {
       List<String> topicsToBeDeleted = new ArrayList<>();
       listOfTopics.stream()
           .forEach(
-              originalTopic -> {
-                if (!updatedListOfTopics.contains(originalTopic)) {
-                  topicsToBeDeleted.add(originalTopic);
+              topic -> {
+                if (!updatedListOfTopics.contains(topic) && !isAnInternalTopics(topic)) {
+                  topicsToBeDeleted.add(topic);
                 }
               });
       adminClient.deleteTopics(topicsToBeDeleted);
     }
+  }
+
+  private boolean isAnInternalTopics(String topic) {
+    return internalTopicPrefixes.stream()
+        .map(prefix -> topic.startsWith(prefix))
+        .collect(Collectors.reducing((a, b) -> a || b))
+        .get();
   }
 
   public void syncTopic(Topic topic, String fullTopicName, Set<String> listOfTopics)

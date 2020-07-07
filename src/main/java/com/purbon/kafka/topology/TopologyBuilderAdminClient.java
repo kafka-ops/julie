@@ -20,6 +20,7 @@ import org.apache.kafka.clients.admin.AlterConfigOp;
 import org.apache.kafka.clients.admin.AlterConfigOp.OpType;
 import org.apache.kafka.clients.admin.Config;
 import org.apache.kafka.clients.admin.ConfigEntry;
+import org.apache.kafka.clients.admin.ListTopicsOptions;
 import org.apache.kafka.clients.admin.NewTopic;
 import org.apache.kafka.common.acl.AccessControlEntry;
 import org.apache.kafka.common.acl.AccessControlEntryFilter;
@@ -46,15 +47,25 @@ public class TopologyBuilderAdminClient {
     this.adminClient = adminClient;
   }
 
-  public Set<String> listTopics() throws IOException {
+  public Set<String> listTopics(ListTopicsOptions options) throws IOException {
     Set<String> listOfTopics;
     try {
-      listOfTopics = adminClient.listTopics().names().get();
+      listOfTopics = adminClient.listTopics(options).names().get();
     } catch (InterruptedException | ExecutionException e) {
       LOGGER.error(e);
       throw new IOException(e);
     }
     return listOfTopics;
+  }
+
+  public Set<String> listTopics() throws IOException {
+    return listTopics(new ListTopicsOptions());
+  }
+
+  public Set<String> listApplicationTopics() throws IOException {
+    ListTopicsOptions options = new ListTopicsOptions();
+    options.listInternal(false);
+    return listTopics(options);
   }
 
   public void updateTopicConfig(Topic topic, String fullTopicName) throws IOException {

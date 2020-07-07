@@ -81,7 +81,7 @@ public class KafkaTopologyBuilder {
       AccessControlManager accessControlManager =
           new AccessControlManager(aclsProvider, cs, config.params());
 
-      TopicManager topicManager = new TopicManager(builderAdminClient, config.params());
+      TopicManager topicManager = new TopicManager(builderAdminClient, config);
       topicManager.sync(topology);
       accessControlManager.sync(topology);
       if (!quiteOut) {
