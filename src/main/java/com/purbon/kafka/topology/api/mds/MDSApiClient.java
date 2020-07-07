@@ -58,24 +58,26 @@ public class MDSApiClient {
     return authenticationCredentials;
   }
 
-  public void authenticate() {
+  public void authenticate() throws IOException {
     HttpGet request = new HttpGet(mdsServer + "/security/1.0/authenticate");
     request.addHeader("accept", " application/json");
     request.addHeader("Authorization", "Basic " + basicCredentials);
 
-    try {
-      String responseAsString = get(request);
-      if (!responseAsString.isEmpty()) {
-        Map<String, Object> responseMap = JSON.toMap(responseAsString);
+    Response response;
 
-        authenticationCredentials =
-            new AuthenticationCredentials(
-                responseMap.get("auth_token").toString(),
-                responseMap.get("token_type").toString(),
-                Integer.valueOf(responseMap.get("expires_in").toString()));
+    try {
+      response = get(request);
+      if (response.getStatus() < 200 || response.getStatus() > 204) {
+        throw new IOException("MDS Authentication error: " + response.getResponseAsString());
       }
-    } catch (IOException e) {
-      e.printStackTrace();
+      authenticationCredentials =
+          new AuthenticationCredentials(
+              response.getField("auth_token").toString(),
+              response.getField("token_type").toString(),
+              Integer.valueOf(response.getField("expires_in").toString()));
+    } catch (Exception e) {
+      LOGGER.error(e);
+      throw new IOException(e);
     }
   }
 
@@ -181,7 +183,7 @@ public class MDSApiClient {
         roles = JSON.toArray(stringResponse);
       }
     } catch (IOException e) {
-      e.printStackTrace();
+      LOGGER.error(e);
     }
 
     return roles;
@@ -213,19 +215,11 @@ public class MDSApiClient {
 
   private final CloseableHttpClient httpClient = HttpClients.createDefault();
 
-  private String get(HttpGet request) throws IOException {
+  private Response get(HttpGet request) throws IOException {
     LOGGER.debug("GET.request: " + request);
-
     try (CloseableHttpResponse response = httpClient.execute(request)) {
       LOGGER.debug("GET.response: " + response);
-      HttpEntity entity = response.getEntity();
-      // Header headers = entity.getContentType();
-      String result = "";
-      if (entity != null) {
-        result = EntityUtils.toString(entity);
-      }
-
-      return result;
+      return new Response(response);
     }
   }
 

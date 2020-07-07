@@ -1,5 +1,7 @@
 package com.purbon.kafka.topology.integration;
 
+import static org.junit.Assert.assertTrue;
+
 import com.purbon.kafka.topology.TopicManager;
 import com.purbon.kafka.topology.TopologyBuilderAdminClient;
 import com.purbon.kafka.topology.model.Project;
@@ -19,6 +21,7 @@ import java.util.concurrent.ExecutionException;
 import org.apache.kafka.clients.admin.AdminClient;
 import org.apache.kafka.clients.admin.AdminClientConfig;
 import org.apache.kafka.clients.admin.Config;
+import org.apache.kafka.clients.admin.NewTopic;
 import org.apache.kafka.common.config.ConfigResource;
 import org.apache.kafka.common.config.ConfigResource.Type;
 import org.junit.AfterClass;
@@ -92,6 +95,8 @@ public class TopicManagerIT {
     topicB.setConfig(buildDummyTopicConfig());
     project.addTopic(topicB);
 
+    String internalTopic = createInternalTopic();
+
     Topology topology = new Topology();
     topology.setTeam("testTopicDelete-test");
     topology.addProject(project);
@@ -100,7 +105,6 @@ public class TopicManagerIT {
 
     Topic topicC = new Topic("topicC");
     topicC.setConfig(buildDummyTopicConfig());
-    project.addTopic(topicB);
 
     topology = new Topology();
     topology.setTeam("testTopicDelete-test");
@@ -113,7 +117,21 @@ public class TopicManagerIT {
 
     topicManager.sync(topology);
 
-    verifyTopics(Arrays.asList(topicA.toString(), topicC.toString()));
+    verifyTopics(Arrays.asList(topicA.toString(), internalTopic, topicC.toString()));
+  }
+
+  private String createInternalTopic() {
+
+    String topic = "_internal-topic";
+    NewTopic newTopic = new NewTopic(topic, 1, (short) 1);
+
+    try {
+      kafkaAdminClient.createTopics(Collections.singleton(newTopic)).all().get();
+    } catch (Exception e) {
+      e.printStackTrace();
+    }
+
+    return topic;
   }
 
   @Test
@@ -207,8 +225,16 @@ public class TopicManagerIT {
   private void verifyTopics(List<String> topics) throws ExecutionException, InterruptedException {
 
     Set<String> topicNames = kafkaAdminClient.listTopics().names().get();
-
-    topics.forEach(topic -> Assert.assertTrue(topicNames.contains(topic)));
+    topics.forEach(
+        topic -> assertTrue("Topic " + topic + " not found", topicNames.contains(topic)));
+    boolean isInternal = false;
+    for (String topic : topicNames) {
+      if (topic.startsWith("_")) {
+        isInternal = true;
+        break;
+      }
+    }
+    assertTrue("Internal topics not found", isInternal);
   }
 
   private Properties config() {
