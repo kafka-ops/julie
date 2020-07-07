@@ -6,9 +6,11 @@ import static com.purbon.kafka.topology.api.mds.MDSApiClient.SCHEMA_REGISTRY_CLU
 
 import com.purbon.kafka.topology.api.mds.MDSApiClient;
 import com.purbon.kafka.topology.exceptions.ConfigurationException;
+import com.purbon.kafka.topology.model.users.Connector;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
 public class AdminRoleRunner {
 
@@ -53,12 +55,19 @@ public class AdminRoleRunner {
     return this;
   }
 
-  public AdminRoleRunner forKafkaConnect() throws IOException {
+  public AdminRoleRunner forKafkaConnect(Connector connector) throws IOException {
     Map<String, String> clusterIds = new HashMap<>();
     Map<String, String> allClusterIds = client.getClusterIds().get("clusters");
+    validateRequiredClusterLabels(allClusterIds, KAFKA_CLUSTER_ID_LABEL);
+
+    Optional<String> connectClusterIdOptional = connector.getCluster_id();
     validateRequiredClusterLabels(allClusterIds, KAFKA_CLUSTER_ID_LABEL, CONNECT_CLUSTER_ID_LABEL);
+
+    String connectClusterID =
+        connectClusterIdOptional.orElse(allClusterIds.get(CONNECT_CLUSTER_ID_LABEL));
+
     clusterIds.put(KAFKA_CLUSTER_ID_LABEL, allClusterIds.get(KAFKA_CLUSTER_ID_LABEL));
-    clusterIds.put(CONNECT_CLUSTER_ID_LABEL, allClusterIds.get(CONNECT_CLUSTER_ID_LABEL));
+    clusterIds.put(CONNECT_CLUSTER_ID_LABEL, connectClusterID);
 
     scope.clear();
     scope.put("clusters", clusterIds);

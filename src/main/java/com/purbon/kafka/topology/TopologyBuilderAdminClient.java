@@ -2,6 +2,8 @@ package com.purbon.kafka.topology;
 
 import com.purbon.kafka.topology.adminclient.AclBuilder;
 import com.purbon.kafka.topology.model.Topic;
+import com.purbon.kafka.topology.model.users.Connector;
+import com.purbon.kafka.topology.model.users.SchemaRegistry;
 import com.purbon.kafka.topology.roles.TopologyAclBinding;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -42,9 +44,11 @@ public class TopologyBuilderAdminClient {
   private static final Logger LOGGER = LogManager.getLogger(TopologyBuilderAdminClient.class);
 
   private final AdminClient adminClient;
+  private final TopologyBuilderConfig config;
 
-  public TopologyBuilderAdminClient(AdminClient adminClient) {
+  public TopologyBuilderAdminClient(AdminClient adminClient, TopologyBuilderConfig config) {
     this.adminClient = adminClient;
+    this.config = config;
   }
 
   public Set<String> listTopics(ListTopicsOptions options) throws IOException {
@@ -246,13 +250,17 @@ public class TopologyBuilderAdminClient {
     return acls;
   }
 
-  public List<AclBinding> setAclForSchemaRegistry(String principal) throws IOException {
+  public List<AclBinding> setAclForSchemaRegistry(SchemaRegistry schemaRegistry)
+      throws IOException {
     List<AclBinding> bindings =
         Arrays.asList(AclOperation.DESCRIBE_CONFIGS, AclOperation.WRITE, AclOperation.READ).stream()
             .map(
                 aclOperation -> {
                   return buildTopicLevelAcl(
-                      principal, "_schemas", PatternType.LITERAL, aclOperation);
+                      schemaRegistry.getPrincipal(),
+                      schemaRegistry.getTopic(),
+                      PatternType.LITERAL,
+                      aclOperation);
                 })
             .collect(Collectors.toList());
     createAcls(bindings);
@@ -267,7 +275,10 @@ public class TopologyBuilderAdminClient {
     bindings.add(
         buildGroupLevelAcl(principal, appId + "-command", PatternType.PREFIXED, AclOperation.READ));
 
-    Arrays.asList("_confluent-monitoring", "_confluent-command", " _confluent-metrics")
+    Arrays.asList(
+            config.getConfluentMonitoringTopic(),
+            config.getConfluentCommandTopic(),
+            config.getConfluentMetricsTopic())
         .forEach(
             topic ->
                 Stream.of(
@@ -321,13 +332,18 @@ public class TopologyBuilderAdminClient {
     return acls;
   }
 
-  public List<AclBinding> setAclsForConnect(
-      String principal, String topicPrefix, List<String> readTopics, List<String> writeTopics)
-      throws IOException {
+  public List<AclBinding> setAclsForConnect(Connector connector) throws IOException {
+
+    String principal = connector.getPrincipal();
+    List<String> readTopics = connector.getTopics().get("read");
+    List<String> writeTopics = connector.getTopics().get("write");
 
     List<AclBinding> acls = new ArrayList<>();
 
-    List<String> topics = Arrays.asList("connect-status", "connect-offsets", "connect-configs");
+    List<String> topics =
+        Arrays.asList(
+            connector.getStatus_topic(), connector.getOffset_topic(), connector.getConfigs_topic());
+
     for (String topic : topics) {
       acls.add(buildTopicLevelAcl(principal, topic, PatternType.LITERAL, AclOperation.READ));
       acls.add(buildTopicLevelAcl(principal, topic, PatternType.LITERAL, AclOperation.WRITE));
@@ -339,7 +355,8 @@ public class TopologyBuilderAdminClient {
         new AccessControlEntry(principal, "*", AclOperation.CREATE, AclPermissionType.ALLOW);
     acls.add(new AclBinding(resourcePattern, entry));
 
-    resourcePattern = new ResourcePattern(ResourceType.GROUP, "*", PatternType.LITERAL);
+    resourcePattern =
+        new ResourcePattern(ResourceType.GROUP, connector.getGroup(), PatternType.LITERAL);
     entry = new AccessControlEntry(principal, "*", AclOperation.READ, AclPermissionType.ALLOW);
     acls.add(new AclBinding(resourcePattern, entry));
 

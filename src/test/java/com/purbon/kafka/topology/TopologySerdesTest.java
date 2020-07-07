@@ -173,6 +173,8 @@ public class TopologySerdesTest {
     List<SchemaRegistry> listOfSR = topology.getPlatform().getSchemaRegistry();
     assertEquals(2, listOfSR.size());
     assertEquals("User:SchemaRegistry01", listOfSR.get(0).getPrincipal());
+    assertEquals("foo", listOfSR.get(0).getTopic());
+    assertEquals("bar", listOfSR.get(0).getGroup());
     assertEquals("User:SchemaRegistry02", listOfSR.get(1).getPrincipal());
 
     List<ControlCenter> listOfC3 = topology.getPlatform().getControlCenter();

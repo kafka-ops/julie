@@ -9,11 +9,13 @@ import static org.mockito.Mockito.when;
 
 import com.purbon.kafka.topology.api.mds.MDSApiClient;
 import com.purbon.kafka.topology.exceptions.ConfigurationException;
+import com.purbon.kafka.topology.model.users.Connector;
 import com.purbon.kafka.topology.roles.AdminRoleRunner;
 import java.io.IOException;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Rule;
 import org.junit.Test;
@@ -29,9 +31,10 @@ public class AdminRoleRunnerTest {
 
   private static Map<String, Map<String, String>> allClusterIds;
   private static Map<String, Map<String, String>> noClusterIds;
+  private Connector connector;
 
   @BeforeClass
-  public static void before() {
+  public static void beforeClass() {
 
     Map<String, String> allIds = new HashMap<>();
 
@@ -43,13 +46,18 @@ public class AdminRoleRunnerTest {
     noClusterIds = Collections.singletonMap("clusters", new HashMap<>());
   }
 
+  @Before
+  public void before() {
+    connector = new Connector();
+  }
+
   @Test
   public void testWithAllClientIdsForConnect() throws IOException {
 
     when(apiClient.getClusterIds()).thenReturn(allClusterIds);
 
     AdminRoleRunner runner = new AdminRoleRunner("foo", SECURITY_ADMIN, apiClient);
-    runner.forKafkaConnect();
+    runner.forKafkaConnect(connector);
 
     assertEquals("kafka-connect", runner.getResourceName());
 
@@ -64,7 +72,7 @@ public class AdminRoleRunnerTest {
     when(apiClient.getClusterIds()).thenReturn(noClusterIds);
 
     AdminRoleRunner runner = new AdminRoleRunner("foo", SECURITY_ADMIN, apiClient);
-    runner.forKafkaConnect();
+    runner.forKafkaConnect(connector);
   }
 
   @Test

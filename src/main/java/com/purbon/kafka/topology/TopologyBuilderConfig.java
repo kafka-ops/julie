@@ -43,6 +43,15 @@ public class TopologyBuilderConfig {
   public static final String MDS_KC_CLUSTER_ID_CONFIG =
       "topology.builder.mds.kafka.connect.cluster.id";
 
+  public static final String CONFLUENT_MONITORING_TOPIC_CONFIG = "confluent.monitoring.topic";
+  public static final String CONFLUENT_MONITORING_TOPIC_DEFAULT = "_confluent-monitoring";
+
+  public static final String CONFLUENT_COMMAND_TOPIC_CONFIG = "confluent.command.topic";
+  public static final String CONFLUENT_COMMAND_TOPIC_DEFAULT = "_confluent-command";
+
+  public static final String CONFLUENT_METRICS_TOPIC_CONFIG = "confluent.metrics.topic";
+  public static final String CONFLUENT_METRICS_TOPIC_DEFAULT = "_confluent-metrics";
+
   private final Map<String, String> cliParams;
   private final Properties properties;
 
@@ -114,5 +123,23 @@ public class TopologyBuilderConfig {
 
   public Object getOrDefault(Object key, Object _default) {
     return properties.getOrDefault(key, _default);
+  }
+
+  public String getConfluentMonitoringTopic() {
+    return properties
+        .getOrDefault(CONFLUENT_MONITORING_TOPIC_CONFIG, CONFLUENT_MONITORING_TOPIC_DEFAULT)
+        .toString();
+  }
+
+  public String getConfluentCommandTopic() {
+    return properties
+        .getOrDefault(CONFLUENT_COMMAND_TOPIC_CONFIG, CONFLUENT_COMMAND_TOPIC_DEFAULT)
+        .toString();
+  }
+
+  public String getConfluentMetricsTopic() {
+    return properties
+        .getOrDefault(CONFLUENT_METRICS_TOPIC_CONFIG, CONFLUENT_METRICS_TOPIC_DEFAULT)
+        .toString();
   }
 }
