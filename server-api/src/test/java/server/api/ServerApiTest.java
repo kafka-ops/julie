@@ -1,4 +1,4 @@
-package com.purbon.kafka;
+package server.api;
 
 import io.micronaut.runtime.EmbeddedApplication;
 import io.micronaut.test.annotation.MicronautTest;
@@ -8,7 +8,7 @@ import org.junit.jupiter.api.Assertions;
 import javax.inject.Inject;
 
 @MicronautTest
-public class TopologyBuilderTest {
+public class ServerApiTest {
 
     @Inject
     EmbeddedApplication application;

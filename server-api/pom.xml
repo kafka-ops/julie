@@ -2,8 +2,8 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
-  <groupId>com.purbon.kafka</groupId>
-  <artifactId>TopologyBuilder</artifactId>
+  <groupId>server.api</groupId>
+  <artifactId>server-api</artifactId>
   <version>0.1</version>
 
   <parent>
@@ -13,14 +13,13 @@
   </parent>
 
   <properties>
-    <jdk.version>11</jdk.version>
+    <jdk.version>1.8</jdk.version>
     <maven.compiler.target>${jdk.version}</maven.compiler.target>
     <maven.compiler.source>${jdk.version}</maven.compiler.source>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
     <micronaut.version>2.0.0</micronaut.version>
-    <micronaut.openapi.version>1.5.1</micronaut.openapi.version>
-    <exec.mainClass>com.purbon.kafka.Application</exec.mainClass>
+    <exec.mainClass>server.api.Application</exec.mainClass>
     <maven-surefire-plugin.version>2.22.2</maven-surefire-plugin.version>
     <maven-failsafe-plugin.version>2.22.2</maven-failsafe-plugin.version>
   </properties>
@@ -60,41 +59,12 @@
       <scope>compile</scope>
     </dependency>
     <dependency>
-      <groupId>javax.annotation</groupId>
-      <artifactId>javax.annotation-api</artifactId>
-      <scope>compile</scope>
-    </dependency>
-    <dependency>
-      <groupId>io.swagger.core.v3</groupId>
-      <artifactId>swagger-annotations</artifactId>
-      <scope>compile</scope>
-    </dependency>
-    <dependency>
       <groupId>io.micronaut.kafka</groupId>
       <artifactId>micronaut-kafka</artifactId>
-      <scope>compile</scope>
     </dependency>
     <dependency>
-      <groupId>io.micronaut.jmx</groupId>
-      <artifactId>micronaut-jmx</artifactId>
-      <scope>compile</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.logging.log4j</groupId>
-      <artifactId>log4j-core</artifactId>
-      <version>2.12.1</version>
-      <scope>compile</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.logging.log4j</groupId>
-      <artifactId>log4j-api</artifactId>
-      <version>2.12.1</version>
-      <scope>runtime</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.logging.log4j</groupId>
-      <artifactId>log4j-slf4j-impl</artifactId>
-      <version>2.12.1</version>
+      <groupId>ch.qos.logback</groupId>
+      <artifactId>logback-classic</artifactId>
       <scope>runtime</scope>
     </dependency>
     <dependency>
@@ -165,15 +135,10 @@
               <artifactId>micronaut-validation</artifactId>
               <version>${micronaut.version}</version>
             </path>
-            <path>
-              <groupId>io.micronaut.configuration</groupId>
-              <artifactId>micronaut-openapi</artifactId>
-              <version>${micronaut.openapi.version}</version>
-            </path>
           </annotationProcessorPaths>
           <compilerArgs>
-            <arg>-Amicronaut.processing.group=com.purbon.kafka</arg>
-            <arg>-Amicronaut.processing.module=TopologyBuilder</arg>
+            <arg>-Amicronaut.processing.group=server.api</arg>
+            <arg>-Amicronaut.processing.module=server-api</arg>
           </compilerArgs>
         </configuration>
         <executions>
