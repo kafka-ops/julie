@@ -82,6 +82,23 @@
       <artifactId>micronaut-test-junit5</artifactId>
       <scope>test</scope>
     </dependency>
+    <dependency>
+      <groupId>org.eclipse.jgit</groupId>
+      <artifactId>org.eclipse.jgit</artifactId>
+      <version>5.8.0.202006091008-r</version>
+    </dependency>
+    <dependency>
+      <groupId>com.purbon.kafka</groupId>
+      <artifactId>kafka-topology-builder</artifactId>
+      <version>1.0.0-rc.1</version>
+    </dependency>
+    <dependency>
+      <groupId>org.mockito</groupId>
+      <artifactId>mockito-junit-jupiter</artifactId>
+      <version>3.3.3</version>
+      <scope>test</scope>
+    </dependency>
+
   </dependencies>
 
   <build>
