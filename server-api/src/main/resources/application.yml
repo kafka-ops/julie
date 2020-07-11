@@ -1,8 +1,3 @@
 micronaut:
   application:
     name: Kafka Topology Builer API
-    topology: topologies/topology-for-cloud.yaml
-  topology_builder:
-    brokers_list: "localhost:9092"
-    allow_delete: true
-    admin_config_file: "admin.properties"
