@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-mvn install:install-file -Dfile=target/kafka-topology-builder-jar-with-dependencies.jar \
+mvn install:install-file -Dfile=target/kafka-topology-builder.jar \
                          -DgroupId=com.purbon.kafka \
                          -DartifactId=kafka-topology-builder \
                          -Dversion=1.0.0-rc.1 \

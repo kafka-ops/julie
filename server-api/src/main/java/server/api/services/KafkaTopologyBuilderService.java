@@ -11,6 +11,7 @@ import com.purbon.kafka.topology.TopologyBuilderAdminClient;
 import com.purbon.kafka.topology.TopologyBuilderAdminClientBuilder;
 import com.purbon.kafka.topology.TopologyBuilderConfig;
 import com.purbon.kafka.topology.api.mds.MDSApiClientBuilder;
+
 import io.micronaut.context.annotation.Value;
 import java.io.IOException;
 import java.util.HashMap;
@@ -28,7 +29,6 @@ public class KafkaTopologyBuilderService {
   private String adminClientConfigFile;
 
   public void sync(String topologyFile) throws IOException {
-
     TopologyBuilderConfig builderConfig = new TopologyBuilderConfig(config());
     TopologyBuilderAdminClient adminClient =
         new TopologyBuilderAdminClientBuilder(builderConfig).build();
@@ -55,4 +55,5 @@ public class KafkaTopologyBuilderService {
     config.put(ADMIN_CLIENT_CONFIG_OPTION, adminClientConfigFile);
     return config;
   }
+
 }
