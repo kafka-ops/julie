@@ -57,7 +57,7 @@ public class TopicControllerTest extends BaseControllerTest {
     Topic topic = topology.getProjects().get(0).getTopics().get(0);
     assertEquals("t1", topic.getName());
     assertEquals("1", topic.getConfig().get("replication_factor"));
-    assertEquals("2", topic.getConfig().get("partitions"));
+    assertEquals("2", topic.getConfig().get("num_partitions"));
 
 
   }
