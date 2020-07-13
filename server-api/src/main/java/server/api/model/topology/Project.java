@@ -91,7 +91,7 @@ public class Project {
   }
 
   public void addTopic(Topic topic) {
-    topic.setProject(this);
+    topic.setProject(this.buildTopicPrefix());
     this.topics.add(topic);
   }
 
@@ -109,8 +109,12 @@ public class Project {
     return sb.toString();
   }
 
-  public void setTopology(Topology topology) {
-    this.topologyPrefix = topology.buildNamePrefix();
+  public void setTopologyPrefix(String topologyPrefix) {
+    this.topologyPrefix = topologyPrefix;
+  }
+
+  public String getTopologyPrefix() {
+    return topologyPrefix;
   }
 
   public void setRbacRawRoles(Map<String, List<String>> rbacRawRoles) {

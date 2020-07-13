@@ -36,7 +36,7 @@ public class Topology {
   }
 
   public void addProject(Project project) {
-    project.setTopology(this);
+    project.setTopologyPrefix(this.buildNamePrefix());
     this.projects.add(project);
   }
 

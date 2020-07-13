@@ -45,7 +45,7 @@ public final class SubscriberHelpers {
     private volatile Subscription subscription;
     private volatile boolean completed;
 
-    ObservableSubscriber() {
+    public ObservableSubscriber() {
       this.received = new ArrayList<T>();
       this.errors = new ArrayList<Throwable>();
       this.latch = new CountDownLatch(1);

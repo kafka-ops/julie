@@ -1,4 +1,4 @@
-package server.api;
+package server.api.controllers;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -25,7 +25,7 @@ import server.api.services.KafkaTopologyBuilderService;
 import static org.mockito.Mockito.*;
 
 @MicronautTest
-public class WebookControllerSpec {
+public class WebookControllerTest {
 
     @Inject
     KafkaTopologyBuilderService builderService;

@@ -1,11 +1,13 @@
 package server.api.models;
 
+import javax.inject.Singleton;
 import server.api.model.topology.Topology;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+@Singleton
 public class TopologyCatalog {
 
   public List<Topology> topologies;

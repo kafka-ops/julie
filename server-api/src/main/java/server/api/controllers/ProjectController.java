@@ -1,7 +1,5 @@
 package server.api.controllers;
 
-import server.api.model.topology.Project;
-import server.api.model.topology.Topology;
 import io.micronaut.context.annotation.Value;
 import io.micronaut.http.HttpResponse;
 import io.micronaut.http.MediaType;
@@ -11,12 +9,14 @@ import io.micronaut.http.annotation.PathVariable;
 import io.micronaut.http.annotation.Post;
 import java.util.HashMap;
 import java.util.List;
-import javax.inject.Inject;
-import server.api.services.TopologyService;
 import java.util.Map;
+import javax.inject.Inject;
+import server.api.model.topology.Project;
+import server.api.model.topology.Topology;
+import server.api.services.TopologyService;
 
-@Controller("/topologies")
-public class TopologyController {
+@Controller( value = "/topologies/{team}/projects")
+public class ProjectController {
 
   @Value("${micronaut.application.topology}")
   protected String topology;
@@ -25,25 +25,23 @@ public class TopologyController {
   private TopologyService service;
 
   @Get(processes = MediaType.APPLICATION_JSON)
-  public HttpResponse index() {
+  public HttpResponse index(@PathVariable String team) throws Throwable {
     List<Topology> all = service.all();
     return HttpResponse.ok().body(all);
   }
 
-  @Get(uri = "/{team}", processes = MediaType.APPLICATION_JSON)
-  public HttpResponse<Topology> get(@PathVariable String team) {
+  @Post(uri = "/{name}", processes = MediaType.APPLICATION_JSON)
+  public HttpResponse createProject(@PathVariable String team, @PathVariable String name) {
+
     Topology topology = service.findByTeam(team);
+
+    Project project = new Project();
+    project.setName(name);
+    topology.addProject(project);
+
+    service.update(topology);
+
     return HttpResponse.ok().body(topology);
-  }
-
-  @Post(uri = "/{team}", processes = MediaType.APPLICATION_JSON)
-  public HttpResponse create(@PathVariable String team) {
-    Topology topology = service.create(team);
-
-    Map<String, Object> response = new HashMap<>();
-    response.put("topology", topology.getTeam());
-    response.put("created", System.currentTimeMillis());
-    return HttpResponse.ok().body(response);
   }
 
 }

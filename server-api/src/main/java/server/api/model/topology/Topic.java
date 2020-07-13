@@ -5,48 +5,47 @@ import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.purbon.kafka.topology.TopicManager;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Optional;
 
 public class Topic {
 
   public static final String DEFAULT_TOPIC_NAME = "default";
 
   @JsonInclude(Include.NON_EMPTY)
-  private Optional<String> dataType;
+  private String dataType;
 
   private String name;
-  private HashMap<String, String> config;
+  private Map<String, String> config;
 
-  private Project project;
+  private String project;
 
   public Topic(String name) {
-    this(name, Optional.empty(), new HashMap<>());
+    this(name, "", new HashMap<>());
   }
 
   public Topic(String name, String dataType) {
-    this(name, Optional.of(dataType), new HashMap<>());
+    this(name, dataType, new HashMap<>());
   }
 
-  public Topic(String name, Optional<String> dataType, HashMap<String, String> config) {
+  public Topic(String name, String dataType, HashMap<String, String> config) {
     this.name = name;
     this.dataType = dataType;
     this.config = config;
   }
 
   public Topic() {
-    this(DEFAULT_TOPIC_NAME, Optional.empty(), new HashMap<>());
+    this(DEFAULT_TOPIC_NAME, "", new HashMap<>());
   }
 
   public String getName() {
     return name;
   }
 
-  private String toString(Project project) {
+  private String toString(String project) {
     StringBuilder sb = new StringBuilder();
-    sb.append(project.buildTopicPrefix()).append(".").append(getName());
+    sb.append(project).append(".").append(getName());
 
-    if (getDataType().isPresent()) {
-      sb.append(".").append(getDataType().get());
+    if (!getDataType().isEmpty()) {
+      sb.append(".").append(getDataType());
     }
 
     return sb.toString();
@@ -61,11 +60,11 @@ public class Topic {
     this.name = name;
   }
 
-  public HashMap<String, String> getConfig() {
+  public Map<String, String> getConfig() {
     return config;
   }
 
-  public void setConfig(HashMap<String, String> config) {
+  public void setConfig(Map<String, String> config) {
     this.config = config;
   }
 
@@ -75,11 +74,15 @@ public class Topic {
     return getConfig();
   }
 
-  public Optional<String> getDataType() {
+  public String getDataType() {
     return dataType;
   }
 
-  public void setProject(Project project) {
+  public void setProject(String project) {
     this.project = project;
+  }
+
+  public String getProject() {
+    return this.project;
   }
 }
