@@ -42,7 +42,7 @@ public class TopicControllerTest extends BaseControllerTest {
 
     Map<String, Object> config = new HashMap<>();
     config.put("replication_factor", 1);
-    config.put("partitions", 2);
+    config.put("num_partitions", 2);
 
     HttpRequest request = HttpRequest
         .POST("/topologies/foo/projects/p1/topics/t1", config);
