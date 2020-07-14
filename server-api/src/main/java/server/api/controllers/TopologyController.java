@@ -1,5 +1,6 @@
 package server.api.controllers;
 
+import io.micronaut.http.HttpStatus;
 import server.api.model.topology.Project;
 import server.api.model.topology.Topology;
 import io.micronaut.context.annotation.Value;
@@ -12,6 +13,7 @@ import io.micronaut.http.annotation.Post;
 import java.util.HashMap;
 import java.util.List;
 import javax.inject.Inject;
+import server.api.services.KafkaTopologyBuilderService;
 import server.api.services.TopologyService;
 import java.util.Map;
 
@@ -20,6 +22,9 @@ public class TopologyController {
 
   @Value("${micronaut.application.topology}")
   protected String topology;
+
+  @Inject
+  private KafkaTopologyBuilderService builderService;
 
   @Inject
   private TopologyService service;
@@ -44,6 +49,19 @@ public class TopologyController {
     response.put("topology", topology.getTeam());
     response.put("created", System.currentTimeMillis());
     return HttpResponse.ok().body(response);
+  }
+
+  @Post(uri = "/{team}/apply", processes = MediaType.APPLICATION_JSON)
+  public HttpResponse apply(@PathVariable String team) {
+    Topology topology = service.create(team);
+
+    try {
+      builderService.sync(topology);
+      return HttpResponse.ok();
+    } catch (Exception ex) {
+      return HttpResponse.status(HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
   }
 
 }

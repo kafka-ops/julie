@@ -12,11 +12,13 @@ import com.purbon.kafka.topology.TopologyBuilderAdminClientBuilder;
 import com.purbon.kafka.topology.TopologyBuilderConfig;
 import com.purbon.kafka.topology.api.mds.MDSApiClientBuilder;
 
+import com.purbon.kafka.topology.serdes.TopologySerdes;
 import io.micronaut.context.annotation.Value;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 import javax.inject.Singleton;
+import server.api.model.topology.Topology;
 
 @Singleton
 public class KafkaTopologyBuilderService {
@@ -45,6 +47,23 @@ public class KafkaTopologyBuilderService {
     } finally {
       adminClient.close();
     }
+  }
+
+  public void sync(Topology topology) throws IOException {
+    TopologyBuilderConfig builderConfig = new TopologyBuilderConfig(config());
+    TopologyBuilderAdminClient adminClient =
+        new TopologyBuilderAdminClientBuilder(builderConfig).build();
+    AccessControlProviderFactory accessControlProviderFactory =
+        new AccessControlProviderFactory(
+            builderConfig, adminClient, new MDSApiClientBuilder(builderConfig));
+/*
+    KafkaTopologyBuilder builder = new KafkaTopologyBuilder(topology,
+        new TopologySerdes(), builderConfig, adminClient, accessControlProviderFactory );
+    try {
+      builder.run();
+    } finally {
+      adminClient.close();
+    }*/
   }
 
   private Map<String, String> config() {
