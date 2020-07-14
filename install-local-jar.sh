@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-mvn clean assembly:assembly
+mvn clean package
 mvn install:install-file -Dfile=target/kafka-topology-builder.jar \
                          -DgroupId=com.purbon.kafka \
                          -DartifactId=kafka-topology-builder \
