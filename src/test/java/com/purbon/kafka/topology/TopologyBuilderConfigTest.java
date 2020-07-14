@@ -27,13 +27,6 @@ public class TopologyBuilderConfigTest {
     props = new Properties();
   }
 
-  @Test(expected = ConfigurationException.class)
-  public void testRequiredAccessControlClassFields() throws ConfigurationException {
-    Topology topology = new Topology();
-    TopologyBuilderConfig config = new TopologyBuilderConfig(cliOps, props);
-    config.validateWith(topology);
-  }
-
   @Test
   public void testWithAllRequiredFields() throws ConfigurationException {
     Topology topology = new Topology();

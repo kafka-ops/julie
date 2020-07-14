@@ -6,6 +6,7 @@ import static com.purbon.kafka.topology.TopologyBuilderConfig.REDIS_STATE_PROCES
 import static com.purbon.kafka.topology.TopologyBuilderConfig.STATE_PROCESSOR_DEFAULT_CLASS;
 import static com.purbon.kafka.topology.TopologyBuilderConfig.STATE_PROCESSOR_IMPLEMENTATION_CLASS;
 
+import com.purbon.kafka.topology.api.mds.MDSApiClientBuilder;
 import com.purbon.kafka.topology.clusterstate.FileSateProcessor;
 import com.purbon.kafka.topology.clusterstate.RedisSateProcessor;
 import com.purbon.kafka.topology.model.Topology;
@@ -77,9 +78,22 @@ public class KafkaTopologyBuilder {
     this.accessControlProvider = accessControlProvider;
   }
 
+  public KafkaTopologyBuilder(Topology topology, TopologyBuilderConfig builderConfig)
+      throws IOException {
+    this.topologyFile = "";
+    this.topology = topology;
+    this.parser = new TopologySerdes();
+    this.config = builderConfig;
+    this.adminClient = new TopologyBuilderAdminClientBuilder(builderConfig).build();
+    this.accessControlProvider =
+        new AccessControlProviderFactory(
+                builderConfig, adminClient, new MDSApiClientBuilder(builderConfig))
+            .get();
+  }
+
   public void run() throws IOException {
 
-    if (topology.isEmpty() && !topologyFile.isEmpty()) {
+    if (!topologyFile.isEmpty()) {
       topology = buildTopology(topologyFile);
     }
 
@@ -98,6 +112,10 @@ public class KafkaTopologyBuilder {
       topicManager.printCurrentState(System.out);
       accessControlManager.printCurrentState(System.out);
     }
+  }
+
+  public void close() {
+    adminClient.close();
   }
 
   public Topology buildTopology(String fileOrDir) throws IOException {
