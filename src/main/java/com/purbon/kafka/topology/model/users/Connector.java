@@ -64,43 +64,59 @@ public class Connector extends DynamicUser {
     this.cluster_id = cluster_id;
   }
 
-  public String getStatus_topic() {
+  public String statusTopicString() {
     return status_topic.orElse(DEFAULT_CONNECT_STATUS_TOPIC);
+  }
+
+  public String offsetTopicString() {
+    return offset_topic.orElse(DEFAULT_CONNECT_OFFSET_TOPIC);
+  }
+
+  public String configsTopicString() {
+    return configs_topic.orElse(DEFAULT_CONNECT_CONFIGS_TOPIC);
+  }
+
+  public String groupString() {
+    return group.orElse(DEFAULT_CONNECT_GROUP);
   }
 
   public void setStatus_topic(Optional<String> status_topic) {
     this.status_topic = status_topic;
   }
 
-  public String getOffset_topic() {
-    return offset_topic.orElse(DEFAULT_CONNECT_OFFSET_TOPIC);
-  }
-
   public void setOffset_topic(Optional<String> offset_topic) {
     this.offset_topic = offset_topic;
-  }
-
-  public String getConfigs_topic() {
-    return configs_topic.orElse(DEFAULT_CONNECT_CONFIGS_TOPIC);
   }
 
   public void setConfigs_topic(Optional<String> configs_topic) {
     this.configs_topic = configs_topic;
   }
 
-  public String getGroup() {
-    return group.orElse(DEFAULT_CONNECT_GROUP);
-  }
-
   public void setGroup(Optional<String> group) {
     this.group = group;
+  }
+
+  public void setCluster_id(Optional<String> cluster_id) {
+    this.cluster_id = cluster_id;
   }
 
   public Optional<String> getCluster_id() {
     return cluster_id;
   }
 
-  public void setCluster_id(Optional<String> cluster_id) {
-    this.cluster_id = cluster_id;
+  public Optional<String> getStatus_topic() {
+    return status_topic;
+  }
+
+  public Optional<String> getOffset_topic() {
+    return offset_topic;
+  }
+
+  public Optional<String> getConfigs_topic() {
+    return configs_topic;
+  }
+
+  public Optional<String> getGroup() {
+    return group;
   }
 }

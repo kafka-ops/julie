@@ -30,7 +30,7 @@ public class SchemaRegistry extends User {
     this.group = group;
   }
 
-  public String getTopic() {
+  public String topicString() {
     return topic.orElse(DEFAULT_SCHEMA_TOPIC);
   }
 
@@ -38,11 +38,19 @@ public class SchemaRegistry extends User {
     this.topic = topic;
   }
 
-  public String getGroup() {
+  public String groupString() {
     return group.orElse(DEFAULT_SCHEMA_REGISTRY_GROUP);
   }
 
   public void setGroup(Optional<String> group) {
     this.group = group;
+  }
+
+  public Optional<String> getTopic() {
+    return topic;
+  }
+
+  public Optional<String> getGroup() {
+    return group;
   }
 }

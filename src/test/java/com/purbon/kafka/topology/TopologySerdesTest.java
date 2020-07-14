@@ -72,14 +72,14 @@ public class TopologySerdesTest {
     Topic topic = new Topic();
     topic.setName("foo");
     HashMap<String, String> topicConfig = new HashMap<>();
-    topicConfig.put("num.partitions", "1");
-    topicConfig.put("replication.factor", "1");
+    topicConfig.put("num_partitions", "1");
+    topicConfig.put("replication_factor", "1");
     topic.setConfig(topicConfig);
 
     Topic topicBar = new Topic("bar", "avro");
     HashMap<String, String> topicBarConfig = new HashMap<>();
-    topicBarConfig.put("num.partitions", "1");
-    topicBarConfig.put("replication.factor", "1");
+    topicBarConfig.put("num_partitions", "1");
+    topicBarConfig.put("replication_factor", "1");
     topicBar.setConfig(topicBarConfig);
 
     Project project = new Project("foo");
@@ -124,7 +124,7 @@ public class TopologySerdesTest {
 
     assertEquals(topic.getName(), serdesTopic.getName());
     assertEquals(
-        topic.getConfig().get("num.partitions"), serdesTopic.getConfig().get("num.partitions"));
+        topic.getConfig().get("num_partitions"), serdesTopic.getConfig().get("num_partitions"));
   }
 
   @Test
@@ -135,13 +135,13 @@ public class TopologySerdesTest {
     Topology topology = new Topology();
     topology.setTeam("team");
 
-    project.setTopology(topology);
+    project.setTopologyPrefix(topology.buildNamePrefix());
     topology.addProject(project);
 
     Topic topic = new Topic("foo", "json");
     HashMap<String, String> topicConfig = new HashMap<>();
-    topicConfig.put("num.partitions", "3");
-    topicConfig.put("replication.factor", "2");
+    topicConfig.put("num_partitions", "3");
+    topicConfig.put("replication_factor", "2");
     topic.setConfig(topicConfig);
 
     project.addTopic(topic);
@@ -173,8 +173,8 @@ public class TopologySerdesTest {
     List<SchemaRegistry> listOfSR = topology.getPlatform().getSchemaRegistry();
     assertEquals(2, listOfSR.size());
     assertEquals("User:SchemaRegistry01", listOfSR.get(0).getPrincipal());
-    assertEquals("foo", listOfSR.get(0).getTopic());
-    assertEquals("bar", listOfSR.get(0).getGroup());
+    assertEquals("foo", listOfSR.get(0).topicString());
+    assertEquals("bar", listOfSR.get(0).groupString());
     assertEquals("User:SchemaRegistry02", listOfSR.get(1).getPrincipal());
 
     List<ControlCenter> listOfC3 = topology.getPlatform().getControlCenter();

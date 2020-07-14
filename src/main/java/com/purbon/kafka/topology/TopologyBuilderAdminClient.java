@@ -258,7 +258,7 @@ public class TopologyBuilderAdminClient {
                 aclOperation -> {
                   return buildTopicLevelAcl(
                       schemaRegistry.getPrincipal(),
-                      schemaRegistry.getTopic(),
+                      schemaRegistry.topicString(),
                       PatternType.LITERAL,
                       aclOperation);
                 })
@@ -342,7 +342,9 @@ public class TopologyBuilderAdminClient {
 
     List<String> topics =
         Arrays.asList(
-            connector.getStatus_topic(), connector.getOffset_topic(), connector.getConfigs_topic());
+            connector.statusTopicString(),
+            connector.offsetTopicString(),
+            connector.configsTopicString());
 
     for (String topic : topics) {
       acls.add(buildTopicLevelAcl(principal, topic, PatternType.LITERAL, AclOperation.READ));
@@ -356,7 +358,7 @@ public class TopologyBuilderAdminClient {
     acls.add(new AclBinding(resourcePattern, entry));
 
     resourcePattern =
-        new ResourcePattern(ResourceType.GROUP, connector.getGroup(), PatternType.LITERAL);
+        new ResourcePattern(ResourceType.GROUP, connector.groupString(), PatternType.LITERAL);
     entry = new AccessControlEntry(principal, "*", AclOperation.READ, AclPermissionType.ALLOW);
     acls.add(new AclBinding(resourcePattern, entry));
 

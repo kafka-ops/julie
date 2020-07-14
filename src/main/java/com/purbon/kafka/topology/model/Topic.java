@@ -17,7 +17,7 @@ public class Topic {
   private String name;
   private HashMap<String, String> config;
 
-  private Project project;
+  private String projectPrefix;
 
   public Topic(String name) {
     this(name, Optional.empty(), new HashMap<>());
@@ -41,9 +41,9 @@ public class Topic {
     return name;
   }
 
-  private String toString(Project project) {
+  private String toString(String projectPrefix) {
     StringBuilder sb = new StringBuilder();
-    sb.append(project.buildTopicPrefix()).append(".").append(getName());
+    sb.append(projectPrefix).append(".").append(getName());
 
     if (getDataType().isPresent()) {
       sb.append(".").append(getDataType().get());
@@ -54,7 +54,7 @@ public class Topic {
 
   @Override
   public String toString() {
-    return toString(project);
+    return toString(projectPrefix);
   }
 
   public void setName(String name) {
@@ -79,7 +79,11 @@ public class Topic {
     return dataType;
   }
 
-  public void setProject(Project project) {
-    this.project = project;
+  public void setProjectPrefix(String projectPrefix) {
+    this.projectPrefix = projectPrefix;
+  }
+
+  public String getProjectPrefix() {
+    return projectPrefix;
   }
 }
