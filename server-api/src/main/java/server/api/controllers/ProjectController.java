@@ -23,7 +23,7 @@ public class ProjectController {
   private TopologyService service;
 
   @Get(processes = MediaType.APPLICATION_JSON)
-  public HttpResponse index(@PathVariable String team) throws Throwable {
+  public HttpResponse indexProject(@PathVariable String team) throws Throwable {
     List<Topology> all = service.all();
     return HttpResponse.ok().body(all);
   }

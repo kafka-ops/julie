@@ -1,4 +1,22 @@
 micronaut:
+  openapi:
+    target:
+      file: openapi-spec.yml
+    property:
+      naming:
+        strategy: KEBAB_CASE
+  router:
+    static-resources:
+      swagger:
+        paths:
+          - classpath:META-INF/swagger
+        mapping: /swagger/**
+      swagger-ui:
+        paths: classpath:META-INF/swagger/views/swagger-ui
+        mapping: /swagger-ui/**
+      rapidoc:
+        paths: classpath:META-INF/swagger/views/rapidoc
+        mapping: /rapidoc/**
   application:
     name: Kafka Topology Builer API
     topology: topologies/topology-for-cloud.yaml

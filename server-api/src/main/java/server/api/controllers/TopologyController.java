@@ -29,7 +29,7 @@ public class TopologyController {
   private TopologyService service;
 
   @Get(processes = MediaType.APPLICATION_JSON)
-  public HttpResponse index() {
+  public HttpResponse indexTopology() {
     List<Topology> all = service.all();
     return HttpResponse.ok().body(all);
   }
@@ -41,7 +41,7 @@ public class TopologyController {
   }
 
   @Post(uri = "/{team}", processes = MediaType.APPLICATION_JSON)
-  public HttpResponse create(@PathVariable String team) {
+  public HttpResponse createTopology(@PathVariable String team) {
     Topology topology = service.create(team);
 
     Map<String, Object> response = new HashMap<>();
