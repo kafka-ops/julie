@@ -16,9 +16,10 @@ public class TopicTest {
   @Before
   public void before() {
     topology = new Topology();
-    project = new Project();
-    project.setTopology(topology);
     topology.setTeam("team");
+
+    project = new Project();
+    project.setTopologyPrefix(topology.buildNamePrefix());
 
     project.setName("project");
     topology.setProjects(Arrays.asList(project));
@@ -27,7 +28,7 @@ public class TopicTest {
   @Test
   public void buildTopicNameTest() {
     Topic topic = new Topic("topic");
-    topic.setProject(project);
+    topic.setProjectPrefix(project.buildTopicPrefix());
     String fulllName = topic.toString();
     Assert.assertEquals("team.project.topic", fulllName);
   }
@@ -36,17 +37,19 @@ public class TopicTest {
   public void buildTopicNameWithOtherDataPointsTest() {
 
     Topology topology = new Topology();
-    Project project = new Project();
-    project.setTopology(topology);
     topology.setTeam("team");
+
     topology.addOther("other-f", "other");
     topology.addOther("another-f", "another");
+
+    Project project = new Project();
+    project.setTopologyPrefix(topology.buildNamePrefix());
 
     project.setName("project");
     topology.setProjects(Arrays.asList(project));
 
     Topic topic = new Topic("topic");
-    topic.setProject(project);
+    topic.setProjectPrefix(project.buildTopicPrefix());
     String fulllName = topic.toString();
     Assert.assertEquals("team.other.another.project.topic", fulllName);
   }
@@ -54,7 +57,7 @@ public class TopicTest {
   @Test
   public void buildTopicNameWithDataTypeTest() {
     Topic topic = new Topic("topic", "type");
-    topic.setProject(project);
+    topic.setProjectPrefix(project.buildTopicPrefix());
     String fulllName = topic.toString();
     Assert.assertEquals("team.project.topic.type", fulllName);
   }

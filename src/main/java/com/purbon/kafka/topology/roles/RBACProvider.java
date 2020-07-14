@@ -87,10 +87,10 @@ public class RBACProvider implements AccessControlProvider {
 
     String[] resources =
         new String[] {
-          "Topic:" + connector.getConfigs_topic(),
-          "Topic:" + connector.getOffset_topic(),
-          "Topic:" + connector.getStatus_topic(),
-          "Group:" + connector.getGroup(),
+          "Topic:" + connector.configsTopicString(),
+          "Topic:" + connector.offsetTopicString(),
+          "Topic:" + connector.statusTopicString(),
+          "Group:" + connector.groupString(),
           "Group:secret-registry",
           "Topic:_confluent-secrets"
         };
@@ -178,10 +178,10 @@ public class RBACProvider implements AccessControlProvider {
     TopologyAclBinding binding =
         apiClient.bind(principal, SECURITY_ADMIN).forSchemaRegistry().apply();
     bindings.add(binding);
-    binding = apiClient.bind(principal, RESOURCE_OWNER, schemaRegistry.getTopic(), LITERAL);
+    binding = apiClient.bind(principal, RESOURCE_OWNER, schemaRegistry.topicString(), LITERAL);
     bindings.add(binding);
     binding =
-        apiClient.bind(principal, RESOURCE_OWNER, schemaRegistry.getGroup(), "Group", LITERAL);
+        apiClient.bind(principal, RESOURCE_OWNER, schemaRegistry.groupString(), "Group", LITERAL);
     bindings.add(binding);
     return bindings;
   }

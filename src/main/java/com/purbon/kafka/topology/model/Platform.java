@@ -9,7 +9,6 @@ public class Platform {
 
   private List<SchemaRegistry> schemaRegistry;
   private List<ControlCenter> controlCenter;
-  private Topology topology;
 
   public Platform() {
     this.schemaRegistry = new ArrayList<>();
@@ -26,10 +25,6 @@ public class Platform {
 
   public void addSchemaRegistry(SchemaRegistry schemaRegistry) {
     this.schemaRegistry.add(schemaRegistry);
-  }
-
-  public void setTopology(Topology topology) {
-    this.topology = topology;
   }
 
   public List<ControlCenter> getControlCenter() {

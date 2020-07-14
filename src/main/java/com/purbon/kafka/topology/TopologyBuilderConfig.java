@@ -77,11 +77,10 @@ public class TopologyBuilderConfig {
 
   public void validateWith(Topology topology) throws ConfigurationException {
 
-    raiseIfNull(ACCESS_CONTROL_IMPLEMENTATION_CLASS);
-
     boolean isRbac =
         properties
-            .getProperty(ACCESS_CONTROL_IMPLEMENTATION_CLASS)
+            .getOrDefault(ACCESS_CONTROL_IMPLEMENTATION_CLASS, ACCESS_CONTROL_DEFAULT_CLASS)
+            .toString()
             .equalsIgnoreCase(RBAC_ACCESS_CONTROL_CLASS);
     if (!isRbac) {
       return;

@@ -47,14 +47,14 @@ public class TopologySerdes {
             new Consumer<Project>() {
               @Override
               public void accept(Project project) {
-                project.setTopology(topology);
+                project.setTopologyPrefix(topology.buildNamePrefix());
                 project
                     .getTopics()
                     .forEach(
                         new Consumer<Topic>() {
                           @Override
                           public void accept(Topic topic) {
-                            topic.setProject(project);
+                            topic.setProjectPrefix(project.buildTopicPrefix());
                           }
                         });
               }

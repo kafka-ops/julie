@@ -112,7 +112,7 @@ public class AccessControlManagerTest {
     topology.addProject(project);
 
     accessControlManager.sync(topology);
-    String topicPrefix = project.buildTopicPrefix(topology);
+    String topicPrefix = project.buildTopicPrefix(topology.buildNamePrefix());
 
     doReturn(new ArrayList<TopologyAclBinding>())
         .when(aclsProvider)
@@ -189,7 +189,7 @@ public class AccessControlManagerTest {
     topology.addProject(project);
 
     accessControlManager.sync(topology);
-    String topicPrefix = project.buildTopicPrefix(topology);
+    String topicPrefix = project.buildTopicPrefix(topology.buildNamePrefix());
 
     doReturn(new ArrayList<TopologyAclBinding>())
         .when(aclsProvider)
