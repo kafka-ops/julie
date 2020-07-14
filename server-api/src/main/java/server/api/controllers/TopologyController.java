@@ -52,7 +52,7 @@ public class TopologyController {
 
   @Post(uri = "/{team}/apply", processes = MediaType.APPLICATION_JSON)
   public HttpResponse apply(@PathVariable String team) {
-    Topology topology = service.create(team);
+    Topology topology = service.findByTeam(team);
 
     try {
       builderService.sync(topology);

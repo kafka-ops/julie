@@ -47,6 +47,14 @@ public class KafkaTopologyBuilder {
 
   public KafkaTopologyBuilder(
       Topology topology,
+      TopologyBuilderConfig config,
+      TopologyBuilderAdminClient adminClient,
+      AccessControlProvider accessControlProvider) {
+    this("", topology, new TopologySerdes(), config, adminClient, accessControlProvider);
+  }
+
+  public KafkaTopologyBuilder(
+      Topology topology,
       TopologySerdes parser,
       TopologyBuilderConfig config,
       TopologyBuilderAdminClient adminClient,

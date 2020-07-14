@@ -50,19 +50,23 @@ public class KafkaTopologyBuilderService {
 
   public void sync(Topology topology) throws IOException {
     TopologyBuilderConfig builderConfig = new TopologyBuilderConfig(config());
+
     TopologyBuilderAdminClient adminClient =
         new TopologyBuilderAdminClientBuilder(builderConfig).build();
     AccessControlProviderFactory accessControlProviderFactory =
         new AccessControlProviderFactory(
             builderConfig, adminClient, new MDSApiClientBuilder(builderConfig));
-/*
-    KafkaTopologyBuilder builder = new KafkaTopologyBuilder(topology,
-        new TopologySerdes(), builderConfig, adminClient, accessControlProviderFactory );
+
+    KafkaTopologyBuilder builder = new KafkaTopologyBuilder(
+        topology,
+        builderConfig,
+        adminClient,
+        accessControlProviderFactory.get());
     try {
       builder.run();
     } finally {
       adminClient.close();
-    }*/
+    }
   }
 
   private Map<String, String> config() {
