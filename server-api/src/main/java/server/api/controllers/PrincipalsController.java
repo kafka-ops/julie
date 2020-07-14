@@ -15,6 +15,7 @@ import javax.validation.constraints.NotNull;
 import server.api.model.topology.Project;
 import server.api.model.topology.Topic;
 import server.api.model.topology.Topology;
+import server.api.model.topology.users.Connector;
 import server.api.model.topology.users.Consumer;
 import server.api.model.topology.users.KStream;
 import server.api.model.topology.users.Producer;
@@ -86,7 +87,7 @@ public class PrincipalsController {
   }
 
   @Post(uri = "/streams/{principalName}", processes = MediaType.APPLICATION_JSON)
-  public HttpResponse createProducer(
+  public HttpResponse createStreams(
       @PathVariable String team,
       @PathVariable String projectName,
       @PathVariable String principalName,
@@ -114,4 +115,55 @@ public class PrincipalsController {
 
     return HttpResponse.ok().body(topology);
   }
+
+  @Post(uri = "/connectors/{principalName}", processes = MediaType.APPLICATION_JSON)
+  public HttpResponse createConnectors(
+      @PathVariable String team,
+      @PathVariable String projectName,
+      @PathVariable String principalName,
+      @NotNull @Body Map<String, Object> config) {
+
+    Topology topology = service.findByTeam(team);
+
+    Optional<Project> projectOptional = Optional.empty();
+    for(Project p : topology.getProjects()) {
+      if (p.getName().equalsIgnoreCase(projectName)) {
+        projectOptional = Optional.of(p);
+      }
+    }
+
+    Connector connector = new Connector();
+    connector.setPrincipal("User:"+principalName);
+
+    if ( config.containsKey("group") ) {
+      connector.setGroup((String)config.get("group"));
+    }
+
+    if ( config.containsKey("status_topic") ) {
+      connector.setStatus_topic((String)config.get("status_topic"));
+    }
+
+    if ( config.containsKey("offset_topic") ) {
+      connector.setOffset_topic((String)config.get("offset_topic"));
+    }
+
+    if ( config.containsKey("configs_topic") ) {
+      connector.setConfigs_topic((String)config.get("configs_topic"));
+    }
+
+    if (config.containsKey("topics")) {
+      Map<String, List<String>> topics = (Map<String, List<String>>) config.get("topics");
+      connector.setTopics(topics);
+    }
+
+    projectOptional.map(project -> {
+      project.getConnectors().add(connector);
+      return project;
+    });
+
+    service.update(topology);
+
+    return HttpResponse.ok().body(topology);
+  }
+
 }

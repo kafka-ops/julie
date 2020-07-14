@@ -11,6 +11,7 @@ import java.util.Map;
 import org.junit.jupiter.api.Test;
 import server.api.model.topology.Topic;
 import server.api.model.topology.Topology;
+import server.api.model.topology.users.Connector;
 import server.api.model.topology.users.Consumer;
 import server.api.model.topology.users.KStream;
 import server.api.model.topology.users.Producer;
@@ -85,6 +86,72 @@ public class PrincipalsControllerTest extends BaseControllerTest {
     assertEquals("topicA", readTopics.get(0));
 
     List<String> writeTopics = pro.getTopics().get("write");
+    assertEquals("topicB", writeTopics.get(0));
+
+  }
+
+  @Test
+  void testCreateOKConnectorResponse() {
+
+    createTopology("connector");
+    addProject("connector", "p1");
+
+    Map<String, Object> config = new HashMap<>();
+
+    HttpRequest request = HttpRequest
+        .POST("/topologies/connector/projects/p1/principals/connectors/bar", config);
+
+    Topology topology = client
+        .toBlocking()
+        .retrieve(request, Topology.class);
+
+    assertEquals("connector", topology.getTeam());
+    assertEquals("p1", topology.getProjects().get(0).getName());
+
+    Connector con = topology.getProjects().get(0).getConnectors().get(0);
+
+    assertEquals("User:bar", con.getPrincipal());
+    assertEquals(Connector.DEFAULT_CONNECT_CONFIGS_TOPIC, con.getConfigs_topic());
+    assertEquals(Connector.DEFAULT_CONNECT_GROUP, con.getGroup());
+
+  }
+
+  @Test
+  void testCreateOKConnectorWithConfigResponse() {
+
+    createTopology("connconfig");
+    addProject("connconfig", "p1");
+
+    Map<String, Object> config = new HashMap<>();
+    config.put("group", "foo");
+    config.put("configs_topic", "configs");
+
+    Map<String, List<String>> topics = new HashMap<>();
+    topics.put("read", Collections.singletonList("topicA"));
+    topics.put("write", Collections.singletonList("topicB"));
+
+    config.put("topics", topics);
+
+    HttpRequest request = HttpRequest
+        .POST("/topologies/connconfig/projects/p1/principals/connectors/bar", config);
+
+    Topology topology = client
+        .toBlocking()
+        .retrieve(request, Topology.class);
+
+    assertEquals("connconfig", topology.getTeam());
+    assertEquals("p1", topology.getProjects().get(0).getName());
+
+    Connector con = topology.getProjects().get(0).getConnectors().get(0);
+
+    assertEquals("User:bar", con.getPrincipal());
+    assertEquals("configs", con.getConfigs_topic());
+    assertEquals("foo", con.getGroup());
+
+    List<String> readTopics = con.getTopics().get("read");
+    assertEquals("topicA", readTopics.get(0));
+
+    List<String> writeTopics = con.getTopics().get("write");
     assertEquals("topicB", writeTopics.get(0));
 
   }

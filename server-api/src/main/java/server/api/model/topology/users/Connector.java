@@ -8,10 +8,10 @@ import java.util.List;
 
 public class Connector extends DynamicUser {
 
-  private static final String DEFAULT_CONNECT_STATUS_TOPIC = "connect-status";
-  private static final String DEFAULT_CONNECT_OFFSET_TOPIC = "connect-offsets";
-  private static final String DEFAULT_CONNECT_CONFIGS_TOPIC = "connect-configs";
-  private static final String DEFAULT_CONNECT_GROUP = "connect-cluster";
+  public static final String DEFAULT_CONNECT_STATUS_TOPIC = "connect-status";
+  public static final String DEFAULT_CONNECT_OFFSET_TOPIC = "connect-offsets";
+  public static final String DEFAULT_CONNECT_CONFIGS_TOPIC = "connect-configs";
+  public static final String DEFAULT_CONNECT_GROUP = "connect-cluster";
 
   private static final String DEFAULT_CONNECT_CLUSTER_ID = "connect-cluster";
 
@@ -29,6 +29,10 @@ public class Connector extends DynamicUser {
 
   @JsonInclude(Include.NON_EMPTY)
   private String cluster_id;
+
+  public Connector() {
+    this(DEFAULT_CONNECT_STATUS_TOPIC,DEFAULT_CONNECT_OFFSET_TOPIC,DEFAULT_CONNECT_CONFIGS_TOPIC, DEFAULT_CONNECT_GROUP, DEFAULT_CONNECT_CLUSTER_ID);
+  }
 
   public Connector(String status_topic, String offset_topic, String configs_topic,
       String group, String cluster_id) {
