@@ -12,13 +12,12 @@ import com.purbon.kafka.topology.TopologyBuilderAdminClientBuilder;
 import com.purbon.kafka.topology.TopologyBuilderConfig;
 import com.purbon.kafka.topology.api.mds.MDSApiClientBuilder;
 
-import com.purbon.kafka.topology.serdes.TopologySerdes;
+import com.purbon.kafka.topology.model.Topology;
 import io.micronaut.context.annotation.Value;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 import javax.inject.Singleton;
-import server.api.model.topology.Topology;
 
 @Singleton
 public class KafkaTopologyBuilderService {

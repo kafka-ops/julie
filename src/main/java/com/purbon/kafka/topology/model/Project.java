@@ -22,7 +22,7 @@ public class Project {
 
   private List<Topic> topics;
 
-  private Topology topology;
+  private String topologyPrefix;
 
   public Project() {
     this("default");
@@ -93,7 +93,7 @@ public class Project {
   }
 
   public void addTopic(Topic topic) {
-    topic.setProject(this);
+    topic.setProjectPrefix(buildTopicPrefix());
     this.topics.add(topic);
   }
 
@@ -102,17 +102,21 @@ public class Project {
   }
 
   public String buildTopicPrefix() {
-    return buildTopicPrefix(topology);
+    return buildTopicPrefix(topologyPrefix);
   }
 
-  public String buildTopicPrefix(Topology topology) {
+  public String buildTopicPrefix(String topologyPrefix) {
     StringBuilder sb = new StringBuilder();
-    sb.append(topology.buildNamePrefix()).append(".").append(name);
+    sb.append(topologyPrefix).append(".").append(name);
     return sb.toString();
   }
 
-  public void setTopology(Topology topology) {
-    this.topology = topology;
+  public void setTopologyPrefix(String topologyPrefix) {
+    this.topologyPrefix = topologyPrefix;
+  }
+
+  public String getTopologyPrefix() {
+    return topologyPrefix;
   }
 
   public void setRbacRawRoles(Map<String, List<String>> rbacRawRoles) {

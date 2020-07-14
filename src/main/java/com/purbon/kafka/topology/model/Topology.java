@@ -36,7 +36,7 @@ public class Topology {
   }
 
   public void addProject(Project project) {
-    project.setTopology(this);
+    project.setTopologyPrefix(buildNamePrefix());
     this.projects.add(project);
   }
 
@@ -61,11 +61,14 @@ public class Topology {
   }
 
   public void setPlatform(Platform platform) {
-    platform.setTopology(this);
     this.platform = platform;
   }
 
   public Platform getPlatform() {
     return this.platform;
+  }
+
+  public Boolean isEmpty() {
+    return team.isEmpty();
   }
 }

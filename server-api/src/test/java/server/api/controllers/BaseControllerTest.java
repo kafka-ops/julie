@@ -1,5 +1,7 @@
 package server.api.controllers;
 
+import com.purbon.kafka.topology.model.Project;
+import com.purbon.kafka.topology.model.Topology;
 import io.micronaut.http.client.HttpClient;
 import io.micronaut.http.client.annotation.Client;
 import io.micronaut.runtime.server.EmbeddedServer;
@@ -7,8 +9,6 @@ import javax.inject.Inject;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import server.api.MongoContainer;
-import server.api.model.topology.Project;
-import server.api.model.topology.Topology;
 import server.api.services.TopologyService;
 
 public class BaseControllerTest {

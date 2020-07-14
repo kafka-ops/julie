@@ -22,6 +22,7 @@ import java.util.Properties;
 public class KafkaTopologyBuilder {
 
   private final String topologyFile;
+  private Topology topology;
   private final TopologySerdes parser;
   private final TopologyBuilderAdminClient adminClient;
   private final TopologyBuilderConfig config;
@@ -41,7 +42,27 @@ public class KafkaTopologyBuilder {
       TopologyBuilderConfig config,
       TopologyBuilderAdminClient adminClient,
       AccessControlProvider accessControlProvider) {
+    this(topologyFile, new Topology(), parser, config, adminClient, accessControlProvider);
+  }
+
+  public KafkaTopologyBuilder(
+      Topology topology,
+      TopologySerdes parser,
+      TopologyBuilderConfig config,
+      TopologyBuilderAdminClient adminClient,
+      AccessControlProvider accessControlProvider) {
+    this("", topology, parser, config, adminClient, accessControlProvider);
+  }
+
+  public KafkaTopologyBuilder(
+      String topologyFile,
+      Topology topology,
+      TopologySerdes parser,
+      TopologyBuilderConfig config,
+      TopologyBuilderAdminClient adminClient,
+      AccessControlProvider accessControlProvider) {
     this.topologyFile = topologyFile;
+    this.topology = topology;
     this.parser = parser;
     this.config = config;
     this.adminClient = adminClient;
@@ -50,7 +71,10 @@ public class KafkaTopologyBuilder {
 
   public void run() throws IOException {
 
-    Topology topology = buildTopology(topologyFile);
+    if (topology.isEmpty() && !topologyFile.isEmpty()) {
+      topology = buildTopology(topologyFile);
+    }
+
     config.validateWith(topology);
 
     ClusterState cs = buildStateProcessor();

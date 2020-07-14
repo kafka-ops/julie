@@ -2,12 +2,12 @@ package server.api.controllers;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+import com.purbon.kafka.topology.model.Topology;
 import io.micronaut.http.HttpRequest;
 import io.micronaut.http.HttpResponse;
 import io.micronaut.http.HttpStatus;
 import io.micronaut.test.annotation.MicronautTest;
 import org.junit.jupiter.api.Test;
-import server.api.model.topology.Topology;
 
 @MicronautTest
 public class TopologyControllerTest extends BaseControllerTest {

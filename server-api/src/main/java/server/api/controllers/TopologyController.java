@@ -1,10 +1,9 @@
 package server.api.controllers;
 
-import io.micronaut.http.HttpStatus;
-import server.api.model.topology.Project;
-import server.api.model.topology.Topology;
+import com.purbon.kafka.topology.model.Topology;
 import io.micronaut.context.annotation.Value;
 import io.micronaut.http.HttpResponse;
+import io.micronaut.http.HttpStatus;
 import io.micronaut.http.MediaType;
 import io.micronaut.http.annotation.Controller;
 import io.micronaut.http.annotation.Get;
@@ -12,10 +11,10 @@ import io.micronaut.http.annotation.PathVariable;
 import io.micronaut.http.annotation.Post;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import javax.inject.Inject;
 import server.api.services.KafkaTopologyBuilderService;
 import server.api.services.TopologyService;
-import java.util.Map;
 
 @Controller("/topologies")
 public class TopologyController {

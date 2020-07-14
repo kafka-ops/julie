@@ -1,5 +1,7 @@
 package server.api.controllers;
 
+import com.purbon.kafka.topology.model.Project;
+import com.purbon.kafka.topology.model.Topology;
 import io.micronaut.context.annotation.Value;
 import io.micronaut.http.HttpResponse;
 import io.micronaut.http.MediaType;
@@ -7,12 +9,8 @@ import io.micronaut.http.annotation.Controller;
 import io.micronaut.http.annotation.Get;
 import io.micronaut.http.annotation.PathVariable;
 import io.micronaut.http.annotation.Post;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import javax.inject.Inject;
-import server.api.model.topology.Project;
-import server.api.model.topology.Topology;
 import server.api.services.TopologyService;
 
 @Controller( value = "/topologies/{team}/projects")

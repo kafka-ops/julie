@@ -2,14 +2,13 @@ package server.api.controllers;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+import com.purbon.kafka.topology.model.Topic;
+import com.purbon.kafka.topology.model.Topology;
 import io.micronaut.http.HttpRequest;
 import io.micronaut.test.annotation.MicronautTest;
 import java.util.Collections;
 import java.util.HashMap;
 import org.junit.jupiter.api.Test;
-import org.testcontainers.containers.wait.strategy.Wait;
-import server.api.model.topology.Topic;
-import server.api.model.topology.Topology;
 import java.util.Map;
 
 @MicronautTest

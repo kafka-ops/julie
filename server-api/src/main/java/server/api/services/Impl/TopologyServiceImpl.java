@@ -8,7 +8,7 @@ import com.mongodb.client.FindIterable;
 import com.mongodb.client.MongoClient;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
-import com.sun.net.httpserver.Authenticator.Success;
+import com.purbon.kafka.topology.model.Topology;
 import io.micronaut.core.annotation.Creator;
 import java.util.ArrayList;
 import java.util.List;
@@ -17,9 +17,8 @@ import javax.inject.Singleton;
 import org.bson.codecs.configuration.CodecProvider;
 import org.bson.codecs.configuration.CodecRegistry;
 import org.bson.codecs.pojo.PojoCodecProvider;
-import server.api.model.topology.Topology;
+import server.api.helpers.OptionalPropertyCodecProvider;
 import server.api.models.TopologyCatalog;
-import server.api.services.SubscriberHelpers.ObservableSubscriber;
 import server.api.services.TopologyService;
 
 import static com.mongodb.client.model.Filters.*;
@@ -41,7 +40,8 @@ public class TopologyServiceImpl implements TopologyService {
     this.mongoClient = mongoClient;
 
     CodecProvider pojoCodecProvider = PojoCodecProvider.builder()
-        .register("server.api.model.topology")
+        .register("com.purbon.kafka.topology.model", "com.purbon.kafka.topology.model.users")
+        .register(new OptionalPropertyCodecProvider())
         .automatic(true)
         .build();
 

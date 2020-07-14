@@ -1,7 +1,7 @@
 package server.api.services;
 
+import com.purbon.kafka.topology.model.Topology;
 import java.util.List;
-import server.api.model.topology.Topology;
 
 public interface TopologyService {
 

@@ -1,5 +1,11 @@
 package server.api.controllers;
 
+import com.purbon.kafka.topology.model.Project;
+import com.purbon.kafka.topology.model.Topology;
+import com.purbon.kafka.topology.model.users.Connector;
+import com.purbon.kafka.topology.model.users.Consumer;
+import com.purbon.kafka.topology.model.users.KStream;
+import com.purbon.kafka.topology.model.users.Producer;
 import io.micronaut.context.annotation.Value;
 import io.micronaut.http.HttpResponse;
 import io.micronaut.http.MediaType;
@@ -7,18 +13,12 @@ import io.micronaut.http.annotation.Body;
 import io.micronaut.http.annotation.Controller;
 import io.micronaut.http.annotation.PathVariable;
 import io.micronaut.http.annotation.Post;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import javax.inject.Inject;
 import javax.validation.constraints.NotNull;
-import server.api.model.topology.Project;
-import server.api.model.topology.Topic;
-import server.api.model.topology.Topology;
-import server.api.model.topology.users.Connector;
-import server.api.model.topology.users.Consumer;
-import server.api.model.topology.users.KStream;
-import server.api.model.topology.users.Producer;
 import server.api.services.TopologyService;
 
 @Controller( value = "/topologies/{team}/projects/{projectName}/principals")
@@ -91,7 +91,7 @@ public class PrincipalsController {
       @PathVariable String team,
       @PathVariable String projectName,
       @PathVariable String principalName,
-      @NotNull @Body Map<String, List<String>> topics) {
+      @NotNull @Body HashMap<String, List<String>> topics) {
 
     Topology topology = service.findByTeam(team);
 
@@ -121,7 +121,7 @@ public class PrincipalsController {
       @PathVariable String team,
       @PathVariable String projectName,
       @PathVariable String principalName,
-      @NotNull @Body Map<String, Object> config) {
+      @NotNull @Body HashMap<String, Object> config) {
 
     Topology topology = service.findByTeam(team);
 
@@ -136,23 +136,23 @@ public class PrincipalsController {
     connector.setPrincipal("User:"+principalName);
 
     if ( config.containsKey("group") ) {
-      connector.setGroup((String)config.get("group"));
+      connector.setGroup(Optional.of((String)config.get("group")));
     }
 
     if ( config.containsKey("status_topic") ) {
-      connector.setStatus_topic((String)config.get("status_topic"));
+      connector.setStatus_topic(Optional.of((String)config.get("status_topic")));
     }
 
     if ( config.containsKey("offset_topic") ) {
-      connector.setOffset_topic((String)config.get("offset_topic"));
+      connector.setOffset_topic(Optional.of((String)config.get("offset_topic")));
     }
 
     if ( config.containsKey("configs_topic") ) {
-      connector.setConfigs_topic((String)config.get("configs_topic"));
+      connector.setConfigs_topic(Optional.of((String)config.get("configs_topic")));
     }
 
     if (config.containsKey("topics")) {
-      Map<String, List<String>> topics = (Map<String, List<String>>) config.get("topics");
+      HashMap<String, List<String>> topics = (HashMap<String, List<String>>) config.get("topics");
       connector.setTopics(topics);
     }
 

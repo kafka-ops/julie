@@ -1,5 +1,8 @@
 package server.api.controllers;
 
+import com.purbon.kafka.topology.model.Project;
+import com.purbon.kafka.topology.model.Topic;
+import com.purbon.kafka.topology.model.Topology;
 import io.micronaut.context.annotation.Value;
 import io.micronaut.http.HttpResponse;
 import io.micronaut.http.MediaType;
@@ -7,14 +10,11 @@ import io.micronaut.http.annotation.Body;
 import io.micronaut.http.annotation.Controller;
 import io.micronaut.http.annotation.PathVariable;
 import io.micronaut.http.annotation.Post;
+import java.util.HashMap;
 import java.util.Optional;
 import javax.inject.Inject;
 import javax.validation.constraints.NotNull;
-import server.api.model.topology.Project;
-import server.api.model.topology.Topic;
-import server.api.model.topology.Topology;
 import server.api.services.TopologyService;
-import java.util.Map;
 
 @Controller( value = "/topologies/{team}/projects/{projectName}/topics")
 public class TopicController {
@@ -31,7 +31,7 @@ public class TopicController {
       @PathVariable String team,
       @PathVariable String projectName,
       @PathVariable String topicName,
-      @NotNull @Body Map<String, String> config) {
+      @NotNull @Body HashMap<String, String> config) {
 
     Topology topology = service.findByTeam(team);
 

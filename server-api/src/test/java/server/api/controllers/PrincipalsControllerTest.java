@@ -2,6 +2,7 @@ package server.api.controllers;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+import com.purbon.kafka.topology.model.users.*;
 import io.micronaut.http.HttpRequest;
 import io.micronaut.test.annotation.MicronautTest;
 import java.util.Collections;
@@ -9,12 +10,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import org.junit.jupiter.api.Test;
-import server.api.model.topology.Topic;
-import server.api.model.topology.Topology;
-import server.api.model.topology.users.Connector;
-import server.api.model.topology.users.Consumer;
-import server.api.model.topology.users.KStream;
-import server.api.model.topology.users.Producer;
+import com.purbon.kafka.topology.model.*;
 
 @MicronautTest
 public class PrincipalsControllerTest extends BaseControllerTest {
@@ -111,9 +107,8 @@ public class PrincipalsControllerTest extends BaseControllerTest {
     Connector con = topology.getProjects().get(0).getConnectors().get(0);
 
     assertEquals("User:bar", con.getPrincipal());
-    assertEquals(Connector.DEFAULT_CONNECT_CONFIGS_TOPIC, con.getConfigs_topic());
-    assertEquals(Connector.DEFAULT_CONNECT_GROUP, con.getGroup());
-
+    assertEquals("connect-configs", con.configsTopicString());
+    assertEquals("connect-cluster", con.groupString());
   }
 
   @Test
@@ -145,8 +140,8 @@ public class PrincipalsControllerTest extends BaseControllerTest {
     Connector con = topology.getProjects().get(0).getConnectors().get(0);
 
     assertEquals("User:bar", con.getPrincipal());
-    assertEquals("configs", con.getConfigs_topic());
-    assertEquals("foo", con.getGroup());
+    assertEquals("configs", con.configsTopicString());
+    assertEquals("foo", con.groupString());
 
     List<String> readTopics = con.getTopics().get("read");
     assertEquals("topicA", readTopics.get(0));

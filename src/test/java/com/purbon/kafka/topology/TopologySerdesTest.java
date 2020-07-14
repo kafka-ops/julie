@@ -135,7 +135,7 @@ public class TopologySerdesTest {
     Topology topology = new Topology();
     topology.setTeam("team");
 
-    project.setTopology(topology);
+    project.setTopologyPrefix(topology.buildNamePrefix());
     topology.addProject(project);
 
     Topic topic = new Topic("foo", "json");
@@ -173,8 +173,8 @@ public class TopologySerdesTest {
     List<SchemaRegistry> listOfSR = topology.getPlatform().getSchemaRegistry();
     assertEquals(2, listOfSR.size());
     assertEquals("User:SchemaRegistry01", listOfSR.get(0).getPrincipal());
-    assertEquals("foo", listOfSR.get(0).getTopic());
-    assertEquals("bar", listOfSR.get(0).getGroup());
+    assertEquals("foo", listOfSR.get(0).topicString());
+    assertEquals("bar", listOfSR.get(0).groupString());
     assertEquals("User:SchemaRegistry02", listOfSR.get(1).getPrincipal());
 
     List<ControlCenter> listOfC3 = topology.getPlatform().getControlCenter();

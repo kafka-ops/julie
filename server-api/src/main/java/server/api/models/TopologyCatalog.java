@@ -1,7 +1,7 @@
 package server.api.models;
 
+import com.purbon.kafka.topology.model.Topology;
 import javax.inject.Singleton;
-import server.api.model.topology.Topology;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
