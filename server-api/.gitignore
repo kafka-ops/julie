@@ -11,3 +11,16 @@ out/
 .project
 .settings
 .classpath
+
+##
+# Kafka docker
+##
+kafka.properties
+log4j.properties
+tools-log4j.properties
+
+##
+# Zookeeper docker
+##
+
+zookeeper.properties
