@@ -10,6 +10,7 @@ import com.purbon.kafka.topology.api.mds.MDSApiClientBuilder;
 import com.purbon.kafka.topology.clusterstate.FileSateProcessor;
 import com.purbon.kafka.topology.clusterstate.RedisSateProcessor;
 import com.purbon.kafka.topology.model.Topology;
+import com.purbon.kafka.topology.model.TopologyImpl;
 import com.purbon.kafka.topology.serdes.TopologySerdes;
 import java.io.File;
 import java.io.IOException;
@@ -43,7 +44,7 @@ public class KafkaTopologyBuilder {
       TopologyBuilderConfig config,
       TopologyBuilderAdminClient adminClient,
       AccessControlProvider accessControlProvider) {
-    this(topologyFile, new Topology(), parser, config, adminClient, accessControlProvider);
+    this(topologyFile, new TopologyImpl(), parser, config, adminClient, accessControlProvider);
   }
 
   public KafkaTopologyBuilder(
@@ -145,7 +146,7 @@ public class KafkaTopologyBuilder {
                   return parser.deserialise(path.toFile());
                 } catch (IOException e) {
                   e.printStackTrace();
-                  return new Topology();
+                  return new TopologyImpl();
                 }
               })
           .forEach(subTopology -> topologies.add(subTopology));

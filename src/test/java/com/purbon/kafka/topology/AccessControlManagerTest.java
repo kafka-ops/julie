@@ -10,6 +10,7 @@ import com.purbon.kafka.topology.model.Platform;
 import com.purbon.kafka.topology.model.Project;
 import com.purbon.kafka.topology.model.Topic;
 import com.purbon.kafka.topology.model.Topology;
+import com.purbon.kafka.topology.model.TopologyImpl;
 import com.purbon.kafka.topology.model.users.Connector;
 import com.purbon.kafka.topology.model.users.Consumer;
 import com.purbon.kafka.topology.model.users.ControlCenter;
@@ -60,7 +61,7 @@ public class AccessControlManagerTest {
     Topic topicA = new Topic("topicA");
     project.addTopic(topicA);
 
-    Topology topology = new Topology();
+    Topology topology = new TopologyImpl();
     topology.addProject(project);
 
     List<String> users = Arrays.asList(new String[] {"User:app1"});
@@ -83,7 +84,7 @@ public class AccessControlManagerTest {
     Topic topicA = new Topic("topicA");
     project.addTopic(topicA);
 
-    Topology topology = new Topology();
+    Topology topology = new TopologyImpl();
     topology.addProject(project);
 
     List<String> users = Arrays.asList(new String[] {"User:app1"});
@@ -108,7 +109,7 @@ public class AccessControlManagerTest {
     app.setTopics(topics);
     project.setStreams(Collections.singletonList(app));
 
-    Topology topology = new Topology();
+    Topology topology = new TopologyImpl();
     topology.addProject(project);
 
     accessControlManager.sync(topology);
@@ -133,7 +134,7 @@ public class AccessControlManagerTest {
   public void newSchemaRegistryACLCreation() throws IOException {
 
     Project project = new Project();
-    Topology topology = new Topology();
+    Topology topology = new TopologyImpl();
     topology.addProject(project);
 
     Platform platform = new Platform();
@@ -153,7 +154,7 @@ public class AccessControlManagerTest {
   public void newControlCenterACLCreation() throws IOException {
 
     Project project = new Project();
-    Topology topology = new Topology();
+    Topology topology = new TopologyImpl();
     topology.addProject(project);
 
     Platform platform = new Platform();
@@ -185,7 +186,7 @@ public class AccessControlManagerTest {
 
     project.setConnectors(Arrays.asList(connector1));
 
-    Topology topology = new Topology();
+    Topology topology = new TopologyImpl();
     topology.addProject(project);
 
     accessControlManager.sync(topology);

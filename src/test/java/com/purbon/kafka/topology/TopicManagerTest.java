@@ -10,6 +10,7 @@ import static org.mockito.Mockito.when;
 import com.purbon.kafka.topology.model.Project;
 import com.purbon.kafka.topology.model.Topic;
 import com.purbon.kafka.topology.model.Topology;
+import com.purbon.kafka.topology.model.TopologyImpl;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collections;
@@ -50,7 +51,7 @@ public class TopicManagerTest {
     project.addTopic(topicA);
     Topic topicB = new Topic("topicB");
     project.addTopic(topicB);
-    Topology topology = new Topology();
+    Topology topology = new TopologyImpl();
     topology.addProject(project);
 
     when(adminClient.listApplicationTopics()).thenReturn(new HashSet<>());
@@ -68,7 +69,7 @@ public class TopicManagerTest {
     project.addTopic(topicA);
     Topic topicB = new Topic("topicB");
     project.addTopic(topicB);
-    Topology topology = new Topology();
+    Topology topology = new TopologyImpl();
     topology.addProject(project);
 
     Set<String> dummyTopicList = new HashSet<>();
@@ -85,7 +86,7 @@ public class TopicManagerTest {
   public void topicDeleteTest() throws IOException {
 
     // Original Topology
-    Topology topology0 = new Topology();
+    Topology topology0 = new TopologyImpl();
     Project project0 = new Project("project");
     topology0.addProject(project0);
 
@@ -93,7 +94,7 @@ public class TopicManagerTest {
     project0.addTopic(topicC);
 
     // Topology after delete action
-    Topology topology = new Topology();
+    Topology topology = new TopologyImpl();
     Project project = new Project("project");
     topology.addProject(project);
 
@@ -127,7 +128,7 @@ public class TopicManagerTest {
     TopicManager topicManager = new TopicManager(adminClient, config);
 
     // Topology after delete action
-    Topology topology = new Topology();
+    Topology topology = new TopologyImpl();
     Project project = new Project("project");
     topology.addProject(project);
 
@@ -166,7 +167,7 @@ public class TopicManagerTest {
     TopicManager topicManager = new TopicManager(adminClient, config);
 
     // Topology after delete action
-    Topology topology = new Topology();
+    Topology topology = new TopologyImpl();
     Project project = new Project("project");
     topology.addProject(project);
 

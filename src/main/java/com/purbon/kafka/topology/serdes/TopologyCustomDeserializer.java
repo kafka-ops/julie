@@ -8,6 +8,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.purbon.kafka.topology.model.Platform;
 import com.purbon.kafka.topology.model.Topology;
+import com.purbon.kafka.topology.model.TopologyImpl;
 import com.purbon.kafka.topology.model.users.ControlCenter;
 import com.purbon.kafka.topology.model.users.SchemaRegistry;
 import java.io.IOException;
@@ -39,7 +40,7 @@ public class TopologyCustomDeserializer extends StdDeserializer<Topology> {
     JsonNode rootNode = parser.getCodec().readTree(parser);
 
     JsonNode projects = rootNode.get(PROJECTS_KEY);
-    Topology topology = new Topology();
+    Topology topology = new TopologyImpl();
 
     addProject2Topology(parser, topology, projects);
 

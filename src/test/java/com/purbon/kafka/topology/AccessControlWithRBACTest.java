@@ -8,6 +8,7 @@ import static org.mockito.Mockito.when;
 import com.purbon.kafka.topology.model.Project;
 import com.purbon.kafka.topology.model.Topic;
 import com.purbon.kafka.topology.model.Topology;
+import com.purbon.kafka.topology.model.TopologyImpl;
 import com.purbon.kafka.topology.roles.RBACProvider;
 import java.io.IOException;
 import java.util.Arrays;
@@ -46,7 +47,7 @@ public class AccessControlWithRBACTest {
     Topic topicA = new Topic("topicA");
     project.addTopic(topicA);
 
-    Topology topology = new Topology();
+    Topology topology = new TopologyImpl();
     topology.addProject(project);
 
     when(aclsProvider.setPredefinedRole("User:Foo", "ResourceOwner", project.buildTopicPrefix()))

@@ -10,6 +10,7 @@ import com.purbon.kafka.topology.model.Platform;
 import com.purbon.kafka.topology.model.Project;
 import com.purbon.kafka.topology.model.Topic;
 import com.purbon.kafka.topology.model.Topology;
+import com.purbon.kafka.topology.model.TopologyImpl;
 import com.purbon.kafka.topology.model.users.Connector;
 import com.purbon.kafka.topology.model.users.Consumer;
 import com.purbon.kafka.topology.model.users.ControlCenter;
@@ -84,7 +85,7 @@ public class AccessControlManagerIT {
     Topic topicA = new Topic("topicA");
     project.addTopic(topicA);
 
-    Topology topology = new Topology();
+    Topology topology = new TopologyImpl();
     topology.setTeam("integration-test");
     topology.addOther("source", "testAclsCleanup");
     topology.addProject(project);
@@ -112,7 +113,7 @@ public class AccessControlManagerIT {
     Topic topicA = new Topic("topicA");
     project.addTopic(topicA);
 
-    Topology topology = new Topology();
+    Topology topology = new TopologyImpl();
     topology.setTeam("integration-test");
     topology.addOther("source", "testConsumerAclsCreation");
     topology.addProject(project);
@@ -133,7 +134,7 @@ public class AccessControlManagerIT {
     Topic topicA = new Topic("topicA");
     project.addTopic(topicA);
 
-    Topology topology = new Topology();
+    Topology topology = new TopologyImpl();
     topology.setTeam("integration-test");
     topology.addOther("source", "producerAclsCreation");
     topology.addProject(project);
@@ -155,7 +156,7 @@ public class AccessControlManagerIT {
     app.setTopics(topics);
     project.setStreams(Collections.singletonList(app));
 
-    Topology topology = new Topology();
+    Topology topology = new TopologyImpl();
     topology.setTeam("integration-test");
     topology.addOther("source", "kstreamsAclsCreation");
     topology.addProject(project);
@@ -170,7 +171,7 @@ public class AccessControlManagerIT {
       throws ExecutionException, InterruptedException, IOException {
     Project project = new Project();
 
-    Topology topology = new Topology();
+    Topology topology = new TopologyImpl();
     topology.setTeam("integration-test");
     topology.addOther("source", "schemaRegistryAclsCreation");
     topology.addProject(project);
@@ -201,7 +202,7 @@ public class AccessControlManagerIT {
 
     Project project = new Project();
 
-    Topology topology = new Topology();
+    Topology topology = new TopologyImpl();
     topology.setTeam("integration-test");
     topology.addOther("source", "controlcenterAclsCreation");
     topology.addProject(project);
@@ -230,7 +231,7 @@ public class AccessControlManagerIT {
     connector.setTopics(topics);
     project.setConnectors(Collections.singletonList(connector));
 
-    Topology topology = new Topology();
+    Topology topology = new TopologyImpl();
     topology.setTeam("integration-test");
     topology.addOther("source", "connectAclsCreation");
     topology.addProject(project);
