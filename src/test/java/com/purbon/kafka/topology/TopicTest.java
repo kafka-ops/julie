@@ -3,6 +3,7 @@ package com.purbon.kafka.topology;
 import com.purbon.kafka.topology.model.Project;
 import com.purbon.kafka.topology.model.Topic;
 import com.purbon.kafka.topology.model.Topology;
+import com.purbon.kafka.topology.model.TopologyImpl;
 import java.util.Arrays;
 import org.junit.Assert;
 import org.junit.Before;
@@ -15,7 +16,7 @@ public class TopicTest {
 
   @Before
   public void before() {
-    topology = new Topology();
+    topology = new TopologyImpl();
     topology.setTeam("team");
 
     project = new Project();
@@ -36,7 +37,7 @@ public class TopicTest {
   @Test
   public void buildTopicNameWithOtherDataPointsTest() {
 
-    Topology topology = new Topology();
+    Topology topology = new TopologyImpl();
     topology.setTeam("team");
 
     topology.addOther("other-f", "other");

@@ -6,6 +6,7 @@ import static org.junit.Assert.assertTrue;
 import com.purbon.kafka.topology.model.Project;
 import com.purbon.kafka.topology.model.Topic;
 import com.purbon.kafka.topology.model.Topology;
+import com.purbon.kafka.topology.model.TopologyImpl;
 import com.purbon.kafka.topology.model.users.Connector;
 import com.purbon.kafka.topology.model.users.Consumer;
 import com.purbon.kafka.topology.model.users.ControlCenter;
@@ -52,7 +53,7 @@ public class TopologySerdesTest {
   @Test
   public void testTopologySerialisation() throws IOException {
 
-    Topology topology = new Topology();
+    Topology topology = new TopologyImpl();
     topology.setTeam("team");
     topology.setProjects(buildProjects());
 
@@ -66,7 +67,7 @@ public class TopologySerdesTest {
   @Test
   public void testTopicConfigSerdes() throws IOException {
 
-    Topology topology = new Topology();
+    Topology topology = new TopologyImpl();
     topology.setTeam("team");
 
     Topic topic = new Topic();
@@ -132,7 +133,7 @@ public class TopologySerdesTest {
 
     Project project = new Project("foo");
 
-    Topology topology = new Topology();
+    Topology topology = new TopologyImpl();
     topology.setTeam("team");
 
     project.setTopologyPrefix(topology.buildNamePrefix());

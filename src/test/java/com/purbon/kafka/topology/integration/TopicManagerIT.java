@@ -8,6 +8,7 @@ import com.purbon.kafka.topology.TopologyBuilderConfig;
 import com.purbon.kafka.topology.model.Project;
 import com.purbon.kafka.topology.model.Topic;
 import com.purbon.kafka.topology.model.Topology;
+import com.purbon.kafka.topology.model.TopologyImpl;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -85,7 +86,7 @@ public class TopicManagerIT {
     topicB.setConfig(config);
     project.addTopic(topicB);
 
-    Topology topology = new Topology();
+    Topology topology = new TopologyImpl();
     topology.addProject(project);
 
     topicManager.sync(topology);
@@ -107,7 +108,7 @@ public class TopicManagerIT {
 
     String internalTopic = createInternalTopic();
 
-    Topology topology = new Topology();
+    Topology topology = new TopologyImpl();
     topology.setTeam("testTopicDelete-test");
     topology.addProject(project);
 
@@ -116,7 +117,7 @@ public class TopicManagerIT {
     Topic topicC = new Topic("topicC");
     topicC.setConfig(buildDummyTopicConfig());
 
-    topology = new Topology();
+    topology = new TopologyImpl();
     topology.setTeam("testTopicDelete-test");
 
     project = new Project("project");
@@ -155,7 +156,7 @@ public class TopicManagerIT {
     topicA.setConfig(config);
     project.addTopic(topicA);
 
-    Topology topology = new Topology();
+    Topology topology = new TopologyImpl();
     topology.setTeam("testTopicCreationWithConfig-test");
     topology.addProject(project);
 
@@ -176,7 +177,7 @@ public class TopicManagerIT {
     topicA.setConfig(config);
     project.addTopic(topicA);
 
-    Topology topology = new Topology();
+    Topology topology = new TopologyImpl();
     topology.setTeam("testTopicConfigUpdate-test");
     topology.addProject(project);
 

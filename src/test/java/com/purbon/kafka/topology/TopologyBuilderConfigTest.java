@@ -9,6 +9,7 @@ import static com.purbon.kafka.topology.TopologyBuilderConfig.MDS_USER_CONFIG;
 
 import com.purbon.kafka.topology.exceptions.ConfigurationException;
 import com.purbon.kafka.topology.model.Topology;
+import com.purbon.kafka.topology.model.TopologyImpl;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
@@ -29,7 +30,7 @@ public class TopologyBuilderConfigTest {
 
   @Test
   public void testWithAllRequiredFields() throws ConfigurationException {
-    Topology topology = new Topology();
+    Topology topology = new TopologyImpl();
 
     props.put(ACCESS_CONTROL_IMPLEMENTATION_CLASS, TopologyBuilderConfig.RBAC_ACCESS_CONTROL_CLASS);
     props.put(MDS_SERVER, "example.com");

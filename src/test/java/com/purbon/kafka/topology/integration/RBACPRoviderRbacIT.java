@@ -16,6 +16,7 @@ import com.purbon.kafka.topology.model.Platform;
 import com.purbon.kafka.topology.model.Project;
 import com.purbon.kafka.topology.model.Topic;
 import com.purbon.kafka.topology.model.Topology;
+import com.purbon.kafka.topology.model.TopologyImpl;
 import com.purbon.kafka.topology.model.users.Connector;
 import com.purbon.kafka.topology.model.users.Consumer;
 import com.purbon.kafka.topology.model.users.ControlCenter;
@@ -72,7 +73,7 @@ public class RBACPRoviderRbacIT extends MDSBaseTest {
     Topic topicA = new Topic("topicA");
     project.addTopic(topicA);
 
-    Topology topology = new Topology();
+    Topology topology = new TopologyImpl();
     topology.setTeam("testConsumerAclsCreation-test");
     topology.addProject(project);
 
@@ -95,7 +96,7 @@ public class RBACPRoviderRbacIT extends MDSBaseTest {
     Topic topicA = new Topic("topicA");
     project.addTopic(topicA);
 
-    Topology topology = new Topology();
+    Topology topology = new TopologyImpl();
     topology.setTeam("producerAclsCreation-test");
     topology.addProject(project);
 
@@ -119,7 +120,7 @@ public class RBACPRoviderRbacIT extends MDSBaseTest {
     app.setTopics(topics);
     project.setStreams(Collections.singletonList(app));
 
-    Topology topology = new Topology();
+    Topology topology = new TopologyImpl();
     topology.setTeam("kstreamsAclsCreation-test");
     topology.addProject(project);
 
@@ -141,7 +142,7 @@ public class RBACPRoviderRbacIT extends MDSBaseTest {
     connector.setTopics(topics);
     project.setConnectors(Collections.singletonList(connector));
 
-    Topology topology = new Topology();
+    Topology topology = new TopologyImpl();
     topology.setTeam("connectAclsCreation-test");
     topology.addProject(project);
 
@@ -156,7 +157,7 @@ public class RBACPRoviderRbacIT extends MDSBaseTest {
   public void schemaRegistryAclsCreation() throws IOException {
     Project project = new Project();
 
-    Topology topology = new Topology();
+    Topology topology = new TopologyImpl();
     topology.setTeam("schemaRegistryAclsCreation-test");
     topology.addProject(project);
 
@@ -182,7 +183,7 @@ public class RBACPRoviderRbacIT extends MDSBaseTest {
   public void controlcenterAclsCreation() throws IOException {
     Project project = new Project();
 
-    Topology topology = new Topology();
+    Topology topology = new TopologyImpl();
     topology.setTeam("controlcenterAclsCreation-test");
     topology.addProject(project);
 
