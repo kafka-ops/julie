@@ -1,0 +1,61 @@
+version: '3.4'
+services:
+  zookeeper:
+    image: confluentinc/cp-zookeeper:5.3.1
+    container_name: zookeeper
+    volumes:
+      - "$PWD/zookeeper:/etc/kafka"
+    ports:
+      - 2181:2181
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+      KAFKA_OPTS: ' -Djava.security.auth.login.config=/etc/kafka/zookeeper.sasl.jaas.config -Dzookeeper.authProvider.1=org.apache.zookeeper.server.auth.SASLAuthenticationProvider -DrequireClientAuthScheme=sasl'
+
+  kafka:
+    image: confluentinc/cp-enterprise-kafka:5.3.1
+    depends_on:
+      - zookeeper
+    container_name: kafka
+    volumes:
+      - "$PWD/kafka:/etc/kafka"
+    ports:
+      - 9092:9092
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT,SASL_PLAINTEXT:SASL_PLAINTEXT,SASL_PLAINTEXT_HOST:SASL_PLAINTEXT
+      KAFKA_INTER_BROKER_LISTENER_NAME: SASL_PLAINTEXT
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:29092,SASL_PLAINTEXT://kafka:29093,SASL_PLAINTEXT_HOST://localhost:9092
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: "true"
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 100
+      CONFLUENT_METRICS_REPORTER_TOPIC_REPLICAS: 1
+      CONFLUENT_SUPPORT_METRICS_ENABLE: 'false'
+      CONFLUENT_SUPPORT_CUSTOMER_ID: 'anonymous'
+      KAFKA_SASL_ENABLED_MECHANISMS: 'PLAIN'
+      KAFKA_AUTHORIZER_CLASS_NAME: 'kafka.security.auth.SimpleAclAuthorizer'
+      KAFKA_MECHANISMS_INTER_BROKER_PROTOCOL: 'SASL_PLAINTEXT'
+      KAFKA_SASL_MECHANISM_INTER_BROKER_PROTOCOL: 'PLAIN'
+      KAFKA_ALLOW_EVERYONE_IF_NO_ACL_FOUND: 'false'
+      KAFKA_SUPER_USERS: 'User:kafka'
+      KAFKA_OPTS: '-Djava.security.auth.login.config=/etc/kafka/kafka_server_jaas.conf'
+      KAFKA_LOG4J_LOGGERS: "kafka.authorizer.logger=DEBUG"
+
+  mongo:
+      image: bitnami/mongodb
+      container_name: mongodb
+      ports:
+        - 27017:27017
+  server-api:
+      image: purbon/kafka-topology-builder-server
+      container_name: server-api
+      ports:
+        - 8080:8080
+      volumes:
+        - ./demo:/etc/demo
+      environment:
+        MONGO_HOST: "mongodb"
+        KAFKA_HOST: "kafka"
+        KAFKA_PORT: "29093"
+        CONFIG_FILE: "/etc/demo/topology-builder.properties"
