@@ -60,10 +60,6 @@
       <scope>compile</scope>
     </dependency>
     <dependency>
-      <groupId>io.micronaut.kafka</groupId>
-      <artifactId>micronaut-kafka</artifactId>
-    </dependency>
-    <dependency>
       <groupId>io.micronaut.mongodb</groupId>
       <artifactId>micronaut-mongo-sync</artifactId>
     </dependency>
