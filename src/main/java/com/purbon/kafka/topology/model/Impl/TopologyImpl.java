@@ -1,5 +1,8 @@
-package com.purbon.kafka.topology.model;
+package com.purbon.kafka.topology.model.Impl;
 
+import com.purbon.kafka.topology.model.Platform;
+import com.purbon.kafka.topology.model.Project;
+import com.purbon.kafka.topology.model.Topology;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;

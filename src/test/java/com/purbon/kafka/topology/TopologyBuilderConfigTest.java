@@ -8,8 +8,8 @@ import static com.purbon.kafka.topology.TopologyBuilderConfig.MDS_SERVER;
 import static com.purbon.kafka.topology.TopologyBuilderConfig.MDS_USER_CONFIG;
 
 import com.purbon.kafka.topology.exceptions.ConfigurationException;
+import com.purbon.kafka.topology.model.Impl.TopologyImpl;
 import com.purbon.kafka.topology.model.Topology;
-import com.purbon.kafka.topology.model.TopologyImpl;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;

@@ -6,6 +6,7 @@ import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
+import com.purbon.kafka.topology.model.Impl.ProjectImpl;
 import com.purbon.kafka.topology.model.Project;
 import com.purbon.kafka.topology.model.users.Connector;
 import com.purbon.kafka.topology.model.users.Consumer;
@@ -41,7 +42,7 @@ public class ProjectCustomDeserializer extends StdDeserializer<Project> {
   public Project deserialize(JsonParser parser, DeserializationContext context) throws IOException {
 
     JsonNode rootNode = parser.getCodec().readTree(parser);
-    Project project = new Project();
+    Project project = new ProjectImpl();
 
     String nameFieldValue = rootNode.get(NAME_KEY).asText();
     project.setName(nameFieldValue);

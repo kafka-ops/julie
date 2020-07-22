@@ -9,8 +9,8 @@ import static com.purbon.kafka.topology.TopologyBuilderConfig.STATE_PROCESSOR_IM
 import com.purbon.kafka.topology.api.mds.MDSApiClientBuilder;
 import com.purbon.kafka.topology.clusterstate.FileSateProcessor;
 import com.purbon.kafka.topology.clusterstate.RedisSateProcessor;
+import com.purbon.kafka.topology.model.Impl.TopologyImpl;
 import com.purbon.kafka.topology.model.Topology;
-import com.purbon.kafka.topology.model.TopologyImpl;
 import com.purbon.kafka.topology.serdes.TopologySerdes;
 import java.io.File;
 import java.io.IOException;

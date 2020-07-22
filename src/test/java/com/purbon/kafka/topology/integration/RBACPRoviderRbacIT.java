@@ -12,11 +12,12 @@ import static org.mockito.Mockito.verify;
 import com.purbon.kafka.topology.AccessControlManager;
 import com.purbon.kafka.topology.ClusterState;
 import com.purbon.kafka.topology.api.mds.MDSApiClient;
+import com.purbon.kafka.topology.model.*;
+import com.purbon.kafka.topology.model.Impl.ProjectImpl;
+import com.purbon.kafka.topology.model.Impl.TopologyImpl;
 import com.purbon.kafka.topology.model.Platform;
 import com.purbon.kafka.topology.model.Project;
 import com.purbon.kafka.topology.model.Topic;
-import com.purbon.kafka.topology.model.Topology;
-import com.purbon.kafka.topology.model.TopologyImpl;
 import com.purbon.kafka.topology.model.users.Connector;
 import com.purbon.kafka.topology.model.users.Consumer;
 import com.purbon.kafka.topology.model.users.ControlCenter;
@@ -68,7 +69,7 @@ public class RBACPRoviderRbacIT extends MDSBaseTest {
     List<Consumer> consumers = new ArrayList<>();
     consumers.add(new Consumer("User:app1"));
 
-    Project project = new Project("project");
+    Project project = new ProjectImpl("project");
     project.setConsumers(consumers);
     Topic topicA = new Topic("topicA");
     project.addTopic(topicA);
@@ -91,7 +92,7 @@ public class RBACPRoviderRbacIT extends MDSBaseTest {
     List<Producer> producers = new ArrayList<>();
     producers.add(new Producer("User:app2"));
 
-    Project project = new Project("project");
+    Project project = new ProjectImpl("project");
     project.setProducers(producers);
     Topic topicA = new Topic("topicA");
     project.addTopic(topicA);
@@ -110,7 +111,7 @@ public class RBACPRoviderRbacIT extends MDSBaseTest {
 
   @Test
   public void kstreamsAclsCreation() throws IOException {
-    Project project = new Project();
+    Project project = new ProjectImpl();
 
     KStream app = new KStream();
     app.setPrincipal("User:App3");
@@ -133,7 +134,7 @@ public class RBACPRoviderRbacIT extends MDSBaseTest {
 
   @Test
   public void connectAclsCreation() throws IOException {
-    Project project = new Project();
+    Project project = new ProjectImpl();
 
     Connector connector = new Connector();
     connector.setPrincipal("User:Connect");
@@ -155,7 +156,7 @@ public class RBACPRoviderRbacIT extends MDSBaseTest {
 
   @Test
   public void schemaRegistryAclsCreation() throws IOException {
-    Project project = new Project();
+    Project project = new ProjectImpl();
 
     Topology topology = new TopologyImpl();
     topology.setTeam("schemaRegistryAclsCreation-test");
@@ -181,7 +182,7 @@ public class RBACPRoviderRbacIT extends MDSBaseTest {
 
   @Test
   public void controlcenterAclsCreation() throws IOException {
-    Project project = new Project();
+    Project project = new ProjectImpl();
 
     Topology topology = new TopologyImpl();
     topology.setTeam("controlcenterAclsCreation-test");

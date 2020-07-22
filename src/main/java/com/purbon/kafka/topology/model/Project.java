@@ -4,126 +4,50 @@ import com.purbon.kafka.topology.model.users.Connector;
 import com.purbon.kafka.topology.model.users.Consumer;
 import com.purbon.kafka.topology.model.users.KStream;
 import com.purbon.kafka.topology.model.users.Producer;
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class Project {
+public interface Project {
 
-  private String name;
-  private List<String> zookeepers;
+  String getName();
 
-  private List<Consumer> consumers;
-  private List<Producer> producers;
-  private List<KStream> streams;
-  private List<Connector> connectors;
-  private Map<String, List<String>> rbacRawRoles;
+  void setName(String name);
 
-  private List<Topic> topics;
+  List<String> getZookeepers();
 
-  private String topologyPrefix;
+  void setZookeepers(List<String> zookeepers);
 
-  public Project() {
-    this("default");
-  }
+  List<Consumer> getConsumers();
 
-  public Project(String name) {
-    this.name = name;
-    this.topics = new ArrayList<>();
-    this.consumers = new ArrayList<>();
-    this.producers = new ArrayList<>();
-    this.streams = new ArrayList<>();
-    this.consumers = new ArrayList<>();
-    this.zookeepers = new ArrayList<>();
-    this.connectors = new ArrayList<>();
-    this.rbacRawRoles = new HashMap<>();
-  }
+  void setConsumers(List<Consumer> consumers);
 
-  public String getName() {
-    return name;
-  }
+  List<Producer> getProducers();
 
-  public void setName(String name) {
-    this.name = name;
-  }
+  void setProducers(List<Producer> producers);
 
-  public List<String> getZookeepers() {
-    return zookeepers;
-  }
+  List<KStream> getStreams();
 
-  public void setZookeepers(List<String> zookeepers) {
-    this.zookeepers = zookeepers;
-  }
+  void setStreams(List<KStream> streams);
 
-  public List<Consumer> getConsumers() {
-    return consumers;
-  }
+  List<Connector> getConnectors();
 
-  public void setConsumers(List<Consumer> consumers) {
-    this.consumers = consumers;
-  }
+  void setConnectors(List<Connector> connectors);
 
-  public List<Producer> getProducers() {
-    return producers;
-  }
+  List<Topic> getTopics();
 
-  public void setProducers(List<Producer> producers) {
-    this.producers = producers;
-  }
+  void addTopic(Topic topic);
 
-  public List<KStream> getStreams() {
-    return streams;
-  }
+  void setTopics(List<Topic> topics);
 
-  public void setStreams(List<KStream> streams) {
-    this.streams = streams;
-  }
+  String buildTopicPrefix();
 
-  public List<Connector> getConnectors() {
-    return connectors;
-  }
+  String buildTopicPrefix(String topologyPrefix);
 
-  public void setConnectors(List<Connector> connectors) {
-    this.connectors = connectors;
-  }
+  void setTopologyPrefix(String topologyPrefix);
 
-  public List<Topic> getTopics() {
-    return topics;
-  }
+  String getTopologyPrefix();
 
-  public void addTopic(Topic topic) {
-    topic.setProjectPrefix(buildTopicPrefix());
-    this.topics.add(topic);
-  }
+  void setRbacRawRoles(Map<String, List<String>> rbacRawRoles);
 
-  public void setTopics(List<Topic> topics) {
-    this.topics = topics;
-  }
-
-  public String buildTopicPrefix() {
-    return buildTopicPrefix(topologyPrefix);
-  }
-
-  public String buildTopicPrefix(String topologyPrefix) {
-    StringBuilder sb = new StringBuilder();
-    sb.append(topologyPrefix).append(".").append(name);
-    return sb.toString();
-  }
-
-  public void setTopologyPrefix(String topologyPrefix) {
-    this.topologyPrefix = topologyPrefix;
-  }
-
-  public String getTopologyPrefix() {
-    return topologyPrefix;
-  }
-
-  public void setRbacRawRoles(Map<String, List<String>> rbacRawRoles) {
-    this.rbacRawRoles = rbacRawRoles;
-  }
-
-  public Map<String, List<String>> getRbacRawRoles() {
-    return rbacRawRoles;
-  }
+  Map<String, List<String>> getRbacRawRoles();
 }

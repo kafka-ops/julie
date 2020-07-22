@@ -6,11 +6,12 @@ import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
+import com.purbon.kafka.topology.model.Impl.ProjectImpl;
+import com.purbon.kafka.topology.model.Impl.TopologyImpl;
 import com.purbon.kafka.topology.model.Platform;
 import com.purbon.kafka.topology.model.Project;
 import com.purbon.kafka.topology.model.Topic;
 import com.purbon.kafka.topology.model.Topology;
-import com.purbon.kafka.topology.model.TopologyImpl;
 import com.purbon.kafka.topology.model.users.Connector;
 import com.purbon.kafka.topology.model.users.Consumer;
 import com.purbon.kafka.topology.model.users.ControlCenter;
@@ -55,7 +56,7 @@ public class AccessControlManagerTest {
 
     List<Consumer> consumers = new ArrayList<>();
     consumers.add(new Consumer("User:app1"));
-    Project project = new Project();
+    Project project = new ProjectImpl();
     project.setConsumers(consumers);
 
     Topic topicA = new Topic("topicA");
@@ -78,7 +79,7 @@ public class AccessControlManagerTest {
 
     List<Producer> producers = new ArrayList<>();
     producers.add(new Producer("User:app1"));
-    Project project = new Project();
+    Project project = new ProjectImpl();
     project.setProducers(producers);
 
     Topic topicA = new Topic("topicA");
@@ -99,7 +100,7 @@ public class AccessControlManagerTest {
   @Test
   public void newKafkaStreamsAppACLsCreation() throws IOException {
 
-    Project project = new Project();
+    Project project = new ProjectImpl();
 
     KStream app = new KStream();
     app.setPrincipal("User:App0");
@@ -133,7 +134,7 @@ public class AccessControlManagerTest {
   @Test
   public void newSchemaRegistryACLCreation() throws IOException {
 
-    Project project = new Project();
+    Project project = new ProjectImpl();
     Topology topology = new TopologyImpl();
     topology.addProject(project);
 
@@ -153,7 +154,7 @@ public class AccessControlManagerTest {
   @Test
   public void newControlCenterACLCreation() throws IOException {
 
-    Project project = new Project();
+    Project project = new ProjectImpl();
     Topology topology = new TopologyImpl();
     topology.addProject(project);
 
@@ -176,7 +177,7 @@ public class AccessControlManagerTest {
   @Test
   public void newKafkaConnectACLsCreation() throws IOException {
 
-    Project project = new Project();
+    Project project = new ProjectImpl();
 
     Connector connector1 = new Connector();
     connector1.setPrincipal("User:Connect1");

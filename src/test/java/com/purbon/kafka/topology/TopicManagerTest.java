@@ -7,10 +7,11 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import com.purbon.kafka.topology.model.Impl.ProjectImpl;
+import com.purbon.kafka.topology.model.Impl.TopologyImpl;
 import com.purbon.kafka.topology.model.Project;
 import com.purbon.kafka.topology.model.Topic;
 import com.purbon.kafka.topology.model.Topology;
-import com.purbon.kafka.topology.model.TopologyImpl;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collections;
@@ -46,7 +47,7 @@ public class TopicManagerTest {
   @Test
   public void newTopicCreationTest() throws IOException {
 
-    Project project = new Project("project");
+    Project project = new ProjectImpl("project");
     Topic topicA = new Topic("topicA");
     project.addTopic(topicA);
     Topic topicB = new Topic("topicB");
@@ -64,7 +65,7 @@ public class TopicManagerTest {
   @Test
   public void topicUpdateTest() throws IOException {
 
-    Project project = new Project("project");
+    Project project = new ProjectImpl("project");
     Topic topicA = new Topic("topicA");
     project.addTopic(topicA);
     Topic topicB = new Topic("topicB");
@@ -87,7 +88,7 @@ public class TopicManagerTest {
 
     // Original Topology
     Topology topology0 = new TopologyImpl();
-    Project project0 = new Project("project");
+    Project project0 = new ProjectImpl("project");
     topology0.addProject(project0);
 
     Topic topicC = new Topic("topicC");
@@ -95,7 +96,7 @@ public class TopicManagerTest {
 
     // Topology after delete action
     Topology topology = new TopologyImpl();
-    Project project = new Project("project");
+    Project project = new ProjectImpl("project");
     topology.addProject(project);
 
     Topic topicA = new Topic("topicA");
@@ -129,7 +130,7 @@ public class TopicManagerTest {
 
     // Topology after delete action
     Topology topology = new TopologyImpl();
-    Project project = new Project("project");
+    Project project = new ProjectImpl("project");
     topology.addProject(project);
 
     Topic topicA = new Topic("topicA");
@@ -168,7 +169,7 @@ public class TopicManagerTest {
 
     // Topology after delete action
     Topology topology = new TopologyImpl();
-    Project project = new Project("project");
+    Project project = new ProjectImpl("project");
     topology.addProject(project);
 
     Topic topicA = new Topic("topicA");
