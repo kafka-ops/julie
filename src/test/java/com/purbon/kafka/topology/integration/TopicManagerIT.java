@@ -6,6 +6,7 @@ import com.purbon.kafka.topology.TopicManager;
 import com.purbon.kafka.topology.TopologyBuilderAdminClient;
 import com.purbon.kafka.topology.TopologyBuilderConfig;
 import com.purbon.kafka.topology.model.Impl.ProjectImpl;
+import com.purbon.kafka.topology.model.Impl.TopicImpl;
 import com.purbon.kafka.topology.model.Impl.TopologyImpl;
 import com.purbon.kafka.topology.model.Project;
 import com.purbon.kafka.topology.model.Topic;
@@ -75,7 +76,7 @@ public class TopicManagerIT {
     config.put(TopicManager.REPLICATION_FACTOR, "1");
 
     Project project = new ProjectImpl("project");
-    Topic topicA = new Topic("topicA");
+    Topic topicA = new TopicImpl("topicA");
     topicA.setConfig(config);
     project.addTopic(topicA);
 
@@ -83,7 +84,7 @@ public class TopicManagerIT {
     config.put(TopicManager.NUM_PARTITIONS, "1");
     config.put(TopicManager.REPLICATION_FACTOR, "1");
 
-    Topic topicB = new Topic("topicB");
+    Topic topicB = new TopicImpl("topicB");
     topicB.setConfig(config);
     project.addTopic(topicB);
 
@@ -99,11 +100,11 @@ public class TopicManagerIT {
   public void testTopicDelete() throws ExecutionException, InterruptedException, IOException {
 
     Project project = new ProjectImpl("project");
-    Topic topicA = new Topic("topicA");
+    Topic topicA = new TopicImpl("topicA");
     topicA.setConfig(buildDummyTopicConfig());
     project.addTopic(topicA);
 
-    Topic topicB = new Topic("topicB");
+    Topic topicB = new TopicImpl("topicB");
     topicB.setConfig(buildDummyTopicConfig());
     project.addTopic(topicB);
 
@@ -115,7 +116,7 @@ public class TopicManagerIT {
 
     topicManager.sync(topology);
 
-    Topic topicC = new Topic("topicC");
+    Topic topicC = new TopicImpl("topicC");
     topicC.setConfig(buildDummyTopicConfig());
 
     topology = new TopologyImpl();
@@ -153,7 +154,7 @@ public class TopicManagerIT {
     HashMap<String, String> config = buildDummyTopicConfig();
     config.put("retention.bytes", "104857600"); // set the retention.bytes per partition to 100mb
     Project project = new ProjectImpl("project");
-    Topic topicA = new Topic("topicA");
+    Topic topicA = new TopicImpl("topicA");
     topicA.setConfig(config);
     project.addTopic(topicA);
 
@@ -174,7 +175,7 @@ public class TopicManagerIT {
     config.put("segment.bytes", "104857600");
 
     Project project = new ProjectImpl("project");
-    Topic topicA = new Topic("topicA");
+    Topic topicA = new TopicImpl("topicA");
     topicA.setConfig(config);
     project.addTopic(topicA);
 

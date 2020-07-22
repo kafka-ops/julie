@@ -6,6 +6,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.purbon.kafka.topology.model.Impl.ProjectImpl;
+import com.purbon.kafka.topology.model.Impl.TopicImpl;
 import com.purbon.kafka.topology.model.Impl.TopologyImpl;
 import com.purbon.kafka.topology.model.Project;
 import com.purbon.kafka.topology.model.Topic;
@@ -45,7 +46,7 @@ public class AccessControlWithRBACTest {
     Project project = new ProjectImpl();
     project.setRbacRawRoles(predefinedRoles);
 
-    Topic topicA = new Topic("topicA");
+    Topic topicA = new TopicImpl("topicA");
     project.addTopic(topicA);
 
     Topology topology = new TopologyImpl();

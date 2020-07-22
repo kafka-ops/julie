@@ -4,6 +4,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 import com.purbon.kafka.topology.model.Impl.ProjectImpl;
+import com.purbon.kafka.topology.model.Impl.TopicImpl;
 import com.purbon.kafka.topology.model.Impl.TopologyImpl;
 import com.purbon.kafka.topology.model.Project;
 import com.purbon.kafka.topology.model.Topic;
@@ -71,14 +72,14 @@ public class TopologySerdesTest {
     Topology topology = new TopologyImpl();
     topology.setTeam("team");
 
-    Topic topic = new Topic();
+    Topic topic = new TopicImpl();
     topic.setName("foo");
     HashMap<String, String> topicConfig = new HashMap<>();
     topicConfig.put("num_partitions", "1");
     topicConfig.put("replication_factor", "1");
     topic.setConfig(topicConfig);
 
-    Topic topicBar = new Topic("bar", "avro");
+    Topic topicBar = new TopicImpl("bar", "avro");
     HashMap<String, String> topicBarConfig = new HashMap<>();
     topicBarConfig.put("num_partitions", "1");
     topicBarConfig.put("replication_factor", "1");
@@ -140,7 +141,7 @@ public class TopologySerdesTest {
     project.setTopologyPrefix(topology.buildNamePrefix());
     topology.addProject(project);
 
-    Topic topic = new Topic("foo", "json");
+    Topic topic = new TopicImpl("foo", "json");
     HashMap<String, String> topicConfig = new HashMap<>();
     topicConfig.put("num_partitions", "3");
     topicConfig.put("replication_factor", "2");
@@ -148,7 +149,7 @@ public class TopologySerdesTest {
 
     project.addTopic(topic);
 
-    Topic topic2 = new Topic("topic2");
+    Topic topic2 = new TopicImpl("topic2");
     topic.setConfig(topicConfig);
     project.addTopic(topic2);
 

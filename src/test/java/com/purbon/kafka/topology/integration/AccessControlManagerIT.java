@@ -7,6 +7,7 @@ import com.purbon.kafka.topology.ClusterState;
 import com.purbon.kafka.topology.TopologyBuilderAdminClient;
 import com.purbon.kafka.topology.TopologyBuilderConfig;
 import com.purbon.kafka.topology.model.Impl.ProjectImpl;
+import com.purbon.kafka.topology.model.Impl.TopicImpl;
 import com.purbon.kafka.topology.model.Impl.TopologyImpl;
 import com.purbon.kafka.topology.model.Platform;
 import com.purbon.kafka.topology.model.Project;
@@ -83,7 +84,7 @@ public class AccessControlManagerIT {
 
     Project project = new ProjectImpl("project");
     project.setConsumers(consumers);
-    Topic topicA = new Topic("topicA");
+    Topic topicA = new TopicImpl("topicA");
     project.addTopic(topicA);
 
     Topology topology = new TopologyImpl();
@@ -111,7 +112,7 @@ public class AccessControlManagerIT {
 
     Project project = new ProjectImpl("project");
     project.setConsumers(consumers);
-    Topic topicA = new Topic("topicA");
+    Topic topicA = new TopicImpl("topicA");
     project.addTopic(topicA);
 
     Topology topology = new TopologyImpl();
@@ -132,7 +133,7 @@ public class AccessControlManagerIT {
 
     Project project = new ProjectImpl("project");
     project.setProducers(producers);
-    Topic topicA = new Topic("topicA");
+    Topic topicA = new TopicImpl("topicA");
     project.addTopic(topicA);
 
     Topology topology = new TopologyImpl();

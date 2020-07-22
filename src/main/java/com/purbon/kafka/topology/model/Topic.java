@@ -1,89 +1,27 @@
 package com.purbon.kafka.topology.model;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.annotation.JsonInclude.Include;
-import com.purbon.kafka.topology.TopicManager;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.purbon.kafka.topology.model.Impl.TopicImpl;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 
-public class Topic {
+@JsonDeserialize(as = TopicImpl.class)
+public interface Topic {
 
-  public static final String DEFAULT_TOPIC_NAME = "default";
+  String getName();
 
-  @JsonInclude(Include.NON_EMPTY)
-  private Optional<String> dataType;
+  void setName(String name);
 
-  private String name;
-  private HashMap<String, String> config;
+  HashMap<String, String> getConfig();
 
-  private String projectPrefix;
+  void setConfig(HashMap<String, String> config);
 
-  public Topic(String name) {
-    this(name, Optional.empty(), new HashMap<>());
-  }
+  Map<String, String> rawConfig();
 
-  public Topic(String name, String dataType) {
-    this(name, Optional.of(dataType), new HashMap<>());
-  }
+  Optional<String> getDataType();
 
-  public Topic(String name, Optional<String> dataType, HashMap<String, String> config) {
-    this.name = name;
-    this.dataType = dataType;
-    this.config = config;
-  }
+  void setProjectPrefix(String projectPrefix);
 
-  public Topic() {
-    this(DEFAULT_TOPIC_NAME, Optional.empty(), new HashMap<>());
-  }
-
-  public String getName() {
-    return name;
-  }
-
-  private String toString(String projectPrefix) {
-    StringBuilder sb = new StringBuilder();
-    sb.append(projectPrefix).append(".").append(getName());
-
-    if (getDataType().isPresent()) {
-      sb.append(".").append(getDataType().get());
-    }
-
-    return sb.toString();
-  }
-
-  @Override
-  public String toString() {
-    return toString(projectPrefix);
-  }
-
-  public void setName(String name) {
-    this.name = name;
-  }
-
-  public HashMap<String, String> getConfig() {
-    return config;
-  }
-
-  public void setConfig(HashMap<String, String> config) {
-    this.config = config;
-  }
-
-  public Map<String, String> rawConfig() {
-    getConfig().remove(TopicManager.NUM_PARTITIONS);
-    getConfig().remove(TopicManager.REPLICATION_FACTOR);
-    return getConfig();
-  }
-
-  public Optional<String> getDataType() {
-    return dataType;
-  }
-
-  public void setProjectPrefix(String projectPrefix) {
-    this.projectPrefix = projectPrefix;
-  }
-
-  public String getProjectPrefix() {
-    return projectPrefix;
-  }
+  String getProjectPrefix();
 }

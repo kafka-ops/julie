@@ -1,6 +1,7 @@
 package com.purbon.kafka.topology;
 
 import com.purbon.kafka.topology.model.Impl.ProjectImpl;
+import com.purbon.kafka.topology.model.Impl.TopicImpl;
 import com.purbon.kafka.topology.model.Impl.TopologyImpl;
 import com.purbon.kafka.topology.model.Project;
 import com.purbon.kafka.topology.model.Topic;
@@ -29,7 +30,7 @@ public class TopicTest {
 
   @Test
   public void buildTopicNameTest() {
-    Topic topic = new Topic("topic");
+    Topic topic = new TopicImpl("topic");
     topic.setProjectPrefix(project.buildTopicPrefix());
     String fulllName = topic.toString();
     Assert.assertEquals("team.project.topic", fulllName);
@@ -50,7 +51,7 @@ public class TopicTest {
     project.setName("project");
     topology.setProjects(Arrays.asList(project));
 
-    Topic topic = new Topic("topic");
+    Topic topic = new TopicImpl("topic");
     topic.setProjectPrefix(project.buildTopicPrefix());
     String fulllName = topic.toString();
     Assert.assertEquals("team.other.another.project.topic", fulllName);
@@ -58,7 +59,7 @@ public class TopicTest {
 
   @Test
   public void buildTopicNameWithDataTypeTest() {
-    Topic topic = new Topic("topic", "type");
+    Topic topic = new TopicImpl("topic", "type");
     topic.setProjectPrefix(project.buildTopicPrefix());
     String fulllName = topic.toString();
     Assert.assertEquals("team.project.topic.type", fulllName);

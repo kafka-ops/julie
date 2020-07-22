@@ -8,6 +8,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.purbon.kafka.topology.model.Impl.ProjectImpl;
+import com.purbon.kafka.topology.model.Impl.TopicImpl;
 import com.purbon.kafka.topology.model.Impl.TopologyImpl;
 import com.purbon.kafka.topology.model.Project;
 import com.purbon.kafka.topology.model.Topic;
@@ -48,9 +49,9 @@ public class TopicManagerTest {
   public void newTopicCreationTest() throws IOException {
 
     Project project = new ProjectImpl("project");
-    Topic topicA = new Topic("topicA");
+    Topic topicA = new TopicImpl("topicA");
     project.addTopic(topicA);
-    Topic topicB = new Topic("topicB");
+    Topic topicB = new TopicImpl("topicB");
     project.addTopic(topicB);
     Topology topology = new TopologyImpl();
     topology.addProject(project);
@@ -66,9 +67,9 @@ public class TopicManagerTest {
   public void topicUpdateTest() throws IOException {
 
     Project project = new ProjectImpl("project");
-    Topic topicA = new Topic("topicA");
+    Topic topicA = new TopicImpl("topicA");
     project.addTopic(topicA);
-    Topic topicB = new Topic("topicB");
+    Topic topicB = new TopicImpl("topicB");
     project.addTopic(topicB);
     Topology topology = new TopologyImpl();
     topology.addProject(project);
@@ -91,7 +92,7 @@ public class TopicManagerTest {
     Project project0 = new ProjectImpl("project");
     topology0.addProject(project0);
 
-    Topic topicC = new Topic("topicC");
+    Topic topicC = new TopicImpl("topicC");
     project0.addTopic(topicC);
 
     // Topology after delete action
@@ -99,9 +100,9 @@ public class TopicManagerTest {
     Project project = new ProjectImpl("project");
     topology.addProject(project);
 
-    Topic topicA = new Topic("topicA");
+    Topic topicA = new TopicImpl("topicA");
     project.addTopic(topicA);
-    Topic topicB = new Topic("topicB");
+    Topic topicB = new TopicImpl("topicB");
     project.addTopic(topicB);
 
     Set<String> dummyTopicList = new HashSet<>();
@@ -133,9 +134,9 @@ public class TopicManagerTest {
     Project project = new ProjectImpl("project");
     topology.addProject(project);
 
-    Topic topicA = new Topic("topicA");
+    Topic topicA = new TopicImpl("topicA");
     project.addTopic(topicA);
-    Topic topicB = new Topic("topicB");
+    Topic topicB = new TopicImpl("topicB");
     project.addTopic(topicB);
 
     String topicC = "team.project.topicC";
@@ -172,9 +173,9 @@ public class TopicManagerTest {
     Project project = new ProjectImpl("project");
     topology.addProject(project);
 
-    Topic topicA = new Topic("topicA");
+    Topic topicA = new TopicImpl("topicA");
     project.addTopic(topicA);
-    Topic topicB = new Topic("topicB");
+    Topic topicB = new TopicImpl("topicB");
     project.addTopic(topicB);
 
     String topicC = "team.project.topicC";
