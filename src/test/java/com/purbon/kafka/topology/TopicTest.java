@@ -1,9 +1,10 @@
 package com.purbon.kafka.topology;
 
+import com.purbon.kafka.topology.model.Impl.ProjectImpl;
+import com.purbon.kafka.topology.model.Impl.TopologyImpl;
 import com.purbon.kafka.topology.model.Project;
 import com.purbon.kafka.topology.model.Topic;
 import com.purbon.kafka.topology.model.Topology;
-import com.purbon.kafka.topology.model.TopologyImpl;
 import java.util.Arrays;
 import org.junit.Assert;
 import org.junit.Before;
@@ -19,7 +20,7 @@ public class TopicTest {
     topology = new TopologyImpl();
     topology.setTeam("team");
 
-    project = new Project();
+    project = new ProjectImpl();
     project.setTopologyPrefix(topology.buildNamePrefix());
 
     project.setName("project");
@@ -43,7 +44,7 @@ public class TopicTest {
     topology.addOther("other-f", "other");
     topology.addOther("another-f", "another");
 
-    Project project = new Project();
+    Project project = new ProjectImpl();
     project.setTopologyPrefix(topology.buildNamePrefix());
 
     project.setName("project");

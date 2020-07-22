@@ -3,10 +3,11 @@ package com.purbon.kafka.topology;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
+import com.purbon.kafka.topology.model.Impl.ProjectImpl;
+import com.purbon.kafka.topology.model.Impl.TopologyImpl;
 import com.purbon.kafka.topology.model.Project;
 import com.purbon.kafka.topology.model.Topic;
 import com.purbon.kafka.topology.model.Topology;
-import com.purbon.kafka.topology.model.TopologyImpl;
 import com.purbon.kafka.topology.model.users.Connector;
 import com.purbon.kafka.topology.model.users.Consumer;
 import com.purbon.kafka.topology.model.users.ControlCenter;
@@ -83,7 +84,7 @@ public class TopologySerdesTest {
     topicBarConfig.put("replication_factor", "1");
     topicBar.setConfig(topicBarConfig);
 
-    Project project = new Project("foo");
+    Project project = new ProjectImpl("foo");
 
     KStream kstreamApp = new KStream();
     kstreamApp.setPrincipal("App0");
@@ -112,7 +113,7 @@ public class TopologySerdesTest {
 
     project.setTopics(Arrays.asList(topic, topicBar));
 
-    Project project2 = new Project("bar");
+    Project project2 = new ProjectImpl("bar");
     project2.setTopics(Arrays.asList(topicBar));
 
     topology.setProjects(Arrays.asList(project, project2));
@@ -131,7 +132,7 @@ public class TopologySerdesTest {
   @Test
   public void testTopicWithDataType() throws IOException {
 
-    Project project = new Project("foo");
+    Project project = new ProjectImpl("foo");
 
     Topology topology = new TopologyImpl();
     topology.setTeam("team");
@@ -199,7 +200,7 @@ public class TopologySerdesTest {
 
   private List<Project> buildProjects() {
 
-    Project project = new Project();
+    Project project = new ProjectImpl();
     project.setName("project");
     project.setConsumers(buildConsumers());
     project.setProducers(buildProducers());

@@ -5,10 +5,11 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import com.purbon.kafka.topology.model.Impl.ProjectImpl;
+import com.purbon.kafka.topology.model.Impl.TopologyImpl;
 import com.purbon.kafka.topology.model.Project;
 import com.purbon.kafka.topology.model.Topic;
 import com.purbon.kafka.topology.model.Topology;
-import com.purbon.kafka.topology.model.TopologyImpl;
 import com.purbon.kafka.topology.roles.RBACProvider;
 import java.io.IOException;
 import java.util.Arrays;
@@ -41,7 +42,7 @@ public class AccessControlWithRBACTest {
     Map<String, List<String>> predefinedRoles = new HashMap<>();
     predefinedRoles.put("ResourceOwner", Arrays.asList("User:Foo"));
 
-    Project project = new Project();
+    Project project = new ProjectImpl();
     project.setRbacRawRoles(predefinedRoles);
 
     Topic topicA = new Topic("topicA");

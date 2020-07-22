@@ -6,11 +6,12 @@ import com.purbon.kafka.topology.AccessControlManager;
 import com.purbon.kafka.topology.ClusterState;
 import com.purbon.kafka.topology.TopologyBuilderAdminClient;
 import com.purbon.kafka.topology.TopologyBuilderConfig;
+import com.purbon.kafka.topology.model.Impl.ProjectImpl;
+import com.purbon.kafka.topology.model.Impl.TopologyImpl;
 import com.purbon.kafka.topology.model.Platform;
 import com.purbon.kafka.topology.model.Project;
 import com.purbon.kafka.topology.model.Topic;
 import com.purbon.kafka.topology.model.Topology;
-import com.purbon.kafka.topology.model.TopologyImpl;
 import com.purbon.kafka.topology.model.users.Connector;
 import com.purbon.kafka.topology.model.users.Consumer;
 import com.purbon.kafka.topology.model.users.ControlCenter;
@@ -80,7 +81,7 @@ public class AccessControlManagerIT {
     List<Consumer> consumers = new ArrayList<>();
     consumers.add(new Consumer("User:testAclsCleanupApp1"));
 
-    Project project = new Project("project");
+    Project project = new ProjectImpl("project");
     project.setConsumers(consumers);
     Topic topicA = new Topic("topicA");
     project.addTopic(topicA);
@@ -108,7 +109,7 @@ public class AccessControlManagerIT {
     List<Consumer> consumers = new ArrayList<>();
     consumers.add(new Consumer("User:app1"));
 
-    Project project = new Project("project");
+    Project project = new ProjectImpl("project");
     project.setConsumers(consumers);
     Topic topicA = new Topic("topicA");
     project.addTopic(topicA);
@@ -129,7 +130,7 @@ public class AccessControlManagerIT {
     List<Producer> producers = new ArrayList<>();
     producers.add(new Producer("User:Producer1"));
 
-    Project project = new Project("project");
+    Project project = new ProjectImpl("project");
     project.setProducers(producers);
     Topic topicA = new Topic("topicA");
     project.addTopic(topicA);
@@ -146,7 +147,7 @@ public class AccessControlManagerIT {
 
   @Test
   public void kstreamsAclsCreation() throws ExecutionException, InterruptedException, IOException {
-    Project project = new Project();
+    Project project = new ProjectImpl();
 
     KStream app = new KStream();
     app.setPrincipal("User:App0");
@@ -169,7 +170,7 @@ public class AccessControlManagerIT {
   @Test
   public void schemaRegistryAclsCreation()
       throws ExecutionException, InterruptedException, IOException {
-    Project project = new Project();
+    Project project = new ProjectImpl();
 
     Topology topology = new TopologyImpl();
     topology.setTeam("integration-test");
@@ -200,7 +201,7 @@ public class AccessControlManagerIT {
     when(config.getConfluentMetricsTopic()).thenReturn("bar");
     when(config.getConfluentMonitoringTopic()).thenReturn("zet");
 
-    Project project = new Project();
+    Project project = new ProjectImpl();
 
     Topology topology = new TopologyImpl();
     topology.setTeam("integration-test");
@@ -222,7 +223,7 @@ public class AccessControlManagerIT {
 
   @Test
   public void connectAclsCreation() throws ExecutionException, InterruptedException, IOException {
-    Project project = new Project();
+    Project project = new ProjectImpl();
 
     Connector connector = new Connector();
     connector.setPrincipal("User:Connect");
