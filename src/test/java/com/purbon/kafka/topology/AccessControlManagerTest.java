@@ -7,6 +7,7 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
 import com.purbon.kafka.topology.model.Impl.ProjectImpl;
+import com.purbon.kafka.topology.model.Impl.TopicImpl;
 import com.purbon.kafka.topology.model.Impl.TopologyImpl;
 import com.purbon.kafka.topology.model.Platform;
 import com.purbon.kafka.topology.model.Project;
@@ -59,7 +60,7 @@ public class AccessControlManagerTest {
     Project project = new ProjectImpl();
     project.setConsumers(consumers);
 
-    Topic topicA = new Topic("topicA");
+    Topic topicA = new TopicImpl("topicA");
     project.addTopic(topicA);
 
     Topology topology = new TopologyImpl();
@@ -82,7 +83,7 @@ public class AccessControlManagerTest {
     Project project = new ProjectImpl();
     project.setProducers(producers);
 
-    Topic topicA = new Topic("topicA");
+    Topic topicA = new TopicImpl("topicA");
     project.addTopic(topicA);
 
     Topology topology = new TopologyImpl();
