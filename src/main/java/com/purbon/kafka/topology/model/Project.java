@@ -1,5 +1,7 @@
 package com.purbon.kafka.topology.model;
 
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.purbon.kafka.topology.model.Impl.ProjectImpl;
 import com.purbon.kafka.topology.model.users.Connector;
 import com.purbon.kafka.topology.model.users.Consumer;
 import com.purbon.kafka.topology.model.users.KStream;
@@ -7,6 +9,7 @@ import com.purbon.kafka.topology.model.users.Producer;
 import java.util.List;
 import java.util.Map;
 
+@JsonDeserialize(as = ProjectImpl.class)
 public interface Project {
 
   String getName();

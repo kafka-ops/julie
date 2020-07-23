@@ -8,7 +8,6 @@ By introducing this, users can now handle non-standard instances of Schema Regis
 a single Kafka Connect cluster (situation more than common).
 * Add a rest api component, available under server-api and created using the Micronaut Framework. This component is an independent artifact, that wrap the 
 Kafka Topology Builder library in a single and uniform web application that can be used to automate and centralise the configuration management for clusters.
-* Change the configuration variables from using the . to _ in order to facilitate the usage of mongo as storage component
 * Remove the requirement of writing in the configuration file the access control method, as of now will be ACLs as default value and if other (like RBAC) is required
 it will have to be properly configured.
 

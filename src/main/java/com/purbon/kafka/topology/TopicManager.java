@@ -21,8 +21,8 @@ public class TopicManager {
 
   private static final Logger LOGGER = LogManager.getLogger(TopicManager.class);
 
-  public static final String NUM_PARTITIONS = "num_partitions";
-  public static final String REPLICATION_FACTOR = "replication_factor";
+  public static final String NUM_PARTITIONS = "num.partitions";
+  public static final String REPLICATION_FACTOR = "replication.factor";
 
   private final TopologyBuilderAdminClient adminClient;
   private final TopologyBuilderConfig config;

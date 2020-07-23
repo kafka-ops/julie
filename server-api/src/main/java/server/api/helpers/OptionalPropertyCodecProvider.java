@@ -1,5 +1,7 @@
 package server.api.helpers;
 
+import com.purbon.kafka.topology.model.Impl.ProjectImpl;
+import com.purbon.kafka.topology.model.Project;
 import java.util.Optional;
 import org.bson.BsonReader;
 import org.bson.BsonWriter;

@@ -1,6 +1,5 @@
 package server.api.controllers;
 
-import com.purbon.kafka.topology.model.Topology;
 import io.micronaut.context.annotation.Value;
 import io.micronaut.http.HttpResponse;
 import io.micronaut.http.HttpStatus;
@@ -13,6 +12,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import javax.inject.Inject;
+import server.api.models.TopologyDeco;
 import server.api.services.KafkaTopologyBuilderService;
 import server.api.services.TopologyService;
 
@@ -30,19 +30,19 @@ public class TopologyController {
 
   @Get(processes = MediaType.APPLICATION_JSON)
   public HttpResponse indexTopology() {
-    List<Topology> all = service.all();
+    List<TopologyDeco> all = service.all();
     return HttpResponse.ok().body(all);
   }
 
   @Get(uri = "/{team}", processes = MediaType.APPLICATION_JSON)
-  public HttpResponse<Topology> get(@PathVariable String team) {
-    Topology topology = service.findByTeam(team);
+  public HttpResponse<TopologyDeco> get(@PathVariable String team) {
+    TopologyDeco topology = service.findByTeam(team);
     return HttpResponse.ok().body(topology);
   }
 
   @Post(uri = "/{team}", processes = MediaType.APPLICATION_JSON)
   public HttpResponse createTopology(@PathVariable String team) {
-    Topology topology = service.create(team);
+    TopologyDeco topology = service.create(team);
 
     Map<String, Object> response = new HashMap<>();
     response.put("topology", topology.getTeam());
@@ -52,7 +52,7 @@ public class TopologyController {
 
   @Post(uri = "/{team}/apply", processes = MediaType.APPLICATION_JSON)
   public HttpResponse apply(@PathVariable String team) {
-    Topology topology = service.findByTeam(team);
+    TopologyDeco topology = service.findByTeam(team);
 
     try {
       builderService.sync(topology);
