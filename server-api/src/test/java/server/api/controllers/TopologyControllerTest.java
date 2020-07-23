@@ -2,12 +2,12 @@ package server.api.controllers;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import com.purbon.kafka.topology.model.Topology;
 import io.micronaut.http.HttpRequest;
 import io.micronaut.http.HttpResponse;
 import io.micronaut.http.HttpStatus;
 import io.micronaut.test.annotation.MicronautTest;
 import org.junit.jupiter.api.Test;
+import server.api.models.TopologyDeco;
 
 @MicronautTest
 public class TopologyControllerTest extends BaseControllerTest {
@@ -36,7 +36,7 @@ public class TopologyControllerTest extends BaseControllerTest {
 
         assertEquals(HttpStatus.OK, response.getStatus());
 
-        Topology topology = service.findByTeam("foo");
+        TopologyDeco topology = service.findByTeam("foo");
         assertEquals("foo", topology.getTeam());
     }
 
@@ -50,13 +50,13 @@ public class TopologyControllerTest extends BaseControllerTest {
             .toBlocking()
             .exchange(createRequest);
 
-        Topology topology = service.findByTeam("foo");
+        TopologyDeco topology = service.findByTeam("foo");
         assertEquals("foo", topology.getTeam());
 
         HttpRequest request = HttpRequest
             .GET("/topologies/foo");
 
-        HttpResponse<Topology> response = client
+        HttpResponse<TopologyDeco> response = client
             .toBlocking()
             .exchange(request);
 

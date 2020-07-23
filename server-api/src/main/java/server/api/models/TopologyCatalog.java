@@ -1,37 +1,36 @@
 package server.api.models;
 
-import com.purbon.kafka.topology.model.Topology;
-import javax.inject.Singleton;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import javax.inject.Singleton;
 
 @Singleton
 public class TopologyCatalog {
 
-  public List<Topology> topologies;
-  public Map<String, Topology> index;
+  public List<TopologyDeco> topologies;
+  public Map<String, TopologyDeco> index;
 
   public TopologyCatalog() {
     this.topologies = new ArrayList<>();
     this.index = new HashMap<>();
   }
 
-  public List<Topology> getTopologies() {
+  public List<TopologyDeco> getTopologies() {
     return topologies;
   }
 
-  public void setTopologies(List<Topology> topologies) {
+  public void setTopologies(List<TopologyDeco> topologies) {
     this.topologies = topologies;
     topologies.forEach(topology -> addIndex(topology));
   }
 
-  public void addIndex(Topology topology) {
+  public void addIndex(TopologyDeco topology) {
     this.index.put(topology.getTeam(), topology);
   }
 
-  public void addTopology(Topology topology) {
+  public void addTopology(TopologyDeco topology) {
     topologies.add(topology);
     addIndex(topology);
   }
@@ -40,7 +39,7 @@ public class TopologyCatalog {
     return index.keySet().contains(team);
   }
 
-  public Topology getByTeam(String team) {
+  public TopologyDeco getByTeam(String team) {
     return index.get(team);
   }
 }

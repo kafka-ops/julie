@@ -1,8 +1,8 @@
 package server.api.controllers;
 
+import com.purbon.kafka.topology.model.Impl.TopicImpl;
 import com.purbon.kafka.topology.model.Project;
 import com.purbon.kafka.topology.model.Topic;
-import com.purbon.kafka.topology.model.Topology;
 import io.micronaut.context.annotation.Value;
 import io.micronaut.http.HttpResponse;
 import io.micronaut.http.MediaType;
@@ -14,6 +14,7 @@ import java.util.HashMap;
 import java.util.Optional;
 import javax.inject.Inject;
 import javax.validation.constraints.NotNull;
+import server.api.models.TopologyDeco;
 import server.api.services.TopologyService;
 
 @Controller( value = "/topologies/{team}/projects/{projectName}/topics")
@@ -33,9 +34,9 @@ public class TopicController {
       @PathVariable String topicName,
       @NotNull @Body HashMap<String, String> config) {
 
-    Topology topology = service.findByTeam(team);
+    TopologyDeco topology = service.findByTeam(team);
 
-    Topic topic = new Topic();
+    Topic topic = new TopicImpl();
     topic.setName(topicName);
     if (!config.isEmpty())
       topic.setConfig(config);

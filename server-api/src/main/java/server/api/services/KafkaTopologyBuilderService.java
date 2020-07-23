@@ -18,6 +18,7 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 import javax.inject.Singleton;
+import server.api.models.TopologyDeco;
 
 @Singleton
 public class KafkaTopologyBuilderService {
@@ -51,7 +52,14 @@ public class KafkaTopologyBuilderService {
   public void sync(Topology topology) throws IOException {
     TopologyBuilderConfig builderConfig = new TopologyBuilderConfig(config());
 
-    KafkaTopologyBuilder builder = new KafkaTopologyBuilder(topology, builderConfig);
+    KafkaTopologyBuilder builder;
+
+    if (topology instanceof TopologyDeco) {
+      builder = new KafkaTopologyBuilder(((TopologyDeco)topology).asTopology(), builderConfig);
+    } else {
+      builder = new KafkaTopologyBuilder(topology, builderConfig);
+    }
+
     try {
       builder.run();
     } finally {

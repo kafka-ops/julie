@@ -2,7 +2,10 @@ package server.api.controllers;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import com.purbon.kafka.topology.model.users.*;
+import com.purbon.kafka.topology.model.users.Connector;
+import com.purbon.kafka.topology.model.users.Consumer;
+import com.purbon.kafka.topology.model.users.KStream;
+import com.purbon.kafka.topology.model.users.Producer;
 import io.micronaut.http.HttpRequest;
 import io.micronaut.test.annotation.MicronautTest;
 import java.util.Collections;
@@ -10,7 +13,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import org.junit.jupiter.api.Test;
-import com.purbon.kafka.topology.model.*;
+import server.api.models.TopologyDeco;
 
 @MicronautTest
 public class PrincipalsControllerTest extends BaseControllerTest {
@@ -24,9 +27,9 @@ public class PrincipalsControllerTest extends BaseControllerTest {
     HttpRequest request = HttpRequest
         .POST("/topologies/bar/projects/p2/principals/consumers/bar", "");
 
-    Topology topology = client
+    TopologyDeco topology = client
         .toBlocking()
-        .retrieve(request, Topology.class);
+        .retrieve(request, TopologyDeco.class);
 
     assertEquals("bar", topology.getTeam());
     assertEquals("p2", topology.getProjects().get(0).getName());
@@ -44,9 +47,9 @@ public class PrincipalsControllerTest extends BaseControllerTest {
     HttpRequest request = HttpRequest
         .POST("/topologies/foo/projects/p1/principals/producers/bar", "");
 
-    Topology topology = client
+    TopologyDeco topology = client
         .toBlocking()
-        .retrieve(request, Topology.class);
+        .retrieve(request, TopologyDeco.class);
 
     assertEquals("foo", topology.getTeam());
     assertEquals("p1", topology.getProjects().get(0).getName());
@@ -68,9 +71,9 @@ public class PrincipalsControllerTest extends BaseControllerTest {
     HttpRequest request = HttpRequest
         .POST("/topologies/streams/projects/p1/principals/streams/bar", topics);
 
-    Topology topology = client
+    TopologyDeco topology = client
         .toBlocking()
-        .retrieve(request, Topology.class);
+        .retrieve(request, TopologyDeco.class);
 
     assertEquals("streams", topology.getTeam());
     assertEquals("p1", topology.getProjects().get(0).getName());
@@ -97,9 +100,9 @@ public class PrincipalsControllerTest extends BaseControllerTest {
     HttpRequest request = HttpRequest
         .POST("/topologies/connector/projects/p1/principals/connectors/bar", config);
 
-    Topology topology = client
+    TopologyDeco topology = client
         .toBlocking()
-        .retrieve(request, Topology.class);
+        .retrieve(request, TopologyDeco.class);
 
     assertEquals("connector", topology.getTeam());
     assertEquals("p1", topology.getProjects().get(0).getName());
@@ -130,9 +133,9 @@ public class PrincipalsControllerTest extends BaseControllerTest {
     HttpRequest request = HttpRequest
         .POST("/topologies/connconfig/projects/p1/principals/connectors/bar", config);
 
-    Topology topology = client
+    TopologyDeco topology = client
         .toBlocking()
-        .retrieve(request, Topology.class);
+        .retrieve(request, TopologyDeco.class);
 
     assertEquals("connconfig", topology.getTeam());
     assertEquals("p1", topology.getProjects().get(0).getName());

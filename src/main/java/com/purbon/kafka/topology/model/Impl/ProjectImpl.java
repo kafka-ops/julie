@@ -11,7 +11,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class ProjectImpl implements Project {
+public class ProjectImpl implements Project, Cloneable {
 
   private String name;
   private List<String> zookeepers;
@@ -127,5 +127,24 @@ public class ProjectImpl implements Project {
 
   public Map<String, List<String>> getRbacRawRoles() {
     return rbacRawRoles;
+  }
+
+  @Override
+  public ProjectImpl clone() {
+    try {
+      return (ProjectImpl) super.clone();
+    } catch (CloneNotSupportedException e) {
+      ProjectImpl project = new ProjectImpl();
+      project.setConnectors(getConnectors());
+      project.setConsumers(getConsumers());
+      project.setName(getName());
+      project.setRbacRawRoles(getRbacRawRoles());
+      project.setProducers(getProducers());
+      project.setStreams(getStreams());
+      project.setTopics(getTopics());
+      project.setTopologyPrefix(getTopologyPrefix());
+      project.setZookeepers(getZookeepers());
+      return project;
+    }
   }
 }

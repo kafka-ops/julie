@@ -1,16 +1,16 @@
 package server.api.services;
 
-import com.purbon.kafka.topology.model.Topology;
 import java.util.List;
+import server.api.models.TopologyDeco;
 
 public interface TopologyService {
 
-  Topology create(String team);
+  TopologyDeco create(String team);
 
-  Topology update(Topology topology);
+  TopologyDeco update(TopologyDeco topology);
 
-  Topology findByTeam(String team);
+  TopologyDeco findByTeam(String team);
 
-  List<Topology> all();
+  List<TopologyDeco> all();
 
 }

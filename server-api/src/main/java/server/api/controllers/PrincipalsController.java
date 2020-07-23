@@ -1,7 +1,6 @@
 package server.api.controllers;
 
 import com.purbon.kafka.topology.model.Project;
-import com.purbon.kafka.topology.model.Topology;
 import com.purbon.kafka.topology.model.users.Connector;
 import com.purbon.kafka.topology.model.users.Consumer;
 import com.purbon.kafka.topology.model.users.KStream;
@@ -15,10 +14,10 @@ import io.micronaut.http.annotation.PathVariable;
 import io.micronaut.http.annotation.Post;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import javax.inject.Inject;
 import javax.validation.constraints.NotNull;
+import server.api.models.TopologyDeco;
 import server.api.services.TopologyService;
 
 @Controller( value = "/topologies/{team}/projects/{projectName}/principals")
@@ -36,7 +35,7 @@ public class PrincipalsController {
       @PathVariable String projectName,
       @PathVariable String principalName) {
 
-    Topology topology = service.findByTeam(team);
+    TopologyDeco topology = service.findByTeam(team);
 
     Optional<Project> projectOptional = Optional.empty();
     for(Project p : topology.getProjects()) {
@@ -64,7 +63,7 @@ public class PrincipalsController {
       @PathVariable String projectName,
       @PathVariable String principalName) {
 
-    Topology topology = service.findByTeam(team);
+    TopologyDeco topology = service.findByTeam(team);
 
     Optional<Project> projectOptional = Optional.empty();
     for(Project p : topology.getProjects()) {
@@ -93,7 +92,7 @@ public class PrincipalsController {
       @PathVariable String principalName,
       @NotNull @Body HashMap<String, List<String>> topics) {
 
-    Topology topology = service.findByTeam(team);
+    TopologyDeco topology = service.findByTeam(team);
 
     Optional<Project> projectOptional = Optional.empty();
     for(Project p : topology.getProjects()) {
@@ -123,7 +122,7 @@ public class PrincipalsController {
       @PathVariable String principalName,
       @NotNull @Body HashMap<String, Object> config) {
 
-    Topology topology = service.findByTeam(team);
+    TopologyDeco topology = service.findByTeam(team);
 
     Optional<Project> projectOptional = Optional.empty();
     for(Project p : topology.getProjects()) {

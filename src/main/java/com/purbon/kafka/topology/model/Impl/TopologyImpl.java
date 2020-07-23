@@ -8,7 +8,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class TopologyImpl implements Topology {
+public class TopologyImpl implements Topology, Cloneable {
 
   private String team;
 
@@ -73,5 +73,18 @@ public class TopologyImpl implements Topology {
 
   public Boolean isEmpty() {
     return team.isEmpty();
+  }
+
+  @Override
+  public Topology clone() {
+    try {
+      return (Topology) super.clone();
+    } catch (CloneNotSupportedException e) {
+      Topology topology = new TopologyImpl();
+      topology.setTeam(getTeam());
+      topology.setPlatform(getPlatform());
+      topology.setProjects(getProjects());
+      return topology;
+    }
   }
 }

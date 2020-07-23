@@ -3,13 +3,13 @@ package server.api.controllers;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import com.purbon.kafka.topology.model.Topic;
-import com.purbon.kafka.topology.model.Topology;
 import io.micronaut.http.HttpRequest;
 import io.micronaut.test.annotation.MicronautTest;
 import java.util.Collections;
 import java.util.HashMap;
 import org.junit.jupiter.api.Test;
 import java.util.Map;
+import server.api.models.TopologyDeco;
 
 @MicronautTest
 public class TopicControllerTest extends BaseControllerTest {
@@ -23,9 +23,9 @@ public class TopicControllerTest extends BaseControllerTest {
     HttpRequest request = HttpRequest
         .POST("/topologies/foo/projects/p1/topics/t1", Collections.EMPTY_MAP);
 
-    Topology topology = client
+    TopologyDeco topology = client
         .toBlocking()
-        .retrieve(request, Topology.class);
+        .retrieve(request, TopologyDeco.class);
 
     assertEquals("foo", topology.getTeam());
     assertEquals("p1", topology.getProjects().get(0).getName());
@@ -46,9 +46,9 @@ public class TopicControllerTest extends BaseControllerTest {
     HttpRequest request = HttpRequest
         .POST("/topologies/foo/projects/p1/topics/t1", config);
 
-    Topology topology = client
+    TopologyDeco topology = client
         .toBlocking()
-        .retrieve(request, Topology.class);
+        .retrieve(request, TopologyDeco.class);
 
     assertEquals("foo", topology.getTeam());
     assertEquals("p1", topology.getProjects().get(0).getName());

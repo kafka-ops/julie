@@ -8,7 +8,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 
-public class TopicImpl implements Topic {
+public class TopicImpl implements Topic, Cloneable {
 
   public static final String DEFAULT_TOPIC_NAME = "default";
 
@@ -86,5 +86,14 @@ public class TopicImpl implements Topic {
 
   public String getProjectPrefix() {
     return projectPrefix;
+  }
+
+  @Override
+  public Topic clone() {
+    try {
+      return (Topic) super.clone();
+    } catch (CloneNotSupportedException e) {
+      return new TopicImpl(getName(), getDataType(), getConfig());
+    }
   }
 }
