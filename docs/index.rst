@@ -54,4 +54,5 @@ Contents
 
    core-concepts
    workflow-setup
+   powered-with
    config-values

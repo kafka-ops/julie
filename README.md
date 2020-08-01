@@ -77,7 +77,7 @@ What can you achieve with this tool:
 
 More details and examples of the functionality can be found in the wiki.  
 
-### How can I run the topology builder direclty?
+### How can I run the topology builder directly?
 
 This tool is available in multiple formats:
 
@@ -118,7 +118,6 @@ team: "team"
 source: "source"
 projects:
 - name: "foo"
-  zookeepers: []
   consumers:
   - principal: "User:app0"
   - principal: "User:app1"
@@ -153,11 +152,6 @@ projects:
       replication.factor: "2"
       num.partitions: "3"
 - name: "bar"
-  zookeepers: []
-  consumers: []
-  producers: []
-  streams: []
-  connectors: []
   topics:
   - name: "bar" # topicName: team.source.bar.bar
     config:
