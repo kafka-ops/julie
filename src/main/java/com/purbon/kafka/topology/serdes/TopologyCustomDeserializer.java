@@ -39,6 +39,8 @@ public class TopologyCustomDeserializer extends StdDeserializer<Topology> {
 
     JsonNode rootNode = parser.getCodec().readTree(parser);
 
+    validateRequiresKeys(rootNode);
+
     JsonNode projects = rootNode.get(PROJECTS_KEY);
     Topology topology = new TopologyImpl();
 
@@ -78,5 +80,14 @@ public class TopologyCustomDeserializer extends StdDeserializer<Topology> {
     topology.setPlatform(platform);
 
     return topology;
+  }
+
+  private void validateRequiresKeys(JsonNode rootNode) throws IOException {
+    List<String> keys = Arrays.asList(TEAM_KEY, PROJECTS_KEY);
+    for (String key : keys) {
+      if (rootNode.get(key) == null) {
+        throw new IOException(key + " is a required field in the topology, please specify.");
+      }
+    }
   }
 }
