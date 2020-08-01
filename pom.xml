@@ -153,6 +153,13 @@
             <goals>
               <goal>shade</goal>
             </goals>
+            <configuration>
+              <transformers>
+                <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+                  <mainClass>com.purbon.kafka.topology.BuilderCLI</mainClass>
+                </transformer>
+              </transformers>
+            </configuration>
           </execution>
         </executions>
       </plugin>
@@ -256,7 +263,7 @@
               <groupname>ktb-kafka</groupname>
               <sources>
                 <source>
-                  <location>target/kafka-topology-builder-jar-with-dependencies.jar</location>
+                  <location>target/kafka-topology-builder.jar</location>
                 </source>
               </sources>
             </mapping>
@@ -321,7 +328,7 @@
               <dataSet>
 
                 <data>
-                  <src>${project.build.directory}/kafka-topology-builder-jar-with-dependencies.jar</src>
+                  <src>${project.build.directory}/kafka-topology-builder-jar.jar</src>
                   <type>file</type>
                   <mapper>
                     <type>perm</type>
