@@ -54,21 +54,19 @@ public class TopicManager {
     Set<String> updatedListOfTopics = new HashSet<>();
     // Foreach topic in the topology, sync it's content
     // if topics does not exist already it's created
-    topology.getProjects().stream()
-        .forEach(
-            project ->
-                project
-                    .getTopics()
-                    .forEach(
-                        topic -> {
-                          String fullTopicName = topic.toString();
-                          try {
-                            syncTopic(topic, fullTopicName, listOfTopics);
-                            updatedListOfTopics.add(fullTopicName);
-                          } catch (IOException e) {
-                            LOGGER.error(e);
-                          }
-                        }));
+
+    for (Project project : topology.getProjects()) {
+      for (Topic topic : project.getTopics()) {
+        String fullTopicName = topic.toString();
+        try {
+          syncTopic(topic, fullTopicName, listOfTopics);
+          updatedListOfTopics.add(fullTopicName);
+        } catch (IOException e) {
+          LOGGER.error(e);
+          throw e;
+        }
+      }
+    }
 
     if (allowDelete) {
       // Handle topic delete: Topics in the initial list, but not present anymore after a

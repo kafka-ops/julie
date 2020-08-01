@@ -96,6 +96,24 @@ public class TopicManagerIT {
     verifyTopics(Arrays.asList(topicA.toString(), topicB.toString()));
   }
 
+  @Test(expected = IOException.class)
+  public void testTopicCreationWithFalseConfig() throws IOException {
+    HashMap<String, String> config = new HashMap<>();
+    config.put("num.partitions", "1");
+    config.put("replication.factor", "1");
+    config.put("banana", "bar");
+
+    Project project = new ProjectImpl("project");
+    Topic topicA = new TopicImpl("topicA");
+    topicA.setConfig(config);
+    project.addTopic(topicA);
+
+    Topology topology = new TopologyImpl();
+    topology.addProject(project);
+
+    topicManager.sync(topology);
+  }
+
   @Test
   public void testTopicDelete() throws ExecutionException, InterruptedException, IOException {
 
