@@ -1,5 +1,6 @@
 package com.purbon.kafka.topology.integration;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 import com.purbon.kafka.topology.TopicManager;
@@ -22,6 +23,7 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 import java.util.concurrent.ExecutionException;
+import java.util.stream.Collectors;
 import org.apache.kafka.clients.admin.AdminClient;
 import org.apache.kafka.clients.admin.AdminClientConfig;
 import org.apache.kafka.clients.admin.Config;
@@ -115,6 +117,61 @@ public class TopicManagerIT {
   }
 
   @Test
+  public void testTopicCreationWithChangedTopology()
+      throws ExecutionException, InterruptedException, IOException {
+    HashMap<String, String> config = new HashMap<>();
+    config.put(TopicManager.NUM_PARTITIONS, "1");
+    config.put(TopicManager.REPLICATION_FACTOR, "1");
+
+    Topology topology = new TopologyImpl();
+    Project project = new ProjectImpl("project");
+    topology.addProject(project);
+
+    Topic topicA = new TopicImpl("topicA");
+    topicA.setConfig(config);
+    project.addTopic(topicA);
+
+    config = new HashMap<>();
+    config.put(TopicManager.NUM_PARTITIONS, "1");
+    config.put(TopicManager.REPLICATION_FACTOR, "1");
+
+    Topic topicB = new TopicImpl("topicB");
+    topicB.setConfig(config);
+    project.addTopic(topicB);
+
+    topicManager.sync(topology);
+
+    verifyTopics(Arrays.asList(topicA.toString(), topicB.toString()));
+
+    Topology upTopology = new TopologyImpl();
+    upTopology.setTeam("foo");
+    Project upProject = new ProjectImpl("bar");
+    upTopology.addProject(upProject);
+
+    config = new HashMap<>();
+    config.put(TopicManager.NUM_PARTITIONS, "1");
+    config.put(TopicManager.REPLICATION_FACTOR, "1");
+
+    topicA = new TopicImpl("topicA");
+    topicA.setConfig(config);
+
+    upProject.addTopic(topicA);
+
+    config = new HashMap<>();
+    config.put(TopicManager.NUM_PARTITIONS, "1");
+    config.put(TopicManager.REPLICATION_FACTOR, "1");
+
+    topicB = new TopicImpl("topicB");
+    topicB.setConfig(config);
+
+    upProject.addTopic(topicB);
+
+    topicManager.sync(upTopology);
+
+    verifyTopics(Arrays.asList(topicA.toString(), topicB.toString()));
+  }
+
+  @Test
   public void testTopicDelete() throws ExecutionException, InterruptedException, IOException {
 
     Project project = new ProjectImpl("project");
@@ -148,7 +205,7 @@ public class TopicManagerIT {
 
     topicManager.sync(topology);
 
-    verifyTopics(Arrays.asList(topicA.toString(), internalTopic, topicC.toString()));
+    verifyTopics(Arrays.asList(topicA.toString(), internalTopic, topicC.toString()), 2);
   }
 
   private String createInternalTopic() {
@@ -254,6 +311,11 @@ public class TopicManagerIT {
   }
 
   private void verifyTopics(List<String> topics) throws ExecutionException, InterruptedException {
+    verifyTopics(topics, topics.size());
+  }
+
+  private void verifyTopics(List<String> topics, int topicsCount)
+      throws ExecutionException, InterruptedException {
 
     Set<String> topicNames = kafkaAdminClient.listTopics().names().get();
     topics.forEach(
@@ -265,6 +327,11 @@ public class TopicManagerIT {
         break;
       }
     }
+    Set<String> nonInternalTopics =
+        topicNames.stream().filter(topic -> !topic.startsWith("_")).collect(Collectors.toSet());
+
+    assertEquals(topicsCount, nonInternalTopics.size());
+
     assertTrue("Internal topics not found", isInternal);
   }
 

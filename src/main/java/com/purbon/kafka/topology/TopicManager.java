@@ -16,6 +16,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.apache.zookeeper.common.StringUtils;
 
 public class TopicManager {
 
@@ -50,6 +51,10 @@ public class TopicManager {
 
     // List all topics existing in the cluster, excluding internal topics
     Set<String> listOfTopics = adminClient.listApplicationTopics();
+    if (listOfTopics.size() > 0)
+      LOGGER.debug(
+          "Full list of topics in the cluster: "
+              + StringUtils.joinStrings(new ArrayList<>(listOfTopics), ","));
 
     Set<String> updatedListOfTopics = new HashSet<>();
     // Foreach topic in the topology, sync it's content
@@ -79,6 +84,8 @@ public class TopicManager {
                   topicsToBeDeleted.add(topic);
                 }
               });
+      if (topicsToBeDeleted.size() > 0)
+        LOGGER.debug("Topic to be deleted: " + StringUtils.joinStrings(topicsToBeDeleted, ","));
       adminClient.deleteTopics(topicsToBeDeleted);
     }
   }
