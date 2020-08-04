@@ -3,8 +3,8 @@ package com.purbon.kafka.topology.clusterstate;
 import com.purbon.kafka.topology.roles.TopologyAclBinding;
 import java.io.IOException;
 import java.net.URI;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.apache.logging.log4j.LogManager;
@@ -33,13 +33,13 @@ public class RedisSateProcessor implements StateProcessor {
   }
 
   @Override
-  public List<TopologyAclBinding> load() throws IOException {
+  public Set<TopologyAclBinding> load() throws IOException {
     return load(null);
   }
 
   @Override
-  public List<TopologyAclBinding> load(URI uri) throws IOException {
-    List<TopologyAclBinding> bindings = new ArrayList<>();
+  public Set<TopologyAclBinding> load(URI uri) throws IOException {
+    Set<TopologyAclBinding> bindings = new HashSet<>();
     String type = jedis.get(KAFKA_TOPOLOGY_BUILDER_TYPE);
 
     long count = jedis.scard(KAFKA_TOPOLOGY_BUILDER_BINDINGS);
@@ -58,7 +58,7 @@ public class RedisSateProcessor implements StateProcessor {
   }
 
   @Override
-  public void saveBindings(List<TopologyAclBinding> bindings) {
+  public void saveBindings(Set<TopologyAclBinding> bindings) {
 
     String[] members =
         bindings.stream().map(binding -> binding.toString()).toArray(size -> new String[size]);
