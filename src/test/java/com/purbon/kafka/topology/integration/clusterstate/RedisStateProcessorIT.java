@@ -4,7 +4,8 @@ import com.purbon.kafka.topology.clusterstate.RedisSateProcessor;
 import com.purbon.kafka.topology.roles.TopologyAclBinding;
 import java.io.IOException;
 import java.util.Arrays;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 import org.apache.kafka.common.resource.ResourceType;
 import org.junit.Assert;
 import org.junit.Rule;
@@ -29,11 +30,11 @@ public class RedisStateProcessorIT {
     TopologyAclBinding binding =
         TopologyAclBinding.build(
             ResourceType.TOPIC.name(), "foo", "*", "Write", "User:foo", "LITERAL");
-    rsp.saveBindings(Arrays.asList(binding));
+    rsp.saveBindings(new HashSet<>(Arrays.asList(binding)));
 
-    List<TopologyAclBinding> bindings = rsp.load();
+    Set<TopologyAclBinding> bindings = rsp.load();
 
     Assert.assertEquals(1, bindings.size());
-    Assert.assertEquals(binding.getPrincipal(), bindings.get(0).getPrincipal());
+    Assert.assertEquals(binding.getPrincipal(), bindings.iterator().next().getPrincipal());
   }
 }

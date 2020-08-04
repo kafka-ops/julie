@@ -10,8 +10,8 @@ import java.io.Writer;
 import java.net.URI;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.apache.logging.log4j.LogManager;
@@ -40,15 +40,15 @@ public class FileSateProcessor implements StateProcessor {
     }
   }
 
-  public List<TopologyAclBinding> load() throws IOException {
+  public Set<TopologyAclBinding> load() throws IOException {
     File file = new File(filename());
     return load(file.toURI());
   }
 
-  public List<TopologyAclBinding> load(URI uri) throws IOException {
+  public Set<TopologyAclBinding> load(URI uri) throws IOException {
 
     Path filePath = Paths.get(uri);
-    List<TopologyAclBinding> bindings = new ArrayList<>();
+    Set<TopologyAclBinding> bindings = new HashSet<>();
     BufferedReader in = new BufferedReader(new FileReader(filePath.toFile()));
     String type = in.readLine();
     String line = null;
@@ -98,7 +98,7 @@ public class FileSateProcessor implements StateProcessor {
   }
 
   @Override
-  public void saveBindings(List<TopologyAclBinding> bindings) {
+  public void saveBindings(Set<TopologyAclBinding> bindings) {
     bindings.forEach(
         binding -> {
           try {

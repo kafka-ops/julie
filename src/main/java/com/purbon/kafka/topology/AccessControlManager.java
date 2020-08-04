@@ -65,7 +65,9 @@ public class AccessControlManager {
     } catch (Exception e) {
       LOGGER.error(e);
     } finally {
-      clusterState.reset();
+      if (allowDelete) {
+        clusterState.reset();
+      }
     }
   }
 
