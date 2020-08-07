@@ -1,7 +1,6 @@
 package com.purbon.kafka.topology.integration;
 
 import static com.purbon.kafka.topology.roles.RBACPredefinedRoles.DEVELOPER_READ;
-import static com.purbon.kafka.topology.roles.RBACPredefinedRoles.RESOURCE_OWNER;
 import static com.purbon.kafka.topology.roles.RBACProvider.LITERAL;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -37,33 +36,31 @@ public class MDSApiClientRbacIT extends MDSBaseTest {
   }
 
   @Test
-  public void testMDSLogin() {
+  public void testMDSLogin() throws IOException {
     apiClient.login(mdsUser, mdsPassword);
     apiClient.authenticate();
     AuthenticationCredentials credentials = apiClient.getCredentials();
     assertEquals(false, credentials.getAuthToken().isEmpty());
   }
 
-  @Test
-  public void testWithWrongMDSLogin() {
+  @Test(expected = IOException.class)
+  public void testWithWrongMDSLogin() throws IOException {
     apiClient.login("wrong-user", "wrong-password");
     apiClient.authenticate();
-    AuthenticationCredentials credentials = apiClient.getCredentials();
-    assertEquals(null, credentials);
   }
 
   @Test
-  public void testLookupRoles() {
+  public void testLookupRoles() throws IOException {
     apiClient.login(mdsUser, mdsPassword);
     apiClient.authenticate();
     apiClient.setKafkaClusterId(getKafkaClusterID());
 
     List<String> roles = apiClient.lookupRoles("User:fry");
-    assertTrue(roles.contains(RESOURCE_OWNER));
+    assertTrue(roles.contains(DEVELOPER_READ));
   }
 
   @Test
-  public void testBindRoleToResource() {
+  public void testBindRoleToResource() throws IOException {
     apiClient.login(mdsUser, mdsPassword);
     apiClient.authenticate();
     apiClient.setKafkaClusterId(getKafkaClusterID());
@@ -71,7 +68,7 @@ public class MDSApiClientRbacIT extends MDSBaseTest {
     apiClient.bind("User:fry", DEVELOPER_READ, "connect-configs", LITERAL);
 
     List<String> roles = apiClient.lookupRoles("User:fry");
-    assertEquals(2, roles.size());
+    assertEquals(1, roles.size());
     assertTrue(roles.contains(DEVELOPER_READ));
   }
 }

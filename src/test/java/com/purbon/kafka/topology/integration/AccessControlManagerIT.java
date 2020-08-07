@@ -1,16 +1,26 @@
 package com.purbon.kafka.topology.integration;
 
+import static org.mockito.Mockito.when;
+
 import com.purbon.kafka.topology.AccessControlManager;
 import com.purbon.kafka.topology.ClusterState;
 import com.purbon.kafka.topology.TopologyBuilderAdminClient;
+import com.purbon.kafka.topology.TopologyBuilderConfig;
+import com.purbon.kafka.topology.model.Impl.ProjectImpl;
+import com.purbon.kafka.topology.model.Impl.TopicImpl;
+import com.purbon.kafka.topology.model.Impl.TopologyImpl;
+import com.purbon.kafka.topology.model.Platform;
 import com.purbon.kafka.topology.model.Project;
 import com.purbon.kafka.topology.model.Topic;
 import com.purbon.kafka.topology.model.Topology;
 import com.purbon.kafka.topology.model.users.Connector;
 import com.purbon.kafka.topology.model.users.Consumer;
+import com.purbon.kafka.topology.model.users.ControlCenter;
 import com.purbon.kafka.topology.model.users.KStream;
 import com.purbon.kafka.topology.model.users.Producer;
+import com.purbon.kafka.topology.model.users.SchemaRegistry;
 import com.purbon.kafka.topology.roles.SimpleAclsProvider;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -32,7 +42,11 @@ import org.apache.kafka.common.resource.ResourcePatternFilter;
 import org.apache.kafka.common.resource.ResourceType;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.mockito.Mock;
+import org.mockito.junit.MockitoJUnit;
+import org.mockito.junit.MockitoRule;
 
 public class AccessControlManagerIT {
 
@@ -41,10 +55,15 @@ public class AccessControlManagerIT {
   private ClusterState cs;
   private SimpleAclsProvider aclsProvider;
 
+  @Rule public MockitoRule mockitoRule = MockitoJUnit.rule();
+
+  @Mock private TopologyBuilderConfig config;
+
   @Before
-  public void before() {
+  public void before() throws IOException {
     kafkaAdminClient = AdminClient.create(config());
-    TopologyBuilderAdminClient adminClient = new TopologyBuilderAdminClient(kafkaAdminClient);
+    TopologyBuilderAdminClient adminClient =
+        new TopologyBuilderAdminClient(kafkaAdminClient, config);
     adminClient.clearAcls();
 
     cs = new ClusterState();
@@ -53,7 +72,7 @@ public class AccessControlManagerIT {
   }
 
   @Test
-  public void testAclsCleanup() throws ExecutionException, InterruptedException {
+  public void testAclsCleanup() throws ExecutionException, InterruptedException, IOException {
 
     // Crate an ACL outside of the control of the state manager.
     aclsProvider.setAclsForProducers(Collections.singleton("User:foo"), "bar");
@@ -63,14 +82,14 @@ public class AccessControlManagerIT {
     List<Consumer> consumers = new ArrayList<>();
     consumers.add(new Consumer("User:testAclsCleanupApp1"));
 
-    Project project = new Project("project");
+    Project project = new ProjectImpl("project");
     project.setConsumers(consumers);
-    Topic topicA = new Topic("topicA");
+    Topic topicA = new TopicImpl("topicA");
     project.addTopic(topicA);
 
-    Topology topology = new Topology();
+    Topology topology = new TopologyImpl();
     topology.setTeam("integration-test");
-    topology.setSource("testAclsCleanup");
+    topology.addOther("source", "testAclsCleanup");
     topology.addProject(project);
 
     accessControlManager.sync(topology);
@@ -86,19 +105,19 @@ public class AccessControlManagerIT {
   }
 
   @Test
-  public void consumerAclsCreation() throws ExecutionException, InterruptedException {
+  public void consumerAclsCreation() throws ExecutionException, InterruptedException, IOException {
 
     List<Consumer> consumers = new ArrayList<>();
     consumers.add(new Consumer("User:app1"));
 
-    Project project = new Project("project");
+    Project project = new ProjectImpl("project");
     project.setConsumers(consumers);
-    Topic topicA = new Topic("topicA");
+    Topic topicA = new TopicImpl("topicA");
     project.addTopic(topicA);
 
-    Topology topology = new Topology();
+    Topology topology = new TopologyImpl();
     topology.setTeam("integration-test");
-    topology.setSource("testConsumerAclsCreation");
+    topology.addOther("source", "testConsumerAclsCreation");
     topology.addProject(project);
 
     accessControlManager.sync(topology);
@@ -107,19 +126,19 @@ public class AccessControlManagerIT {
   }
 
   @Test
-  public void producerAclsCreation() throws ExecutionException, InterruptedException {
+  public void producerAclsCreation() throws ExecutionException, InterruptedException, IOException {
 
     List<Producer> producers = new ArrayList<>();
     producers.add(new Producer("User:Producer1"));
 
-    Project project = new Project("project");
+    Project project = new ProjectImpl("project");
     project.setProducers(producers);
-    Topic topicA = new Topic("topicA");
+    Topic topicA = new TopicImpl("topicA");
     project.addTopic(topicA);
 
-    Topology topology = new Topology();
+    Topology topology = new TopologyImpl();
     topology.setTeam("integration-test");
-    topology.setSource("producerAclsCreation");
+    topology.addOther("source", "producerAclsCreation");
     topology.addProject(project);
 
     accessControlManager.sync(topology);
@@ -128,8 +147,8 @@ public class AccessControlManagerIT {
   }
 
   @Test
-  public void kstreamsAclsCreation() throws ExecutionException, InterruptedException {
-    Project project = new Project();
+  public void kstreamsAclsCreation() throws ExecutionException, InterruptedException, IOException {
+    Project project = new ProjectImpl();
 
     KStream app = new KStream();
     app.setPrincipal("User:App0");
@@ -139,9 +158,9 @@ public class AccessControlManagerIT {
     app.setTopics(topics);
     project.setStreams(Collections.singletonList(app));
 
-    Topology topology = new Topology();
+    Topology topology = new TopologyImpl();
     topology.setTeam("integration-test");
-    topology.setSource("kstreamsAclsCreation");
+    topology.addOther("source", "kstreamsAclsCreation");
     topology.addProject(project);
 
     accessControlManager.sync(topology);
@@ -150,8 +169,62 @@ public class AccessControlManagerIT {
   }
 
   @Test
-  public void connectAclsCreation() throws ExecutionException, InterruptedException {
-    Project project = new Project();
+  public void schemaRegistryAclsCreation()
+      throws ExecutionException, InterruptedException, IOException {
+    Project project = new ProjectImpl();
+
+    Topology topology = new TopologyImpl();
+    topology.setTeam("integration-test");
+    topology.addOther("source", "schemaRegistryAclsCreation");
+    topology.addProject(project);
+
+    Platform platform = new Platform();
+    SchemaRegistry sr = new SchemaRegistry();
+    sr.setPrincipal("User:foo");
+    platform.addSchemaRegistry(sr);
+
+    SchemaRegistry sr2 = new SchemaRegistry();
+    sr2.setPrincipal("User:banana");
+    platform.addSchemaRegistry(sr2);
+
+    topology.setPlatform(platform);
+
+    accessControlManager.sync(topology);
+
+    verifySchemaRegistryAcls(platform);
+  }
+
+  @Test
+  public void controlcenterAclsCreation()
+      throws ExecutionException, InterruptedException, IOException {
+
+    when(config.getConfluentCommandTopic()).thenReturn("foo");
+    when(config.getConfluentMetricsTopic()).thenReturn("bar");
+    when(config.getConfluentMonitoringTopic()).thenReturn("zet");
+
+    Project project = new ProjectImpl();
+
+    Topology topology = new TopologyImpl();
+    topology.setTeam("integration-test");
+    topology.addOther("source", "controlcenterAclsCreation");
+    topology.addProject(project);
+
+    Platform platform = new Platform();
+    ControlCenter c3 = new ControlCenter();
+    c3.setPrincipal("User:foo");
+    c3.setAppId("appid");
+    platform.addControlCenter(c3);
+
+    topology.setPlatform(platform);
+
+    accessControlManager.sync(topology);
+
+    verifyControlCenterAcls(platform);
+  }
+
+  @Test
+  public void connectAclsCreation() throws ExecutionException, InterruptedException, IOException {
+    Project project = new ProjectImpl();
 
     Connector connector = new Connector();
     connector.setPrincipal("User:Connect");
@@ -160,9 +233,9 @@ public class AccessControlManagerIT {
     connector.setTopics(topics);
     project.setConnectors(Collections.singletonList(connector));
 
-    Topology topology = new Topology();
+    Topology topology = new TopologyImpl();
     topology.setTeam("integration-test");
-    topology.setSource("connectAclsCreation");
+    topology.addOther("source", "connectAclsCreation");
     topology.addProject(project);
 
     accessControlManager.sync(topology);
@@ -210,6 +283,49 @@ public class AccessControlManagerIT {
     acls = kafkaAdminClient.describeAcls(filter).values().get();
 
     Assert.assertEquals(1, acls.size());
+  }
+
+  private void verifySchemaRegistryAcls(Platform platform)
+      throws ExecutionException, InterruptedException {
+
+    List<SchemaRegistry> srs = platform.getSchemaRegistry();
+
+    for (SchemaRegistry sr : srs) {
+
+      ResourcePatternFilter resourceFilter =
+          new ResourcePatternFilter(ResourceType.TOPIC, null, PatternType.ANY);
+
+      AccessControlEntryFilter entryFilter =
+          new AccessControlEntryFilter(
+              sr.getPrincipal(), null, AclOperation.ANY, AclPermissionType.ALLOW);
+
+      AclBindingFilter filter = new AclBindingFilter(resourceFilter, entryFilter);
+
+      Collection<AclBinding> acls = kafkaAdminClient.describeAcls(filter).values().get();
+
+      Assert.assertEquals(3, acls.size());
+    }
+  }
+
+  private void verifyControlCenterAcls(Platform platform)
+      throws ExecutionException, InterruptedException {
+
+    List<ControlCenter> c3List = platform.getControlCenter();
+
+    for (ControlCenter c3 : c3List) {
+      ResourcePatternFilter resourceFilter =
+          new ResourcePatternFilter(ResourceType.TOPIC, null, PatternType.ANY);
+
+      AccessControlEntryFilter entryFilter =
+          new AccessControlEntryFilter(
+              c3.getPrincipal(), null, AclOperation.ANY, AclPermissionType.ALLOW);
+
+      AclBindingFilter filter = new AclBindingFilter(resourceFilter, entryFilter);
+
+      Collection<AclBinding> acls = kafkaAdminClient.describeAcls(filter).values().get();
+
+      Assert.assertEquals(16, acls.size());
+    }
   }
 
   private void verifyKStreamsAcls(KStream app) throws ExecutionException, InterruptedException {

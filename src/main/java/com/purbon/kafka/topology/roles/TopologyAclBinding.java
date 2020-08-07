@@ -1,5 +1,6 @@
 package com.purbon.kafka.topology.roles;
 
+import java.util.Objects;
 import org.apache.kafka.common.acl.AccessControlEntry;
 import org.apache.kafka.common.acl.AclBinding;
 import org.apache.kafka.common.resource.ResourcePattern;
@@ -14,6 +15,16 @@ public class TopologyAclBinding {
   private String principal;
   private String pattern;
 
+  /**
+   * Topology ACL binding wrapper class constructor
+   *
+   * @param resourceType The resource type as described in ResourceType
+   * @param resourceName The resource name
+   * @param host the host this acl is allowed to
+   * @param operation an operation
+   * @param principal the selected principal
+   * @param pattern a pattern to match this acl
+   */
   public TopologyAclBinding(
       ResourceType resourceType,
       String resourceName,
@@ -29,6 +40,17 @@ public class TopologyAclBinding {
     this.pattern = pattern;
   }
 
+  /**
+   * Build method
+   *
+   * @param resourceTypeString
+   * @param resourceName
+   * @param host
+   * @param operation
+   * @param principal
+   * @param pattern
+   * @return
+   */
   public static TopologyAclBinding build(
       String resourceTypeString,
       String resourceName,
@@ -39,6 +61,10 @@ public class TopologyAclBinding {
 
     ResourceType resourceType = ResourceType.valueOf(resourceTypeString);
     return new TopologyAclBinding(resourceType, resourceName, host, operation, principal, pattern);
+  }
+
+  public TopologyAclBinding() {
+    this(ResourceType.ANY, "", "", "", "", "");
   }
 
   public TopologyAclBinding(AclBinding binding) {
@@ -118,5 +144,33 @@ public class TopologyAclBinding {
 
   public String getResourceName() {
     return resourceName;
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
+    TopologyAclBinding binding = (TopologyAclBinding) o;
+    return getResourceType() == binding.getResourceType()
+        && getResourceName().equals(binding.getResourceName())
+        && getHost().equals(binding.getHost())
+        && getOperation().equals(binding.getOperation())
+        && getPrincipal().equals(binding.getPrincipal())
+        && getPattern().equals(binding.getPattern());
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(
+        getResourceType(),
+        getResourceName(),
+        getHost(),
+        getOperation(),
+        getPrincipal(),
+        getPattern());
   }
 }

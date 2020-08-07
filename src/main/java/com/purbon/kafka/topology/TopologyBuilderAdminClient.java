@@ -1,22 +1,28 @@
 package com.purbon.kafka.topology;
 
+import com.purbon.kafka.topology.adminclient.AclBuilder;
 import com.purbon.kafka.topology.model.Topic;
+import com.purbon.kafka.topology.model.users.Connector;
+import com.purbon.kafka.topology.model.users.SchemaRegistry;
 import com.purbon.kafka.topology.roles.TopologyAclBinding;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ExecutionException;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import org.apache.kafka.clients.admin.AdminClient;
 import org.apache.kafka.clients.admin.AlterConfigOp;
 import org.apache.kafka.clients.admin.AlterConfigOp.OpType;
 import org.apache.kafka.clients.admin.Config;
 import org.apache.kafka.clients.admin.ConfigEntry;
+import org.apache.kafka.clients.admin.ListTopicsOptions;
 import org.apache.kafka.clients.admin.NewTopic;
 import org.apache.kafka.common.acl.AccessControlEntry;
 import org.apache.kafka.common.acl.AccessControlEntryFilter;
@@ -38,41 +44,50 @@ public class TopologyBuilderAdminClient {
   private static final Logger LOGGER = LogManager.getLogger(TopologyBuilderAdminClient.class);
 
   private final AdminClient adminClient;
+  private final TopologyBuilderConfig config;
 
-  public TopologyBuilderAdminClient(AdminClient adminClient) {
+  public TopologyBuilderAdminClient(AdminClient adminClient, TopologyBuilderConfig config) {
     this.adminClient = adminClient;
+    this.config = config;
   }
 
-  public Set<String> listTopics() {
-    Set<String> listOfTopics = new HashSet<>();
+  public Set<String> listTopics(ListTopicsOptions options) throws IOException {
+    Set<String> listOfTopics;
     try {
-      listOfTopics = adminClient.listTopics().names().get();
-    } catch (InterruptedException e) {
+      listOfTopics = adminClient.listTopics(options).names().get();
+    } catch (InterruptedException | ExecutionException e) {
       LOGGER.error(e);
-    } catch (ExecutionException e) {
-      LOGGER.error(e);
+      throw new IOException(e);
     }
     return listOfTopics;
   }
 
-  public void updateTopicConfig(Topic topic, String fullTopicName) {
+  public Set<String> listTopics() throws IOException {
+    return listTopics(new ListTopicsOptions());
+  }
 
+  public Set<String> listApplicationTopics() throws IOException {
+    ListTopicsOptions options = new ListTopicsOptions();
+    options.listInternal(false);
+    return listTopics(options);
+  }
+
+  public void updateTopicConfig(Topic topic, String fullTopicName) throws IOException {
     try {
       updateTopicConfigPostAK23(topic, fullTopicName);
-    } catch (ExecutionException ex) {
+    } catch (InterruptedException | ExecutionException ex) {
       LOGGER.error(ex);
-    } catch (InterruptedException ex) {
-      LOGGER.error(ex);
+      throw new IOException(ex);
     }
   }
 
-  public void clearAcls() {
+  public void clearAcls() throws IOException {
     Collection<AclBindingFilter> filters = new ArrayList<>();
     filters.add(AclBindingFilter.ANY);
     clearAcls(filters);
   }
 
-  public void clearAcls(TopologyAclBinding aclBinding) {
+  public void clearAcls(TopologyAclBinding aclBinding) throws IOException {
     Collection<AclBindingFilter> filters = new ArrayList<>();
 
     LOGGER.debug("clearAcl = " + aclBinding);
@@ -94,11 +109,12 @@ public class TopologyBuilderAdminClient {
     clearAcls(filters);
   }
 
-  private void clearAcls(Collection<AclBindingFilter> filters) {
+  private void clearAcls(Collection<AclBindingFilter> filters) throws IOException {
     try {
       adminClient.deleteAcls(filters).all().get();
-    } catch (Exception e) {
+    } catch (ExecutionException | InterruptedException e) {
       LOGGER.error(e);
+      throw new IOException(e);
     }
   }
 
@@ -143,7 +159,7 @@ public class TopologyBuilderAdminClient {
     return configs.get(resource);
   }
 
-  public void createTopic(Topic topic, String fullTopicName) {
+  public void createTopic(Topic topic, String fullTopicName) throws IOException {
 
     int numPartitions =
         Integer.parseInt(topic.getConfig().getOrDefault(TopicManager.NUM_PARTITIONS, "3"));
@@ -155,10 +171,9 @@ public class TopologyBuilderAdminClient {
     Collection<NewTopic> newTopics = Collections.singleton(newTopic);
     try {
       createAllTopics(newTopics);
-    } catch (InterruptedException e) {
+    } catch (ExecutionException | InterruptedException e) {
       LOGGER.error(e);
-    } catch (ExecutionException e) {
-      LOGGER.error(e);
+      throw new IOException(e);
     }
   }
 
@@ -167,17 +182,12 @@ public class TopologyBuilderAdminClient {
     adminClient.createTopics(newTopics).all().get();
   }
 
-  public void deleteTopic(String topic) {
-    deleteTopics(Collections.singletonList(topic));
-  }
-
-  public void deleteTopics(Collection<String> topics) {
+  public void deleteTopics(Collection<String> topics) throws IOException {
     try {
       adminClient.deleteTopics(topics).all().get();
-    } catch (InterruptedException e) {
+    } catch (ExecutionException | InterruptedException e) {
       LOGGER.error(e);
-    } catch (ExecutionException e) {
-      LOGGER.error(e);
+      throw new IOException(e);
     }
   }
 
@@ -186,7 +196,7 @@ public class TopologyBuilderAdminClient {
    *
    * @return String, the current Kafka Protocol version
    */
-  private String findKafkaVersion() {
+  private String findKafkaVersion() throws IOException {
     ConfigResource resource = new ConfigResource(Type.BROKER, "inter.broker.protocol.version");
     String kafkaVersion = "";
     try {
@@ -194,15 +204,14 @@ public class TopologyBuilderAdminClient {
           adminClient.describeConfigs(Collections.singletonList(resource)).all().get();
       kafkaVersion =
           configs.get(resource).get("inter.broker.protocol.version").value().split("-")[0];
-    } catch (InterruptedException e) {
+    } catch (ExecutionException | InterruptedException e) {
       LOGGER.error(e);
-    } catch (ExecutionException e) {
-      LOGGER.error(e);
+      throw new IOException(e);
     }
     return kafkaVersion;
   }
 
-  public List<AclBinding> setAclsForProducer(String principal, String topic) {
+  public List<AclBinding> setAclsForProducer(String principal, String topic) throws IOException {
     List<AclBinding> acls = new ArrayList<>();
     acls.add(buildTopicLevelAcl(principal, topic, PatternType.LITERAL, AclOperation.DESCRIBE));
     acls.add(buildTopicLevelAcl(principal, topic, PatternType.LITERAL, AclOperation.WRITE));
@@ -210,7 +219,7 @@ public class TopologyBuilderAdminClient {
     return acls;
   }
 
-  public List<AclBinding> setAclsForConsumer(String principal, String topic) {
+  public List<AclBinding> setAclsForConsumer(String principal, String topic) throws IOException {
 
     List<AclBinding> acls = new ArrayList<>();
     acls.add(buildTopicLevelAcl(principal, topic, PatternType.LITERAL, AclOperation.DESCRIBE));
@@ -218,16 +227,6 @@ public class TopologyBuilderAdminClient {
     acls.add(buildGroupLevelAcl(principal, "*", PatternType.LITERAL, AclOperation.READ));
     createAcls(acls);
     return acls;
-  }
-
-  private void createAcls(Collection<AclBinding> acls) {
-    try {
-      adminClient.createAcls(acls).all().get();
-    } catch (InterruptedException e) {
-      LOGGER.error(e);
-    } catch (ExecutionException e) {
-      LOGGER.error(e);
-    }
   }
 
   public Map<String, Collection<AclBinding>> fetchAclsList() {
@@ -251,25 +250,70 @@ public class TopologyBuilderAdminClient {
     return acls;
   }
 
-  public Collection<AclBinding> fetchAclsList(String principal, String topic) {
-    Collection<AclBinding> aclsList = null;
+  public List<AclBinding> setAclForSchemaRegistry(SchemaRegistry schemaRegistry)
+      throws IOException {
+    List<AclBinding> bindings =
+        Arrays.asList(AclOperation.DESCRIBE_CONFIGS, AclOperation.WRITE, AclOperation.READ).stream()
+            .map(
+                aclOperation -> {
+                  return buildTopicLevelAcl(
+                      schemaRegistry.getPrincipal(),
+                      schemaRegistry.topicString(),
+                      PatternType.LITERAL,
+                      aclOperation);
+                })
+            .collect(Collectors.toList());
+    createAcls(bindings);
+    return bindings;
+  }
 
-    ResourcePatternFilter resourceFilter =
-        new ResourcePatternFilter(ResourceType.TOPIC, topic, PatternType.ANY);
-    AccessControlEntryFilter accessControlEntryFilter =
-        new AccessControlEntryFilter(principal, "*", AclOperation.ALL, AclPermissionType.ANY);
-    AclBindingFilter filter = new AclBindingFilter(resourceFilter, accessControlEntryFilter);
+  public List<AclBinding> setAclsForControlCenter(String principal, String appId)
+      throws IOException {
+    List<AclBinding> bindings = new ArrayList<>();
 
-    try {
-      aclsList = adminClient.describeAcls(filter).values().get();
-    } catch (Exception e) {
-      return new ArrayList<>();
-    }
-    return aclsList;
+    bindings.add(buildGroupLevelAcl(principal, appId, PatternType.PREFIXED, AclOperation.READ));
+    bindings.add(
+        buildGroupLevelAcl(principal, appId + "-command", PatternType.PREFIXED, AclOperation.READ));
+
+    Arrays.asList(
+            config.getConfluentMonitoringTopic(),
+            config.getConfluentCommandTopic(),
+            config.getConfluentMetricsTopic())
+        .forEach(
+            topic ->
+                Stream.of(
+                        AclOperation.WRITE,
+                        AclOperation.READ,
+                        AclOperation.CREATE,
+                        AclOperation.DESCRIBE)
+                    .map(
+                        aclOperation ->
+                            buildTopicLevelAcl(principal, topic, PatternType.LITERAL, aclOperation))
+                    .forEach(aclBinding -> bindings.add(aclBinding)));
+
+    Stream.of(AclOperation.WRITE, AclOperation.READ, AclOperation.CREATE, AclOperation.DESCRIBE)
+        .map(
+            aclOperation ->
+                buildTopicLevelAcl(principal, appId, PatternType.PREFIXED, aclOperation))
+        .forEach(aclBinding -> bindings.add(aclBinding));
+
+    ResourcePattern resourcePattern =
+        new ResourcePattern(ResourceType.CLUSTER, "kafka-cluster", PatternType.LITERAL);
+    AccessControlEntry entry =
+        new AccessControlEntry(principal, "*", AclOperation.DESCRIBE, AclPermissionType.ALLOW);
+    bindings.add(new AclBinding(resourcePattern, entry));
+
+    entry =
+        new AccessControlEntry(
+            principal, "*", AclOperation.DESCRIBE_CONFIGS, AclPermissionType.ALLOW);
+    bindings.add(new AclBinding(resourcePattern, entry));
+    createAcls(bindings);
+    return bindings;
   }
 
   public List<AclBinding> setAclsForStreamsApp(
-      String principal, String topicPrefix, List<String> readTopics, List<String> writeTopics) {
+      String principal, String topicPrefix, List<String> readTopics, List<String> writeTopics)
+      throws IOException {
 
     List<AclBinding> acls = new ArrayList<>();
 
@@ -288,12 +332,20 @@ public class TopologyBuilderAdminClient {
     return acls;
   }
 
-  public List<AclBinding> setAclsForConnect(
-      String principal, String topicPrefix, List<String> readTopics, List<String> writeTopics) {
+  public List<AclBinding> setAclsForConnect(Connector connector) throws IOException {
+
+    String principal = connector.getPrincipal();
+    List<String> readTopics = connector.getTopics().get("read");
+    List<String> writeTopics = connector.getTopics().get("write");
 
     List<AclBinding> acls = new ArrayList<>();
 
-    List<String> topics = Arrays.asList("connect-status", "connect-offsets", "connect-configs");
+    List<String> topics =
+        Arrays.asList(
+            connector.statusTopicString(),
+            connector.offsetTopicString(),
+            connector.configsTopicString());
+
     for (String topic : topics) {
       acls.add(buildTopicLevelAcl(principal, topic, PatternType.LITERAL, AclOperation.READ));
       acls.add(buildTopicLevelAcl(principal, topic, PatternType.LITERAL, AclOperation.WRITE));
@@ -305,7 +357,8 @@ public class TopologyBuilderAdminClient {
         new AccessControlEntry(principal, "*", AclOperation.CREATE, AclPermissionType.ALLOW);
     acls.add(new AclBinding(resourcePattern, entry));
 
-    resourcePattern = new ResourcePattern(ResourceType.GROUP, "*", PatternType.LITERAL);
+    resourcePattern =
+        new ResourcePattern(ResourceType.GROUP, connector.groupString(), PatternType.LITERAL);
     entry = new AccessControlEntry(principal, "*", AclOperation.READ, AclPermissionType.ALLOW);
     acls.add(new AclBinding(resourcePattern, entry));
 
@@ -327,6 +380,15 @@ public class TopologyBuilderAdminClient {
     return acls;
   }
 
+  private void createAcls(Collection<AclBinding> acls) throws IOException {
+    try {
+      adminClient.createAcls(acls).all().get();
+    } catch (ExecutionException | InterruptedException e) {
+      LOGGER.error(e);
+      throw new IOException(e);
+    }
+  }
+
   private AclBinding buildTopicLevelAcl(
       String principal, String topic, PatternType patternType, AclOperation op) {
     return new AclBuilder(principal)
@@ -343,29 +405,7 @@ public class TopologyBuilderAdminClient {
         .build();
   }
 
-  private class AclBuilder {
-
-    private ResourcePattern resourcePattern;
-    private AccessControlEntry entry;
-    private String principal;
-
-    public AclBuilder(String principal) {
-      this.principal = principal;
-    }
-
-    public AclBuilder addResource(ResourceType resourceType, String name, PatternType patternType) {
-      resourcePattern = new ResourcePattern(resourceType, name, patternType);
-      return this;
-    }
-
-    public AclBuilder addControlEntry(
-        String host, AclOperation op, AclPermissionType permissionType) {
-      entry = new AccessControlEntry(principal, host, op, permissionType);
-      return this;
-    }
-
-    public AclBinding build() {
-      return new AclBinding(resourcePattern, entry);
-    }
+  public void close() {
+    adminClient.close();
   }
 }

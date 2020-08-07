@@ -21,7 +21,7 @@ services:
     privileged: true
 
   zookeeper:
-    image: confluentinc/cp-zookeeper:5.4.0
+    image: confluentinc/cp-zookeeper:5.5.1
     hostname: zookeeper
     container_name: zookeeper
     ports:
@@ -31,7 +31,7 @@ services:
       ZOOKEEPER_TICK_TIME: 2000
 
   broker:
-    image: confluentinc/cp-server:5.4.0
+    image: confluentinc/cp-server:5.5.1
     hostname: broker
     container_name: broker
     depends_on:
@@ -75,13 +75,13 @@ services:
                                                                  org.apache.kafka.common.security.oauthbearer.OAuthBearerLoginModule required \
                                                                  publicKeyPath="/tmp/conf/public.pem";
       # Configure external listener
-      KAFKA_LISTENER_NAME_OUTSIDE_SASL_ENABLED_MECHANISMS: OAUTHBEARER
-      KAFKA_LISTENER_NAME_OUTSIDE_OAUTHBEARER_SASL_SERVER_CALLBACK_HANDLER_CLASS: io.confluent.kafka.server.plugins.auth.token.TokenBearerValidatorCallbackHandler
-      KAFKA_LISTENER_NAME_OUTSIDE_OAUTHBEARER_SASL_LOGIN_CALLBACK_HANDLER_CLASS: io.confluent.kafka.server.plugins.auth.token.TokenBearerServerLoginCallbackHandler
-      KAFKA_LISTENER_NAME_OUTSIDE_OAUTHBEARER_SASL_JAAS_CONFIG: |
-                                                                 \
-                                                                 org.apache.kafka.common.security.oauthbearer.OAuthBearerLoginModule required \
-                                                                 publicKeyPath="/tmp/conf/public.pem";
+      KAFKA_LISTENER_NAME_OUTSIDE_SASL_ENABLED_MECHANISMS: PLAIN
+      KAFKA_LISTENER_NAME_OUTSIDE_PLAIN_SASL_SERVER_CALLBACK_HANDLER_CLASS: io.confluent.security.auth.provider.ldap.LdapAuthenticateCallbackHandler
+      KAFKA_LISTENER_NAME_OUTSIDE_PLAIN_SASL_JAAS_CONFIG: |
+                                                      \
+                                                      org.apache.kafka.common.security.plain.PlainLoginModule required \
+                                                      username="admin" \
+                                                      password="admin-secret";
 
       # CONFIGURE AUTHORIZER
       # Setup kafka to use RBAC authorizer
@@ -159,7 +159,7 @@ services:
       # CONFLUENT_SUPPORT_CUSTOMER_ID: 'anonymous'
 
   schema-registry:
-    image: confluentinc/cp-schema-registry:5.4.0
+    image: confluentinc/cp-schema-registry:5.5.1
     hostname: schema-registry
     container_name: schema-registry
     ports:
@@ -199,7 +199,7 @@ services:
       SCHEMA_REGISTRY_PUBLIC_KEY_PATH: /tmp/conf/public.pem
 
   connect:
-    image: confluentinc/cp-server-connect:5.4.0
+    image: confluentinc/cp-server-connect:5.5.1
     hostname: connect
     container_name: connect
     depends_on:
@@ -292,7 +292,7 @@ services:
                                                                           metadataServerUrls="http://broker:8090";
 
   control-center:
-    image: confluentinc/cp-enterprise-control-center:5.4.0
+    image: confluentinc/cp-enterprise-control-center:5.5.1
     hostname: control-center
     container_name: control-center
     depends_on:

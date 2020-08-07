@@ -4,8 +4,9 @@ import com.purbon.kafka.topology.clusterstate.FileSateProcessor;
 import com.purbon.kafka.topology.clusterstate.StateProcessor;
 import com.purbon.kafka.topology.roles.TopologyAclBinding;
 import java.io.IOException;
-import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.function.Consumer;
 
 public class ClusterState {
@@ -13,7 +14,7 @@ public class ClusterState {
   private static final String STORE_TYPE = "acls";
 
   private final StateProcessor stateProcessor;
-  private List<TopologyAclBinding> bindings;
+  private Set<TopologyAclBinding> bindings;
 
   public ClusterState() {
     this(new FileSateProcessor());
@@ -21,7 +22,7 @@ public class ClusterState {
 
   public ClusterState(StateProcessor stateProcessor) {
     this.stateProcessor = stateProcessor;
-    this.bindings = new ArrayList<>();
+    this.bindings = new HashSet<>();
   }
 
   public void update(List<TopologyAclBinding> bindings) {
@@ -33,6 +34,7 @@ public class ClusterState {
   }
 
   public void flushAndClose() {
+    stateProcessor.createOrOpen();
     stateProcessor.saveType(STORE_TYPE);
     stateProcessor.saveBindings(bindings);
     stateProcessor.close();
@@ -44,7 +46,6 @@ public class ClusterState {
 
   public void reset() {
     bindings.clear();
-    stateProcessor.createOrOpen();
   }
 
   public int size() {

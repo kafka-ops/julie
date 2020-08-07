@@ -1,14 +1,27 @@
 package com.purbon.kafka.topology;
 
-import static org.mockito.Mockito.*;
+import static com.purbon.kafka.topology.BuilderCLI.ALLOW_DELETE_OPTION;
+import static com.purbon.kafka.topology.BuilderCLI.BROKERS_OPTION;
+import static com.purbon.kafka.topology.TopologyBuilderConfig.KAFKA_INTERNAL_TOPIC_PREFIXES;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
+import com.purbon.kafka.topology.model.Impl.ProjectImpl;
+import com.purbon.kafka.topology.model.Impl.TopicImpl;
+import com.purbon.kafka.topology.model.Impl.TopologyImpl;
 import com.purbon.kafka.topology.model.Project;
 import com.purbon.kafka.topology.model.Topic;
 import com.purbon.kafka.topology.model.Topology;
 import com.purbon.kafka.topology.schemas.SchemaRegistryManager;
+import java.io.IOException;
+import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Properties;
 import java.util.Set;
+import java.util.stream.Collectors;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -25,24 +38,28 @@ public class TopicManagerTest {
   @Rule public MockitoRule mockitoRule = MockitoJUnit.rule();
 
   private TopicManager topicManager;
+  private HashMap<String, String> cliOps;
 
   @Before
   public void setup() {
+    cliOps = new HashMap<>();
+    cliOps.put(BROKERS_OPTION, "");
+
     topicManager = new TopicManager(adminClient, schemaRegistryManager);
   }
 
   @Test
-  public void newTopicCreationTest() {
+  public void newTopicCreationTest() throws IOException {
 
-    Project project = new Project("project");
-    Topic topicA = new Topic("topicA");
+    Project project = new ProjectImpl("project");
+    Topic topicA = new TopicImpl("topicA");
     project.addTopic(topicA);
-    Topic topicB = new Topic("topicB");
+    Topic topicB = new TopicImpl("topicB");
     project.addTopic(topicB);
-    Topology topology = new Topology();
+    Topology topology = new TopologyImpl();
     topology.addProject(project);
 
-    when(adminClient.listTopics()).thenReturn(new HashSet<>());
+    when(adminClient.listApplicationTopics()).thenReturn(new HashSet<>());
     topicManager.sync(topology);
 
     verify(adminClient, times(1)).createTopic(topicA, topicA.toString());
@@ -50,19 +67,19 @@ public class TopicManagerTest {
   }
 
   @Test
-  public void topicUpdateTest() {
+  public void topicUpdateTest() throws IOException {
 
-    Project project = new Project("project");
-    Topic topicA = new Topic("topicA");
+    Project project = new ProjectImpl("project");
+    Topic topicA = new TopicImpl("topicA");
     project.addTopic(topicA);
-    Topic topicB = new Topic("topicB");
+    Topic topicB = new TopicImpl("topicB");
     project.addTopic(topicB);
-    Topology topology = new Topology();
+    Topology topology = new TopologyImpl();
     topology.addProject(project);
 
     Set<String> dummyTopicList = new HashSet<>();
     dummyTopicList.add(topicB.toString());
-    when(adminClient.listTopics()).thenReturn(dummyTopicList);
+    when(adminClient.listApplicationTopics()).thenReturn(dummyTopicList);
 
     topicManager.sync(topology);
 
@@ -71,35 +88,106 @@ public class TopicManagerTest {
   }
 
   @Test
-  public void topicDeleteTest() {
+  public void topicDeleteTest() throws IOException {
 
     // Original Topology
-    Topology topology0 = new Topology();
-    Project project0 = new Project("project");
+    Topology topology0 = new TopologyImpl();
+    Project project0 = new ProjectImpl("project");
     topology0.addProject(project0);
 
-    Topic topicC = new Topic("topicC");
+    Topic topicC = new TopicImpl("topicC");
     project0.addTopic(topicC);
 
     // Topology after delete action
-    Topology topology = new Topology();
-    Project project = new Project("project");
+    Topology topology = new TopologyImpl();
+    Project project = new ProjectImpl("project");
     topology.addProject(project);
 
-    Topic topicA = new Topic("topicA");
+    Topic topicA = new TopicImpl("topicA");
     project.addTopic(topicA);
-    Topic topicB = new Topic("topicB");
+    Topic topicB = new TopicImpl("topicB");
     project.addTopic(topicB);
 
     Set<String> dummyTopicList = new HashSet<>();
     String topicCFullName = topicC.toString();
     dummyTopicList.add(topicCFullName);
-    when(adminClient.listTopics()).thenReturn(dummyTopicList);
+    dummyTopicList.add(
+        "_my-internal-topic"); // return an internal topic using the default config values
+    when(adminClient.listApplicationTopics()).thenReturn(dummyTopicList);
 
     topicManager.sync(topology);
 
     verify(adminClient, times(1)).createTopic(topicA, topicA.toString());
     verify(adminClient, times(1)).createTopic(topicB, topicB.toString());
     verify(adminClient, times(1)).deleteTopics(Collections.singletonList(topicCFullName));
+  }
+
+  @Test
+  public void topicDeleteWithConfiguredInternalTopicsTest() throws IOException {
+
+    Properties props = new Properties();
+    props.put(KAFKA_INTERNAL_TOPIC_PREFIXES, "foo.,_");
+
+    TopologyBuilderConfig config = new TopologyBuilderConfig(cliOps, props);
+
+    TopicManager topicManager = new TopicManager(adminClient, schemaRegistryManager, config);
+
+    // Topology after delete action
+    Topology topology = new TopologyImpl();
+    Project project = new ProjectImpl("project");
+    topology.addProject(project);
+
+    Topic topicA = new TopicImpl("topicA");
+    project.addTopic(topicA);
+    Topic topicB = new TopicImpl("topicB");
+    project.addTopic(topicB);
+
+    String topicC = "team.project.topicC";
+    String topicI1 = "foo.my-internal.topic";
+    String topicI2 = "_my-internal.topic";
+
+    Set<String> appTopics =
+        Arrays.asList(topicC, topicI1, topicI2).stream().collect(Collectors.toSet());
+    when(adminClient.listApplicationTopics()).thenReturn(appTopics);
+
+    topicManager.sync(topology);
+
+    verify(adminClient, times(1)).createTopic(topicA, topicA.toString());
+    verify(adminClient, times(1)).createTopic(topicB, topicB.toString());
+    verify(adminClient, times(1)).deleteTopics(Collections.singletonList(topicC));
+  }
+
+  @Test
+  public void topicDeleteWithConfiguredNoDelete() throws IOException {
+
+    Properties props = new Properties();
+    props.put(KAFKA_INTERNAL_TOPIC_PREFIXES, "foo.,_");
+
+    HashMap<String, String> cliOps = new HashMap<>();
+    cliOps.put(BROKERS_OPTION, "");
+    cliOps.put(ALLOW_DELETE_OPTION, "false");
+
+    TopologyBuilderConfig config = new TopologyBuilderConfig(cliOps, props);
+
+    TopicManager topicManager = new TopicManager(adminClient, schemaRegistryManager, config);
+
+    // Topology after delete action
+    Topology topology = new TopologyImpl();
+    Project project = new ProjectImpl("project");
+    topology.addProject(project);
+
+    Topic topicA = new TopicImpl("topicA");
+    project.addTopic(topicA);
+    Topic topicB = new TopicImpl("topicB");
+    project.addTopic(topicB);
+
+    String topicC = "team.project.topicC";
+
+    Set<String> appTopics = Arrays.asList(topicC).stream().collect(Collectors.toSet());
+    when(adminClient.listApplicationTopics()).thenReturn(appTopics);
+
+    topicManager.sync(topology);
+
+    verify(adminClient, times(0)).deleteTopics(Collections.singletonList(topicC));
   }
 }

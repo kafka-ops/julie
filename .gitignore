@@ -5,7 +5,7 @@ target/*
 logs/*
 .cluster-state
 *.iml
-.classpath
-.factorypath
-.project
-.settings/
+_build
+
+dependency-reduced-pom.xml
+server-api/logs/

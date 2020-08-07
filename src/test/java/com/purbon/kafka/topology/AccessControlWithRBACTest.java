@@ -1,14 +1,18 @@
 package com.purbon.kafka.topology;
 
 import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
+import com.purbon.kafka.topology.model.Impl.ProjectImpl;
+import com.purbon.kafka.topology.model.Impl.TopicImpl;
+import com.purbon.kafka.topology.model.Impl.TopologyImpl;
 import com.purbon.kafka.topology.model.Project;
 import com.purbon.kafka.topology.model.Topic;
 import com.purbon.kafka.topology.model.Topology;
 import com.purbon.kafka.topology.roles.RBACProvider;
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -34,23 +38,22 @@ public class AccessControlWithRBACTest {
   }
 
   @Test
-  public void testPredefinedRoles() {
+  public void testPredefinedRoles() throws IOException {
 
     Map<String, List<String>> predefinedRoles = new HashMap<>();
     predefinedRoles.put("ResourceOwner", Arrays.asList("User:Foo"));
 
-    Project project = new Project();
+    Project project = new ProjectImpl();
     project.setRbacRawRoles(predefinedRoles);
 
-    Topic topicA = new Topic("topicA");
+    Topic topicA = new TopicImpl("topicA");
     project.addTopic(topicA);
 
-    Topology topology = new Topology();
+    Topology topology = new TopologyImpl();
     topology.addProject(project);
 
-    doNothing()
-        .when(aclsProvider)
-        .setPredefinedRole("User:Foo", "ResourceOwner", project.buildTopicPrefix());
+    when(aclsProvider.setPredefinedRole("User:Foo", "ResourceOwner", project.buildTopicPrefix()))
+        .thenReturn(null);
 
     accessControlManager.sync(topology);
 

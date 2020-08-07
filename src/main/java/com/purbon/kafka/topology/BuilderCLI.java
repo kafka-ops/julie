@@ -2,10 +2,13 @@ package com.purbon.kafka.topology;
 
 import static java.lang.System.exit;
 
+import com.purbon.kafka.topology.api.mds.MDSApiClientBuilder;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import org.apache.commons.cli.*;
 
@@ -29,6 +32,9 @@ public class BuilderCLI {
 
   public static final String HELP_OPTION = "help";
   public static final String HELP_DESC = "Prints usage information.";
+
+  public static final String VERSION_OPTION = "version";
+  public static final String VERSION_DESC = "Prints useful version information.";
 
   public static final String APP_NAME = "kafka-topology-builder";
 
@@ -64,15 +70,26 @@ public class BuilderCLI {
             .required(false)
             .build();
 
+    final Option versionOption =
+        Option.builder()
+            .longOpt(VERSION_OPTION)
+            .hasArg(false)
+            .desc(VERSION_DESC)
+            .required(false)
+            .build();
+
     final Option helpOption =
         Option.builder().longOpt(HELP_OPTION).hasArg(false).desc(HELP_DESC).required(false).build();
 
     final Options options = new Options();
+
     options.addOption(topologyFileOption);
     options.addOption(brokersListOption);
     options.addOption(adminClientConfigFileOption);
+
     options.addOption(allowDeleteOption);
     options.addOption(quiteOption);
+    options.addOption(versionOption);
     options.addOption(helpOption);
 
     return options;
@@ -83,24 +100,38 @@ public class BuilderCLI {
     Options options = buildOptions();
     HelpFormatter formatter = new HelpFormatter();
     CommandLineParser parser = new DefaultParser();
+
+    printHelpOrVersion(parser, options, args, formatter);
+
     CommandLine cmd = parseArgsOrExit(parser, options, args, formatter);
 
-    if (cmd.hasOption(HELP_OPTION)) {
-      formatter.printHelp(APP_NAME, options);
-    } else {
-      String topology = cmd.getOptionValue(TOPOLOGY_OPTION);
-      String brokersList = cmd.getOptionValue(BROKERS_OPTION);
-      boolean allowDelete = cmd.hasOption(ALLOW_DELETE_OPTION);
-      boolean quite = cmd.hasOption(QUITE_OPTION);
-      String adminClientConfigFile = cmd.getOptionValue(ADMIN_CLIENT_CONFIG_OPTION);
+    String topology = cmd.getOptionValue(TOPOLOGY_OPTION);
+    String brokersList = cmd.getOptionValue(BROKERS_OPTION);
+    boolean allowDelete = cmd.hasOption(ALLOW_DELETE_OPTION);
+    boolean quite = cmd.hasOption(QUITE_OPTION);
+    String adminClientConfigFile = cmd.getOptionValue(ADMIN_CLIENT_CONFIG_OPTION);
 
-      Map<String, String> config = new HashMap<>();
-      config.put(BROKERS_OPTION, brokersList);
-      config.put(ALLOW_DELETE_OPTION, String.valueOf(allowDelete));
-      config.put(QUITE_OPTION, String.valueOf(quite));
-      config.put(ADMIN_CLIENT_CONFIG_OPTION, adminClientConfigFile);
-      processTopology(topology, config);
-      System.out.println("Kafka Topology updated");
+    Map<String, String> config = new HashMap<>();
+    config.put(BROKERS_OPTION, brokersList);
+    config.put(ALLOW_DELETE_OPTION, String.valueOf(allowDelete));
+    config.put(QUITE_OPTION, String.valueOf(quite));
+    config.put(ADMIN_CLIENT_CONFIG_OPTION, adminClientConfigFile);
+    processTopology(topology, config);
+    System.out.println("Kafka Topology updated");
+    exit(0);
+  }
+
+  private static void printHelpOrVersion(
+      CommandLineParser parser, Options options, String[] args, HelpFormatter formatter) {
+
+    List<String> listOfArgs = Arrays.asList(args);
+
+    if (listOfArgs.contains("--" + HELP_OPTION)) {
+      formatter.printHelp(APP_NAME, options);
+      exit(0);
+    } else if (listOfArgs.contains("--" + VERSION_OPTION)) {
+      System.out.println(KafkaTopologyBuilder.getVersion());
+      exit(0);
     }
   }
 
@@ -120,8 +151,23 @@ public class BuilderCLI {
   private static void processTopology(String topologyFile, Map<String, String> config)
       throws IOException {
     verifyRequiredParameters(topologyFile, config);
-    KafkaTopologyBuilder builder = new KafkaTopologyBuilder(topologyFile, config);
-    builder.run();
+
+    TopologyBuilderConfig builderConfig = new TopologyBuilderConfig(config);
+    TopologyBuilderAdminClient adminClient =
+        new TopologyBuilderAdminClientBuilder(builderConfig).build();
+    AccessControlProviderFactory accessControlProviderFactory =
+        new AccessControlProviderFactory(
+            builderConfig, adminClient, new MDSApiClientBuilder(builderConfig));
+
+    KafkaTopologyBuilder builder =
+        new KafkaTopologyBuilder(
+            topologyFile, builderConfig, adminClient, accessControlProviderFactory.get());
+
+    try {
+      builder.run();
+    } finally {
+      adminClient.close();
+    }
   }
 
   private static void verifyRequiredParameters(String topologyFile, Map<String, String> config)

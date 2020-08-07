@@ -1,9 +1,10 @@
 ---
+company: "company"
+env: "env"
 team: "team"
 source: "source"
 projects:
-  - name: "foo"
-    zookeepers: []
+  - name: "projectA"
     consumers:
       - principal: "User:App0"
       - principal: "User:App1"
@@ -21,6 +22,10 @@ projects:
             - "topicD"
     connectors:
       - principal: "User:Connect1"
+        group: "group"
+        status_topic: "status"
+        offset_topic: "offset"
+        configs_topic: "configs"
         topics:
           read:
             - "topicA"
@@ -47,15 +52,20 @@ projects:
         config:
           replication.factor: "1"
           num.partitions: "1"
-  - name: "bar"
-    zookeepers: []
-    consumers: []
-    producers: []
-    streams: []
-    connectors: []
+  - name: "projectB"
     topics:
       - dataType: "avro"
         name: "bar"
         config:
           replication.factor: "1"
           num.partitions: "1"
+platform:
+  schema_registry:
+    - principal: "User:SchemaRegistry01"
+      topic: "foo"
+      group: "bar"
+    - principal: "User:SchemaRegistry02"
+      topic: "zet"
+  control_center:
+    - principal: "User:ControlCenter"
+      appId: "controlcenter"

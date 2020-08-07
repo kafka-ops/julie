@@ -1,70 +1,26 @@
 package com.purbon.kafka.topology.model;
 
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
-public class Topology {
+public interface Topology {
 
-  private String team;
-  private String source;
+  String getTeam();
 
-  private Map<String, String> others;
+  void setTeam(String team);
 
-  private List<Project> projects;
-  private List<String> order;
+  List<Project> getProjects();
 
-  public Topology() {
-    this.team = "default";
-    this.source = "default";
-    this.others = new HashMap<>();
-    this.order = new ArrayList<>();
-    this.projects = new ArrayList<>();
-  }
+  void addProject(Project project);
 
-  public String getTeam() {
-    return team;
-  }
+  void setProjects(List<Project> projects);
 
-  public void setTeam(String team) {
-    this.team = team;
-  }
+  String buildNamePrefix();
 
-  public String getSource() {
-    return source;
-  }
+  void addOther(String fieldName, String value);
 
-  public void setSource(String source) {
-    this.source = source;
-  }
+  void setPlatform(Platform platform);
 
-  public List<Project> getProjects() {
-    return projects;
-  }
+  Platform getPlatform();
 
-  public void addProject(Project project) {
-    project.setTopology(this);
-    this.projects.add(project);
-  }
-
-  public void setProjects(List<Project> projects) {
-    this.projects = projects;
-  }
-
-  public String buildNamePrefix() {
-    StringBuilder sb = new StringBuilder();
-    sb.append(getTeam()).append(".").append(getSource());
-    for (String key : order) {
-      String value = others.get(key);
-      sb.append(".");
-      sb.append(value);
-    }
-    return sb.toString();
-  }
-
-  public void addOther(String fieldName, String value) {
-    order.add(fieldName);
-    others.put(fieldName, value);
-  }
+  Boolean isEmpty();
 }
