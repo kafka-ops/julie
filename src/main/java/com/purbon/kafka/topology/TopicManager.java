@@ -122,16 +122,12 @@ public class TopicManager {
     if (topic.getSchemas() != null) {
       final TopicSchemas schemas = topic.getSchemas();
 
-      if (StringUtils.isNotBlank(schemas.getKeySchemaType())
-          && StringUtils.isNotBlank(schemas.getKeySchemaString())) {
-        schemaRegistryManager.register(
-            fullTopicName, schemas.getKeySchemaType(), schemas.getKeySchemaString());
+      if (StringUtils.isNotBlank(schemas.getKeySchemaFile())) {
+        schemaRegistryManager.register(fullTopicName, schemas.getKeySchemaFile());
       }
 
-      if (StringUtils.isNotBlank(schemas.getValueSchemaType())
-          && StringUtils.isNotBlank(schemas.getValueSchemaString())) {
-        schemaRegistryManager.register(
-            fullTopicName, schemas.getValueSchemaType(), schemas.getValueSchemaString());
+      if (StringUtils.isNotBlank(schemas.getValueSchemaFile())) {
+        schemaRegistryManager.register(fullTopicName, schemas.getValueSchemaFile());
       }
     }
   }

@@ -72,8 +72,7 @@ public class TopicManagerIT {
         new TopologyBuilderAdminClient(kafkaAdminClient, config);
 
     final SchemaRegistryClient schemaRegistryClient = new MockSchemaRegistryClient();
-    final SchemaRegistryManager schemaRegistryManager =
-        new SchemaRegistryManager(schemaRegistryClient);
+    final SchemaRegistryManager schemaRegistryManager = new SchemaRegistryManager(schemaRegistryClient);
 
     topicManager = new TopicManager(adminClient, schemaRegistryManager);
   }

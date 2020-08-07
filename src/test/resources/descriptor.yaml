@@ -39,12 +39,8 @@ projects:
       - name: "bar"
         dataType: "avro"
         schemas:
-          key.schema.string: '{\"type\": \"string\"}'
-          key.schema.type: "AVRO"
-          # TODO key.schema.file
-          value.schema.string: '{\"type\": \"string\"}'
-          value.schema.type: "AVRO"
-          # TODO value.schema.file
+          key.schema.file: "schemas/bar-key.avsc"
+          value.schema.file: "schemas/bar-value.avsc"
   - name: "bar"
     topics:
       - dataType: "avro"

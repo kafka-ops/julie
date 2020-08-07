@@ -41,14 +41,10 @@ projects:
           replication.factor: "1"
           num.partitions: "1"
       - name: "bar"
-        dataType: "avro" # TODO What for is this field?
+        dataType: "avro"
         schemas:
-          key.schema.string: '{\"type\": \"string\"}'
-          key.schema.type: "AVRO"
-          # TODO key.schema.file
-          value.schema.string: '{\"type\": \"string\"}'
-          value.schema.type: "AVRO"
-          # TODO value.schema.file
+          key.schema.file: "schemas/bar-key.avsc"
+          value.schema.file: "schemas/bar-value.avsc"
         config:
           replication.factor: "1"
           num.partitions: "1"
