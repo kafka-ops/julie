@@ -6,6 +6,7 @@ import com.purbon.kafka.topology.model.users.Connector;
 import com.purbon.kafka.topology.model.users.Consumer;
 import com.purbon.kafka.topology.model.users.KStream;
 import com.purbon.kafka.topology.model.users.Producer;
+import com.purbon.kafka.topology.model.users.Schemas;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -20,6 +21,7 @@ public class ProjectImpl implements Project, Cloneable {
   private List<Producer> producers;
   private List<KStream> streams;
   private List<Connector> connectors;
+  private List<Schemas> schemas;
   private Map<String, List<String>> rbacRawRoles;
 
   private List<Topic> topics;
@@ -39,6 +41,7 @@ public class ProjectImpl implements Project, Cloneable {
     this.consumers = new ArrayList<>();
     this.zookeepers = new ArrayList<>();
     this.connectors = new ArrayList<>();
+    this.schemas = new ArrayList<>();
     this.rbacRawRoles = new HashMap<>();
   }
 
@@ -146,5 +149,15 @@ public class ProjectImpl implements Project, Cloneable {
       project.setZookeepers(getZookeepers());
       return project;
     }
+  }
+
+  @Override
+  public List<Schemas> getSchemas() {
+    return schemas;
+  }
+
+  @Override
+  public void setSchemas(List<Schemas> schemas) {
+    this.schemas = schemas;
   }
 }

@@ -21,6 +21,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -199,5 +200,21 @@ public class RBACProvider implements AccessControlProvider {
   public Map<String, List<TopologyAclBinding>> listAcls() {
     LOGGER.info("Not implemented yet!");
     return new HashMap<>();
+  }
+
+  @Override
+  public List<TopologyAclBinding> setSchemaAuthorization(String principal, List<String> subjects) {
+    return subjects.stream()
+        .map(
+            subject -> {
+              try {
+                return apiClient.bind(principal, RESOURCE_OWNER).forSchemaSubject(subject).apply();
+              } catch (ConfigurationException e) {
+                LOGGER.error(e);
+              }
+              return null;
+            })
+        .filter(binding -> binding != null)
+        .collect(Collectors.toList());
   }
 }

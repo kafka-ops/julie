@@ -11,6 +11,7 @@ import com.purbon.kafka.topology.model.User;
 import com.purbon.kafka.topology.model.users.Connector;
 import com.purbon.kafka.topology.model.users.KStream;
 import com.purbon.kafka.topology.model.users.SchemaRegistry;
+import com.purbon.kafka.topology.model.users.Schemas;
 import com.purbon.kafka.topology.roles.TopologyAclBinding;
 import java.io.IOException;
 import java.io.PrintStream;
@@ -84,13 +85,13 @@ public class AccessControlManager {
 
                 List<TopologyAclBinding> consumerBindings =
                     controlProvider.setAclsForConsumers(project.getConsumers(), fullTopicName);
-                clusterState.update(consumerBindings);
+                clusterState.add(consumerBindings);
 
                 Collection<String> producerPrincipals =
                     extractUsersToPrincipals(project.getProducers());
                 List<TopologyAclBinding> producerBindings =
                     controlProvider.setAclsForProducers(producerPrincipals, fullTopicName);
-                clusterState.update(producerBindings);
+                clusterState.add(producerBindings);
               });
       // Setup global Kafka Stream Access control lists
       String topicPrefix = project.buildTopicPrefix(topology.buildNamePrefix());
@@ -100,6 +101,14 @@ public class AccessControlManager {
       for (Connector connector : project.getConnectors()) {
         syncApplicationAcls(connector, topicPrefix);
       }
+
+      for (Schemas schemaAuthorization : project.getSchemas()) {
+        controlProvider
+            .setSchemaAuthorization(
+                schemaAuthorization.getPrincipal(), schemaAuthorization.getSubjects())
+            .forEach(binding -> clusterState.add(binding));
+      }
+
       syncRbacRawRoles(project.getRbacRawRoles(), topicPrefix);
     }
 
@@ -112,7 +121,7 @@ public class AccessControlManager {
     Platform platform = topology.getPlatform();
     for (SchemaRegistry schemaRegistry : platform.getSchemaRegistry()) {
       List<TopologyAclBinding> bindings = controlProvider.setAclsForSchemaRegistry(schemaRegistry);
-      clusterState.update(bindings);
+      clusterState.add(bindings);
     }
 
     platform
@@ -122,7 +131,7 @@ public class AccessControlManager {
               List<TopologyAclBinding> bindings =
                   controlProvider.setAclsForControlCenter(
                       controlCenter.getPrincipal(), controlCenter.getAppId());
-              clusterState.update(bindings);
+              clusterState.add(bindings);
             });
   }
 
@@ -145,7 +154,7 @@ public class AccessControlManager {
     } else if (app instanceof Connector) {
       bindings = controlProvider.setAclsForConnect((Connector) app, topicPrefix);
     }
-    clusterState.update(bindings);
+    clusterState.add(bindings);
   }
 
   private Collection<String> extractUsersToPrincipals(List<? extends User> users) {

@@ -6,6 +6,7 @@ import com.purbon.kafka.topology.model.users.Connector;
 import com.purbon.kafka.topology.model.users.Consumer;
 import com.purbon.kafka.topology.model.users.KStream;
 import com.purbon.kafka.topology.model.users.Producer;
+import com.purbon.kafka.topology.model.users.Schemas;
 import java.util.List;
 import java.util.Map;
 
@@ -35,6 +36,10 @@ public interface Project {
   List<Connector> getConnectors();
 
   void setConnectors(List<Connector> connectors);
+
+  List<Schemas> getSchemas();
+
+  void setSchemas(List<Schemas> schemas);
 
   List<Topic> getTopics();
 

@@ -43,6 +43,21 @@ public class AdminRoleRunner {
     return this;
   }
 
+  public AdminRoleRunner forSchemaSubject(String subject) throws ConfigurationException {
+    Map<String, String> clusterIds = new HashMap<>();
+    Map<String, String> allClusterIds = client.getClusterIds().get("clusters");
+    validateRequiredClusterLabels(
+        allClusterIds, KAFKA_CLUSTER_ID_LABEL, SCHEMA_REGISTRY_CLUSTER_ID_LABEL);
+    clusterIds.put(KAFKA_CLUSTER_ID_LABEL, allClusterIds.get(KAFKA_CLUSTER_ID_LABEL));
+    clusterIds.put(
+        SCHEMA_REGISTRY_CLUSTER_ID_LABEL, allClusterIds.get(SCHEMA_REGISTRY_CLUSTER_ID_LABEL));
+
+    scope.clear();
+    scope.put("clusters", clusterIds);
+    this.resourceName = "Subject:" + subject;
+    return this;
+  }
+
   public TopologyAclBinding apply() {
     return client.bindRole(principal, role, resourceName, scope);
   }

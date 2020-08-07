@@ -211,6 +211,18 @@ public class TopologySerdesTest {
     assertTrue(topology.getProjects().get(0).getZookeepers().isEmpty());
   }
 
+  @Test
+  public void testWithRBACDescriptor() throws IOException, URISyntaxException {
+    URL descriptor = getClass().getResource("/descriptor-with-rbac.yaml");
+
+    Topology topology = parser.deserialise(Paths.get(descriptor.toURI()).toFile());
+    Project myProject = topology.getProjects().get(0);
+
+    assertEquals(2, myProject.getSchemas().size());
+    assertEquals("User:App0", myProject.getSchemas().get(0).getPrincipal());
+    assertEquals(1, myProject.getSchemas().get(0).getSubjects().size());
+  }
+
   private List<Project> buildProjects() {
 
     Project project = new ProjectImpl();

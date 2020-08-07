@@ -48,7 +48,7 @@ public class AccessControlManagerTest {
   @Before
   public void setup() {
     accessControlManager = new AccessControlManager(aclsProvider, clusterState);
-    doNothing().when(clusterState).update(Matchers.anyList());
+    doNothing().when(clusterState).add(Matchers.anyList());
     doNothing().when(clusterState).flushAndClose();
   }
 

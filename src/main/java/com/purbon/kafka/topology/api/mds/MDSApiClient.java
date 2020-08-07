@@ -111,6 +111,16 @@ public class MDSApiClient {
     }
   }
 
+  /**
+   * Bind a new RBAC role
+   *
+   * @param principal
+   * @param role
+   * @param resource
+   * @param resourceType
+   * @param patternType
+   * @return
+   */
   public TopologyAclBinding bind(
       String principal, String role, String resource, String resourceType, String patternType) {
 
