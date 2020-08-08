@@ -13,6 +13,10 @@ public interface Topic {
 
   void setName(String name);
 
+  TopicSchemas getSchemas();
+
+  void setSchemas(TopicSchemas schemas);
+
   HashMap<String, String> getConfig();
 
   void setConfig(HashMap<String, String> config);

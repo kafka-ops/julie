@@ -11,7 +11,10 @@ import com.purbon.kafka.topology.clusterstate.FileSateProcessor;
 import com.purbon.kafka.topology.clusterstate.RedisSateProcessor;
 import com.purbon.kafka.topology.model.Impl.TopologyImpl;
 import com.purbon.kafka.topology.model.Topology;
+import com.purbon.kafka.topology.schemas.SchemaRegistryManager;
 import com.purbon.kafka.topology.serdes.TopologySerdes;
+import io.confluent.kafka.schemaregistry.client.CachedSchemaRegistryClient;
+import io.confluent.kafka.schemaregistry.client.SchemaRegistryClient;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -22,6 +25,8 @@ import java.util.List;
 import java.util.Properties;
 
 public class KafkaTopologyBuilder {
+
+  public static final String SCHEMA_REGISTRY_URL = "confluent.schema.registry.url";
 
   private final String topologyFile;
   private Topology topology;
@@ -104,10 +109,14 @@ public class KafkaTopologyBuilder {
 
     AccessControlManager accessControlManager =
         new AccessControlManager(accessControlProvider, cs, config.params());
-
-    TopicManager topicManager = new TopicManager(adminClient, config);
-    topicManager.sync(topology);
     accessControlManager.sync(topology);
+
+    SchemaRegistryClient schemaRegistryClient =
+        new CachedSchemaRegistryClient(config.getProperty(SCHEMA_REGISTRY_URL), 10);
+    SchemaRegistryManager schemaRegistryManager = new SchemaRegistryManager(schemaRegistryClient);
+
+    TopicManager topicManager = new TopicManager(adminClient, schemaRegistryManager, config);
+    topicManager.sync(topology);
 
     if (!config.isQuite()) {
       topicManager.printCurrentState(System.out);

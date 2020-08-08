@@ -12,6 +12,9 @@ import com.purbon.kafka.topology.model.Impl.TopologyImpl;
 import com.purbon.kafka.topology.model.Project;
 import com.purbon.kafka.topology.model.Topic;
 import com.purbon.kafka.topology.model.Topology;
+import com.purbon.kafka.topology.schemas.SchemaRegistryManager;
+import io.confluent.kafka.schemaregistry.client.MockSchemaRegistryClient;
+import io.confluent.kafka.schemaregistry.client.SchemaRegistryClient;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -53,7 +56,7 @@ public class TopicManagerIT {
 
   @BeforeClass
   public static void setup() {
-    container = new KafkaContainer("5.3.1");
+    container = new KafkaContainer("5.5.0");
     container.start();
   }
 
@@ -68,7 +71,10 @@ public class TopicManagerIT {
     TopologyBuilderAdminClient adminClient =
         new TopologyBuilderAdminClient(kafkaAdminClient, config);
 
-    topicManager = new TopicManager(adminClient);
+    final SchemaRegistryClient schemaRegistryClient = new MockSchemaRegistryClient();
+    final SchemaRegistryManager schemaRegistryManager = new SchemaRegistryManager(schemaRegistryClient);
+
+    topicManager = new TopicManager(adminClient, schemaRegistryManager);
   }
 
   @Test

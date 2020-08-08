@@ -13,6 +13,7 @@ import com.purbon.kafka.topology.model.Impl.TopologyImpl;
 import com.purbon.kafka.topology.model.Project;
 import com.purbon.kafka.topology.model.Topic;
 import com.purbon.kafka.topology.model.Topology;
+import com.purbon.kafka.topology.schemas.SchemaRegistryManager;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collections;
@@ -32,6 +33,8 @@ public class TopicManagerTest {
 
   @Mock TopologyBuilderAdminClient adminClient;
 
+  @Mock SchemaRegistryManager schemaRegistryManager;
+
   @Rule public MockitoRule mockitoRule = MockitoJUnit.rule();
 
   private TopicManager topicManager;
@@ -42,7 +45,7 @@ public class TopicManagerTest {
     cliOps = new HashMap<>();
     cliOps.put(BROKERS_OPTION, "");
 
-    topicManager = new TopicManager(adminClient);
+    topicManager = new TopicManager(adminClient, schemaRegistryManager);
   }
 
   @Test
@@ -127,7 +130,7 @@ public class TopicManagerTest {
 
     TopologyBuilderConfig config = new TopologyBuilderConfig(cliOps, props);
 
-    TopicManager topicManager = new TopicManager(adminClient, config);
+    TopicManager topicManager = new TopicManager(adminClient, schemaRegistryManager, config);
 
     // Topology after delete action
     Topology topology = new TopologyImpl();
@@ -166,7 +169,7 @@ public class TopicManagerTest {
 
     TopologyBuilderConfig config = new TopologyBuilderConfig(cliOps, props);
 
-    TopicManager topicManager = new TopicManager(adminClient, config);
+    TopicManager topicManager = new TopicManager(adminClient, schemaRegistryManager, config);
 
     // Topology after delete action
     Topology topology = new TopologyImpl();

@@ -428,9 +428,12 @@
     <junit.version>4.12</junit.version>
     <testcontainers.version>1.13.0</testcontainers.version>
     <jedis.version>3.2.0</jedis.version>
-    <confluent.version>5.5.1-ce</confluent.version>
+    <confluent.version>5.5.0</confluent.version>
+    <confluent-ce.version>5.5.1-ce</confluent-ce.version>
+    <avro.version>1.9.2</avro.version>
     <jersey.version>2.22.2</jersey.version>
     <hamcrest.version>2.2</hamcrest.version>
+    <assertj.version>3.15.0</assertj.version>
   </properties>
 
   <dependencies>
@@ -439,6 +442,21 @@
       <artifactId>jedis</artifactId>
       <version>${jedis.version}</version>
       <type>jar</type>
+    </dependency>
+    <dependency>
+      <groupId>io.confluent</groupId>
+      <artifactId>kafka-schema-registry-client</artifactId>
+      <version>${confluent.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>io.confluent</groupId>
+      <artifactId>kafka-avro-serializer</artifactId>
+      <version>${confluent.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.avro</groupId>
+      <artifactId>avro</artifactId>
+      <version>${avro.version}</version>
     </dependency>
     <dependency>
       <groupId>org.apache.httpcomponents</groupId>
@@ -453,7 +471,7 @@
     <dependency>
       <groupId>io.confluent</groupId>
       <artifactId>kafka-client-plugins</artifactId>
-      <version>${confluent.version}</version>
+      <version>${confluent-ce.version}</version>
     </dependency>
     <dependency>
       <groupId>org.glassfish.jersey.core</groupId>
@@ -528,6 +546,12 @@
       <groupId>org.testcontainers</groupId>
       <artifactId>kafka</artifactId>
       <version>${testcontainers.version}</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.assertj</groupId>
+      <artifactId>assertj-core</artifactId>
+      <version>${assertj.version}</version>
       <scope>test</scope>
     </dependency>
   </dependencies>

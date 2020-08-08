@@ -13,11 +13,7 @@ import com.purbon.kafka.topology.model.users.Consumer;
 import com.purbon.kafka.topology.model.users.KStream;
 import com.purbon.kafka.topology.model.users.Producer;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class ProjectCustomDeserializer extends StdDeserializer<Project> {
 
@@ -26,6 +22,7 @@ public class ProjectCustomDeserializer extends StdDeserializer<Project> {
   public static final String PRODUCERS_KEY = "producers";
   public static final String CONNECTORS_KEY = "connectors";
   public static final String STREAMS_KEY = "streams";
+  public static final String SCHEMAS_KEY = "schemas";
   public static final String RBAC_KEY = "rbac";
   public static final String TOPICS_KEY = "topics";
   public static final String PRINCIPAL_KEY = "principal";

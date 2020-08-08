@@ -6,7 +6,9 @@ import static com.purbon.kafka.topology.TopologyBuilderConfig.KAFKA_INTERNAL_TOP
 
 import com.purbon.kafka.topology.model.Project;
 import com.purbon.kafka.topology.model.Topic;
+import com.purbon.kafka.topology.model.TopicSchemas;
 import com.purbon.kafka.topology.model.Topology;
+import com.purbon.kafka.topology.schemas.SchemaRegistryManager;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.util.ArrayList;
@@ -14,9 +16,9 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.apache.zookeeper.common.StringUtils;
 
 public class TopicManager {
 
@@ -25,17 +27,24 @@ public class TopicManager {
   public static final String NUM_PARTITIONS = "num.partitions";
   public static final String REPLICATION_FACTOR = "replication.factor";
 
+  private final SchemaRegistryManager schemaRegistryManager;
   private final TopologyBuilderAdminClient adminClient;
   private final TopologyBuilderConfig config;
   private final Boolean allowDelete;
   private final List<String> internalTopicPrefixes;
 
-  public TopicManager(TopologyBuilderAdminClient adminClient) {
-    this(adminClient, new TopologyBuilderConfig());
+  public TopicManager(
+      TopologyBuilderAdminClient adminClient, SchemaRegistryManager schemaRegistryManager) {
+    this(adminClient, schemaRegistryManager, new TopologyBuilderConfig());
   }
 
-  public TopicManager(TopologyBuilderAdminClient adminClient, TopologyBuilderConfig config) {
+  public TopicManager(
+      TopologyBuilderAdminClient adminClient,
+      SchemaRegistryManager schemaRegistryManager,
+      TopologyBuilderConfig config) {
+
     this.adminClient = adminClient;
+    this.schemaRegistryManager = schemaRegistryManager;
     this.config = config;
     this.allowDelete = Boolean.valueOf(config.params().getOrDefault(ALLOW_DELETE_OPTION, "true"));
     this.internalTopicPrefixes =
@@ -54,7 +63,7 @@ public class TopicManager {
     if (listOfTopics.size() > 0)
       LOGGER.debug(
           "Full list of topics in the cluster: "
-              + StringUtils.joinStrings(new ArrayList<>(listOfTopics), ","));
+              + StringUtils.join(new ArrayList<>(listOfTopics), ","));
 
     Set<String> updatedListOfTopics = new HashSet<>();
     // Foreach topic in the topology, sync it's content
@@ -85,7 +94,7 @@ public class TopicManager {
                 }
               });
       if (topicsToBeDeleted.size() > 0)
-        LOGGER.debug("Topic to be deleted: " + StringUtils.joinStrings(topicsToBeDeleted, ","));
+        LOGGER.debug("Topic to be deleted: " + StringUtils.join(topicsToBeDeleted, ","));
       adminClient.deleteTopics(topicsToBeDeleted);
     }
   }
@@ -97,6 +106,11 @@ public class TopicManager {
         .get();
   }
 
+  public void syncTopic(Topic topic, Set<String> listOfTopics) throws IOException {
+    String fullTopicName = topic.toString();
+    syncTopic(topic, fullTopicName, listOfTopics);
+  }
+
   public void syncTopic(Topic topic, String fullTopicName, Set<String> listOfTopics)
       throws IOException {
     if (existTopic(fullTopicName, listOfTopics)) {
@@ -104,12 +118,18 @@ public class TopicManager {
     } else {
       adminClient.createTopic(topic, fullTopicName);
     }
-  }
 
-  public void syncTopic(Topic topic, Set<String> listOfTopics, Topology topology, Project project)
-      throws IOException {
-    String fullTopicName = topic.toString();
-    syncTopic(topic, fullTopicName, listOfTopics);
+    if (topic.getSchemas() != null) {
+      final TopicSchemas schemas = topic.getSchemas();
+
+      if (StringUtils.isNotBlank(schemas.getKeySchemaFile())) {
+        schemaRegistryManager.register(fullTopicName, schemas.getKeySchemaFile());
+      }
+
+      if (StringUtils.isNotBlank(schemas.getValueSchemaFile())) {
+        schemaRegistryManager.register(fullTopicName, schemas.getValueSchemaFile());
+      }
+    }
   }
 
   private boolean existTopic(String topic, Set<String> listOfTopics) {
@@ -118,11 +138,6 @@ public class TopicManager {
 
   public void printCurrentState(PrintStream os) throws IOException {
     os.println("List of Topics:");
-    adminClient
-        .listTopics()
-        .forEach(
-            topic -> {
-              os.println(topic);
-            });
+    adminClient.listTopics().forEach(os::println);
   }
 }

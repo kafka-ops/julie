@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.purbon.kafka.topology.TopicManager;
 import com.purbon.kafka.topology.model.Topic;
+import com.purbon.kafka.topology.model.TopicSchemas;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -15,7 +16,11 @@ public class TopicImpl implements Topic, Cloneable {
   @JsonInclude(Include.NON_EMPTY)
   private Optional<String> dataType;
 
+  @JsonInclude(Include.NON_EMPTY)
+  private TopicSchemas schemas;
+
   private String name;
+
   private HashMap<String, String> config;
 
   private String projectPrefix;
@@ -40,6 +45,14 @@ public class TopicImpl implements Topic, Cloneable {
 
   public String getName() {
     return name;
+  }
+
+  public TopicSchemas getSchemas() {
+    return schemas;
+  }
+
+  public void setSchemas(TopicSchemas schemas) {
+    this.schemas = schemas;
   }
 
   private String toString(String projectPrefix) {

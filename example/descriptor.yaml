@@ -40,8 +40,11 @@ projects:
         config:
           replication.factor: "1"
           num.partitions: "1"
-      - dataType: "avro"
-        name: "bar"
+      - name: "bar"
+        dataType: "avro"
+        schemas:
+          key.schema.file: "schemas/bar-key.avsc"
+          value.schema.file: "schemas/bar-value.avsc"
         config:
           replication.factor: "1"
           num.partitions: "1"
