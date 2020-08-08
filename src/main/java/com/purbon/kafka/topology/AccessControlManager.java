@@ -100,6 +100,8 @@ public class AccessControlManager {
       }
       for (Connector connector : project.getConnectors()) {
         syncApplicationAcls(connector, topicPrefix);
+        controlProvider.setConnectorAuthorization(
+            connector.getPrincipal(), connector.getConnectors().orElse(new ArrayList<>()));
       }
 
       for (Schemas schemaAuthorization : project.getSchemas()) {

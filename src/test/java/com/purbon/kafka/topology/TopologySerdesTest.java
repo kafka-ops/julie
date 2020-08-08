@@ -221,6 +221,11 @@ public class TopologySerdesTest {
     assertEquals(2, myProject.getSchemas().size());
     assertEquals("User:App0", myProject.getSchemas().get(0).getPrincipal());
     assertEquals(1, myProject.getSchemas().get(0).getSubjects().size());
+
+    Connector connector = myProject.getConnectors().get(0);
+    assertEquals(true, connector.getConnectors().isPresent());
+    assertEquals("jdbc-sync", connector.getConnectors().get().get(0));
+    assertEquals("ibmmq-source", connector.getConnectors().get().get(1));
   }
 
   private List<Project> buildProjects() {

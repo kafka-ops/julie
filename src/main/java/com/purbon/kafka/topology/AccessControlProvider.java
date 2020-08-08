@@ -41,4 +41,9 @@ public interface AccessControlProvider {
   default List<TopologyAclBinding> setSchemaAuthorization(String principal, List<String> subjects) {
     return new ArrayList<>();
   }
+
+  default List<TopologyAclBinding> setConnectorAuthorization(
+      String principal, List<String> connectors) {
+    return new ArrayList<>();
+  }
 }

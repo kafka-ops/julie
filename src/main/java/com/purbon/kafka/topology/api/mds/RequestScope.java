@@ -53,4 +53,8 @@ public class RequestScope {
       return "";
     }
   }
+
+  public Map<String, String> getClusterIDs() {
+    return ((Map<String, Map<String, String>>) scope.get("scope")).get("clusters");
+  }
 }

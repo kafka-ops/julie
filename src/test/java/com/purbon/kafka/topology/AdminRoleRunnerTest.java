@@ -62,7 +62,7 @@ public class AdminRoleRunnerTest {
     assertEquals("kafka-connect", runner.getResourceName());
 
     String connectClusterId = "1234";
-    Map<String, String> clusterIDs = (Map<String, String>) runner.getScope().get("clusters");
+    Map<String, String> clusterIDs = runner.getScope().getClusterIDs();
     assertEquals(connectClusterId, clusterIDs.get(CONNECT_CLUSTER_ID_LABEL));
   }
 
@@ -86,7 +86,7 @@ public class AdminRoleRunnerTest {
     assertEquals("schema-registry", runner.getResourceName());
 
     String connectClusterId = "4321";
-    Map<String, String> clusterIDs = (Map<String, String>) runner.getScope().get("clusters");
+    Map<String, String> clusterIDs = runner.getScope().getClusterIDs();
     assertEquals(connectClusterId, clusterIDs.get(SCHEMA_REGISTRY_CLUSTER_ID_LABEL));
   }
 

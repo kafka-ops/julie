@@ -5,27 +5,27 @@ import static com.purbon.kafka.topology.api.mds.MDSApiClient.KAFKA_CLUSTER_ID_LA
 import static com.purbon.kafka.topology.api.mds.MDSApiClient.SCHEMA_REGISTRY_CLUSTER_ID_LABEL;
 
 import com.purbon.kafka.topology.api.mds.MDSApiClient;
+import com.purbon.kafka.topology.api.mds.RequestScope;
 import com.purbon.kafka.topology.exceptions.ConfigurationException;
 import com.purbon.kafka.topology.model.users.Connector;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
+import org.apache.kafka.common.resource.PatternType;
 
 public class AdminRoleRunner {
 
   private final String principal;
   private final String role;
   private final MDSApiClient client;
-  private Map<String, Object> scope;
-  private String resourceName;
+  private RequestScope scope;
 
   public AdminRoleRunner(String principal, String role, MDSApiClient client) {
     this.principal = principal;
     this.role = role;
     this.client = client;
-    this.scope = new HashMap<>();
-    this.resourceName = "";
+    this.scope = new RequestScope();
   }
 
   public AdminRoleRunner forSchemaRegistry() throws ConfigurationException {
@@ -37,9 +37,15 @@ public class AdminRoleRunner {
     clusterIds.put(
         SCHEMA_REGISTRY_CLUSTER_ID_LABEL, allClusterIds.get(SCHEMA_REGISTRY_CLUSTER_ID_LABEL));
 
-    scope.clear();
-    scope.put("clusters", clusterIds);
-    this.resourceName = "schema-registry";
+    Map<String, Map<String, String>> clusters = new HashMap<>();
+    clusters.put("clusters", clusterIds);
+
+    scope = new RequestScope();
+    scope.setClusters(clusters);
+    scope.addResource("Cluster", "schema-registry", PatternType.LITERAL.name());
+
+    scope.build();
+
     return this;
   }
 
@@ -52,21 +58,59 @@ public class AdminRoleRunner {
     clusterIds.put(
         SCHEMA_REGISTRY_CLUSTER_ID_LABEL, allClusterIds.get(SCHEMA_REGISTRY_CLUSTER_ID_LABEL));
 
-    scope.clear();
-    scope.put("clusters", clusterIds);
-    this.resourceName = "Subject:" + subject;
+    Map<String, Map<String, String>> clusters = new HashMap<>();
+    clusters.put("clusters", clusterIds);
+
+    scope = new RequestScope();
+    scope.setClusters(clusters);
+    String resource = "Subject:" + subject;
+    scope.addResource("Subject", resource, PatternType.LITERAL.name());
+    scope.build();
+
+    return this;
+  }
+
+  public AdminRoleRunner forAKafkaConnector(String connector) {
+    Map<String, String> clusterIds = new HashMap<>();
+    Map<String, String> allClusterIds = client.getClusterIds().get("clusters");
+    clusterIds.put(KAFKA_CLUSTER_ID_LABEL, allClusterIds.get(KAFKA_CLUSTER_ID_LABEL));
+    clusterIds.put(CONNECT_CLUSTER_ID_LABEL, allClusterIds.get(CONNECT_CLUSTER_ID_LABEL));
+
+    Map<String, Map<String, String>> clusters = new HashMap<>();
+    clusters.put("clusters", clusterIds);
+
+    String resource = "Connector:" + connector;
+    String resourceType = "Connector";
+    String patternType = PatternType.LITERAL.name();
+
+    scope = new RequestScope();
+    scope.setClusters(clusters);
+    scope.addResource(resourceType, resource, patternType);
+    scope.build();
+
     return this;
   }
 
   public TopologyAclBinding apply() {
-    return client.bindRole(principal, role, resourceName, scope);
+
+    return client.bind(principal, role, scope);
   }
 
   public AdminRoleRunner forControlCenter() {
-    scope.clear();
-    client.getKafkaClusterIds().forEach((key, value) -> scope.put(key, value));
+    Map<String, String> clusterIds = new HashMap<>();
 
-    this.resourceName = "control-center";
+    client
+        .getKafkaClusterIds()
+        .forEach((key, ids) -> ids.forEach((k1, v1) -> clusterIds.put(k1, v1)));
+
+    Map<String, Map<String, String>> clusters = new HashMap<>();
+    clusters.put("clusters", clusterIds);
+
+    scope = new RequestScope();
+    scope.setClusters(clusters);
+    scope.addResource("Cluster", "control-center", PatternType.LITERAL.name());
+    scope.build();
+
     return this;
   }
 
@@ -84,19 +128,20 @@ public class AdminRoleRunner {
     clusterIds.put(KAFKA_CLUSTER_ID_LABEL, allClusterIds.get(KAFKA_CLUSTER_ID_LABEL));
     clusterIds.put(CONNECT_CLUSTER_ID_LABEL, connectClusterID);
 
-    scope.clear();
-    scope.put("clusters", clusterIds);
+    Map<String, Map<String, String>> clusters = new HashMap<>();
+    clusters.put("clusters", clusterIds);
 
-    this.resourceName = "kafka-connect";
+    scope = new RequestScope();
+    scope.setClusters(clusters);
+    scope.addResource("Cluster", "kafka-connect", PatternType.LITERAL.name());
+
+    scope.build();
+
     return this;
   }
 
-  public Map<String, Object> getScope() {
+  public RequestScope getScope() {
     return scope;
-  }
-
-  public String getResourceName() {
-    return resourceName;
   }
 
   private void validateRequiredClusterLabels(

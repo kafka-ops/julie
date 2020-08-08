@@ -17,6 +17,9 @@ projects:
             - "topicD"
     connectors:
       - principal: "User:Connect1"
+        connectors:
+          - "jdbc-sync"
+          - "ibmmq-source"
         topics:
           read:
             - "topicA"

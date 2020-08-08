@@ -217,4 +217,15 @@ public class RBACProvider implements AccessControlProvider {
         .filter(binding -> binding != null)
         .collect(Collectors.toList());
   }
+
+  @Override
+  public List<TopologyAclBinding> setConnectorAuthorization(
+      String principal, List<String> connectors) {
+    return connectors.stream()
+        .map(
+            connector ->
+                apiClient.bind(principal, RESOURCE_OWNER).forAKafkaConnector(connector).apply())
+        .filter(binding -> binding != null)
+        .collect(Collectors.toList());
+  }
 }
