@@ -52,7 +52,6 @@ need a certain future? feel free to reach out into our [gitter community](https:
 
 [![Gitter](https://badges.gitter.im/kafka-topology-builder/community.svg)](https://gitter.im/kafka-topology-builder/community?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge)
 
-
 ## Feature list, not only bugs ;-)
 
 What can you achieve with this tool:
@@ -74,6 +73,8 @@ What can you achieve with this tool:
     * topics, following the topic naming convention
     * Topic configuration, variables like retention, segment size, etc
     * Acls, or RBAC rules
+* Manage your cluster schemas.
+    - Support for Confluent Schema Registry
 
 More details and examples of the functionality can be found in the wiki.  
 

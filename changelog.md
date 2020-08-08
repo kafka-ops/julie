@@ -10,6 +10,7 @@ a single Kafka Connect cluster (situation more than common).
 Kafka Topology Builder library in a single and uniform web application that can be used to automate and centralise the configuration management for clusters.
 * Remove the requirement of writing in the configuration file the access control method, as of now will be ACLs as default value and if other (like RBAC) is required
 it will have to be properly configured.
+* Merge #22 to provide the initial support for schema management. Now you can manage schemas with Confluent Schema Registry using the Kafka Topology Builder. Thanks Kiril.
 
 v1.0.0-rc1:
 * Add support for platform wide acls for control center in teh topology description file.
