@@ -3,7 +3,6 @@ package com.purbon.kafka.topology.schemas;
 import io.confluent.kafka.schemaregistry.ParsedSchema;
 import io.confluent.kafka.schemaregistry.avro.AvroSchema;
 import io.confluent.kafka.schemaregistry.client.SchemaRegistryClient;
-
 import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Path;

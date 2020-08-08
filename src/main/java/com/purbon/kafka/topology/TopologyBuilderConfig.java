@@ -3,9 +3,11 @@ package com.purbon.kafka.topology;
 import static com.purbon.kafka.topology.BuilderCLI.ADMIN_CLIENT_CONFIG_OPTION;
 import static com.purbon.kafka.topology.BuilderCLI.BROKERS_OPTION;
 import static com.purbon.kafka.topology.BuilderCLI.QUITE_OPTION;
+import static com.purbon.kafka.topology.KafkaTopologyBuilder.SCHEMA_REGISTRY_URL;
 
 import com.purbon.kafka.topology.exceptions.ConfigurationException;
 import com.purbon.kafka.topology.model.Project;
+import com.purbon.kafka.topology.model.Topic;
 import com.purbon.kafka.topology.model.Topology;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -14,6 +16,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.function.Function;
+import java.util.stream.Stream;
 import org.apache.kafka.clients.admin.AdminClientConfig;
 
 public class TopologyBuilderConfig {
@@ -77,15 +81,20 @@ public class TopologyBuilderConfig {
 
   public void validateWith(Topology topology) throws ConfigurationException {
 
+    validateGeneralConfiguration(topology);
+
     boolean isRbac =
         properties
             .getOrDefault(ACCESS_CONTROL_IMPLEMENTATION_CLASS, ACCESS_CONTROL_DEFAULT_CLASS)
             .toString()
             .equalsIgnoreCase(RBAC_ACCESS_CONTROL_CLASS);
-    if (!isRbac) {
-      return;
-    }
 
+    if (isRbac) {
+      validateRBACConfiguration(topology);
+    }
+  }
+
+  public void validateRBACConfiguration(Topology topology) throws ConfigurationException {
     raiseIfNull(MDS_SERVER, MDS_USER_CONFIG, MDS_PASSWORD_CONFIG);
 
     boolean hasSchemaRegistry = !topology.getPlatform().getSchemaRegistry().isEmpty();
@@ -103,6 +112,20 @@ public class TopologyBuilderConfig {
     } else if (hasKafkaConnect && properties.getProperty(MDS_KC_CLUSTER_ID_CONFIG) == null) {
       raiseIfNull(MDS_KC_CLUSTER_ID_CONFIG);
     }
+  }
+
+  public void validateGeneralConfiguration(Topology topology) throws ConfigurationException {
+    if (countOfSchemas(topology) > 0) {
+      raiseIfNull(SCHEMA_REGISTRY_URL);
+    }
+  }
+
+  private long countOfSchemas(Topology topology) {
+    return topology.getProjects().stream()
+        .flatMap((Function<Project, Stream<Topic>>) project -> project.getTopics().stream())
+        .map(topic -> topic.getSchemas())
+        .filter(topicSchemas -> topicSchemas != null)
+        .count();
   }
 
   private void raiseIfNull(String... keys) throws ConfigurationException {

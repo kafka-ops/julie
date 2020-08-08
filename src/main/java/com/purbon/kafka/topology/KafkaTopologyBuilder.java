@@ -111,8 +111,9 @@ public class KafkaTopologyBuilder {
         new AccessControlManager(accessControlProvider, cs, config.params());
     accessControlManager.sync(topology);
 
+    String schemaRegistryUrl = (String) config.getOrDefault(SCHEMA_REGISTRY_URL, "http://foo:8082");
     SchemaRegistryClient schemaRegistryClient =
-        new CachedSchemaRegistryClient(config.getProperty(SCHEMA_REGISTRY_URL), 10);
+        new CachedSchemaRegistryClient(schemaRegistryUrl, 10);
     SchemaRegistryManager schemaRegistryManager = new SchemaRegistryManager(schemaRegistryClient);
 
     TopicManager topicManager = new TopicManager(adminClient, schemaRegistryManager, config);
