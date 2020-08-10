@@ -9,3 +9,8 @@ _build
 
 dependency-reduced-pom.xml
 server-api/logs/
+
+.classpath
+.factorypath
+.project
+.settings/
