@@ -1,9 +1,5 @@
 package com.purbon.kafka.topology;
 
-import static com.purbon.kafka.topology.BuilderCLI.ALLOW_DELETE_OPTION;
-import static com.purbon.kafka.topology.TopologyBuilderConfig.KAFKA_INTERNAL_TOPIC_PREFIXES;
-import static com.purbon.kafka.topology.TopologyBuilderConfig.KAFKA_INTERNAL_TOPIC_PREFIXES_DEFAULT;
-
 import com.purbon.kafka.topology.model.Project;
 import com.purbon.kafka.topology.model.Topic;
 import com.purbon.kafka.topology.model.TopicSchemas;
@@ -46,11 +42,12 @@ public class TopicManager {
     this.adminClient = adminClient;
     this.schemaRegistryManager = schemaRegistryManager;
     this.config = config;
-    this.allowDelete = Boolean.valueOf(config.params().getOrDefault(ALLOW_DELETE_OPTION, "true"));
+    this.allowDelete = config.allowDeleteTopics();
     this.internalTopicPrefixes =
         config
-            .getPropertyAsList(
-                KAFKA_INTERNAL_TOPIC_PREFIXES, KAFKA_INTERNAL_TOPIC_PREFIXES_DEFAULT, ",")
+            .getStringList(
+                TopologyBuilderConfig.KAFKA_INTERNAL_TOPIC_PREFIXES,
+                TopologyBuilderConfig.KAFKA_INTERNAL_TOPIC_PREFIXES_DEFAULT)
             .stream()
             .map(s -> s.trim())
             .collect(Collectors.toList());

@@ -19,9 +19,10 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Properties;
 import java.util.Set;
 import java.util.stream.Collectors;
+import org.apache.commons.configuration2.Configuration;
+import org.apache.commons.configuration2.MapConfiguration;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -125,8 +126,8 @@ public class TopicManagerTest {
   @Test
   public void topicDeleteWithConfiguredInternalTopicsTest() throws IOException {
 
-    Properties props = new Properties();
-    props.put(KAFKA_INTERNAL_TOPIC_PREFIXES, "foo.,_");
+    Configuration props = new MapConfiguration(new HashMap<>());
+    props.addProperty(KAFKA_INTERNAL_TOPIC_PREFIXES, "foo.,_");
 
     TopologyBuilderConfig config = new TopologyBuilderConfig(cliOps, props);
 
@@ -160,8 +161,8 @@ public class TopicManagerTest {
   @Test
   public void topicDeleteWithConfiguredNoDelete() throws IOException {
 
-    Properties props = new Properties();
-    props.put(KAFKA_INTERNAL_TOPIC_PREFIXES, "foo.,_");
+    Configuration props = new MapConfiguration(new HashMap<>());
+    props.addProperty(KAFKA_INTERNAL_TOPIC_PREFIXES, "foo.,_");
 
     HashMap<String, String> cliOps = new HashMap<>();
     cliOps.put(BROKERS_OPTION, "");

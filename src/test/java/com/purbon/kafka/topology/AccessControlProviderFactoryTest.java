@@ -8,9 +8,9 @@ import static com.purbon.kafka.topology.TopologyBuilderConfig.MDS_SERVER;
 import static com.purbon.kafka.topology.TopologyBuilderConfig.MDS_USER_CONFIG;
 import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.junit.Assert.assertThat;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import static org.mockito.internal.verification.VerificationModeFactory.times;
 
 import com.purbon.kafka.topology.api.mds.MDSApiClient;
 import com.purbon.kafka.topology.api.mds.MDSApiClientBuilder;
@@ -19,7 +19,8 @@ import com.purbon.kafka.topology.roles.SimpleAclsProvider;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Properties;
+import org.apache.commons.configuration2.Configuration;
+import org.apache.commons.configuration2.MapConfiguration;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -38,23 +39,24 @@ public class AccessControlProviderFactoryTest {
   @Rule public MockitoRule mockitoRule = MockitoJUnit.rule();
 
   Map<String, String> cliOps;
-  Properties props;
+  Configuration props;
 
   @Before
   public void before() {
     cliOps = new HashMap<>();
     cliOps.put(BROKERS_OPTION, "");
-    props = new Properties();
+    props = new MapConfiguration(new HashMap<>());
   }
 
   @Test
   public void testRBACConfig() throws IOException {
 
-    props.put(ACCESS_CONTROL_IMPLEMENTATION_CLASS, "com.purbon.kafka.topology.roles.RBACProvider");
-    props.put(MDS_SERVER, "http://localhost:8090");
-    props.put(MDS_USER_CONFIG, "alice");
-    props.put(MDS_PASSWORD_CONFIG, "alice-secret");
-    props.put(MDS_KAFKA_CLUSTER_ID_CONFIG, "UtBZ3rTSRtypmmkAL1HbHw");
+    props.addProperty(
+        ACCESS_CONTROL_IMPLEMENTATION_CLASS, "com.purbon.kafka.topology.roles.RBACProvider");
+    props.addProperty(MDS_SERVER, "http://localhost:8090");
+    props.addProperty(MDS_USER_CONFIG, "alice");
+    props.addProperty(MDS_PASSWORD_CONFIG, "alice-secret");
+    props.addProperty(MDS_KAFKA_CLUSTER_ID_CONFIG, "UtBZ3rTSRtypmmkAL1HbHw");
 
     TopologyBuilderConfig config = new TopologyBuilderConfig(cliOps, props);
 
@@ -85,7 +87,7 @@ public class AccessControlProviderFactoryTest {
   @Test(expected = IOException.class)
   public void testWrongProviderConfig() throws IOException {
 
-    props.put(
+    props.addProperty(
         ACCESS_CONTROL_IMPLEMENTATION_CLASS, "com.purbon.kafka.topology.roles.MyCustomProvider");
 
     TopologyBuilderConfig config = new TopologyBuilderConfig(cliOps, props);

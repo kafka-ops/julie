@@ -108,10 +108,10 @@ public class KafkaTopologyBuilder {
     ClusterState cs = buildStateProcessor();
 
     AccessControlManager accessControlManager =
-        new AccessControlManager(accessControlProvider, cs, config.params());
+        new AccessControlManager(accessControlProvider, cs, config);
     accessControlManager.sync(topology);
 
-    String schemaRegistryUrl = (String) config.getOrDefault(SCHEMA_REGISTRY_URL, "http://foo:8082");
+    String schemaRegistryUrl = config.getString(SCHEMA_REGISTRY_URL, "http://foo:8082");
     SchemaRegistryClient schemaRegistryClient =
         new CachedSchemaRegistryClient(schemaRegistryUrl, 10);
     SchemaRegistryManager schemaRegistryManager = new SchemaRegistryManager(schemaRegistryClient);
@@ -182,18 +182,15 @@ public class KafkaTopologyBuilder {
   }
 
   private ClusterState buildStateProcessor() throws IOException {
-
     String stateProcessorClass =
-        config
-            .getOrDefault(STATE_PROCESSOR_IMPLEMENTATION_CLASS, STATE_PROCESSOR_DEFAULT_CLASS)
-            .toString();
+        config.getString(STATE_PROCESSOR_IMPLEMENTATION_CLASS, STATE_PROCESSOR_DEFAULT_CLASS);
 
     try {
       if (stateProcessorClass.equalsIgnoreCase(STATE_PROCESSOR_DEFAULT_CLASS)) {
         return new ClusterState(new FileSateProcessor());
       } else if (stateProcessorClass.equalsIgnoreCase(REDIS_STATE_PROCESSOR_CLASS)) {
-        String host = config.getProperty(REDIS_HOST_CONFIG);
-        int port = Integer.valueOf(config.getProperty(REDIS_PORT_CONFIG));
+        String host = config.getString(REDIS_HOST_CONFIG);
+        int port = config.getInt(REDIS_PORT_CONFIG);
         return new ClusterState(new RedisSateProcessor(host, port));
       } else {
         throw new IOException(stateProcessorClass + " Unknown state processor provided.");

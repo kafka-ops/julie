@@ -20,6 +20,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+import org.apache.commons.configuration2.Configuration;
+import org.apache.commons.configuration2.MapConfiguration;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -30,30 +32,23 @@ public class AccessControlManager {
 
   private AccessControlProvider controlProvider;
   private ClusterState clusterState;
-  private Map<String, String> cliParams;
+  private Configuration config;
 
   public AccessControlManager(AccessControlProvider controlProvider) {
-    this(controlProvider, new ClusterState(), new HashMap<>());
-  }
-
-  public AccessControlManager(
-      AccessControlProvider controlProvider, Map<String, String> cliParams) {
-    this(controlProvider, new ClusterState(), cliParams);
+    this(controlProvider, new ClusterState());
   }
 
   public AccessControlManager(AccessControlProvider controlProvider, ClusterState clusterState) {
-    this(controlProvider, clusterState, new HashMap<>());
+    this(controlProvider, clusterState, new MapConfiguration(new HashMap<>()));
   }
 
   public AccessControlManager(
-      AccessControlProvider controlProvider,
-      ClusterState clusterState,
-      Map<String, String> cliParams) {
+      AccessControlProvider controlProvider, ClusterState clusterState, Configuration config) {
     this.controlProvider = controlProvider;
     this.clusterState = clusterState;
-    this.cliParams = cliParams;
+    this.config = config;
 
-    this.allowDelete = Boolean.valueOf(cliParams.getOrDefault(ALLOW_DELETE_OPTION, "true"));
+    this.allowDelete = config.getBoolean(ALLOW_DELETE_OPTION, true);
   }
 
   public void clearAcls() {

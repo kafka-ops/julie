@@ -16,16 +16,16 @@ public class MDSApiClientBuilder {
   }
 
   public MDSApiClient build() {
-    String mdsServer = config.getProperty(MDS_SERVER);
+    String mdsServer = config.getString(MDS_SERVER);
 
     MDSApiClient apiClient = new MDSApiClient(mdsServer);
 
     // Pass Cluster IDS
-    String kafkaClusterID = config.getProperty(MDS_KAFKA_CLUSTER_ID_CONFIG);
+    String kafkaClusterID = config.getString(MDS_KAFKA_CLUSTER_ID_CONFIG);
     apiClient.setKafkaClusterId(kafkaClusterID);
-    String schemaRegistryClusterID = config.getProperty(MDS_SR_CLUSTER_ID_CONFIG);
+    String schemaRegistryClusterID = config.getString(MDS_SR_CLUSTER_ID_CONFIG);
     apiClient.setSchemaRegistryClusterID(schemaRegistryClusterID);
-    String kafkaConnectClusterID = config.getProperty(MDS_KC_CLUSTER_ID_CONFIG);
+    String kafkaConnectClusterID = config.getString(MDS_KC_CLUSTER_ID_CONFIG);
     apiClient.setConnectClusterID(kafkaConnectClusterID);
 
     return apiClient;

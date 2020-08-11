@@ -18,31 +18,33 @@ import com.purbon.kafka.topology.model.TopicSchemas;
 import com.purbon.kafka.topology.model.Topology;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Properties;
+import org.apache.commons.configuration2.Configuration;
+import org.apache.commons.configuration2.MapConfiguration;
 import org.junit.Before;
 import org.junit.Test;
 
 public class TopologyBuilderConfigTest {
 
   Map<String, String> cliOps;
-  Properties props;
+  Configuration props;
 
   @Before
   public void before() {
     cliOps = new HashMap<>();
     cliOps.put(BROKERS_OPTION, "");
-    props = new Properties();
+    props = new MapConfiguration(new HashMap<>());
   }
 
   @Test
   public void testWithAllRequiredFields() throws ConfigurationException {
     Topology topology = new TopologyImpl();
 
-    props.put(ACCESS_CONTROL_IMPLEMENTATION_CLASS, TopologyBuilderConfig.RBAC_ACCESS_CONTROL_CLASS);
-    props.put(MDS_SERVER, "example.com");
-    props.put(MDS_USER_CONFIG, "foo");
-    props.put(MDS_PASSWORD_CONFIG, "bar");
-    props.put(MDS_KAFKA_CLUSTER_ID_CONFIG, "1234");
+    props.addProperty(
+        ACCESS_CONTROL_IMPLEMENTATION_CLASS, TopologyBuilderConfig.RBAC_ACCESS_CONTROL_CLASS);
+    props.addProperty(MDS_SERVER, "example.com");
+    props.addProperty(MDS_USER_CONFIG, "foo");
+    props.addProperty(MDS_PASSWORD_CONFIG, "bar");
+    props.addProperty(MDS_KAFKA_CLUSTER_ID_CONFIG, "1234");
 
     TopologyBuilderConfig config = new TopologyBuilderConfig(cliOps, props);
     config.validateWith(topology);
@@ -76,7 +78,7 @@ public class TopologyBuilderConfigTest {
     project.addTopic(topic);
     topology.addProject(project);
 
-    props.put(SCHEMA_REGISTRY_URL, "http://foo:8082");
+    props.addProperty(SCHEMA_REGISTRY_URL, "http://foo:8082");
 
     TopologyBuilderConfig config = new TopologyBuilderConfig(cliOps, props);
     config.validateWith(topology);
@@ -90,7 +92,7 @@ public class TopologyBuilderConfigTest {
     project.addTopic(topic);
     topology.addProject(project);
 
-    props.put(SCHEMA_REGISTRY_URL, "http://foo:8082");
+    props.addProperty(SCHEMA_REGISTRY_URL, "http://foo:8082");
 
     TopologyBuilderConfig config = new TopologyBuilderConfig(cliOps, props);
     config.validateWith(topology);

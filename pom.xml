@@ -438,6 +438,11 @@
 
   <dependencies>
     <dependency>
+      <groupId>com.nerdynick</groupId>
+      <artifactId>commons-configuration-utils</artifactId>
+      <version>0.2</version>
+    </dependency>
+    <dependency>
       <groupId>redis.clients</groupId>
       <artifactId>jedis</artifactId>
       <version>${jedis.version}</version>
