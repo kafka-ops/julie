@@ -4,12 +4,13 @@ import static com.purbon.kafka.topology.TopologyBuilderConfig.ACCESS_CONTROL_IMP
 import static com.purbon.kafka.topology.TopologyBuilderConfig.MDS_PASSWORD_CONFIG;
 import static com.purbon.kafka.topology.TopologyBuilderConfig.MDS_USER_CONFIG;
 
+import java.io.IOException;
+import java.lang.reflect.Constructor;
+
 import com.purbon.kafka.topology.api.mds.MDSApiClient;
 import com.purbon.kafka.topology.api.mds.MDSApiClientBuilder;
 import com.purbon.kafka.topology.roles.RBACProvider;
 import com.purbon.kafka.topology.roles.SimpleAclsProvider;
-import java.io.IOException;
-import java.lang.reflect.Constructor;
 
 public class AccessControlProviderFactory {
 
@@ -49,13 +50,7 @@ public class AccessControlProviderFactory {
     }
   }
 
-  private Class<? extends AccessControlProvider> getAccessControlClass()
-      throws ClassNotFoundException {
-    if (config.containsKey(ACCESS_CONTROL_IMPLEMENTATION_CLASS)) {
-      final String cls = config.getString(ACCESS_CONTROL_IMPLEMENTATION_CLASS);
-      return (Class<? extends AccessControlProvider>) Class.forName(cls);
-    } else {
-      return SimpleAclsProvider.class;
-    }
+  private Class<? extends AccessControlProvider> getAccessControlClass()throws ClassNotFoundException {
+    return config.getCls(AccessControlProvider.class, ACCESS_CONTROL_IMPLEMENTATION_CLASS, SimpleAclsProvider.class);
   }
 }
