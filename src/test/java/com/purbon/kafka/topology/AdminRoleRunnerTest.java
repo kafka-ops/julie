@@ -3,6 +3,7 @@ package com.purbon.kafka.topology;
 import static com.purbon.kafka.topology.api.mds.MDSApiClient.CONNECT_CLUSTER_ID_LABEL;
 import static com.purbon.kafka.topology.api.mds.MDSApiClient.KAFKA_CLUSTER_ID_LABEL;
 import static com.purbon.kafka.topology.api.mds.MDSApiClient.SCHEMA_REGISTRY_CLUSTER_ID_LABEL;
+import static com.purbon.kafka.topology.api.mds.RequestScope.RESOURCE_NAME;
 import static com.purbon.kafka.topology.roles.RBACPredefinedRoles.SECURITY_ADMIN;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.when;
@@ -59,7 +60,7 @@ public class AdminRoleRunnerTest {
     AdminRoleRunner runner = new AdminRoleRunner("foo", SECURITY_ADMIN, apiClient);
     runner.forKafkaConnect(connector);
 
-    assertEquals("kafka-connect", runner.getResourceName());
+    assertEquals("kafka-connect", runner.getScope().getResource(0).get(RESOURCE_NAME));
 
     String connectClusterId = "1234";
     Map<String, String> clusterIDs = runner.getScope().getClusterIDs();
@@ -83,7 +84,7 @@ public class AdminRoleRunnerTest {
     AdminRoleRunner runner = new AdminRoleRunner("foo", SECURITY_ADMIN, apiClient);
     runner.forSchemaRegistry();
 
-    assertEquals("schema-registry", runner.getResourceName());
+    assertEquals("schema-registry", runner.getScope().getResource(0).get(RESOURCE_NAME));
 
     String connectClusterId = "4321";
     Map<String, String> clusterIDs = runner.getScope().getClusterIDs();
