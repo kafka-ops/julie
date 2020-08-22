@@ -84,8 +84,6 @@ public class AdminRoleRunnerTest {
     AdminRoleRunner runner = new AdminRoleRunner("foo", SECURITY_ADMIN, apiClient);
     runner.forSchemaRegistry();
 
-    assertEquals("schema-registry", runner.getScope().getResource(0).get(RESOURCE_NAME));
-
     String connectClusterId = "4321";
     Map<String, String> clusterIDs = runner.getScope().getClusterIDs();
     assertEquals(connectClusterId, clusterIDs.get(SCHEMA_REGISTRY_CLUSTER_ID_LABEL));

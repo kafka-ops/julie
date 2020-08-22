@@ -1,8 +1,12 @@
 package com.purbon.kafka.topology.integration;
 
+import static com.purbon.kafka.topology.api.mds.MDSApiClient.CONNECT_CLUSTER_ID_LABEL;
+import static com.purbon.kafka.topology.api.mds.MDSApiClient.SCHEMA_REGISTRY_CLUSTER_ID_LABEL;
 import static com.purbon.kafka.topology.roles.RBACPredefinedRoles.DEVELOPER_READ;
 import static com.purbon.kafka.topology.roles.RBACPredefinedRoles.DEVELOPER_WRITE;
 import static com.purbon.kafka.topology.roles.RBACPredefinedRoles.RESOURCE_OWNER;
+import static com.purbon.kafka.topology.roles.RBACPredefinedRoles.SECURITY_ADMIN;
+import static com.purbon.kafka.topology.roles.RBACPredefinedRoles.SYSTEM_ADMIN;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.anyList;
@@ -32,6 +36,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -207,27 +212,37 @@ public class RBACPRoviderRbacIT extends MDSBaseTest {
   private void verifyControlCenterAcls(Platform platform) {
     ControlCenter c3 = platform.getControlCenter().get(0);
     List<String> roles = apiClient.lookupRoles(c3.getPrincipal());
-    assertTrue(roles.contains(RESOURCE_OWNER));
+    assertTrue(roles.contains(SYSTEM_ADMIN));
   }
 
   private void verifySchemaRegistryAcls(Platform platform) {
     SchemaRegistry sr = platform.getSchemaRegistry().get(0);
     List<String> roles = apiClient.lookupRoles(sr.getPrincipal());
     assertTrue(roles.contains(RESOURCE_OWNER));
-    // assertTrue(roles.contains(SECURITY_ADMIN));
+
+    Map<String, Map<String, String>> clusters = apiClient.getClusterIds();
+    clusters.get("clusters").remove(CONNECT_CLUSTER_ID_LABEL);
+
+    roles = apiClient.lookupRoles(sr.getPrincipal(), clusters);
+    assertTrue(roles.contains(SECURITY_ADMIN));
   }
 
   private void verifyConnectAcls(Connector app) {
     List<String> roles = apiClient.lookupRoles(app.getPrincipal());
     assertTrue(roles.contains(DEVELOPER_READ));
     assertTrue(roles.contains(RESOURCE_OWNER));
+
+    Map<String, Map<String, String>> clusters = apiClient.getClusterIds();
+    clusters.get("clusters").remove(SCHEMA_REGISTRY_CLUSTER_ID_LABEL);
+    roles = apiClient.lookupRoles(app.getPrincipal(), clusters);
+    assertTrue(roles.contains(SECURITY_ADMIN));
   }
 
   private void verifyKStreamsAcls(KStream app) {
     List<String> roles = apiClient.lookupRoles(app.getPrincipal());
     assertTrue(roles.contains(DEVELOPER_READ));
     assertTrue(roles.contains(DEVELOPER_WRITE));
-    // assertTrue(roles.contains(RESOURCE_OWNER));
+    assertTrue(roles.contains(RESOURCE_OWNER));
   }
 
   private void verifyProducerAcls(List<Producer> producers, String topic) {

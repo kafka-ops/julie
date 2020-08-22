@@ -42,7 +42,6 @@ public class AdminRoleRunner {
 
     scope = new RequestScope();
     scope.setClusters(clusters);
-    scope.addResource("Cluster", "schema-registry", PatternType.LITERAL.name());
 
     scope.build();
 
@@ -93,7 +92,7 @@ public class AdminRoleRunner {
 
   public TopologyAclBinding apply() {
 
-    return client.bind(principal, role, scope);
+    return client.bindClusterRole(principal, role, scope);
   }
 
   public AdminRoleRunner forControlCenter() {

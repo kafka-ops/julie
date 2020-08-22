@@ -45,6 +45,15 @@ public class RequestScope {
     scope.put("resourcePatterns", resources);
   }
 
+  public String clustersAsJson() {
+    try {
+      return JSON.asString(clusters);
+    } catch (JsonProcessingException e) {
+      e.printStackTrace();
+      return "";
+    }
+  }
+
   public String asJson() {
     try {
       return JSON.asString(scope);
