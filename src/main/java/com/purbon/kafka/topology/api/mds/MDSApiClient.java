@@ -89,12 +89,7 @@ public class MDSApiClient {
   }
 
   public TopologyAclBinding bind(String principal, String role, RequestScope scope) {
-    HttpPost postRequest =
-        new HttpPost(
-            mdsServer + "/security/1.0/principals/" + principal + "/roles/" + role + "/bindings");
-    postRequest.addHeader("accept", " application/json");
-    postRequest.addHeader("Content-Type", "application/json");
-    postRequest.addHeader("Authorization", "Basic " + basicCredentials);
+    HttpPost postRequest = buildPostRequest(principal + "/roles/" + role + "/bindings");
 
     try {
       postRequest.setEntity(new StringEntity(scope.asJson()));
@@ -106,17 +101,14 @@ public class MDSApiClient {
       String patternType = scope.getResource(0).get(RESOURCE_PATTERN_TYPE);
       return new TopologyAclBinding(resourceType, resourceName, "*", role, principal, patternType);
     } catch (IOException e) {
-      e.printStackTrace();
+      LOGGER.error(e);
       return null;
     }
   }
 
   public TopologyAclBinding bindClusterRole(String principal, String role, RequestScope scope) {
-    HttpPost postRequest =
-        new HttpPost(mdsServer + "/security/1.0/principals/" + principal + "/roles/" + role);
-    postRequest.addHeader("accept", " application/json");
-    postRequest.addHeader("Content-Type", "application/json");
-    postRequest.addHeader("Authorization", "Basic " + basicCredentials);
+
+    HttpPost postRequest = buildPostRequest(principal + "/roles/" + role);
 
     try {
       postRequest.setEntity(new StringEntity(scope.clustersAsJson()));
@@ -129,6 +121,14 @@ public class MDSApiClient {
       LOGGER.error(e);
       return null;
     }
+  }
+
+  private HttpPost buildPostRequest(String url) {
+    HttpPost postRequest = new HttpPost(mdsServer + "/security/1.0/principals/" + url);
+    postRequest.addHeader("accept", " application/json");
+    postRequest.addHeader("Content-Type", "application/json");
+    postRequest.addHeader("Authorization", "Basic " + basicCredentials);
+    return postRequest;
   }
 
   /**
@@ -243,12 +243,19 @@ public class MDSApiClient {
     try (CloseableHttpResponse response = httpClient.execute(request)) {
       LOGGER.debug("POST.response: " + response);
       HttpEntity entity = response.getEntity();
-      // Header headers = entity.getContentType();
+      int statusCode = response.getStatusLine().getStatusCode();
+      if (statusCode < 200 || statusCode > 299) {
+        throw new IOException(
+            "Something happened with the connection, response status code: " + statusCode);
+      }
       String result = "";
       if (entity != null) {
         result = EntityUtils.toString(entity);
       }
       return result;
+    } catch (IOException ex) {
+      LOGGER.error(ex);
+      throw ex;
     }
   }
 
