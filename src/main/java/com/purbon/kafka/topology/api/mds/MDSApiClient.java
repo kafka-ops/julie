@@ -11,7 +11,6 @@ import com.purbon.kafka.topology.utils.JSON;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Base64;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import org.apache.http.HttpEntity;
@@ -34,18 +33,11 @@ public class MDSApiClient {
   private String basicCredentials;
 
   private AuthenticationCredentials authenticationCredentials;
-  private String kafkaClusterID;
-  private String schemaRegistryClusterID;
-  private String connectClusterID;
-
-  public static String KAFKA_CLUSTER_ID_LABEL = "kafka-cluster";
-  public static String SCHEMA_REGISTRY_CLUSTER_ID_LABEL = "schema-registry-cluster";
-  public static String CONNECT_CLUSTER_ID_LABEL = "connect-cluster";
+  private ClusterIDs clusterIDs;
 
   public MDSApiClient(String mdsServer) {
     this.mdsServer = mdsServer;
-    this.kafkaClusterID = "";
-    this.schemaRegistryClusterID = "";
+    this.clusterIDs = new ClusterIDs();
   }
 
   public void login(String user, String password) {
@@ -145,7 +137,7 @@ public class MDSApiClient {
       String principal, String role, String resource, String resourceType, String patternType) {
 
     RequestScope scope = new RequestScope();
-    scope.setClusters(getKafkaClusterIds());
+    scope.setClusters(clusterIDs.getKafkaClusterIds());
     scope.addResource(resourceType, resource, patternType);
     scope.build();
 
@@ -178,7 +170,7 @@ public class MDSApiClient {
   }
 
   public List<String> lookupRoles(String principal) {
-    return lookupRoles(principal, getKafkaClusterIds());
+    return lookupRoles(principal, clusterIDs.getKafkaClusterIds());
   }
 
   public List<String> lookupRoles(String principal, Map<String, Map<String, String>> clusters) {
@@ -203,30 +195,6 @@ public class MDSApiClient {
     return roles;
   }
 
-  public Map<String, Map<String, String>> getKafkaClusterIds() {
-    HashMap<String, String> clusterIds = new HashMap<>();
-    if (!kafkaClusterID.isEmpty()) clusterIds.put(KAFKA_CLUSTER_ID_LABEL, kafkaClusterID);
-
-    Map<String, Map<String, String>> clusters = new HashMap<>();
-    clusters.put("clusters", clusterIds);
-    return clusters;
-  }
-
-  public Map<String, Map<String, String>> getClusterIds() {
-    HashMap<String, String> clusterIds = new HashMap<>();
-    setClusterID(clusterIds, KAFKA_CLUSTER_ID_LABEL, kafkaClusterID);
-    setClusterID(clusterIds, SCHEMA_REGISTRY_CLUSTER_ID_LABEL, schemaRegistryClusterID);
-    setClusterID(clusterIds, CONNECT_CLUSTER_ID_LABEL, connectClusterID);
-
-    Map<String, Map<String, String>> clusters = new HashMap<>();
-    clusters.put("clusters", clusterIds);
-    return clusters;
-  }
-
-  private void setClusterID(Map<String, String> clusterIds, String label, String value) {
-    if (value != null && !value.isEmpty()) clusterIds.put(label, value);
-  }
-
   private final CloseableHttpClient httpClient = HttpClients.createDefault();
 
   private Response get(HttpGet request) throws IOException {
@@ -246,7 +214,10 @@ public class MDSApiClient {
       int statusCode = response.getStatusLine().getStatusCode();
       if (statusCode < 200 || statusCode > 299) {
         throw new IOException(
-            "Something happened with the connection, response status code: " + statusCode);
+            "Something happened with the connection, response status code: "
+                + statusCode
+                + " "
+                + request);
       }
       String result = "";
       if (entity != null) {
@@ -275,15 +246,29 @@ public class MDSApiClient {
     }
   }
 
-  public void setKafkaClusterId(String kafkaClusterID) {
-    this.kafkaClusterID = kafkaClusterID;
+  public void setKafkaClusterId(String clusterId) {
+    clusterIDs.setKafkaClusterId(clusterId);
   }
 
-  public void setSchemaRegistryClusterID(String schemaRegistryClusterID) {
-    this.schemaRegistryClusterID = schemaRegistryClusterID;
+  public void setConnectClusterID(String clusterId) {
+    clusterIDs.setConnectClusterID(clusterId);
   }
 
-  public void setConnectClusterID(String connectClusterID) {
-    this.connectClusterID = connectClusterID;
+  public void setSchemaRegistryClusterID(String clusterId) {
+    clusterIDs.setSchemaRegistryClusterID(clusterId);
+  }
+
+  /**
+   * Builder method used to compose custom versions of clusterIDs, this is
+   * useful when for example listing the permissions using the listResource method.
+   * @return ClusterIDs
+   */
+  public ClusterIDs withClusterIDs() {
+    try {
+      return clusterIDs.clone().clear();
+    } catch (CloneNotSupportedException e) {
+      e.printStackTrace();
+      return null;
+    }
   }
 }

@@ -1,7 +1,5 @@
 package com.purbon.kafka.topology.integration;
 
-import static com.purbon.kafka.topology.api.mds.MDSApiClient.CONNECT_CLUSTER_ID_LABEL;
-import static com.purbon.kafka.topology.api.mds.MDSApiClient.SCHEMA_REGISTRY_CLUSTER_ID_LABEL;
 import static com.purbon.kafka.topology.roles.RBACPredefinedRoles.DEVELOPER_READ;
 import static com.purbon.kafka.topology.roles.RBACPredefinedRoles.DEVELOPER_WRITE;
 import static com.purbon.kafka.topology.roles.RBACPredefinedRoles.RESOURCE_OWNER;
@@ -16,13 +14,13 @@ import static org.mockito.Mockito.verify;
 import com.purbon.kafka.topology.AccessControlManager;
 import com.purbon.kafka.topology.ClusterState;
 import com.purbon.kafka.topology.api.mds.MDSApiClient;
-import com.purbon.kafka.topology.model.*;
 import com.purbon.kafka.topology.model.Impl.ProjectImpl;
 import com.purbon.kafka.topology.model.Impl.TopicImpl;
 import com.purbon.kafka.topology.model.Impl.TopologyImpl;
 import com.purbon.kafka.topology.model.Platform;
 import com.purbon.kafka.topology.model.Project;
 import com.purbon.kafka.topology.model.Topic;
+import com.purbon.kafka.topology.model.Topology;
 import com.purbon.kafka.topology.model.users.Connector;
 import com.purbon.kafka.topology.model.users.Consumer;
 import com.purbon.kafka.topology.model.users.ControlCenter;
@@ -220,8 +218,8 @@ public class RBACPRoviderRbacIT extends MDSBaseTest {
     List<String> roles = apiClient.lookupRoles(sr.getPrincipal());
     assertTrue(roles.contains(RESOURCE_OWNER));
 
-    Map<String, Map<String, String>> clusters = apiClient.getClusterIds();
-    clusters.get("clusters").remove(CONNECT_CLUSTER_ID_LABEL);
+    Map<String, Map<String, String>> clusters =
+        apiClient.withClusterIDs().forKafka().forSchemaRegistry().asMap();
 
     roles = apiClient.lookupRoles(sr.getPrincipal(), clusters);
     assertTrue(roles.contains(SECURITY_ADMIN));
@@ -232,8 +230,9 @@ public class RBACPRoviderRbacIT extends MDSBaseTest {
     assertTrue(roles.contains(DEVELOPER_READ));
     assertTrue(roles.contains(RESOURCE_OWNER));
 
-    Map<String, Map<String, String>> clusters = apiClient.getClusterIds();
-    clusters.get("clusters").remove(SCHEMA_REGISTRY_CLUSTER_ID_LABEL);
+    Map<String, Map<String, String>> clusters =
+        apiClient.withClusterIDs().forKafka().forKafkaConnect().asMap();
+
     roles = apiClient.lookupRoles(app.getPrincipal(), clusters);
     assertTrue(roles.contains(SECURITY_ADMIN));
   }

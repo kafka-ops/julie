@@ -46,7 +46,7 @@ public class RBACProvider implements AccessControlProvider {
           String role = aclBinding.getOperation();
 
           RequestScope scope = new RequestScope();
-          scope.setClusters(apiClient.getKafkaClusterIds());
+          scope.setClusters(apiClient.withClusterIDs().forKafka().asMap());
           scope.addResource(
               aclBinding.getResourceType().name(),
               aclBinding.getResourceName(),

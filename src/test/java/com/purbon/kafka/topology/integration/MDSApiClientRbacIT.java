@@ -1,6 +1,5 @@
 package com.purbon.kafka.topology.integration;
 
-import static com.purbon.kafka.topology.api.mds.MDSApiClient.CONNECT_CLUSTER_ID_LABEL;
 import static com.purbon.kafka.topology.roles.RBACPredefinedRoles.DEVELOPER_READ;
 import static com.purbon.kafka.topology.roles.RBACPredefinedRoles.RESOURCE_OWNER;
 import static com.purbon.kafka.topology.roles.RBACPredefinedRoles.SECURITY_ADMIN;
@@ -98,8 +97,8 @@ public class MDSApiClientRbacIT extends MDSBaseTest {
 
     apiClient.bind(principal, SECURITY_ADMIN).forSchemaRegistry().apply();
 
-    Map<String, Map<String, String>> clusters = apiClient.getClusterIds();
-    clusters.get("clusters").remove(CONNECT_CLUSTER_ID_LABEL);
+    Map<String, Map<String, String>> clusters =
+        apiClient.withClusterIDs().forKafka().forSchemaRegistry().asMap();
 
     List<String> roles = apiClient.lookupRoles(principal, clusters);
     assertEquals(1, roles.size());
