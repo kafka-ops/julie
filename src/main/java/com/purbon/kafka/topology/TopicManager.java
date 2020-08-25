@@ -114,6 +114,9 @@ public class TopicManager {
   public void syncTopic(Topic topic, String fullTopicName, Set<String> listOfTopics)
       throws IOException {
     if (existTopic(fullTopicName, listOfTopics)) {
+      if (topic.partitionsCount() > adminClient.getPartitionCount(fullTopicName)) {
+        adminClient.updatePartitionCount(topic, fullTopicName);
+      }
       adminClient.updateTopicConfig(topic, fullTopicName);
     } else {
       adminClient.createTopic(topic, fullTopicName);

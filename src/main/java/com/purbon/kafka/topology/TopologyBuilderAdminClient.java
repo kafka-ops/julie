@@ -23,7 +23,6 @@ import org.apache.kafka.clients.admin.AlterConfigOp;
 import org.apache.kafka.clients.admin.AlterConfigOp.OpType;
 import org.apache.kafka.clients.admin.Config;
 import org.apache.kafka.clients.admin.ConfigEntry;
-import org.apache.kafka.clients.admin.DescribeTopicsResult;
 import org.apache.kafka.clients.admin.ListTopicsOptions;
 import org.apache.kafka.clients.admin.NewPartitions;
 import org.apache.kafka.clients.admin.NewTopic;
@@ -85,20 +84,26 @@ public class TopologyBuilderAdminClient {
     }
   }
 
-  private int getPartitionCount(Topic topic, String topicName) throws IOException {
+  public int getPartitionCount(String topic) throws IOException {
     try {
       Map<String, TopicDescription> results =
-          adminClient.describeTopics(Collections.singletonList(topicName))
-              .all()
-              .get();
-      return results.get(topicName).partitions().size();
+          adminClient.describeTopics(Collections.singletonList(topic)).all().get();
+      return results.get(topic).partitions().size();
     } catch (InterruptedException | ExecutionException e) {
       LOGGER.error(e);
       throw new IOException(e);
     }
-
   }
-  private void updatePartitionCount(Topic topic) {
+
+  public void updatePartitionCount(Topic topic, String topicName) throws IOException {
+    Map<String, NewPartitions> map = new HashMap<>();
+    map.put(topicName, NewPartitions.increaseTo(topic.partitionsCount()));
+    try {
+      adminClient.createPartitions(map).all().get();
+    } catch (InterruptedException | ExecutionException e) {
+      LOGGER.error(e);
+      throw new IOException(e);
+    }
   }
 
   public void clearAcls() throws IOException {
@@ -317,13 +322,13 @@ public class TopologyBuilderAdminClient {
                     .map(
                         aclOperation ->
                             buildTopicLevelAcl(principal, topic, PatternType.LITERAL, aclOperation))
-                    .forEach(aclBinding -> bindings.add(aclBinding)));
+                    .forEach(bindings::add));
 
     Stream.of(AclOperation.WRITE, AclOperation.READ, AclOperation.CREATE, AclOperation.DESCRIBE)
         .map(
             aclOperation ->
                 buildTopicLevelAcl(principal, appId, PatternType.PREFIXED, aclOperation))
-        .forEach(aclBinding -> bindings.add(aclBinding));
+        .forEach(bindings::add);
 
     ResourcePattern resourcePattern =
         new ResourcePattern(ResourceType.CLUSTER, "kafka-cluster", PatternType.LITERAL);
