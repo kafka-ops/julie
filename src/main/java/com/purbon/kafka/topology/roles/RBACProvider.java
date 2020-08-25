@@ -11,13 +11,15 @@ import com.purbon.kafka.topology.ClusterState;
 import com.purbon.kafka.topology.api.mds.MDSApiClient;
 import com.purbon.kafka.topology.api.mds.RequestScope;
 import com.purbon.kafka.topology.exceptions.ConfigurationException;
+import com.purbon.kafka.topology.model.Component;
 import com.purbon.kafka.topology.model.users.Connector;
 import com.purbon.kafka.topology.model.users.Consumer;
-import com.purbon.kafka.topology.model.users.SchemaRegistry;
+import com.purbon.kafka.topology.model.users.platform.SchemaRegistryInstance;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -175,7 +177,7 @@ public class RBACProvider implements AccessControlProvider {
   }
 
   @Override
-  public List<TopologyAclBinding> setAclsForSchemaRegistry(SchemaRegistry schemaRegistry)
+  public List<TopologyAclBinding> setAclsForSchemaRegistry(SchemaRegistryInstance schemaRegistry)
       throws ConfigurationException {
     String principal = schemaRegistry.getPrincipal();
     List<TopologyAclBinding> bindings = new ArrayList<>();
@@ -194,6 +196,28 @@ public class RBACProvider implements AccessControlProvider {
   @Override
   public List<TopologyAclBinding> setAclsForControlCenter(String principal, String appId) {
     TopologyAclBinding binding = apiClient.bind(principal, SYSTEM_ADMIN).forControlCenter().apply();
+    return Collections.singletonList(binding);
+  }
+
+  @Override
+  public List<TopologyAclBinding> setClusterLevelRole(
+      String role, String principal, Component component) throws IOException {
+
+    AdminRoleRunner adminRoleRunner = apiClient.bind(principal, role);
+    TopologyAclBinding binding;
+    switch (component) {
+      case KAFKA:
+        binding = adminRoleRunner.forKafka().apply();
+        break;
+      case SCHEMA_REGISTRY:
+        binding = adminRoleRunner.forSchemaRegistry().apply();
+        break;
+      case KAFKA_CONNECT:
+        binding = adminRoleRunner.forKafkaConnect().apply();
+        break;
+      default:
+        throw new IOException("Non valid component selected");
+    }
     return Arrays.asList(binding);
   }
 

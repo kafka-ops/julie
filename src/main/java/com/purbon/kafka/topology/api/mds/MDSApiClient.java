@@ -259,8 +259,9 @@ public class MDSApiClient {
   }
 
   /**
-   * Builder method used to compose custom versions of clusterIDs, this is
-   * useful when for example listing the permissions using the listResource method.
+   * Builder method used to compose custom versions of clusterIDs, this is useful when for example
+   * listing the permissions using the listResource method.
+   *
    * @return ClusterIDs
    */
   public ClusterIDs withClusterIDs() {

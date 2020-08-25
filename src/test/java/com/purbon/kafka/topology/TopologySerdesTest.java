@@ -9,12 +9,13 @@ import com.purbon.kafka.topology.model.Impl.TopologyImpl;
 import com.purbon.kafka.topology.model.Project;
 import com.purbon.kafka.topology.model.Topic;
 import com.purbon.kafka.topology.model.Topology;
+import com.purbon.kafka.topology.model.User;
 import com.purbon.kafka.topology.model.users.Connector;
 import com.purbon.kafka.topology.model.users.Consumer;
-import com.purbon.kafka.topology.model.users.ControlCenter;
 import com.purbon.kafka.topology.model.users.KStream;
 import com.purbon.kafka.topology.model.users.Producer;
-import com.purbon.kafka.topology.model.users.SchemaRegistry;
+import com.purbon.kafka.topology.model.users.platform.ControlCenterInstance;
+import com.purbon.kafka.topology.model.users.platform.SchemaRegistryInstance;
 import com.purbon.kafka.topology.serdes.TopologySerdes;
 import java.io.IOException;
 import java.net.URISyntaxException;
@@ -25,6 +26,10 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -185,14 +190,15 @@ public class TopologySerdesTest {
 
     Topology topology = parser.deserialise(Paths.get(topologyDescriptor.toURI()).toFile());
 
-    List<SchemaRegistry> listOfSR = topology.getPlatform().getSchemaRegistry();
+    List<SchemaRegistryInstance> listOfSR =
+        topology.getPlatform().getSchemaRegistry().getInstances();
     assertEquals(2, listOfSR.size());
     assertEquals("User:SchemaRegistry01", listOfSR.get(0).getPrincipal());
     assertEquals("foo", listOfSR.get(0).topicString());
     assertEquals("bar", listOfSR.get(0).groupString());
     assertEquals("User:SchemaRegistry02", listOfSR.get(1).getPrincipal());
 
-    List<ControlCenter> listOfC3 = topology.getPlatform().getControlCenter();
+    List<ControlCenterInstance> listOfC3 = topology.getPlatform().getControlCenter().getInstances();
 
     assertEquals(1, listOfC3.size());
     assertEquals("User:ControlCenter", listOfC3.get(0).getPrincipal());
@@ -226,6 +232,23 @@ public class TopologySerdesTest {
     assertEquals(true, connector.getConnectors().isPresent());
     assertEquals("jdbc-sync", connector.getConnectors().get().get(0));
     assertEquals("ibmmq-source", connector.getConnectors().get().get(1));
+
+    Optional<Map<String, List<User>>> rbacOptional =
+        topology.getPlatform().getSchemaRegistry().getRbac();
+    assertTrue(rbacOptional.isPresent());
+
+    Set<String> keys = Arrays.asList("Operator").stream().collect(Collectors.toSet());
+    assertEquals(keys, rbacOptional.get().keySet());
+    assertEquals(2, rbacOptional.get().get("Operator").size());
+
+    Optional<Map<String, List<User>>> kafkaRbacOptional =
+        topology.getPlatform().getKafka().getRbac();
+    assertTrue(kafkaRbacOptional.isPresent());
+
+    Set<String> kafkaKeys =
+        Arrays.asList("SecurityAdmin", "ClusterAdmin").stream().collect(Collectors.toSet());
+    assertEquals(kafkaKeys, kafkaRbacOptional.get().keySet());
+    assertEquals(1, kafkaRbacOptional.get().get("SecurityAdmin").size());
   }
 
   private List<Project> buildProjects() {

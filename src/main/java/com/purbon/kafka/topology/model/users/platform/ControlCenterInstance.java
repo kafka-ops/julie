@@ -1,16 +1,16 @@
-package com.purbon.kafka.topology.model.users;
+package com.purbon.kafka.topology.model.users.platform;
 
 import com.purbon.kafka.topology.model.User;
 
-public class ControlCenter extends User {
+public class ControlCenterInstance extends User {
 
   private String appId;
 
-  public ControlCenter() {
+  public ControlCenterInstance() {
     super("");
   }
 
-  public ControlCenter(String principal, String appId) {
+  public ControlCenterInstance(String principal, String appId) {
     super(principal);
     this.appId = appId;
   }

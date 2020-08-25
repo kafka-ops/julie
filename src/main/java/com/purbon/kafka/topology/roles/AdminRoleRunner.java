@@ -83,6 +83,16 @@ public class AdminRoleRunner {
     return client.bindClusterRole(principal, role, scope);
   }
 
+  public AdminRoleRunner forKafka() {
+    Map<String, Map<String, String>> clusters = client.withClusterIDs().forKafka().asMap();
+
+    scope = new RequestScope();
+    scope.setClusters(clusters);
+    scope.build();
+
+    return this;
+  }
+
   public AdminRoleRunner forControlCenter() {
     Map<String, Map<String, String>> clusters = client.withClusterIDs().forKafka().asMap();
 
@@ -94,15 +104,36 @@ public class AdminRoleRunner {
     return this;
   }
 
-  public AdminRoleRunner forKafkaConnect(Connector connector) throws IOException {
+  public AdminRoleRunner forKafkaConnect() throws IOException {
     Map<String, Map<String, String>> clusters =
         client.withClusterIDs().forKafkaConnect().forKafka().asMap();
 
     Map<String, String> clusterIds = clusters.get("clusters");
     validateRequiredClusterLabels(clusterIds, KAFKA_CLUSTER_ID_LABEL);
 
-    Optional<String> connectClusterIdOptional = connector.getCluster_id();
     validateRequiredClusterLabels(clusterIds, KAFKA_CLUSTER_ID_LABEL, CONNECT_CLUSTER_ID_LABEL);
+
+    scope = new RequestScope();
+    scope.setClusters(clusters);
+    scope.addResource("Cluster", "kafka-connect", PatternType.LITERAL.name());
+
+    scope.build();
+
+    return this;
+  }
+
+  public AdminRoleRunner forKafkaConnect(Connector connector) throws IOException {
+    Map<String, Map<String, String>> clusters =
+        client.withClusterIDs().forKafkaConnect().forKafka().asMap();
+
+    Optional<String> connectClusterIdOptional = connector.getCluster_id();
+    if (connectClusterIdOptional.isPresent()) {
+      clusters.get("clusters").put(CONNECT_CLUSTER_ID_LABEL, connectClusterIdOptional.get());
+    }
+
+    validateRequiredClusterLabels(clusters.get("clusters"), KAFKA_CLUSTER_ID_LABEL);
+    validateRequiredClusterLabels(
+        clusters.get("clusters"), KAFKA_CLUSTER_ID_LABEL, CONNECT_CLUSTER_ID_LABEL);
 
     scope = new RequestScope();
     scope.setClusters(clusters);
