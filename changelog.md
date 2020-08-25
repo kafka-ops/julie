@@ -12,6 +12,7 @@ Kafka Topology Builder library in a single and uniform web application that can 
 it will have to be properly configured.
 * Merge #22 to provide the initial support for schema management. Now you can manage schemas with Confluent Schema Registry using the Kafka Topology Builder. Thanks Kiril.
 * Add an option to specify custom consumer groups in the topology descriptor
+* Add option to increase the partition count in an already created topic.
 
 v1.0.0-rc1:
 * Add support for platform wide acls for control center in teh topology description file.
