@@ -23,8 +23,11 @@ import org.apache.kafka.clients.admin.AlterConfigOp;
 import org.apache.kafka.clients.admin.AlterConfigOp.OpType;
 import org.apache.kafka.clients.admin.Config;
 import org.apache.kafka.clients.admin.ConfigEntry;
+import org.apache.kafka.clients.admin.DescribeTopicsResult;
 import org.apache.kafka.clients.admin.ListTopicsOptions;
+import org.apache.kafka.clients.admin.NewPartitions;
 import org.apache.kafka.clients.admin.NewTopic;
+import org.apache.kafka.clients.admin.TopicDescription;
 import org.apache.kafka.common.acl.AccessControlEntry;
 import org.apache.kafka.common.acl.AccessControlEntryFilter;
 import org.apache.kafka.common.acl.AclBinding;
@@ -80,6 +83,22 @@ public class TopologyBuilderAdminClient {
       LOGGER.error(ex);
       throw new IOException(ex);
     }
+  }
+
+  private int getPartitionCount(Topic topic, String topicName) throws IOException {
+    try {
+      Map<String, TopicDescription> results =
+          adminClient.describeTopics(Collections.singletonList(topicName))
+              .all()
+              .get();
+      return results.get(topicName).partitions().size();
+    } catch (InterruptedException | ExecutionException e) {
+      LOGGER.error(e);
+      throw new IOException(e);
+    }
+
+  }
+  private void updatePartitionCount(Topic topic) {
   }
 
   public void clearAcls() throws IOException {
