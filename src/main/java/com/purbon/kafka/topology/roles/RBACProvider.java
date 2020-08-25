@@ -12,6 +12,7 @@ import com.purbon.kafka.topology.api.mds.MDSApiClient;
 import com.purbon.kafka.topology.api.mds.RequestScope;
 import com.purbon.kafka.topology.exceptions.ConfigurationException;
 import com.purbon.kafka.topology.model.users.Connector;
+import com.purbon.kafka.topology.model.users.Consumer;
 import com.purbon.kafka.topology.model.users.SchemaRegistry;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -138,11 +139,13 @@ public class RBACProvider implements AccessControlProvider {
   }
 
   @Override
-  public List<TopologyAclBinding> setAclsForConsumers(Collection<String> principals, String topic) {
+  public List<TopologyAclBinding> setAclsForConsumers(
+      Collection<Consumer> consumers, String topic) {
     List<TopologyAclBinding> bindings = new ArrayList<>();
-    principals.forEach(
-        principal -> {
-          TopologyAclBinding binding = apiClient.bind(principal, DEVELOPER_READ, topic, LITERAL);
+    consumers.forEach(
+        consumer -> {
+          TopologyAclBinding binding =
+              apiClient.bind(consumer.getPrincipal(), DEVELOPER_READ, topic, LITERAL);
           bindings.add(binding);
         });
     return bindings;

@@ -82,11 +82,8 @@ public class AccessControlManager {
               topic -> {
                 final String fullTopicName = topic.toString();
 
-                Collection<String> consumerPrincipals =
-                    extractUsersToPrincipals(project.getConsumers());
-
                 List<TopologyAclBinding> consumerBindings =
-                    controlProvider.setAclsForConsumers(consumerPrincipals, fullTopicName);
+                    controlProvider.setAclsForConsumers(project.getConsumers(), fullTopicName);
                 clusterState.update(consumerBindings);
 
                 Collection<String> producerPrincipals =
