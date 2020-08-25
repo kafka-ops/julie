@@ -2,6 +2,7 @@ package com.purbon.kafka.topology;
 
 import static com.purbon.kafka.topology.BuilderCLI.ALLOW_DELETE_OPTION;
 import static com.purbon.kafka.topology.model.Component.KAFKA;
+import static com.purbon.kafka.topology.model.Component.KAFKA_CONNECT;
 import static com.purbon.kafka.topology.model.Component.SCHEMA_REGISTRY;
 
 import com.purbon.kafka.topology.model.Component;
@@ -128,6 +129,7 @@ public class AccessControlManager {
 
     // Set cluster level ACLs
     syncClusterLevelRbac(platform.getKafka().getRbac(), KAFKA);
+    syncClusterLevelRbac(platform.getKafkaConnect().getRbac(), KAFKA_CONNECT);
     syncClusterLevelRbac(platform.getSchemaRegistry().getRbac(), SCHEMA_REGISTRY);
 
     // Set component level ACLs

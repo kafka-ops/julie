@@ -29,6 +29,7 @@ import com.purbon.kafka.topology.model.users.Producer;
 import com.purbon.kafka.topology.model.users.platform.ControlCenter;
 import com.purbon.kafka.topology.model.users.platform.ControlCenterInstance;
 import com.purbon.kafka.topology.model.users.platform.Kafka;
+import com.purbon.kafka.topology.model.users.platform.KafkaConnect;
 import com.purbon.kafka.topology.model.users.platform.SchemaRegistry;
 import com.purbon.kafka.topology.model.users.platform.SchemaRegistryInstance;
 import com.purbon.kafka.topology.roles.RBACProvider;
@@ -244,6 +245,43 @@ public class RBACPRoviderRbacIT extends MDSBaseTest {
     verify(cs, times(1)).flushAndClose();
 
     verifyKafkaClusterACLs(platform);
+  }
+
+  @Test
+  public void connectClusterLevelAclCreation() throws IOException {
+    Project project = new ProjectImpl();
+
+    Topology topology = new TopologyImpl();
+    topology.setTeam("kafkaClusterLevelAclCreation-test");
+    topology.addProject(project);
+
+    Platform platform = new Platform();
+    KafkaConnect connect = new KafkaConnect();
+    Map<String, List<User>> rbac = new HashMap<>();
+    rbac.put("Operator", Collections.singletonList(new User("User:foo")));
+    rbac.put("ClusterAdmin", Collections.singletonList(new User("User:bar")));
+    connect.setRbac(Optional.of(rbac));
+    platform.setKafkaConnect(connect);
+    topology.setPlatform(platform);
+
+    accessControlManager.sync(topology);
+
+    verify(cs, times(2)).add(anyList());
+    verify(cs, times(1)).flushAndClose();
+
+    verifyConnectClusterACLs(platform);
+  }
+
+  private void verifyConnectClusterACLs(Platform platform) {
+    Map<String, Map<String, String>> clusters =
+        apiClient.withClusterIDs().forKafka().forKafkaConnect().asMap();
+
+    Map<String, List<User>> rbac = platform.getKafkaConnect().getRbac().get();
+    for (String role : rbac.keySet()) {
+      User user = rbac.get(role).get(0);
+      List<String> roles = apiClient.lookupRoles(user.getPrincipal(), clusters);
+      assertTrue(roles.contains(role));
+    }
   }
 
   private void verifyKafkaClusterACLs(Platform platform) {

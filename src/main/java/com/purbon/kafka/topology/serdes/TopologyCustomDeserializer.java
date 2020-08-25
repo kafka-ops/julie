@@ -11,6 +11,7 @@ import com.purbon.kafka.topology.model.Platform;
 import com.purbon.kafka.topology.model.Topology;
 import com.purbon.kafka.topology.model.users.platform.ControlCenter;
 import com.purbon.kafka.topology.model.users.platform.Kafka;
+import com.purbon.kafka.topology.model.users.platform.KafkaConnect;
 import com.purbon.kafka.topology.model.users.platform.SchemaRegistry;
 import java.io.IOException;
 import java.util.Arrays;
@@ -24,6 +25,7 @@ public class TopologyCustomDeserializer extends StdDeserializer<Topology> {
 
   public static final String PLATFORM_KEY = "platform";
   public static final String KAFKA_KEY = "kafka";
+  public static final String KAFKA_CONNECT_KEY = "kafka_connect";
   public static final String SCHEMA_REGISTRY_KEY = "schema_registry";
   public static final String CONTROL_CENTER_KEY = "control_center";
 
@@ -66,6 +68,12 @@ public class TopologyCustomDeserializer extends StdDeserializer<Topology> {
       if (kafkaNode != null) {
         Kafka kafka = parser.getCodec().treeToValue(kafkaNode, Kafka.class);
         platform.setKafka(kafka);
+      }
+      JsonNode kafkaConnectNode = platformNode.get(KAFKA_CONNECT_KEY);
+      if (kafkaConnectNode != null) {
+        KafkaConnect kafkaConnect =
+            parser.getCodec().treeToValue(kafkaConnectNode, KafkaConnect.class);
+        platform.setKafkaConnect(kafkaConnect);
       }
       JsonNode schemaRegistryNode = platformNode.get(SCHEMA_REGISTRY_KEY);
       if (schemaRegistryNode != null) {

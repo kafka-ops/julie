@@ -1,10 +1,9 @@
 package com.purbon.kafka.topology.model.users.platform;
 
-import com.purbon.kafka.topology.model.User;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ControlCenter extends User {
+public class ControlCenter {
 
   private List<ControlCenterInstance> instances;
 

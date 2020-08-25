@@ -60,6 +60,10 @@ platform:
           - principal: "User:Foo"
         ClusterAdmin:
           - principal: "User:Boo"
+    kafka_connect:
+      rbac:
+        SecurityAdmin:
+          - principal: "User:Foo"
     schema_registry:
       instances:
         - principal: "User:SchemaRegistry01"

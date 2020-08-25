@@ -23,6 +23,7 @@ import com.purbon.kafka.topology.model.users.Producer;
 import com.purbon.kafka.topology.model.users.platform.ControlCenter;
 import com.purbon.kafka.topology.model.users.platform.ControlCenterInstance;
 import com.purbon.kafka.topology.model.users.platform.Kafka;
+import com.purbon.kafka.topology.model.users.platform.KafkaConnect;
 import com.purbon.kafka.topology.model.users.platform.SchemaRegistry;
 import com.purbon.kafka.topology.model.users.platform.SchemaRegistryInstance;
 import com.purbon.kafka.topology.roles.SimpleAclsProvider;
@@ -227,6 +228,33 @@ public class AccessControlManagerTest {
 
     verify(aclsProvider, times(1)).setClusterLevelRole("Operator", "User:foo", Component.KAFKA);
     verify(aclsProvider, times(1)).setClusterLevelRole("ClusterAdmin", "User:bar", Component.KAFKA);
+  }
+
+  @Test
+  public void newKafkaConnectClusterRBACCreation() throws IOException {
+    Project project = new ProjectImpl();
+    Topology topology = new TopologyImpl();
+    topology.addProject(project);
+
+    Platform platform = new Platform();
+    KafkaConnect connect = new KafkaConnect();
+    Map<String, List<User>> rbac = new HashMap<>();
+    rbac.put("Operator", Collections.singletonList(new User("User:foo")));
+    rbac.put("ClusterAdmin", Collections.singletonList(new User("User:bar")));
+    connect.setRbac(Optional.of(rbac));
+    platform.setKafkaConnect(connect);
+    topology.setPlatform(platform);
+
+    accessControlManager.sync(topology);
+
+    doReturn(new ArrayList<TopologyAclBinding>())
+        .when(aclsProvider)
+        .setClusterLevelRole(anyString(), anyString(), eq(Component.KAFKA_CONNECT));
+
+    verify(aclsProvider, times(1))
+        .setClusterLevelRole("Operator", "User:foo", Component.KAFKA_CONNECT);
+    verify(aclsProvider, times(1))
+        .setClusterLevelRole("ClusterAdmin", "User:bar", Component.KAFKA_CONNECT);
   }
 
   @Test
