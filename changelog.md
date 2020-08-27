@@ -13,6 +13,9 @@ it will have to be properly configured.
 * Merge #22 to provide the initial support for schema management. Now you can manage schemas with Confluent Schema Registry using the Kafka Topology Builder. Thanks Kiril.
 * Add an option to specify custom consumer groups in the topology descriptor
 * Add option to increase the partition count in an already created topic.
+* Add support for cluster level acls for kafka, schema registry and kafka connect. This solve issues #42.
+* Add support for schema level permissions in the rbac mode. This solve issue #44.
+* Add support for connect level permissions in the rbac mode. This solve issue #45.
 
 v1.0.0-rc1:
 * Add support for platform wide acls for control center in teh topology description file.

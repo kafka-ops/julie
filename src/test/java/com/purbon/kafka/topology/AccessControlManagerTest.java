@@ -1,11 +1,13 @@
 package com.purbon.kafka.topology;
 
+import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
+import com.purbon.kafka.topology.model.Component;
 import com.purbon.kafka.topology.model.Impl.ProjectImpl;
 import com.purbon.kafka.topology.model.Impl.TopicImpl;
 import com.purbon.kafka.topology.model.Impl.TopologyImpl;
@@ -13,12 +15,17 @@ import com.purbon.kafka.topology.model.Platform;
 import com.purbon.kafka.topology.model.Project;
 import com.purbon.kafka.topology.model.Topic;
 import com.purbon.kafka.topology.model.Topology;
+import com.purbon.kafka.topology.model.User;
 import com.purbon.kafka.topology.model.users.Connector;
 import com.purbon.kafka.topology.model.users.Consumer;
-import com.purbon.kafka.topology.model.users.ControlCenter;
 import com.purbon.kafka.topology.model.users.KStream;
 import com.purbon.kafka.topology.model.users.Producer;
-import com.purbon.kafka.topology.model.users.SchemaRegistry;
+import com.purbon.kafka.topology.model.users.platform.ControlCenter;
+import com.purbon.kafka.topology.model.users.platform.ControlCenterInstance;
+import com.purbon.kafka.topology.model.users.platform.Kafka;
+import com.purbon.kafka.topology.model.users.platform.KafkaConnect;
+import com.purbon.kafka.topology.model.users.platform.SchemaRegistry;
+import com.purbon.kafka.topology.model.users.platform.SchemaRegistryInstance;
 import com.purbon.kafka.topology.roles.SimpleAclsProvider;
 import com.purbon.kafka.topology.roles.TopologyAclBinding;
 import java.io.IOException;
@@ -27,6 +34,8 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -48,7 +57,7 @@ public class AccessControlManagerTest {
   @Before
   public void setup() {
     accessControlManager = new AccessControlManager(aclsProvider, clusterState);
-    doNothing().when(clusterState).update(Matchers.anyList());
+    doNothing().when(clusterState).add(Matchers.anyList());
     doNothing().when(clusterState).flushAndClose();
   }
 
@@ -141,15 +150,34 @@ public class AccessControlManagerTest {
 
     Platform platform = new Platform();
     SchemaRegistry sr = new SchemaRegistry();
-    sr.setPrincipal("User:foo");
-    platform.addSchemaRegistry(sr);
+
+    SchemaRegistryInstance instance = new SchemaRegistryInstance();
+    instance.setPrincipal("User:foo");
+    sr.setInstances(Collections.singletonList(instance));
+
+    Map<String, List<User>> rbac = new HashMap<>();
+    rbac.put("SecurityAdmin", Collections.singletonList(new User("User:foo")));
+    rbac.put("ClusterAdmin", Collections.singletonList(new User("User:bar")));
+    sr.setRbac(Optional.of(rbac));
+
+    platform.setSchemaRegistry(sr);
     topology.setPlatform(platform);
 
     accessControlManager.sync(topology);
 
-    doReturn(new ArrayList<TopologyAclBinding>()).when(aclsProvider).setAclsForSchemaRegistry(sr);
+    doReturn(new ArrayList<TopologyAclBinding>())
+        .when(aclsProvider)
+        .setAclsForSchemaRegistry(instance);
 
-    verify(aclsProvider, times(1)).setAclsForSchemaRegistry(sr);
+    doReturn(new ArrayList<TopologyAclBinding>())
+        .when(aclsProvider)
+        .setClusterLevelRole(anyString(), anyString(), eq(Component.SCHEMA_REGISTRY));
+
+    verify(aclsProvider, times(1)).setAclsForSchemaRegistry(instance);
+    verify(aclsProvider, times(1))
+        .setClusterLevelRole("SecurityAdmin", "User:foo", Component.SCHEMA_REGISTRY);
+    verify(aclsProvider, times(1))
+        .setClusterLevelRole("ClusterAdmin", "User:bar", Component.SCHEMA_REGISTRY);
   }
 
   @Test
@@ -161,9 +189,11 @@ public class AccessControlManagerTest {
 
     Platform platform = new Platform();
     ControlCenter c3 = new ControlCenter();
-    c3.setPrincipal("User:foo");
-    c3.setAppId("appid");
-    platform.addControlCenter(c3);
+    ControlCenterInstance instance = new ControlCenterInstance();
+    instance.setPrincipal("User:foo");
+    instance.setAppId("appid");
+    c3.setInstances(Collections.singletonList(instance));
+    platform.setControlCenter(c3);
     topology.setPlatform(platform);
 
     accessControlManager.sync(topology);
@@ -173,6 +203,58 @@ public class AccessControlManagerTest {
         .setAclsForControlCenter("User:foo", "appid");
 
     verify(aclsProvider, times(1)).setAclsForControlCenter("User:foo", "appid");
+  }
+
+  @Test
+  public void newKafkaClusterRBACCreation() throws IOException {
+    Project project = new ProjectImpl();
+    Topology topology = new TopologyImpl();
+    topology.addProject(project);
+
+    Platform platform = new Platform();
+    Kafka kafka = new Kafka();
+    Map<String, List<User>> rbac = new HashMap<>();
+    rbac.put("Operator", Collections.singletonList(new User("User:foo")));
+    rbac.put("ClusterAdmin", Collections.singletonList(new User("User:bar")));
+    kafka.setRbac(Optional.of(rbac));
+    platform.setKafka(kafka);
+    topology.setPlatform(platform);
+
+    accessControlManager.sync(topology);
+
+    doReturn(new ArrayList<TopologyAclBinding>())
+        .when(aclsProvider)
+        .setClusterLevelRole(anyString(), anyString(), eq(Component.KAFKA));
+
+    verify(aclsProvider, times(1)).setClusterLevelRole("Operator", "User:foo", Component.KAFKA);
+    verify(aclsProvider, times(1)).setClusterLevelRole("ClusterAdmin", "User:bar", Component.KAFKA);
+  }
+
+  @Test
+  public void newKafkaConnectClusterRBACCreation() throws IOException {
+    Project project = new ProjectImpl();
+    Topology topology = new TopologyImpl();
+    topology.addProject(project);
+
+    Platform platform = new Platform();
+    KafkaConnect connect = new KafkaConnect();
+    Map<String, List<User>> rbac = new HashMap<>();
+    rbac.put("Operator", Collections.singletonList(new User("User:foo")));
+    rbac.put("ClusterAdmin", Collections.singletonList(new User("User:bar")));
+    connect.setRbac(Optional.of(rbac));
+    platform.setKafkaConnect(connect);
+    topology.setPlatform(platform);
+
+    accessControlManager.sync(topology);
+
+    doReturn(new ArrayList<TopologyAclBinding>())
+        .when(aclsProvider)
+        .setClusterLevelRole(anyString(), anyString(), eq(Component.KAFKA_CONNECT));
+
+    verify(aclsProvider, times(1))
+        .setClusterLevelRole("Operator", "User:foo", Component.KAFKA_CONNECT);
+    verify(aclsProvider, times(1))
+        .setClusterLevelRole("ClusterAdmin", "User:bar", Component.KAFKA_CONNECT);
   }
 
   @Test

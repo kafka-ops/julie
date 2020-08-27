@@ -15,10 +15,12 @@ import com.purbon.kafka.topology.model.Topic;
 import com.purbon.kafka.topology.model.Topology;
 import com.purbon.kafka.topology.model.users.Connector;
 import com.purbon.kafka.topology.model.users.Consumer;
-import com.purbon.kafka.topology.model.users.ControlCenter;
 import com.purbon.kafka.topology.model.users.KStream;
 import com.purbon.kafka.topology.model.users.Producer;
-import com.purbon.kafka.topology.model.users.SchemaRegistry;
+import com.purbon.kafka.topology.model.users.platform.ControlCenter;
+import com.purbon.kafka.topology.model.users.platform.ControlCenterInstance;
+import com.purbon.kafka.topology.model.users.platform.SchemaRegistry;
+import com.purbon.kafka.topology.model.users.platform.SchemaRegistryInstance;
 import com.purbon.kafka.topology.roles.SimpleAclsProvider;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -180,12 +182,14 @@ public class AccessControlManagerIT {
 
     Platform platform = new Platform();
     SchemaRegistry sr = new SchemaRegistry();
-    sr.setPrincipal("User:foo");
-    platform.addSchemaRegistry(sr);
+    SchemaRegistryInstance instance = new SchemaRegistryInstance();
+    instance.setPrincipal("User:foo");
 
-    SchemaRegistry sr2 = new SchemaRegistry();
-    sr2.setPrincipal("User:banana");
-    platform.addSchemaRegistry(sr2);
+    SchemaRegistryInstance instance2 = new SchemaRegistryInstance();
+    instance2.setPrincipal("User:banana");
+
+    sr.setInstances(Arrays.asList(instance, instance2));
+    platform.setSchemaRegistry(sr);
 
     topology.setPlatform(platform);
 
@@ -211,9 +215,11 @@ public class AccessControlManagerIT {
 
     Platform platform = new Platform();
     ControlCenter c3 = new ControlCenter();
-    c3.setPrincipal("User:foo");
-    c3.setAppId("appid");
-    platform.addControlCenter(c3);
+    ControlCenterInstance instance = new ControlCenterInstance();
+    instance.setPrincipal("User:foo");
+    instance.setAppId("appid");
+    c3.setInstances(Collections.singletonList(instance));
+    platform.setControlCenter(c3);
 
     topology.setPlatform(platform);
 
@@ -288,10 +294,9 @@ public class AccessControlManagerIT {
   private void verifySchemaRegistryAcls(Platform platform)
       throws ExecutionException, InterruptedException {
 
-    List<SchemaRegistry> srs = platform.getSchemaRegistry();
+    List<SchemaRegistryInstance> srs = platform.getSchemaRegistry().getInstances();
 
-    for (SchemaRegistry sr : srs) {
-
+    for (SchemaRegistryInstance sr : srs) {
       ResourcePatternFilter resourceFilter =
           new ResourcePatternFilter(ResourceType.TOPIC, null, PatternType.ANY);
 
@@ -310,9 +315,9 @@ public class AccessControlManagerIT {
   private void verifyControlCenterAcls(Platform platform)
       throws ExecutionException, InterruptedException {
 
-    List<ControlCenter> c3List = platform.getControlCenter();
+    List<ControlCenterInstance> c3List = platform.getControlCenter().getInstances();
 
-    for (ControlCenter c3 : c3List) {
+    for (ControlCenterInstance c3 : c3List) {
       ResourcePatternFilter resourceFilter =
           new ResourcePatternFilter(ResourceType.TOPIC, null, PatternType.ANY);
 

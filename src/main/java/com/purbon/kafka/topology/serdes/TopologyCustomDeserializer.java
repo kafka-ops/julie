@@ -9,8 +9,10 @@ import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.purbon.kafka.topology.model.Impl.TopologyImpl;
 import com.purbon.kafka.topology.model.Platform;
 import com.purbon.kafka.topology.model.Topology;
-import com.purbon.kafka.topology.model.users.ControlCenter;
-import com.purbon.kafka.topology.model.users.SchemaRegistry;
+import com.purbon.kafka.topology.model.users.platform.ControlCenter;
+import com.purbon.kafka.topology.model.users.platform.Kafka;
+import com.purbon.kafka.topology.model.users.platform.KafkaConnect;
+import com.purbon.kafka.topology.model.users.platform.SchemaRegistry;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Iterator;
@@ -22,6 +24,8 @@ public class TopologyCustomDeserializer extends StdDeserializer<Topology> {
   public static final String TEAM_KEY = "team";
 
   public static final String PLATFORM_KEY = "platform";
+  public static final String KAFKA_KEY = "kafka";
+  public static final String KAFKA_CONNECT_KEY = "kafka_connect";
   public static final String SCHEMA_REGISTRY_KEY = "schema_registry";
   public static final String CONTROL_CENTER_KEY = "control_center";
 
@@ -60,21 +64,28 @@ public class TopologyCustomDeserializer extends StdDeserializer<Topology> {
     JsonNode platformNode = rootNode.get(PLATFORM_KEY);
     Platform platform = new Platform();
     if (platformNode != null && platformNode.size() > 0) {
+      JsonNode kafkaNode = platformNode.get(KAFKA_KEY);
+      if (kafkaNode != null) {
+        Kafka kafka = parser.getCodec().treeToValue(kafkaNode, Kafka.class);
+        platform.setKafka(kafka);
+      }
+      JsonNode kafkaConnectNode = platformNode.get(KAFKA_CONNECT_KEY);
+      if (kafkaConnectNode != null) {
+        KafkaConnect kafkaConnect =
+            parser.getCodec().treeToValue(kafkaConnectNode, KafkaConnect.class);
+        platform.setKafkaConnect(kafkaConnect);
+      }
       JsonNode schemaRegistryNode = platformNode.get(SCHEMA_REGISTRY_KEY);
       if (schemaRegistryNode != null) {
-        for (int i = 0; i < schemaRegistryNode.size(); i++) {
-          JsonNode node = schemaRegistryNode.get(i);
-          SchemaRegistry schemaRegistry = parser.getCodec().treeToValue(node, SchemaRegistry.class);
-          platform.addSchemaRegistry(schemaRegistry);
-        }
+        SchemaRegistry schemaRegistry =
+            parser.getCodec().treeToValue(schemaRegistryNode, SchemaRegistry.class);
+        platform.setSchemaRegistry(schemaRegistry);
       }
       JsonNode controlCenterNode = platformNode.get(CONTROL_CENTER_KEY);
       if (controlCenterNode != null) {
-        for (int i = 0; i < controlCenterNode.size(); i++) {
-          JsonNode node = controlCenterNode.get(i);
-          ControlCenter controlCenter = parser.getCodec().treeToValue(node, ControlCenter.class);
-          platform.addControlCenter(controlCenter);
-        }
+        ControlCenter controlCenter =
+            parser.getCodec().treeToValue(controlCenterNode, ControlCenter.class);
+        platform.setControlCenter(controlCenter);
       }
     }
     topology.setPlatform(platform);

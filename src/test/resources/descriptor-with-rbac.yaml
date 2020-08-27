@@ -36,11 +36,6 @@ projects:
       - principal: "User:App1"
         subjects:
           - "contracts"
-    rbac:
-      - ResourceOwner:
-        - principal: "User:Foo"
-      - SecurityAdmin:
-        - principal: "User:Boo"
     topics:
       - name: "foo"
         config:
@@ -58,3 +53,25 @@ projects:
         config:
           replication.factor: "1"
           num.partitions: "1"
+platform:
+    kafka:
+      rbac:
+        SecurityAdmin:
+          - principal: "User:Foo"
+        ClusterAdmin:
+          - principal: "User:Boo"
+    kafka_connect:
+      rbac:
+        SecurityAdmin:
+          - principal: "User:Foo"
+    schema_registry:
+      instances:
+        - principal: "User:SchemaRegistry01"
+          topic: "foo"
+          group: "bar"
+        - principal: "User:SchemaRegistry02"
+          topic: "zet"
+      rbac:
+        Operator:
+         - principal: "User:Hans"
+         - principal: "User:Bob"

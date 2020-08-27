@@ -31,6 +31,8 @@ public class Connector extends DynamicUser {
   @JsonInclude(Include.NON_EMPTY)
   private Optional<String> cluster_id;
 
+  private Optional<List<String>> connectors;
+
   public Connector() {
     this("");
   }
@@ -39,6 +41,7 @@ public class Connector extends DynamicUser {
     this(
         principal,
         new HashMap<>(),
+        Optional.empty(),
         Optional.empty(),
         Optional.empty(),
         Optional.empty(),
@@ -53,7 +56,8 @@ public class Connector extends DynamicUser {
       Optional<String> offset_topic,
       Optional<String> configs_topic,
       Optional<String> group,
-      Optional<String> cluster_id) {
+      Optional<String> cluster_id,
+      Optional<List<String>> connectors) {
 
     super(principal, topics);
 
@@ -62,6 +66,7 @@ public class Connector extends DynamicUser {
     this.offset_topic = offset_topic;
     this.group = group;
     this.cluster_id = cluster_id;
+    this.connectors = connectors;
   }
 
   public String statusTopicString() {
@@ -118,5 +123,13 @@ public class Connector extends DynamicUser {
 
   public Optional<String> getGroup() {
     return group;
+  }
+
+  public Optional<List<String>> getConnectors() {
+    return connectors;
+  }
+
+  public void setConnectors(Optional<List<String>> connectors) {
+    this.connectors = connectors;
   }
 }

@@ -25,8 +25,12 @@ public class ClusterState {
     this.bindings = new HashSet<>();
   }
 
-  public void update(List<TopologyAclBinding> bindings) {
+  public void add(List<TopologyAclBinding> bindings) {
     this.bindings.addAll(bindings);
+  }
+
+  public void add(TopologyAclBinding binding) {
+    this.bindings.add(binding);
   }
 
   public void forEachBinding(Consumer<? super TopologyAclBinding> action) {

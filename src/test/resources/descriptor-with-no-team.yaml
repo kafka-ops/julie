@@ -49,11 +49,12 @@ projects:
           num.partitions: "1"
 platform:
   schema_registry:
-    - principal: "User:SchemaRegistry01"
-      topic: "foo"
-      group: "bar"
-    - principal: "User:SchemaRegistry02"
-      topic: "zet"
-  control_center:
-    - principal: "User:ControlCenter"
-      appId: "controlcenter"
+    instances:
+      - principal: "User:SchemaRegistry01"
+        topic: "foo"
+        group: "bar"
+      - principal: "User:SchemaRegistry02"
+        topic: "zet"
+    control_center:
+      - principal: "User:ControlCenter"
+        appId: "controlcenter"

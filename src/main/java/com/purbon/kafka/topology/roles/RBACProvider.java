@@ -11,16 +11,19 @@ import com.purbon.kafka.topology.ClusterState;
 import com.purbon.kafka.topology.api.mds.MDSApiClient;
 import com.purbon.kafka.topology.api.mds.RequestScope;
 import com.purbon.kafka.topology.exceptions.ConfigurationException;
+import com.purbon.kafka.topology.model.Component;
 import com.purbon.kafka.topology.model.users.Connector;
 import com.purbon.kafka.topology.model.users.Consumer;
-import com.purbon.kafka.topology.model.users.SchemaRegistry;
+import com.purbon.kafka.topology.model.users.platform.SchemaRegistryInstance;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -45,7 +48,7 @@ public class RBACProvider implements AccessControlProvider {
           String role = aclBinding.getOperation();
 
           RequestScope scope = new RequestScope();
-          scope.setClusters(apiClient.getKafkaClusterIds());
+          scope.setClusters(apiClient.withClusterIDs().forKafka().asMap());
           scope.addResource(
               aclBinding.getResourceType().name(),
               aclBinding.getResourceName(),
@@ -174,24 +177,47 @@ public class RBACProvider implements AccessControlProvider {
   }
 
   @Override
-  public List<TopologyAclBinding> setAclsForSchemaRegistry(SchemaRegistry schemaRegistry)
+  public List<TopologyAclBinding> setAclsForSchemaRegistry(SchemaRegistryInstance schemaRegistry)
       throws ConfigurationException {
     String principal = schemaRegistry.getPrincipal();
     List<TopologyAclBinding> bindings = new ArrayList<>();
     TopologyAclBinding binding =
-        apiClient.bind(principal, SECURITY_ADMIN).forSchemaRegistry().apply();
-    bindings.add(binding);
-    binding = apiClient.bind(principal, RESOURCE_OWNER, schemaRegistry.topicString(), LITERAL);
+        apiClient.bind(principal, RESOURCE_OWNER, schemaRegistry.topicString(), LITERAL);
     bindings.add(binding);
     binding =
         apiClient.bind(principal, RESOURCE_OWNER, schemaRegistry.groupString(), "Group", LITERAL);
     bindings.add(binding);
+    binding = apiClient.bind(principal, SECURITY_ADMIN).forSchemaRegistry().apply();
+    bindings.add(binding);
+
     return bindings;
   }
 
   @Override
   public List<TopologyAclBinding> setAclsForControlCenter(String principal, String appId) {
     TopologyAclBinding binding = apiClient.bind(principal, SYSTEM_ADMIN).forControlCenter().apply();
+    return Collections.singletonList(binding);
+  }
+
+  @Override
+  public List<TopologyAclBinding> setClusterLevelRole(
+      String role, String principal, Component component) throws IOException {
+
+    AdminRoleRunner adminRoleRunner = apiClient.bind(principal, role);
+    TopologyAclBinding binding;
+    switch (component) {
+      case KAFKA:
+        binding = adminRoleRunner.forKafka().apply();
+        break;
+      case SCHEMA_REGISTRY:
+        binding = adminRoleRunner.forSchemaRegistry().apply();
+        break;
+      case KAFKA_CONNECT:
+        binding = adminRoleRunner.forKafkaConnect().apply();
+        break;
+      default:
+        throw new IOException("Non valid component selected");
+    }
     return Arrays.asList(binding);
   }
 
@@ -199,5 +225,32 @@ public class RBACProvider implements AccessControlProvider {
   public Map<String, List<TopologyAclBinding>> listAcls() {
     LOGGER.info("Not implemented yet!");
     return new HashMap<>();
+  }
+
+  @Override
+  public List<TopologyAclBinding> setSchemaAuthorization(String principal, List<String> subjects) {
+    return subjects.stream()
+        .map(
+            subject -> {
+              try {
+                return apiClient.bind(principal, RESOURCE_OWNER).forSchemaSubject(subject).apply();
+              } catch (ConfigurationException e) {
+                LOGGER.error(e);
+              }
+              return null;
+            })
+        .filter(binding -> binding != null)
+        .collect(Collectors.toList());
+  }
+
+  @Override
+  public List<TopologyAclBinding> setConnectorAuthorization(
+      String principal, List<String> connectors) {
+    return connectors.stream()
+        .map(
+            connector ->
+                apiClient.bind(principal, RESOURCE_OWNER).forAKafkaConnector(connector).apply())
+        .filter(binding -> binding != null)
+        .collect(Collectors.toList());
   }
 }

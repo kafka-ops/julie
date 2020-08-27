@@ -5,7 +5,7 @@ import com.purbon.kafka.topology.ClusterState;
 import com.purbon.kafka.topology.TopologyBuilderAdminClient;
 import com.purbon.kafka.topology.model.users.Connector;
 import com.purbon.kafka.topology.model.users.Consumer;
-import com.purbon.kafka.topology.model.users.SchemaRegistry;
+import com.purbon.kafka.topology.model.users.platform.SchemaRegistryInstance;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -100,7 +100,7 @@ public class SimpleAclsProvider implements AccessControlProvider {
   }
 
   @Override
-  public List<TopologyAclBinding> setAclsForSchemaRegistry(SchemaRegistry schemaRegistry) {
+  public List<TopologyAclBinding> setAclsForSchemaRegistry(SchemaRegistryInstance schemaRegistry) {
     try {
       return adminClient.setAclForSchemaRegistry(schemaRegistry).stream()
           .map(aclBinding -> new TopologyAclBinding(aclBinding))

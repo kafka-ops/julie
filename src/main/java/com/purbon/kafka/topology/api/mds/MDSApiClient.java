@@ -11,7 +11,6 @@ import com.purbon.kafka.topology.utils.JSON;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Base64;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import org.apache.http.HttpEntity;
@@ -22,7 +21,6 @@ import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.util.EntityUtils;
-import org.apache.kafka.common.resource.PatternType;
 import org.apache.kafka.common.resource.ResourceType;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -35,18 +33,11 @@ public class MDSApiClient {
   private String basicCredentials;
 
   private AuthenticationCredentials authenticationCredentials;
-  private String kafkaClusterID;
-  private String schemaRegistryClusterID;
-  private String connectClusterID;
-
-  public static String KAFKA_CLUSTER_ID_LABEL = "kafka-cluster";
-  public static String SCHEMA_REGISTRY_CLUSTER_ID_LABEL = "schema-registry-cluster";
-  public static String CONNECT_CLUSTER_ID_LABEL = "connect-cluster";
+  private ClusterIDs clusterIDs;
 
   public MDSApiClient(String mdsServer) {
     this.mdsServer = mdsServer;
-    this.kafkaClusterID = "";
-    this.schemaRegistryClusterID = "";
+    this.clusterIDs = new ClusterIDs();
   }
 
   public void login(String user, String password) {
@@ -90,32 +81,63 @@ public class MDSApiClient {
   }
 
   public TopologyAclBinding bind(String principal, String role, RequestScope scope) {
-    HttpPost postRequest =
-        new HttpPost(
-            mdsServer + "/security/1.0/principals/" + principal + "/roles/" + role + "/bindings");
-    postRequest.addHeader("accept", " application/json");
-    postRequest.addHeader("Content-Type", "application/json");
-    postRequest.addHeader("Authorization", "Basic " + basicCredentials);
+    HttpPost postRequest = buildPostRequest(principal + "/roles/" + role + "/bindings");
 
     try {
       postRequest.setEntity(new StringEntity(scope.asJson()));
       LOGGER.debug("bind.entity: " + scope.asJson());
       post(postRequest);
+
       ResourceType resourceType = ResourceType.fromString(scope.getResource(0).get(RESOURCE_TYPE));
       String resourceName = scope.getResource(0).get(RESOURCE_NAME);
       String patternType = scope.getResource(0).get(RESOURCE_PATTERN_TYPE);
       return new TopologyAclBinding(resourceType, resourceName, "*", role, principal, patternType);
     } catch (IOException e) {
-      e.printStackTrace();
+      LOGGER.error(e);
       return null;
     }
   }
 
+  public TopologyAclBinding bindClusterRole(String principal, String role, RequestScope scope) {
+
+    HttpPost postRequest = buildPostRequest(principal + "/roles/" + role);
+
+    try {
+      postRequest.setEntity(new StringEntity(scope.clustersAsJson()));
+      LOGGER.debug("bind.entity: " + scope.clustersAsJson());
+      post(postRequest);
+
+      ResourceType resourceType = ResourceType.CLUSTER;
+      return new TopologyAclBinding(resourceType, "cluster", "*", role, principal, "LITERAL");
+    } catch (IOException e) {
+      LOGGER.error(e);
+      return null;
+    }
+  }
+
+  private HttpPost buildPostRequest(String url) {
+    HttpPost postRequest = new HttpPost(mdsServer + "/security/1.0/principals/" + url);
+    postRequest.addHeader("accept", " application/json");
+    postRequest.addHeader("Content-Type", "application/json");
+    postRequest.addHeader("Authorization", "Basic " + basicCredentials);
+    return postRequest;
+  }
+
+  /**
+   * Bind a new RBAC role
+   *
+   * @param principal
+   * @param role
+   * @param resource
+   * @param resourceType
+   * @param patternType
+   * @return
+   */
   public TopologyAclBinding bind(
       String principal, String role, String resource, String resourceType, String patternType) {
 
     RequestScope scope = new RequestScope();
-    scope.setClusters(getKafkaClusterIds());
+    scope.setClusters(clusterIDs.getKafkaClusterIds());
     scope.addResource(resourceType, resource, patternType);
     scope.build();
 
@@ -147,27 +169,11 @@ public class MDSApiClient {
     }
   }
 
-  public TopologyAclBinding bindRole(
-      String principal, String role, String resourceName, Map<String, Object> scope) {
-    HttpPost postRequest =
-        new HttpPost(mdsServer + "/security/1.0/principals/" + principal + "/roles/" + role);
-    postRequest.addHeader("accept", " application/json");
-    postRequest.addHeader("Content-Type", "application/json");
-    postRequest.addHeader("Authorization", "Basic " + basicCredentials);
-
-    try {
-      postRequest.setEntity(new StringEntity(JSON.asString(scope)));
-      LOGGER.debug("bind.entity: " + JSON.asString(scope));
-      post(postRequest);
-      return new TopologyAclBinding(
-          ResourceType.CLUSTER, resourceName, "*", role, principal, PatternType.ANY.name());
-    } catch (IOException e) {
-      e.printStackTrace();
-      return null;
-    }
+  public List<String> lookupRoles(String principal) {
+    return lookupRoles(principal, clusterIDs.getKafkaClusterIds());
   }
 
-  public List<String> lookupRoles(String principal) {
+  public List<String> lookupRoles(String principal, Map<String, Map<String, String>> clusters) {
     HttpPost postRequest =
         new HttpPost(mdsServer + "/security/1.0/lookup/principals/" + principal + "/roleNames");
     postRequest.addHeader("accept", " application/json");
@@ -177,7 +183,7 @@ public class MDSApiClient {
     List<String> roles = new ArrayList<>();
 
     try {
-      postRequest.setEntity(new StringEntity(JSON.asString(getKafkaClusterIds())));
+      postRequest.setEntity(new StringEntity(JSON.asString(clusters)));
       String stringResponse = post(postRequest);
       if (!stringResponse.isEmpty()) {
         roles = JSON.toArray(stringResponse);
@@ -187,30 +193,6 @@ public class MDSApiClient {
     }
 
     return roles;
-  }
-
-  public Map<String, Map<String, String>> getKafkaClusterIds() {
-    HashMap<String, String> clusterIds = new HashMap<>();
-    if (!kafkaClusterID.isEmpty()) clusterIds.put(KAFKA_CLUSTER_ID_LABEL, kafkaClusterID);
-
-    Map<String, Map<String, String>> clusters = new HashMap<>();
-    clusters.put("clusters", clusterIds);
-    return clusters;
-  }
-
-  public Map<String, Map<String, String>> getClusterIds() {
-    HashMap<String, String> clusterIds = new HashMap<>();
-    setClusterID(clusterIds, KAFKA_CLUSTER_ID_LABEL, kafkaClusterID);
-    setClusterID(clusterIds, SCHEMA_REGISTRY_CLUSTER_ID_LABEL, schemaRegistryClusterID);
-    setClusterID(clusterIds, CONNECT_CLUSTER_ID_LABEL, connectClusterID);
-
-    Map<String, Map<String, String>> clusters = new HashMap<>();
-    clusters.put("clusters", clusterIds);
-    return clusters;
-  }
-
-  private void setClusterID(Map<String, String> clusterIds, String label, String value) {
-    if (value != null && !value.isEmpty()) clusterIds.put(label, value);
   }
 
   private final CloseableHttpClient httpClient = HttpClients.createDefault();
@@ -229,13 +211,22 @@ public class MDSApiClient {
     try (CloseableHttpResponse response = httpClient.execute(request)) {
       LOGGER.debug("POST.response: " + response);
       HttpEntity entity = response.getEntity();
-      // Header headers = entity.getContentType();
+      int statusCode = response.getStatusLine().getStatusCode();
+      if (statusCode < 200 || statusCode > 299) {
+        throw new IOException(
+            "Something happened with the connection, response status code: "
+                + statusCode
+                + " "
+                + request);
+      }
       String result = "";
       if (entity != null) {
         result = EntityUtils.toString(entity);
       }
-
       return result;
+    } catch (IOException ex) {
+      LOGGER.error(ex);
+      throw ex;
     }
   }
 
@@ -255,15 +246,30 @@ public class MDSApiClient {
     }
   }
 
-  public void setKafkaClusterId(String kafkaClusterID) {
-    this.kafkaClusterID = kafkaClusterID;
+  public void setKafkaClusterId(String clusterId) {
+    clusterIDs.setKafkaClusterId(clusterId);
   }
 
-  public void setSchemaRegistryClusterID(String schemaRegistryClusterID) {
-    this.schemaRegistryClusterID = schemaRegistryClusterID;
+  public void setConnectClusterID(String clusterId) {
+    clusterIDs.setConnectClusterID(clusterId);
   }
 
-  public void setConnectClusterID(String connectClusterID) {
-    this.connectClusterID = connectClusterID;
+  public void setSchemaRegistryClusterID(String clusterId) {
+    clusterIDs.setSchemaRegistryClusterID(clusterId);
+  }
+
+  /**
+   * Builder method used to compose custom versions of clusterIDs, this is useful when for example
+   * listing the permissions using the listResource method.
+   *
+   * @return ClusterIDs
+   */
+  public ClusterIDs withClusterIDs() {
+    try {
+      return clusterIDs.clone().clear();
+    } catch (CloneNotSupportedException e) {
+      e.printStackTrace();
+      return null;
+    }
   }
 }

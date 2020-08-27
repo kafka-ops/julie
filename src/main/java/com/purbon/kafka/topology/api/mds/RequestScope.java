@@ -45,6 +45,15 @@ public class RequestScope {
     scope.put("resourcePatterns", resources);
   }
 
+  public String clustersAsJson() {
+    try {
+      return JSON.asString(clusters);
+    } catch (JsonProcessingException e) {
+      e.printStackTrace();
+      return "";
+    }
+  }
+
   public String asJson() {
     try {
       return JSON.asString(scope);
@@ -52,5 +61,9 @@ public class RequestScope {
       e.printStackTrace();
       return "";
     }
+  }
+
+  public Map<String, String> getClusterIDs() {
+    return ((Map<String, Map<String, String>>) scope.get("scope")).get("clusters");
   }
 }
