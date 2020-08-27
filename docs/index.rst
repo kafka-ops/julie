@@ -53,6 +53,8 @@ Contents
    :maxdepth: 2
 
    core-concepts
+   what-can-you-do
    workflow-setup
    powered-with
    config-values
+

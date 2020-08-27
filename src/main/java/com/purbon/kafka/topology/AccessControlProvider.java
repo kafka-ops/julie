@@ -2,6 +2,7 @@ package com.purbon.kafka.topology;
 
 import com.purbon.kafka.topology.exceptions.ConfigurationException;
 import com.purbon.kafka.topology.model.users.Connector;
+import com.purbon.kafka.topology.model.users.Consumer;
 import com.purbon.kafka.topology.model.users.SchemaRegistry;
 import com.purbon.kafka.topology.roles.TopologyAclBinding;
 import java.io.IOException;
@@ -19,7 +20,7 @@ public interface AccessControlProvider {
   List<TopologyAclBinding> setAclsForStreamsApp(
       String principal, String topicPrefix, List<String> readTopics, List<String> writeTopics);
 
-  List<TopologyAclBinding> setAclsForConsumers(Collection<String> principals, String topic);
+  List<TopologyAclBinding> setAclsForConsumers(Collection<Consumer> consumers, String topic);
 
   List<TopologyAclBinding> setAclsForProducers(Collection<String> principals, String topic);
 

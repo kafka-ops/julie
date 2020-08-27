@@ -66,7 +66,7 @@ public class AccessControlManagerTest {
     Topology topology = new TopologyImpl();
     topology.addProject(project);
 
-    List<String> users = Arrays.asList(new String[] {"User:app1"});
+    List<Consumer> users = Arrays.asList(new Consumer("User:app1"));
 
     doReturn(new ArrayList<TopologyAclBinding>())
         .when(aclsProvider)

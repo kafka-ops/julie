@@ -5,6 +5,7 @@ projects:
   - name: "foo"
     consumers:
       - principal: "User:App0"
+        group: "foo"
       - principal: "User:App1"
     streams:
       - principal: "User:App0"

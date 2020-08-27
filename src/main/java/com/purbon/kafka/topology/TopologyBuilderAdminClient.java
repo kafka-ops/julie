@@ -3,6 +3,7 @@ package com.purbon.kafka.topology;
 import com.purbon.kafka.topology.adminclient.AclBuilder;
 import com.purbon.kafka.topology.model.Topic;
 import com.purbon.kafka.topology.model.users.Connector;
+import com.purbon.kafka.topology.model.users.Consumer;
 import com.purbon.kafka.topology.model.users.SchemaRegistry;
 import com.purbon.kafka.topology.roles.TopologyAclBinding;
 import java.io.IOException;
@@ -219,12 +220,20 @@ public class TopologyBuilderAdminClient {
     return acls;
   }
 
-  public List<AclBinding> setAclsForConsumer(String principal, String topic) throws IOException {
+  public List<AclBinding> setAclsForConsumer(Consumer consumer, String topic) throws IOException {
 
     List<AclBinding> acls = new ArrayList<>();
-    acls.add(buildTopicLevelAcl(principal, topic, PatternType.LITERAL, AclOperation.DESCRIBE));
-    acls.add(buildTopicLevelAcl(principal, topic, PatternType.LITERAL, AclOperation.READ));
-    acls.add(buildGroupLevelAcl(principal, "*", PatternType.LITERAL, AclOperation.READ));
+    acls.add(
+        buildTopicLevelAcl(
+            consumer.getPrincipal(), topic, PatternType.LITERAL, AclOperation.DESCRIBE));
+    acls.add(
+        buildTopicLevelAcl(consumer.getPrincipal(), topic, PatternType.LITERAL, AclOperation.READ));
+    acls.add(
+        buildGroupLevelAcl(
+            consumer.getPrincipal(),
+            consumer.groupString(),
+            consumer.groupString().equals("*") ? PatternType.PREFIXED : PatternType.LITERAL,
+            AclOperation.READ));
     createAcls(acls);
     return acls;
   }
