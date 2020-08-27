@@ -28,4 +28,6 @@ public interface Topic {
   void setProjectPrefix(String projectPrefix);
 
   String getProjectPrefix();
+
+  int partitionsCount();
 }

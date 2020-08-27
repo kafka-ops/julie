@@ -2,6 +2,7 @@ package com.purbon.kafka.topology;
 
 import static com.purbon.kafka.topology.BuilderCLI.ALLOW_DELETE_OPTION;
 import static com.purbon.kafka.topology.BuilderCLI.BROKERS_OPTION;
+import static com.purbon.kafka.topology.TopicManager.NUM_PARTITIONS;
 import static com.purbon.kafka.topology.TopologyBuilderConfig.KAFKA_INTERNAL_TOPIC_PREFIXES;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -73,6 +74,7 @@ public class TopicManagerTest {
     Topic topicA = new TopicImpl("topicA");
     project.addTopic(topicA);
     Topic topicB = new TopicImpl("topicB");
+    topicB.getConfig().put(NUM_PARTITIONS, "12");
     project.addTopic(topicB);
     Topology topology = new TopologyImpl();
     topology.addProject(project);
@@ -85,6 +87,8 @@ public class TopicManagerTest {
 
     verify(adminClient, times(1)).createTopic(topicA, topicA.toString());
     verify(adminClient, times(1)).updateTopicConfig(topicB, topicB.toString());
+    verify(adminClient, times(1)).getPartitionCount(topicB.toString());
+    verify(adminClient, times(1)).updatePartitionCount(topicB, topicB.toString());
   }
 
   @Test
