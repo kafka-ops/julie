@@ -6,6 +6,29 @@ As well you can manage your topics schemas as register.
 
 In this chapter we will introduce the different things one can configure in each topology file(s).
 
+Topics
+-----------
+The first and foremost important thing we aim to manage is topics, setup the partitions count and replication factor and as well configure their specific characteristics.
+
+Partitions Count and Replication Factor
+^^^^^^^^^^^
+
+In following configuration the reader is seeing an example of how to create a topic with _replication.factor_ and _num.partitions_, in that case all one.
+
+.. code-block:: YAML
+
+  ---
+    team: "team"
+    projects:
+      - name: "projectA"
+        topics:
+          - name: "foo"
+            config:
+              replication.factor: "1"
+              num.partitions: "1"
+
+Users can as well increase later the number of partitions and the Topology Builder will handle it properly.
+
 ACLs
 -----------
 
