@@ -17,6 +17,9 @@ public class BuilderCLI {
   public static final String TOPOLOGY_OPTION = "topology";
   public static final String TOPOLOGY_DESC = "Topology config file.";
 
+  public static final String EXTRACT_TOPOLOGY_OPTION = "extractTopology";
+  public static final String EXTRACT_TOPOLOGY_DESC = "Extract current Topology to file.";
+
   public static final String BROKERS_OPTION = "brokers";
   public static final String BROKERS_DESC = "The Apache Kafka server(s) to connect to.";
 
@@ -42,6 +45,14 @@ public class BuilderCLI {
 
     final Option topologyFileOption =
         Option.builder().longOpt(TOPOLOGY_OPTION).hasArg().desc(TOPOLOGY_DESC).required().build();
+
+    final Option extractTopologyFileOption =
+        Option.builder()
+            .longOpt(EXTRACT_TOPOLOGY_OPTION)
+            .hasArg()
+            .desc(EXTRACT_TOPOLOGY_DESC)
+            .required(false)
+            .build();
 
     final Option brokersListOption =
         Option.builder().longOpt(BROKERS_OPTION).hasArg().desc(BROKERS_DESC).required().build();
@@ -84,6 +95,7 @@ public class BuilderCLI {
     final Options options = new Options();
 
     options.addOption(topologyFileOption);
+    options.addOption(extractTopologyFileOption);
     options.addOption(brokersListOption);
     options.addOption(adminClientConfigFileOption);
 
@@ -106,6 +118,8 @@ public class BuilderCLI {
     CommandLine cmd = parseArgsOrExit(parser, options, args, formatter);
 
     String topology = cmd.getOptionValue(TOPOLOGY_OPTION);
+    String extractTopology = cmd.getOptionValue(EXTRACT_TOPOLOGY_OPTION);
+
     String brokersList = cmd.getOptionValue(BROKERS_OPTION);
     boolean allowDelete = cmd.hasOption(ALLOW_DELETE_OPTION);
     boolean quite = cmd.hasOption(QUITE_OPTION);
@@ -116,8 +130,16 @@ public class BuilderCLI {
     config.put(ALLOW_DELETE_OPTION, String.valueOf(allowDelete));
     config.put(QUITE_OPTION, String.valueOf(quite));
     config.put(ADMIN_CLIENT_CONFIG_OPTION, adminClientConfigFile);
-    processTopology(topology, config);
-    System.out.println("Kafka Topology updated");
+
+    List<String> listOfArgs = Arrays.asList(args);
+    if (listOfArgs.contains("--" + EXTRACT_TOPOLOGY_OPTION)) {
+      extractTopology(topology, config);
+      System.out.println("Kafka Topology extracted");
+    } else {
+      processTopology(topology, config);
+      System.out.println("Kafka Topology updated");
+    }
+
     exit(0);
   }
 
@@ -165,6 +187,32 @@ public class BuilderCLI {
 
     try {
       builder.run();
+    } finally {
+      adminClient.close();
+    }
+  }
+
+  private static void extractTopology(String topologyFile, Map<String, String> config)
+      throws IOException {
+    verifyRequiredParameters(topologyFile, config);
+
+    TopologyBuilderConfig builderConfig = new TopologyBuilderConfig(config);
+    TopologyBuilderAdminClient adminClient =
+        new TopologyBuilderAdminClientBuilder(builderConfig).build();
+    AccessControlProviderFactory accessControlProviderFactory =
+        new AccessControlProviderFactory(
+            builderConfig, adminClient, new MDSApiClientBuilder(builderConfig));
+
+    KafkaTopologyBuilder builder =
+        new KafkaTopologyBuilder(
+            topologyFile, builderConfig, adminClient, accessControlProviderFactory.get());
+
+    try {
+      System.out.println("Kafka Topology extraction YET TO BE IMPLEMENTED!");
+
+      // TODO
+      // builder.extract();
+
     } finally {
       adminClient.close();
     }
