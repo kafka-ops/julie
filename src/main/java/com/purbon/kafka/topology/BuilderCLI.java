@@ -27,6 +27,9 @@ public class BuilderCLI {
   public static final String ALLOW_DELETE_DESC =
       "Permits delete operations for topics and configs.";
 
+  public static final String DRY_RUN_OPTION = "dryRun";
+  public static final String DRY_RUN_DESC = "Print the execution plan without altering anything.";
+
   public static final String QUITE_OPTION = "quite";
   public static final String QUITE_DESC = "Print minimum status update";
 
@@ -62,6 +65,14 @@ public class BuilderCLI {
             .required(false)
             .build();
 
+    final Option dryRunOption =
+        Option.builder()
+            .longOpt(DRY_RUN_OPTION)
+            .hasArg(false)
+            .desc(DRY_RUN_DESC)
+            .required(false)
+            .build();
+
     final Option quiteOption =
         Option.builder()
             .longOpt(QUITE_OPTION)
@@ -88,6 +99,7 @@ public class BuilderCLI {
     options.addOption(adminClientConfigFileOption);
 
     options.addOption(allowDeleteOption);
+    options.addOption(dryRunOption);
     options.addOption(quiteOption);
     options.addOption(versionOption);
     options.addOption(helpOption);
@@ -108,12 +120,14 @@ public class BuilderCLI {
     String topology = cmd.getOptionValue(TOPOLOGY_OPTION);
     String brokersList = cmd.getOptionValue(BROKERS_OPTION);
     boolean allowDelete = cmd.hasOption(ALLOW_DELETE_OPTION);
+    boolean dryRun = cmd.hasOption(DRY_RUN_OPTION);
     boolean quite = cmd.hasOption(QUITE_OPTION);
     String adminClientConfigFile = cmd.getOptionValue(ADMIN_CLIENT_CONFIG_OPTION);
 
     Map<String, String> config = new HashMap<>();
     config.put(BROKERS_OPTION, brokersList);
     config.put(ALLOW_DELETE_OPTION, String.valueOf(allowDelete));
+    config.put(DRY_RUN_OPTION, String.valueOf(dryRun));
     config.put(QUITE_OPTION, String.valueOf(quite));
     config.put(ADMIN_CLIENT_CONFIG_OPTION, adminClientConfigFile);
     processTopology(topology, config);
