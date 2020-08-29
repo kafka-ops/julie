@@ -19,6 +19,7 @@ public class SyncTopicAction implements Action {
   private final Set<String> listOfTopics;
   private final TopologyBuilderAdminClient adminClient;
   private final SchemaRegistryManager schemaRegistryManager;
+  private String subAction;
 
   public SyncTopicAction(
       TopologyBuilderAdminClient adminClient,
@@ -75,7 +76,12 @@ public class SyncTopicAction implements Action {
   public String toString() {
     Map<String, Object> map = new HashMap<>();
     map.put("Operation", getClass().getName());
-    map.put("Topics", listOfTopics);
+    map.put("Topic", fullTopicName);
+    if (existTopic(fullTopicName, listOfTopics)) {
+      map.put("Action", "update");
+    } else {
+      map.put("Action", "create");
+    }
 
     try {
       return JSON.asPrettyString(map);
