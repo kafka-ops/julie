@@ -1,8 +1,12 @@
 package com.purbon.kafka.topology.actions;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.purbon.kafka.topology.AccessControlProvider;
 import com.purbon.kafka.topology.model.users.Schemas;
+import com.purbon.kafka.topology.utils.JSON;
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 
 public class SetSchemaAuthorization extends BaseAccessControlAction {
 
@@ -22,5 +26,19 @@ public class SetSchemaAuthorization extends BaseAccessControlAction {
     bindings =
         controlProvider.setSchemaAuthorization(
             schemaAuthorization.getPrincipal(), schemaAuthorization.getSubjects());
+  }
+
+  @Override
+  public String toString() {
+    Map<String, Object> map = new HashMap<>();
+    map.put("Operation", getClass().getName());
+    map.put("Principal", schemaAuthorization.getPrincipal());
+    map.put("Subjects", schemaAuthorization.getSubjects());
+
+    try {
+      return JSON.asString(map);
+    } catch (JsonProcessingException e) {
+      return "";
+    }
   }
 }

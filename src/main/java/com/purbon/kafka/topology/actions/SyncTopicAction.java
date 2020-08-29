@@ -1,10 +1,14 @@
 package com.purbon.kafka.topology.actions;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.purbon.kafka.topology.TopologyBuilderAdminClient;
 import com.purbon.kafka.topology.model.Topic;
 import com.purbon.kafka.topology.model.TopicSchemas;
 import com.purbon.kafka.topology.schemas.SchemaRegistryManager;
+import com.purbon.kafka.topology.utils.JSON;
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Set;
 import org.apache.commons.lang3.StringUtils;
 
@@ -65,5 +69,18 @@ public class SyncTopicAction implements Action {
 
   private boolean existTopic(String topic, Set<String> listOfTopics) {
     return listOfTopics.contains(topic);
+  }
+
+  @Override
+  public String toString() {
+    Map<String, Object> map = new HashMap<>();
+    map.put("Operation", getClass().getName());
+    map.put("Topics", listOfTopics);
+
+    try {
+      return JSON.asString(map);
+    } catch (JsonProcessingException e) {
+      return "";
+    }
   }
 }

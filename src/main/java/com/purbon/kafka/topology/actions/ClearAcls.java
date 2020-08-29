@@ -18,4 +18,10 @@ public class ClearAcls implements Action {
   public void run() throws IOException {
     controlProvider.clearAcls(clusterState);
   }
+  @Override
+  public String toString() {
+    StringBuilder sb = new StringBuilder();
+    sb.append(getClass().getName());
+    return sb.toString();
+  }
 }
