@@ -32,7 +32,7 @@ public class SetAclsForSchemaRegistry extends BaseAccessControlAction {
     map.put("Principal", schemaRegistry.getPrincipal());
 
     try {
-      return JSON.asString(map);
+      return JSON.asPrettyString(map);
     } catch (JsonProcessingException e) {
       return "";
     }

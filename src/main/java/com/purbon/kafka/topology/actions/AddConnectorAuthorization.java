@@ -40,7 +40,7 @@ public class AddConnectorAuthorization implements Action {
     map.put("Operation", getClass().getName());
     map.put("clusterId", connector.getCluster_id());
     try {
-      return JSON.asString(map);
+      return JSON.asPrettyString(map);
     } catch (JsonProcessingException e) {
       return "";
     }

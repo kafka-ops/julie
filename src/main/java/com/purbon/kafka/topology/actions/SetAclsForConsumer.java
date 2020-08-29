@@ -37,7 +37,7 @@ public class SetAclsForConsumer extends BaseAccessControlAction {
     map.put("Topic", fullTopicName);
 
     try {
-      return JSON.asString(map);
+      return JSON.asPrettyString(map);
     } catch (JsonProcessingException e) {
       return "";
     }

@@ -44,7 +44,7 @@ public class SetPredefinedRole extends BaseAccessControlAction {
     map.put("Topic", topicPrefix);
 
     try {
-      return JSON.asString(map);
+      return JSON.asPrettyString(map);
     } catch (JsonProcessingException e) {
       return "";
     }

@@ -1,8 +1,12 @@
 package com.purbon.kafka.topology.actions;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.purbon.kafka.topology.AccessControlProvider;
 import com.purbon.kafka.topology.ClusterState;
+import com.purbon.kafka.topology.utils.JSON;
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 
 public class ClearAcls implements Action {
 
@@ -21,8 +25,12 @@ public class ClearAcls implements Action {
 
   @Override
   public String toString() {
-    StringBuilder sb = new StringBuilder();
-    sb.append(getClass().getName());
-    return sb.toString();
+    Map<String, Object> map = new HashMap<>();
+    map.put("Operation", getClass().getName());
+    try {
+      return JSON.asPrettyString(map);
+    } catch (JsonProcessingException e) {
+      return "";
+    }
   }
 }

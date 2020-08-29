@@ -29,7 +29,7 @@ public class DeleteTopics implements Action {
     map.put("Operation", getClass().getName());
     map.put("topics", topicsToBeDeleted);
     try {
-      return JSON.asString(map);
+      return JSON.asPrettyString(map);
     } catch (JsonProcessingException e) {
       return "";
     }

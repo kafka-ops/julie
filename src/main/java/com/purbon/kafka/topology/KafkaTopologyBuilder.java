@@ -119,7 +119,7 @@ public class KafkaTopologyBuilder {
     TopicManager topicManager = new TopicManager(adminClient, schemaRegistryManager, config);
     topicManager.sync(topology);
 
-    if (!config.isQuite()) {
+    if (!config.isQuite() && !config.isDryRun()) {
       topicManager.printCurrentState(System.out);
       accessControlManager.printCurrentState(System.out);
     }

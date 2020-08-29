@@ -36,7 +36,7 @@ public class SetSchemaAuthorization extends BaseAccessControlAction {
     map.put("Subjects", schemaAuthorization.getSubjects());
 
     try {
-      return JSON.asString(map);
+      return JSON.asPrettyString(map);
     } catch (JsonProcessingException e) {
       return "";
     }

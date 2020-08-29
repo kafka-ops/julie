@@ -39,7 +39,7 @@ public class SetClusterLevelRole extends BaseAccessControlAction {
     map.put("Component", cmp);
 
     try {
-      return JSON.asString(map);
+      return JSON.asPrettyString(map);
     } catch (JsonProcessingException e) {
       return "";
     }
