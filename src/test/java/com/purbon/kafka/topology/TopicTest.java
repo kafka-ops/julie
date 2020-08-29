@@ -19,7 +19,7 @@ public class TopicTest {
   @Before
   public void before() {
     topology = new TopologyImpl();
-    topology.setTeam("team");
+    topology.setContext("team");
 
     project = new ProjectImpl();
     project.setTopologyPrefix(topology.buildNamePrefix());
@@ -40,7 +40,7 @@ public class TopicTest {
   public void buildTopicNameWithOtherDataPointsTest() {
 
     Topology topology = new TopologyImpl();
-    topology.setTeam("team");
+    topology.setContext("team");
 
     topology.addOther("other-f", "other");
     topology.addOther("another-f", "another");

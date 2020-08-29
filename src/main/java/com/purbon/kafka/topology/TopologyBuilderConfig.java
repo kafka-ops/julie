@@ -2,6 +2,7 @@ package com.purbon.kafka.topology;
 
 import static com.purbon.kafka.topology.BuilderCLI.ADMIN_CLIENT_CONFIG_OPTION;
 import static com.purbon.kafka.topology.BuilderCLI.BROKERS_OPTION;
+import static com.purbon.kafka.topology.BuilderCLI.DRY_RUN_OPTION;
 import static com.purbon.kafka.topology.BuilderCLI.QUITE_OPTION;
 import static com.purbon.kafka.topology.KafkaTopologyBuilder.SCHEMA_REGISTRY_URL;
 
@@ -178,6 +179,10 @@ public class TopologyBuilderConfig {
 
   public boolean isQuite() {
     return Boolean.valueOf(cliParams.getOrDefault(QUITE_OPTION, "false"));
+  }
+
+  public boolean isDryRun() {
+    return Boolean.valueOf(cliParams.getOrDefault(DRY_RUN_OPTION, "true"));
   }
 
   private static Properties buildProperties(Map<String, String> cliParams) {

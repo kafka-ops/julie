@@ -90,7 +90,7 @@ public class AccessControlManagerIT {
     project.addTopic(topicA);
 
     Topology topology = new TopologyImpl();
-    topology.setTeam("integration-test");
+    topology.setContext("integration-test");
     topology.addOther("source", "testAclsCleanup");
     topology.addProject(project);
 
@@ -102,6 +102,7 @@ public class AccessControlManagerIT {
     verifyAclsOfSize(5);
     // clear all acls within the control of the manager.
     accessControlManager.clearAcls();
+    accessControlManager.apply();
     // in the cluster should be only 2 acl staying, the one we created outside the CS
     verifyAclsOfSize(2);
   }
@@ -118,7 +119,7 @@ public class AccessControlManagerIT {
     project.addTopic(topicA);
 
     Topology topology = new TopologyImpl();
-    topology.setTeam("integration-test");
+    topology.setContext("integration-test");
     topology.addOther("source", "testConsumerAclsCreation");
     topology.addProject(project);
 
@@ -139,7 +140,7 @@ public class AccessControlManagerIT {
     project.addTopic(topicA);
 
     Topology topology = new TopologyImpl();
-    topology.setTeam("integration-test");
+    topology.setContext("integration-test");
     topology.addOther("source", "producerAclsCreation");
     topology.addProject(project);
 
@@ -161,7 +162,7 @@ public class AccessControlManagerIT {
     project.setStreams(Collections.singletonList(app));
 
     Topology topology = new TopologyImpl();
-    topology.setTeam("integration-test");
+    topology.setContext("integration-test");
     topology.addOther("source", "kstreamsAclsCreation");
     topology.addProject(project);
 
@@ -176,7 +177,7 @@ public class AccessControlManagerIT {
     Project project = new ProjectImpl();
 
     Topology topology = new TopologyImpl();
-    topology.setTeam("integration-test");
+    topology.setContext("integration-test");
     topology.addOther("source", "schemaRegistryAclsCreation");
     topology.addProject(project);
 
@@ -209,7 +210,7 @@ public class AccessControlManagerIT {
     Project project = new ProjectImpl();
 
     Topology topology = new TopologyImpl();
-    topology.setTeam("integration-test");
+    topology.setContext("integration-test");
     topology.addOther("source", "controlcenterAclsCreation");
     topology.addProject(project);
 
@@ -240,7 +241,7 @@ public class AccessControlManagerIT {
     project.setConnectors(Collections.singletonList(connector));
 
     Topology topology = new TopologyImpl();
-    topology.setTeam("integration-test");
+    topology.setContext("integration-test");
     topology.addOther("source", "connectAclsCreation");
     topology.addProject(project);
 

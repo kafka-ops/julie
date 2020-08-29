@@ -1,5 +1,6 @@
 package com.purbon.kafka.topology;
 
+import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.doNothing;
@@ -7,6 +8,7 @@ import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
+import com.purbon.kafka.topology.actions.Action;
 import com.purbon.kafka.topology.model.Component;
 import com.purbon.kafka.topology.model.Impl.ProjectImpl;
 import com.purbon.kafka.topology.model.Impl.TopicImpl;
@@ -29,6 +31,7 @@ import com.purbon.kafka.topology.model.users.platform.SchemaRegistryInstance;
 import com.purbon.kafka.topology.roles.SimpleAclsProvider;
 import com.purbon.kafka.topology.roles.TopologyAclBinding;
 import java.io.IOException;
+import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -49,6 +52,8 @@ public class AccessControlManagerTest {
   @Mock SimpleAclsProvider aclsProvider;
 
   @Mock ClusterState clusterState;
+
+  @Mock PrintStream mockPrintStream;
 
   @Rule public MockitoRule mockitoRule = MockitoJUnit.rule();
 
@@ -281,5 +286,32 @@ public class AccessControlManagerTest {
         .setAclsForConnect(connector1, topicPrefix);
 
     verify(aclsProvider, times(1)).setAclsForConnect(eq(connector1), eq(topicPrefix));
+  }
+
+  @Test
+  public void testDryRunMode() throws IOException {
+
+    accessControlManager.setDryRun(true);
+    accessControlManager.setOutputStream(mockPrintStream);
+
+    List<Consumer> consumers = new ArrayList<>();
+    consumers.add(new Consumer("User:app1"));
+    Project project = new ProjectImpl();
+    project.setConsumers(consumers);
+
+    Topic topicA = new TopicImpl("topicA");
+    project.addTopic(topicA);
+
+    Topology topology = new TopologyImpl();
+    topology.addProject(project);
+
+    List<Consumer> users = Arrays.asList(new Consumer("User:app1"));
+
+    doReturn(new ArrayList<TopologyAclBinding>())
+        .when(aclsProvider)
+        .setAclsForConsumers(users, topicA.toString());
+    accessControlManager.sync(topology);
+
+    verify(mockPrintStream, times(2)).println(any(Action.class));
   }
 }

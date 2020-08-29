@@ -102,9 +102,12 @@ usage: cli
                            configs.
     --brokers <arg>        The Apache Kafka server(s) to connect to.
     --clientConfig <arg>   The AdminClient configuration file.
+    --dryRun               Print the execution plan without altering
+                           anything.
     --help                 Prints usage information.
     --quite                Print minimum status update
     --topology <arg>       Topology config file.
+    --version              Prints useful version information.
 ```
 
 If you install the tool as rpm, you will have available in your $PATH the _kafka-topology-builder.sh_.
@@ -115,14 +118,13 @@ You can run this script with the same options observed earlier.
 An example topology should look like this (in yaml format):
 
 ```yaml
-team: "team"
+context: "context"
 source: "source"
 projects:
 - name: "foo"
   consumers:
   - principal: "User:app0"
   - principal: "User:app1"
-  producers: []
   streams:
   - principal: "User:App0"
     topics:

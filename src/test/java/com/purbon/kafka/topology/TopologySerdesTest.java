@@ -48,26 +48,26 @@ public class TopologySerdesTest {
     URL descriptorWithOptionals = getClass().getResource("/descriptor-with-others.yml");
 
     Topology topology = parser.deserialise(Paths.get(descriptorWithOptionals.toURI()).toFile());
-    assertEquals("team.source.foo.bar.zet", topology.buildNamePrefix());
+    assertEquals("contextOrg.source.foo.bar.zet", topology.buildNamePrefix());
 
     URL descriptorWithoutOptionals = getClass().getResource("/descriptor.yaml");
 
     Topology anotherTopology =
         parser.deserialise(Paths.get(descriptorWithoutOptionals.toURI()).toFile());
-    assertEquals("team.source", anotherTopology.buildNamePrefix());
+    assertEquals("contextOrg.source", anotherTopology.buildNamePrefix());
   }
 
   @Test
   public void testTopologySerialisation() throws IOException {
 
     Topology topology = new TopologyImpl();
-    topology.setTeam("team");
+    topology.setContext("contextOrg");
     topology.setProjects(buildProjects());
 
     String topologyYamlString = parser.serialise(topology);
     Topology deserTopology = parser.deserialise(topologyYamlString);
 
-    assertEquals(topology.getTeam(), deserTopology.getTeam());
+    assertEquals(topology.getContext(), deserTopology.getContext());
     assertEquals(topology.getProjects().size(), deserTopology.getProjects().size());
   }
 
@@ -75,7 +75,7 @@ public class TopologySerdesTest {
   public void testTopicConfigSerdes() throws IOException {
 
     Topology topology = new TopologyImpl();
-    topology.setTeam("team");
+    topology.setContext("team");
 
     Topic topic = new TopicImpl();
     topic.setName("foo");
@@ -141,7 +141,7 @@ public class TopologySerdesTest {
     Project project = new ProjectImpl("foo");
 
     Topology topology = new TopologyImpl();
-    topology.setTeam("team");
+    topology.setContext("team");
 
     project.setTopologyPrefix(topology.buildNamePrefix());
     topology.addProject(project);
@@ -173,7 +173,7 @@ public class TopologySerdesTest {
 
   @Test(expected = IOException.class)
   public void testTopologyWithNoTeam() throws IOException, URISyntaxException {
-    URL topologyDescriptor = getClass().getResource("/descriptor-with-no-team.yaml");
+    URL topologyDescriptor = getClass().getResource("/descriptor-with-no-context.yaml");
     parser.deserialise(Paths.get(topologyDescriptor.toURI()).toFile());
   }
 
@@ -189,6 +189,7 @@ public class TopologySerdesTest {
     URL topologyDescriptor = getClass().getResource("/descriptor.yaml");
 
     Topology topology = parser.deserialise(Paths.get(topologyDescriptor.toURI()).toFile());
+    assertEquals("contextOrg", topology.getContext());
 
     List<SchemaRegistryInstance> listOfSR =
         topology.getPlatform().getSchemaRegistry().getInstances();
@@ -211,6 +212,7 @@ public class TopologySerdesTest {
     URL topologyDescriptor = getClass().getResource("/descriptor-only-topics.yaml");
     Topology topology = parser.deserialise(Paths.get(topologyDescriptor.toURI()).toFile());
 
+    assertEquals("contextOrg", topology.getContext());
     assertTrue(topology.getProjects().get(0).getConnectors().isEmpty());
     assertTrue(topology.getProjects().get(0).getProducers().isEmpty());
     assertTrue(topology.getProjects().get(0).getStreams().isEmpty());

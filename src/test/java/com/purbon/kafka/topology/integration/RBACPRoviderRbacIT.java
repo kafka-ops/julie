@@ -85,13 +85,13 @@ public class RBACPRoviderRbacIT extends MDSBaseTest {
     project.addTopic(topicA);
 
     Topology topology = new TopologyImpl();
-    topology.setTeam("testConsumerAclsCreation-test");
+    topology.setContext("testConsumerAclsCreation-test");
     topology.addProject(project);
 
     accessControlManager.sync(topology);
 
     // this method is call twice, once for consumers and one for producers
-    verify(cs, times(2)).add(anyList());
+    verify(cs, times(1)).add(anyList());
     verify(cs, times(1)).flushAndClose();
     verifyConsumerAcls(consumers, topicA.toString());
   }
@@ -108,13 +108,13 @@ public class RBACPRoviderRbacIT extends MDSBaseTest {
     project.addTopic(topicA);
 
     Topology topology = new TopologyImpl();
-    topology.setTeam("producerAclsCreation-test");
+    topology.setContext("producerAclsCreation-test");
     topology.addProject(project);
 
     accessControlManager.sync(topology);
 
     // this method is call twice, once for consumers and one for consumers
-    verify(cs, times(2)).add(anyList());
+    verify(cs, times(1)).add(anyList());
     verify(cs, times(1)).flushAndClose();
     verifyProducerAcls(producers, topicA.toString());
   }
@@ -132,7 +132,7 @@ public class RBACPRoviderRbacIT extends MDSBaseTest {
     project.setStreams(Collections.singletonList(app));
 
     Topology topology = new TopologyImpl();
-    topology.setTeam("kstreamsAclsCreation-test");
+    topology.setContext("kstreamsAclsCreation-test");
     topology.addProject(project);
 
     accessControlManager.sync(topology);
@@ -154,7 +154,7 @@ public class RBACPRoviderRbacIT extends MDSBaseTest {
     project.setConnectors(Collections.singletonList(connector));
 
     Topology topology = new TopologyImpl();
-    topology.setTeam("connectAclsCreation-test");
+    topology.setContext("connectAclsCreation-test");
     topology.addProject(project);
 
     accessControlManager.sync(topology);
@@ -169,7 +169,7 @@ public class RBACPRoviderRbacIT extends MDSBaseTest {
     Project project = new ProjectImpl();
 
     Topology topology = new TopologyImpl();
-    topology.setTeam("schemaRegistryAclsCreation-test");
+    topology.setContext("schemaRegistryAclsCreation-test");
     topology.addProject(project);
 
     Platform platform = new Platform();
@@ -202,7 +202,7 @@ public class RBACPRoviderRbacIT extends MDSBaseTest {
     Project project = new ProjectImpl();
 
     Topology topology = new TopologyImpl();
-    topology.setTeam("controlcenterAclsCreation-test");
+    topology.setContext("controlcenterAclsCreation-test");
     topology.addProject(project);
 
     Platform platform = new Platform();
@@ -227,7 +227,7 @@ public class RBACPRoviderRbacIT extends MDSBaseTest {
     Project project = new ProjectImpl();
 
     Topology topology = new TopologyImpl();
-    topology.setTeam("kafkaClusterLevelAclCreation-test");
+    topology.setContext("kafkaClusterLevelAclCreation-test");
     topology.addProject(project);
 
     Platform platform = new Platform();
@@ -252,7 +252,7 @@ public class RBACPRoviderRbacIT extends MDSBaseTest {
     Project project = new ProjectImpl();
 
     Topology topology = new TopologyImpl();
-    topology.setTeam("kafkaClusterLevelAclCreation-test");
+    topology.setContext("kafkaClusterLevelAclCreation-test");
     topology.addProject(project);
 
     Platform platform = new Platform();

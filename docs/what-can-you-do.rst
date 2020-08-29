@@ -18,7 +18,7 @@ In following configuration the reader is seeing an example of how to create a to
 .. code-block:: YAML
 
   ---
-    team: "team"
+    context: "context"
     projects:
       - name: "projectA"
         topics:
@@ -45,7 +45,7 @@ Consumer have a principal and optionally a consumer group name, if the consumer 
 .. code-block:: YAML
 
   ---
-    team: "team"
+    context: "context"
     source: "source"
     projects:
       - name: "foo"
@@ -57,7 +57,7 @@ Consumer definition with principal "User:App0" and without an specific consumer 
 .. code-block:: YAML
 
   ---
-    team: "team"
+    context: "context"
     source: "source"
     projects:
       - name: "foo"
@@ -79,7 +79,7 @@ Connectors can either read (Sink) or write (Source) into Apache Kafka and they d
 .. code-block:: YAML
 
   ---
-    team: "team"
+    context: "context"
     source: "source"
     projects:
       - name: "foo"
@@ -115,7 +115,7 @@ topic name and group used for the communication.
 .. code-block:: YAML
 
   ---
-    team: "team"
+    context: "context"
     platform:
         schema_registry:
           instances:
@@ -145,7 +145,7 @@ It might be extended in the future for other clusters in the platform.
 .. code-block:: YAML
 
   ---
-    team: "team"
+    context: "context"
     source: "source"
     platform:
         kafka:

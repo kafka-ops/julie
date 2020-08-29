@@ -12,6 +12,7 @@ import com.purbon.kafka.topology.model.Project;
 import com.purbon.kafka.topology.model.Topic;
 import com.purbon.kafka.topology.model.Topology;
 import com.purbon.kafka.topology.roles.RBACProvider;
+import com.purbon.kafka.topology.roles.TopologyAclBinding;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -53,7 +54,7 @@ public class AccessControlWithRBACTest {
     topology.addProject(project);
 
     when(aclsProvider.setPredefinedRole("User:Foo", "ResourceOwner", project.buildTopicPrefix()))
-        .thenReturn(null);
+        .thenReturn(new TopologyAclBinding());
 
     accessControlManager.sync(topology);
 

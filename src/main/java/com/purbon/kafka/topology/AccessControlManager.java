@@ -1,10 +1,23 @@
 package com.purbon.kafka.topology;
 
 import static com.purbon.kafka.topology.BuilderCLI.ALLOW_DELETE_OPTION;
+import static com.purbon.kafka.topology.BuilderCLI.DRY_RUN_OPTION;
 import static com.purbon.kafka.topology.model.Component.KAFKA;
 import static com.purbon.kafka.topology.model.Component.KAFKA_CONNECT;
 import static com.purbon.kafka.topology.model.Component.SCHEMA_REGISTRY;
 
+import com.purbon.kafka.topology.actions.Action;
+import com.purbon.kafka.topology.actions.AddConnectorAuthorization;
+import com.purbon.kafka.topology.actions.ClearAcls;
+import com.purbon.kafka.topology.actions.SetAclsForConsumer;
+import com.purbon.kafka.topology.actions.SetAclsForControlCenter;
+import com.purbon.kafka.topology.actions.SetAclsForKConnect;
+import com.purbon.kafka.topology.actions.SetAclsForKStreams;
+import com.purbon.kafka.topology.actions.SetAclsForProducer;
+import com.purbon.kafka.topology.actions.SetAclsForSchemaRegistry;
+import com.purbon.kafka.topology.actions.SetClusterLevelRole;
+import com.purbon.kafka.topology.actions.SetPredefinedRole;
+import com.purbon.kafka.topology.actions.SetSchemaAuthorization;
 import com.purbon.kafka.topology.model.Component;
 import com.purbon.kafka.topology.model.DynamicUser;
 import com.purbon.kafka.topology.model.Platform;
@@ -12,20 +25,20 @@ import com.purbon.kafka.topology.model.Project;
 import com.purbon.kafka.topology.model.Topology;
 import com.purbon.kafka.topology.model.User;
 import com.purbon.kafka.topology.model.users.Connector;
+import com.purbon.kafka.topology.model.users.Consumer;
 import com.purbon.kafka.topology.model.users.KStream;
+import com.purbon.kafka.topology.model.users.Producer;
 import com.purbon.kafka.topology.model.users.Schemas;
 import com.purbon.kafka.topology.model.users.platform.ControlCenterInstance;
 import com.purbon.kafka.topology.model.users.platform.SchemaRegistryInstance;
-import com.purbon.kafka.topology.roles.TopologyAclBinding;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.stream.Collectors;
+import java.util.function.Function;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -33,6 +46,9 @@ public class AccessControlManager {
 
   private static final Logger LOGGER = LogManager.getLogger(AccessControlManager.class);
   private final Boolean allowDelete;
+  private final List<Action> plan;
+  private boolean dryRun;
+  private PrintStream outputStream;
 
   private AccessControlProvider controlProvider;
   private ClusterState clusterState;
@@ -58,27 +74,29 @@ public class AccessControlManager {
     this.controlProvider = controlProvider;
     this.clusterState = clusterState;
     this.cliParams = cliParams;
-
+    this.plan = new ArrayList<>();
     this.allowDelete = Boolean.valueOf(cliParams.getOrDefault(ALLOW_DELETE_OPTION, "true"));
+    this.dryRun = Boolean.valueOf(cliParams.get(DRY_RUN_OPTION));
+    this.outputStream = System.out;
   }
 
   public void clearAcls() {
     try {
       clusterState.load();
       if (allowDelete) {
-        controlProvider.clearAcls(clusterState);
+        plan.add(new ClearAcls(controlProvider, clusterState));
       }
     } catch (Exception e) {
       LOGGER.error(e);
     } finally {
-      if (allowDelete) {
+      if (allowDelete && !dryRun) {
         clusterState.reset();
       }
     }
   }
 
   public void sync(final Topology topology) throws IOException {
-
+    plan.clear();
     clearAcls();
 
     for (Project project : topology.getProjects()) {
@@ -88,38 +106,53 @@ public class AccessControlManager {
               topic -> {
                 final String fullTopicName = topic.toString();
 
-                List<TopologyAclBinding> consumerBindings =
-                    controlProvider.setAclsForConsumers(project.getConsumers(), fullTopicName);
-                clusterState.add(consumerBindings);
+                project.getConsumers().stream()
+                    .map(
+                        (Function<Consumer, Action>)
+                            consumer ->
+                                new SetAclsForConsumer(controlProvider, consumer, fullTopicName))
+                    .forEachOrdered(action -> plan.add(action));
 
-                Collection<String> producerPrincipals =
-                    extractUsersToPrincipals(project.getProducers());
-                List<TopologyAclBinding> producerBindings =
-                    controlProvider.setAclsForProducers(producerPrincipals, fullTopicName);
-                clusterState.add(producerBindings);
+                project.getProducers().stream()
+                    .map(
+                        (Function<Producer, Action>)
+                            producer ->
+                                new SetAclsForProducer(controlProvider, producer, fullTopicName))
+                    .forEachOrdered(action -> plan.add(action));
               });
       // Setup global Kafka Stream Access control lists
       String topicPrefix = project.buildTopicPrefix(topology.buildNamePrefix());
       for (KStream app : project.getStreams()) {
-        syncApplicationAcls(app, topicPrefix);
+        Action action = syncApplicationAcls(app, topicPrefix);
+        plan.add(action);
       }
       for (Connector connector : project.getConnectors()) {
-        syncApplicationAcls(connector, topicPrefix);
-        controlProvider.setConnectorAuthorization(
-            connector.getPrincipal(), connector.getConnectors().orElse(new ArrayList<>()));
+        Action action = syncApplicationAcls(connector, topicPrefix);
+        plan.add(action);
+        if (connector.getConnectors().isPresent())
+          plan.add(new AddConnectorAuthorization(controlProvider, connector));
       }
 
       for (Schemas schemaAuthorization : project.getSchemas()) {
-        controlProvider
-            .setSchemaAuthorization(
-                schemaAuthorization.getPrincipal(), schemaAuthorization.getSubjects())
-            .forEach(binding -> clusterState.add(binding));
+        plan.add(new SetSchemaAuthorization(controlProvider, schemaAuthorization));
       }
 
       syncRbacRawRoles(project.getRbacRawRoles(), topicPrefix);
     }
 
     syncPlatformAcls(topology);
+    apply();
+  }
+
+  public void apply() throws IOException {
+    for (Action action : plan) {
+      if (dryRun) {
+        outputStream.println(action);
+      } else {
+        action.run();
+        if (!action.getBindings().isEmpty()) clusterState.add(action.getBindings());
+      }
+    }
     clusterState.flushAndClose();
   }
 
@@ -134,26 +167,19 @@ public class AccessControlManager {
 
     // Set component level ACLs
     for (SchemaRegistryInstance schemaRegistry : platform.getSchemaRegistry().getInstances()) {
-      List<TopologyAclBinding> bindings = controlProvider.setAclsForSchemaRegistry(schemaRegistry);
-      clusterState.add(bindings);
+      plan.add(new SetAclsForSchemaRegistry(controlProvider, schemaRegistry));
     }
     for (ControlCenterInstance controlCenter : platform.getControlCenter().getInstances()) {
-      List<TopologyAclBinding> bindings =
-          controlProvider.setAclsForControlCenter(
-              controlCenter.getPrincipal(), controlCenter.getAppId());
-      clusterState.add(bindings);
+      plan.add(new SetAclsForControlCenter(controlProvider, controlCenter));
     }
   }
 
-  private void syncClusterLevelRbac(Optional<Map<String, List<User>>> rbac, Component cmp)
-      throws IOException {
+  private void syncClusterLevelRbac(Optional<Map<String, List<User>>> rbac, Component cmp) {
     if (rbac.isPresent()) {
       Map<String, List<User>> roles = rbac.get();
       for (String role : roles.keySet()) {
         for (User user : roles.get(role)) {
-          List<TopologyAclBinding> bindings =
-              controlProvider.setClusterLevelRole(role, user.getPrincipal(), cmp);
-          clusterState.add(bindings);
+          plan.add(new SetClusterLevelRole(controlProvider, role, user, cmp));
         }
       }
     }
@@ -164,25 +190,19 @@ public class AccessControlManager {
         (predefinedRole, principals) ->
             principals.forEach(
                 principal ->
-                    controlProvider.setPredefinedRole(principal, predefinedRole, topicPrefix)));
+                    plan.add(
+                        new SetPredefinedRole(
+                            controlProvider, principal, predefinedRole, topicPrefix))));
   }
 
-  private void syncApplicationAcls(DynamicUser app, String topicPrefix) throws IOException {
-    List<String> readTopics = app.getTopics().get(KStream.READ_TOPICS);
-    List<String> writeTopics = app.getTopics().get(KStream.WRITE_TOPICS);
-    List<TopologyAclBinding> bindings = new ArrayList<>();
+  private Action syncApplicationAcls(DynamicUser app, String topicPrefix) throws IOException {
     if (app instanceof KStream) {
-      bindings =
-          controlProvider.setAclsForStreamsApp(
-              app.getPrincipal(), topicPrefix, readTopics, writeTopics);
+      return new SetAclsForKStreams(controlProvider, (KStream) app, topicPrefix);
     } else if (app instanceof Connector) {
-      bindings = controlProvider.setAclsForConnect((Connector) app, topicPrefix);
+      return new SetAclsForKConnect(controlProvider, (Connector) app, topicPrefix);
+    } else {
+      throw new IOException("Wrong dynamic app used.");
     }
-    clusterState.add(bindings);
-  }
-
-  private Collection<String> extractUsersToPrincipals(List<? extends User> users) {
-    return users.stream().map(user -> user.getPrincipal()).collect(Collectors.toList());
   }
 
   public void printCurrentState(PrintStream out) {
@@ -194,5 +214,13 @@ public class AccessControlManager {
               out.println(topic);
               aclBindings.forEach(binding -> out.println(binding));
             });
+  }
+
+  public void setDryRun(boolean dryRun) {
+    this.dryRun = dryRun;
+  }
+
+  public void setOutputStream(PrintStream os) {
+    this.outputStream = os;
   }
 }

@@ -119,7 +119,7 @@ public class KafkaTopologyBuilder {
     TopicManager topicManager = new TopicManager(adminClient, schemaRegistryManager, config);
     topicManager.sync(topology);
 
-    if (!config.isQuite()) {
+    if (!config.isQuite() && !config.isDryRun()) {
       topicManager.printCurrentState(System.out);
       accessControlManager.printCurrentState(System.out);
     }
@@ -135,8 +135,8 @@ public class KafkaTopologyBuilder {
     if (topologies.size() > 1) {
       List<Topology> subTopologies = topologies.subList(1, topologies.size());
       for (Topology subTopology : subTopologies) {
-        if (!topology.getTeam().equalsIgnoreCase(subTopology.getTeam())) {
-          throw new IOException("Topologies from different teams are not allowed");
+        if (!topology.getContext().equalsIgnoreCase(subTopology.getContext())) {
+          throw new IOException("Topologies from different contexts are not allowed");
         }
         subTopology.getProjects().forEach(project -> topology.addProject(project));
       }
