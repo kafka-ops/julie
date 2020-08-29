@@ -1,5 +1,5 @@
 ---
-team: "team"
+context: "context"
 source: "source"
 projects:
   - name: "foo"

@@ -141,13 +141,16 @@ public class AccessControlManager {
     }
 
     syncPlatformAcls(topology);
+    apply();
+  }
 
+  public void apply() throws IOException {
     for (Action action : plan) {
       if (dryRun) {
         outputStream.println(action);
       } else {
         action.run();
-        clusterState.add(action.getBindings());
+        if (!action.getBindings().isEmpty()) clusterState.add(action.getBindings());
       }
     }
     clusterState.flushAndClose();

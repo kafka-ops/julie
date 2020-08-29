@@ -151,7 +151,7 @@ public class TopicManagerIT {
     verifyTopics(Arrays.asList(topicA.toString(), topicB.toString()));
 
     Topology upTopology = new TopologyImpl();
-    upTopology.setTeam("foo");
+    upTopology.setContext("foo");
     Project upProject = new ProjectImpl("bar");
     upTopology.addProject(upProject);
 
@@ -193,7 +193,7 @@ public class TopicManagerIT {
     String internalTopic = createInternalTopic();
 
     Topology topology = new TopologyImpl();
-    topology.setTeam("testTopicDelete-test");
+    topology.setContext("testTopicDelete-test");
     topology.addProject(project);
 
     topicManager.sync(topology);
@@ -202,7 +202,7 @@ public class TopicManagerIT {
     topicC.setConfig(buildDummyTopicConfig());
 
     topology = new TopologyImpl();
-    topology.setTeam("testTopicDelete-test");
+    topology.setContext("testTopicDelete-test");
 
     project = new ProjectImpl("project");
     project.addTopic(topicA);
@@ -241,7 +241,7 @@ public class TopicManagerIT {
     project.addTopic(topicA);
 
     Topology topology = new TopologyImpl();
-    topology.setTeam("testTopicCreationWithConfig-test");
+    topology.setContext("testTopicCreationWithConfig-test");
     topology.addProject(project);
 
     topicManager.sync(topology);
@@ -262,7 +262,7 @@ public class TopicManagerIT {
     project.addTopic(topicA);
 
     Topology topology = new TopologyImpl();
-    topology.setTeam("testTopicConfigUpdate-test");
+    topology.setContext("testTopicConfigUpdate-test");
     topology.addProject(project);
 
     topicManager.sync(topology);
@@ -273,7 +273,7 @@ public class TopicManagerIT {
 
     topicA.setConfig(config);
     project.setTopics(Collections.singletonList(topicA));
-    topology.setTeam("testTopicConfigUpdate-test");
+    topology.setContext("testTopicConfigUpdate-test");
     topology.setProjects(Collections.singletonList(project));
 
     topicManager.sync(topology);

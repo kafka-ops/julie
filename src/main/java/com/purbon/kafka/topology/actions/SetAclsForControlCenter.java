@@ -40,5 +40,4 @@ public class SetAclsForControlCenter extends BaseAccessControlAction {
       return "";
     }
   }
-
 }

@@ -21,7 +21,7 @@ import java.util.List;
 public class TopologyCustomDeserializer extends StdDeserializer<Topology> {
 
   public static final String PROJECTS_KEY = "projects";
-  public static final String TEAM_KEY = "team";
+  public static final String CONTEXT_KEY = "context";
 
   public static final String PLATFORM_KEY = "platform";
   public static final String KAFKA_KEY = "kafka";
@@ -50,7 +50,7 @@ public class TopologyCustomDeserializer extends StdDeserializer<Topology> {
 
     addProject2Topology(parser, topology, projects);
 
-    List<String> excludeAttributes = Arrays.asList(PROJECTS_KEY, TEAM_KEY, PLATFORM_KEY);
+    List<String> excludeAttributes = Arrays.asList(PROJECTS_KEY, CONTEXT_KEY, PLATFORM_KEY);
 
     Iterator<String> fieldNames = rootNode.fieldNames();
     while (fieldNames.hasNext()) {
@@ -59,7 +59,7 @@ public class TopologyCustomDeserializer extends StdDeserializer<Topology> {
         topology.addOther(fieldName, rootNode.get(fieldName).asText());
       }
     }
-    topology.setTeam(rootNode.get(TEAM_KEY).asText());
+    topology.setContext(rootNode.get(CONTEXT_KEY).asText());
 
     JsonNode platformNode = rootNode.get(PLATFORM_KEY);
     Platform platform = new Platform();
@@ -94,7 +94,7 @@ public class TopologyCustomDeserializer extends StdDeserializer<Topology> {
   }
 
   private void validateRequiresKeys(JsonNode rootNode) throws IOException {
-    List<String> keys = Arrays.asList(TEAM_KEY, PROJECTS_KEY);
+    List<String> keys = Arrays.asList(CONTEXT_KEY, PROJECTS_KEY);
     for (String key : keys) {
       if (rootNode.get(key) == null) {
         throw new IOException(key + " is a required field in the topology, please specify.");

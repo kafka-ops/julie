@@ -115,14 +115,13 @@ You can run this script with the same options observed earlier.
 An example topology should look like this (in yaml format):
 
 ```yaml
-team: "team"
+context: "context"
 source: "source"
 projects:
 - name: "foo"
   consumers:
   - principal: "User:app0"
   - principal: "User:app1"
-  producers: []
   streams:
   - principal: "User:App0"
     topics:

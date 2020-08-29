@@ -29,8 +29,8 @@ public class SetClusterLevelRole extends BaseAccessControlAction {
   public void run() throws IOException {
     bindings = controlProvider.setClusterLevelRole(role, user.getPrincipal(), cmp);
   }
-  @Override
 
+  @Override
   public String toString() {
     Map<String, Object> map = new HashMap<>();
     map.put("Operation", getClass().getName());

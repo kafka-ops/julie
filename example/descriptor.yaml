@@ -1,7 +1,7 @@
 ---
+context: "context"
 company: "company"
 env: "env"
-team: "team"
 source: "source"
 projects:
   - name: "projectA"
