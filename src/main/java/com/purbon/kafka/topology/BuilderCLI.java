@@ -2,10 +2,7 @@ package com.purbon.kafka.topology;
 
 import static java.lang.System.exit;
 
-import com.purbon.kafka.topology.api.mds.MDSApiClientBuilder;
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -41,7 +38,17 @@ public class BuilderCLI {
 
   public static final String APP_NAME = "kafka-topology-builder";
 
-  public static Options buildOptions() {
+  private HelpFormatter formatter;
+  private CommandLineParser parser;
+  private Options options;
+
+  public BuilderCLI() {
+    formatter = new HelpFormatter();
+    parser = new DefaultParser();
+    options = buildOptions();
+  }
+
+  private Options buildOptions() {
 
     final Option topologyFileOption =
         Option.builder().longOpt(TOPOLOGY_OPTION).hasArg().desc(TOPOLOGY_DESC).required().build();
@@ -109,15 +116,23 @@ public class BuilderCLI {
 
   public static void main(String[] args) throws IOException {
 
-    Options options = buildOptions();
-    HelpFormatter formatter = new HelpFormatter();
-    CommandLineParser parser = new DefaultParser();
+    BuilderCLI cli = new BuilderCLI();
+    cli.run(args);
+    exit(0);
+  }
 
-    printHelpOrVersion(parser, options, args, formatter);
-
-    CommandLine cmd = parseArgsOrExit(parser, options, args, formatter);
+  public void run(String[] args) throws IOException {
+    printHelpOrVersion(args);
+    CommandLine cmd = parseArgsOrExit(args);
 
     String topology = cmd.getOptionValue(TOPOLOGY_OPTION);
+    Map<String, String> config = parseConfig(cmd);
+
+    processTopology(topology, config);
+    System.out.println("Kafka Topology updated");
+  }
+
+  public Map<String, String> parseConfig(CommandLine cmd) {
     String brokersList = cmd.getOptionValue(BROKERS_OPTION);
     boolean allowDelete = cmd.hasOption(ALLOW_DELETE_OPTION);
     boolean dryRun = cmd.hasOption(DRY_RUN_OPTION);
@@ -130,13 +145,10 @@ public class BuilderCLI {
     config.put(DRY_RUN_OPTION, String.valueOf(dryRun));
     config.put(QUITE_OPTION, String.valueOf(quite));
     config.put(ADMIN_CLIENT_CONFIG_OPTION, adminClientConfigFile);
-    processTopology(topology, config);
-    System.out.println("Kafka Topology updated");
-    exit(0);
+    return config;
   }
 
-  private static void printHelpOrVersion(
-      CommandLineParser parser, Options options, String[] args, HelpFormatter formatter) {
+  public void printHelpOrVersion(String[] args) {
 
     List<String> listOfArgs = Arrays.asList(args);
 
@@ -149,8 +161,7 @@ public class BuilderCLI {
     }
   }
 
-  private static CommandLine parseArgsOrExit(
-      CommandLineParser parser, Options options, String[] args, HelpFormatter formatter) {
+  public CommandLine parseArgsOrExit(String[] args) {
     CommandLine cmd = null;
     try {
       cmd = parser.parse(options, args);
@@ -162,38 +173,9 @@ public class BuilderCLI {
     return cmd;
   }
 
-  private static void processTopology(String topologyFile, Map<String, String> config)
-      throws IOException {
-    verifyRequiredParameters(topologyFile, config);
-
-    TopologyBuilderConfig builderConfig = new TopologyBuilderConfig(config);
-    TopologyBuilderAdminClient adminClient =
-        new TopologyBuilderAdminClientBuilder(builderConfig).build();
-    AccessControlProviderFactory accessControlProviderFactory =
-        new AccessControlProviderFactory(
-            builderConfig, adminClient, new MDSApiClientBuilder(builderConfig));
-
-    KafkaTopologyBuilder builder =
-        new KafkaTopologyBuilder(
-            topologyFile, builderConfig, adminClient, accessControlProviderFactory.get());
-
-    try {
+  public void processTopology(String topologyFile, Map<String, String> config) throws IOException {
+    try (KafkaTopologyBuilder builder = KafkaTopologyBuilder.build(topologyFile, config)) {
       builder.run();
-    } finally {
-      adminClient.close();
-    }
-  }
-
-  private static void verifyRequiredParameters(String topologyFile, Map<String, String> config)
-      throws IOException {
-    if (!Files.exists(Paths.get(topologyFile))) {
-      throw new IOException("Topology file does not exist");
-    }
-
-    String configFilePath = config.get(BuilderCLI.ADMIN_CLIENT_CONFIG_OPTION);
-
-    if (!Files.exists(Paths.get(configFilePath))) {
-      throw new IOException("AdminClient config file does not exist");
     }
   }
 }

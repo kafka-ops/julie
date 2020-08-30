@@ -14,8 +14,8 @@ import redis.clients.jedis.Jedis;
 public class RedisSateProcessor implements StateProcessor {
 
   private static final Logger LOGGER = LogManager.getLogger(RedisSateProcessor.class);
-  private static final String KAFKA_TOPOLOGY_BUILDER_BINDINGS = "kafka.topology.builder.bindings";
-  private static final String KAFKA_TOPOLOGY_BUILDER_TYPE = "kafka.topology.builder.type";
+  static final String KAFKA_TOPOLOGY_BUILDER_BINDINGS = "kafka.topology.builder.bindings";
+  static final String KAFKA_TOPOLOGY_BUILDER_TYPE = "kafka.topology.builder.type";
 
   private String expression =
       "^\\'(\\S+)\\',\\s*\\'(\\S+)\\',\\s*\\'(\\S+)\\',\\s*\\'(\\S+)\\',\\s*\\'(\\S+)\\',\\s*\\'(\\S+)\\'";
@@ -23,7 +23,11 @@ public class RedisSateProcessor implements StateProcessor {
   private Jedis jedis;
 
   public RedisSateProcessor(String host, int port) {
-    this.jedis = new Jedis(host, port);
+    this(new Jedis(host, port));
+  }
+
+  public RedisSateProcessor(Jedis jedis) {
+    this.jedis = jedis;
     this.regexp = Pattern.compile(expression);
   }
 

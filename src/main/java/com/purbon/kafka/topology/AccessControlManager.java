@@ -31,6 +31,7 @@ import com.purbon.kafka.topology.model.users.Producer;
 import com.purbon.kafka.topology.model.users.Schemas;
 import com.purbon.kafka.topology.model.users.platform.ControlCenterInstance;
 import com.purbon.kafka.topology.model.users.platform.SchemaRegistryInstance;
+import com.purbon.kafka.topology.roles.SimpleAclsProvider;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.util.ArrayList;
@@ -222,5 +223,9 @@ public class AccessControlManager {
 
   public void setOutputStream(PrintStream os) {
     this.outputStream = os;
+  }
+
+  public void setAclsProvider(SimpleAclsProvider aclsProvider) {
+    this.controlProvider = aclsProvider;
   }
 }

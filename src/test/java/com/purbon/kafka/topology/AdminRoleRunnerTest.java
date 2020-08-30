@@ -1,6 +1,7 @@
 package com.purbon.kafka.topology;
 
 import static com.purbon.kafka.topology.api.mds.ClusterIDs.CONNECT_CLUSTER_ID_LABEL;
+import static com.purbon.kafka.topology.api.mds.ClusterIDs.KAFKA_CLUSTER_ID_LABEL;
 import static com.purbon.kafka.topology.api.mds.ClusterIDs.SCHEMA_REGISTRY_CLUSTER_ID_LABEL;
 import static com.purbon.kafka.topology.api.mds.RequestScope.RESOURCE_NAME;
 import static com.purbon.kafka.topology.roles.RBACPredefinedRoles.SECURITY_ADMIN;
@@ -89,5 +90,53 @@ public class AdminRoleRunnerTest {
 
     AdminRoleRunner runner = new AdminRoleRunner("foo", SECURITY_ADMIN, apiClient);
     runner.forSchemaRegistry();
+  }
+
+  @Test
+  public void testKafkaRun() {
+    when(apiClient.withClusterIDs()).thenReturn(allClusterIDs);
+
+    AdminRoleRunner runner = new AdminRoleRunner("foo", SECURITY_ADMIN, apiClient);
+    runner.forKafka();
+
+    String clusterId = "abcd";
+    Map<String, String> clusterIDs = runner.getScope().getClusterIDs();
+    assertEquals(clusterId, clusterIDs.get(KAFKA_CLUSTER_ID_LABEL));
+  }
+
+  @Test
+  public void testControlCenterRun() {
+    when(apiClient.withClusterIDs()).thenReturn(allClusterIDs);
+
+    AdminRoleRunner runner = new AdminRoleRunner("foo", SECURITY_ADMIN, apiClient);
+    runner.forControlCenter();
+
+    String clusterId = "abcd";
+    Map<String, String> clusterIDs = runner.getScope().getClusterIDs();
+    assertEquals(clusterId, clusterIDs.get(KAFKA_CLUSTER_ID_LABEL));
+  }
+
+  @Test
+  public void testKafkaConnectRun() throws IOException {
+    when(apiClient.withClusterIDs()).thenReturn(allClusterIDs);
+
+    AdminRoleRunner runner = new AdminRoleRunner("foo", SECURITY_ADMIN, apiClient);
+    runner.forKafkaConnect();
+
+    Map<String, String> clusterIDs = runner.getScope().getClusterIDs();
+    assertEquals("1234", clusterIDs.get(CONNECT_CLUSTER_ID_LABEL));
+    assertEquals("abcd", clusterIDs.get(KAFKA_CLUSTER_ID_LABEL));
+  }
+
+  @Test
+  public void testSchemaRegistryRun() throws IOException {
+    when(apiClient.withClusterIDs()).thenReturn(allClusterIDs);
+
+    AdminRoleRunner runner = new AdminRoleRunner("foo", SECURITY_ADMIN, apiClient);
+    runner.forSchemaSubject("foo");
+
+    Map<String, String> clusterIDs = runner.getScope().getClusterIDs();
+    assertEquals("4321", clusterIDs.get(SCHEMA_REGISTRY_CLUSTER_ID_LABEL));
+    assertEquals("abcd", clusterIDs.get(KAFKA_CLUSTER_ID_LABEL));
   }
 }

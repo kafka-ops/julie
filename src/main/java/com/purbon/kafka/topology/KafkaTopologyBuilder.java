@@ -9,107 +9,67 @@ import static com.purbon.kafka.topology.TopologyBuilderConfig.STATE_PROCESSOR_IM
 import com.purbon.kafka.topology.api.mds.MDSApiClientBuilder;
 import com.purbon.kafka.topology.clusterstate.FileSateProcessor;
 import com.purbon.kafka.topology.clusterstate.RedisSateProcessor;
-import com.purbon.kafka.topology.model.Impl.TopologyImpl;
 import com.purbon.kafka.topology.model.Topology;
 import com.purbon.kafka.topology.schemas.SchemaRegistryManager;
-import com.purbon.kafka.topology.serdes.TopologySerdes;
 import io.confluent.kafka.schemaregistry.client.CachedSchemaRegistryClient;
 import io.confluent.kafka.schemaregistry.client.SchemaRegistryClient;
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 
-public class KafkaTopologyBuilder {
+public class KafkaTopologyBuilder implements AutoCloseable {
 
   public static final String SCHEMA_REGISTRY_URL = "confluent.schema.registry.url";
 
-  private final String topologyFile;
+  private TopicManager topicManager;
+  private AccessControlManager accessControlManager;
   private Topology topology;
-  private final TopologySerdes parser;
-  private final TopologyBuilderAdminClient adminClient;
-  private final TopologyBuilderConfig config;
-  private final AccessControlProvider accessControlProvider;
+  private TopologyBuilderConfig config;
 
-  public KafkaTopologyBuilder(
-      String topologyFile,
-      TopologyBuilderConfig config,
-      TopologyBuilderAdminClient adminClient,
-      AccessControlProvider accessControlProvider) {
-    this(topologyFile, new TopologySerdes(), config, adminClient, accessControlProvider);
-  }
-
-  public KafkaTopologyBuilder(
-      String topologyFile,
-      TopologySerdes parser,
-      TopologyBuilderConfig config,
-      TopologyBuilderAdminClient adminClient,
-      AccessControlProvider accessControlProvider) {
-    this(topologyFile, new TopologyImpl(), parser, config, adminClient, accessControlProvider);
-  }
-
-  public KafkaTopologyBuilder(
+  private KafkaTopologyBuilder(
       Topology topology,
       TopologyBuilderConfig config,
-      TopologyBuilderAdminClient adminClient,
-      AccessControlProvider accessControlProvider) {
-    this("", topology, new TopologySerdes(), config, adminClient, accessControlProvider);
-  }
-
-  public KafkaTopologyBuilder(
-      Topology topology,
-      TopologySerdes parser,
-      TopologyBuilderConfig config,
-      TopologyBuilderAdminClient adminClient,
-      AccessControlProvider accessControlProvider) {
-    this("", topology, parser, config, adminClient, accessControlProvider);
-  }
-
-  public KafkaTopologyBuilder(
-      String topologyFile,
-      Topology topology,
-      TopologySerdes parser,
-      TopologyBuilderConfig config,
-      TopologyBuilderAdminClient adminClient,
-      AccessControlProvider accessControlProvider) {
-    this.topologyFile = topologyFile;
+      TopicManager topicManager,
+      AccessControlManager accessControlManager) {
     this.topology = topology;
-    this.parser = parser;
     this.config = config;
-    this.adminClient = adminClient;
-    this.accessControlProvider = accessControlProvider;
+    this.topicManager = topicManager;
+    this.accessControlManager = accessControlManager;
   }
 
-  public KafkaTopologyBuilder(Topology topology, TopologyBuilderConfig builderConfig)
+  public static KafkaTopologyBuilder build(String topologyFile, Map<String, String> config)
       throws IOException {
-    this.topologyFile = "";
-    this.topology = topology;
-    this.parser = new TopologySerdes();
-    this.config = builderConfig;
-    this.adminClient = new TopologyBuilderAdminClientBuilder(builderConfig).build();
-    this.accessControlProvider =
+
+    TopologyBuilderConfig builderConfig = new TopologyBuilderConfig(config);
+    TopologyBuilderAdminClient adminClient =
+        new TopologyBuilderAdminClientBuilder(builderConfig).build();
+    AccessControlProviderFactory accessControlProviderFactory =
         new AccessControlProviderFactory(
-                builderConfig, adminClient, new MDSApiClientBuilder(builderConfig))
-            .get();
+            builderConfig, adminClient, new MDSApiClientBuilder(builderConfig));
+
+    KafkaTopologyBuilder builder =
+        build(topologyFile, builderConfig, adminClient, accessControlProviderFactory.get());
+    builder.verifyRequiredParameters(topologyFile, config);
+    return builder;
   }
 
-  public void run() throws IOException {
+  public static KafkaTopologyBuilder build(
+      String topologyFile,
+      TopologyBuilderConfig config,
+      TopologyBuilderAdminClient adminClient,
+      AccessControlProvider accessControlProvider)
+      throws IOException {
 
-    if (!topologyFile.isEmpty()) {
-      topology = buildTopology(topologyFile);
-    }
-
+    Topology topology = TopologyDescriptorBuilder.build(topologyFile);
     config.validateWith(topology);
 
-    ClusterState cs = buildStateProcessor();
+    ClusterState cs = buildStateProcessor(config);
 
     AccessControlManager accessControlManager =
         new AccessControlManager(accessControlProvider, cs, config.params());
-    accessControlManager.sync(topology);
 
     String schemaRegistryUrl = (String) config.getOrDefault(SCHEMA_REGISTRY_URL, "http://foo:8082");
     SchemaRegistryClient schemaRegistryClient =
@@ -117,7 +77,27 @@ public class KafkaTopologyBuilder {
     SchemaRegistryManager schemaRegistryManager = new SchemaRegistryManager(schemaRegistryClient);
 
     TopicManager topicManager = new TopicManager(adminClient, schemaRegistryManager, config);
+
+    return new KafkaTopologyBuilder(topology, config, topicManager, accessControlManager);
+  }
+
+  public void verifyRequiredParameters(String topologyFile, Map<String, String> config)
+      throws IOException {
+    if (!Files.exists(Paths.get(topologyFile))) {
+      throw new IOException("Topology file does not exist");
+    }
+
+    String configFilePath = config.get(BuilderCLI.ADMIN_CLIENT_CONFIG_OPTION);
+
+    if (!Files.exists(Paths.get(configFilePath))) {
+      throw new IOException("AdminClient config file does not exist");
+    }
+  }
+
+  public void run() throws IOException {
+
     topicManager.sync(topology);
+    accessControlManager.sync(topology);
 
     if (!config.isQuite() && !config.isDryRun()) {
       topicManager.printCurrentState(System.out);
@@ -126,45 +106,7 @@ public class KafkaTopologyBuilder {
   }
 
   public void close() {
-    adminClient.close();
-  }
-
-  public Topology buildTopology(String fileOrDir) throws IOException {
-    List<Topology> topologies = parseListOfTopologies(fileOrDir);
-    Topology topology = topologies.get(0);
-    if (topologies.size() > 1) {
-      List<Topology> subTopologies = topologies.subList(1, topologies.size());
-      for (Topology subTopology : subTopologies) {
-        if (!topology.getContext().equalsIgnoreCase(subTopology.getContext())) {
-          throw new IOException("Topologies from different contexts are not allowed");
-        }
-        subTopology.getProjects().forEach(project -> topology.addProject(project));
-      }
-    }
-    return topology;
-  }
-
-  private List<Topology> parseListOfTopologies(String fileOrDir) throws IOException {
-    List<Topology> topologies = new ArrayList<>();
-    boolean isDir = Files.isDirectory(Paths.get(fileOrDir));
-    if (isDir) {
-      Files.list(Paths.get(fileOrDir))
-          .sorted()
-          .map(
-              path -> {
-                try {
-                  return parser.deserialise(path.toFile());
-                } catch (IOException e) {
-                  e.printStackTrace();
-                  return new TopologyImpl();
-                }
-              })
-          .forEach(subTopology -> topologies.add(subTopology));
-    } else {
-      Topology firstTopology = parser.deserialise(new File(fileOrDir));
-      topologies.add(firstTopology);
-    }
-    return topologies;
+    topicManager.close();
   }
 
   public static String getVersion() {
@@ -181,7 +123,7 @@ public class KafkaTopologyBuilder {
     }
   }
 
-  private ClusterState buildStateProcessor() throws IOException {
+  private static ClusterState buildStateProcessor(TopologyBuilderConfig config) throws IOException {
 
     String stateProcessorClass =
         config
@@ -193,7 +135,7 @@ public class KafkaTopologyBuilder {
         return new ClusterState(new FileSateProcessor());
       } else if (stateProcessorClass.equalsIgnoreCase(REDIS_STATE_PROCESSOR_CLASS)) {
         String host = config.getProperty(REDIS_HOST_CONFIG);
-        int port = Integer.valueOf(config.getProperty(REDIS_PORT_CONFIG));
+        int port = Integer.parseInt(config.getProperty(REDIS_PORT_CONFIG));
         return new ClusterState(new RedisSateProcessor(host, port));
       } else {
         throw new IOException(stateProcessorClass + " Unknown state processor provided.");
@@ -201,5 +143,13 @@ public class KafkaTopologyBuilder {
     } catch (Exception ex) {
       throw new IOException(ex);
     }
+  }
+
+  void setTopicManager(TopicManager topicManager) {
+    this.topicManager = topicManager;
+  }
+
+  void setAccessControlManager(AccessControlManager accessControlManager) {
+    this.accessControlManager = accessControlManager;
   }
 }

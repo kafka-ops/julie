@@ -1,7 +1,16 @@
 package com.purbon.kafka.topology;
 
+import static com.purbon.kafka.topology.BuilderCLI.ADMIN_CLIENT_CONFIG_OPTION;
+import static com.purbon.kafka.topology.BuilderCLI.ALLOW_DELETE_OPTION;
 import static com.purbon.kafka.topology.BuilderCLI.BROKERS_OPTION;
+import static com.purbon.kafka.topology.BuilderCLI.DRY_RUN_OPTION;
+import static com.purbon.kafka.topology.BuilderCLI.QUITE_OPTION;
+import static com.purbon.kafka.topology.KafkaTopologyBuilder.SCHEMA_REGISTRY_URL;
 import static org.junit.Assert.assertEquals;
+import static org.mockito.Matchers.anyObject;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 
 import com.purbon.kafka.topology.model.Topology;
 import java.io.IOException;
@@ -11,6 +20,7 @@ import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
+import org.apache.kafka.clients.admin.AdminClientConfig;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -24,6 +34,10 @@ public class KafkaTopologyBuilderTest {
 
   @Mock AccessControlProvider accessControlProvider;
 
+  @Mock TopicManager topicManager;
+
+  @Mock AccessControlManager accessControlManager;
+
   @Rule public MockitoRule mockitoRule = MockitoJUnit.rule();
 
   Map<String, String> cliOps;
@@ -33,7 +47,11 @@ public class KafkaTopologyBuilderTest {
   public void before() {
     cliOps = new HashMap<>();
     cliOps.put(BROKERS_OPTION, "");
+    cliOps.put(ADMIN_CLIENT_CONFIG_OPTION, "/fooBar");
     props = new Properties();
+    props.put(SCHEMA_REGISTRY_URL, "http://foo:8082");
+    props.put(AdminClientConfig.BOOTSTRAP_SERVERS_CONFIG, "");
+    props.put(AdminClientConfig.RETRIES_CONFIG, Integer.MAX_VALUE);
   }
 
   @Test
@@ -42,14 +60,155 @@ public class KafkaTopologyBuilderTest {
     URL dirOfDescriptors = getClass().getResource("/dir");
     String fileOrDirPath = Paths.get(dirOfDescriptors.toURI()).toFile().toString();
 
-    TopologyBuilderConfig builderConfig = new TopologyBuilderConfig(cliOps);
-
-    KafkaTopologyBuilder builder =
-        new KafkaTopologyBuilder(
-            fileOrDirPath, builderConfig, topologyAdminClient, accessControlProvider);
-
-    Topology topology = builder.buildTopology(fileOrDirPath);
+    Topology topology = TopologyDescriptorBuilder.build(fileOrDirPath);
 
     assertEquals(4, topology.getProjects().size());
+  }
+
+  @Test
+  public void closeAdminClientTest() throws URISyntaxException, IOException {
+    URL dirOfDescriptors = getClass().getResource("/descriptor.yaml");
+    String fileOrDirPath = Paths.get(dirOfDescriptors.toURI()).toFile().toString();
+
+    TopologyBuilderConfig builderConfig = new TopologyBuilderConfig(cliOps, props);
+
+    KafkaTopologyBuilder builder =
+        KafkaTopologyBuilder.build(
+            fileOrDirPath, builderConfig, topologyAdminClient, accessControlProvider);
+
+    builder.close();
+
+    verify(topologyAdminClient, times(1)).close();
+  }
+
+  @Test(expected = IOException.class)
+  public void verifyProblematicParametersTest() throws IOException {
+    String file = "fileThatDoesNotExist.yaml";
+    TopologyBuilderConfig builderConfig = new TopologyBuilderConfig(cliOps, props);
+
+    KafkaTopologyBuilder builder =
+        KafkaTopologyBuilder.build(file, builderConfig, topologyAdminClient, accessControlProvider);
+
+    builder.verifyRequiredParameters(file, cliOps);
+  }
+
+  @Test(expected = IOException.class)
+  public void verifyProblematicParametersTest2() throws IOException, URISyntaxException {
+    URL dirOfDescriptors = getClass().getResource("/descriptor.yaml");
+    String fileOrDirPath = Paths.get(dirOfDescriptors.toURI()).toFile().toString();
+
+    TopologyBuilderConfig builderConfig = new TopologyBuilderConfig(cliOps, props);
+    KafkaTopologyBuilder builder =
+        KafkaTopologyBuilder.build(
+            fileOrDirPath, builderConfig, topologyAdminClient, accessControlProvider);
+
+    builder.verifyRequiredParameters(fileOrDirPath, cliOps);
+  }
+
+  @Test
+  public void verifyProblematicParametersTestOK() throws IOException, URISyntaxException {
+    URL dirOfDescriptors = getClass().getResource("/descriptor.yaml");
+    String fileOrDirPath = Paths.get(dirOfDescriptors.toURI()).toFile().toString();
+
+    URL clientConfigURL = getClass().getResource("/client-config.properties");
+    String clientConfigFile = Paths.get(clientConfigURL.toURI()).toFile().toString();
+
+    cliOps.put(ADMIN_CLIENT_CONFIG_OPTION, clientConfigFile);
+
+    TopologyBuilderConfig builderConfig = new TopologyBuilderConfig(cliOps, props);
+    KafkaTopologyBuilder builder =
+        KafkaTopologyBuilder.build(
+            fileOrDirPath, builderConfig, topologyAdminClient, accessControlProvider);
+
+    builder.verifyRequiredParameters(fileOrDirPath, cliOps);
+  }
+
+  @Test
+  public void builderRunTestAsFromCLI() throws URISyntaxException, IOException {
+
+    URL dirOfDescriptors = getClass().getResource("/descriptor.yaml");
+    String fileOrDirPath = Paths.get(dirOfDescriptors.toURI()).toFile().toString();
+
+    URL clientConfigURL = getClass().getResource("/client-config.properties");
+    String clientConfigFile = Paths.get(clientConfigURL.toURI()).toFile().toString();
+
+    Map<String, String> config = new HashMap<>();
+    config.put(BROKERS_OPTION, "localhost:9092");
+    config.put(ALLOW_DELETE_OPTION, "false");
+    config.put(DRY_RUN_OPTION, "false");
+    config.put(QUITE_OPTION, "false");
+    config.put(ADMIN_CLIENT_CONFIG_OPTION, clientConfigFile);
+
+    KafkaTopologyBuilder builder = KafkaTopologyBuilder.build(fileOrDirPath, config);
+
+    builder.setTopicManager(topicManager);
+    builder.setAccessControlManager(accessControlManager);
+
+    doNothing().when(topicManager).sync(anyObject());
+
+    doNothing().when(accessControlManager).sync(anyObject());
+
+    builder.run();
+    builder.close();
+
+    verify(topicManager, times(1)).sync(anyObject());
+    verify(accessControlManager, times(1)).sync(anyObject());
+  }
+
+  @Test
+  public void builderRunTestAsFromCLIWithARedisBackend() throws URISyntaxException, IOException {
+
+    URL dirOfDescriptors = getClass().getResource("/descriptor.yaml");
+    String fileOrDirPath = Paths.get(dirOfDescriptors.toURI()).toFile().toString();
+
+    URL clientConfigURL = getClass().getResource("/client-config-redis.properties");
+    String clientConfigFile = Paths.get(clientConfigURL.toURI()).toFile().toString();
+
+    Map<String, String> config = new HashMap<>();
+    config.put(BROKERS_OPTION, "localhost:9092");
+    config.put(ALLOW_DELETE_OPTION, "false");
+    config.put(DRY_RUN_OPTION, "false");
+    config.put(QUITE_OPTION, "false");
+    config.put(ADMIN_CLIENT_CONFIG_OPTION, clientConfigFile);
+
+    KafkaTopologyBuilder builder = KafkaTopologyBuilder.build(fileOrDirPath, config);
+
+    builder.setTopicManager(topicManager);
+    builder.setAccessControlManager(accessControlManager);
+
+    doNothing().when(topicManager).sync(anyObject());
+
+    doNothing().when(accessControlManager).sync(anyObject());
+
+    builder.run();
+    builder.close();
+
+    verify(topicManager, times(1)).sync(anyObject());
+    verify(accessControlManager, times(1)).sync(anyObject());
+  }
+
+  @Test
+  public void buiderRunTest() throws URISyntaxException, IOException {
+    URL dirOfDescriptors = getClass().getResource("/descriptor.yaml");
+    String fileOrDirPath = Paths.get(dirOfDescriptors.toURI()).toFile().toString();
+
+    TopologyBuilderConfig builderConfig = new TopologyBuilderConfig(cliOps, props);
+
+    KafkaTopologyBuilder builder =
+        KafkaTopologyBuilder.build(
+            fileOrDirPath, builderConfig, topologyAdminClient, accessControlProvider);
+
+    builder.setTopicManager(topicManager);
+    builder.setAccessControlManager(accessControlManager);
+
+    doNothing().when(topicManager).sync(anyObject());
+
+    doNothing().when(accessControlManager).sync(anyObject());
+
+    builder.run();
+    builder.close();
+
+    verify(topicManager, times(1)).sync(anyObject());
+    verify(accessControlManager, times(1)).sync(anyObject());
   }
 }

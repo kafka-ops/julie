@@ -128,4 +128,8 @@ public class TopicManager {
   public void setOutputStream(PrintStream os) {
     this.outputStream = os;
   }
+
+  public void close() {
+    adminClient.close();
+  }
 }
