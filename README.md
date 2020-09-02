@@ -146,17 +146,17 @@ projects:
       - "topicC"
       - "topicD"
   topics:
-  - name: "foo" # topicName: team.source.foo.foo
+  - name: "foo" # topicName: context.source.foo.foo
     config:
       replication.factor: "2"
       num.partitions: "3"
-  - name: "bar" # topicName: team.source.foo.bar
+  - name: "bar" # topicName: context.source.foo.bar
     config:
       replication.factor: "2"
       num.partitions: "3"
 - name: "bar"
   topics:
-  - name: "bar" # topicName: team.source.bar.bar
+  - name: "bar" # topicName: context.source.bar.bar
     config:
       replication.factor: "2"
       num.partitions: "3"
