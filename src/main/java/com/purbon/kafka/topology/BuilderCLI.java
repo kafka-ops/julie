@@ -44,7 +44,12 @@ public class BuilderCLI {
   public static Options buildOptions() {
 
     final Option topologyFileOption =
-        Option.builder().longOpt(TOPOLOGY_OPTION).hasArg().desc(TOPOLOGY_DESC).required().build();
+        Option.builder()
+            .longOpt(TOPOLOGY_OPTION)
+            .hasArg()
+            .desc(TOPOLOGY_DESC)
+            .required(false)
+            .build();
 
     final Option extractTopologyFileOption =
         Option.builder()
@@ -133,8 +138,8 @@ public class BuilderCLI {
 
     List<String> listOfArgs = Arrays.asList(args);
     if (listOfArgs.contains("--" + EXTRACT_TOPOLOGY_OPTION)) {
-      extractTopology(topology, config);
-      System.out.println("Kafka Topology extracted");
+      extractTopology(extractTopology, config);
+      System.out.println(String.format("Kafka Topology extracted to %s", extractTopology));
     } else {
       processTopology(topology, config);
       System.out.println("Kafka Topology updated");
