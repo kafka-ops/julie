@@ -165,4 +165,9 @@ public class AccessControlManager {
               aclBindings.forEach(binding -> out.println(binding));
             });
   }
+
+  public void extract(String topologyFile) throws IOException {
+    // TODO
+    System.out.println("AccessControlManager:Extracting of ACLs to topologyFile: ");
+  }
 }

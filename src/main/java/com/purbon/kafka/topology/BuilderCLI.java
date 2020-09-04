@@ -208,16 +208,12 @@ public class BuilderCLI {
         new AccessControlProviderFactory(
             builderConfig, adminClient, new MDSApiClientBuilder(builderConfig));
 
-    KafkaTopologyBuilder builder =
-        new KafkaTopologyBuilder(
+    KafkaTopologyExtracter extracter =
+        new KafkaTopologyExtracter(
             topologyFile, builderConfig, adminClient, accessControlProviderFactory.get());
 
     try {
-      System.out.println("Kafka Topology extraction YET TO BE IMPLEMENTED!");
-
-      // TODO
-      // builder.extract();
-
+      extracter.extract();
     } finally {
       adminClient.close();
     }
