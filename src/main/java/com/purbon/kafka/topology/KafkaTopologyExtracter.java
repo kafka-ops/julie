@@ -9,6 +9,7 @@ import static com.purbon.kafka.topology.TopologyBuilderConfig.STATE_PROCESSOR_IM
 import com.purbon.kafka.topology.clusterstate.FileSateProcessor;
 import com.purbon.kafka.topology.clusterstate.RedisSateProcessor;
 import com.purbon.kafka.topology.schemas.SchemaRegistryManager;
+import com.purbon.kafka.topology.serdes.TopologySerdes;
 import io.confluent.kafka.schemaregistry.client.CachedSchemaRegistryClient;
 import io.confluent.kafka.schemaregistry.client.SchemaRegistryClient;
 import java.io.IOException;
@@ -20,6 +21,7 @@ public class KafkaTopologyExtracter {
   public static final String SCHEMA_REGISTRY_URL = "confluent.schema.registry.url";
 
   private final String topologyFile;
+  private final TopologySerdes parser;
   private final TopologyBuilderAdminClient adminClient;
   private final TopologyBuilderConfig config;
   private final AccessControlProvider accessControlProvider;
@@ -29,7 +31,17 @@ public class KafkaTopologyExtracter {
       TopologyBuilderConfig config,
       TopologyBuilderAdminClient adminClient,
       AccessControlProvider accessControlProvider) {
+    this(topologyFile, new TopologySerdes(), config, adminClient, accessControlProvider);
+  }
+
+  public KafkaTopologyExtracter(
+      String topologyFile,
+      TopologySerdes parser,
+      TopologyBuilderConfig config,
+      TopologyBuilderAdminClient adminClient,
+      AccessControlProvider accessControlProvider) {
     this.topologyFile = topologyFile;
+    this.parser = parser;
     this.config = config;
     this.adminClient = adminClient;
     this.accessControlProvider = accessControlProvider;
@@ -40,7 +52,7 @@ public class KafkaTopologyExtracter {
 
     AccessControlManager accessControlManager =
         new AccessControlManager(accessControlProvider, cs, config.params());
-    accessControlManager.extract(topologyFile);
+    accessControlManager.extract(topologyFile, parser);
 
     String schemaRegistryUrl = (String) config.getOrDefault(SCHEMA_REGISTRY_URL, "http://foo:8082");
     SchemaRegistryClient schemaRegistryClient =

@@ -40,6 +40,11 @@ public class TopologySerdes {
     return mapper.writeValueAsString(topology);
   }
 
+  public void serialiseAsFile(String topologyFile, Topology topology)
+      throws IOException, JsonProcessingException {
+    mapper.writeValue(new File(topologyFile), topology);
+  }
+
   private Topology updateTopology(Topology topology) {
     topology
         .getProjects()

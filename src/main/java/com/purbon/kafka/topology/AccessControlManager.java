@@ -1,9 +1,12 @@
 package com.purbon.kafka.topology;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+
 import static com.purbon.kafka.topology.BuilderCLI.ALLOW_DELETE_OPTION;
 
 import com.purbon.kafka.topology.exceptions.ConfigurationException;
 import com.purbon.kafka.topology.model.DynamicUser;
+import com.purbon.kafka.topology.model.Impl.TopologyImpl;
 import com.purbon.kafka.topology.model.Platform;
 import com.purbon.kafka.topology.model.Project;
 import com.purbon.kafka.topology.model.Topology;
@@ -12,6 +15,7 @@ import com.purbon.kafka.topology.model.users.Connector;
 import com.purbon.kafka.topology.model.users.KStream;
 import com.purbon.kafka.topology.model.users.SchemaRegistry;
 import com.purbon.kafka.topology.roles.TopologyAclBinding;
+import com.purbon.kafka.topology.serdes.TopologySerdes;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.util.ArrayList;
@@ -166,8 +170,31 @@ public class AccessControlManager {
             });
   }
 
-  public void extract(String topologyFile) throws IOException {
+  public void extract(String topologyFile, TopologySerdes parser)
+      throws IOException, JsonProcessingException {
     // TODO
+    controlProvider
+        .listAcls()
+        .forEach(
+            (topic, aclBindings) -> {
+              System.out.println(topic);
+              aclBindings.forEach(binding -> System.out.println(binding));
+            });
     System.out.println("AccessControlManager:Extracting of ACLs to topologyFile: ");
+
+    Topology topology = new TopologyImpl();
+    // TODO
+    /*
+    topology.setTeam();
+    Platform platform = new Platform();
+    SchemaRegistry schemaRegistry;
+    platform.addSchemaRegistry(schemaRegistry);
+    ControlCenter controlCenter;
+    platform.addControlCenter(controlCenter);
+    topology.setPlatform(platform);
+    Projects
+    Topics*/
+
+    parser.serialiseAsFile(topologyFile, topology);
   }
 }
