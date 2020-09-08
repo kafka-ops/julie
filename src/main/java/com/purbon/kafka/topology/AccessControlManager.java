@@ -85,7 +85,7 @@ public class AccessControlManager {
     try {
       clusterState.load();
       if (allowDelete) {
-        plan.add(new ClearAcls(controlProvider, clusterState));
+        plan.add(new ClearAcls(controlProvider, clusterState.getBindings()));
       }
     } catch (Exception e) {
       LOGGER.error(e);

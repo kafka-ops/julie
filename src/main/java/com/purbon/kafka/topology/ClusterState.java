@@ -7,7 +7,6 @@ import java.io.IOException;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.function.Consumer;
 
 public class ClusterState {
 
@@ -33,8 +32,8 @@ public class ClusterState {
     this.bindings.add(binding);
   }
 
-  public void forEachBinding(Consumer<? super TopologyAclBinding> action) {
-    bindings.forEach(action);
+  public Set<TopologyAclBinding> getBindings() {
+    return new HashSet<>(bindings);
   }
 
   public void flushAndClose() {
