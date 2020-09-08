@@ -9,12 +9,13 @@ import com.purbon.kafka.topology.model.Impl.TopologyImpl;
 import com.purbon.kafka.topology.model.Project;
 import com.purbon.kafka.topology.model.Topic;
 import com.purbon.kafka.topology.model.Topology;
+import com.purbon.kafka.topology.model.User;
 import com.purbon.kafka.topology.model.users.Connector;
 import com.purbon.kafka.topology.model.users.Consumer;
-import com.purbon.kafka.topology.model.users.ControlCenter;
 import com.purbon.kafka.topology.model.users.KStream;
 import com.purbon.kafka.topology.model.users.Producer;
-import com.purbon.kafka.topology.model.users.SchemaRegistry;
+import com.purbon.kafka.topology.model.users.platform.ControlCenterInstance;
+import com.purbon.kafka.topology.model.users.platform.SchemaRegistryInstance;
 import com.purbon.kafka.topology.serdes.TopologySerdes;
 import java.io.IOException;
 import java.net.URISyntaxException;
@@ -25,6 +26,10 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -43,26 +48,26 @@ public class TopologySerdesTest {
     URL descriptorWithOptionals = getClass().getResource("/descriptor-with-others.yml");
 
     Topology topology = parser.deserialise(Paths.get(descriptorWithOptionals.toURI()).toFile());
-    assertEquals("team.source.foo.bar.zet", topology.buildNamePrefix());
+    assertEquals("contextOrg.source.foo.bar.zet", topology.buildNamePrefix());
 
     URL descriptorWithoutOptionals = getClass().getResource("/descriptor.yaml");
 
     Topology anotherTopology =
         parser.deserialise(Paths.get(descriptorWithoutOptionals.toURI()).toFile());
-    assertEquals("team.source", anotherTopology.buildNamePrefix());
+    assertEquals("contextOrg.source", anotherTopology.buildNamePrefix());
   }
 
   @Test
   public void testTopologySerialisation() throws IOException {
 
     Topology topology = new TopologyImpl();
-    topology.setTeam("team");
+    topology.setContext("contextOrg");
     topology.setProjects(buildProjects());
 
     String topologyYamlString = parser.serialise(topology);
     Topology deserTopology = parser.deserialise(topologyYamlString);
 
-    assertEquals(topology.getTeam(), deserTopology.getTeam());
+    assertEquals(topology.getContext(), deserTopology.getContext());
     assertEquals(topology.getProjects().size(), deserTopology.getProjects().size());
   }
 
@@ -70,7 +75,7 @@ public class TopologySerdesTest {
   public void testTopicConfigSerdes() throws IOException {
 
     Topology topology = new TopologyImpl();
-    topology.setTeam("team");
+    topology.setContext("team");
 
     Topic topic = new TopicImpl();
     topic.setName("foo");
@@ -136,7 +141,7 @@ public class TopologySerdesTest {
     Project project = new ProjectImpl("foo");
 
     Topology topology = new TopologyImpl();
-    topology.setTeam("team");
+    topology.setContext("team");
 
     project.setTopologyPrefix(topology.buildNamePrefix());
     topology.addProject(project);
@@ -168,7 +173,7 @@ public class TopologySerdesTest {
 
   @Test(expected = IOException.class)
   public void testTopologyWithNoTeam() throws IOException, URISyntaxException {
-    URL topologyDescriptor = getClass().getResource("/descriptor-with-no-team.yaml");
+    URL topologyDescriptor = getClass().getResource("/descriptor-with-no-context.yaml");
     parser.deserialise(Paths.get(topologyDescriptor.toURI()).toFile());
   }
 
@@ -184,15 +189,17 @@ public class TopologySerdesTest {
     URL topologyDescriptor = getClass().getResource("/descriptor.yaml");
 
     Topology topology = parser.deserialise(Paths.get(topologyDescriptor.toURI()).toFile());
+    assertEquals("contextOrg", topology.getContext());
 
-    List<SchemaRegistry> listOfSR = topology.getPlatform().getSchemaRegistry();
+    List<SchemaRegistryInstance> listOfSR =
+        topology.getPlatform().getSchemaRegistry().getInstances();
     assertEquals(2, listOfSR.size());
     assertEquals("User:SchemaRegistry01", listOfSR.get(0).getPrincipal());
     assertEquals("foo", listOfSR.get(0).topicString());
     assertEquals("bar", listOfSR.get(0).groupString());
     assertEquals("User:SchemaRegistry02", listOfSR.get(1).getPrincipal());
 
-    List<ControlCenter> listOfC3 = topology.getPlatform().getControlCenter();
+    List<ControlCenterInstance> listOfC3 = topology.getPlatform().getControlCenter().getInstances();
 
     assertEquals(1, listOfC3.size());
     assertEquals("User:ControlCenter", listOfC3.get(0).getPrincipal());
@@ -205,10 +212,45 @@ public class TopologySerdesTest {
     URL topologyDescriptor = getClass().getResource("/descriptor-only-topics.yaml");
     Topology topology = parser.deserialise(Paths.get(topologyDescriptor.toURI()).toFile());
 
+    assertEquals("contextOrg", topology.getContext());
     assertTrue(topology.getProjects().get(0).getConnectors().isEmpty());
     assertTrue(topology.getProjects().get(0).getProducers().isEmpty());
     assertTrue(topology.getProjects().get(0).getStreams().isEmpty());
     assertTrue(topology.getProjects().get(0).getZookeepers().isEmpty());
+  }
+
+  @Test
+  public void testWithRBACDescriptor() throws IOException, URISyntaxException {
+    URL descriptor = getClass().getResource("/descriptor-with-rbac.yaml");
+
+    Topology topology = parser.deserialise(Paths.get(descriptor.toURI()).toFile());
+    Project myProject = topology.getProjects().get(0);
+
+    assertEquals(2, myProject.getSchemas().size());
+    assertEquals("User:App0", myProject.getSchemas().get(0).getPrincipal());
+    assertEquals(1, myProject.getSchemas().get(0).getSubjects().size());
+
+    Connector connector = myProject.getConnectors().get(0);
+    assertEquals(true, connector.getConnectors().isPresent());
+    assertEquals("jdbc-sync", connector.getConnectors().get().get(0));
+    assertEquals("ibmmq-source", connector.getConnectors().get().get(1));
+
+    Optional<Map<String, List<User>>> rbacOptional =
+        topology.getPlatform().getSchemaRegistry().getRbac();
+    assertTrue(rbacOptional.isPresent());
+
+    Set<String> keys = Arrays.asList("Operator").stream().collect(Collectors.toSet());
+    assertEquals(keys, rbacOptional.get().keySet());
+    assertEquals(2, rbacOptional.get().get("Operator").size());
+
+    Optional<Map<String, List<User>>> kafkaRbacOptional =
+        topology.getPlatform().getKafka().getRbac();
+    assertTrue(kafkaRbacOptional.isPresent());
+
+    Set<String> kafkaKeys =
+        Arrays.asList("SecurityAdmin", "ClusterAdmin").stream().collect(Collectors.toSet());
+    assertEquals(kafkaKeys, kafkaRbacOptional.get().keySet());
+    assertEquals(1, kafkaRbacOptional.get().get("SecurityAdmin").size());
   }
 
   private List<Project> buildProjects() {

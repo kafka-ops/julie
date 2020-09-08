@@ -1,0 +1,60 @@
+---
+source: "source"
+projects:
+  - name: "foo"
+    consumers:
+      - principal: "User:App0"
+      - principal: "User:App1"
+    streams:
+      - principal: "User:App0"
+        topics:
+          read:
+            - "topicA"
+            - "topicB"
+          write:
+            - "topicC"
+            - "topicD"
+    connectors:
+      - principal: "User:Connect1"
+        cluster_id: "foo"
+        group: "group"
+        status_topic: "status"
+        offset_topic: "offset"
+        configs_topic: "configs"
+        topics:
+          read:
+            - "topicA"
+            - "topicB"
+      - principal: "User:Connect2"
+        topics:
+          write:
+            - "topicC"
+            - "topicD"
+    topics:
+      - name: "foo"
+        config:
+          replication.factor: "1"
+          num.partitions: "1"
+      - dataType: "avro"
+        name: "bar"
+        config:
+          replication.factor: "1"
+          num.partitions: "1"
+  - name: "bar"
+    topics:
+      - dataType: "avro"
+        name: "bar"
+        config:
+          replication.factor: "1"
+          num.partitions: "1"
+platform:
+  schema_registry:
+    instances:
+      - principal: "User:SchemaRegistry01"
+        topic: "foo"
+        group: "bar"
+      - principal: "User:SchemaRegistry02"
+        topic: "zet"
+    control_center:
+      - principal: "User:ControlCenter"
+        appId: "controlcenter"

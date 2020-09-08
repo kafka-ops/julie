@@ -3,6 +3,8 @@ package com.purbon.kafka.topology.integration;
 import static com.purbon.kafka.topology.roles.RBACPredefinedRoles.DEVELOPER_READ;
 import static com.purbon.kafka.topology.roles.RBACPredefinedRoles.DEVELOPER_WRITE;
 import static com.purbon.kafka.topology.roles.RBACPredefinedRoles.RESOURCE_OWNER;
+import static com.purbon.kafka.topology.roles.RBACPredefinedRoles.SECURITY_ADMIN;
+import static com.purbon.kafka.topology.roles.RBACPredefinedRoles.SYSTEM_ADMIN;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.anyList;
@@ -12,19 +14,24 @@ import static org.mockito.Mockito.verify;
 import com.purbon.kafka.topology.AccessControlManager;
 import com.purbon.kafka.topology.ClusterState;
 import com.purbon.kafka.topology.api.mds.MDSApiClient;
-import com.purbon.kafka.topology.model.*;
 import com.purbon.kafka.topology.model.Impl.ProjectImpl;
 import com.purbon.kafka.topology.model.Impl.TopicImpl;
 import com.purbon.kafka.topology.model.Impl.TopologyImpl;
 import com.purbon.kafka.topology.model.Platform;
 import com.purbon.kafka.topology.model.Project;
 import com.purbon.kafka.topology.model.Topic;
+import com.purbon.kafka.topology.model.Topology;
+import com.purbon.kafka.topology.model.User;
 import com.purbon.kafka.topology.model.users.Connector;
 import com.purbon.kafka.topology.model.users.Consumer;
-import com.purbon.kafka.topology.model.users.ControlCenter;
 import com.purbon.kafka.topology.model.users.KStream;
 import com.purbon.kafka.topology.model.users.Producer;
-import com.purbon.kafka.topology.model.users.SchemaRegistry;
+import com.purbon.kafka.topology.model.users.platform.ControlCenter;
+import com.purbon.kafka.topology.model.users.platform.ControlCenterInstance;
+import com.purbon.kafka.topology.model.users.platform.Kafka;
+import com.purbon.kafka.topology.model.users.platform.KafkaConnect;
+import com.purbon.kafka.topology.model.users.platform.SchemaRegistry;
+import com.purbon.kafka.topology.model.users.platform.SchemaRegistryInstance;
 import com.purbon.kafka.topology.roles.RBACProvider;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -32,6 +39,8 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -76,13 +85,13 @@ public class RBACPRoviderRbacIT extends MDSBaseTest {
     project.addTopic(topicA);
 
     Topology topology = new TopologyImpl();
-    topology.setTeam("testConsumerAclsCreation-test");
+    topology.setContext("testConsumerAclsCreation-test");
     topology.addProject(project);
 
     accessControlManager.sync(topology);
 
     // this method is call twice, once for consumers and one for producers
-    verify(cs, times(2)).update(anyList());
+    verify(cs, times(1)).add(anyList());
     verify(cs, times(1)).flushAndClose();
     verifyConsumerAcls(consumers, topicA.toString());
   }
@@ -99,13 +108,13 @@ public class RBACPRoviderRbacIT extends MDSBaseTest {
     project.addTopic(topicA);
 
     Topology topology = new TopologyImpl();
-    topology.setTeam("producerAclsCreation-test");
+    topology.setContext("producerAclsCreation-test");
     topology.addProject(project);
 
     accessControlManager.sync(topology);
 
     // this method is call twice, once for consumers and one for consumers
-    verify(cs, times(2)).update(anyList());
+    verify(cs, times(1)).add(anyList());
     verify(cs, times(1)).flushAndClose();
     verifyProducerAcls(producers, topicA.toString());
   }
@@ -123,12 +132,12 @@ public class RBACPRoviderRbacIT extends MDSBaseTest {
     project.setStreams(Collections.singletonList(app));
 
     Topology topology = new TopologyImpl();
-    topology.setTeam("kstreamsAclsCreation-test");
+    topology.setContext("kstreamsAclsCreation-test");
     topology.addProject(project);
 
     accessControlManager.sync(topology);
 
-    verify(cs, times(1)).update(anyList());
+    verify(cs, times(1)).add(anyList());
     verify(cs, times(1)).flushAndClose();
     verifyKStreamsAcls(app);
   }
@@ -145,12 +154,12 @@ public class RBACPRoviderRbacIT extends MDSBaseTest {
     project.setConnectors(Collections.singletonList(connector));
 
     Topology topology = new TopologyImpl();
-    topology.setTeam("connectAclsCreation-test");
+    topology.setContext("connectAclsCreation-test");
     topology.addProject(project);
 
     accessControlManager.sync(topology);
 
-    verify(cs, times(1)).update(anyList());
+    verify(cs, times(1)).add(anyList());
     verify(cs, times(1)).flushAndClose();
     verifyConnectAcls(connector);
   }
@@ -160,23 +169,30 @@ public class RBACPRoviderRbacIT extends MDSBaseTest {
     Project project = new ProjectImpl();
 
     Topology topology = new TopologyImpl();
-    topology.setTeam("schemaRegistryAclsCreation-test");
+    topology.setContext("schemaRegistryAclsCreation-test");
     topology.addProject(project);
 
     Platform platform = new Platform();
     SchemaRegistry sr = new SchemaRegistry();
-    sr.setPrincipal("User:foo");
-    platform.addSchemaRegistry(sr);
+    SchemaRegistryInstance instance = new SchemaRegistryInstance();
+    instance.setPrincipal("User:foo");
 
-    SchemaRegistry sr2 = new SchemaRegistry();
-    sr2.setPrincipal("User:banana");
-    platform.addSchemaRegistry(sr2);
+    SchemaRegistryInstance instance2 = new SchemaRegistryInstance();
+    instance2.setPrincipal("User:banana");
 
+    sr.setInstances(Arrays.asList(instance, instance2));
+
+    Map<String, List<User>> rbac = new HashMap<>();
+    rbac.put("SecurityAdmin", Collections.singletonList(new User("User:foo")));
+    rbac.put("ClusterAdmin", Collections.singletonList(new User("User:bar")));
+    sr.setRbac(Optional.of(rbac));
+
+    platform.setSchemaRegistry(sr);
     topology.setPlatform(platform);
 
     accessControlManager.sync(topology);
 
-    verify(cs, times(2)).update(anyList());
+    verify(cs, times(4)).add(anyList());
     verify(cs, times(1)).flushAndClose();
     verifySchemaRegistryAcls(platform);
   }
@@ -186,48 +202,139 @@ public class RBACPRoviderRbacIT extends MDSBaseTest {
     Project project = new ProjectImpl();
 
     Topology topology = new TopologyImpl();
-    topology.setTeam("controlcenterAclsCreation-test");
+    topology.setContext("controlcenterAclsCreation-test");
     topology.addProject(project);
 
     Platform platform = new Platform();
     ControlCenter c3 = new ControlCenter();
-    c3.setPrincipal("User:foo");
-    c3.setAppId("appid");
-    platform.addControlCenter(c3);
+    ControlCenterInstance instance = new ControlCenterInstance();
+    instance.setPrincipal("User:foo");
+    instance.setAppId("appid");
+    c3.setInstances(Collections.singletonList(instance));
+    platform.setControlCenter(c3);
 
     topology.setPlatform(platform);
 
     accessControlManager.sync(topology);
 
-    verify(cs, times(1)).update(anyList());
+    verify(cs, times(1)).add(anyList());
     verify(cs, times(1)).flushAndClose();
     verifyControlCenterAcls(platform);
   }
 
+  @Test
+  public void kafkaClusterLevelAclCreation() throws IOException {
+    Project project = new ProjectImpl();
+
+    Topology topology = new TopologyImpl();
+    topology.setContext("kafkaClusterLevelAclCreation-test");
+    topology.addProject(project);
+
+    Platform platform = new Platform();
+    Kafka kafka = new Kafka();
+    Map<String, List<User>> rbac = new HashMap<>();
+    rbac.put("Operator", Collections.singletonList(new User("User:foo")));
+    rbac.put("ClusterAdmin", Collections.singletonList(new User("User:bar")));
+    kafka.setRbac(Optional.of(rbac));
+    platform.setKafka(kafka);
+    topology.setPlatform(platform);
+
+    accessControlManager.sync(topology);
+
+    verify(cs, times(2)).add(anyList());
+    verify(cs, times(1)).flushAndClose();
+
+    verifyKafkaClusterACLs(platform);
+  }
+
+  @Test
+  public void connectClusterLevelAclCreation() throws IOException {
+    Project project = new ProjectImpl();
+
+    Topology topology = new TopologyImpl();
+    topology.setContext("kafkaClusterLevelAclCreation-test");
+    topology.addProject(project);
+
+    Platform platform = new Platform();
+    KafkaConnect connect = new KafkaConnect();
+    Map<String, List<User>> rbac = new HashMap<>();
+    rbac.put("Operator", Collections.singletonList(new User("User:foo")));
+    rbac.put("ClusterAdmin", Collections.singletonList(new User("User:bar")));
+    connect.setRbac(Optional.of(rbac));
+    platform.setKafkaConnect(connect);
+    topology.setPlatform(platform);
+
+    accessControlManager.sync(topology);
+
+    verify(cs, times(2)).add(anyList());
+    verify(cs, times(1)).flushAndClose();
+
+    verifyConnectClusterACLs(platform);
+  }
+
+  private void verifyConnectClusterACLs(Platform platform) {
+    Map<String, Map<String, String>> clusters =
+        apiClient.withClusterIDs().forKafka().forKafkaConnect().asMap();
+
+    Map<String, List<User>> rbac = platform.getKafkaConnect().getRbac().get();
+    for (String role : rbac.keySet()) {
+      User user = rbac.get(role).get(0);
+      List<String> roles = apiClient.lookupRoles(user.getPrincipal(), clusters);
+      assertTrue(roles.contains(role));
+    }
+  }
+
+  private void verifyKafkaClusterACLs(Platform platform) {
+    Map<String, List<User>> kafkaRbac = platform.getKafka().getRbac().get();
+    for (String role : kafkaRbac.keySet()) {
+      User user = kafkaRbac.get(role).get(0);
+      List<String> roles = apiClient.lookupRoles(user.getPrincipal());
+      assertTrue(roles.contains(role));
+    }
+  }
+
   private void verifyControlCenterAcls(Platform platform) {
-    ControlCenter c3 = platform.getControlCenter().get(0);
+    ControlCenterInstance c3 = platform.getControlCenter().getInstances().get(0);
     List<String> roles = apiClient.lookupRoles(c3.getPrincipal());
-    assertTrue(roles.contains(RESOURCE_OWNER));
+    assertTrue(roles.contains(SYSTEM_ADMIN));
   }
 
   private void verifySchemaRegistryAcls(Platform platform) {
-    SchemaRegistry sr = platform.getSchemaRegistry().get(0);
+    SchemaRegistryInstance sr = platform.getSchemaRegistry().getInstances().get(0);
     List<String> roles = apiClient.lookupRoles(sr.getPrincipal());
     assertTrue(roles.contains(RESOURCE_OWNER));
-    // assertTrue(roles.contains(SECURITY_ADMIN));
+
+    Map<String, Map<String, String>> clusters =
+        apiClient.withClusterIDs().forKafka().forSchemaRegistry().asMap();
+
+    roles = apiClient.lookupRoles(sr.getPrincipal(), clusters);
+    assertTrue(roles.contains(SECURITY_ADMIN));
+
+    Map<String, List<User>> srRbac = platform.getSchemaRegistry().getRbac().get();
+    for (String role : srRbac.keySet()) {
+      User user = srRbac.get(role).get(0);
+      roles = apiClient.lookupRoles(user.getPrincipal(), clusters);
+      assertTrue(roles.contains(role));
+    }
   }
 
   private void verifyConnectAcls(Connector app) {
     List<String> roles = apiClient.lookupRoles(app.getPrincipal());
     assertTrue(roles.contains(DEVELOPER_READ));
     assertTrue(roles.contains(RESOURCE_OWNER));
+
+    Map<String, Map<String, String>> clusters =
+        apiClient.withClusterIDs().forKafka().forKafkaConnect().asMap();
+
+    roles = apiClient.lookupRoles(app.getPrincipal(), clusters);
+    assertTrue(roles.contains(SECURITY_ADMIN));
   }
 
   private void verifyKStreamsAcls(KStream app) {
     List<String> roles = apiClient.lookupRoles(app.getPrincipal());
     assertTrue(roles.contains(DEVELOPER_READ));
     assertTrue(roles.contains(DEVELOPER_WRITE));
-    // assertTrue(roles.contains(RESOURCE_OWNER));
+    assertTrue(roles.contains(RESOURCE_OWNER));
   }
 
   private void verifyProducerAcls(List<Producer> producers, String topic) {

@@ -1,11 +1,11 @@
-package com.purbon.kafka.topology.model.users;
+package com.purbon.kafka.topology.model.users.platform;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.purbon.kafka.topology.model.User;
 import java.util.Optional;
 
-public class SchemaRegistry extends User {
+public class SchemaRegistryInstance extends User {
 
   private static final String DEFAULT_SCHEMA_TOPIC = "_schemas";
 
@@ -16,15 +16,15 @@ public class SchemaRegistry extends User {
 
   private Optional<String> group;
 
-  public SchemaRegistry() {
+  public SchemaRegistryInstance() {
     this("");
   }
 
-  public SchemaRegistry(String principal) {
+  public SchemaRegistryInstance(String principal) {
     this(principal, Optional.empty(), Optional.empty());
   }
 
-  public SchemaRegistry(String principal, Optional<String> topic, Optional<String> group) {
+  public SchemaRegistryInstance(String principal, Optional<String> topic, Optional<String> group) {
     super(principal);
     this.topic = topic;
     this.group = group;

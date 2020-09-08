@@ -1,5 +1,5 @@
 ---
-team: "team"
+context: "contextOrg"
 source: "source"
 projects:
   - name: "foo"
@@ -52,8 +52,10 @@ projects:
           num.partitions: "1"
 platform:
   schema_registry:
-    - principal: "User:SchemaRegistry01"
-    - principal: "User:SchemaRegistry02"
+    instances:
+      - principal: "User:SchemaRegistry01"
+      - principal: "User:SchemaRegistry02"
   control_center:
-    - principal: "User:ControlCenter"
-      appId: "controlcenter"
+    instances:
+      - principal: "User:ControlCenter"
+        appId: "controlcenter"

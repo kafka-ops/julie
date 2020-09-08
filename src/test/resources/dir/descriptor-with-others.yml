@@ -1,5 +1,5 @@
 ---
-team: "team"
+context: "contextOrg"
 source: "source"
 foo: "foo"
 bar: "bar"

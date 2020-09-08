@@ -1,12 +1,15 @@
 package com.purbon.kafka.topology;
 
 import static com.purbon.kafka.topology.BuilderCLI.ALLOW_DELETE_OPTION;
+import static com.purbon.kafka.topology.BuilderCLI.DRY_RUN_OPTION;
 import static com.purbon.kafka.topology.TopologyBuilderConfig.KAFKA_INTERNAL_TOPIC_PREFIXES;
 import static com.purbon.kafka.topology.TopologyBuilderConfig.KAFKA_INTERNAL_TOPIC_PREFIXES_DEFAULT;
 
+import com.purbon.kafka.topology.actions.Action;
+import com.purbon.kafka.topology.actions.DeleteTopics;
+import com.purbon.kafka.topology.actions.SyncTopicAction;
 import com.purbon.kafka.topology.model.Project;
 import com.purbon.kafka.topology.model.Topic;
-import com.purbon.kafka.topology.model.TopicSchemas;
 import com.purbon.kafka.topology.model.Topology;
 import com.purbon.kafka.topology.schemas.SchemaRegistryManager;
 import java.io.IOException;
@@ -32,6 +35,8 @@ public class TopicManager {
   private final TopologyBuilderConfig config;
   private final Boolean allowDelete;
   private final List<String> internalTopicPrefixes;
+  private boolean dryRun;
+  private PrintStream outputStream;
 
   public TopicManager(
       TopologyBuilderAdminClient adminClient, SchemaRegistryManager schemaRegistryManager) {
@@ -47,6 +52,8 @@ public class TopicManager {
     this.schemaRegistryManager = schemaRegistryManager;
     this.config = config;
     this.allowDelete = Boolean.valueOf(config.params().getOrDefault(ALLOW_DELETE_OPTION, "true"));
+    this.dryRun = Boolean.valueOf(config.params().get(DRY_RUN_OPTION));
+    this.outputStream = System.out;
     this.internalTopicPrefixes =
         config
             .getPropertyAsList(
@@ -68,34 +75,37 @@ public class TopicManager {
     Set<String> updatedListOfTopics = new HashSet<>();
     // Foreach topic in the topology, sync it's content
     // if topics does not exist already it's created
+    List<Action> actionPlan = new ArrayList<>();
 
     for (Project project : topology.getProjects()) {
       for (Topic topic : project.getTopics()) {
         String fullTopicName = topic.toString();
-        try {
-          syncTopic(topic, fullTopicName, listOfTopics);
-          updatedListOfTopics.add(fullTopicName);
-        } catch (IOException e) {
-          LOGGER.error(e);
-          throw e;
-        }
+        actionPlan.add(
+            new SyncTopicAction(
+                adminClient, schemaRegistryManager, topic, fullTopicName, listOfTopics));
+        updatedListOfTopics.add(fullTopicName);
       }
     }
 
     if (allowDelete) {
       // Handle topic delete: Topics in the initial list, but not present anymore after a
       // full topic sync should be deleted
-      List<String> topicsToBeDeleted = new ArrayList<>();
-      listOfTopics.stream()
-          .forEach(
-              topic -> {
-                if (!updatedListOfTopics.contains(topic) && !isAnInternalTopics(topic)) {
-                  topicsToBeDeleted.add(topic);
-                }
-              });
-      if (topicsToBeDeleted.size() > 0)
+      List<String> topicsToBeDeleted =
+          listOfTopics.stream()
+              .filter(topic -> !updatedListOfTopics.contains(topic) && !isAnInternalTopics(topic))
+              .collect(Collectors.toList());
+
+      if (topicsToBeDeleted.size() > 0) {
         LOGGER.debug("Topic to be deleted: " + StringUtils.join(topicsToBeDeleted, ","));
-      adminClient.deleteTopics(topicsToBeDeleted);
+        actionPlan.add(new DeleteTopics(adminClient, topicsToBeDeleted));
+      }
+    }
+    for (Action action : actionPlan) {
+      if (dryRun) {
+        outputStream.println(action);
+      } else {
+        action.run();
+      }
     }
   }
 
@@ -106,38 +116,20 @@ public class TopicManager {
         .get();
   }
 
-  public void syncTopic(Topic topic, Set<String> listOfTopics) throws IOException {
-    String fullTopicName = topic.toString();
-    syncTopic(topic, fullTopicName, listOfTopics);
-  }
-
-  public void syncTopic(Topic topic, String fullTopicName, Set<String> listOfTopics)
-      throws IOException {
-    if (existTopic(fullTopicName, listOfTopics)) {
-      adminClient.updateTopicConfig(topic, fullTopicName);
-    } else {
-      adminClient.createTopic(topic, fullTopicName);
-    }
-
-    if (topic.getSchemas() != null) {
-      final TopicSchemas schemas = topic.getSchemas();
-
-      if (StringUtils.isNotBlank(schemas.getKeySchemaFile())) {
-        schemaRegistryManager.register(fullTopicName, schemas.getKeySchemaFile());
-      }
-
-      if (StringUtils.isNotBlank(schemas.getValueSchemaFile())) {
-        schemaRegistryManager.register(fullTopicName, schemas.getValueSchemaFile());
-      }
-    }
-  }
-
-  private boolean existTopic(String topic, Set<String> listOfTopics) {
-    return listOfTopics.contains(topic);
-  }
-
   public void printCurrentState(PrintStream os) throws IOException {
     os.println("List of Topics:");
     adminClient.listTopics().forEach(os::println);
+  }
+
+  public void setDryRun(boolean dryRun) {
+    this.dryRun = dryRun;
+  }
+
+  public void setOutputStream(PrintStream os) {
+    this.outputStream = os;
+  }
+
+  public void close() {
+    adminClient.close();
   }
 }

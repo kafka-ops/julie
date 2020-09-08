@@ -4,9 +4,9 @@ import java.util.List;
 
 public interface Topology {
 
-  String getTeam();
+  String getContext();
 
-  void setTeam(String team);
+  void setContext(String context);
 
   List<Project> getProjects();
 

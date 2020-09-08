@@ -1,13 +1,15 @@
 ---
-team: "team"
+context: "contextOrg"
 source: "source"
 platform:
   schema_registry:
-    - principal: "User:SchemaRegistry01"
-      topic: "foo"
-      group: "bar"
-    - principal: "User:SchemaRegistry02"
-      topic: "zet"
+    instances:
+      - principal: "User:SchemaRegistry01"
+        topic: "foo"
+        group: "bar"
+      - principal: "User:SchemaRegistry02"
+        topic: "zet"
   control_center:
-    - principal: "User:ControlCenter"
-      appId: "controlcenter"
+    instances:
+      - principal: "User:ControlCenter"
+        appId: "controlcenter"

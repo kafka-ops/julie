@@ -2,10 +2,7 @@ package com.purbon.kafka.topology;
 
 import static java.lang.System.exit;
 
-import com.purbon.kafka.topology.api.mds.MDSApiClientBuilder;
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -30,6 +27,9 @@ public class BuilderCLI {
   public static final String ALLOW_DELETE_DESC =
       "Permits delete operations for topics and configs.";
 
+  public static final String DRY_RUN_OPTION = "dryRun";
+  public static final String DRY_RUN_DESC = "Print the execution plan without altering anything.";
+
   public static final String QUITE_OPTION = "quite";
   public static final String QUITE_DESC = "Print minimum status update";
 
@@ -41,7 +41,17 @@ public class BuilderCLI {
 
   public static final String APP_NAME = "kafka-topology-builder";
 
-  public static Options buildOptions() {
+  private HelpFormatter formatter;
+  private CommandLineParser parser;
+  private Options options;
+
+  public BuilderCLI() {
+    formatter = new HelpFormatter();
+    parser = new DefaultParser();
+    options = buildOptions();
+  }
+
+  private Options buildOptions() {
 
     final Option topologyFileOption =
         Option.builder()
@@ -78,6 +88,14 @@ public class BuilderCLI {
             .required(false)
             .build();
 
+    final Option dryRunOption =
+        Option.builder()
+            .longOpt(DRY_RUN_OPTION)
+            .hasArg(false)
+            .desc(DRY_RUN_DESC)
+            .required(false)
+            .build();
+
     final Option quiteOption =
         Option.builder()
             .longOpt(QUITE_OPTION)
@@ -105,6 +123,7 @@ public class BuilderCLI {
     options.addOption(adminClientConfigFileOption);
 
     options.addOption(allowDeleteOption);
+    options.addOption(dryRunOption);
     options.addOption(quiteOption);
     options.addOption(versionOption);
     options.addOption(helpOption);
@@ -114,27 +133,19 @@ public class BuilderCLI {
 
   public static void main(String[] args) throws IOException {
 
-    Options options = buildOptions();
-    HelpFormatter formatter = new HelpFormatter();
-    CommandLineParser parser = new DefaultParser();
+    BuilderCLI cli = new BuilderCLI();
+    cli.run(args);
+    exit(0);
+  }
 
-    printHelpOrVersion(parser, options, args, formatter);
-
-    CommandLine cmd = parseArgsOrExit(parser, options, args, formatter);
+  public void run(String[] args) throws IOException {
+    printHelpOrVersion(args);
+    CommandLine cmd = parseArgsOrExit(args);
 
     String topology = cmd.getOptionValue(TOPOLOGY_OPTION);
     String extractTopology = cmd.getOptionValue(EXTRACT_TOPOLOGY_OPTION);
 
-    String brokersList = cmd.getOptionValue(BROKERS_OPTION);
-    boolean allowDelete = cmd.hasOption(ALLOW_DELETE_OPTION);
-    boolean quite = cmd.hasOption(QUITE_OPTION);
-    String adminClientConfigFile = cmd.getOptionValue(ADMIN_CLIENT_CONFIG_OPTION);
-
-    Map<String, String> config = new HashMap<>();
-    config.put(BROKERS_OPTION, brokersList);
-    config.put(ALLOW_DELETE_OPTION, String.valueOf(allowDelete));
-    config.put(QUITE_OPTION, String.valueOf(quite));
-    config.put(ADMIN_CLIENT_CONFIG_OPTION, adminClientConfigFile);
+    Map<String, String> config = parseConfig(cmd);
 
     List<String> listOfArgs = Arrays.asList(args);
     if (listOfArgs.contains("--" + EXTRACT_TOPOLOGY_OPTION)) {
@@ -148,8 +159,23 @@ public class BuilderCLI {
     exit(0);
   }
 
-  private static void printHelpOrVersion(
-      CommandLineParser parser, Options options, String[] args, HelpFormatter formatter) {
+  public Map<String, String> parseConfig(CommandLine cmd) {
+    String brokersList = cmd.getOptionValue(BROKERS_OPTION);
+    boolean allowDelete = cmd.hasOption(ALLOW_DELETE_OPTION);
+    boolean dryRun = cmd.hasOption(DRY_RUN_OPTION);
+    boolean quite = cmd.hasOption(QUITE_OPTION);
+    String adminClientConfigFile = cmd.getOptionValue(ADMIN_CLIENT_CONFIG_OPTION);
+
+    Map<String, String> config = new HashMap<>();
+    config.put(BROKERS_OPTION, brokersList);
+    config.put(ALLOW_DELETE_OPTION, String.valueOf(allowDelete));
+    config.put(DRY_RUN_OPTION, String.valueOf(dryRun));
+    config.put(QUITE_OPTION, String.valueOf(quite));
+    config.put(ADMIN_CLIENT_CONFIG_OPTION, adminClientConfigFile);
+    return config;
+  }
+
+  public void printHelpOrVersion(String[] args) {
 
     List<String> listOfArgs = Arrays.asList(args);
 
@@ -162,8 +188,7 @@ public class BuilderCLI {
     }
   }
 
-  private static CommandLine parseArgsOrExit(
-      CommandLineParser parser, Options options, String[] args, HelpFormatter formatter) {
+  public CommandLine parseArgsOrExit(String[] args) {
     CommandLine cmd = null;
     try {
       cmd = parser.parse(options, args);
@@ -175,22 +200,8 @@ public class BuilderCLI {
     return cmd;
   }
 
-  private static void processTopology(String topologyFile, Map<String, String> config)
-      throws IOException {
-    verifyRequiredParameters(topologyFile, config);
-
-    TopologyBuilderConfig builderConfig = new TopologyBuilderConfig(config);
-    TopologyBuilderAdminClient adminClient =
-        new TopologyBuilderAdminClientBuilder(builderConfig).build();
-    AccessControlProviderFactory accessControlProviderFactory =
-        new AccessControlProviderFactory(
-            builderConfig, adminClient, new MDSApiClientBuilder(builderConfig));
-
-    KafkaTopologyBuilder builder =
-        new KafkaTopologyBuilder(
-            topologyFile, builderConfig, adminClient, accessControlProviderFactory.get());
-
-    try {
+  public void processTopology(String topologyFile, Map<String, String> config) throws IOException {
+    try (KafkaTopologyBuilder builder = KafkaTopologyBuilder.build(topologyFile, config)) {
       builder.run();
     } finally {
       adminClient.close();

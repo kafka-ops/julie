@@ -3,7 +3,8 @@ package com.purbon.kafka.topology;
 import com.purbon.kafka.topology.adminclient.AclBuilder;
 import com.purbon.kafka.topology.model.Topic;
 import com.purbon.kafka.topology.model.users.Connector;
-import com.purbon.kafka.topology.model.users.SchemaRegistry;
+import com.purbon.kafka.topology.model.users.Consumer;
+import com.purbon.kafka.topology.model.users.platform.SchemaRegistryInstance;
 import com.purbon.kafka.topology.roles.TopologyAclBinding;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -23,7 +24,9 @@ import org.apache.kafka.clients.admin.AlterConfigOp.OpType;
 import org.apache.kafka.clients.admin.Config;
 import org.apache.kafka.clients.admin.ConfigEntry;
 import org.apache.kafka.clients.admin.ListTopicsOptions;
+import org.apache.kafka.clients.admin.NewPartitions;
 import org.apache.kafka.clients.admin.NewTopic;
+import org.apache.kafka.clients.admin.TopicDescription;
 import org.apache.kafka.common.acl.AccessControlEntry;
 import org.apache.kafka.common.acl.AccessControlEntryFilter;
 import org.apache.kafka.common.acl.AclBinding;
@@ -78,6 +81,28 @@ public class TopologyBuilderAdminClient {
     } catch (InterruptedException | ExecutionException ex) {
       LOGGER.error(ex);
       throw new IOException(ex);
+    }
+  }
+
+  public int getPartitionCount(String topic) throws IOException {
+    try {
+      Map<String, TopicDescription> results =
+          adminClient.describeTopics(Collections.singletonList(topic)).all().get();
+      return results.get(topic).partitions().size();
+    } catch (InterruptedException | ExecutionException e) {
+      LOGGER.error(e);
+      throw new IOException(e);
+    }
+  }
+
+  public void updatePartitionCount(Topic topic, String topicName) throws IOException {
+    Map<String, NewPartitions> map = new HashMap<>();
+    map.put(topicName, NewPartitions.increaseTo(topic.partitionsCount()));
+    try {
+      adminClient.createPartitions(map).all().get();
+    } catch (InterruptedException | ExecutionException e) {
+      LOGGER.error(e);
+      throw new IOException(e);
     }
   }
 
@@ -219,12 +244,20 @@ public class TopologyBuilderAdminClient {
     return acls;
   }
 
-  public List<AclBinding> setAclsForConsumer(String principal, String topic) throws IOException {
+  public List<AclBinding> setAclsForConsumer(Consumer consumer, String topic) throws IOException {
 
     List<AclBinding> acls = new ArrayList<>();
-    acls.add(buildTopicLevelAcl(principal, topic, PatternType.LITERAL, AclOperation.DESCRIBE));
-    acls.add(buildTopicLevelAcl(principal, topic, PatternType.LITERAL, AclOperation.READ));
-    acls.add(buildGroupLevelAcl(principal, "*", PatternType.LITERAL, AclOperation.READ));
+    acls.add(
+        buildTopicLevelAcl(
+            consumer.getPrincipal(), topic, PatternType.LITERAL, AclOperation.DESCRIBE));
+    acls.add(
+        buildTopicLevelAcl(consumer.getPrincipal(), topic, PatternType.LITERAL, AclOperation.READ));
+    acls.add(
+        buildGroupLevelAcl(
+            consumer.getPrincipal(),
+            consumer.groupString(),
+            consumer.groupString().equals("*") ? PatternType.PREFIXED : PatternType.LITERAL,
+            AclOperation.READ));
     createAcls(acls);
     return acls;
   }
@@ -250,7 +283,7 @@ public class TopologyBuilderAdminClient {
     return acls;
   }
 
-  public List<AclBinding> setAclForSchemaRegistry(SchemaRegistry schemaRegistry)
+  public List<AclBinding> setAclForSchemaRegistry(SchemaRegistryInstance schemaRegistry)
       throws IOException {
     List<AclBinding> bindings =
         Arrays.asList(AclOperation.DESCRIBE_CONFIGS, AclOperation.WRITE, AclOperation.READ).stream()
@@ -289,13 +322,13 @@ public class TopologyBuilderAdminClient {
                     .map(
                         aclOperation ->
                             buildTopicLevelAcl(principal, topic, PatternType.LITERAL, aclOperation))
-                    .forEach(aclBinding -> bindings.add(aclBinding)));
+                    .forEach(bindings::add));
 
     Stream.of(AclOperation.WRITE, AclOperation.READ, AclOperation.CREATE, AclOperation.DESCRIBE)
         .map(
             aclOperation ->
                 buildTopicLevelAcl(principal, appId, PatternType.PREFIXED, aclOperation))
-        .forEach(aclBinding -> bindings.add(aclBinding));
+        .forEach(bindings::add);
 
     ResourcePattern resourcePattern =
         new ResourcePattern(ResourceType.CLUSTER, "kafka-cluster", PatternType.LITERAL);

@@ -17,6 +17,10 @@ public class JSON {
     return mapper.writeValueAsString(map);
   }
 
+  public static String asPrettyString(Map map) throws JsonProcessingException {
+    return mapper.writerWithDefaultPrettyPrinter().writeValueAsString(map);
+  }
+
   public static List<String> toArray(String jsonString) throws JsonProcessingException {
     return mapper.readValue(jsonString, List.class);
   }

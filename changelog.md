@@ -11,6 +11,13 @@ Kafka Topology Builder library in a single and uniform web application that can 
 * Remove the requirement of writing in the configuration file the access control method, as of now will be ACLs as default value and if other (like RBAC) is required
 it will have to be properly configured.
 * Merge #22 to provide the initial support for schema management. Now you can manage schemas with Confluent Schema Registry using the Kafka Topology Builder. Thanks Kiril.
+* Add an option to specify custom consumer groups in the topology descriptor
+* Add option to increase the partition count in an already created topic.
+* Add support for cluster level acls for kafka, schema registry and kafka connect. This solve issues #42.
+* Add support for schema level permissions in the rbac mode. This solve issue #44.
+* Add support for connect level permissions in the rbac mode. This solve issue #45.
+* Implement an initial method for building an execution plan including an option to print a dry-run. This solve issue #62.
+* Rename team as context as it was a confusing wording. This solve issue #68.
 
 v1.0.0-rc1:
 * Add support for platform wide acls for control center in teh topology description file.

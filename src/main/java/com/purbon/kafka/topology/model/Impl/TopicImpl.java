@@ -23,6 +23,9 @@ public class TopicImpl implements Topic, Cloneable {
 
   private HashMap<String, String> config;
 
+  private int partitionCount;
+  private int replicationFactor;
+
   private String projectPrefix;
 
   public TopicImpl(String name) {
@@ -37,6 +40,8 @@ public class TopicImpl implements Topic, Cloneable {
     this.name = name;
     this.dataType = dataType;
     this.config = config;
+    this.replicationFactor = 0;
+    this.partitionCount = 0;
   }
 
   public TopicImpl() {
@@ -84,8 +89,14 @@ public class TopicImpl implements Topic, Cloneable {
   }
 
   public Map<String, String> rawConfig() {
-    getConfig().remove(TopicManager.NUM_PARTITIONS);
-    getConfig().remove(TopicManager.REPLICATION_FACTOR);
+    String value = getConfig().remove(TopicManager.NUM_PARTITIONS);
+    if (value != null) {
+      partitionCount = Integer.valueOf(value);
+    }
+    value = getConfig().remove(TopicManager.REPLICATION_FACTOR);
+    if (value != null) {
+      replicationFactor = Integer.valueOf(value);
+    }
     return getConfig();
   }
 
@@ -99,6 +110,16 @@ public class TopicImpl implements Topic, Cloneable {
 
   public String getProjectPrefix() {
     return projectPrefix;
+  }
+
+  @Override
+  public int partitionsCount() {
+    String configValue = getConfig().get(TopicManager.NUM_PARTITIONS);
+    if (configValue == null) {
+      return partitionCount;
+    } else {
+      return Integer.valueOf(configValue);
+    }
   }
 
   @Override

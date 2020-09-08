@@ -7,15 +7,15 @@ import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.purbon.kafka.topology.model.Impl.ProjectImpl;
-import com.purbon.kafka.topology.model.Project;
 import com.purbon.kafka.topology.model.users.Connector;
 import com.purbon.kafka.topology.model.users.Consumer;
 import com.purbon.kafka.topology.model.users.KStream;
 import com.purbon.kafka.topology.model.users.Producer;
+import com.purbon.kafka.topology.model.users.Schemas;
 import java.io.IOException;
 import java.util.*;
 
-public class ProjectCustomDeserializer extends StdDeserializer<Project> {
+public class ProjectCustomDeserializer extends StdDeserializer<ProjectImpl> {
 
   public static final String NAME_KEY = "name";
   public static final String CONSUMERS_KEY = "consumers";
@@ -36,10 +36,11 @@ public class ProjectCustomDeserializer extends StdDeserializer<Project> {
   }
 
   @Override
-  public Project deserialize(JsonParser parser, DeserializationContext context) throws IOException {
+  public ProjectImpl deserialize(JsonParser parser, DeserializationContext context)
+      throws IOException {
 
     JsonNode rootNode = parser.getCodec().readTree(parser);
-    Project project = new ProjectImpl();
+    ProjectImpl project = new ProjectImpl();
 
     String nameFieldValue = rootNode.get(NAME_KEY).asText();
     project.setName(nameFieldValue);
@@ -74,6 +75,14 @@ public class ProjectCustomDeserializer extends StdDeserializer<Project> {
       List<KStream> streamsList =
           streamsSerdes.parseApplicationUser(parser, streams, KStream.class);
       project.setStreams(streamsList);
+    }
+
+    JsonSerdesUtils<Schemas> schemasSerdes = new JsonSerdesUtils<>();
+    JsonNode schemas = rootNode.get(SCHEMAS_KEY);
+    if (schemas != null) {
+      List<Schemas> schemasList =
+          schemasSerdes.parseApplicationUser(parser, schemas, Schemas.class);
+      project.setSchemas(schemasList);
     }
 
     // Parser optional RBAC object, only there if using RBAC provider

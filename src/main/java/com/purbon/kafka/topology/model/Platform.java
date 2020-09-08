@@ -1,41 +1,53 @@
 package com.purbon.kafka.topology.model;
 
-import com.purbon.kafka.topology.model.users.ControlCenter;
-import com.purbon.kafka.topology.model.users.SchemaRegistry;
-import java.util.ArrayList;
-import java.util.List;
+import com.purbon.kafka.topology.model.users.platform.ControlCenter;
+import com.purbon.kafka.topology.model.users.platform.Kafka;
+import com.purbon.kafka.topology.model.users.platform.KafkaConnect;
+import com.purbon.kafka.topology.model.users.platform.SchemaRegistry;
 
 public class Platform {
 
-  private List<SchemaRegistry> schemaRegistry;
-  private List<ControlCenter> controlCenter;
+  private Kafka kafka;
+  private KafkaConnect kafkaConnect;
+  private SchemaRegistry schemaRegistry;
+  private ControlCenter controlCenter;
 
   public Platform() {
-    this.schemaRegistry = new ArrayList<>();
-    this.controlCenter = new ArrayList<>();
+    this.kafka = new Kafka();
+    this.kafkaConnect = new KafkaConnect();
+    this.schemaRegistry = new SchemaRegistry();
+    this.controlCenter = new ControlCenter();
   }
 
-  public List<SchemaRegistry> getSchemaRegistry() {
+  public Kafka getKafka() {
+    return kafka;
+  }
+
+  public void setKafka(Kafka kafka) {
+    this.kafka = kafka;
+  }
+
+  public SchemaRegistry getSchemaRegistry() {
     return schemaRegistry;
   }
 
-  public void setSchemaRegistry(List<SchemaRegistry> schemaRegistryPrinciples) {
-    this.schemaRegistry = schemaRegistryPrinciples;
+  public void setSchemaRegistry(SchemaRegistry schemaRegistry) {
+    this.schemaRegistry = schemaRegistry;
   }
 
-  public void addSchemaRegistry(SchemaRegistry schemaRegistry) {
-    this.schemaRegistry.add(schemaRegistry);
-  }
-
-  public List<ControlCenter> getControlCenter() {
+  public ControlCenter getControlCenter() {
     return controlCenter;
   }
 
-  public void setControlCenter(List<ControlCenter> controlCenter) {
+  public void setControlCenter(ControlCenter controlCenter) {
     this.controlCenter = controlCenter;
   }
 
-  public void addControlCenter(ControlCenter controlCenter) {
-    this.controlCenter.add(controlCenter);
+  public KafkaConnect getKafkaConnect() {
+    return kafkaConnect;
+  }
+
+  public void setKafkaConnect(KafkaConnect kafkaConnect) {
+    this.kafkaConnect = kafkaConnect;
   }
 }

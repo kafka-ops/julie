@@ -10,7 +10,7 @@ import java.util.Map;
 
 public class TopologyImpl implements Topology, Cloneable {
 
-  private String team;
+  private String context;
 
   private Map<String, String> others;
 
@@ -19,19 +19,19 @@ public class TopologyImpl implements Topology, Cloneable {
   private Platform platform;
 
   public TopologyImpl() {
-    this.team = "default";
+    this.context = "default";
     this.others = new HashMap<>();
     this.order = new ArrayList<>();
     this.projects = new ArrayList<>();
     this.platform = new Platform();
   }
 
-  public String getTeam() {
-    return team;
+  public String getContext() {
+    return context;
   }
 
-  public void setTeam(String team) {
-    this.team = team;
+  public void setContext(String context) {
+    this.context = context;
   }
 
   public List<Project> getProjects() {
@@ -49,7 +49,7 @@ public class TopologyImpl implements Topology, Cloneable {
 
   public String buildNamePrefix() {
     StringBuilder sb = new StringBuilder();
-    sb.append(getTeam());
+    sb.append(getContext());
     for (String key : order) {
       String value = others.get(key);
       sb.append(".");
@@ -72,7 +72,7 @@ public class TopologyImpl implements Topology, Cloneable {
   }
 
   public Boolean isEmpty() {
-    return team.isEmpty();
+    return context.isEmpty();
   }
 
   @Override
@@ -81,7 +81,7 @@ public class TopologyImpl implements Topology, Cloneable {
       return (Topology) super.clone();
     } catch (CloneNotSupportedException e) {
       Topology topology = new TopologyImpl();
-      topology.setTeam(getTeam());
+      topology.setContext(getContext());
       topology.setPlatform(getPlatform());
       topology.setProjects(getProjects());
       return topology;
