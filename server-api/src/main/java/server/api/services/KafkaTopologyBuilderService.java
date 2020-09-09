@@ -3,7 +3,7 @@ package server.api.services;
 import static com.purbon.kafka.topology.BuilderCLI.ADMIN_CLIENT_CONFIG_OPTION;
 import static com.purbon.kafka.topology.BuilderCLI.ALLOW_DELETE_OPTION;
 import static com.purbon.kafka.topology.BuilderCLI.BROKERS_OPTION;
-import static com.purbon.kafka.topology.BuilderCLI.QUITE_OPTION;
+import static com.purbon.kafka.topology.BuilderCLI.QUIET_OPTION;
 
 import com.purbon.kafka.topology.AccessControlProviderFactory;
 import com.purbon.kafka.topology.KafkaTopologyBuilder;
@@ -71,7 +71,7 @@ public class KafkaTopologyBuilderService {
     Map<String, String> config = new HashMap<>();
     config.put(BROKERS_OPTION, brokersList);
     config.put(ALLOW_DELETE_OPTION, String.valueOf(allowDelete));
-    config.put(QUITE_OPTION, "true");
+    config.put(QUIET_OPTION, "true");
     config.put(ADMIN_CLIENT_CONFIG_OPTION, adminClientConfigFile);
     return config;
   }

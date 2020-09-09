@@ -4,7 +4,7 @@ import static com.purbon.kafka.topology.BuilderCLI.ADMIN_CLIENT_CONFIG_OPTION;
 import static com.purbon.kafka.topology.BuilderCLI.ALLOW_DELETE_OPTION;
 import static com.purbon.kafka.topology.BuilderCLI.BROKERS_OPTION;
 import static com.purbon.kafka.topology.BuilderCLI.DRY_RUN_OPTION;
-import static com.purbon.kafka.topology.BuilderCLI.QUITE_OPTION;
+import static com.purbon.kafka.topology.BuilderCLI.QUIET_OPTION;
 import static com.purbon.kafka.topology.KafkaTopologyBuilder.SCHEMA_REGISTRY_URL;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Matchers.anyObject;
@@ -136,7 +136,7 @@ public class KafkaTopologyBuilderTest {
     config.put(BROKERS_OPTION, "localhost:9092");
     config.put(ALLOW_DELETE_OPTION, "false");
     config.put(DRY_RUN_OPTION, "false");
-    config.put(QUITE_OPTION, "false");
+    config.put(QUIET_OPTION, "false");
     config.put(ADMIN_CLIENT_CONFIG_OPTION, clientConfigFile);
 
     KafkaTopologyBuilder builder = KafkaTopologyBuilder.build(fileOrDirPath, config);
@@ -168,7 +168,7 @@ public class KafkaTopologyBuilderTest {
     config.put(BROKERS_OPTION, "localhost:9092");
     config.put(ALLOW_DELETE_OPTION, "false");
     config.put(DRY_RUN_OPTION, "false");
-    config.put(QUITE_OPTION, "false");
+    config.put(QUIET_OPTION, "false");
     config.put(ADMIN_CLIENT_CONFIG_OPTION, clientConfigFile);
 
     KafkaTopologyBuilder builder = KafkaTopologyBuilder.build(fileOrDirPath, config);

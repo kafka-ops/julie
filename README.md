@@ -105,7 +105,7 @@ usage: cli
     --dryRun               Print the execution plan without altering
                            anything.
     --help                 Prints usage information.
-    --quite                Print minimum status update
+    --quiet                Print minimum status update
     --topology <arg>       Topology config file.
     --version              Prints useful version information.
 ```

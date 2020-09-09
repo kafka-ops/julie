@@ -1,6 +1,6 @@
 package com.purbon.kafka.topology;
 
-import com.purbon.kafka.topology.clusterstate.FileSateProcessor;
+import com.purbon.kafka.topology.clusterstate.FileStateProcessor;
 import com.purbon.kafka.topology.clusterstate.StateProcessor;
 import com.purbon.kafka.topology.roles.TopologyAclBinding;
 import java.io.IOException;
@@ -16,7 +16,7 @@ public class ClusterState {
   private Set<TopologyAclBinding> bindings;
 
   public ClusterState() {
-    this(new FileSateProcessor());
+    this(new FileStateProcessor());
   }
 
   public ClusterState(StateProcessor stateProcessor) {
