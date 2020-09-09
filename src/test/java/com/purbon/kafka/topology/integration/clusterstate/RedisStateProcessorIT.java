@@ -1,6 +1,6 @@
 package com.purbon.kafka.topology.integration.clusterstate;
 
-import com.purbon.kafka.topology.clusterstate.RedisSateProcessor;
+import com.purbon.kafka.topology.clusterstate.RedisStateProcessor;
 import com.purbon.kafka.topology.roles.TopologyAclBinding;
 import java.io.IOException;
 import java.util.Arrays;
@@ -23,7 +23,7 @@ public class RedisStateProcessorIT {
 
     String host = redis.getContainerIpAddress();
     int port = redis.getFirstMappedPort();
-    RedisSateProcessor rsp = new RedisSateProcessor(host, port);
+    RedisStateProcessor rsp = new RedisStateProcessor(host, port);
     rsp.createOrOpen();
 
     rsp.saveType("acls");
