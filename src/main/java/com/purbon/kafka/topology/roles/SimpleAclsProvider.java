@@ -1,7 +1,6 @@
 package com.purbon.kafka.topology.roles;
 
 import com.purbon.kafka.topology.AccessControlProvider;
-import com.purbon.kafka.topology.ClusterState;
 import com.purbon.kafka.topology.TopologyBuilderAdminClient;
 import com.purbon.kafka.topology.model.users.Connector;
 import com.purbon.kafka.topology.model.users.Consumer;
@@ -12,6 +11,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 import org.apache.kafka.common.acl.AclBinding;
 import org.apache.logging.log4j.LogManager;
@@ -28,9 +28,9 @@ public class SimpleAclsProvider implements AccessControlProvider {
   }
 
   @Override
-  public void clearAcls(ClusterState clusterState) {
+  public void clearAcls(Set<TopologyAclBinding> bindings) {
     LOGGER.debug("AclsProvider: clearAcls");
-    clusterState.forEachBinding(
+    bindings.forEach(
         aclBinding -> {
           try {
             adminClient.clearAcls(aclBinding);

@@ -74,15 +74,14 @@ public class AccessControlManagerIT {
   }
 
   @Test
-  public void testAclsCleanup() throws ExecutionException, InterruptedException, IOException {
+  public void aclsRemoval() throws ExecutionException, InterruptedException, IOException {
 
     // Crate an ACL outside of the control of the state manager.
     aclsProvider.setAclsForProducers(Collections.singleton("User:foo"), "bar");
 
-    // Add a collection of ACLs using the control manager, so keeping everything
-    // in the loop of the cluster state
     List<Consumer> consumers = new ArrayList<>();
-    consumers.add(new Consumer("User:testAclsCleanupApp1"));
+    consumers.add(new Consumer("User:testAclsRemovalUser1"));
+    consumers.add(new Consumer("User:testAclsRemovalUser2"));
 
     Project project = new ProjectImpl("project");
     project.setConsumers(consumers);
@@ -91,20 +90,21 @@ public class AccessControlManagerIT {
 
     Topology topology = new TopologyImpl();
     topology.setContext("integration-test");
-    topology.addOther("source", "testAclsCleanup");
+    topology.addOther("source", "testAclsRemoval");
     topology.addProject(project);
 
     accessControlManager.sync(topology);
 
-    // Verify the cluster state, only has acls created using the access control manager.
+    Assert.assertEquals(6, cs.size());
+    verifyAclsOfSize(8); // Total of 3 acls per consumer + 2 for the producer
+
+    consumers.remove(1);
+    project.setConsumers(consumers);
+
+    accessControlManager.sync(topology);
+
     Assert.assertEquals(3, cs.size());
-    // there should be 5 acls currently in the cluster, 3 for the consumer and 2 for the producer
     verifyAclsOfSize(5);
-    // clear all acls within the control of the manager.
-    accessControlManager.clearAcls();
-    accessControlManager.apply();
-    // in the cluster should be only 2 acl staying, the one we created outside the CS
-    verifyAclsOfSize(2);
   }
 
   @Test
