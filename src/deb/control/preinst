@@ -1,3 +1,5 @@
 #!/usr/bin/env bash
 
-adduser -M -r ktb-kafka
+mkdir -p /usr/local/kafka-topology-builder/bin
+addgroup --system ktb-kafka
+adduser --system --no-create-home  --ingroup ktb-kafka ktb-kafka

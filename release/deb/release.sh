@@ -7,8 +7,7 @@ DEB_DIR="/tmp/kafka-topology-builder/target/"
 git clone https://github.com/purbon/kafka-topology-builder.git $DIR
 cd $DIR
 git checkout $BRANCH
-mvn package
-mvn jdeb:jdeb
+mvn clean package
 
 mkdir -p /vagrant/release
-cp DEB_DIR/* /vagrant/release
+cp $DEB_DIR/*.deb /vagrant/release

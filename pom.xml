@@ -315,24 +315,20 @@
         <version>1.8</version>
         <executions>
           <execution>
-            <!--<phase>package</phase>
+            <phase>package</phase>
             <goals>
               <goal>jdeb</goal>
-            </goals>-->
+            </goals>
             <configuration>
               <verbose>true</verbose>
-              <snapshotExpand>true</snapshotExpand>
-              <!-- expand "SNAPSHOT" to what is in the "USER" env variable -->
-              <snapshotEnv>USER</snapshotEnv>
               <controlDir>${basedir}/src/deb/control</controlDir>
               <dataSet>
-
                 <data>
-                  <src>${project.build.directory}/kafka-topology-builder-jar.jar</src>
+                  <src>${project.basedir}/target/kafka-topology-builder.jar</src>
                   <type>file</type>
                   <mapper>
                     <type>perm</type>
-                    <prefix>/usr/local/kafka-topology-builder/bin</prefix>
+                    <prefix>/usr/local/kafka-topology-builder</prefix>
                     <user>ktb-kafka</user>
                     <group>ktb-kafka</group>
                     <filemode>440</filemode>
@@ -340,23 +336,24 @@
                 </data>
 
                 <data>
-                  <src>src/main/scripts/kafka-topology-builder.sh</src>
+                  <src>${basedir}/src/main/scripts/kafka-topology-builder.sh</src>
                   <type>file</type>
                   <mapper>
                     <type>perm</type>
                     <prefix>/usr/local/kafka-topology-builder/bin</prefix>
                     <user>ktb-kafka</user>
                     <group>ktb-kafka</group>
-                    <filemode>775</filemode>
+                    <filemode>755</filemode>
                   </mapper>
                 </data>
 
                 <data>
-                  <src>src/main/conf</src>
+                  <src>${basedir}/src/main/conf</src>
                   <type>directory</type>
                   <mapper>
                     <type>perm</type>
                     <prefix>/usr/local/kafka-topology-builder/conf</prefix>
+                    <filemode>755</filemode>
                     <user>ktb-kafka</user>
                     <group>ktb-kafka</group>
                   </mapper>
