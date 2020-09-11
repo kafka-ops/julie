@@ -30,13 +30,17 @@ import com.purbon.kafka.topology.model.users.Schemas;
 import com.purbon.kafka.topology.model.users.platform.ControlCenterInstance;
 import com.purbon.kafka.topology.model.users.platform.SchemaRegistryInstance;
 import com.purbon.kafka.topology.roles.SimpleAclsProvider;
+import com.purbon.kafka.topology.roles.TopologyAclBinding;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.function.Function;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -75,24 +79,8 @@ public class AccessControlManager {
     this.outputStream = System.out;
   }
 
-  public void clearAcls() {
-    try {
-      clusterState.load();
-      if (allowDelete) {
-        plan.add(new ClearAcls(controlProvider, clusterState.getBindings()));
-      }
-    } catch (Exception e) {
-      LOGGER.error(e);
-    } finally {
-      if (allowDelete && !dryRun) {
-        clusterState.reset();
-      }
-    }
-  }
-
   public void sync(final Topology topology) throws IOException {
     plan.clear();
-    clearAcls();
 
     for (Project project : topology.getProjects()) {
       project
@@ -140,14 +128,40 @@ public class AccessControlManager {
   }
 
   public void apply() throws IOException {
+
+    clusterState.load();
+
+    List<TopologyAclBinding> bindings = new ArrayList<>();
+
     for (Action action : plan) {
       if (dryRun) {
         outputStream.println(action);
       } else {
         action.run();
-        if (!action.getBindings().isEmpty()) clusterState.add(action.getBindings());
+        if (!action.getBindings().isEmpty()) {
+          bindings.addAll(action.getBindings());
+        }
       }
     }
+
+    if (allowDelete) {
+      // clear acls that does not appear anymore in the new generated list,
+      // but where previously created
+      Set<TopologyAclBinding> bindingsToDelete = clusterState
+          .getBindings()
+          .stream()
+          .filter(binding -> !bindings.contains(binding))
+          .collect(Collectors.toSet());
+
+      ClearAcls clearAcls = new ClearAcls(controlProvider, bindingsToDelete);
+      if (dryRun) {
+        outputStream.println(clearAcls);
+      } else {
+        clearAcls.run();
+        clusterState.reset();
+      }
+    }
+    clusterState.add(bindings);
     clusterState.flushAndClose();
   }
 
