@@ -40,6 +40,14 @@ public class RBACProvider implements AccessControlProvider {
   }
 
   @Override
+  public void createBindings(Set<TopologyAclBinding> bindings) throws IOException {
+    LOGGER.debug("RBACProvider: createBindings");
+    for (TopologyAclBinding binding : bindings) {
+      apiClient.bindRequest(binding);
+    }
+  }
+
+  @Override
   public void clearAcls(Set<TopologyAclBinding> bindings) {
     LOGGER.debug("RBACProvider: clearAcls");
     bindings.forEach(
@@ -73,7 +81,9 @@ public class RBACProvider implements AccessControlProvider {
         apiClient.bind(principal, SECURITY_ADMIN).forKafkaConnect(connector).apply();
     bindings.add(secAdminBinding);
 
-    apiClient.bind(principal, DEVELOPER_READ, topicPrefix, PREFIX);
+    TopologyAclBinding readBinding = apiClient.bind(principal, DEVELOPER_READ, topicPrefix, PREFIX);
+    bindings.add(readBinding);
+
     if (readTopics != null && !readTopics.isEmpty()) {
       readTopics.forEach(
           topic -> {

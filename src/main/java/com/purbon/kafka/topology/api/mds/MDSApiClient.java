@@ -81,37 +81,48 @@ public class MDSApiClient {
   }
 
   public TopologyAclBinding bind(String principal, String role, RequestScope scope) {
-    HttpPost postRequest = buildPostRequest(principal + "/roles/" + role + "/bindings");
 
-    try {
-      postRequest.setEntity(new StringEntity(scope.asJson()));
-      LOGGER.debug("bind.entity: " + scope.asJson());
-      post(postRequest);
+    ResourceType resourceType = ResourceType.fromString(scope.getResource(0).get(RESOURCE_TYPE));
+    String resourceName = scope.getResource(0).get(RESOURCE_NAME);
+    String patternType = scope.getResource(0).get(RESOURCE_PATTERN_TYPE);
 
-      ResourceType resourceType = ResourceType.fromString(scope.getResource(0).get(RESOURCE_TYPE));
-      String resourceName = scope.getResource(0).get(RESOURCE_NAME);
-      String patternType = scope.getResource(0).get(RESOURCE_PATTERN_TYPE);
-      return new TopologyAclBinding(resourceType, resourceName, "*", role, principal, patternType);
-    } catch (IOException e) {
-      LOGGER.error(e);
-      return null;
-    }
+    TopologyAclBinding binding =
+        new TopologyAclBinding(resourceType, resourceName, "*", role, principal, patternType);
+
+    binding.setScope(scope);
+    return binding;
   }
 
   public TopologyAclBinding bindClusterRole(String principal, String role, RequestScope scope) {
+    ResourceType resourceType = ResourceType.CLUSTER;
+    TopologyAclBinding binding =
+        new TopologyAclBinding(resourceType, "cluster", "*", role, principal, "LITERAL");
+    binding.setScope(scope);
+    return binding;
+  }
 
-    HttpPost postRequest = buildPostRequest(principal + "/roles/" + role);
+  public void bindRequest(TopologyAclBinding binding) throws IOException {
+
+    String url = binding.getPrincipal() + "/roles/" + binding.getRole();
+    if (!binding.getResourceType().equals(ResourceType.CLUSTER)) {
+      url = url + "/bindings";
+    }
+
+    HttpPost postRequest = buildPostRequest(url);
 
     try {
-      postRequest.setEntity(new StringEntity(scope.clustersAsJson()));
-      LOGGER.debug("bind.entity: " + scope.clustersAsJson());
+      String jsonEntity;
+      if (binding.getResourceType().equals(ResourceType.CLUSTER)) {
+        jsonEntity = binding.getScope().clustersAsJson();
+      } else {
+        jsonEntity = binding.getScope().asJson();
+      }
+      postRequest.setEntity(new StringEntity(jsonEntity));
+      LOGGER.debug("bind.entity: " + jsonEntity);
       post(postRequest);
-
-      ResourceType resourceType = ResourceType.CLUSTER;
-      return new TopologyAclBinding(resourceType, "cluster", "*", role, principal, "LITERAL");
     } catch (IOException e) {
       LOGGER.error(e);
-      return null;
+      throw e;
     }
   }
 

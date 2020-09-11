@@ -5,7 +5,6 @@ import com.purbon.kafka.topology.AccessControlProvider;
 import com.purbon.kafka.topology.model.users.Connector;
 import com.purbon.kafka.topology.roles.TopologyAclBinding;
 import com.purbon.kafka.topology.utils.JSON;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -23,7 +22,7 @@ public class AddConnectorAuthorization implements Action {
   }
 
   @Override
-  public void run() throws IOException {
+  public void run() {
     bindings =
         controlProvider.setConnectorAuthorization(
             connector.getPrincipal(), connector.getConnectors().orElse(new ArrayList<>()));

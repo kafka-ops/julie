@@ -22,12 +22,14 @@ import com.purbon.kafka.topology.model.users.platform.ControlCenterInstance;
 import com.purbon.kafka.topology.model.users.platform.SchemaRegistry;
 import com.purbon.kafka.topology.model.users.platform.SchemaRegistryInstance;
 import com.purbon.kafka.topology.roles.SimpleAclsProvider;
+import com.purbon.kafka.topology.roles.TopologyAclBinding;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Properties;
 import java.util.concurrent.ExecutionException;
@@ -77,7 +79,9 @@ public class AccessControlManagerIT {
   public void aclsRemoval() throws ExecutionException, InterruptedException, IOException {
 
     // Crate an ACL outside of the control of the state manager.
-    aclsProvider.setAclsForProducers(Collections.singleton("User:foo"), "bar");
+    List<TopologyAclBinding> bindings =
+        aclsProvider.setAclsForProducers(Collections.singleton("User:foo"), "bar");
+    aclsProvider.createBindings(new HashSet<>(bindings));
 
     List<Consumer> consumers = new ArrayList<>();
     consumers.add(new Consumer("User:testAclsRemovalUser1"));

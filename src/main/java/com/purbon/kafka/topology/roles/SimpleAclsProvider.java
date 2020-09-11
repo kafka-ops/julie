@@ -6,7 +6,6 @@ import com.purbon.kafka.topology.model.users.Connector;
 import com.purbon.kafka.topology.model.users.Consumer;
 import com.purbon.kafka.topology.model.users.platform.SchemaRegistryInstance;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
@@ -28,42 +27,48 @@ public class SimpleAclsProvider implements AccessControlProvider {
   }
 
   @Override
-  public void clearAcls(Set<TopologyAclBinding> bindings) {
+  public void createBindings(Set<TopologyAclBinding> bindings) throws IOException {
+    LOGGER.debug("AclsProvider: createBindings");
+    List<AclBinding> bindingsAsNativeKafka =
+        bindings.stream()
+            .filter(binding -> binding.asAclBinding().isPresent())
+            .map(binding -> binding.asAclBinding().get())
+            .collect(Collectors.toList());
+    try {
+      adminClient.createAcls(bindingsAsNativeKafka);
+    } catch (IOException ex) {
+      LOGGER.error(ex);
+      throw ex;
+    }
+  }
+
+  @Override
+  public void clearAcls(Set<TopologyAclBinding> bindings) throws IOException {
     LOGGER.debug("AclsProvider: clearAcls");
-    bindings.forEach(
-        aclBinding -> {
-          try {
-            adminClient.clearAcls(aclBinding);
-          } catch (IOException e) {
-            LOGGER.error(e);
-          }
-        });
+    for (TopologyAclBinding binding : bindings) {
+      try {
+        adminClient.clearAcls(binding);
+      } catch (IOException ex) {
+        LOGGER.error(ex);
+        throw ex;
+      }
+    }
   }
 
   @Override
   public List<TopologyAclBinding> setAclsForConnect(Connector connector, String topicPrefix) {
-    try {
-      return adminClient.setAclsForConnect(connector).stream()
-          .map(TopologyAclBinding::new)
-          .collect(Collectors.toList());
-    } catch (IOException e) {
-      LOGGER.error(e);
-      return new ArrayList<>();
-    }
+    return adminClient.setAclsForConnect(connector).stream()
+        .map(TopologyAclBinding::new)
+        .collect(Collectors.toList());
   }
 
   @Override
   public List<TopologyAclBinding> setAclsForStreamsApp(
       String principal, String topicPrefix, List<String> readTopics, List<String> writeTopics) {
-    try {
-      return adminClient.setAclsForStreamsApp(principal, topicPrefix, readTopics, writeTopics)
-          .stream()
-          .map(TopologyAclBinding::new)
-          .collect(Collectors.toList());
-    } catch (IOException e) {
-      LOGGER.error(e);
-      return new ArrayList<>();
-    }
+    return adminClient.setAclsForStreamsApp(principal, topicPrefix, readTopics, writeTopics)
+        .stream()
+        .map(TopologyAclBinding::new)
+        .collect(Collectors.toList());
   }
 
   @Override
@@ -71,15 +76,9 @@ public class SimpleAclsProvider implements AccessControlProvider {
       Collection<Consumer> consumers, String topic) {
     return consumers.stream()
         .flatMap(
-            consumer -> {
-              List<AclBinding> acls = new ArrayList<>();
-              try {
-                acls = adminClient.setAclsForConsumer(consumer, topic);
-              } catch (IOException e) {
-                LOGGER.error(e);
-              }
-              return acls.stream().map(aclBinding -> new TopologyAclBinding(aclBinding));
-            })
+            consumer ->
+                adminClient.setAclsForConsumer(consumer, topic).stream()
+                    .map(TopologyAclBinding::new))
         .collect(Collectors.toList());
   }
 
@@ -87,40 +86,24 @@ public class SimpleAclsProvider implements AccessControlProvider {
   public List<TopologyAclBinding> setAclsForProducers(Collection<String> principals, String topic) {
     return principals.stream()
         .flatMap(
-            principal -> {
-              List<AclBinding> acls = new ArrayList<>();
-              try {
-                acls = adminClient.setAclsForProducer(principal, topic);
-              } catch (IOException e) {
-                LOGGER.error(e);
-              }
-              return acls.stream().map(aclBinding -> new TopologyAclBinding(aclBinding));
-            })
+            principal ->
+                adminClient.setAclsForProducer(principal, topic).stream()
+                    .map(TopologyAclBinding::new))
         .collect(Collectors.toList());
   }
 
   @Override
   public List<TopologyAclBinding> setAclsForSchemaRegistry(SchemaRegistryInstance schemaRegistry) {
-    try {
-      return adminClient.setAclForSchemaRegistry(schemaRegistry).stream()
-          .map(aclBinding -> new TopologyAclBinding(aclBinding))
-          .collect(Collectors.toList());
-    } catch (IOException e) {
-      LOGGER.error(e);
-      return new ArrayList<>();
-    }
+    return adminClient.setAclForSchemaRegistry(schemaRegistry).stream()
+        .map(TopologyAclBinding::new)
+        .collect(Collectors.toList());
   }
 
   @Override
   public List<TopologyAclBinding> setAclsForControlCenter(String principal, String appId) {
-    try {
-      return adminClient.setAclsForControlCenter(principal, appId).stream()
-          .map(aclBinding -> new TopologyAclBinding(aclBinding))
-          .collect(Collectors.toList());
-    } catch (IOException e) {
-      LOGGER.error(e);
-      return new ArrayList<>();
-    }
+    return adminClient.setAclsForControlCenter(principal, appId).stream()
+        .map(TopologyAclBinding::new)
+        .collect(Collectors.toList());
   }
 
   @Override
@@ -133,7 +116,7 @@ public class SimpleAclsProvider implements AccessControlProvider {
                 map.put(
                     topic,
                     aclBindings.stream()
-                        .map(aclBinding -> new TopologyAclBinding(aclBinding))
+                        .map(TopologyAclBinding::new)
                         .collect(Collectors.toList())));
     return map;
   }

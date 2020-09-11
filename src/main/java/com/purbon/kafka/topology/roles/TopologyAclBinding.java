@@ -1,12 +1,16 @@
 package com.purbon.kafka.topology.roles;
 
+import com.purbon.kafka.topology.api.mds.RequestScope;
 import java.util.Objects;
+import java.util.Optional;
 import org.apache.kafka.common.acl.AccessControlEntry;
 import org.apache.kafka.common.acl.AclBinding;
 import org.apache.kafka.common.resource.ResourcePattern;
 import org.apache.kafka.common.resource.ResourceType;
 
 public class TopologyAclBinding {
+
+  private Optional<AclBinding> aclBindingOptional;
 
   private ResourceType resourceType;
   private String resourceName;
@@ -38,6 +42,7 @@ public class TopologyAclBinding {
     this.operation = operation;
     this.principal = principal;
     this.pattern = pattern;
+    this.aclBindingOptional = Optional.empty();
   }
 
   /**
@@ -69,6 +74,8 @@ public class TopologyAclBinding {
 
   public TopologyAclBinding(AclBinding binding) {
 
+    this.aclBindingOptional = Optional.of(binding);
+
     AccessControlEntry entry = binding.entry();
     ResourcePattern pattern = binding.pattern();
 
@@ -78,6 +85,10 @@ public class TopologyAclBinding {
     this.operation = entry.operation().name();
     this.pattern = pattern.patternType().name();
     this.host = entry.host();
+  }
+
+  public Optional<AclBinding> asAclBinding() {
+    return aclBindingOptional;
   }
 
   public ResourceType getResourceType() {
@@ -172,5 +183,19 @@ public class TopologyAclBinding {
         getOperation(),
         getPrincipal(),
         getPattern());
+  }
+
+  public String getRole() {
+    return operation;
+  }
+
+  private RequestScope scope;
+
+  public void setScope(RequestScope scope) {
+    this.scope = scope;
+  }
+
+  public RequestScope getScope() {
+    return scope;
   }
 }

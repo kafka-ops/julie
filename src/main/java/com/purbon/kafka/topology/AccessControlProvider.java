@@ -15,7 +15,9 @@ import java.util.Set;
 
 public interface AccessControlProvider {
 
-  void clearAcls(Set<TopologyAclBinding> bindings);
+  void createBindings(Set<TopologyAclBinding> bindings) throws IOException;
+
+  void clearAcls(Set<TopologyAclBinding> bindings) throws IOException;
 
   List<TopologyAclBinding> setAclsForConnect(Connector connector, String topicPrefix)
       throws IOException;

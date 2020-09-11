@@ -9,26 +9,26 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
-public class ClearAcls implements Action {
+public class CreateBindings implements Action {
 
   private final AccessControlProvider controlProvider;
-  private final Set<TopologyAclBinding> bindingsForRemoval;
+  private Set<TopologyAclBinding> bindings;
 
-  public ClearAcls(
-      AccessControlProvider controlProvider, Set<TopologyAclBinding> bindingsForRemoval) {
+  public CreateBindings(AccessControlProvider controlProvider, Set<TopologyAclBinding> bindings) {
     this.controlProvider = controlProvider;
-    this.bindingsForRemoval = bindingsForRemoval;
+    this.bindings = bindings;
   }
 
   @Override
   public void run() throws IOException {
-    controlProvider.clearAcls(bindingsForRemoval);
+    controlProvider.createBindings(bindings);
   }
 
   @Override
   public String toString() {
     Map<String, Object> map = new HashMap<>();
     map.put("Operation", getClass().getName());
+    map.put("Bindings", bindings);
     try {
       return JSON.asPrettyString(map);
     } catch (JsonProcessingException e) {

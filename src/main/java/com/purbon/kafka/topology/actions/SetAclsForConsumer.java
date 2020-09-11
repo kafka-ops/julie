@@ -4,7 +4,6 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.purbon.kafka.topology.AccessControlProvider;
 import com.purbon.kafka.topology.model.users.Consumer;
 import com.purbon.kafka.topology.utils.JSON;
-import java.io.IOException;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -24,7 +23,7 @@ public class SetAclsForConsumer extends BaseAccessControlAction {
   }
 
   @Override
-  public void run() throws IOException {
+  public void run() {
     bindings =
         controlProvider.setAclsForConsumers(Collections.singletonList(consumer), fullTopicName);
   }

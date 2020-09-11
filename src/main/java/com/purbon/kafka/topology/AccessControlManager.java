@@ -6,7 +6,6 @@ import static com.purbon.kafka.topology.model.Component.SCHEMA_REGISTRY;
 
 import com.purbon.kafka.topology.actions.Action;
 import com.purbon.kafka.topology.actions.AddConnectorAuthorization;
-import com.purbon.kafka.topology.actions.ClearAcls;
 import com.purbon.kafka.topology.actions.SetAclsForConsumer;
 import com.purbon.kafka.topology.actions.SetAclsForControlCenter;
 import com.purbon.kafka.topology.actions.SetAclsForKConnect;
@@ -30,16 +29,12 @@ import com.purbon.kafka.topology.model.users.Schemas;
 import com.purbon.kafka.topology.model.users.platform.ControlCenterInstance;
 import com.purbon.kafka.topology.model.users.platform.SchemaRegistryInstance;
 import com.purbon.kafka.topology.roles.SimpleAclsProvider;
-import com.purbon.kafka.topology.roles.TopologyAclBinding;
 import java.io.IOException;
 import java.io.PrintStream;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.Set;
 import java.util.function.Function;
-import java.util.stream.Collectors;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -80,7 +75,7 @@ public class AccessControlManager {
   }
 
   public void sync(final Topology topology) throws IOException {
-    plan.start();
+    plan.init(clusterState, allowDelete, outputStream);
 
     for (Project project : topology.getProjects()) {
       project
@@ -124,39 +119,8 @@ public class AccessControlManager {
     }
 
     syncPlatformAcls(topology);
-    apply();
-  }
 
-  public void apply() throws IOException {
-
-    clusterState.load();
-
-    List<TopologyAclBinding> bindings = new ArrayList<>();
-
-    plan.run(dryRun);
-    if (!plan.getBindings().isEmpty()) {
-      bindings.addAll(plan.getBindings());
-    }
-
-    if (allowDelete) {
-      // clear acls that does not appear anymore in the new generated list,
-      // but where previously created
-      Set<TopologyAclBinding> bindingsToDelete =
-          clusterState.getBindings().stream()
-              .filter(binding -> !bindings.contains(binding))
-              .collect(Collectors.toSet());
-
-      ClearAcls clearAcls = new ClearAcls(controlProvider, bindingsToDelete);
-
-      if (dryRun) {
-        outputStream.println(clearAcls);
-      } else {
-        clearAcls.run();
-        clusterState.reset();
-      }
-    }
-    clusterState.add(bindings);
-    clusterState.flushAndClose();
+    plan.run(dryRun, controlProvider);
   }
 
   private void syncPlatformAcls(final Topology topology) throws IOException {
