@@ -18,6 +18,9 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import org.apache.kafka.common.acl.AclOperation;
+import org.apache.kafka.common.resource.PatternType;
+import org.apache.kafka.common.resource.ResourceType;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -29,13 +32,15 @@ public class AccessControlWithRBACTest {
 
   @Mock RBACProvider aclsProvider;
 
+  @Mock ClusterState clusterState;
+
   @Rule public MockitoRule mockitoRule = MockitoJUnit.rule();
 
   private AccessControlManager accessControlManager;
 
   @Before
   public void setup() {
-    accessControlManager = new AccessControlManager(aclsProvider);
+    accessControlManager = new AccessControlManager(aclsProvider, clusterState);
   }
 
   @Test
@@ -53,8 +58,16 @@ public class AccessControlWithRBACTest {
     Topology topology = new TopologyImpl();
     topology.addProject(project);
 
+    TopologyAclBinding binding =
+        TopologyAclBinding.build(t 
+            ResourceType.TOPIC.name(),
+            "foo",
+            "host",
+            AclOperation.DESCRIBE_CONFIGS.name(),
+            "User:Foo",
+            PatternType.ANY.name());
     when(aclsProvider.setPredefinedRole("User:Foo", "ResourceOwner", project.buildTopicPrefix()))
-        .thenReturn(new TopologyAclBinding());
+        .thenReturn(binding);
 
     accessControlManager.sync(topology);
 

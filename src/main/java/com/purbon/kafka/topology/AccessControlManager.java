@@ -39,7 +39,6 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
-import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -147,11 +146,10 @@ public class AccessControlManager {
     if (allowDelete) {
       // clear acls that does not appear anymore in the new generated list,
       // but where previously created
-      Set<TopologyAclBinding> bindingsToDelete = clusterState
-          .getBindings()
-          .stream()
-          .filter(binding -> !bindings.contains(binding))
-          .collect(Collectors.toSet());
+      Set<TopologyAclBinding> bindingsToDelete =
+          clusterState.getBindings().stream()
+              .filter(binding -> !bindings.contains(binding))
+              .collect(Collectors.toSet());
 
       ClearAcls clearAcls = new ClearAcls(controlProvider, bindingsToDelete);
       if (dryRun) {
