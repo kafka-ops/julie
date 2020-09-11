@@ -192,7 +192,7 @@ public class RBACPRoviderRbacIT extends MDSBaseTest {
 
     accessControlManager.sync(topology);
 
-    verify(cs, times(4)).add(anyList());
+    verify(cs, times(1)).add(anyList());
     verify(cs, times(1)).flushAndClose();
     verifySchemaRegistryAcls(platform);
   }
@@ -241,7 +241,7 @@ public class RBACPRoviderRbacIT extends MDSBaseTest {
 
     accessControlManager.sync(topology);
 
-    verify(cs, times(2)).add(anyList());
+    verify(cs, times(1)).add(anyList());
     verify(cs, times(1)).flushAndClose();
 
     verifyKafkaClusterACLs(platform);
@@ -266,7 +266,7 @@ public class RBACPRoviderRbacIT extends MDSBaseTest {
 
     accessControlManager.sync(topology);
 
-    verify(cs, times(2)).add(anyList());
+    verify(cs, times(1)).add(anyList());
     verify(cs, times(1)).flushAndClose();
 
     verifyConnectClusterACLs(platform);
