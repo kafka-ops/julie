@@ -46,7 +46,9 @@ public class FileStateProcessor implements StateProcessor {
   }
 
   public Set<TopologyAclBinding> load(URI uri) throws IOException {
-
+    if (writer == null) {
+      createOrOpen();
+    }
     Path filePath = Paths.get(uri);
     Set<TopologyAclBinding> bindings = new HashSet<>();
     BufferedReader in = new BufferedReader(new FileReader(filePath.toFile()));

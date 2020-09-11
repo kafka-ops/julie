@@ -43,6 +43,11 @@ public class RedisStateProcessor implements StateProcessor {
 
   @Override
   public Set<TopologyAclBinding> load(URI uri) throws IOException {
+
+    if (!jedis.isConnected()) {
+      createOrOpen();
+    }
+
     Set<TopologyAclBinding> bindings = new HashSet<>();
     String type = jedis.get(KAFKA_TOPOLOGY_BUILDER_TYPE);
 
