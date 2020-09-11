@@ -59,7 +59,7 @@ public class AccessControlWithRBACTest {
     topology.addProject(project);
 
     TopologyAclBinding binding =
-        TopologyAclBinding.build(t 
+        TopologyAclBinding.build(
             ResourceType.TOPIC.name(),
             "foo",
             "host",
