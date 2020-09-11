@@ -46,8 +46,9 @@ import org.apache.logging.log4j.Logger;
 public class AccessControlManager {
 
   private static final Logger LOGGER = LogManager.getLogger(AccessControlManager.class);
+
   private final Boolean allowDelete;
-  private final List<Action> plan;
+  private ExecutionPlan plan;
   private boolean dryRun;
   private PrintStream outputStream;
 
@@ -72,14 +73,14 @@ public class AccessControlManager {
       TopologyBuilderConfig config) {
     this.controlProvider = controlProvider;
     this.clusterState = clusterState;
-    this.plan = new ArrayList<>();
+    this.plan = new ExecutionPlan();
     this.allowDelete = config.allowDeletes();
     this.dryRun = config.isDryRun();
     this.outputStream = System.out;
   }
 
   public void sync(final Topology topology) throws IOException {
-    plan.clear();
+    plan.start();
 
     for (Project project : topology.getProjects()) {
       project
@@ -132,15 +133,9 @@ public class AccessControlManager {
 
     List<TopologyAclBinding> bindings = new ArrayList<>();
 
-    for (Action action : plan) {
-      if (dryRun) {
-        outputStream.println(action);
-      } else {
-        action.run();
-        if (!action.getBindings().isEmpty()) {
-          bindings.addAll(action.getBindings());
-        }
-      }
+    plan.run(dryRun);
+    if (!plan.getBindings().isEmpty()) {
+      bindings.addAll(plan.getBindings());
     }
 
     if (allowDelete) {
@@ -152,6 +147,7 @@ public class AccessControlManager {
               .collect(Collectors.toSet());
 
       ClearAcls clearAcls = new ClearAcls(controlProvider, bindingsToDelete);
+
       if (dryRun) {
         outputStream.println(clearAcls);
       } else {
