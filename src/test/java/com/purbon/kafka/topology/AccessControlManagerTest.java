@@ -326,7 +326,10 @@ public class AccessControlManagerTest {
   @Test
   public void testAclDeleteLogic() throws IOException {
 
-    accessControlManager = new AccessControlManager(aclsProvider);
+    ClusterState clusterState = new ClusterState();
+    clusterState.load();
+    clusterState.reset();
+    accessControlManager = new AccessControlManager(aclsProvider, clusterState);
 
     List<Consumer> consumers = new ArrayList<>();
     consumers.add(new Consumer("User:app1"));

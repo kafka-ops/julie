@@ -41,14 +41,14 @@ public class FileStateProcessor implements StateProcessor {
   }
 
   public Set<TopologyAclBinding> load() throws IOException {
+    if (writer == null) {
+      throw new IOException("state file does not exist");
+    }
     File file = new File(filename());
     return load(file.toURI());
   }
 
   public Set<TopologyAclBinding> load(URI uri) throws IOException {
-    if (writer == null) {
-      createOrOpen();
-    }
     Path filePath = Paths.get(uri);
     Set<TopologyAclBinding> bindings = new HashSet<>();
     BufferedReader in = new BufferedReader(new FileReader(filePath.toFile()));

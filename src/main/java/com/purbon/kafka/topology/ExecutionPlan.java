@@ -41,8 +41,8 @@ public class ExecutionPlan {
 
   public void init(ClusterState clusterState, Boolean allowDelete, PrintStream outputStream)
       throws IOException {
-    clusterState.load();
     this.clusterState = clusterState;
+    this.clusterState.load();
     this.plan.clear();
     this.bindings.clear();
     this.allowDelete = allowDelete;

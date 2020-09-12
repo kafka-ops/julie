@@ -44,7 +44,8 @@ public class ClusterState {
   }
 
   public void load() throws IOException {
-    bindings = stateProcessor.load();
+    stateProcessor.createOrOpen();
+    bindings.addAll(stateProcessor.load());
   }
 
   public void reset() {
