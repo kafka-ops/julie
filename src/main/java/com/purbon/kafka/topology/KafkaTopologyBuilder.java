@@ -68,9 +68,8 @@ public class KafkaTopologyBuilder implements AutoCloseable {
     AccessControlManager accessControlManager =
         new AccessControlManager(accessControlProvider, cs, config);
 
-    String schemaRegistryUrl = config.getSchemaRegistryUrl();
     SchemaRegistryClient schemaRegistryClient =
-        new CachedSchemaRegistryClient(schemaRegistryUrl, 10);
+        new CachedSchemaRegistryClient(config.getConfluentSchemaRegistryUrl(), 10);
     SchemaRegistryManager schemaRegistryManager =
         new SchemaRegistryManager(schemaRegistryClient, topologyFileOrDir);
 
@@ -79,7 +78,7 @@ public class KafkaTopologyBuilder implements AutoCloseable {
     return new KafkaTopologyBuilder(topology, config, topicManager, accessControlManager);
   }
 
-  public void verifyRequiredParameters(String topologyFile, Map<String, String> config)
+  void verifyRequiredParameters(String topologyFile, Map<String, String> config)
       throws IOException {
     if (!Files.exists(Paths.get(topologyFile))) {
       throw new IOException("Topology file does not exist");
