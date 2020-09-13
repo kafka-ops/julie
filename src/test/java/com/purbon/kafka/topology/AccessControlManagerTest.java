@@ -320,7 +320,7 @@ public class AccessControlManagerTest {
         .setAclsForConsumers(users, topicA.toString());
     accessControlManager.sync(topology);
 
-    verify(mockPrintStream, times(3)).println(any(Action.class));
+    verify(mockPrintStream, times(2)).println(any(Action.class));
   }
 
   @Test

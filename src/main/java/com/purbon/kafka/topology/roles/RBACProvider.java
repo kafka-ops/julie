@@ -9,7 +9,6 @@ import static com.purbon.kafka.topology.roles.RBACPredefinedRoles.SYSTEM_ADMIN;
 import com.purbon.kafka.topology.AccessControlProvider;
 import com.purbon.kafka.topology.api.mds.MDSApiClient;
 import com.purbon.kafka.topology.api.mds.RequestScope;
-import com.purbon.kafka.topology.exceptions.ConfigurationException;
 import com.purbon.kafka.topology.model.Component;
 import com.purbon.kafka.topology.model.users.Connector;
 import com.purbon.kafka.topology.model.users.Consumer;
@@ -68,8 +67,7 @@ public class RBACProvider implements AccessControlProvider {
   }
 
   @Override
-  public List<TopologyAclBinding> setAclsForConnect(Connector connector, String topicPrefix)
-      throws IOException {
+  public List<TopologyAclBinding> setAclsForConnect(Connector connector, String topicPrefix) {
 
     String principal = connector.getPrincipal();
     List<String> readTopics = connector.getTopics().get("read");
@@ -187,8 +185,7 @@ public class RBACProvider implements AccessControlProvider {
   }
 
   @Override
-  public List<TopologyAclBinding> setAclsForSchemaRegistry(SchemaRegistryInstance schemaRegistry)
-      throws ConfigurationException {
+  public List<TopologyAclBinding> setAclsForSchemaRegistry(SchemaRegistryInstance schemaRegistry) {
     String principal = schemaRegistry.getPrincipal();
     List<TopologyAclBinding> bindings = new ArrayList<>();
     TopologyAclBinding binding =
@@ -228,7 +225,7 @@ public class RBACProvider implements AccessControlProvider {
       default:
         throw new IOException("Non valid component selected");
     }
-    return Arrays.asList(binding);
+    return Collections.singletonList(binding);
   }
 
   @Override
@@ -242,12 +239,7 @@ public class RBACProvider implements AccessControlProvider {
     return subjects.stream()
         .map(
             subject -> {
-              try {
-                return apiClient.bind(principal, RESOURCE_OWNER).forSchemaSubject(subject).apply();
-              } catch (ConfigurationException e) {
-                LOGGER.error(e);
-              }
-              return null;
+              return apiClient.bind(principal, RESOURCE_OWNER).forSchemaSubject(subject).apply();
             })
         .filter(binding -> binding != null)
         .collect(Collectors.toList());

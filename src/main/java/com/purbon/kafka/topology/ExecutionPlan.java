@@ -7,10 +7,11 @@ import com.purbon.kafka.topology.roles.TopologyAclBinding;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.function.Function;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -50,22 +51,9 @@ public class ExecutionPlan {
   }
 
   public void run(boolean dryRun, AccessControlProvider controlProvider) {
-    Set<TopologyAclBinding> bindings = new HashSet<>();
 
-    for (Action action : plan) {
-      if (dryRun) {
-        outputStream.println(action);
-      } else {
-        try {
-          action.run();
-          if (!action.getBindings().isEmpty()) {
-            bindings.addAll(action.getBindings());
-          }
-        } catch (IOException ex) {
-          LOGGER.error(ex);
-        }
-      }
-    }
+    Set<TopologyAclBinding> bindings =
+        plan.stream().flatMap(executeToFunction(false)).collect(Collectors.toSet());
 
     CreateBindings createBindings = new CreateBindings(controlProvider, bindings);
     try {
@@ -94,6 +82,18 @@ public class ExecutionPlan {
 
     clusterState.add(new ArrayList<>(bindings));
     clusterState.flushAndClose();
+  }
+
+  private Function<Action, Stream<TopologyAclBinding>> executeToFunction(boolean dryRun) {
+    return action -> {
+      try {
+        execute(action, dryRun);
+        return action.getBindings().stream();
+      } catch (Exception ex) {
+        LOGGER.error(ex);
+        return new ArrayList<TopologyAclBinding>().stream();
+      }
+    };
   }
 
   private void execute(Action action, boolean dryRun) throws IOException {

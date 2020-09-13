@@ -1,14 +1,10 @@
 package com.purbon.kafka.topology.roles;
 
 import static com.purbon.kafka.topology.api.mds.ClusterIDs.CONNECT_CLUSTER_ID_LABEL;
-import static com.purbon.kafka.topology.api.mds.ClusterIDs.KAFKA_CLUSTER_ID_LABEL;
-import static com.purbon.kafka.topology.api.mds.ClusterIDs.SCHEMA_REGISTRY_CLUSTER_ID_LABEL;
 
 import com.purbon.kafka.topology.api.mds.MDSApiClient;
 import com.purbon.kafka.topology.api.mds.RequestScope;
-import com.purbon.kafka.topology.exceptions.ConfigurationException;
 import com.purbon.kafka.topology.model.users.Connector;
-import java.io.IOException;
 import java.util.Map;
 import java.util.Optional;
 import org.apache.kafka.common.resource.PatternType;
@@ -27,14 +23,9 @@ public class AdminRoleRunner {
     this.scope = new RequestScope();
   }
 
-  public AdminRoleRunner forSchemaRegistry() throws ConfigurationException {
+  public AdminRoleRunner forSchemaRegistry() {
     Map<String, Map<String, String>> clusters =
         client.withClusterIDs().forSchemaRegistry().forKafka().asMap();
-
-    Map<String, String> clusterIds = clusters.get("clusters");
-
-    validateRequiredClusterLabels(
-        clusterIds, KAFKA_CLUSTER_ID_LABEL, SCHEMA_REGISTRY_CLUSTER_ID_LABEL);
 
     scope = new RequestScope();
     scope.setClusters(clusters);
@@ -44,14 +35,9 @@ public class AdminRoleRunner {
     return this;
   }
 
-  public AdminRoleRunner forSchemaSubject(String subject) throws ConfigurationException {
+  public AdminRoleRunner forSchemaSubject(String subject) {
     Map<String, Map<String, String>> clusters =
         client.withClusterIDs().forSchemaRegistry().forKafka().asMap();
-
-    Map<String, String> clusterIds = clusters.get("clusters");
-
-    validateRequiredClusterLabels(
-        clusterIds, KAFKA_CLUSTER_ID_LABEL, SCHEMA_REGISTRY_CLUSTER_ID_LABEL);
 
     scope = new RequestScope();
     scope.setClusters(clusters);
@@ -62,7 +48,7 @@ public class AdminRoleRunner {
     return this;
   }
 
-  public AdminRoleRunner forAKafkaConnector(String connector) {
+  AdminRoleRunner forAKafkaConnector(String connector) {
     Map<String, Map<String, String>> clusters =
         client.withClusterIDs().forKafkaConnect().forKafka().asMap();
 
@@ -104,14 +90,9 @@ public class AdminRoleRunner {
     return this;
   }
 
-  public AdminRoleRunner forKafkaConnect() throws IOException {
+  public AdminRoleRunner forKafkaConnect() {
     Map<String, Map<String, String>> clusters =
         client.withClusterIDs().forKafkaConnect().forKafka().asMap();
-
-    Map<String, String> clusterIds = clusters.get("clusters");
-    validateRequiredClusterLabels(clusterIds, KAFKA_CLUSTER_ID_LABEL);
-
-    validateRequiredClusterLabels(clusterIds, KAFKA_CLUSTER_ID_LABEL, CONNECT_CLUSTER_ID_LABEL);
 
     scope = new RequestScope();
     scope.setClusters(clusters);
@@ -122,18 +103,13 @@ public class AdminRoleRunner {
     return this;
   }
 
-  public AdminRoleRunner forKafkaConnect(Connector connector) throws IOException {
+  public AdminRoleRunner forKafkaConnect(Connector connector) {
     Map<String, Map<String, String>> clusters =
         client.withClusterIDs().forKafkaConnect().forKafka().asMap();
 
     Optional<String> connectClusterIdOptional = connector.getCluster_id();
-    if (connectClusterIdOptional.isPresent()) {
-      clusters.get("clusters").put(CONNECT_CLUSTER_ID_LABEL, connectClusterIdOptional.get());
-    }
-
-    validateRequiredClusterLabels(clusters.get("clusters"), KAFKA_CLUSTER_ID_LABEL);
-    validateRequiredClusterLabels(
-        clusters.get("clusters"), KAFKA_CLUSTER_ID_LABEL, CONNECT_CLUSTER_ID_LABEL);
+    connectClusterIdOptional.ifPresent(
+        s -> clusters.get("clusters").put(CONNECT_CLUSTER_ID_LABEL, s));
 
     scope = new RequestScope();
     scope.setClusters(clusters);
@@ -146,16 +122,5 @@ public class AdminRoleRunner {
 
   public RequestScope getScope() {
     return scope;
-  }
-
-  private void validateRequiredClusterLabels(
-      Map<String, String> allClusterIds, String... clusterLabels) throws ConfigurationException {
-    for (String label : clusterLabels) {
-      String value = allClusterIds.get(label);
-      if (value == null || value.isEmpty()) {
-        throw new ConfigurationException(
-            "Required clusterID " + label + " is missing, please add it to your configuration");
-      }
-    }
   }
 }

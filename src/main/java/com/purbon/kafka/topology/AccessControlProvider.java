@@ -19,8 +19,7 @@ public interface AccessControlProvider {
 
   void clearAcls(Set<TopologyAclBinding> bindings) throws IOException;
 
-  List<TopologyAclBinding> setAclsForConnect(Connector connector, String topicPrefix)
-      throws IOException;
+  List<TopologyAclBinding> setAclsForConnect(Connector connector, String topicPrefix);
 
   List<TopologyAclBinding> setAclsForStreamsApp(
       String principal, String topicPrefix, List<String> readTopics, List<String> writeTopics);
