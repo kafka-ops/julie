@@ -4,35 +4,36 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.purbon.kafka.topology.AccessControlProvider;
 import com.purbon.kafka.topology.model.users.Consumer;
 import com.purbon.kafka.topology.utils.JSON;
-import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 public class SetAclsForConsumer extends BaseAccessControlAction {
 
   private final String fullTopicName;
-  private final Consumer consumer;
+  private final List<Consumer> consumers;
   private final AccessControlProvider controlProvider;
 
   public SetAclsForConsumer(
-      AccessControlProvider controlProvider, Consumer consumer, String fullTopicName) {
+      AccessControlProvider controlProvider, List<Consumer> consumers, String fullTopicName) {
     super();
-    this.consumer = consumer;
+    this.consumers = consumers;
     this.fullTopicName = fullTopicName;
     this.controlProvider = controlProvider;
   }
 
   @Override
   public void run() {
-    bindings =
-        controlProvider.setAclsForConsumers(Collections.singletonList(consumer), fullTopicName);
+    bindings = controlProvider.setAclsForConsumers(consumers, fullTopicName);
   }
 
   @Override
   public String toString() {
     Map<String, Object> map = new HashMap<>();
     map.put("Operation", getClass().getName());
-    map.put("Principal", consumer.getPrincipal());
+    map.put(
+        "Principals", consumers.stream().map(c -> c.getPrincipal()).collect(Collectors.toList()));
     map.put("Topic", fullTopicName);
 
     try {

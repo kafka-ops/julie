@@ -22,9 +22,7 @@ import com.purbon.kafka.topology.model.Project;
 import com.purbon.kafka.topology.model.Topology;
 import com.purbon.kafka.topology.model.User;
 import com.purbon.kafka.topology.model.users.Connector;
-import com.purbon.kafka.topology.model.users.Consumer;
 import com.purbon.kafka.topology.model.users.KStream;
-import com.purbon.kafka.topology.model.users.Producer;
 import com.purbon.kafka.topology.model.users.Schemas;
 import com.purbon.kafka.topology.model.users.platform.ControlCenterInstance;
 import com.purbon.kafka.topology.model.users.platform.SchemaRegistryInstance;
@@ -34,7 +32,6 @@ import java.io.PrintStream;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.function.Function;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -83,20 +80,18 @@ public class AccessControlManager {
           .forEach(
               topic -> {
                 final String fullTopicName = topic.toString();
-
-                project.getConsumers().stream()
-                    .map(
-                        (Function<Consumer, Action>)
-                            consumer ->
-                                new SetAclsForConsumer(controlProvider, consumer, fullTopicName))
-                    .forEachOrdered(action -> plan.add(action));
-
-                project.getProducers().stream()
-                    .map(
-                        (Function<Producer, Action>)
-                            producer ->
-                                new SetAclsForProducer(controlProvider, producer, fullTopicName))
-                    .forEachOrdered(action -> plan.add(action));
+                if (!project.getConsumers().isEmpty()) {
+                  Action action =
+                      new SetAclsForConsumer(
+                          controlProvider, project.getConsumers(), fullTopicName);
+                  plan.add(action);
+                }
+                if (!project.getProducers().isEmpty()) {
+                  Action action =
+                      new SetAclsForProducer(
+                          controlProvider, project.getProducers(), fullTopicName);
+                  plan.add(action);
+                }
               });
       // Setup global Kafka Stream Access control lists
       String topicPrefix = project.buildTopicPrefix(topology.buildNamePrefix());

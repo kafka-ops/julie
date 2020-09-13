@@ -344,8 +344,7 @@ public class AccessControlManagerTest {
 
     accessControlManager.sync(topology);
 
-    verify(aclsProvider, times(1)).setAclsForConsumers(asList(consumers.get(0)), topicA.toString());
-    verify(aclsProvider, times(1)).setAclsForConsumers(asList(consumers.get(1)), topicA.toString());
+    verify(aclsProvider, times(1)).setAclsForConsumers(consumers, topicA.toString());
 
     consumers = new ArrayList<>();
     consumers.add(new Consumer("User:app1"));
