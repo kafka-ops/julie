@@ -1,10 +1,6 @@
 package com.purbon.kafka.topology;
 
-import static com.purbon.kafka.topology.BuilderCLI.ADMIN_CLIENT_CONFIG_OPTION;
-import static com.purbon.kafka.topology.BuilderCLI.ALLOW_DELETE_OPTION;
-import static com.purbon.kafka.topology.BuilderCLI.BROKERS_OPTION;
-import static com.purbon.kafka.topology.BuilderCLI.DRY_RUN_OPTION;
-import static com.purbon.kafka.topology.BuilderCLI.QUIET_OPTION;
+import static com.purbon.kafka.topology.BuilderCLI.*;
 import static org.mockito.Matchers.anyMap;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.doNothing;
@@ -50,6 +46,8 @@ public class CLITest {
     config.put(ALLOW_DELETE_OPTION, "false");
     config.put(DRY_RUN_OPTION, "false");
     config.put(QUIET_OPTION, "false");
+    config.put(RECOVER_OPTION, null);
+    config.put(EXTRACT_OPTION, "false");
     config.put(ADMIN_CLIENT_CONFIG_OPTION, "topology-builder-sasl-plain.properties");
     cli.run(args);
 
@@ -73,6 +71,8 @@ public class CLITest {
     config.put(ALLOW_DELETE_OPTION, "false");
     config.put(DRY_RUN_OPTION, "true");
     config.put(QUIET_OPTION, "false");
+    config.put(RECOVER_OPTION, null);
+    config.put(EXTRACT_OPTION, "false");
     config.put(ADMIN_CLIENT_CONFIG_OPTION, "topology-builder-sasl-plain.properties");
     cli.run(args);
 

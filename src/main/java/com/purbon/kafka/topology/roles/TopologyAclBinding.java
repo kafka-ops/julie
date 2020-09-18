@@ -3,6 +3,9 @@ package com.purbon.kafka.topology.roles;
 import java.util.Objects;
 import org.apache.kafka.common.acl.AccessControlEntry;
 import org.apache.kafka.common.acl.AclBinding;
+import org.apache.kafka.common.acl.AclOperation;
+import org.apache.kafka.common.acl.AclPermissionType;
+import org.apache.kafka.common.resource.PatternType;
 import org.apache.kafka.common.resource.ResourcePattern;
 import org.apache.kafka.common.resource.ResourceType;
 
@@ -78,6 +81,14 @@ public class TopologyAclBinding {
     this.operation = entry.operation().name();
     this.pattern = pattern.patternType().name();
     this.host = entry.host();
+  }
+
+  public AclBinding toAclBinding() {
+    // TODO: remove hard-coded allow and create field for it.
+    return new AclBinding(
+        new ResourcePattern(resourceType, resourceName, PatternType.fromString(pattern)),
+        new AccessControlEntry(
+            principal, host, AclOperation.fromString(operation), AclPermissionType.ALLOW));
   }
 
   public ResourceType getResourceType() {

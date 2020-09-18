@@ -2,12 +2,16 @@ package com.purbon.kafka.topology;
 
 import static java.lang.System.exit;
 
+import com.purbon.kafka.topology.model.FlatDescription;
+import com.purbon.kafka.topology.serdes.FlatDescriptionSerde;
+import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import org.apache.commons.cli.*;
+import org.apache.kafka.clients.admin.AdminClient;
 
 public class BuilderCLI {
 
@@ -35,6 +39,12 @@ public class BuilderCLI {
 
   public static final String VERSION_OPTION = "version";
   public static final String VERSION_DESC = "Prints useful version information.";
+
+  public static final String EXTRACT_OPTION = "extract";
+  public static final String EXTRACT_DESC = "Extract to current cluster state and outputs as JSON";
+
+  public static final String RECOVER_OPTION = "recover";
+  public static final String RECOVER_DESC = "Recovers previously extracted state";
 
   public static final String APP_NAME = "kafka-topology-builder";
 
@@ -96,6 +106,22 @@ public class BuilderCLI {
             .required(false)
             .build();
 
+    final Option recoverOption =
+        Option.builder()
+            .longOpt(RECOVER_OPTION)
+            .hasArg(true)
+            .desc(RECOVER_DESC)
+            .required(false)
+            .build();
+
+    final Option extractOption =
+        Option.builder()
+            .longOpt(EXTRACT_OPTION)
+            .hasArg(false)
+            .desc(EXTRACT_DESC)
+            .required(false)
+            .build();
+
     final Option helpOption =
         Option.builder().longOpt(HELP_OPTION).hasArg(false).desc(HELP_DESC).required(false).build();
 
@@ -109,6 +135,10 @@ public class BuilderCLI {
     options.addOption(dryRunOption);
     options.addOption(quietOption);
     options.addOption(versionOption);
+
+    options.addOption(extractOption);
+    options.addOption(recoverOption);
+
     options.addOption(helpOption);
 
     return options;
@@ -128,8 +158,47 @@ public class BuilderCLI {
     String topology = cmd.getOptionValue(TOPOLOGY_OPTION);
     Map<String, String> config = parseConfig(cmd);
 
-    processTopology(topology, config);
-    System.out.println("Kafka Topology updated");
+    if (config.get(EXTRACT_OPTION).equals("true")) {
+      config.put("bootstrap.servers", config.get(BROKERS_OPTION));
+      try (AdminClient adminClient = AdminClient.create((Map) config)) {
+        final FlatDescription flatDescription = FlatDescription.extractFromCluster(adminClient);
+        System.out.println(FlatDescriptionSerde.convertToJsonString(flatDescription, true));
+      }
+    } else if (config.get(RECOVER_OPTION) != null) {
+      recoverFromFlatDescription(config.get(RECOVER_OPTION), config);
+    } else {
+      processTopology(topology, config);
+
+      System.out.println("Kafka Topology updated");
+    }
+  }
+
+  private void recoverFromFlatDescription(
+      String pathToFlatDescription, Map<String, String> config) {
+    final File file = new File(pathToFlatDescription);
+    final FlatDescription desiredState = FlatDescriptionSerde.convertFromJsonFile(file);
+
+    final FDManager manager = new FDManager();
+    final boolean allowDeletes = Boolean.valueOf(config.get(ALLOW_DELETE_OPTION));
+    // TODO: check if this is really the right UpdateAction
+    // for a recover case, we might want to override all settings
+    config.put("bootstrap.servers", config.get(BROKERS_OPTION));
+    final AdminClient adminClient = AdminClient.create((Map) config);
+    final FlatDescription currentState = FlatDescription.extractFromCluster(adminClient);
+    final List<FDManager.AbstractAction> actions =
+        manager.generatePlan(
+            currentState, desiredState, allowDeletes, new FDManager.IncrementalUpdateNoCheck());
+    TopologyBuilderConfig builderConfig = new TopologyBuilderConfig(config);
+    actions.forEach(
+        action -> {
+          // TODO: we need a better solution on how to deal with partial failures during execution
+          if (builderConfig.isDryRun()) {
+            System.out.println(action);
+          } else {
+            action.run(adminClient);
+          }
+        });
+    exit(0);
   }
 
   public Map<String, String> parseConfig(CommandLine cmd) {
@@ -145,6 +214,8 @@ public class BuilderCLI {
     config.put(DRY_RUN_OPTION, String.valueOf(dryRun));
     config.put(QUIET_OPTION, String.valueOf(quiet));
     config.put(ADMIN_CLIENT_CONFIG_OPTION, adminClientConfigFile);
+    config.put(EXTRACT_OPTION, String.valueOf(cmd.hasOption(EXTRACT_OPTION)));
+    config.put(RECOVER_OPTION, cmd.getOptionValue(RECOVER_OPTION));
     return config;
   }
 
