@@ -236,11 +236,11 @@ ccloud service-account create sa-for-ktb --description 'A service account for th
 
 ccloud kafka acl create --allow --service-account 123456 --cluster-scope --operation ALTER 
 ccloud kafka acl create --allow --service-account 123456 --cluster-scope --operation DESCRIBE 
-cloud kafka acl create --allow --service-account 123456 --topic samplecontext --prefix --operation ALTER_CONFIGS
-cloud kafka acl create --allow --service-account 123456 --topic samplecontext --prefix --operation CREATE
-cloud kafka acl create --allow --service-account 123456 --topic samplecontext --prefix --operation DESCRIBE
-cloud kafka acl create --allow --service-account 123456 --topic samplecontext --prefix --operation ALTER
-cloud kafka acl create --allow --service-account 123456 --topic samplecontext --prefix --operation DELETE
+ccloud kafka acl create --allow --service-account 123456 --topic samplecontext --prefix --operation ALTER_CONFIGS
+ccloud kafka acl create --allow --service-account 123456 --topic samplecontext --prefix --operation CREATE
+ccloud kafka acl create --allow --service-account 123456 --topic samplecontext --prefix --operation DESCRIBE
+ccloud kafka acl create --allow --service-account 123456 --topic samplecontext --prefix --operation ALTER
+ccloud kafka acl create --allow --service-account 123456 --topic samplecontext --prefix --operation DELETE
 ```
 
 
