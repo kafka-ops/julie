@@ -1,5 +1,6 @@
 package com.purbon.kafka.topology;
 
+import static com.purbon.kafka.topology.BuilderCLI.ALLOW_DELETE_OPTION;
 import static com.purbon.kafka.topology.TopologyBuilderConfig.REDIS_HOST_CONFIG;
 import static com.purbon.kafka.topology.TopologyBuilderConfig.REDIS_PORT_CONFIG;
 import static com.purbon.kafka.topology.TopologyBuilderConfig.REDIS_STATE_PROCESSOR_CLASS;
@@ -14,6 +15,7 @@ import io.confluent.kafka.schemaregistry.client.CachedSchemaRegistryClient;
 import io.confluent.kafka.schemaregistry.client.SchemaRegistryClient;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.PrintStream;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.Map;
@@ -25,6 +27,8 @@ public class KafkaTopologyBuilder implements AutoCloseable {
   private AccessControlManager accessControlManager;
   private Topology topology;
   private TopologyBuilderConfig config;
+  private PrintStream outputStream;
+  private Boolean allowDelete;
 
   private KafkaTopologyBuilder(
       Topology topology,
@@ -35,6 +39,8 @@ public class KafkaTopologyBuilder implements AutoCloseable {
     this.config = config;
     this.topicManager = topicManager;
     this.accessControlManager = accessControlManager;
+    this.outputStream = System.out;
+    this.allowDelete = Boolean.valueOf((String) config.getOrDefault(ALLOW_DELETE_OPTION, "true"));
   }
 
   public static KafkaTopologyBuilder build(String topologyFile, Map<String, String> config)
@@ -63,10 +69,8 @@ public class KafkaTopologyBuilder implements AutoCloseable {
     Topology topology = TopologyDescriptorBuilder.build(topologyFileOrDir);
     config.validateWith(topology);
 
-    ClusterState cs = buildStateProcessor(config);
-
     AccessControlManager accessControlManager =
-        new AccessControlManager(accessControlProvider, cs, config);
+        new AccessControlManager(accessControlProvider, config);
 
     SchemaRegistryClient schemaRegistryClient =
         new CachedSchemaRegistryClient(config.getConfluentSchemaRegistryUrl(), 10);
@@ -91,15 +95,27 @@ public class KafkaTopologyBuilder implements AutoCloseable {
     }
   }
 
-  public void run() throws IOException {
+  void run(ExecutionPlan plan) throws IOException {
 
-    topicManager.sync(topology);
-    accessControlManager.sync(topology);
+    topicManager.apply(topology, plan);
+    accessControlManager.apply(topology, plan);
+
+    plan.run(config.isDryRun());
 
     if (!config.isQuiet() && !config.isDryRun()) {
       topicManager.printCurrentState(System.out);
       accessControlManager.printCurrentState(System.out);
     }
+  }
+
+  public void run() throws IOException {
+
+    ClusterState cs = buildStateProcessor(config);
+
+    ExecutionPlan plan = new ExecutionPlan();
+    plan.init(cs, allowDelete, outputStream);
+
+    run(plan);
   }
 
   public void close() {
@@ -120,7 +136,7 @@ public class KafkaTopologyBuilder implements AutoCloseable {
     }
   }
 
-  private static ClusterState buildStateProcessor(TopologyBuilderConfig config) throws IOException {
+  static ClusterState buildStateProcessor(TopologyBuilderConfig config) throws IOException {
 
     String stateProcessorClass = config.getStateProcessorImplementationClassName();
 

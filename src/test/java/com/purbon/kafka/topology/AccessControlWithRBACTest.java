@@ -32,6 +32,7 @@ public class AccessControlWithRBACTest {
 
   @Mock RBACProvider aclsProvider;
 
+  @Mock ExecutionPlan plan;
   @Mock ClusterState clusterState;
 
   @Rule public MockitoRule mockitoRule = MockitoJUnit.rule();
@@ -39,8 +40,9 @@ public class AccessControlWithRBACTest {
   private AccessControlManager accessControlManager;
 
   @Before
-  public void setup() {
-    accessControlManager = new AccessControlManager(aclsProvider, clusterState);
+  public void setup() throws IOException {
+    accessControlManager = new AccessControlManager(aclsProvider);
+    plan.init(clusterState, true, System.out);
   }
 
   @Test
@@ -69,7 +71,7 @@ public class AccessControlWithRBACTest {
     when(aclsProvider.setPredefinedRole("User:Foo", "ResourceOwner", project.buildTopicPrefix()))
         .thenReturn(binding);
 
-    accessControlManager.sync(topology);
+    accessControlManager.apply(topology, plan);
 
     verify(aclsProvider, times(1))
         .setPredefinedRole(eq("User:Foo"), eq("ResourceOwner"), eq(project.buildTopicPrefix()));

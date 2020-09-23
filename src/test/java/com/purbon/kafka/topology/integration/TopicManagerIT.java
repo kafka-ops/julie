@@ -3,6 +3,7 @@ package com.purbon.kafka.topology.integration;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
+import com.purbon.kafka.topology.ExecutionPlan;
 import com.purbon.kafka.topology.TopicManager;
 import com.purbon.kafka.topology.TopologyBuilderAdminClient;
 import com.purbon.kafka.topology.TopologyBuilderConfig;
@@ -50,6 +51,8 @@ public class TopicManagerIT {
   private TopicManager topicManager;
   private AdminClient kafkaAdminClient;
 
+  private ExecutionPlan plan;
+
   @Rule public MockitoRule mockitoRule = MockitoJUnit.rule();
 
   @Mock private TopologyBuilderConfig config;
@@ -75,6 +78,7 @@ public class TopicManagerIT {
     final SchemaRegistryManager schemaRegistryManager =
         new SchemaRegistryManager(schemaRegistryClient, System.getProperty("user.dir"));
 
+    this.plan = new ExecutionPlan();
     topicManager = new TopicManager(adminClient, schemaRegistryManager);
   }
 
@@ -100,7 +104,8 @@ public class TopicManagerIT {
     Topology topology = new TopologyImpl();
     topology.addProject(project);
 
-    topicManager.sync(topology);
+    topicManager.apply(topology, plan);
+    plan.run();
 
     verifyTopics(Arrays.asList(topicA.toString(), topicB.toString()));
   }
@@ -120,7 +125,8 @@ public class TopicManagerIT {
     Topology topology = new TopologyImpl();
     topology.addProject(project);
 
-    topicManager.sync(topology);
+    topicManager.apply(topology, plan);
+    plan.run();
   }
 
   @Test
@@ -146,7 +152,8 @@ public class TopicManagerIT {
     topicB.setConfig(config);
     project.addTopic(topicB);
 
-    topicManager.sync(topology);
+    topicManager.apply(topology, plan);
+    plan.run();
 
     verifyTopics(Arrays.asList(topicA.toString(), topicB.toString()));
 
@@ -173,7 +180,9 @@ public class TopicManagerIT {
 
     upProject.addTopic(topicB);
 
-    topicManager.sync(upTopology);
+    plan.getActions().clear();
+    topicManager.apply(upTopology, plan);
+    plan.run();
 
     verifyTopics(Arrays.asList(topicA.toString(), topicB.toString()));
   }
@@ -196,7 +205,8 @@ public class TopicManagerIT {
     topology.setContext("testTopicDelete-test");
     topology.addProject(project);
 
-    topicManager.sync(topology);
+    topicManager.apply(topology, plan);
+    plan.run();
 
     Topic topicC = new TopicImpl("topicC");
     topicC.setConfig(buildDummyTopicConfig());
@@ -210,7 +220,9 @@ public class TopicManagerIT {
 
     topology.addProject(project);
 
-    topicManager.sync(topology);
+    plan.getActions().clear();
+    topicManager.apply(topology, plan);
+    plan.run();
 
     verifyTopics(Arrays.asList(topicA.toString(), internalTopic, topicC.toString()), 2);
   }
@@ -244,7 +256,8 @@ public class TopicManagerIT {
     topology.setContext("testTopicCreationWithConfig-test");
     topology.addProject(project);
 
-    topicManager.sync(topology);
+    topicManager.apply(topology, plan);
+    plan.run();
 
     verifyTopicConfiguration(topicA.toString(), config);
   }
@@ -265,7 +278,9 @@ public class TopicManagerIT {
     topology.setContext("testTopicConfigUpdate-test");
     topology.addProject(project);
 
-    topicManager.sync(topology);
+    topicManager.apply(topology, plan);
+    plan.run();
+
     verifyTopicConfiguration(topicA.toString(), config);
 
     config.put("retention.bytes", "104");
@@ -276,7 +291,9 @@ public class TopicManagerIT {
     topology.setContext("testTopicConfigUpdate-test");
     topology.setProjects(Collections.singletonList(project));
 
-    topicManager.sync(topology);
+    plan.getActions().clear();
+    topicManager.apply(topology, plan);
+    plan.run();
 
     verifyTopicConfiguration(topicA.toString(), config, Collections.singletonList("segment.bytes"));
   }

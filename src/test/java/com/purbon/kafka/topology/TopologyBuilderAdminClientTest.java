@@ -54,6 +54,7 @@ public class TopologyBuilderAdminClientTest {
 
   private SimpleAclsProvider aclsProvider;
 
+  ExecutionPlan plan;
   @Mock ClusterState clusterState;
 
   @Rule public MockitoRule mockitoRule = MockitoJUnit.rule();
@@ -61,10 +62,14 @@ public class TopologyBuilderAdminClientTest {
   private AccessControlManager accessControlManager;
 
   @Before
-  public void setup() throws ExecutionException, InterruptedException {
+  public void setup() throws ExecutionException, InterruptedException, IOException {
     adminClient = new TopologyBuilderAdminClient(kafkaAdminClient, config);
     aclsProvider = new SimpleAclsProvider(adminClient);
-    accessControlManager = new AccessControlManager(aclsProvider, clusterState);
+    accessControlManager = new AccessControlManager(aclsProvider);
+
+    plan = new ExecutionPlan();
+    plan.init(clusterState, true, System.out);
+
     doNothing().when(clusterState).add(Matchers.anyList());
     doNothing().when(clusterState).flushAndClose();
 
@@ -91,7 +96,8 @@ public class TopologyBuilderAdminClientTest {
     Topology topology = new TopologyImpl();
     topology.addProject(project);
 
-    accessControlManager.sync(topology);
+    accessControlManager.apply(topology, plan);
+    plan.run();
 
     verify(kafkaAdminClient, times(1)).createAcls(anyCollection());
   }
@@ -110,7 +116,9 @@ public class TopologyBuilderAdminClientTest {
     Topology topology = new TopologyImpl();
     topology.addProject(project);
 
-    accessControlManager.sync(topology);
+    accessControlManager.apply(topology, plan);
+    plan.run();
+
     verify(kafkaAdminClient, times(1)).createAcls(anyCollection());
   }
 
@@ -130,7 +138,9 @@ public class TopologyBuilderAdminClientTest {
     Topology topology = new TopologyImpl();
     topology.addProject(project);
 
-    accessControlManager.sync(topology);
+    accessControlManager.apply(topology, plan);
+    plan.run();
+
     verify(kafkaAdminClient, times(1)).createAcls(anyCollection());
   }
 
@@ -156,7 +166,8 @@ public class TopologyBuilderAdminClientTest {
     platform.setSchemaRegistry(sr);
     topology.setPlatform(platform);
 
-    accessControlManager.sync(topology);
+    accessControlManager.apply(topology, plan);
+    plan.run();
 
     verify(kafkaAdminClient, times(1)).createAcls(anyCollection());
   }
@@ -177,7 +188,8 @@ public class TopologyBuilderAdminClientTest {
     platform.setControlCenter(c3);
     topology.setPlatform(platform);
 
-    accessControlManager.sync(topology);
+    accessControlManager.apply(topology, plan);
+    plan.run();
 
     verify(kafkaAdminClient, times(1)).createAcls(anyCollection());
   }
@@ -198,7 +210,8 @@ public class TopologyBuilderAdminClientTest {
     Topology topology = new TopologyImpl();
     topology.addProject(project);
 
-    accessControlManager.sync(topology);
+    accessControlManager.apply(topology, plan);
+    plan.run();
 
     verify(kafkaAdminClient, times(1)).createAcls(anyCollection());
   }

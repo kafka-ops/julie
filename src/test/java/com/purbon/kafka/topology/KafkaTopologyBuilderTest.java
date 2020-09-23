@@ -12,6 +12,7 @@ import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
+import com.purbon.kafka.topology.clusterstate.RedisStateProcessor;
 import com.purbon.kafka.topology.model.Topology;
 import java.io.IOException;
 import java.net.URISyntaxException;
@@ -48,6 +49,7 @@ public class KafkaTopologyBuilderTest {
     cliOps = new HashMap<>();
     cliOps.put(BROKERS_OPTION, "");
     cliOps.put(ADMIN_CLIENT_CONFIG_OPTION, "/fooBar");
+
     props = new Properties();
     props.put(CONFLUENT_SCHEMA_REGISTRY_URL_CONFIG, "http://foo:8082");
     props.put(AdminClientConfig.BOOTSTRAP_SERVERS_CONFIG, "");
@@ -144,20 +146,24 @@ public class KafkaTopologyBuilderTest {
     builder.setTopicManager(topicManager);
     builder.setAccessControlManager(accessControlManager);
 
-    doNothing().when(topicManager).sync(anyObject());
+    doNothing().when(topicManager).apply(anyObject(), anyObject());
 
-    doNothing().when(accessControlManager).sync(anyObject());
+    doNothing().when(accessControlManager).apply(anyObject(), anyObject());
 
     builder.run();
     builder.close();
 
-    verify(topicManager, times(1)).sync(anyObject());
-    verify(accessControlManager, times(1)).sync(anyObject());
+    verify(topicManager, times(1)).apply(anyObject(), anyObject());
+    verify(accessControlManager, times(1)).apply(anyObject(), anyObject());
   }
+
+  ExecutionPlan plan;
+  @Mock RedisStateProcessor stateProcessor;
 
   @Test
   public void builderRunTestAsFromCLIWithARedisBackend() throws URISyntaxException, IOException {
 
+    plan = new ExecutionPlan();
     URL dirOfDescriptors = getClass().getResource("/descriptor.yaml");
     String fileOrDirPath = Paths.get(dirOfDescriptors.toURI()).toFile().toString();
 
@@ -176,15 +182,19 @@ public class KafkaTopologyBuilderTest {
     builder.setTopicManager(topicManager);
     builder.setAccessControlManager(accessControlManager);
 
-    doNothing().when(topicManager).sync(anyObject());
+    doNothing().when(topicManager).apply(anyObject(), anyObject());
 
-    doNothing().when(accessControlManager).sync(anyObject());
+    doNothing().when(accessControlManager).apply(anyObject(), anyObject());
 
-    builder.run();
+    ClusterState cs = new ClusterState(stateProcessor);
+    plan.init(cs, true, System.out);
+
+    builder.run(plan);
     builder.close();
 
-    verify(topicManager, times(1)).sync(anyObject());
-    verify(accessControlManager, times(1)).sync(anyObject());
+    verify(stateProcessor, times(2)).createOrOpen();
+    verify(topicManager, times(1)).apply(anyObject(), anyObject());
+    verify(accessControlManager, times(1)).apply(anyObject(), anyObject());
   }
 
   @Test
@@ -201,14 +211,14 @@ public class KafkaTopologyBuilderTest {
     builder.setTopicManager(topicManager);
     builder.setAccessControlManager(accessControlManager);
 
-    doNothing().when(topicManager).sync(anyObject());
+    doNothing().when(topicManager).apply(anyObject(), anyObject());
 
-    doNothing().when(accessControlManager).sync(anyObject());
+    doNothing().when(accessControlManager).apply(anyObject(), anyObject());
 
     builder.run();
     builder.close();
 
-    verify(topicManager, times(1)).sync(anyObject());
-    verify(accessControlManager, times(1)).sync(anyObject());
+    verify(topicManager, times(1)).apply(anyObject(), anyObject());
+    verify(accessControlManager, times(1)).apply(anyObject(), anyObject());
   }
 }

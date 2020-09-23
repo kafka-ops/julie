@@ -63,13 +63,17 @@ public class AccessControlManagerTest {
 
   @Mock PrintStream mockPrintStream;
 
+  ExecutionPlan plan;
+
   @Rule public MockitoRule mockitoRule = MockitoJUnit.rule();
 
   private AccessControlManager accessControlManager;
 
   @Before
-  public void setup() {
-    accessControlManager = new AccessControlManager(aclsProvider, clusterState);
+  public void setup() throws IOException {
+    plan = new ExecutionPlan();
+    plan.init(clusterState, true, mockPrintStream);
+    accessControlManager = new AccessControlManager(aclsProvider);
     doNothing().when(clusterState).add(Matchers.anyList());
     doNothing().when(clusterState).flushAndClose();
   }
@@ -93,7 +97,7 @@ public class AccessControlManagerTest {
     doReturn(new ArrayList<TopologyAclBinding>())
         .when(aclsProvider)
         .setAclsForConsumers(users, topicA.toString());
-    accessControlManager.sync(topology);
+    accessControlManager.apply(topology, plan);
     verify(aclsProvider, times(1)).setAclsForConsumers(eq(users), eq(topicA.toString()));
   }
 
@@ -116,7 +120,7 @@ public class AccessControlManagerTest {
     doReturn(new ArrayList<TopologyAclBinding>())
         .when(aclsProvider)
         .setAclsForProducers(users, topicA.toString());
-    accessControlManager.sync(topology);
+    accessControlManager.apply(topology, plan);
     verify(aclsProvider, times(1)).setAclsForProducers(eq(users), eq(topicA.toString()));
   }
 
@@ -136,7 +140,7 @@ public class AccessControlManagerTest {
     Topology topology = new TopologyImpl();
     topology.addProject(project);
 
-    accessControlManager.sync(topology);
+    accessControlManager.apply(topology, plan);
     String topicPrefix = project.buildTopicPrefix(topology.buildNamePrefix());
 
     doReturn(new ArrayList<TopologyAclBinding>())
@@ -176,7 +180,7 @@ public class AccessControlManagerTest {
     platform.setSchemaRegistry(sr);
     topology.setPlatform(platform);
 
-    accessControlManager.sync(topology);
+    accessControlManager.apply(topology, plan);
 
     doReturn(new ArrayList<TopologyAclBinding>())
         .when(aclsProvider)
@@ -209,7 +213,7 @@ public class AccessControlManagerTest {
     platform.setControlCenter(c3);
     topology.setPlatform(platform);
 
-    accessControlManager.sync(topology);
+    accessControlManager.apply(topology, plan);
 
     doReturn(new ArrayList<TopologyAclBinding>())
         .when(aclsProvider)
@@ -233,7 +237,7 @@ public class AccessControlManagerTest {
     platform.setKafka(kafka);
     topology.setPlatform(platform);
 
-    accessControlManager.sync(topology);
+    accessControlManager.apply(topology, plan);
 
     doReturn(new ArrayList<TopologyAclBinding>())
         .when(aclsProvider)
@@ -258,7 +262,7 @@ public class AccessControlManagerTest {
     platform.setKafkaConnect(connect);
     topology.setPlatform(platform);
 
-    accessControlManager.sync(topology);
+    accessControlManager.apply(topology, plan);
 
     doReturn(new ArrayList<TopologyAclBinding>())
         .when(aclsProvider)
@@ -286,7 +290,8 @@ public class AccessControlManagerTest {
     Topology topology = new TopologyImpl();
     topology.addProject(project);
 
-    accessControlManager.sync(topology);
+    accessControlManager.apply(topology, plan);
+
     String topicPrefix = project.buildTopicPrefix(topology.buildNamePrefix());
 
     doReturn(new ArrayList<TopologyAclBinding>())
@@ -299,8 +304,7 @@ public class AccessControlManagerTest {
   @Test
   public void testDryRunMode() throws IOException {
 
-    accessControlManager.setDryRun(true);
-    accessControlManager.setOutputStream(mockPrintStream);
+    plan.init(clusterState, true, mockPrintStream);
 
     List<Consumer> consumers = new ArrayList<>();
     consumers.add(new Consumer("User:app1"));
@@ -318,7 +322,9 @@ public class AccessControlManagerTest {
     doReturn(new ArrayList<TopologyAclBinding>())
         .when(aclsProvider)
         .setAclsForConsumers(users, topicA.toString());
-    accessControlManager.sync(topology);
+    accessControlManager.apply(topology, plan);
+
+    plan.run(true);
 
     verify(mockPrintStream, times(2)).println(any(Action.class));
   }
@@ -329,7 +335,8 @@ public class AccessControlManagerTest {
     ClusterState clusterState = new ClusterState();
     clusterState.load();
     clusterState.reset();
-    accessControlManager = new AccessControlManager(aclsProvider, clusterState);
+    plan.init(clusterState, true, mockPrintStream);
+    accessControlManager = new AccessControlManager(aclsProvider);
 
     List<Consumer> consumers = new ArrayList<>();
     consumers.add(new Consumer("User:app1"));
@@ -342,7 +349,8 @@ public class AccessControlManagerTest {
     List<TopologyAclBinding> bindings = returnAclsForConsumers(consumers, topicA.getName());
     doReturn(bindings).when(aclsProvider).setAclsForConsumers(any(), eq(topicA.toString()));
 
-    accessControlManager.sync(topology);
+    accessControlManager.apply(topology, plan);
+    plan.run();
 
     verify(aclsProvider, times(1)).setAclsForConsumers(consumers, topicA.toString());
 
@@ -354,7 +362,8 @@ public class AccessControlManagerTest {
 
     Topology newTopology = buildTopology(consumers, asList(topicA));
 
-    accessControlManager.sync(newTopology);
+    accessControlManager.apply(newTopology, plan);
+    plan.run();
 
     List<TopologyAclBinding> bindingsToDelete =
         returnAclsForConsumers(asList(new Consumer("User:app2")), topicA.getName());

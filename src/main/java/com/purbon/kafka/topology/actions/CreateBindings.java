@@ -5,7 +5,9 @@ import com.purbon.kafka.topology.AccessControlProvider;
 import com.purbon.kafka.topology.roles.TopologyAclBinding;
 import com.purbon.kafka.topology.utils.JSON;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -22,6 +24,11 @@ public class CreateBindings implements Action {
   @Override
   public void run() throws IOException {
     controlProvider.createBindings(bindings);
+  }
+
+  @Override
+  public List<TopologyAclBinding> getBindings() {
+    return new ArrayList<>(bindings);
   }
 
   @Override

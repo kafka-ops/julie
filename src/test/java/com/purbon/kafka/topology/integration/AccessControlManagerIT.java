@@ -4,6 +4,7 @@ import static org.mockito.Mockito.when;
 
 import com.purbon.kafka.topology.AccessControlManager;
 import com.purbon.kafka.topology.ClusterState;
+import com.purbon.kafka.topology.ExecutionPlan;
 import com.purbon.kafka.topology.TopologyBuilderAdminClient;
 import com.purbon.kafka.topology.TopologyBuilderConfig;
 import com.purbon.kafka.topology.model.Impl.ProjectImpl;
@@ -56,9 +57,10 @@ public class AccessControlManagerIT {
 
   private static AdminClient kafkaAdminClient;
   private AccessControlManager accessControlManager;
-  private ClusterState cs;
   private SimpleAclsProvider aclsProvider;
 
+  private ExecutionPlan plan;
+  private ClusterState cs;
   @Rule public MockitoRule mockitoRule = MockitoJUnit.rule();
 
   @Mock private TopologyBuilderConfig config;
@@ -70,9 +72,12 @@ public class AccessControlManagerIT {
         new TopologyBuilderAdminClient(kafkaAdminClient, config);
     adminClient.clearAcls();
 
-    cs = new ClusterState();
+    this.plan = new ExecutionPlan();
+    this.cs = new ClusterState();
+    this.plan.init(cs, true, System.out);
+
     aclsProvider = new SimpleAclsProvider(adminClient);
-    accessControlManager = new AccessControlManager(aclsProvider, cs);
+    accessControlManager = new AccessControlManager(aclsProvider);
   }
 
   @Test
@@ -97,7 +102,8 @@ public class AccessControlManagerIT {
     topology.addOther("source", "testAclsRemoval");
     topology.addProject(project);
 
-    accessControlManager.sync(topology);
+    accessControlManager.apply(topology, plan);
+    plan.run();
 
     Assert.assertEquals(6, cs.size());
     verifyAclsOfSize(8); // Total of 3 acls per consumer + 2 for the producer
@@ -105,7 +111,9 @@ public class AccessControlManagerIT {
     consumers.remove(1);
     project.setConsumers(consumers);
 
-    accessControlManager.sync(topology);
+    plan.getActions().clear();
+    accessControlManager.apply(topology, plan);
+    plan.run();
 
     Assert.assertEquals(3, cs.size());
     verifyAclsOfSize(5);
@@ -127,7 +135,8 @@ public class AccessControlManagerIT {
     topology.addOther("source", "testConsumerAclsCreation");
     topology.addProject(project);
 
-    accessControlManager.sync(topology);
+    accessControlManager.apply(topology, plan);
+    plan.run(false);
 
     verifyConsumerAcls(consumers, topicA.toString());
   }
@@ -148,7 +157,8 @@ public class AccessControlManagerIT {
     topology.addOther("source", "producerAclsCreation");
     topology.addProject(project);
 
-    accessControlManager.sync(topology);
+    accessControlManager.apply(topology, plan);
+    plan.run(false);
 
     verifyProducerAcls(producers, topicA.toString());
   }
@@ -170,7 +180,8 @@ public class AccessControlManagerIT {
     topology.addOther("source", "kstreamsAclsCreation");
     topology.addProject(project);
 
-    accessControlManager.sync(topology);
+    accessControlManager.apply(topology, plan);
+    plan.run();
 
     verifyKStreamsAcls(app);
   }
@@ -198,7 +209,8 @@ public class AccessControlManagerIT {
 
     topology.setPlatform(platform);
 
-    accessControlManager.sync(topology);
+    accessControlManager.apply(topology, plan);
+    plan.run();
 
     verifySchemaRegistryAcls(platform);
   }
@@ -228,7 +240,8 @@ public class AccessControlManagerIT {
 
     topology.setPlatform(platform);
 
-    accessControlManager.sync(topology);
+    accessControlManager.apply(topology, plan);
+    plan.run();
 
     verifyControlCenterAcls(platform);
   }
@@ -249,7 +262,8 @@ public class AccessControlManagerIT {
     topology.addOther("source", "connectAclsCreation");
     topology.addProject(project);
 
-    accessControlManager.sync(topology);
+    accessControlManager.apply(topology, plan);
+    plan.run();
 
     verifyConnectAcls(connector);
   }

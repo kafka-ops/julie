@@ -32,6 +32,8 @@ public class TopicManagerTest {
 
   @Mock SchemaRegistryManager schemaRegistryManager;
 
+  @Mock ClusterState clusterState;
+  ExecutionPlan plan;
   @Mock PrintStream outputStream;
 
   @Rule public MockitoRule mockitoRule = MockitoJUnit.rule();
@@ -40,10 +42,11 @@ public class TopicManagerTest {
   private HashMap<String, String> cliOps;
 
   @Before
-  public void setup() {
+  public void setup() throws IOException {
     cliOps = new HashMap<>();
     cliOps.put(BROKERS_OPTION, "");
-
+    plan = new ExecutionPlan();
+    plan.init(clusterState, true, System.out);
     topicManager = new TopicManager(adminClient, schemaRegistryManager);
   }
 
@@ -59,7 +62,8 @@ public class TopicManagerTest {
     topology.addProject(project);
 
     when(adminClient.listApplicationTopics()).thenReturn(new HashSet<>());
-    topicManager.sync(topology);
+    topicManager.apply(topology, plan);
+    plan.run();
 
     verify(adminClient, times(1)).createTopic(topicA, topicA.toString());
     verify(adminClient, times(1)).createTopic(topicB, topicB.toString());
@@ -81,7 +85,8 @@ public class TopicManagerTest {
     dummyTopicList.add(topicB.toString());
     when(adminClient.listApplicationTopics()).thenReturn(dummyTopicList);
 
-    topicManager.sync(topology);
+    topicManager.apply(topology, plan);
+    plan.run();
 
     verify(adminClient, times(1)).createTopic(topicA, topicA.toString());
     verify(adminClient, times(1)).updateTopicConfig(topicB, topicB.toString());
@@ -117,7 +122,8 @@ public class TopicManagerTest {
         "_my-internal-topic"); // return an internal topic using the default config values
     when(adminClient.listApplicationTopics()).thenReturn(dummyTopicList);
 
-    topicManager.sync(topology);
+    topicManager.apply(topology, plan);
+    plan.run();
 
     verify(adminClient, times(1)).createTopic(topicA, topicA.toString());
     verify(adminClient, times(1)).createTopic(topicB, topicB.toString());
@@ -152,7 +158,8 @@ public class TopicManagerTest {
         Arrays.asList(topicC, topicI1, topicI2).stream().collect(Collectors.toSet());
     when(adminClient.listApplicationTopics()).thenReturn(appTopics);
 
-    topicManager.sync(topology);
+    topicManager.apply(topology, plan);
+    plan.run();
 
     verify(adminClient, times(1)).createTopic(topicA, topicA.toString());
     verify(adminClient, times(1)).createTopic(topicB, topicB.toString());
@@ -188,7 +195,8 @@ public class TopicManagerTest {
     Set<String> appTopics = Arrays.asList(topicC).stream().collect(Collectors.toSet());
     when(adminClient.listApplicationTopics()).thenReturn(appTopics);
 
-    topicManager.sync(topology);
+    topicManager.apply(topology, plan);
+    plan.run();
 
     verify(adminClient, times(0)).deleteTopics(Collections.singletonList(topicC));
   }
@@ -196,9 +204,7 @@ public class TopicManagerTest {
   @Test
   public void dryRunTest() throws IOException {
 
-    topicManager.setDryRun(true);
-    topicManager.setOutputStream(outputStream);
-
+    plan.init(clusterState, true, outputStream);
     Project project = new ProjectImpl("project");
     Topic topicA = new TopicImpl("topicA");
     project.addTopic(topicA);
@@ -212,7 +218,8 @@ public class TopicManagerTest {
     dummyTopicList.add(topicB.toString());
     when(adminClient.listApplicationTopics()).thenReturn(dummyTopicList);
 
-    topicManager.sync(topology);
+    topicManager.apply(topology, plan);
+    plan.run(true);
 
     verify(outputStream, times(2)).println(any(Action.class));
   }

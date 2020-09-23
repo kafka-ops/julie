@@ -6,6 +6,8 @@ import static com.purbon.kafka.topology.model.Component.SCHEMA_REGISTRY;
 
 import com.purbon.kafka.topology.actions.Action;
 import com.purbon.kafka.topology.actions.AddConnectorAuthorization;
+import com.purbon.kafka.topology.actions.ClearAcls;
+import com.purbon.kafka.topology.actions.CreateBindings;
 import com.purbon.kafka.topology.actions.SetAclsForConsumer;
 import com.purbon.kafka.topology.actions.SetAclsForControlCenter;
 import com.purbon.kafka.topology.actions.SetAclsForKConnect;
@@ -27,11 +29,17 @@ import com.purbon.kafka.topology.model.users.Schemas;
 import com.purbon.kafka.topology.model.users.platform.ControlCenterInstance;
 import com.purbon.kafka.topology.model.users.platform.SchemaRegistryInstance;
 import com.purbon.kafka.topology.roles.SimpleAclsProvider;
+import com.purbon.kafka.topology.roles.TopologyAclBinding;
 import java.io.IOException;
 import java.io.PrintStream;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -39,11 +47,7 @@ public class AccessControlManager {
 
   private static final Logger LOGGER = LogManager.getLogger(AccessControlManager.class);
 
-  private final Boolean allowDelete;
-  private ExecutionPlan plan;
-  private boolean dryRun;
-  private PrintStream outputStream;
-
+  private final TopologyBuilderConfig config;
   private AccessControlProvider controlProvider;
   private ClusterState clusterState;
 
@@ -65,14 +69,12 @@ public class AccessControlManager {
       TopologyBuilderConfig config) {
     this.controlProvider = controlProvider;
     this.clusterState = clusterState;
-    this.plan = new ExecutionPlan();
-    this.allowDelete = config.allowDeletes();
-    this.dryRun = config.isDryRun();
-    this.outputStream = System.out;
+    this.config = config;
   }
 
-  public void sync(final Topology topology) throws IOException {
-    plan.init(clusterState, allowDelete, outputStream);
+  public void apply(final Topology topology, ExecutionPlan plan) throws IOException {
+
+    List<Action> actions = new ArrayList<>();
 
     for (Project project : topology.getProjects()) {
       project
@@ -84,75 +86,107 @@ public class AccessControlManager {
                   Action action =
                       new SetAclsForConsumer(
                           controlProvider, project.getConsumers(), fullTopicName);
-                  plan.add(action);
+                  actions.add(action);
                 }
                 if (!project.getProducers().isEmpty()) {
                   Action action =
                       new SetAclsForProducer(
                           controlProvider, project.getProducers(), fullTopicName);
-                  plan.add(action);
+                  actions.add(action);
                 }
               });
       // Setup global Kafka Stream Access control lists
       String topicPrefix = project.buildTopicPrefix(topology.buildNamePrefix());
       for (KStream app : project.getStreams()) {
         Action action = syncApplicationAcls(app, topicPrefix);
-        plan.add(action);
+        actions.add(action);
       }
       for (Connector connector : project.getConnectors()) {
         Action action = syncApplicationAcls(connector, topicPrefix);
-        plan.add(action);
+        actions.add(action);
         if (connector.getConnectors().isPresent())
-          plan.add(new AddConnectorAuthorization(controlProvider, connector));
+          actions.add(new AddConnectorAuthorization(controlProvider, connector));
       }
 
       for (Schemas schemaAuthorization : project.getSchemas()) {
-        plan.add(new SetSchemaAuthorization(controlProvider, schemaAuthorization));
+        actions.add(new SetSchemaAuthorization(controlProvider, schemaAuthorization));
       }
 
-      syncRbacRawRoles(project.getRbacRawRoles(), topicPrefix);
+      syncRbacRawRoles(project.getRbacRawRoles(), topicPrefix, actions);
     }
 
-    syncPlatformAcls(topology);
+    syncPlatformAcls(topology, actions);
 
-    plan.run(dryRun, controlProvider);
+    // Main actions now should be setup to create low level bindings
+
+    Set<TopologyAclBinding> bindings =
+        actions.stream().flatMap(executeToFunction()).collect(Collectors.toSet());
+
+    CreateBindings createBindings = new CreateBindings(controlProvider, bindings);
+    plan.add(createBindings);
+
+    if (config.allowDeletes()) {
+      // clear acls that does not appear anymore in the new generated list,
+      // but where previously created
+      Set<TopologyAclBinding> bindingsToDelete =
+          plan.getBindings().stream()
+              .filter(binding -> !bindings.contains(binding))
+              .collect(Collectors.toSet());
+
+      ClearAcls clearAcls = new ClearAcls(controlProvider, bindingsToDelete);
+      plan.add(clearAcls);
+    }
   }
 
-  private void syncPlatformAcls(final Topology topology) throws IOException {
+  private Function<Action, Stream<TopologyAclBinding>> executeToFunction() {
+    return action -> {
+      try {
+        action.run();
+        return action.getBindings().stream();
+      } catch (Exception ex) {
+        LOGGER.error(ex);
+        return new ArrayList<TopologyAclBinding>().stream();
+      }
+    };
+  }
+
+  private void syncPlatformAcls(final Topology topology, List<Action> actions) throws IOException {
     // Sync platform relevant Access Control List.
     Platform platform = topology.getPlatform();
 
     // Set cluster level ACLs
-    syncClusterLevelRbac(platform.getKafka().getRbac(), KAFKA);
-    syncClusterLevelRbac(platform.getKafkaConnect().getRbac(), KAFKA_CONNECT);
-    syncClusterLevelRbac(platform.getSchemaRegistry().getRbac(), SCHEMA_REGISTRY);
+    syncClusterLevelRbac(platform.getKafka().getRbac(), KAFKA, actions);
+    syncClusterLevelRbac(platform.getKafkaConnect().getRbac(), KAFKA_CONNECT, actions);
+    syncClusterLevelRbac(platform.getSchemaRegistry().getRbac(), SCHEMA_REGISTRY, actions);
 
     // Set component level ACLs
     for (SchemaRegistryInstance schemaRegistry : platform.getSchemaRegistry().getInstances()) {
-      plan.add(new SetAclsForSchemaRegistry(controlProvider, schemaRegistry));
+      actions.add(new SetAclsForSchemaRegistry(controlProvider, schemaRegistry));
     }
     for (ControlCenterInstance controlCenter : platform.getControlCenter().getInstances()) {
-      plan.add(new SetAclsForControlCenter(controlProvider, controlCenter));
+      actions.add(new SetAclsForControlCenter(controlProvider, controlCenter));
     }
   }
 
-  private void syncClusterLevelRbac(Optional<Map<String, List<User>>> rbac, Component cmp) {
+  private void syncClusterLevelRbac(
+      Optional<Map<String, List<User>>> rbac, Component cmp, List<Action> actions) {
     if (rbac.isPresent()) {
       Map<String, List<User>> roles = rbac.get();
       for (String role : roles.keySet()) {
         for (User user : roles.get(role)) {
-          plan.add(new SetClusterLevelRole(controlProvider, role, user, cmp));
+          actions.add(new SetClusterLevelRole(controlProvider, role, user, cmp));
         }
       }
     }
   }
 
-  private void syncRbacRawRoles(Map<String, List<String>> rbacRawRoles, String topicPrefix) {
+  private void syncRbacRawRoles(
+      Map<String, List<String>> rbacRawRoles, String topicPrefix, List<Action> actions) {
     rbacRawRoles.forEach(
         (predefinedRole, principals) ->
             principals.forEach(
                 principal ->
-                    plan.add(
+                    actions.add(
                         new SetPredefinedRole(
                             controlProvider, principal, predefinedRole, topicPrefix))));
   }
@@ -176,14 +210,6 @@ public class AccessControlManager {
               out.println(topic);
               aclBindings.forEach(binding -> out.println(binding));
             });
-  }
-
-  public void setDryRun(boolean dryRun) {
-    this.dryRun = dryRun;
-  }
-
-  public void setOutputStream(PrintStream os) {
-    this.outputStream = os;
   }
 
   public void setAclsProvider(SimpleAclsProvider aclsProvider) {

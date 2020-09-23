@@ -35,6 +35,8 @@ import org.apache.kafka.common.acl.AclOperation;
 import org.apache.kafka.common.acl.AclPermissionType;
 import org.apache.kafka.common.config.ConfigResource;
 import org.apache.kafka.common.config.ConfigResource.Type;
+import org.apache.kafka.common.errors.InvalidConfigurationException;
+import org.apache.kafka.common.errors.TopicExistsException;
 import org.apache.kafka.common.resource.PatternType;
 import org.apache.kafka.common.resource.ResourcePattern;
 import org.apache.kafka.common.resource.ResourcePatternFilter;
@@ -196,6 +198,8 @@ public class TopologyBuilderAdminClient {
     Collection<NewTopic> newTopics = Collections.singleton(newTopic);
     try {
       createAllTopics(newTopics);
+    } catch (TopicExistsException ex) {
+      LOGGER.info(ex);
     } catch (ExecutionException | InterruptedException e) {
       LOGGER.error(e);
       throw new IOException(e);
@@ -405,9 +409,11 @@ public class TopologyBuilderAdminClient {
   public void createAcls(Collection<AclBinding> acls) throws IOException {
     try {
       adminClient.createAcls(acls).all().get();
+    } catch (InvalidConfigurationException ex) {
+      LOGGER.error(ex);
+      throw ex;
     } catch (ExecutionException | InterruptedException e) {
       LOGGER.error(e);
-      throw new IOException(e);
     }
   }
 
