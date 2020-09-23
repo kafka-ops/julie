@@ -3,6 +3,7 @@ package com.purbon.kafka.topology.schemas;
 import io.confluent.kafka.schemaregistry.ParsedSchema;
 import io.confluent.kafka.schemaregistry.avro.AvroSchema;
 import io.confluent.kafka.schemaregistry.client.SchemaRegistryClient;
+import java.io.File;
 import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -23,22 +24,34 @@ public class SchemaRegistryManager {
   }
 
   private final SchemaRegistryClient schemaRegistryClient;
+  private final String rootPath;
 
-  public SchemaRegistryManager(SchemaRegistryClient schemaRegistryClient) {
+  public SchemaRegistryManager(SchemaRegistryClient schemaRegistryClient, String topologyFileOrDir) {
     this.schemaRegistryClient = schemaRegistryClient;
+    this.rootPath = Files.isDirectory(Paths.get(topologyFileOrDir)) ? topologyFileOrDir : new File(topologyFileOrDir).getParent();
   }
 
   public int register(String subjectName, String schemaFile) {
     try {
-      final String schema = new String(Files.readAllBytes(schemaFilePath(schemaFile)));
-      return register(subjectName, AvroSchema.TYPE, schema);
+      return register(subjectName, schemaFilePath(schemaFile));
     } catch (Exception e) {
       throw new SchemaRegistryManagerException("Failed to parse the schema file " + schemaFile, e);
     }
   }
 
-  private Path schemaFilePath(String schemaFile) throws URISyntaxException {
-    return Paths.get(this.getClass().getClassLoader().getResource(schemaFile).toURI());
+  public int register(String subjectName, Path schemaFilePath) {
+    try {
+      final String schema = new String(Files.readAllBytes(schemaFilePath));
+      return register(subjectName, AvroSchema.TYPE, schema);
+    } catch (Exception e) {
+      throw new SchemaRegistryManagerException("Failed to parse the schema file " + schemaFilePath, e);
+    }
+  }
+
+  private Path schemaFilePath(String schemaFile) {
+    Path p = Paths.get(rootPath, schemaFile);
+    System.out.println(p);
+    return p;
   }
 
   int register(String subjectName, String schemaType, String schemaString) {
