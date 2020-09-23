@@ -39,7 +39,8 @@ public class SchemaRegistryManagerTest {
   @Test
   public void shouldRegisterTheSchemaWithDefaultAvroType() throws Exception {
 
-    Path schemaFilePath = Paths.get(getClass().getClassLoader().getResource("schemas/bar-value.avsc").toURI());
+    Path schemaFilePath =
+        Paths.get(getClass().getClassLoader().getResource("schemas/bar-value.avsc").toURI());
 
     final int subjectId = manager.register(subjectName, schemaFilePath);
     assertThat(subjectId).isEqualTo(1);

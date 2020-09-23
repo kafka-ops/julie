@@ -4,7 +4,6 @@ import io.confluent.kafka.schemaregistry.ParsedSchema;
 import io.confluent.kafka.schemaregistry.avro.AvroSchema;
 import io.confluent.kafka.schemaregistry.client.SchemaRegistryClient;
 import java.io.File;
-import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -26,9 +25,13 @@ public class SchemaRegistryManager {
   private final SchemaRegistryClient schemaRegistryClient;
   private final String rootPath;
 
-  public SchemaRegistryManager(SchemaRegistryClient schemaRegistryClient, String topologyFileOrDir) {
+  public SchemaRegistryManager(
+      SchemaRegistryClient schemaRegistryClient, String topologyFileOrDir) {
     this.schemaRegistryClient = schemaRegistryClient;
-    this.rootPath = Files.isDirectory(Paths.get(topologyFileOrDir)) ? topologyFileOrDir : new File(topologyFileOrDir).getParent();
+    this.rootPath =
+        Files.isDirectory(Paths.get(topologyFileOrDir))
+            ? topologyFileOrDir
+            : new File(topologyFileOrDir).getParent();
   }
 
   public int register(String subjectName, String schemaFile) {
@@ -44,7 +47,8 @@ public class SchemaRegistryManager {
       final String schema = new String(Files.readAllBytes(schemaFilePath));
       return register(subjectName, AvroSchema.TYPE, schema);
     } catch (Exception e) {
-      throw new SchemaRegistryManagerException("Failed to parse the schema file " + schemaFilePath, e);
+      throw new SchemaRegistryManagerException(
+          "Failed to parse the schema file " + schemaFilePath, e);
     }
   }
 

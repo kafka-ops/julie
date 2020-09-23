@@ -74,7 +74,8 @@ public class KafkaTopologyBuilder implements AutoCloseable {
     String schemaRegistryUrl = (String) config.getOrDefault(SCHEMA_REGISTRY_URL, "http://foo:8082");
     SchemaRegistryClient schemaRegistryClient =
         new CachedSchemaRegistryClient(schemaRegistryUrl, 10);
-    SchemaRegistryManager schemaRegistryManager = new SchemaRegistryManager(schemaRegistryClient, topologyFileOrDir);
+    SchemaRegistryManager schemaRegistryManager =
+        new SchemaRegistryManager(schemaRegistryClient, topologyFileOrDir);
 
     TopicManager topicManager = new TopicManager(adminClient, schemaRegistryManager, config);
 
