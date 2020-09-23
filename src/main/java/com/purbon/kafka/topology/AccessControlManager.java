@@ -119,10 +119,16 @@ public class AccessControlManager {
 
     // Main actions now should be setup to create low level bindings
 
-    Set<TopologyAclBinding> bindings =
+    Set<TopologyAclBinding> allFinalBindings =
         actions.stream().flatMap(executeToFunction()).collect(Collectors.toSet());
 
-    CreateBindings createBindings = new CreateBindings(controlProvider, bindings);
+    // Diff of bindings, so we only create what is not already created in the cluster.
+    Set<TopologyAclBinding> bindingsToBeCreated =
+        allFinalBindings.stream()
+            .filter(binding -> !plan.getBindings().contains(binding))
+            .collect(Collectors.toSet());
+
+    CreateBindings createBindings = new CreateBindings(controlProvider, bindingsToBeCreated);
     plan.add(createBindings);
 
     if (config.allowDeletes()) {
@@ -130,7 +136,7 @@ public class AccessControlManager {
       // but where previously created
       Set<TopologyAclBinding> bindingsToDelete =
           plan.getBindings().stream()
-              .filter(binding -> !bindings.contains(binding))
+              .filter(binding -> !allFinalBindings.contains(binding))
               .collect(Collectors.toSet());
 
       ClearAcls clearAcls = new ClearAcls(controlProvider, bindingsToDelete);
