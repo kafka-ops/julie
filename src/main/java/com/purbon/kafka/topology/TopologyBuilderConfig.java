@@ -1,9 +1,5 @@
 package com.purbon.kafka.topology;
 
-import static com.purbon.kafka.topology.BuilderCLI.ADMIN_CLIENT_CONFIG_OPTION;
-import static com.purbon.kafka.topology.BuilderCLI.BROKERS_OPTION;
-import static com.purbon.kafka.topology.BuilderCLI.DRY_RUN_OPTION;
-import static com.purbon.kafka.topology.BuilderCLI.QUIET_OPTION;
 import static com.purbon.kafka.topology.KafkaTopologyBuilder.SCHEMA_REGISTRY_URL;
 
 import com.purbon.kafka.topology.exceptions.ConfigurationException;
@@ -97,16 +93,11 @@ public class TopologyBuilderConfig {
 
   public void validateRBACConfiguration(Topology topology) throws ConfigurationException {
     raiseIfNull(MDS_SERVER, MDS_USER_CONFIG, MDS_PASSWORD_CONFIG);
-
-    boolean hasSchemaRegistry = !topology.getPlatform().getSchemaRegistry().isEmpty();
-    boolean hasKafkaConnect = false;
-    List<Project> projects = topology.getProjects();
-    for (int i = 0; !hasKafkaConnect && i < projects.size(); i++) {
-      Project project = projects.get(i);
-      hasKafkaConnect = !project.getConnectors().isEmpty();
-    }
-
     raiseIfNull(MDS_KAFKA_CLUSTER_ID_CONFIG);
+
+    final boolean hasSchemaRegistry = !topology.getPlatform().getSchemaRegistry().isEmpty();
+    final boolean hasKafkaConnect =
+        !topology.getProjects().stream().allMatch(project -> project.getConnectors().isEmpty());
 
     if (hasSchemaRegistry) {
       raiseIfNull(MDS_SR_CLUSTER_ID_CONFIG);
@@ -131,11 +122,11 @@ public class TopologyBuilderConfig {
 
   private void raiseIfNull(String... keys) throws ConfigurationException {
     for (String key : keys) {
-      raiseIfNull(key, properties.getProperty(key));
+      raiseIfValueIsNull(key, properties.getProperty(key));
     }
   }
 
-  private void raiseIfNull(String key, String value) throws ConfigurationException {
+  private void raiseIfValueIsNull(String key, String value) throws ConfigurationException {
     if (value == null) {
       throw new ConfigurationException(
           "Required configuration " + key + " is missing, please add it to your configuration");
@@ -177,24 +168,29 @@ public class TopologyBuilderConfig {
         .toString();
   }
 
+  public boolean allowDeletes() {
+    return Boolean.valueOf(cliParams.getOrDefault(BuilderCLI.ALLOW_DELETE_OPTION, "true"));
+  }
+
   public boolean isQuiet() {
-    return Boolean.valueOf(cliParams.getOrDefault(QUIET_OPTION, "false"));
+    return Boolean.valueOf(cliParams.getOrDefault(BuilderCLI.QUIET_OPTION, "false"));
   }
 
   public boolean isDryRun() {
-    return Boolean.valueOf(cliParams.getOrDefault(DRY_RUN_OPTION, "true"));
+    return Boolean.valueOf(cliParams.getOrDefault(BuilderCLI.DRY_RUN_OPTION, "false"));
   }
 
   private static Properties buildProperties(Map<String, String> cliParams) {
     Properties props = new Properties();
-    if (cliParams.get(ADMIN_CLIENT_CONFIG_OPTION) != null) {
+    final String adminClientConfigPath = cliParams.get(BuilderCLI.ADMIN_CLIENT_CONFIG_OPTION);
+    if (adminClientConfigPath != null) {
       try {
-        props.load(new FileInputStream(cliParams.get(ADMIN_CLIENT_CONFIG_OPTION)));
+        props.load(new FileInputStream(adminClientConfigPath));
       } catch (IOException e) {
-        // TODO: Can be ignored
+        System.err.println("Could not load properties file " + adminClientConfigPath);
       }
     }
-    props.put(AdminClientConfig.BOOTSTRAP_SERVERS_CONFIG, cliParams.get(BROKERS_OPTION));
+    props.put(AdminClientConfig.BOOTSTRAP_SERVERS_CONFIG, cliParams.get(BuilderCLI.BROKERS_OPTION));
     props.put(AdminClientConfig.RETRIES_CONFIG, Integer.MAX_VALUE);
 
     return props;
