@@ -193,6 +193,7 @@ Kafka Topology Builder will assign the following ACLs:
 * the principal for a `schema_registy` platform component will be given `DESCRIBE_CONFIGS`, `READ`, and `WRITE` access to each topic.
 
 * the principal for a `control_center` platform component will be given:
+
   * `DESCRIBE` and `DESCRIBE_CONFIGS` on the cluster resource
   * `READ` on every consumer group starting with the corresponding `appId` (`PREFIXED` ACLs)
   * `CREATE`, `DESCRIBE`, `READ`, and `WRITE` access on each topic starting with the corresponding `appId` (`PREFIXED`)
@@ -206,6 +207,7 @@ The principal which the Kafka Topology Builder uses to authenticate towards the 
 * `ALTER` on the cluster resource to create and delete ACLs
 * `DESCRIBE` on the cluster resource
 * the following operations be allowed for topic resources prefixed with the current context:
+
   * `ALTER_CONFIGS`, `CREATE`, and `DESCRIBE`
   * `ALTER` when changing the number of partitions should be allowed
   * `DELETE` when topic deletion should be allowed
