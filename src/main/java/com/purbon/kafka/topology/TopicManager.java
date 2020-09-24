@@ -1,8 +1,5 @@
 package com.purbon.kafka.topology;
 
-import static com.purbon.kafka.topology.TopologyBuilderConfig.KAFKA_INTERNAL_TOPIC_PREFIXES;
-import static com.purbon.kafka.topology.TopologyBuilderConfig.KAFKA_INTERNAL_TOPIC_PREFIXES_DEFAULT;
-
 import com.purbon.kafka.topology.actions.Action;
 import com.purbon.kafka.topology.actions.DeleteTopics;
 import com.purbon.kafka.topology.actions.SyncTopicAction;
@@ -52,13 +49,7 @@ public class TopicManager {
     this.allowDelete = config.allowDeletes();
     this.dryRun = config.isDryRun();
     this.outputStream = System.out;
-    this.internalTopicPrefixes =
-        config
-            .getPropertyAsList(
-                KAFKA_INTERNAL_TOPIC_PREFIXES, KAFKA_INTERNAL_TOPIC_PREFIXES_DEFAULT, ",")
-            .stream()
-            .map(s -> s.trim())
-            .collect(Collectors.toList());
+    this.internalTopicPrefixes = config.getKafkaInternalTopicPrefixes();
   }
 
   public void sync(Topology topology) throws IOException {
@@ -108,8 +99,7 @@ public class TopicManager {
   }
 
   private boolean isAnInternalTopics(String topic) {
-    return internalTopicPrefixes.stream()
-            .anyMatch(topic::startsWith);
+    return internalTopicPrefixes.stream().anyMatch(topic::startsWith);
   }
 
   public void printCurrentState(PrintStream os) throws IOException {

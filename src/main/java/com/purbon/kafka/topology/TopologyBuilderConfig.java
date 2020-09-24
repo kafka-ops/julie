@@ -1,7 +1,5 @@
 package com.purbon.kafka.topology;
 
-import static com.purbon.kafka.topology.KafkaTopologyBuilder.SCHEMA_REGISTRY_URL;
-
 import com.purbon.kafka.topology.exceptions.ConfigurationException;
 import com.purbon.kafka.topology.model.Project;
 import com.purbon.kafka.topology.model.Topic;
@@ -14,6 +12,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.apache.kafka.clients.admin.AdminClientConfig;
 
@@ -51,6 +50,9 @@ public class TopologyBuilderConfig {
   public static final String MDS_KC_CLUSTER_ID_CONFIG =
       "topology.builder.mds.kafka.connect.cluster.id";
 
+  public static final String SCHEMA_REGISTRY_URL_CONFIG = "confluent.schema.registry.url";
+  public static final String SCHEMA_REGISTRY_URL_DEFAULT = "mock://";
+
   public static final String CONFLUENT_MONITORING_TOPIC_CONFIG = "confluent.monitoring.topic";
   public static final String CONFLUENT_MONITORING_TOPIC_DEFAULT = "_confluent-monitoring";
 
@@ -80,13 +82,9 @@ public class TopologyBuilderConfig {
 
     validateGeneralConfiguration(topology);
 
-    boolean isRbac =
-        properties
-            .getOrDefault(ACCESS_CONTROL_IMPLEMENTATION_CLASS, ACCESS_CONTROL_DEFAULT_CLASS)
-            .toString()
-            .equalsIgnoreCase(RBAC_ACCESS_CONTROL_CLASS);
+    boolean isRBAC = this.getAccessControlClassName().equalsIgnoreCase(RBAC_ACCESS_CONTROL_CLASS);
 
-    if (isRbac) {
+    if (isRBAC) {
       validateRBACConfiguration(topology);
     }
   }
@@ -106,13 +104,13 @@ public class TopologyBuilderConfig {
     }
   }
 
-  public void validateGeneralConfiguration(Topology topology) throws ConfigurationException {
+  private void validateGeneralConfiguration(Topology topology) throws ConfigurationException {
     if (countOfSchemas(topology) > 0) {
-      raiseIfNull(SCHEMA_REGISTRY_URL);
+      raiseIfNull(SCHEMA_REGISTRY_URL_CONFIG);
     }
   }
 
-  private long countOfSchemas(Topology topology) {
+  private static long countOfSchemas(Topology topology) {
     return topology.getProjects().stream()
         .flatMap((Function<Project, Stream<Topic>>) project -> project.getTopics().stream())
         .map(topic -> topic.getSchemas())
@@ -133,21 +131,31 @@ public class TopologyBuilderConfig {
     }
   }
 
-  public Map<String, String> params() {
-    return cliParams;
-  }
-
   public String getProperty(String key) {
     return properties.getProperty(key);
   }
 
-  public List<String> getPropertyAsList(String key, String def, String regexp) {
-    Object val = properties.getOrDefault(key, def);
+  public List<String> getPropertyAsList(String key, String defaultVal, String regexp) {
+    Object val = properties.getOrDefault(key, defaultVal);
     return Arrays.asList(String.valueOf(val).split(regexp));
   }
 
   public Object getOrDefault(Object key, Object _default) {
     return properties.getOrDefault(key, _default);
+  }
+
+  public List<String> getKafkaInternalTopicPrefixes() {
+    return getPropertyAsList(
+            KAFKA_INTERNAL_TOPIC_PREFIXES, KAFKA_INTERNAL_TOPIC_PREFIXES_DEFAULT, ",")
+        .stream()
+        .map(String::trim)
+        .collect(Collectors.toList());
+  }
+
+  public String getSchemaRegistryUrl() {
+    return properties
+        .getOrDefault(SCHEMA_REGISTRY_URL_CONFIG, SCHEMA_REGISTRY_URL_DEFAULT)
+        .toString();
   }
 
   public String getConfluentMonitoringTopic() {
@@ -165,6 +173,18 @@ public class TopologyBuilderConfig {
   public String getConfluentMetricsTopic() {
     return properties
         .getOrDefault(CONFLUENT_METRICS_TOPIC_CONFIG, CONFLUENT_METRICS_TOPIC_DEFAULT)
+        .toString();
+  }
+
+  public String getAccessControlClassName() {
+    return properties
+        .getOrDefault(ACCESS_CONTROL_IMPLEMENTATION_CLASS, ACCESS_CONTROL_DEFAULT_CLASS)
+        .toString();
+  }
+
+  public String getStateProcessorImplementationClassName() {
+    return properties
+        .getOrDefault(STATE_PROCESSOR_IMPLEMENTATION_CLASS, STATE_PROCESSOR_DEFAULT_CLASS)
         .toString();
   }
 

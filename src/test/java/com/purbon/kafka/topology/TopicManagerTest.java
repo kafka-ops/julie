@@ -1,5 +1,12 @@
 package com.purbon.kafka.topology;
 
+import static com.purbon.kafka.topology.BuilderCLI.ALLOW_DELETE_OPTION;
+import static com.purbon.kafka.topology.BuilderCLI.BROKERS_OPTION;
+import static com.purbon.kafka.topology.TopicManager.NUM_PARTITIONS;
+import static com.purbon.kafka.topology.TopologyBuilderConfig.KAFKA_INTERNAL_TOPIC_PREFIXES;
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.*;
+
 import com.purbon.kafka.topology.actions.Action;
 import com.purbon.kafka.topology.model.Impl.ProjectImpl;
 import com.purbon.kafka.topology.model.Impl.TopicImpl;
@@ -8,24 +15,16 @@ import com.purbon.kafka.topology.model.Project;
 import com.purbon.kafka.topology.model.Topic;
 import com.purbon.kafka.topology.model.Topology;
 import com.purbon.kafka.topology.schemas.SchemaRegistryManager;
+import java.io.IOException;
+import java.io.PrintStream;
+import java.util.*;
+import java.util.stream.Collectors;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnit;
 import org.mockito.junit.MockitoRule;
-
-import java.io.IOException;
-import java.io.PrintStream;
-import java.util.*;
-import java.util.stream.Collectors;
-
-import static com.purbon.kafka.topology.BuilderCLI.ALLOW_DELETE_OPTION;
-import static com.purbon.kafka.topology.BuilderCLI.BROKERS_OPTION;
-import static com.purbon.kafka.topology.TopicManager.NUM_PARTITIONS;
-import static com.purbon.kafka.topology.TopologyBuilderConfig.KAFKA_INTERNAL_TOPIC_PREFIXES;
-import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.*;
 
 public class TopicManagerTest {
 
