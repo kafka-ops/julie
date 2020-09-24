@@ -175,11 +175,13 @@ Kafka Topology Builder will assign the following ACLs:
 * each principal in the `consumers` list will get `READ` and `DESCRIBE` permissions on each topic in the containing project as well as `READ` access on every consumer group
 * each principal in the `producers` list will get `WRITE` and `DESCRIBE` permissions on each topic in the containing project
 * each principal in the `streams` list will get
+
   * `READ` access on every topic in its `read` sub-object
   * `WRITE` access on every topic `write` sub-object
   * `ALL` access on every topic starting with fully-qualified project name, e.g. `context.company.env.source.projectA` in the example above. These are `PREFIXED` ACLs.
 
 * each principal for a connector will get
+
   * read and write access on the corresponding `status_topic`, `offset_topic`, and `config_topics` (`LITERAL` ACLs)
     * these fields default to `connect-status`, `connect-status`, and `connect-configs`. Hence access to these topics will be granted to the Connect principal if the fields are not explicitly given.
   * `CREATE` access on the cluster resource
@@ -187,7 +189,9 @@ Kafka Topology Builder will assign the following ACLs:
   * `WRITE` access on every topic in the corresponding `topics.write` subobject
   * `READ` access on the group specified in the corresponding `group` field
     * if no `group` is specified, rights to `connect-cluster` will be granted
+
 * the principal for a `schema_registy` platform component will be given `DESCRIBE_CONFIGS`, `READ`, and `WRITE` access to each topic.
+
 * the principal for a `control_center` platform component will be given:
   * `DESCRIBE` and `DESCRIBE_CONFIGS` on the cluster resource
   * `READ` on every consumer group starting with the corresponding `appId` (`PREFIXED` ACLs)
