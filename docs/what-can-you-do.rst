@@ -136,14 +136,18 @@ Topic naming convention
 ^^^^^^^^^^^^^^^^^^^^^^^
 
 Topic names will be chosen according to the scheme:
-```
-[context].[source].[project-name].[topic-name]
-```
+
+.. code-block:: YAML
+
+  [context].[source].[project-name].[topic-name]
+
+
 It is possible to give a finer structure to the topic names by specifying additional fields between
 the `company` and `projects` fields. Optionally, a `dataType` can be specified, which will be suffixed to the topic name.
 For example:
 
 .. code-block:: YAML
+
   context: "context"
   company: "company"
   env: "env"
@@ -157,10 +161,12 @@ For example:
 
 
 will lead to topic names
-```
-context.company.env.source.projectA.foo
-context.company.env.source.projectA.bar.avro
-```
+
+.. code-block:: YAML
+
+  context.company.env.source.projectA.foo
+  context.company.env.source.projectA.bar.avro
+
 
 What ACLs are created
 ^^^^^^^^^^^^^^^^^^^^^
@@ -183,38 +189,42 @@ Kafka Topology Builder will assign the following ACLs:
     * if no `group` is specified, rights to `connect-cluster` will be granted
 * the principal for a `schema_registy` platform component will be given `DESCRIBE_CONFIGS`, `READ`, and `WRITE` access to each topic.
 * the principal for a `control_center` platform component will be given:
-    * `DESCRIBE` and `DESCRIBE_CONFIGS` on the cluster resource
-    * `READ` on every consumer group starting with the corresponding `appId` (`PREFIXED` ACLs)
-    * `CREATE`, `DESCRIBE`, `READ`, and `WRITE` access on each topic starting with the corresponding `appId` (`PREFIXED`)
-    * `CREATE`, `DESCRIBE`, `READ`, and `WRITE` access on the `_confluent-metrics`, `_confluent-command`, and `_confluent-monitoring` topics
+  * `DESCRIBE` and `DESCRIBE_CONFIGS` on the cluster resource
+  * `READ` on every consumer group starting with the corresponding `appId` (`PREFIXED` ACLs)
+  * `CREATE`, `DESCRIBE`, `READ`, and `WRITE` access on each topic starting with the corresponding `appId` (`PREFIXED`)
+  * `CREATE`, `DESCRIBE`, `READ`, and `WRITE` access on the `_confluent-metrics`, `_confluent-command`, and `_confluent-monitoring` topics
 
-## Which ACLs does the user running Kafka Topology Builder need?
+Which ACLs does the user running Kafka Topology Builder need?
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
 The principal which the Kafka Topology Builder uses to authenticate towards the Kafka cluster should have the following rights:
 
 * `ALTER` on the cluster resource to create and delete ACLs
 * `DESCRIBE` on the cluster resource
 * the following operations be allowed for topic resources prefixed with the current context:
-    * `ALTER_CONFIGS`, `CREATE`, and `DESCRIBE`
-    * `ALTER` when changing the number of partitions should be allowed
-    * `DELETE` when topic deletion should be allowed
+  * `ALTER_CONFIGS`, `CREATE`, and `DESCRIBE`
+  * `ALTER` when changing the number of partitions should be allowed
+  * `DELETE` when topic deletion should be allowed
 
 
-See (https://docs.confluent.io/current/kafka/authorization.html)[here] for an overview of ACLs. When setting up the topology builder for a specific context,
+See https://docs.confluent.io/current/kafka/authorization.html for an overview of ACLs. When setting up the topology builder for a specific context,
 prefixed ACLs can be used for all topic-level operations.
 
 When using Confluent Cloud, a *service account* with the proper rights to run the topology builder for the context `samplecontext` could be generated as follows using the Confluent Cloud CLI `ccloud`:
-```bash
-ccloud service-account create sa-for-ktb --description 'A service account for the Kafka Topology Builder'
-# note the Id for the service account, we will use 123456 below
 
-ccloud kafka acl create --allow --service-account 123456 --cluster-scope --operation ALTER
-ccloud kafka acl create --allow --service-account 123456 --cluster-scope --operation DESCRIBE
-ccloud kafka acl create --allow --service-account 123456 --topic samplecontext --prefix --operation ALTER_CONFIGS
-ccloud kafka acl create --allow --service-account 123456 --topic samplecontext --prefix --operation CREATE
-ccloud kafka acl create --allow --service-account 123456 --topic samplecontext --prefix --operation DESCRIBE
-ccloud kafka acl create --allow --service-account 123456 --topic samplecontext --prefix --operation ALTER
-ccloud kafka acl create --allow --service-account 123456 --topic samplecontext --prefix --operation DELETE
-```
+.. code-block:: YAML
+
+  ccloud service-account create sa-for-ktb --description 'A service account for the Kafka Topology Builder'
+  # note the Id for the service account, we will use 123456 below
+
+  ccloud kafka acl create --allow --service-account 123456 --cluster-scope --operation ALTER
+  ccloud kafka acl create --allow --service-account 123456 --cluster-scope --operation DESCRIBE
+  ccloud kafka acl create --allow --service-account 123456 --topic samplecontext --prefix --operation ALTER_CONFIGS
+  ccloud kafka acl create --allow --service-account 123456 --topic samplecontext --prefix --operation CREATE
+  ccloud kafka acl create --allow --service-account 123456 --topic samplecontext --prefix --operation DESCRIBE
+  ccloud kafka acl create --allow --service-account 123456 --topic samplecontext --prefix --operation ALTER
+  ccloud kafka acl create --allow --service-account 123456 --topic samplecontext --prefix --operation DELETE
+
 
 
 
