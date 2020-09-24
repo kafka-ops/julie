@@ -178,11 +178,12 @@ Kafka Topology Builder will assign the following ACLs:
 
   * `READ` access on every topic in its `read` sub-object
   * `WRITE` access on every topic `write` sub-object
-  * `ALL` access on every topic starting with fully-qualified project name, e.g. `context.company.env.source.projectA` in the example above. These are `PREFIXED` ACLs.
+  * `ALL` access on every topic starting with fully-qualified project name, e.g. ``context.company.env.source.projectA`` in the example above. These are `PREFIXED` ACLs.
 
 * each principal for a connector will get
 
   * read and write access on the corresponding `status_topic`, `offset_topic`, and `config_topics` (`LITERAL` ACLs)
+
     * these fields default to `connect-status`, `connect-status`, and `connect-configs`. Hence access to these topics will be granted to the Connect principal if the fields are not explicitly given.
   * `CREATE` access on the cluster resource
   * `READ` access on every topic in the corresponding `topics.read` subobject
@@ -218,7 +219,7 @@ prefixed ACLs can be used for all topic-level operations.
 
 When using Confluent Cloud, a *service account* with the proper rights to run the topology builder for the context `samplecontext` could be generated as follows using the Confluent Cloud CLI `ccloud`:
 
-.. code-block:: YAML
+.. code-block:: bash
 
   ccloud service-account create sa-for-ktb --description 'A service account for the Kafka Topology Builder'
   # note the Id for the service account, we will use 123456 below
