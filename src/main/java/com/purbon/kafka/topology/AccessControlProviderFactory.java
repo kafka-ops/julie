@@ -1,7 +1,6 @@
 package com.purbon.kafka.topology;
 
 import static com.purbon.kafka.topology.TopologyBuilderConfig.ACCESS_CONTROL_DEFAULT_CLASS;
-import static com.purbon.kafka.topology.TopologyBuilderConfig.ACCESS_CONTROL_IMPLEMENTATION_CLASS;
 import static com.purbon.kafka.topology.TopologyBuilderConfig.MDS_PASSWORD_CONFIG;
 import static com.purbon.kafka.topology.TopologyBuilderConfig.MDS_USER_CONFIG;
 import static com.purbon.kafka.topology.TopologyBuilderConfig.RBAC_ACCESS_CONTROL_CLASS;
@@ -30,11 +29,11 @@ public class AccessControlProviderFactory {
 
   public AccessControlProvider get() throws IOException {
 
-    String accessControlClass = getAccessControlClass();
+    String accessControlClassName = config.getAccessControlClassName();
 
     try {
-      Class<?> clazz = Class.forName(accessControlClass);
-      switch (accessControlClass) {
+      Class<?> clazz = Class.forName(accessControlClassName);
+      switch (accessControlClassName) {
         case ACCESS_CONTROL_DEFAULT_CLASS:
           Constructor<?> aclsProviderConstructor =
               clazz.getConstructor(TopologyBuilderAdminClient.class);
@@ -48,18 +47,10 @@ public class AccessControlProviderFactory {
           apiClient.authenticate();
           return (RBACProvider) rbacProviderContructor.newInstance(apiClient);
         default:
-          throw new IOException(accessControlClass + " Unknown access control provided.");
+          throw new IOException("Unknown access control provided. " + accessControlClassName);
       }
     } catch (Exception ex) {
       throw new IOException(ex);
     }
-  }
-
-  private String getAccessControlClass() {
-    return config
-        .getOrDefault(
-            ACCESS_CONTROL_IMPLEMENTATION_CLASS,
-            "com.purbon.kafka.topology.roles.SimpleAclsProvider")
-        .toString();
   }
 }

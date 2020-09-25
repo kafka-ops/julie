@@ -1,7 +1,6 @@
 package com.purbon.kafka.topology;
 
 import static com.purbon.kafka.topology.BuilderCLI.BROKERS_OPTION;
-import static com.purbon.kafka.topology.KafkaTopologyBuilder.SCHEMA_REGISTRY_URL;
 import static com.purbon.kafka.topology.TopologyBuilderConfig.ACCESS_CONTROL_IMPLEMENTATION_CLASS;
 import static com.purbon.kafka.topology.TopologyBuilderConfig.MDS_KAFKA_CLUSTER_ID_CONFIG;
 import static com.purbon.kafka.topology.TopologyBuilderConfig.MDS_PASSWORD_CONFIG;
@@ -76,7 +75,7 @@ public class TopologyBuilderConfigTest {
     project.addTopic(topic);
     topology.addProject(project);
 
-    props.put(SCHEMA_REGISTRY_URL, "http://foo:8082");
+    props.put(TopologyBuilderConfig.SCHEMA_REGISTRY_URL_CONFIG, "http://foo:8082");
 
     TopologyBuilderConfig config = new TopologyBuilderConfig(cliOps, props);
     config.validateWith(topology);
@@ -90,7 +89,7 @@ public class TopologyBuilderConfigTest {
     project.addTopic(topic);
     topology.addProject(project);
 
-    props.put(SCHEMA_REGISTRY_URL, "http://foo:8082");
+    props.put(TopologyBuilderConfig.SCHEMA_REGISTRY_URL_CONFIG, "http://foo:8082");
 
     TopologyBuilderConfig config = new TopologyBuilderConfig(cliOps, props);
     config.validateWith(topology);
