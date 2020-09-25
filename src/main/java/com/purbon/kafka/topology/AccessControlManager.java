@@ -59,10 +59,6 @@ public class AccessControlManager {
     this(controlProvider, new ClusterState(), config);
   }
 
-  public AccessControlManager(AccessControlProvider controlProvider, ClusterState clusterState) {
-    this(controlProvider, clusterState, new TopologyBuilderConfig());
-  }
-
   public AccessControlManager(
       AccessControlProvider controlProvider,
       ClusterState clusterState,
