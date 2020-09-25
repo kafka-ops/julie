@@ -77,5 +77,4 @@ public class AccessControlProviderFactory {
     apiClient.login(mdsUser, mdsPassword);
     return apiClient;
   }
-
 }
