@@ -5,7 +5,6 @@ import static com.purbon.kafka.topology.BuilderCLI.ALLOW_DELETE_OPTION;
 import static com.purbon.kafka.topology.BuilderCLI.BROKERS_OPTION;
 import static com.purbon.kafka.topology.BuilderCLI.DRY_RUN_OPTION;
 import static com.purbon.kafka.topology.BuilderCLI.QUIET_OPTION;
-import static com.purbon.kafka.topology.TopologyBuilderConfig.CONFLUENT_SCHEMA_REGISTRY_URL_CONFIG;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Matchers.anyObject;
 import static org.mockito.Mockito.doNothing;
@@ -54,7 +53,7 @@ public class KafkaTopologyBuilderTest {
 
     props = new Properties();
 
-    props.put(TopologyBuilderConfig.SCHEMA_REGISTRY_URL_CONFIG, "http://foo:8082");
+    props.put(TopologyBuilderConfig.CONFLUENT_SCHEMA_REGISTRY_URL_CONFIG, "http://foo:8082");
 
     props.put(AdminClientConfig.BOOTSTRAP_SERVERS_CONFIG, "");
     props.put(AdminClientConfig.RETRIES_CONFIG, Integer.MAX_VALUE);
