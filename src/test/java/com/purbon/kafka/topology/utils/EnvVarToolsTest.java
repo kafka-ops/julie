@@ -7,6 +7,6 @@ import org.junit.Test;
 public class EnvVarToolsTest {
   @Test
   public void underscoresShouldBeReplaced() {
-    assertEquals("abc.uvw.xyz", EnvVarTools.envVarNameToPropertyName("abc_uvw_xyz"));
+    assertEquals("uvw.xyz", EnvVarTools.envVarNameToPropertyName("abc_uvw_xyz", "abc"));
   }
 }

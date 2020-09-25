@@ -154,7 +154,7 @@ public class BuilderCLI {
     }
   }
 
-  public Map<String, String> parseConfig(CommandLine cmd) {
+  private Map<String, String> parseConfig(CommandLine cmd) {
     String brokersList = cmd.getOptionValue(BROKERS_OPTION);
     boolean allowDelete = cmd.hasOption(ALLOW_DELETE_OPTION);
     boolean dryRun = cmd.hasOption(DRY_RUN_OPTION);
@@ -169,7 +169,7 @@ public class BuilderCLI {
     return config;
   }
 
-  public void printHelpOrVersion(String[] args) {
+  private void printHelpOrVersion(String[] args) {
 
     List<String> listOfArgs = Arrays.asList(args);
 
@@ -182,7 +182,7 @@ public class BuilderCLI {
     }
   }
 
-  public CommandLine parseArgsOrExit(String[] args) {
+  private CommandLine parseArgsOrExit(String[] args) {
     try {
       return parser.parse(options, args);
     } catch (ParseException e) {
