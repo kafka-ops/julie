@@ -54,8 +54,8 @@ public class KafkaTopologyBuilderTest {
 
     props = new Properties();
 
-
     props.put(TopologyBuilderConfig.SCHEMA_REGISTRY_URL_CONFIG, "http://foo:8082");
+
     props.put(AdminClientConfig.BOOTSTRAP_SERVERS_CONFIG, "");
     props.put(AdminClientConfig.RETRIES_CONFIG, Integer.MAX_VALUE);
   }
