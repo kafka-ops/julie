@@ -29,7 +29,6 @@ public class AdminRoleRunner {
 
     scope = new RequestScope();
     scope.setClusters(clusters);
-
     scope.build();
 
     return this;
@@ -41,8 +40,7 @@ public class AdminRoleRunner {
 
     scope = new RequestScope();
     scope.setClusters(clusters);
-    String resource = "Subject:" + subject;
-    scope.addResource("Subject", resource, PatternType.LITERAL.name());
+    scope.addResource("Subject", "Subject:" + subject, PatternType.LITERAL.name());
     scope.build();
 
     return this;
@@ -52,13 +50,11 @@ public class AdminRoleRunner {
     Map<String, Map<String, String>> clusters =
         client.withClusterIDs().forKafkaConnect().forKafka().asMap();
 
-    String resource = "Connector:" + connector;
-    String resourceType = "Connector";
     String patternType = PatternType.LITERAL.name();
 
     scope = new RequestScope();
     scope.setClusters(clusters);
-    scope.addResource(resourceType, resource, patternType);
+    scope.addResource("Connector", "Connector:" + connector, patternType);
     scope.build();
 
     return this;
