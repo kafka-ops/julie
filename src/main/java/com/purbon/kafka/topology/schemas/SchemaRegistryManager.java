@@ -1,5 +1,6 @@
 package com.purbon.kafka.topology.schemas;
 
+import com.purbon.kafka.topology.roles.SimpleAclsProvider;
 import io.confluent.kafka.schemaregistry.ParsedSchema;
 import io.confluent.kafka.schemaregistry.avro.AvroSchema;
 import io.confluent.kafka.schemaregistry.client.SchemaRegistryClient;
@@ -9,8 +10,12 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Collections;
 import java.util.Optional;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 public class SchemaRegistryManager {
+
+  private static final Logger LOGGER = LogManager.getLogger(SchemaRegistryManager.class);
 
   static class SchemaRegistryManagerException extends RuntimeException {
     public SchemaRegistryManagerException(String message) {
@@ -54,7 +59,7 @@ public class SchemaRegistryManager {
 
   private Path schemaFilePath(String schemaFile) {
     Path p = Paths.get(rootPath, schemaFile);
-    System.out.println(p);
+    LOGGER.debug(p);
     return p;
   }
 
