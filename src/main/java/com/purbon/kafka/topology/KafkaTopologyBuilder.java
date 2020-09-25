@@ -14,6 +14,7 @@ import io.confluent.kafka.schemaregistry.client.CachedSchemaRegistryClient;
 import io.confluent.kafka.schemaregistry.client.SchemaRegistryClient;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.PrintStream;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.Map;
@@ -25,6 +26,7 @@ public class KafkaTopologyBuilder implements AutoCloseable {
   private AccessControlManager accessControlManager;
   private Topology topology;
   private TopologyBuilderConfig config;
+  private PrintStream outputStream;
 
   private KafkaTopologyBuilder(
       Topology topology,
@@ -35,6 +37,7 @@ public class KafkaTopologyBuilder implements AutoCloseable {
     this.config = config;
     this.topicManager = topicManager;
     this.accessControlManager = accessControlManager;
+    this.outputStream = System.out;
   }
 
   public static KafkaTopologyBuilder build(
@@ -44,12 +47,12 @@ public class KafkaTopologyBuilder implements AutoCloseable {
     TopologyBuilderConfig builderConfig = new TopologyBuilderConfig(config, adminProperties);
     TopologyBuilderAdminClient adminClient =
         new TopologyBuilderAdminClientBuilder(builderConfig).build();
-    AccessControlProviderFactory accessControlProviderFactory =
+    AccessControlProviderFactory factory =
         new AccessControlProviderFactory(
             builderConfig, adminClient, new MDSApiClientBuilder(builderConfig));
 
     KafkaTopologyBuilder builder =
-        build(topologyFile, builderConfig, adminClient, accessControlProviderFactory.get());
+        build(topologyFile, builderConfig, adminClient, factory.get(), factory.builder());
     builder.verifyRequiredParameters(topologyFile, config);
     return builder;
   }
@@ -58,20 +61,18 @@ public class KafkaTopologyBuilder implements AutoCloseable {
       String topologyFileOrDir,
       TopologyBuilderConfig config,
       TopologyBuilderAdminClient adminClient,
-      AccessControlProvider accessControlProvider)
+      AccessControlProvider accessControlProvider,
+      BindingsBuilderProvider bindingsBuilderProvider)
       throws IOException {
 
     Topology topology = TopologyDescriptorBuilder.build(topologyFileOrDir);
     config.validateWith(topology);
 
-    ClusterState cs = buildStateProcessor(config);
-
     AccessControlManager accessControlManager =
-        new AccessControlManager(accessControlProvider, cs, config);
+        new AccessControlManager(accessControlProvider, bindingsBuilderProvider, config);
 
-    String schemaRegistryUrl = config.getSchemaRegistryUrl();
     SchemaRegistryClient schemaRegistryClient =
-        new CachedSchemaRegistryClient(schemaRegistryUrl, 10);
+        new CachedSchemaRegistryClient(config.getConfluentSchemaRegistryUrl(), 10);
     SchemaRegistryManager schemaRegistryManager =
         new SchemaRegistryManager(schemaRegistryClient, topologyFileOrDir);
 
@@ -80,7 +81,7 @@ public class KafkaTopologyBuilder implements AutoCloseable {
     return new KafkaTopologyBuilder(topology, config, topicManager, accessControlManager);
   }
 
-  public void verifyRequiredParameters(String topologyFile, Map<String, String> config)
+  void verifyRequiredParameters(String topologyFile, Map<String, String> config)
       throws IOException {
     if (!Files.exists(Paths.get(topologyFile))) {
       throw new IOException("Topology file does not exist");
@@ -93,15 +94,23 @@ public class KafkaTopologyBuilder implements AutoCloseable {
     }
   }
 
-  public void run() throws IOException {
+  void run(ExecutionPlan plan) throws IOException {
 
-    topicManager.sync(topology);
-    accessControlManager.sync(topology);
+    topicManager.apply(topology, plan);
+    accessControlManager.apply(topology, plan);
+
+    plan.run(config.isDryRun());
 
     if (!config.isQuiet() && !config.isDryRun()) {
       topicManager.printCurrentState(System.out);
       accessControlManager.printCurrentState(System.out);
     }
+  }
+
+  public void run() throws IOException {
+    ClusterState cs = buildStateProcessor(config);
+    ExecutionPlan plan = ExecutionPlan.init(cs, outputStream);
+    run(plan);
   }
 
   public void close() {

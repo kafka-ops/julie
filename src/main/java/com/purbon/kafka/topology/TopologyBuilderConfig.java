@@ -5,14 +5,11 @@ import com.purbon.kafka.topology.exceptions.ConfigurationException;
 import com.purbon.kafka.topology.model.Project;
 import com.purbon.kafka.topology.model.Topic;
 import com.purbon.kafka.topology.model.Topology;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
-import java.util.function.Function;
+
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+
 
 public class TopologyBuilderConfig {
 
@@ -48,8 +45,8 @@ public class TopologyBuilderConfig {
   public static final String MDS_KC_CLUSTER_ID_CONFIG =
       "topology.builder.mds.kafka.connect.cluster.id";
 
-  public static final String SCHEMA_REGISTRY_URL_CONFIG = "confluent.schema.registry.url";
-  public static final String SCHEMA_REGISTRY_URL_DEFAULT = "mock://";
+  public static final String CONFLUENT_SCHEMA_REGISTRY_URL_CONFIG = "confluent.schema.registry.url";
+  public static final String CONFLUENT_SCHEMA_REGISTRY_URL_DEFAULT = "mock://";
 
   public static final String CONFLUENT_MONITORING_TOPIC_CONFIG = "confluent.monitoring.topic";
   public static final String CONFLUENT_MONITORING_TOPIC_DEFAULT = "_confluent-monitoring";
@@ -100,7 +97,7 @@ public class TopologyBuilderConfig {
 
   private void validateGeneralConfiguration(Topology topology) throws ConfigurationException {
     if (countOfSchemas(topology) > 0) {
-      raiseIfNull(SCHEMA_REGISTRY_URL_CONFIG);
+      raiseIfNull(CONFLUENT_SCHEMA_REGISTRY_URL_CONFIG);
     }
   }
 
@@ -146,9 +143,9 @@ public class TopologyBuilderConfig {
         .collect(Collectors.toList());
   }
 
-  public String getSchemaRegistryUrl() {
+  public String getConfluentSchemaRegistryUrl() {
     return properties
-        .getOrDefault(SCHEMA_REGISTRY_URL_CONFIG, SCHEMA_REGISTRY_URL_DEFAULT)
+        .getOrDefault(CONFLUENT_SCHEMA_REGISTRY_URL_CONFIG, CONFLUENT_SCHEMA_REGISTRY_URL_DEFAULT)
         .toString();
   }
 
@@ -182,7 +179,7 @@ public class TopologyBuilderConfig {
         .toString();
   }
 
-  public boolean allowDeletes() {
+  public boolean allowDelete() {
     return Boolean.valueOf(cliParams.getOrDefault(BuilderCLI.ALLOW_DELETE_OPTION, "true"));
   }
 

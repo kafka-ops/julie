@@ -1,25 +1,27 @@
-package com.purbon.kafka.topology.actions;
+package com.purbon.kafka.topology.actions.topics;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.purbon.kafka.topology.TopologyBuilderAdminClient;
+import com.purbon.kafka.topology.actions.BaseAction;
 import com.purbon.kafka.topology.model.Topic;
 import com.purbon.kafka.topology.model.TopicSchemas;
 import com.purbon.kafka.topology.schemas.SchemaRegistryManager;
-import com.purbon.kafka.topology.utils.JSON;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
-public class SyncTopicAction implements Action {
+public class SyncTopicAction extends BaseAction {
+
+  private static final Logger LOGGER = LogManager.getLogger(SyncTopicAction.class);
 
   private final Topic topic;
   private final String fullTopicName;
   private final Set<String> listOfTopics;
   private final TopologyBuilderAdminClient adminClient;
   private final SchemaRegistryManager schemaRegistryManager;
-  private String subAction;
 
   public SyncTopicAction(
       TopologyBuilderAdminClient adminClient,
@@ -39,13 +41,9 @@ public class SyncTopicAction implements Action {
     syncTopic(topic, fullTopicName, listOfTopics);
   }
 
-  public void syncTopic(Topic topic, Set<String> listOfTopics) throws IOException {
-    String fullTopicName = topic.toString();
-    syncTopic(topic, fullTopicName, listOfTopics);
-  }
-
   public void syncTopic(Topic topic, String fullTopicName, Set<String> listOfTopics)
       throws IOException {
+    LOGGER.debug("SyncTopic: " + topic);
     if (existTopic(fullTopicName, listOfTopics)) {
       if (topic.partitionsCount() > adminClient.getPartitionCount(fullTopicName)) {
         adminClient.updatePartitionCount(topic, fullTopicName);
@@ -73,20 +71,12 @@ public class SyncTopicAction implements Action {
   }
 
   @Override
-  public String toString() {
+  protected Map<String, Object> props() {
     Map<String, Object> map = new HashMap<>();
     map.put("Operation", getClass().getName());
     map.put("Topic", fullTopicName);
-    if (existTopic(fullTopicName, listOfTopics)) {
-      map.put("Action", "update");
-    } else {
-      map.put("Action", "create");
-    }
-
-    try {
-      return JSON.asPrettyString(map);
-    } catch (JsonProcessingException e) {
-      return "";
-    }
+    String actionName = existTopic(fullTopicName, listOfTopics) ? "update" : "create";
+    map.put("Action", actionName);
+    return map;
   }
 }

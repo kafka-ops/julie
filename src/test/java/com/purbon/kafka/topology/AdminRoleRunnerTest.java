@@ -4,15 +4,14 @@ import static com.purbon.kafka.topology.api.mds.ClusterIDs.CONNECT_CLUSTER_ID_LA
 import static com.purbon.kafka.topology.api.mds.ClusterIDs.KAFKA_CLUSTER_ID_LABEL;
 import static com.purbon.kafka.topology.api.mds.ClusterIDs.SCHEMA_REGISTRY_CLUSTER_ID_LABEL;
 import static com.purbon.kafka.topology.api.mds.RequestScope.RESOURCE_NAME;
-import static com.purbon.kafka.topology.roles.RBACPredefinedRoles.SECURITY_ADMIN;
+import static com.purbon.kafka.topology.roles.rbac.RBACPredefinedRoles.SECURITY_ADMIN;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.when;
 
 import com.purbon.kafka.topology.api.mds.ClusterIDs;
 import com.purbon.kafka.topology.api.mds.MDSApiClient;
-import com.purbon.kafka.topology.exceptions.ConfigurationException;
 import com.purbon.kafka.topology.model.users.Connector;
-import com.purbon.kafka.topology.roles.AdminRoleRunner;
+import com.purbon.kafka.topology.roles.rbac.AdminRoleRunner;
 import java.io.IOException;
 import java.util.Map;
 import org.junit.Before;
@@ -51,7 +50,7 @@ public class AdminRoleRunnerTest {
   }
 
   @Test
-  public void testWithAllClientIdsForConnect() throws IOException {
+  public void testWithAllClientIdsForConnect() {
     when(apiClient.withClusterIDs()).thenReturn(allClusterIDs);
 
     AdminRoleRunner runner = new AdminRoleRunner("foo", SECURITY_ADMIN, apiClient);
@@ -64,16 +63,8 @@ public class AdminRoleRunnerTest {
     assertEquals(connectClusterId, clusterIDs.get(CONNECT_CLUSTER_ID_LABEL));
   }
 
-  @Test(expected = ConfigurationException.class)
-  public void testWithMissingClientIdsForConnect() throws IOException {
-    when(apiClient.withClusterIDs()).thenReturn(nonClusterIDs);
-
-    AdminRoleRunner runner = new AdminRoleRunner("foo", SECURITY_ADMIN, apiClient);
-    runner.forKafkaConnect(connector);
-  }
-
   @Test
-  public void testWithAllClientIdsForSchemaRegistry() throws IOException {
+  public void testWithAllClientIdsForSchemaRegistry() {
     when(apiClient.withClusterIDs()).thenReturn(allClusterIDs);
 
     AdminRoleRunner runner = new AdminRoleRunner("foo", SECURITY_ADMIN, apiClient);
@@ -82,14 +73,6 @@ public class AdminRoleRunnerTest {
     String connectClusterId = "4321";
     Map<String, String> clusterIDs = runner.getScope().getClusterIDs();
     assertEquals(connectClusterId, clusterIDs.get(SCHEMA_REGISTRY_CLUSTER_ID_LABEL));
-  }
-
-  @Test(expected = ConfigurationException.class)
-  public void testWithMissingClientIdsForSchemaRegistry() throws IOException {
-    when(apiClient.withClusterIDs()).thenReturn(nonClusterIDs);
-
-    AdminRoleRunner runner = new AdminRoleRunner("foo", SECURITY_ADMIN, apiClient);
-    runner.forSchemaRegistry();
   }
 
   @Test

@@ -9,6 +9,8 @@ import com.purbon.kafka.topology.api.mds.MDSApiClient;
 import com.purbon.kafka.topology.api.mds.MDSApiClientBuilder;
 import com.purbon.kafka.topology.roles.RBACProvider;
 import com.purbon.kafka.topology.roles.SimpleAclsProvider;
+import com.purbon.kafka.topology.roles.acls.AclsBindingsBuilder;
+import com.purbon.kafka.topology.roles.rbac.RBACBindingsBuilder;
 import java.io.IOException;
 import java.lang.reflect.Constructor;
 
@@ -40,10 +42,7 @@ public class AccessControlProviderFactory {
           return (SimpleAclsProvider) aclsProviderConstructor.newInstance(builderAdminClient);
         case RBAC_ACCESS_CONTROL_CLASS:
           Constructor<?> rbacProviderContructor = clazz.getConstructor(MDSApiClient.class);
-          MDSApiClient apiClient = mdsApiClientBuilder.build();
-          String mdsUser = config.getProperty(MDS_USER_CONFIG);
-          String mdsPassword = config.getProperty(MDS_PASSWORD_CONFIG);
-          apiClient.login(mdsUser, mdsPassword);
+          MDSApiClient apiClient = apiClientLogIn();
           apiClient.authenticate();
           return (RBACProvider) rbacProviderContructor.newInstance(apiClient);
         default:
@@ -52,5 +51,30 @@ public class AccessControlProviderFactory {
     } catch (Exception ex) {
       throw new IOException(ex);
     }
+  }
+
+  public BindingsBuilderProvider builder() throws IOException {
+    String accessControlClass = config.getAccessControlClassName();
+    try {
+      if (accessControlClass.equalsIgnoreCase(ACCESS_CONTROL_DEFAULT_CLASS)) {
+        return new AclsBindingsBuilder(builderAdminClient);
+      } else if (accessControlClass.equalsIgnoreCase(RBAC_ACCESS_CONTROL_CLASS)) {
+        MDSApiClient apiClient = apiClientLogIn();
+        apiClient.authenticate();
+        return new RBACBindingsBuilder(apiClient);
+      } else {
+        throw new IOException(accessControlClass + " Unknown access control provided.");
+      }
+    } catch (Exception ex) {
+      throw new IOException(ex);
+    }
+  }
+
+  private MDSApiClient apiClientLogIn() {
+    MDSApiClient apiClient = mdsApiClientBuilder.build();
+    String mdsUser = config.getProperty(MDS_USER_CONFIG);
+    String mdsPassword = config.getProperty(MDS_PASSWORD_CONFIG);
+    apiClient.login(mdsUser, mdsPassword);
+    return apiClient;
   }
 }

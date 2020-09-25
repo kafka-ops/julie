@@ -1,24 +1,23 @@
-package com.purbon.kafka.topology.actions;
+package com.purbon.kafka.topology.actions.access.builders;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.purbon.kafka.topology.AccessControlProvider;
+import com.purbon.kafka.topology.BindingsBuilderProvider;
+import com.purbon.kafka.topology.actions.BaseAccessControlAction;
 import com.purbon.kafka.topology.model.users.KStream;
-import com.purbon.kafka.topology.utils.JSON;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class SetAclsForKStreams extends BaseAccessControlAction {
+public class BuildBindingsForKStreams extends BaseAccessControlAction {
 
-  private final AccessControlProvider controlProvider;
+  private final BindingsBuilderProvider builderProvider;
   private final KStream app;
   private final String topicPrefix;
 
-  public SetAclsForKStreams(
-      AccessControlProvider controlProvider, KStream app, String topicPrefix) {
+  public BuildBindingsForKStreams(
+      BindingsBuilderProvider builderProvider, KStream app, String topicPrefix) {
     super();
-    this.controlProvider = controlProvider;
+    this.builderProvider = builderProvider;
     this.app = app;
     this.topicPrefix = topicPrefix;
   }
@@ -29,21 +28,16 @@ public class SetAclsForKStreams extends BaseAccessControlAction {
     List<String> writeTopics = app.getTopics().get(KStream.WRITE_TOPICS);
 
     bindings =
-        controlProvider.setAclsForStreamsApp(
+        builderProvider.buildBindingsForStreamsApp(
             app.getPrincipal(), topicPrefix, readTopics, writeTopics);
   }
 
   @Override
-  public String toString() {
+  protected Map<String, Object> props() {
     Map<String, Object> map = new HashMap<>();
     map.put("Operation", getClass().getName());
     map.put("Principal", app.getPrincipal());
     map.put("Topic", topicPrefix);
-
-    try {
-      return JSON.asPrettyString(map);
-    } catch (JsonProcessingException e) {
-      return "";
-    }
+    return map;
   }
 }

@@ -5,12 +5,14 @@ import static com.purbon.kafka.topology.BuilderCLI.ALLOW_DELETE_OPTION;
 import static com.purbon.kafka.topology.BuilderCLI.BROKERS_OPTION;
 import static com.purbon.kafka.topology.BuilderCLI.DRY_RUN_OPTION;
 import static com.purbon.kafka.topology.BuilderCLI.QUIET_OPTION;
+import static com.purbon.kafka.topology.TopologyBuilderConfig.CONFLUENT_SCHEMA_REGISTRY_URL_CONFIG;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Matchers.anyObject;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
+import com.purbon.kafka.topology.clusterstate.RedisStateProcessor;
 import com.purbon.kafka.topology.model.Topology;
 import java.io.IOException;
 import java.net.URISyntaxException;
@@ -33,21 +35,25 @@ public class KafkaTopologyBuilderTest {
 
   @Mock AccessControlProvider accessControlProvider;
 
+  @Mock BindingsBuilderProvider bindingsBuilderProvider;
+
   @Mock TopicManager topicManager;
 
   @Mock AccessControlManager accessControlManager;
 
   @Rule public MockitoRule mockitoRule = MockitoJUnit.rule();
 
-  Map<String, String> cliOps;
-  Properties props;
+  private Map<String, String> cliOps;
+  private Properties props;
 
   @Before
   public void before() {
     cliOps = new HashMap<>();
     cliOps.put(BROKERS_OPTION, "");
     cliOps.put(ADMIN_CLIENT_CONFIG_OPTION, "/fooBar");
+
     props = new Properties();
+
 
     props.put(TopologyBuilderConfig.SCHEMA_REGISTRY_URL_CONFIG, "http://foo:8082");
     props.put(AdminClientConfig.BOOTSTRAP_SERVERS_CONFIG, "");
@@ -74,7 +80,11 @@ public class KafkaTopologyBuilderTest {
 
     KafkaTopologyBuilder builder =
         KafkaTopologyBuilder.build(
-            fileOrDirPath, builderConfig, topologyAdminClient, accessControlProvider);
+            fileOrDirPath,
+            builderConfig,
+            topologyAdminClient,
+            accessControlProvider,
+            bindingsBuilderProvider);
 
     builder.close();
 
@@ -87,7 +97,12 @@ public class KafkaTopologyBuilderTest {
     TopologyBuilderConfig builderConfig = new TopologyBuilderConfig(cliOps, props);
 
     KafkaTopologyBuilder builder =
-        KafkaTopologyBuilder.build(file, builderConfig, topologyAdminClient, accessControlProvider);
+        KafkaTopologyBuilder.build(
+            file,
+            builderConfig,
+            topologyAdminClient,
+            accessControlProvider,
+            bindingsBuilderProvider);
 
     builder.verifyRequiredParameters(file, cliOps);
   }
@@ -100,7 +115,11 @@ public class KafkaTopologyBuilderTest {
     TopologyBuilderConfig builderConfig = new TopologyBuilderConfig(cliOps, props);
     KafkaTopologyBuilder builder =
         KafkaTopologyBuilder.build(
-            fileOrDirPath, builderConfig, topologyAdminClient, accessControlProvider);
+            fileOrDirPath,
+            builderConfig,
+            topologyAdminClient,
+            accessControlProvider,
+            bindingsBuilderProvider);
 
     builder.verifyRequiredParameters(fileOrDirPath, cliOps);
   }
@@ -118,7 +137,11 @@ public class KafkaTopologyBuilderTest {
     TopologyBuilderConfig builderConfig = new TopologyBuilderConfig(cliOps, props);
     KafkaTopologyBuilder builder =
         KafkaTopologyBuilder.build(
-            fileOrDirPath, builderConfig, topologyAdminClient, accessControlProvider);
+            fileOrDirPath,
+            builderConfig,
+            topologyAdminClient,
+            accessControlProvider,
+            bindingsBuilderProvider);
 
     builder.verifyRequiredParameters(fileOrDirPath, cliOps);
   }
@@ -147,16 +170,18 @@ public class KafkaTopologyBuilderTest {
     builder.setTopicManager(topicManager);
     builder.setAccessControlManager(accessControlManager);
 
-    doNothing().when(topicManager).sync(anyObject());
+    doNothing().when(topicManager).apply(anyObject(), anyObject());
 
-    doNothing().when(accessControlManager).sync(anyObject());
+    doNothing().when(accessControlManager).apply(anyObject(), anyObject());
 
     builder.run();
     builder.close();
 
-    verify(topicManager, times(1)).sync(anyObject());
-    verify(accessControlManager, times(1)).sync(anyObject());
+    verify(topicManager, times(1)).apply(anyObject(), anyObject());
+    verify(accessControlManager, times(1)).apply(anyObject(), anyObject());
   }
+
+  @Mock RedisStateProcessor stateProcessor;
 
   @Test
   public void builderRunTestAsFromCLIWithARedisBackend() throws URISyntaxException, IOException {
@@ -182,15 +207,19 @@ public class KafkaTopologyBuilderTest {
     builder.setTopicManager(topicManager);
     builder.setAccessControlManager(accessControlManager);
 
-    doNothing().when(topicManager).sync(anyObject());
+    doNothing().when(topicManager).apply(anyObject(), anyObject());
 
-    doNothing().when(accessControlManager).sync(anyObject());
+    doNothing().when(accessControlManager).apply(anyObject(), anyObject());
 
-    builder.run();
+    ClusterState cs = new ClusterState(stateProcessor);
+    ExecutionPlan plan = ExecutionPlan.init(cs, System.out);
+
+    builder.run(plan);
     builder.close();
 
-    verify(topicManager, times(1)).sync(anyObject());
-    verify(accessControlManager, times(1)).sync(anyObject());
+    verify(stateProcessor, times(2)).createOrOpen();
+    verify(topicManager, times(1)).apply(anyObject(), anyObject());
+    verify(accessControlManager, times(1)).apply(anyObject(), anyObject());
   }
 
   @Test
@@ -202,19 +231,23 @@ public class KafkaTopologyBuilderTest {
 
     KafkaTopologyBuilder builder =
         KafkaTopologyBuilder.build(
-            fileOrDirPath, builderConfig, topologyAdminClient, accessControlProvider);
+            fileOrDirPath,
+            builderConfig,
+            topologyAdminClient,
+            accessControlProvider,
+            bindingsBuilderProvider);
 
     builder.setTopicManager(topicManager);
     builder.setAccessControlManager(accessControlManager);
 
-    doNothing().when(topicManager).sync(anyObject());
+    doNothing().when(topicManager).apply(anyObject(), anyObject());
 
-    doNothing().when(accessControlManager).sync(anyObject());
+    doNothing().when(accessControlManager).apply(anyObject(), anyObject());
 
     builder.run();
     builder.close();
 
-    verify(topicManager, times(1)).sync(anyObject());
-    verify(accessControlManager, times(1)).sync(anyObject());
+    verify(topicManager, times(1)).apply(anyObject(), anyObject());
+    verify(accessControlManager, times(1)).apply(anyObject(), anyObject());
   }
 }
