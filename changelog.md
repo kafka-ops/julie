@@ -19,6 +19,7 @@ it will have to be properly configured.
 * Implement an initial method for building an execution plan including an option to print a dry-run. This solve issue #62.
 * Rename team as context as it was a confusing wording. This solve issue #68.
 * Fix bug on removal of acls. This solve issue #72.
+* Fix bug with schema registration and file path reference,  now by default all are relative to the main directory where the topology file is staying.
 
 v1.0.0-rc1:
 * Add support for platform wide acls for control center in teh topology description file.

@@ -57,13 +57,13 @@ public class KafkaTopologyBuilder implements AutoCloseable {
   }
 
   public static KafkaTopologyBuilder build(
-      String topologyFile,
+      String topologyFileOrDir,
       TopologyBuilderConfig config,
       TopologyBuilderAdminClient adminClient,
       AccessControlProvider accessControlProvider)
       throws IOException {
 
-    Topology topology = TopologyDescriptorBuilder.build(topologyFile);
+    Topology topology = TopologyDescriptorBuilder.build(topologyFileOrDir);
     config.validateWith(topology);
 
     ClusterState cs = buildStateProcessor(config);
@@ -74,7 +74,8 @@ public class KafkaTopologyBuilder implements AutoCloseable {
     String schemaRegistryUrl = (String) config.getOrDefault(SCHEMA_REGISTRY_URL, "http://foo:8082");
     SchemaRegistryClient schemaRegistryClient =
         new CachedSchemaRegistryClient(schemaRegistryUrl, 10);
-    SchemaRegistryManager schemaRegistryManager = new SchemaRegistryManager(schemaRegistryClient);
+    SchemaRegistryManager schemaRegistryManager =
+        new SchemaRegistryManager(schemaRegistryClient, topologyFileOrDir);
 
     TopicManager topicManager = new TopicManager(adminClient, schemaRegistryManager, config);
 
