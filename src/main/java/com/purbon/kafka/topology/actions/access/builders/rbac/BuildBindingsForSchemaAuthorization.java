@@ -1,4 +1,4 @@
-package com.purbon.kafka.topology.actions.access;
+package com.purbon.kafka.topology.actions.access.builders.rbac;
 
 import com.purbon.kafka.topology.AccessControlProvider;
 import com.purbon.kafka.topology.actions.BaseAccessControlAction;
@@ -7,12 +7,12 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
-public class SetSchemaAuthorization extends BaseAccessControlAction {
+public class BuildBindingsForSchemaAuthorization extends BaseAccessControlAction {
 
   private final AccessControlProvider controlProvider;
   private final Schemas schemaAuthorization;
 
-  public SetSchemaAuthorization(
+  public BuildBindingsForSchemaAuthorization(
       AccessControlProvider controlProvider, Schemas schemaAuthorization) {
     super();
     this.controlProvider = controlProvider;

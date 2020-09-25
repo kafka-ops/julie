@@ -220,26 +220,6 @@ public class TopologyBuilderAdminClient {
     }
   }
 
-  /**
-   * Find cluster inter protocol version, used to determine the minimum level of Api compatibility
-   *
-   * @return String, the current Kafka Protocol version
-   */
-  private String findKafkaVersion() throws IOException {
-    ConfigResource resource = new ConfigResource(Type.BROKER, "inter.broker.protocol.version");
-    String kafkaVersion = "";
-    try {
-      Map<ConfigResource, Config> configs =
-          adminClient.describeConfigs(Collections.singletonList(resource)).all().get();
-      kafkaVersion =
-          configs.get(resource).get("inter.broker.protocol.version").value().split("-")[0];
-    } catch (ExecutionException | InterruptedException e) {
-      LOGGER.error(e);
-      throw new IOException(e);
-    }
-    return kafkaVersion;
-  }
-
   public List<AclBinding> setAclsForProducer(String principal, String topic) {
     List<AclBinding> acls = new ArrayList<>();
     acls.add(buildTopicLevelAcl(principal, topic, PatternType.LITERAL, AclOperation.DESCRIBE));

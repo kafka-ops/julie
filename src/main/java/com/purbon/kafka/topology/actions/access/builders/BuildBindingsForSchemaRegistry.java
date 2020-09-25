@@ -21,7 +21,7 @@ public class BuildBindingsForSchemaRegistry extends BaseAccessControlAction {
 
   @Override
   public void run() throws IOException {
-    bindings = controlProvider.setAclsForSchemaRegistry(schemaRegistry);
+    bindings = controlProvider.buildBindingsForSchemaRegistry(schemaRegistry);
   }
 
   @Override

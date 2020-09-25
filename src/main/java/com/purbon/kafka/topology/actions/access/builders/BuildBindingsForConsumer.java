@@ -24,7 +24,7 @@ public class BuildBindingsForConsumer extends BaseAccessControlAction {
 
   @Override
   public void run() {
-    bindings = controlProvider.setAclsForConsumers(consumers, fullTopicName);
+    bindings = controlProvider.buildBindingsForConsumers(consumers, fullTopicName);
   }
 
   @Override

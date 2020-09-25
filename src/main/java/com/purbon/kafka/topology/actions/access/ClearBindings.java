@@ -21,7 +21,7 @@ public class ClearBindings extends BaseAccessControlAction {
 
   @Override
   public void run() throws IOException {
-    controlProvider.clearAcls(new HashSet(bindings));
+    controlProvider.clearBindings(new HashSet(bindings));
   }
 
   @Override

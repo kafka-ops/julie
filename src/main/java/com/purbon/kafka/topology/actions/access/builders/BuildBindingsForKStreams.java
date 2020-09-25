@@ -28,7 +28,7 @@ public class BuildBindingsForKStreams extends BaseAccessControlAction {
     List<String> writeTopics = app.getTopics().get(KStream.WRITE_TOPICS);
 
     bindings =
-        controlProvider.setAclsForStreamsApp(
+        controlProvider.buildBindingsForStreamsApp(
             app.getPrincipal(), topicPrefix, readTopics, writeTopics);
   }
 

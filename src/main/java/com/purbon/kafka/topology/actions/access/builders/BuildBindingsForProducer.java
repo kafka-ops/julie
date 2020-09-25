@@ -28,7 +28,7 @@ public class BuildBindingsForProducer extends BaseAccessControlAction {
   public void run() throws IOException {
     Stream<String> producersStream = producers.stream().map(p -> p.getPrincipal());
     bindings =
-        controlProvider.setAclsForProducers(
+        controlProvider.buildBindingsForProducers(
             producersStream.collect(Collectors.toList()), fullTopicName);
   }
 

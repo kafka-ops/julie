@@ -1,4 +1,4 @@
-package com.purbon.kafka.topology.actions.access;
+package com.purbon.kafka.topology.actions.access.builders.rbac;
 
 import com.purbon.kafka.topology.AccessControlProvider;
 import com.purbon.kafka.topology.actions.BaseAccessControlAction;
@@ -7,12 +7,13 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
-public class AddConnectorAuthorization extends BaseAccessControlAction {
+public class BuildBindingsForConnectorAuthorization extends BaseAccessControlAction {
 
   private final Connector connector;
   private final AccessControlProvider controlProvider;
 
-  public AddConnectorAuthorization(AccessControlProvider controlProvider, Connector connector) {
+  public BuildBindingsForConnectorAuthorization(
+      AccessControlProvider controlProvider, Connector connector) {
     super();
     this.controlProvider = controlProvider;
     this.connector = connector;

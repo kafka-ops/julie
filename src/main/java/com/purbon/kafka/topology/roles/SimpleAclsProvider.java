@@ -43,7 +43,7 @@ public class SimpleAclsProvider implements AccessControlProvider {
   }
 
   @Override
-  public void clearAcls(Set<TopologyAclBinding> bindings) throws IOException {
+  public void clearBindings(Set<TopologyAclBinding> bindings) throws IOException {
     LOGGER.debug("AclsProvider: clearAcls");
     for (TopologyAclBinding binding : bindings) {
       try {
@@ -56,14 +56,14 @@ public class SimpleAclsProvider implements AccessControlProvider {
   }
 
   @Override
-  public List<TopologyAclBinding> setAclsForConnect(Connector connector, String topicPrefix) {
+  public List<TopologyAclBinding> buildBindingsForConnect(Connector connector, String topicPrefix) {
     return adminClient.setAclsForConnect(connector).stream()
         .map(TopologyAclBinding::new)
         .collect(Collectors.toList());
   }
 
   @Override
-  public List<TopologyAclBinding> setAclsForStreamsApp(
+  public List<TopologyAclBinding> buildBindingsForStreamsApp(
       String principal, String topicPrefix, List<String> readTopics, List<String> writeTopics) {
     return adminClient.setAclsForStreamsApp(principal, topicPrefix, readTopics, writeTopics)
         .stream()
@@ -72,7 +72,7 @@ public class SimpleAclsProvider implements AccessControlProvider {
   }
 
   @Override
-  public List<TopologyAclBinding> setAclsForConsumers(
+  public List<TopologyAclBinding> buildBindingsForConsumers(
       Collection<Consumer> consumers, String topic) {
     return consumers.stream()
         .flatMap(
@@ -83,7 +83,8 @@ public class SimpleAclsProvider implements AccessControlProvider {
   }
 
   @Override
-  public List<TopologyAclBinding> setAclsForProducers(Collection<String> principals, String topic) {
+  public List<TopologyAclBinding> buildBindingsForProducers(
+      Collection<String> principals, String topic) {
     return principals.stream()
         .flatMap(
             principal ->
@@ -93,14 +94,15 @@ public class SimpleAclsProvider implements AccessControlProvider {
   }
 
   @Override
-  public List<TopologyAclBinding> setAclsForSchemaRegistry(SchemaRegistryInstance schemaRegistry) {
+  public List<TopologyAclBinding> buildBindingsForSchemaRegistry(
+      SchemaRegistryInstance schemaRegistry) {
     return adminClient.setAclForSchemaRegistry(schemaRegistry).stream()
         .map(TopologyAclBinding::new)
         .collect(Collectors.toList());
   }
 
   @Override
-  public List<TopologyAclBinding> setAclsForControlCenter(String principal, String appId) {
+  public List<TopologyAclBinding> buildBindingsForControlCenter(String principal, String appId) {
     return adminClient.setAclsForControlCenter(principal, appId).stream()
         .map(TopologyAclBinding::new)
         .collect(Collectors.toList());

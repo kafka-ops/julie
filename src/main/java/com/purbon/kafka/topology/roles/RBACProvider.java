@@ -47,7 +47,7 @@ public class RBACProvider implements AccessControlProvider {
   }
 
   @Override
-  public void clearAcls(Set<TopologyAclBinding> bindings) {
+  public void clearBindings(Set<TopologyAclBinding> bindings) {
     LOGGER.debug("RBACProvider: clearAcls");
     bindings.forEach(
         aclBinding -> {
@@ -67,7 +67,7 @@ public class RBACProvider implements AccessControlProvider {
   }
 
   @Override
-  public List<TopologyAclBinding> setAclsForConnect(Connector connector, String topicPrefix) {
+  public List<TopologyAclBinding> buildBindingsForConnect(Connector connector, String topicPrefix) {
 
     String principal = connector.getPrincipal();
     List<String> readTopics = connector.getTopics().get("read");
@@ -121,7 +121,7 @@ public class RBACProvider implements AccessControlProvider {
   }
 
   @Override
-  public List<TopologyAclBinding> setAclsForStreamsApp(
+  public List<TopologyAclBinding> buildBindingsForStreamsApp(
       String principal, String topicPrefix, List<String> readTopics, List<String> writeTopics) {
     List<TopologyAclBinding> bindings = new ArrayList<>();
 
@@ -150,7 +150,7 @@ public class RBACProvider implements AccessControlProvider {
   }
 
   @Override
-  public List<TopologyAclBinding> setAclsForConsumers(
+  public List<TopologyAclBinding> buildBindingsForConsumers(
       Collection<Consumer> consumers, String topic) {
     List<TopologyAclBinding> bindings = new ArrayList<>();
     consumers.forEach(
@@ -163,7 +163,8 @@ public class RBACProvider implements AccessControlProvider {
   }
 
   @Override
-  public List<TopologyAclBinding> setAclsForProducers(Collection<String> principals, String topic) {
+  public List<TopologyAclBinding> buildBindingsForProducers(
+      Collection<String> principals, String topic) {
     List<TopologyAclBinding> bindings = new ArrayList<>();
     principals.forEach(
         principal -> {
@@ -185,7 +186,8 @@ public class RBACProvider implements AccessControlProvider {
   }
 
   @Override
-  public List<TopologyAclBinding> setAclsForSchemaRegistry(SchemaRegistryInstance schemaRegistry) {
+  public List<TopologyAclBinding> buildBindingsForSchemaRegistry(
+      SchemaRegistryInstance schemaRegistry) {
     String principal = schemaRegistry.getPrincipal();
     List<TopologyAclBinding> bindings = new ArrayList<>();
     TopologyAclBinding binding =
@@ -201,7 +203,7 @@ public class RBACProvider implements AccessControlProvider {
   }
 
   @Override
-  public List<TopologyAclBinding> setAclsForControlCenter(String principal, String appId) {
+  public List<TopologyAclBinding> buildBindingsForControlCenter(String principal, String appId) {
     TopologyAclBinding binding = apiClient.bind(principal, SYSTEM_ADMIN).forControlCenter().apply();
     return Collections.singletonList(binding);
   }

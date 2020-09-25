@@ -5,16 +5,16 @@ import static com.purbon.kafka.topology.model.Component.KAFKA_CONNECT;
 import static com.purbon.kafka.topology.model.Component.SCHEMA_REGISTRY;
 
 import com.purbon.kafka.topology.actions.Action;
-import com.purbon.kafka.topology.actions.access.AddConnectorAuthorization;
 import com.purbon.kafka.topology.actions.access.ClearBindings;
 import com.purbon.kafka.topology.actions.access.CreateBindings;
-import com.purbon.kafka.topology.actions.access.SetSchemaAuthorization;
 import com.purbon.kafka.topology.actions.access.builders.BuildBindingsForConsumer;
 import com.purbon.kafka.topology.actions.access.builders.BuildBindingsForControlCenter;
 import com.purbon.kafka.topology.actions.access.builders.BuildBindingsForKConnect;
 import com.purbon.kafka.topology.actions.access.builders.BuildBindingsForKStreams;
 import com.purbon.kafka.topology.actions.access.builders.BuildBindingsForProducer;
 import com.purbon.kafka.topology.actions.access.builders.BuildBindingsForSchemaRegistry;
+import com.purbon.kafka.topology.actions.access.builders.rbac.BuildBindingsForConnectorAuthorization;
+import com.purbon.kafka.topology.actions.access.builders.rbac.BuildBindingsForSchemaAuthorization;
 import com.purbon.kafka.topology.actions.access.builders.rbac.BuildClusterLevelBinding;
 import com.purbon.kafka.topology.actions.access.builders.rbac.BuildPredefinedBinding;
 import com.purbon.kafka.topology.model.Component;
@@ -101,11 +101,11 @@ public class AccessControlManager {
         Action action = syncApplicationAcls(connector, topicPrefix);
         actions.add(action);
         if (connector.getConnectors().isPresent())
-          actions.add(new AddConnectorAuthorization(controlProvider, connector));
+          actions.add(new BuildBindingsForConnectorAuthorization(controlProvider, connector));
       }
 
       for (Schemas schemaAuthorization : project.getSchemas()) {
-        actions.add(new SetSchemaAuthorization(controlProvider, schemaAuthorization));
+        actions.add(new BuildBindingsForSchemaAuthorization(controlProvider, schemaAuthorization));
       }
 
       syncRbacRawRoles(project.getRbacRawRoles(), topicPrefix, actions);
