@@ -2,12 +2,12 @@ package com.purbon.kafka.topology;
 
 import static java.lang.System.exit;
 
+import com.purbon.kafka.topology.utils.EnvVarTools;
+import java.io.FileInputStream;
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import org.apache.commons.cli.*;
+import org.apache.kafka.clients.admin.AdminClientConfig;
 
 public class BuilderCLI {
 
@@ -23,6 +23,10 @@ public class BuilderCLI {
   public static final String ALLOW_DELETE_OPTION = "allowDelete";
   public static final String ALLOW_DELETE_DESC =
       "Permits delete operations for topics and configs.";
+
+  public static final String EXTRACT_PROPS_FROM_ENV_OPTION = "envVarPrefix";
+  public static final String EXTRACT_PROPS_FROM_ENV_DESC =
+      "Prefix for env vars to to extracted to properties.";
 
   public static final String DRY_RUN_OPTION = "dryRun";
   public static final String DRY_RUN_DESC = "Print the execution plan without altering anything.";
@@ -55,6 +59,14 @@ public class BuilderCLI {
 
     final Option brokersListOption =
         Option.builder().longOpt(BROKERS_OPTION).hasArg().desc(BROKERS_DESC).required().build();
+
+    final Option envVarsPrefixOption =
+        Option.builder()
+            .longOpt(EXTRACT_PROPS_FROM_ENV_OPTION)
+            .hasArg()
+            .desc(EXTRACT_PROPS_FROM_ENV_DESC)
+            .required(false)
+            .build();
 
     final Option adminClientConfigFileOption =
         Option.builder()
@@ -103,6 +115,7 @@ public class BuilderCLI {
 
     options.addOption(topologyFileOption);
     options.addOption(brokersListOption);
+    options.addOption(envVarsPrefixOption);
     options.addOption(adminClientConfigFileOption);
 
     options.addOption(allowDeleteOption);
@@ -123,13 +136,22 @@ public class BuilderCLI {
 
   public void run(String[] args) throws IOException {
     printHelpOrVersion(args);
-    CommandLine cmd = parseArgsOrExit(args);
+    final CommandLine cmd = parseArgsOrExit(args);
 
-    String topology = cmd.getOptionValue(TOPOLOGY_OPTION);
-    Map<String, String> config = parseConfig(cmd);
+    final String topologyFile = cmd.getOptionValue(TOPOLOGY_OPTION);
+    final Map<String, String> config = parseConfig(cmd);
+    final Properties properties = parseProperties(cmd);
 
-    processTopology(topology, config);
+    processTopology(topologyFile, config, properties);
     System.out.println("Kafka Topology updated");
+  }
+
+  void processTopology(String topologyFile, Map<String, String> config, Properties properties)
+      throws IOException {
+    try (KafkaTopologyBuilder builder =
+        KafkaTopologyBuilder.build(topologyFile, config, properties)) {
+      builder.run();
+    }
   }
 
   public Map<String, String> parseConfig(CommandLine cmd) {
@@ -137,14 +159,13 @@ public class BuilderCLI {
     boolean allowDelete = cmd.hasOption(ALLOW_DELETE_OPTION);
     boolean dryRun = cmd.hasOption(DRY_RUN_OPTION);
     boolean quiet = cmd.hasOption(QUIET_OPTION);
-    String adminClientConfigFile = cmd.getOptionValue(ADMIN_CLIENT_CONFIG_OPTION);
 
     Map<String, String> config = new HashMap<>();
     config.put(BROKERS_OPTION, brokersList);
     config.put(ALLOW_DELETE_OPTION, String.valueOf(allowDelete));
     config.put(DRY_RUN_OPTION, String.valueOf(dryRun));
     config.put(QUIET_OPTION, String.valueOf(quiet));
-    config.put(ADMIN_CLIENT_CONFIG_OPTION, adminClientConfigFile);
+
     return config;
   }
 
@@ -162,20 +183,42 @@ public class BuilderCLI {
   }
 
   public CommandLine parseArgsOrExit(String[] args) {
-    CommandLine cmd = null;
     try {
-      cmd = parser.parse(options, args);
+      return parser.parse(options, args);
     } catch (ParseException e) {
       System.out.println("Parsing failed cause of " + e.getMessage());
       formatter.printHelp("cli", options);
       exit(1);
     }
-    return cmd;
+    return null; // to satisfy compiler
   }
 
-  public void processTopology(String topologyFile, Map<String, String> config) throws IOException {
-    try (KafkaTopologyBuilder builder = KafkaTopologyBuilder.build(topologyFile, config)) {
-      builder.run();
+  /**
+   * Extracts a properties
+   *
+   * @param cmd
+   * @return
+   * @throws IOException
+   */
+  Properties parseProperties(CommandLine cmd) throws IOException {
+    final Properties props = new Properties();
+    final String adminClientConfigPath = cmd.getOptionValue(ADMIN_CLIENT_CONFIG_OPTION);
+    if (adminClientConfigPath != null) {
+      props.load(new FileInputStream(adminClientConfigPath));
     }
+    final String bootstrapServers = cmd.getOptionValue(BROKERS_OPTION);
+    if (bootstrapServers != null) {
+      props.put(AdminClientConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
+    }
+
+    props.put(AdminClientConfig.RETRIES_CONFIG, Integer.MAX_VALUE);
+
+    final String envVarPrefix = cmd.getOptionValue(EXTRACT_PROPS_FROM_ENV_OPTION);
+    if (envVarPrefix != null) {
+      final Map<String, String> envVarsStartingWithPrefix =
+          EnvVarTools.getEnvVarsStartingWith(envVarPrefix);
+      props.putAll(envVarsStartingWithPrefix);
+    }
+    return props;
   }
 }

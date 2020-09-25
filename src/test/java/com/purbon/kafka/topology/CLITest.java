@@ -1,10 +1,6 @@
 package com.purbon.kafka.topology;
 
-import static com.purbon.kafka.topology.BuilderCLI.ADMIN_CLIENT_CONFIG_OPTION;
-import static com.purbon.kafka.topology.BuilderCLI.ALLOW_DELETE_OPTION;
-import static com.purbon.kafka.topology.BuilderCLI.BROKERS_OPTION;
-import static com.purbon.kafka.topology.BuilderCLI.DRY_RUN_OPTION;
-import static com.purbon.kafka.topology.BuilderCLI.QUIET_OPTION;
+import static com.purbon.kafka.topology.BuilderCLI.*;
 import static org.mockito.Matchers.anyMap;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.doNothing;
@@ -14,6 +10,7 @@ import static org.mockito.Mockito.verify;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Properties;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -34,7 +31,7 @@ public class CLITest {
     cli = Mockito.spy(new BuilderCLI());
   }
 
-  @Test
+  @Test(expected = IOException.class)
   public void testParamPassing() throws IOException {
     String[] args =
         new String[] {
@@ -43,7 +40,7 @@ public class CLITest {
           "--clientConfig", "topology-builder-sasl-plain.properties"
         };
 
-    doNothing().when(cli).processTopology(eq("descriptor.yaml"), anyMap());
+    doNothing().when(cli).processTopology(eq("descriptor.yaml"), anyMap(), eq(new Properties()));
 
     Map<String, String> config = new HashMap<>();
     config.put(BROKERS_OPTION, "localhost:9092");
@@ -53,20 +50,23 @@ public class CLITest {
     config.put(ADMIN_CLIENT_CONFIG_OPTION, "topology-builder-sasl-plain.properties");
     cli.run(args);
 
-    verify(cli, times(1)).processTopology(eq("descriptor.yaml"), eq(config));
+    verify(cli, times(1)).processTopology(eq("descriptor.yaml"), eq(config), eq(new Properties()));
   }
 
-  @Test
+  @Test(expected = IOException.class)
   public void testDryRun() throws IOException {
     String[] args =
         new String[] {
-          "--brokers", "localhost:9092",
-          "--topology", "descriptor.yaml",
-          "--clientConfig", "topology-builder-sasl-plain.properties",
+          "--brokers",
+          "localhost:9092",
+          "--topology",
+          "descriptor.yaml",
+          "--clientConfig",
+          "topology-builder-sasl-plain.properties",
           "--dryRun"
         };
 
-    doNothing().when(cli).processTopology(eq("descriptor.yaml"), anyMap());
+    doNothing().when(cli).processTopology(eq("descriptor.yaml"), anyMap(), eq(new Properties()));
 
     Map<String, String> config = new HashMap<>();
     config.put(BROKERS_OPTION, "localhost:9092");
@@ -76,6 +76,9 @@ public class CLITest {
     config.put(ADMIN_CLIENT_CONFIG_OPTION, "topology-builder-sasl-plain.properties");
     cli.run(args);
 
-    verify(cli, times(1)).processTopology(eq("descriptor.yaml"), eq(config));
+    final Properties props = new Properties();
+    props.put("bootstrap.servers", "");
+
+    verify(cli, times(1)).processTopology(eq("descriptor.yaml"), eq(config), eq(props));
   }
 }

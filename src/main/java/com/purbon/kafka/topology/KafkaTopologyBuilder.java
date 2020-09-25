@@ -40,10 +40,11 @@ public class KafkaTopologyBuilder implements AutoCloseable {
     this.accessControlManager = accessControlManager;
   }
 
-  public static KafkaTopologyBuilder build(String topologyFile, Map<String, String> config)
+  public static KafkaTopologyBuilder build(
+      String topologyFile, Map<String, String> config, Properties adminProperties)
       throws IOException {
 
-    TopologyBuilderConfig builderConfig = new TopologyBuilderConfig(config);
+    TopologyBuilderConfig builderConfig = new TopologyBuilderConfig(config, adminProperties);
     TopologyBuilderAdminClient adminClient =
         new TopologyBuilderAdminClientBuilder(builderConfig).build();
     AccessControlProviderFactory accessControlProviderFactory =

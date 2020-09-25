@@ -50,7 +50,7 @@ public class KafkaTopologyBuilderTest {
     cliOps.put(ADMIN_CLIENT_CONFIG_OPTION, "/fooBar");
     props = new Properties();
     props.put(SCHEMA_REGISTRY_URL, "http://foo:8082");
-    props.put(AdminClientConfig.BOOTSTRAP_SERVERS_CONFIG, "");
+    props.put(AdminClientConfig.BOOTSTRAP_SERVERS_CONFIG, "localhost:9092");
     props.put(AdminClientConfig.RETRIES_CONFIG, Integer.MAX_VALUE);
   }
 
@@ -139,7 +139,10 @@ public class KafkaTopologyBuilderTest {
     config.put(QUIET_OPTION, "false");
     config.put(ADMIN_CLIENT_CONFIG_OPTION, clientConfigFile);
 
-    KafkaTopologyBuilder builder = KafkaTopologyBuilder.build(fileOrDirPath, config);
+    final Properties properties = new Properties();
+    properties.put(AdminClientConfig.BOOTSTRAP_SERVERS_CONFIG, "localhost:9092");
+    properties.put("confluent.schema.registry.url", "mock://");
+    KafkaTopologyBuilder builder = KafkaTopologyBuilder.build(fileOrDirPath, config, properties);
 
     builder.setTopicManager(topicManager);
     builder.setAccessControlManager(accessControlManager);
@@ -171,7 +174,10 @@ public class KafkaTopologyBuilderTest {
     config.put(QUIET_OPTION, "false");
     config.put(ADMIN_CLIENT_CONFIG_OPTION, clientConfigFile);
 
-    KafkaTopologyBuilder builder = KafkaTopologyBuilder.build(fileOrDirPath, config);
+    final Properties properties = new Properties();
+    properties.put(AdminClientConfig.BOOTSTRAP_SERVERS_CONFIG, "localhost:9092");
+    properties.put("confluent.schema.registry.url", "mock://");
+    KafkaTopologyBuilder builder = KafkaTopologyBuilder.build(fileOrDirPath, config, properties);
 
     builder.setTopicManager(topicManager);
     builder.setAccessControlManager(accessControlManager);
