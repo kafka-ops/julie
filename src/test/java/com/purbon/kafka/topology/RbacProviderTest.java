@@ -29,6 +29,7 @@ import com.purbon.kafka.topology.model.users.platform.ControlCenterInstance;
 import com.purbon.kafka.topology.model.users.platform.SchemaRegistry;
 import com.purbon.kafka.topology.model.users.platform.SchemaRegistryInstance;
 import com.purbon.kafka.topology.roles.AdminRoleRunner;
+import com.purbon.kafka.topology.roles.RBACBindingsBuilder;
 import com.purbon.kafka.topology.roles.RBACProvider;
 import com.purbon.kafka.topology.roles.TopologyAclBinding;
 import java.io.IOException;
@@ -65,7 +66,8 @@ public class RbacProviderTest {
     apiClient.setKafkaClusterId("ak");
 
     RBACProvider aclsProvider = new RBACProvider(apiClient);
-    accessControlManager = new AccessControlManager(aclsProvider);
+    RBACBindingsBuilder bindingsBuilder = new RBACBindingsBuilder(apiClient);
+    accessControlManager = new AccessControlManager(aclsProvider, bindingsBuilder);
   }
 
   @Test

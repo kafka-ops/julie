@@ -33,6 +33,7 @@ import com.purbon.kafka.topology.model.users.platform.Kafka;
 import com.purbon.kafka.topology.model.users.platform.KafkaConnect;
 import com.purbon.kafka.topology.model.users.platform.SchemaRegistry;
 import com.purbon.kafka.topology.model.users.platform.SchemaRegistryInstance;
+import com.purbon.kafka.topology.roles.RBACBindingsBuilder;
 import com.purbon.kafka.topology.roles.RBACProvider;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -73,7 +74,8 @@ public class RBACPRoviderRbacIT extends MDSBaseTest {
 
     plan = ExecutionPlan.init(cs, System.out);
     RBACProvider rbacProvider = new RBACProvider(apiClient);
-    accessControlManager = new AccessControlManager(rbacProvider);
+    RBACBindingsBuilder bindingsBuilder = new RBACBindingsBuilder(apiClient);
+    accessControlManager = new AccessControlManager(rbacProvider, bindingsBuilder);
   }
 
   @Test

@@ -22,6 +22,7 @@ import com.purbon.kafka.topology.model.users.platform.ControlCenter;
 import com.purbon.kafka.topology.model.users.platform.ControlCenterInstance;
 import com.purbon.kafka.topology.model.users.platform.SchemaRegistry;
 import com.purbon.kafka.topology.model.users.platform.SchemaRegistryInstance;
+import com.purbon.kafka.topology.roles.AclsBindingsBuilder;
 import com.purbon.kafka.topology.roles.SimpleAclsProvider;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -53,8 +54,9 @@ public class TopologyBuilderAdminClientTest {
   TopologyBuilderAdminClient adminClient;
 
   private SimpleAclsProvider aclsProvider;
+  private AclsBindingsBuilder bindingsBuilder;
+  private ExecutionPlan plan;
 
-  ExecutionPlan plan;
   @Mock ClusterState clusterState;
 
   @Rule public MockitoRule mockitoRule = MockitoJUnit.rule();
@@ -65,7 +67,8 @@ public class TopologyBuilderAdminClientTest {
   public void setup() throws ExecutionException, InterruptedException, IOException {
     adminClient = new TopologyBuilderAdminClient(kafkaAdminClient, config);
     aclsProvider = new SimpleAclsProvider(adminClient);
-    accessControlManager = new AccessControlManager(aclsProvider);
+    bindingsBuilder = new AclsBindingsBuilder(adminClient);
+    accessControlManager = new AccessControlManager(aclsProvider, bindingsBuilder);
 
     plan = ExecutionPlan.init(clusterState, System.out);
 

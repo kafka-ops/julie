@@ -49,22 +49,19 @@ public class AccessControlManager {
 
   private final TopologyBuilderConfig config;
   private AccessControlProvider controlProvider;
-  private ClusterState clusterState;
+  private BindingsBuilderProvider bindingsBuilder;
 
-  public AccessControlManager(AccessControlProvider controlProvider) {
-    this(controlProvider, new ClusterState(), new TopologyBuilderConfig());
-  }
-
-  public AccessControlManager(AccessControlProvider controlProvider, TopologyBuilderConfig config) {
-    this(controlProvider, new ClusterState(), config);
+  public AccessControlManager(
+      AccessControlProvider controlProvider, BindingsBuilderProvider builderProvider) {
+    this(controlProvider, builderProvider, new TopologyBuilderConfig());
   }
 
   public AccessControlManager(
       AccessControlProvider controlProvider,
-      ClusterState clusterState,
+      BindingsBuilderProvider builderProvider,
       TopologyBuilderConfig config) {
     this.controlProvider = controlProvider;
-    this.clusterState = clusterState;
+    this.bindingsBuilder = builderProvider;
     this.config = config;
   }
 
@@ -81,13 +78,13 @@ public class AccessControlManager {
                 if (!project.getConsumers().isEmpty()) {
                   Action action =
                       new BuildBindingsForConsumer(
-                          controlProvider, project.getConsumers(), fullTopicName);
+                          bindingsBuilder, project.getConsumers(), fullTopicName);
                   actions.add(action);
                 }
                 if (!project.getProducers().isEmpty()) {
                   Action action =
                       new BuildBindingsForProducer(
-                          controlProvider, project.getProducers(), fullTopicName);
+                          bindingsBuilder, project.getProducers(), fullTopicName);
                   actions.add(action);
                 }
               });
@@ -101,11 +98,11 @@ public class AccessControlManager {
         Action action = syncApplicationAcls(connector, topicPrefix);
         actions.add(action);
         if (connector.getConnectors().isPresent())
-          actions.add(new BuildBindingsForConnectorAuthorization(controlProvider, connector));
+          actions.add(new BuildBindingsForConnectorAuthorization(bindingsBuilder, connector));
       }
 
       for (Schemas schemaAuthorization : project.getSchemas()) {
-        actions.add(new BuildBindingsForSchemaAuthorization(controlProvider, schemaAuthorization));
+        actions.add(new BuildBindingsForSchemaAuthorization(bindingsBuilder, schemaAuthorization));
       }
 
       syncRbacRawRoles(project.getRbacRawRoles(), topicPrefix, actions);
@@ -163,10 +160,10 @@ public class AccessControlManager {
 
     // Set component level ACLs
     for (SchemaRegistryInstance schemaRegistry : platform.getSchemaRegistry().getInstances()) {
-      actions.add(new BuildBindingsForSchemaRegistry(controlProvider, schemaRegistry));
+      actions.add(new BuildBindingsForSchemaRegistry(bindingsBuilder, schemaRegistry));
     }
     for (ControlCenterInstance controlCenter : platform.getControlCenter().getInstances()) {
-      actions.add(new BuildBindingsForControlCenter(controlProvider, controlCenter));
+      actions.add(new BuildBindingsForControlCenter(bindingsBuilder, controlCenter));
     }
   }
 
@@ -176,7 +173,7 @@ public class AccessControlManager {
       Map<String, List<User>> roles = rbac.get();
       for (String role : roles.keySet()) {
         for (User user : roles.get(role)) {
-          actions.add(new BuildClusterLevelBinding(controlProvider, role, user, cmp));
+          actions.add(new BuildClusterLevelBinding(bindingsBuilder, role, user, cmp));
         }
       }
     }
@@ -190,14 +187,14 @@ public class AccessControlManager {
                 principal ->
                     actions.add(
                         new BuildPredefinedBinding(
-                            controlProvider, principal, predefinedRole, topicPrefix))));
+                            bindingsBuilder, principal, predefinedRole, topicPrefix))));
   }
 
   private Action syncApplicationAcls(DynamicUser app, String topicPrefix) throws IOException {
     if (app instanceof KStream) {
-      return new BuildBindingsForKStreams(controlProvider, (KStream) app, topicPrefix);
+      return new BuildBindingsForKStreams(bindingsBuilder, (KStream) app, topicPrefix);
     } else if (app instanceof Connector) {
-      return new BuildBindingsForKConnect(controlProvider, (Connector) app, topicPrefix);
+      return new BuildBindingsForKConnect(bindingsBuilder, (Connector) app, topicPrefix);
     } else {
       throw new IOException("Wrong dynamic app used.");
     }

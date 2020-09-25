@@ -1,6 +1,6 @@
 package com.purbon.kafka.topology.actions.access.builders.rbac;
 
-import com.purbon.kafka.topology.AccessControlProvider;
+import com.purbon.kafka.topology.BindingsBuilderProvider;
 import com.purbon.kafka.topology.actions.BaseAccessControlAction;
 import com.purbon.kafka.topology.model.users.Schemas;
 import java.io.IOException;
@@ -9,20 +9,20 @@ import java.util.Map;
 
 public class BuildBindingsForSchemaAuthorization extends BaseAccessControlAction {
 
-  private final AccessControlProvider controlProvider;
+  private final BindingsBuilderProvider builderProvider;
   private final Schemas schemaAuthorization;
 
   public BuildBindingsForSchemaAuthorization(
-      AccessControlProvider controlProvider, Schemas schemaAuthorization) {
+      BindingsBuilderProvider builderProvider, Schemas schemaAuthorization) {
     super();
-    this.controlProvider = controlProvider;
+    this.builderProvider = builderProvider;
     this.schemaAuthorization = schemaAuthorization;
   }
 
   @Override
   public void run() throws IOException {
     bindings =
-        controlProvider.setSchemaAuthorization(
+        builderProvider.setSchemaAuthorization(
             schemaAuthorization.getPrincipal(), schemaAuthorization.getSubjects());
   }
 

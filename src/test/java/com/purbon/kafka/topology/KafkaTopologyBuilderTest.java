@@ -35,14 +35,16 @@ public class KafkaTopologyBuilderTest {
 
   @Mock AccessControlProvider accessControlProvider;
 
+  @Mock BindingsBuilderProvider bindingsBuilderProvider;
+
   @Mock TopicManager topicManager;
 
   @Mock AccessControlManager accessControlManager;
 
   @Rule public MockitoRule mockitoRule = MockitoJUnit.rule();
 
-  Map<String, String> cliOps;
-  Properties props;
+  private Map<String, String> cliOps;
+  private Properties props;
 
   @Before
   public void before() {
@@ -76,7 +78,11 @@ public class KafkaTopologyBuilderTest {
 
     KafkaTopologyBuilder builder =
         KafkaTopologyBuilder.build(
-            fileOrDirPath, builderConfig, topologyAdminClient, accessControlProvider);
+            fileOrDirPath,
+            builderConfig,
+            topologyAdminClient,
+            accessControlProvider,
+            bindingsBuilderProvider);
 
     builder.close();
 
@@ -89,7 +95,12 @@ public class KafkaTopologyBuilderTest {
     TopologyBuilderConfig builderConfig = new TopologyBuilderConfig(cliOps, props);
 
     KafkaTopologyBuilder builder =
-        KafkaTopologyBuilder.build(file, builderConfig, topologyAdminClient, accessControlProvider);
+        KafkaTopologyBuilder.build(
+            file,
+            builderConfig,
+            topologyAdminClient,
+            accessControlProvider,
+            bindingsBuilderProvider);
 
     builder.verifyRequiredParameters(file, cliOps);
   }
@@ -102,7 +113,11 @@ public class KafkaTopologyBuilderTest {
     TopologyBuilderConfig builderConfig = new TopologyBuilderConfig(cliOps, props);
     KafkaTopologyBuilder builder =
         KafkaTopologyBuilder.build(
-            fileOrDirPath, builderConfig, topologyAdminClient, accessControlProvider);
+            fileOrDirPath,
+            builderConfig,
+            topologyAdminClient,
+            accessControlProvider,
+            bindingsBuilderProvider);
 
     builder.verifyRequiredParameters(fileOrDirPath, cliOps);
   }
@@ -120,7 +135,11 @@ public class KafkaTopologyBuilderTest {
     TopologyBuilderConfig builderConfig = new TopologyBuilderConfig(cliOps, props);
     KafkaTopologyBuilder builder =
         KafkaTopologyBuilder.build(
-            fileOrDirPath, builderConfig, topologyAdminClient, accessControlProvider);
+            fileOrDirPath,
+            builderConfig,
+            topologyAdminClient,
+            accessControlProvider,
+            bindingsBuilderProvider);
 
     builder.verifyRequiredParameters(fileOrDirPath, cliOps);
   }
@@ -157,7 +176,6 @@ public class KafkaTopologyBuilderTest {
     verify(accessControlManager, times(1)).apply(anyObject(), anyObject());
   }
 
-  ExecutionPlan plan;
   @Mock RedisStateProcessor stateProcessor;
 
   @Test
@@ -186,7 +204,7 @@ public class KafkaTopologyBuilderTest {
     doNothing().when(accessControlManager).apply(anyObject(), anyObject());
 
     ClusterState cs = new ClusterState(stateProcessor);
-    plan = ExecutionPlan.init(cs, System.out);
+    ExecutionPlan plan = ExecutionPlan.init(cs, System.out);
 
     builder.run(plan);
     builder.close();
@@ -205,7 +223,11 @@ public class KafkaTopologyBuilderTest {
 
     KafkaTopologyBuilder builder =
         KafkaTopologyBuilder.build(
-            fileOrDirPath, builderConfig, topologyAdminClient, accessControlProvider);
+            fileOrDirPath,
+            builderConfig,
+            topologyAdminClient,
+            accessControlProvider,
+            bindingsBuilderProvider);
 
     builder.setTopicManager(topicManager);
     builder.setAccessControlManager(accessControlManager);

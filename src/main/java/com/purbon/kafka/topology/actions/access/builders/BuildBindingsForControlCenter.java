@@ -1,6 +1,6 @@
 package com.purbon.kafka.topology.actions.access.builders;
 
-import com.purbon.kafka.topology.AccessControlProvider;
+import com.purbon.kafka.topology.BindingsBuilderProvider;
 import com.purbon.kafka.topology.actions.BaseAccessControlAction;
 import com.purbon.kafka.topology.model.users.platform.ControlCenterInstance;
 import java.io.IOException;
@@ -9,20 +9,20 @@ import java.util.Map;
 
 public class BuildBindingsForControlCenter extends BaseAccessControlAction {
 
-  private final AccessControlProvider controlProvider;
+  private final BindingsBuilderProvider builderProvider;
   private final ControlCenterInstance controlCenter;
 
   public BuildBindingsForControlCenter(
-      AccessControlProvider controlProvider, ControlCenterInstance controlCenter) {
+      BindingsBuilderProvider builderProvider, ControlCenterInstance controlCenter) {
     super();
-    this.controlProvider = controlProvider;
+    this.builderProvider = builderProvider;
     this.controlCenter = controlCenter;
   }
 
   @Override
   public void run() throws IOException {
     bindings =
-        controlProvider.buildBindingsForControlCenter(
+        builderProvider.buildBindingsForControlCenter(
             controlCenter.getPrincipal(), controlCenter.getAppId());
   }
 

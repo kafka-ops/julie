@@ -22,6 +22,7 @@ import com.purbon.kafka.topology.model.users.platform.ControlCenter;
 import com.purbon.kafka.topology.model.users.platform.ControlCenterInstance;
 import com.purbon.kafka.topology.model.users.platform.SchemaRegistry;
 import com.purbon.kafka.topology.model.users.platform.SchemaRegistryInstance;
+import com.purbon.kafka.topology.roles.AclsBindingsBuilder;
 import com.purbon.kafka.topology.roles.SimpleAclsProvider;
 import com.purbon.kafka.topology.roles.TopologyAclBinding;
 import java.io.IOException;
@@ -58,6 +59,7 @@ public class AccessControlManagerIT {
   private static AdminClient kafkaAdminClient;
   private AccessControlManager accessControlManager;
   private SimpleAclsProvider aclsProvider;
+  private AclsBindingsBuilder bindingsBuilder;
 
   private ExecutionPlan plan;
   private ClusterState cs;
@@ -76,7 +78,8 @@ public class AccessControlManagerIT {
     this.plan = ExecutionPlan.init(cs, System.out);
 
     aclsProvider = new SimpleAclsProvider(adminClient);
-    accessControlManager = new AccessControlManager(aclsProvider);
+    bindingsBuilder = new AclsBindingsBuilder(adminClient);
+    accessControlManager = new AccessControlManager(aclsProvider, bindingsBuilder);
   }
 
   @Test
@@ -84,7 +87,7 @@ public class AccessControlManagerIT {
 
     // Crate an ACL outside of the control of the state manager.
     List<TopologyAclBinding> bindings =
-        aclsProvider.buildBindingsForProducers(Collections.singleton("User:foo"), "bar");
+        bindingsBuilder.buildBindingsForProducers(Collections.singleton("User:foo"), "bar");
     aclsProvider.createBindings(new HashSet<>(bindings));
 
     List<Consumer> consumers = new ArrayList<>();

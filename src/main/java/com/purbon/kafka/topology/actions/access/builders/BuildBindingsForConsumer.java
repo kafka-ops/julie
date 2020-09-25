@@ -1,6 +1,6 @@
 package com.purbon.kafka.topology.actions.access.builders;
 
-import com.purbon.kafka.topology.AccessControlProvider;
+import com.purbon.kafka.topology.BindingsBuilderProvider;
 import com.purbon.kafka.topology.actions.BaseAccessControlAction;
 import com.purbon.kafka.topology.model.users.Consumer;
 import java.util.HashMap;
@@ -12,19 +12,19 @@ public class BuildBindingsForConsumer extends BaseAccessControlAction {
 
   private final String fullTopicName;
   private final List<Consumer> consumers;
-  private final AccessControlProvider controlProvider;
+  private final BindingsBuilderProvider builderProvider;
 
   public BuildBindingsForConsumer(
-      AccessControlProvider controlProvider, List<Consumer> consumers, String fullTopicName) {
+      BindingsBuilderProvider builderProvider, List<Consumer> consumers, String fullTopicName) {
     super();
     this.consumers = consumers;
     this.fullTopicName = fullTopicName;
-    this.controlProvider = controlProvider;
+    this.builderProvider = builderProvider;
   }
 
   @Override
   public void run() {
-    bindings = controlProvider.buildBindingsForConsumers(consumers, fullTopicName);
+    bindings = builderProvider.buildBindingsForConsumers(consumers, fullTopicName);
   }
 
   @Override

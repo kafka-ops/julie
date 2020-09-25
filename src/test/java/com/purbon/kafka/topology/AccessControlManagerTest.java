@@ -30,6 +30,7 @@ import com.purbon.kafka.topology.model.users.platform.Kafka;
 import com.purbon.kafka.topology.model.users.platform.KafkaConnect;
 import com.purbon.kafka.topology.model.users.platform.SchemaRegistry;
 import com.purbon.kafka.topology.model.users.platform.SchemaRegistryInstance;
+import com.purbon.kafka.topology.roles.AclsBindingsBuilder;
 import com.purbon.kafka.topology.roles.SimpleAclsProvider;
 import com.purbon.kafka.topology.roles.TopologyAclBinding;
 import java.io.IOException;
@@ -58,6 +59,7 @@ import org.mockito.junit.MockitoRule;
 public class AccessControlManagerTest {
 
   @Mock SimpleAclsProvider aclsProvider;
+  @Mock AclsBindingsBuilder aclsBuilder;
 
   @Mock ClusterState clusterState;
 
@@ -72,7 +74,7 @@ public class AccessControlManagerTest {
   @Before
   public void setup() throws IOException {
     plan = ExecutionPlan.init(clusterState, mockPrintStream);
-    accessControlManager = new AccessControlManager(aclsProvider);
+    accessControlManager = new AccessControlManager(aclsProvider, aclsBuilder);
     doNothing().when(clusterState).add(Matchers.anyList());
     doNothing().when(clusterState).flushAndClose();
   }
@@ -94,10 +96,10 @@ public class AccessControlManagerTest {
     List<Consumer> users = asList(new Consumer("User:app1"));
 
     doReturn(new ArrayList<TopologyAclBinding>())
-        .when(aclsProvider)
+        .when(aclsBuilder)
         .buildBindingsForConsumers(users, topicA.toString());
     accessControlManager.apply(topology, plan);
-    verify(aclsProvider, times(1)).buildBindingsForConsumers(eq(users), eq(topicA.toString()));
+    verify(aclsBuilder, times(1)).buildBindingsForConsumers(eq(users), eq(topicA.toString()));
   }
 
   @Test
@@ -117,10 +119,10 @@ public class AccessControlManagerTest {
     List<String> users = asList(new String[] {"User:app1"});
 
     doReturn(new ArrayList<TopologyAclBinding>())
-        .when(aclsProvider)
+        .when(aclsBuilder)
         .buildBindingsForProducers(users, topicA.toString());
     accessControlManager.apply(topology, plan);
-    verify(aclsProvider, times(1)).buildBindingsForProducers(eq(users), eq(topicA.toString()));
+    verify(aclsBuilder, times(1)).buildBindingsForProducers(eq(users), eq(topicA.toString()));
   }
 
   @Test
@@ -143,13 +145,13 @@ public class AccessControlManagerTest {
     String topicPrefix = project.buildTopicPrefix(topology.buildNamePrefix());
 
     doReturn(new ArrayList<TopologyAclBinding>())
-        .when(aclsProvider)
+        .when(aclsBuilder)
         .buildBindingsForStreamsApp(
             "User:App0",
             topicPrefix,
             topics.get(KStream.READ_TOPICS),
             topics.get(KStream.WRITE_TOPICS));
-    verify(aclsProvider, times(1))
+    verify(aclsBuilder, times(1))
         .buildBindingsForStreamsApp(
             eq("User:App0"),
             eq(topicPrefix),
@@ -182,17 +184,17 @@ public class AccessControlManagerTest {
     accessControlManager.apply(topology, plan);
 
     doReturn(new ArrayList<TopologyAclBinding>())
-        .when(aclsProvider)
+        .when(aclsBuilder)
         .buildBindingsForSchemaRegistry(instance);
 
     doReturn(new ArrayList<TopologyAclBinding>())
-        .when(aclsProvider)
+        .when(aclsBuilder)
         .setClusterLevelRole(anyString(), anyString(), eq(Component.SCHEMA_REGISTRY));
 
-    verify(aclsProvider, times(1)).buildBindingsForSchemaRegistry(instance);
-    verify(aclsProvider, times(1))
+    verify(aclsBuilder, times(1)).buildBindingsForSchemaRegistry(instance);
+    verify(aclsBuilder, times(1))
         .setClusterLevelRole("SecurityAdmin", "User:foo", Component.SCHEMA_REGISTRY);
-    verify(aclsProvider, times(1))
+    verify(aclsBuilder, times(1))
         .setClusterLevelRole("ClusterAdmin", "User:bar", Component.SCHEMA_REGISTRY);
   }
 
@@ -215,10 +217,10 @@ public class AccessControlManagerTest {
     accessControlManager.apply(topology, plan);
 
     doReturn(new ArrayList<TopologyAclBinding>())
-        .when(aclsProvider)
+        .when(aclsBuilder)
         .buildBindingsForControlCenter("User:foo", "appid");
 
-    verify(aclsProvider, times(1)).buildBindingsForControlCenter("User:foo", "appid");
+    verify(aclsBuilder, times(1)).buildBindingsForControlCenter("User:foo", "appid");
   }
 
   @Test
@@ -239,11 +241,11 @@ public class AccessControlManagerTest {
     accessControlManager.apply(topology, plan);
 
     doReturn(new ArrayList<TopologyAclBinding>())
-        .when(aclsProvider)
+        .when(aclsBuilder)
         .setClusterLevelRole(anyString(), anyString(), eq(Component.KAFKA));
 
-    verify(aclsProvider, times(1)).setClusterLevelRole("Operator", "User:foo", Component.KAFKA);
-    verify(aclsProvider, times(1)).setClusterLevelRole("ClusterAdmin", "User:bar", Component.KAFKA);
+    verify(aclsBuilder, times(1)).setClusterLevelRole("Operator", "User:foo", Component.KAFKA);
+    verify(aclsBuilder, times(1)).setClusterLevelRole("ClusterAdmin", "User:bar", Component.KAFKA);
   }
 
   @Test
@@ -264,12 +266,12 @@ public class AccessControlManagerTest {
     accessControlManager.apply(topology, plan);
 
     doReturn(new ArrayList<TopologyAclBinding>())
-        .when(aclsProvider)
+        .when(aclsBuilder)
         .setClusterLevelRole(anyString(), anyString(), eq(Component.KAFKA_CONNECT));
 
-    verify(aclsProvider, times(1))
+    verify(aclsBuilder, times(1))
         .setClusterLevelRole("Operator", "User:foo", Component.KAFKA_CONNECT);
-    verify(aclsProvider, times(1))
+    verify(aclsBuilder, times(1))
         .setClusterLevelRole("ClusterAdmin", "User:bar", Component.KAFKA_CONNECT);
   }
 
@@ -294,10 +296,10 @@ public class AccessControlManagerTest {
     String topicPrefix = project.buildTopicPrefix(topology.buildNamePrefix());
 
     doReturn(new ArrayList<TopologyAclBinding>())
-        .when(aclsProvider)
+        .when(aclsBuilder)
         .buildBindingsForConnect(connector1, topicPrefix);
 
-    verify(aclsProvider, times(1)).buildBindingsForConnect(eq(connector1), eq(topicPrefix));
+    verify(aclsBuilder, times(1)).buildBindingsForConnect(eq(connector1), eq(topicPrefix));
   }
 
   @Test
@@ -319,7 +321,7 @@ public class AccessControlManagerTest {
     List<Consumer> users = asList(new Consumer("User:app1"));
 
     doReturn(new ArrayList<TopologyAclBinding>())
-        .when(aclsProvider)
+        .when(aclsBuilder)
         .buildBindingsForConsumers(users, topicA.toString());
     accessControlManager.apply(topology, plan);
 
@@ -335,7 +337,7 @@ public class AccessControlManagerTest {
     clusterState.load();
     clusterState.reset();
     plan = ExecutionPlan.init(clusterState, mockPrintStream);
-    accessControlManager = new AccessControlManager(aclsProvider);
+    accessControlManager = new AccessControlManager(aclsProvider, aclsBuilder);
 
     List<Consumer> consumers = new ArrayList<>();
     consumers.add(new Consumer("User:app1"));
@@ -346,19 +348,19 @@ public class AccessControlManagerTest {
     Topology topology = buildTopology(consumers, asList(topicA));
 
     List<TopologyAclBinding> bindings = returnAclsForConsumers(consumers, topicA.getName());
-    doReturn(bindings).when(aclsProvider).buildBindingsForConsumers(any(), eq(topicA.toString()));
+    doReturn(bindings).when(aclsBuilder).buildBindingsForConsumers(any(), eq(topicA.toString()));
 
     accessControlManager.apply(topology, plan);
     plan.run();
 
-    verify(aclsProvider, times(1)).buildBindingsForConsumers(consumers, topicA.toString());
+    verify(aclsBuilder, times(1)).buildBindingsForConsumers(consumers, topicA.toString());
 
     consumers = new ArrayList<>();
     consumers.add(new Consumer("User:app1"));
 
     bindings = returnAclsForConsumers(consumers, topicA.getName());
     doReturn(bindings)
-        .when(aclsProvider)
+        .when(aclsBuilder)
         .buildBindingsForConsumers(eq(consumers), eq(topicA.toString()));
 
     Topology newTopology = buildTopology(consumers, asList(topicA));

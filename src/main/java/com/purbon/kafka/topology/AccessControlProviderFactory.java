@@ -7,6 +7,8 @@ import static com.purbon.kafka.topology.TopologyBuilderConfig.RBAC_ACCESS_CONTRO
 
 import com.purbon.kafka.topology.api.mds.MDSApiClient;
 import com.purbon.kafka.topology.api.mds.MDSApiClientBuilder;
+import com.purbon.kafka.topology.roles.AclsBindingsBuilder;
+import com.purbon.kafka.topology.roles.RBACBindingsBuilder;
 import com.purbon.kafka.topology.roles.RBACProvider;
 import com.purbon.kafka.topology.roles.SimpleAclsProvider;
 import java.io.IOException;
@@ -48,6 +50,26 @@ public class AccessControlProviderFactory {
           return (RBACProvider) rbacProviderContructor.newInstance(apiClient);
         default:
           throw new IOException("Unknown access control provided. " + accessControlClassName);
+      }
+    } catch (Exception ex) {
+      throw new IOException(ex);
+    }
+  }
+
+  public BindingsBuilderProvider builder() throws IOException {
+    String accessControlClass = config.getAccessControlClassName();
+    try {
+      if (accessControlClass.equalsIgnoreCase(ACCESS_CONTROL_DEFAULT_CLASS)) {
+        return new AclsBindingsBuilder(builderAdminClient);
+      } else if (accessControlClass.equalsIgnoreCase(RBAC_ACCESS_CONTROL_CLASS)) {
+        MDSApiClient apiClient = mdsApiClientBuilder.build();
+        String mdsUser = config.getProperty(MDS_USER_CONFIG);
+        String mdsPassword = config.getProperty(MDS_PASSWORD_CONFIG);
+        apiClient.login(mdsUser, mdsPassword);
+        apiClient.authenticate();
+        return new RBACBindingsBuilder(apiClient);
+      } else {
+        throw new IOException(accessControlClass + " Unknown access control provided.");
       }
     } catch (Exception ex) {
       throw new IOException(ex);

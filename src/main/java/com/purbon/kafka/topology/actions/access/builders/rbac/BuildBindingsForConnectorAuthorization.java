@@ -1,6 +1,6 @@
 package com.purbon.kafka.topology.actions.access.builders.rbac;
 
-import com.purbon.kafka.topology.AccessControlProvider;
+import com.purbon.kafka.topology.BindingsBuilderProvider;
 import com.purbon.kafka.topology.actions.BaseAccessControlAction;
 import com.purbon.kafka.topology.model.users.Connector;
 import java.util.ArrayList;
@@ -10,19 +10,19 @@ import java.util.Map;
 public class BuildBindingsForConnectorAuthorization extends BaseAccessControlAction {
 
   private final Connector connector;
-  private final AccessControlProvider controlProvider;
+  private final BindingsBuilderProvider builderProvider;
 
   public BuildBindingsForConnectorAuthorization(
-      AccessControlProvider controlProvider, Connector connector) {
+      BindingsBuilderProvider builderProvider, Connector connector) {
     super();
-    this.controlProvider = controlProvider;
+    this.builderProvider = builderProvider;
     this.connector = connector;
   }
 
   @Override
   public void run() {
     bindings =
-        controlProvider.setConnectorAuthorization(
+        builderProvider.setConnectorAuthorization(
             connector.getPrincipal(), connector.getConnectors().orElse(new ArrayList<>()));
   }
 

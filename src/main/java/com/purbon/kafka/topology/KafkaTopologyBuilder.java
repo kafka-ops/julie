@@ -46,12 +46,12 @@ public class KafkaTopologyBuilder implements AutoCloseable {
     TopologyBuilderConfig builderConfig = new TopologyBuilderConfig(config);
     TopologyBuilderAdminClient adminClient =
         new TopologyBuilderAdminClientBuilder(builderConfig).build();
-    AccessControlProviderFactory accessControlProviderFactory =
+    AccessControlProviderFactory factory =
         new AccessControlProviderFactory(
             builderConfig, adminClient, new MDSApiClientBuilder(builderConfig));
 
     KafkaTopologyBuilder builder =
-        build(topologyFile, builderConfig, adminClient, accessControlProviderFactory.get());
+        build(topologyFile, builderConfig, adminClient, factory.get(), factory.builder());
     builder.verifyRequiredParameters(topologyFile, config);
     return builder;
   }
@@ -60,14 +60,15 @@ public class KafkaTopologyBuilder implements AutoCloseable {
       String topologyFileOrDir,
       TopologyBuilderConfig config,
       TopologyBuilderAdminClient adminClient,
-      AccessControlProvider accessControlProvider)
+      AccessControlProvider accessControlProvider,
+      BindingsBuilderProvider bindingsBuilderProvider)
       throws IOException {
 
     Topology topology = TopologyDescriptorBuilder.build(topologyFileOrDir);
     config.validateWith(topology);
 
     AccessControlManager accessControlManager =
-        new AccessControlManager(accessControlProvider, config);
+        new AccessControlManager(accessControlProvider, bindingsBuilderProvider, config);
 
     SchemaRegistryClient schemaRegistryClient =
         new CachedSchemaRegistryClient(config.getConfluentSchemaRegistryUrl(), 10);
@@ -129,7 +130,7 @@ public class KafkaTopologyBuilder implements AutoCloseable {
     }
   }
 
-  static ClusterState buildStateProcessor(TopologyBuilderConfig config) throws IOException {
+  private static ClusterState buildStateProcessor(TopologyBuilderConfig config) throws IOException {
 
     String stateProcessorClass = config.getStateProcessorImplementationClassName();
 

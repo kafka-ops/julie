@@ -11,6 +11,7 @@ import com.purbon.kafka.topology.model.Impl.TopologyImpl;
 import com.purbon.kafka.topology.model.Project;
 import com.purbon.kafka.topology.model.Topic;
 import com.purbon.kafka.topology.model.Topology;
+import com.purbon.kafka.topology.roles.RBACBindingsBuilder;
 import com.purbon.kafka.topology.roles.RBACProvider;
 import com.purbon.kafka.topology.roles.TopologyAclBinding;
 import java.io.IOException;
@@ -31,6 +32,7 @@ import org.mockito.junit.MockitoRule;
 public class AccessControlWithRBACTest {
 
   @Mock RBACProvider aclsProvider;
+  @Mock RBACBindingsBuilder bindingsBuilder;
 
   @Mock ExecutionPlan plan;
   @Mock ClusterState clusterState;
@@ -41,7 +43,7 @@ public class AccessControlWithRBACTest {
 
   @Before
   public void setup() throws IOException {
-    accessControlManager = new AccessControlManager(aclsProvider);
+    accessControlManager = new AccessControlManager(aclsProvider, bindingsBuilder);
     plan = ExecutionPlan.init(clusterState, System.out);
   }
 
@@ -68,12 +70,12 @@ public class AccessControlWithRBACTest {
             AclOperation.DESCRIBE_CONFIGS.name(),
             "User:Foo",
             PatternType.ANY.name());
-    when(aclsProvider.setPredefinedRole("User:Foo", "ResourceOwner", project.buildTopicPrefix()))
+    when(bindingsBuilder.setPredefinedRole("User:Foo", "ResourceOwner", project.buildTopicPrefix()))
         .thenReturn(binding);
 
     accessControlManager.apply(topology, plan);
 
-    verify(aclsProvider, times(1))
+    verify(bindingsBuilder, times(1))
         .setPredefinedRole(eq("User:Foo"), eq("ResourceOwner"), eq(project.buildTopicPrefix()));
   }
 }

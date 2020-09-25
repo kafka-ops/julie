@@ -10,6 +10,7 @@ import static org.junit.Assert.assertTrue;
 import com.purbon.kafka.topology.AccessControlManager;
 import com.purbon.kafka.topology.api.mds.AuthenticationCredentials;
 import com.purbon.kafka.topology.api.mds.MDSApiClient;
+import com.purbon.kafka.topology.roles.RBACBindingsBuilder;
 import com.purbon.kafka.topology.roles.RBACProvider;
 import com.purbon.kafka.topology.roles.TopologyAclBinding;
 import java.io.IOException;
@@ -36,7 +37,8 @@ public class MDSApiClientRbacIT extends MDSBaseTest {
     super.beforeEach();
     apiClient = new MDSApiClient(mdsServer);
     RBACProvider rbacProvider = new RBACProvider(apiClient);
-    accessControlManager = new AccessControlManager(rbacProvider);
+    RBACBindingsBuilder bindingsBuilder = new RBACBindingsBuilder(apiClient);
+    accessControlManager = new AccessControlManager(rbacProvider, bindingsBuilder);
   }
 
   @Test

@@ -1,6 +1,6 @@
 package com.purbon.kafka.topology.actions.access.builders;
 
-import com.purbon.kafka.topology.AccessControlProvider;
+import com.purbon.kafka.topology.BindingsBuilderProvider;
 import com.purbon.kafka.topology.actions.BaseAccessControlAction;
 import com.purbon.kafka.topology.model.users.platform.SchemaRegistryInstance;
 import java.io.IOException;
@@ -9,19 +9,19 @@ import java.util.Map;
 
 public class BuildBindingsForSchemaRegistry extends BaseAccessControlAction {
 
-  private final AccessControlProvider controlProvider;
+  private final BindingsBuilderProvider builderProvider;
   private final SchemaRegistryInstance schemaRegistry;
 
   public BuildBindingsForSchemaRegistry(
-      AccessControlProvider controlProvider, SchemaRegistryInstance schemaRegistry) {
+      BindingsBuilderProvider builderProvider, SchemaRegistryInstance schemaRegistry) {
     super();
-    this.controlProvider = controlProvider;
+    this.builderProvider = builderProvider;
     this.schemaRegistry = schemaRegistry;
   }
 
   @Override
   public void run() throws IOException {
-    bindings = controlProvider.buildBindingsForSchemaRegistry(schemaRegistry);
+    bindings = builderProvider.buildBindingsForSchemaRegistry(schemaRegistry);
   }
 
   @Override

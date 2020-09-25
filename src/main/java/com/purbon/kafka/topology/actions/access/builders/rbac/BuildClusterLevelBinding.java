@@ -1,6 +1,6 @@
 package com.purbon.kafka.topology.actions.access.builders.rbac;
 
-import com.purbon.kafka.topology.AccessControlProvider;
+import com.purbon.kafka.topology.BindingsBuilderProvider;
 import com.purbon.kafka.topology.actions.BaseAccessControlAction;
 import com.purbon.kafka.topology.model.Component;
 import com.purbon.kafka.topology.model.User;
@@ -13,12 +13,12 @@ public class BuildClusterLevelBinding extends BaseAccessControlAction {
   private final String role;
   private final User user;
   private final Component cmp;
-  private final AccessControlProvider controlProvider;
+  private final BindingsBuilderProvider builderProvider;
 
   public BuildClusterLevelBinding(
-      AccessControlProvider controlProvider, String role, User user, Component cmp) {
+      BindingsBuilderProvider builderProvider, String role, User user, Component cmp) {
     super();
-    this.controlProvider = controlProvider;
+    this.builderProvider = builderProvider;
     this.role = role;
     this.user = user;
     this.cmp = cmp;
@@ -26,7 +26,7 @@ public class BuildClusterLevelBinding extends BaseAccessControlAction {
 
   @Override
   public void run() throws IOException {
-    bindings = controlProvider.setClusterLevelRole(role, user.getPrincipal(), cmp);
+    bindings = builderProvider.setClusterLevelRole(role, user.getPrincipal(), cmp);
   }
 
   @Override

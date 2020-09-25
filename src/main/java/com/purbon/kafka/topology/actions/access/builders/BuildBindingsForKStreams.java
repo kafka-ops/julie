@@ -1,6 +1,6 @@
 package com.purbon.kafka.topology.actions.access.builders;
 
-import com.purbon.kafka.topology.AccessControlProvider;
+import com.purbon.kafka.topology.BindingsBuilderProvider;
 import com.purbon.kafka.topology.actions.BaseAccessControlAction;
 import com.purbon.kafka.topology.model.users.KStream;
 import java.io.IOException;
@@ -10,14 +10,14 @@ import java.util.Map;
 
 public class BuildBindingsForKStreams extends BaseAccessControlAction {
 
-  private final AccessControlProvider controlProvider;
+  private final BindingsBuilderProvider builderProvider;
   private final KStream app;
   private final String topicPrefix;
 
   public BuildBindingsForKStreams(
-      AccessControlProvider controlProvider, KStream app, String topicPrefix) {
+      BindingsBuilderProvider builderProvider, KStream app, String topicPrefix) {
     super();
-    this.controlProvider = controlProvider;
+    this.builderProvider = builderProvider;
     this.app = app;
     this.topicPrefix = topicPrefix;
   }
@@ -28,7 +28,7 @@ public class BuildBindingsForKStreams extends BaseAccessControlAction {
     List<String> writeTopics = app.getTopics().get(KStream.WRITE_TOPICS);
 
     bindings =
-        controlProvider.buildBindingsForStreamsApp(
+        builderProvider.buildBindingsForStreamsApp(
             app.getPrincipal(), topicPrefix, readTopics, writeTopics);
   }
 
