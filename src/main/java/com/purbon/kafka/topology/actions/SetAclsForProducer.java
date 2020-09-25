@@ -1,9 +1,7 @@
 package com.purbon.kafka.topology.actions;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.purbon.kafka.topology.AccessControlProvider;
 import com.purbon.kafka.topology.model.users.Producer;
-import com.purbon.kafka.topology.utils.JSON;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
@@ -34,17 +32,13 @@ public class SetAclsForProducer extends BaseAccessControlAction {
   }
 
   @Override
-  public String toString() {
+  Map<String, Object> props() {
+    List<String> principals =
+        producers.stream().map(p -> p.getPrincipal()).collect(Collectors.toList());
     Map<String, Object> map = new HashMap<>();
     map.put("Operation", getClass().getName());
-    map.put(
-        "Principals", producers.stream().map(p -> p.getPrincipal()).collect(Collectors.toList()));
+    map.put("Principals", principals);
     map.put("Topic", fullTopicName);
-
-    try {
-      return JSON.asPrettyString(map);
-    } catch (JsonProcessingException e) {
-      return "";
-    }
+    return map;
   }
 }

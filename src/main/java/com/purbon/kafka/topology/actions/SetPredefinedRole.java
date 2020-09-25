@@ -1,9 +1,7 @@
 package com.purbon.kafka.topology.actions;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.purbon.kafka.topology.AccessControlProvider;
 import com.purbon.kafka.topology.roles.TopologyAclBinding;
-import com.purbon.kafka.topology.utils.JSON;
 import java.io.IOException;
 import java.util.Collections;
 import java.util.HashMap;
@@ -36,17 +34,12 @@ public class SetPredefinedRole extends BaseAccessControlAction {
   }
 
   @Override
-  public String toString() {
+  Map<String, Object> props() {
     Map<String, Object> map = new HashMap<>();
     map.put("Operation", getClass().getName());
     map.put("Principal", principal);
     map.put("Role", predefinedRole);
     map.put("Topic", topicPrefix);
-
-    try {
-      return JSON.asPrettyString(map);
-    } catch (JsonProcessingException e) {
-      return "";
-    }
+    return map;
   }
 }

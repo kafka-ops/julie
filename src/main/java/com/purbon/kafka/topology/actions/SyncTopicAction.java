@@ -1,25 +1,22 @@
 package com.purbon.kafka.topology.actions;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.purbon.kafka.topology.TopologyBuilderAdminClient;
 import com.purbon.kafka.topology.model.Topic;
 import com.purbon.kafka.topology.model.TopicSchemas;
 import com.purbon.kafka.topology.schemas.SchemaRegistryManager;
-import com.purbon.kafka.topology.utils.JSON;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 import org.apache.commons.lang3.StringUtils;
 
-public class SyncTopicAction implements Action {
+public class SyncTopicAction extends BaseAction {
 
   private final Topic topic;
   private final String fullTopicName;
   private final Set<String> listOfTopics;
   private final TopologyBuilderAdminClient adminClient;
   private final SchemaRegistryManager schemaRegistryManager;
-  private String subAction;
 
   public SyncTopicAction(
       TopologyBuilderAdminClient adminClient,
@@ -73,7 +70,7 @@ public class SyncTopicAction implements Action {
   }
 
   @Override
-  public String toString() {
+  Map<String, Object> props() {
     Map<String, Object> map = new HashMap<>();
     map.put("Operation", getClass().getName());
     map.put("Topic", fullTopicName);
@@ -82,11 +79,6 @@ public class SyncTopicAction implements Action {
     } else {
       map.put("Action", "create");
     }
-
-    try {
-      return JSON.asPrettyString(map);
-    } catch (JsonProcessingException e) {
-      return "";
-    }
+    return map;
   }
 }
