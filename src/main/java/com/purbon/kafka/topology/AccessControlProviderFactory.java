@@ -7,10 +7,10 @@ import static com.purbon.kafka.topology.TopologyBuilderConfig.RBAC_ACCESS_CONTRO
 
 import com.purbon.kafka.topology.api.mds.MDSApiClient;
 import com.purbon.kafka.topology.api.mds.MDSApiClientBuilder;
-import com.purbon.kafka.topology.roles.AclsBindingsBuilder;
-import com.purbon.kafka.topology.roles.RBACBindingsBuilder;
 import com.purbon.kafka.topology.roles.RBACProvider;
 import com.purbon.kafka.topology.roles.SimpleAclsProvider;
+import com.purbon.kafka.topology.roles.acls.AclsBindingsBuilder;
+import com.purbon.kafka.topology.roles.rbac.RBACBindingsBuilder;
 import java.io.IOException;
 import java.lang.reflect.Constructor;
 

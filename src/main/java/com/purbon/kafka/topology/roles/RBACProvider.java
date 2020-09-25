@@ -4,9 +4,6 @@ import com.purbon.kafka.topology.AccessControlProvider;
 import com.purbon.kafka.topology.api.mds.MDSApiClient;
 import com.purbon.kafka.topology.api.mds.RequestScope;
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -14,9 +11,6 @@ import org.apache.logging.log4j.Logger;
 public class RBACProvider implements AccessControlProvider {
 
   private static final Logger LOGGER = LogManager.getLogger(RBACProvider.class);
-
-  public static final String LITERAL = "LITERAL";
-  public static final String PREFIX = "PREFIXED";
   private final MDSApiClient apiClient;
 
   public RBACProvider(MDSApiClient apiClient) {
@@ -49,16 +43,5 @@ public class RBACProvider implements AccessControlProvider {
 
           apiClient.deleteRole(principal, role, scope);
         });
-  }
-
-  @Override
-  public String toString() {
-    return super.toString();
-  }
-
-  @Override
-  public Map<String, List<TopologyAclBinding>> listAcls() {
-    LOGGER.info("Not implemented yet!");
-    return new HashMap<>();
   }
 }

@@ -1,10 +1,11 @@
-package com.purbon.kafka.topology.roles;
+package com.purbon.kafka.topology.roles.rbac;
 
 import static com.purbon.kafka.topology.api.mds.ClusterIDs.CONNECT_CLUSTER_ID_LABEL;
 
 import com.purbon.kafka.topology.api.mds.MDSApiClient;
 import com.purbon.kafka.topology.api.mds.RequestScope;
 import com.purbon.kafka.topology.model.users.Connector;
+import com.purbon.kafka.topology.roles.TopologyAclBinding;
 import java.util.Map;
 import java.util.Optional;
 import org.apache.kafka.common.resource.PatternType;
@@ -46,7 +47,7 @@ public class AdminRoleRunner {
     return this;
   }
 
-  AdminRoleRunner forAKafkaConnector(String connector) {
+  public AdminRoleRunner forAKafkaConnector(String connector) {
     Map<String, Map<String, String>> clusters =
         client.withClusterIDs().forKafkaConnect().forKafka().asMap();
 

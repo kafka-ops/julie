@@ -5,8 +5,8 @@ import static com.purbon.kafka.topology.api.mds.RequestScope.RESOURCE_PATTERN_TY
 import static com.purbon.kafka.topology.api.mds.RequestScope.RESOURCE_TYPE;
 
 import com.purbon.kafka.topology.api.mds.http.HttpDeleteWithBody;
-import com.purbon.kafka.topology.roles.AdminRoleRunner;
 import com.purbon.kafka.topology.roles.TopologyAclBinding;
+import com.purbon.kafka.topology.roles.rbac.AdminRoleRunner;
 import com.purbon.kafka.topology.utils.JSON;
 import java.io.IOException;
 import java.util.ArrayList;

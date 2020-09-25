@@ -1,8 +1,8 @@
 package com.purbon.kafka.topology;
 
-import static com.purbon.kafka.topology.roles.RBACPredefinedRoles.DEVELOPER_READ;
-import static com.purbon.kafka.topology.roles.RBACPredefinedRoles.DEVELOPER_WRITE;
-import static com.purbon.kafka.topology.roles.RBACProvider.LITERAL;
+import static com.purbon.kafka.topology.roles.rbac.RBACBindingsBuilder.LITERAL;
+import static com.purbon.kafka.topology.roles.rbac.RBACPredefinedRoles.DEVELOPER_READ;
+import static com.purbon.kafka.topology.roles.rbac.RBACPredefinedRoles.DEVELOPER_WRITE;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
@@ -28,10 +28,10 @@ import com.purbon.kafka.topology.model.users.platform.ControlCenter;
 import com.purbon.kafka.topology.model.users.platform.ControlCenterInstance;
 import com.purbon.kafka.topology.model.users.platform.SchemaRegistry;
 import com.purbon.kafka.topology.model.users.platform.SchemaRegistryInstance;
-import com.purbon.kafka.topology.roles.AdminRoleRunner;
-import com.purbon.kafka.topology.roles.RBACBindingsBuilder;
 import com.purbon.kafka.topology.roles.RBACProvider;
 import com.purbon.kafka.topology.roles.TopologyAclBinding;
+import com.purbon.kafka.topology.roles.rbac.AdminRoleRunner;
+import com.purbon.kafka.topology.roles.rbac.RBACBindingsBuilder;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;

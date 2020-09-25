@@ -1,10 +1,10 @@
 package com.purbon.kafka.topology.integration;
 
-import static com.purbon.kafka.topology.roles.RBACPredefinedRoles.DEVELOPER_READ;
-import static com.purbon.kafka.topology.roles.RBACPredefinedRoles.DEVELOPER_WRITE;
-import static com.purbon.kafka.topology.roles.RBACPredefinedRoles.RESOURCE_OWNER;
-import static com.purbon.kafka.topology.roles.RBACPredefinedRoles.SECURITY_ADMIN;
-import static com.purbon.kafka.topology.roles.RBACPredefinedRoles.SYSTEM_ADMIN;
+import static com.purbon.kafka.topology.roles.rbac.RBACPredefinedRoles.DEVELOPER_READ;
+import static com.purbon.kafka.topology.roles.rbac.RBACPredefinedRoles.DEVELOPER_WRITE;
+import static com.purbon.kafka.topology.roles.rbac.RBACPredefinedRoles.RESOURCE_OWNER;
+import static com.purbon.kafka.topology.roles.rbac.RBACPredefinedRoles.SECURITY_ADMIN;
+import static com.purbon.kafka.topology.roles.rbac.RBACPredefinedRoles.SYSTEM_ADMIN;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.anyList;
@@ -33,8 +33,8 @@ import com.purbon.kafka.topology.model.users.platform.Kafka;
 import com.purbon.kafka.topology.model.users.platform.KafkaConnect;
 import com.purbon.kafka.topology.model.users.platform.SchemaRegistry;
 import com.purbon.kafka.topology.model.users.platform.SchemaRegistryInstance;
-import com.purbon.kafka.topology.roles.RBACBindingsBuilder;
 import com.purbon.kafka.topology.roles.RBACProvider;
+import com.purbon.kafka.topology.roles.rbac.RBACBindingsBuilder;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;

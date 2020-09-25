@@ -1,4 +1,4 @@
-package com.purbon.kafka.topology.roles;
+package com.purbon.kafka.topology.roles.rbac;
 
 public class RBACPredefinedRoles {
 

@@ -1,10 +1,11 @@
-package com.purbon.kafka.topology.roles;
+package com.purbon.kafka.topology.roles.acls;
 
 import com.purbon.kafka.topology.BindingsBuilderProvider;
 import com.purbon.kafka.topology.TopologyBuilderAdminClient;
 import com.purbon.kafka.topology.model.users.Connector;
 import com.purbon.kafka.topology.model.users.Consumer;
 import com.purbon.kafka.topology.model.users.platform.SchemaRegistryInstance;
+import com.purbon.kafka.topology.roles.TopologyAclBinding;
 import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
