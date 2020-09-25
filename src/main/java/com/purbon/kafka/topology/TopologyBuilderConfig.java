@@ -1,11 +1,5 @@
 package com.purbon.kafka.topology;
 
-import static com.purbon.kafka.topology.BuilderCLI.ADMIN_CLIENT_CONFIG_OPTION;
-import static com.purbon.kafka.topology.BuilderCLI.BROKERS_OPTION;
-import static com.purbon.kafka.topology.BuilderCLI.DRY_RUN_OPTION;
-import static com.purbon.kafka.topology.BuilderCLI.QUIET_OPTION;
-import static com.purbon.kafka.topology.KafkaTopologyBuilder.SCHEMA_REGISTRY_URL;
-
 import com.purbon.kafka.topology.exceptions.ConfigurationException;
 import com.purbon.kafka.topology.model.Project;
 import com.purbon.kafka.topology.model.Topic;
@@ -18,6 +12,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.apache.kafka.clients.admin.AdminClientConfig;
 
@@ -55,6 +50,9 @@ public class TopologyBuilderConfig {
   public static final String MDS_KC_CLUSTER_ID_CONFIG =
       "topology.builder.mds.kafka.connect.cluster.id";
 
+  public static final String SCHEMA_REGISTRY_URL_CONFIG = "confluent.schema.registry.url";
+  public static final String SCHEMA_REGISTRY_URL_DEFAULT = "mock://";
+
   public static final String CONFLUENT_MONITORING_TOPIC_CONFIG = "confluent.monitoring.topic";
   public static final String CONFLUENT_MONITORING_TOPIC_DEFAULT = "_confluent-monitoring";
 
@@ -84,29 +82,20 @@ public class TopologyBuilderConfig {
 
     validateGeneralConfiguration(topology);
 
-    boolean isRbac =
-        properties
-            .getOrDefault(ACCESS_CONTROL_IMPLEMENTATION_CLASS, ACCESS_CONTROL_DEFAULT_CLASS)
-            .toString()
-            .equalsIgnoreCase(RBAC_ACCESS_CONTROL_CLASS);
+    boolean isRBAC = this.getAccessControlClassName().equalsIgnoreCase(RBAC_ACCESS_CONTROL_CLASS);
 
-    if (isRbac) {
+    if (isRBAC) {
       validateRBACConfiguration(topology);
     }
   }
 
   public void validateRBACConfiguration(Topology topology) throws ConfigurationException {
     raiseIfNull(MDS_SERVER, MDS_USER_CONFIG, MDS_PASSWORD_CONFIG);
-
-    boolean hasSchemaRegistry = !topology.getPlatform().getSchemaRegistry().isEmpty();
-    boolean hasKafkaConnect = false;
-    List<Project> projects = topology.getProjects();
-    for (int i = 0; !hasKafkaConnect && i < projects.size(); i++) {
-      Project project = projects.get(i);
-      hasKafkaConnect = !project.getConnectors().isEmpty();
-    }
-
     raiseIfNull(MDS_KAFKA_CLUSTER_ID_CONFIG);
+
+    final boolean hasSchemaRegistry = !topology.getPlatform().getSchemaRegistry().isEmpty();
+    final boolean hasKafkaConnect =
+        !topology.getProjects().stream().allMatch(project -> project.getConnectors().isEmpty());
 
     if (hasSchemaRegistry) {
       raiseIfNull(MDS_SR_CLUSTER_ID_CONFIG);
@@ -115,13 +104,13 @@ public class TopologyBuilderConfig {
     }
   }
 
-  public void validateGeneralConfiguration(Topology topology) throws ConfigurationException {
+  private void validateGeneralConfiguration(Topology topology) throws ConfigurationException {
     if (countOfSchemas(topology) > 0) {
-      raiseIfNull(SCHEMA_REGISTRY_URL);
+      raiseIfNull(SCHEMA_REGISTRY_URL_CONFIG);
     }
   }
 
-  private long countOfSchemas(Topology topology) {
+  private static long countOfSchemas(Topology topology) {
     return topology.getProjects().stream()
         .flatMap((Function<Project, Stream<Topic>>) project -> project.getTopics().stream())
         .map(topic -> topic.getSchemas())
@@ -131,32 +120,42 @@ public class TopologyBuilderConfig {
 
   private void raiseIfNull(String... keys) throws ConfigurationException {
     for (String key : keys) {
-      raiseIfNull(key, properties.getProperty(key));
+      raiseIfValueIsNull(key, properties.getProperty(key));
     }
   }
 
-  private void raiseIfNull(String key, String value) throws ConfigurationException {
+  private void raiseIfValueIsNull(String key, String value) throws ConfigurationException {
     if (value == null) {
       throw new ConfigurationException(
           "Required configuration " + key + " is missing, please add it to your configuration");
     }
   }
 
-  public Map<String, String> params() {
-    return cliParams;
-  }
-
   public String getProperty(String key) {
     return properties.getProperty(key);
   }
 
-  public List<String> getPropertyAsList(String key, String def, String regexp) {
-    Object val = properties.getOrDefault(key, def);
+  public List<String> getPropertyAsList(String key, String defaultVal, String regexp) {
+    Object val = properties.getOrDefault(key, defaultVal);
     return Arrays.asList(String.valueOf(val).split(regexp));
   }
 
   public Object getOrDefault(Object key, Object _default) {
     return properties.getOrDefault(key, _default);
+  }
+
+  public List<String> getKafkaInternalTopicPrefixes() {
+    return getPropertyAsList(
+            KAFKA_INTERNAL_TOPIC_PREFIXES, KAFKA_INTERNAL_TOPIC_PREFIXES_DEFAULT, ",")
+        .stream()
+        .map(String::trim)
+        .collect(Collectors.toList());
+  }
+
+  public String getSchemaRegistryUrl() {
+    return properties
+        .getOrDefault(SCHEMA_REGISTRY_URL_CONFIG, SCHEMA_REGISTRY_URL_DEFAULT)
+        .toString();
   }
 
   public String getConfluentMonitoringTopic() {
@@ -177,24 +176,41 @@ public class TopologyBuilderConfig {
         .toString();
   }
 
+  public String getAccessControlClassName() {
+    return properties
+        .getOrDefault(ACCESS_CONTROL_IMPLEMENTATION_CLASS, ACCESS_CONTROL_DEFAULT_CLASS)
+        .toString();
+  }
+
+  public String getStateProcessorImplementationClassName() {
+    return properties
+        .getOrDefault(STATE_PROCESSOR_IMPLEMENTATION_CLASS, STATE_PROCESSOR_DEFAULT_CLASS)
+        .toString();
+  }
+
+  public boolean allowDeletes() {
+    return Boolean.valueOf(cliParams.getOrDefault(BuilderCLI.ALLOW_DELETE_OPTION, "true"));
+  }
+
   public boolean isQuiet() {
-    return Boolean.valueOf(cliParams.getOrDefault(QUIET_OPTION, "false"));
+    return Boolean.valueOf(cliParams.getOrDefault(BuilderCLI.QUIET_OPTION, "false"));
   }
 
   public boolean isDryRun() {
-    return Boolean.valueOf(cliParams.getOrDefault(DRY_RUN_OPTION, "true"));
+    return Boolean.valueOf(cliParams.getOrDefault(BuilderCLI.DRY_RUN_OPTION, "false"));
   }
 
   private static Properties buildProperties(Map<String, String> cliParams) {
     Properties props = new Properties();
-    if (cliParams.get(ADMIN_CLIENT_CONFIG_OPTION) != null) {
+    final String adminClientConfigPath = cliParams.get(BuilderCLI.ADMIN_CLIENT_CONFIG_OPTION);
+    if (adminClientConfigPath != null) {
       try {
-        props.load(new FileInputStream(cliParams.get(ADMIN_CLIENT_CONFIG_OPTION)));
+        props.load(new FileInputStream(adminClientConfigPath));
       } catch (IOException e) {
-        // TODO: Can be ignored
+        System.err.println("Could not load properties file " + adminClientConfigPath);
       }
     }
-    props.put(AdminClientConfig.BOOTSTRAP_SERVERS_CONFIG, cliParams.get(BROKERS_OPTION));
+    props.put(AdminClientConfig.BOOTSTRAP_SERVERS_CONFIG, cliParams.get(BuilderCLI.BROKERS_OPTION));
     props.put(AdminClientConfig.RETRIES_CONFIG, Integer.MAX_VALUE);
 
     return props;

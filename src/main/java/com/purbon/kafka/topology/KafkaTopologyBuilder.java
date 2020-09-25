@@ -4,7 +4,6 @@ import static com.purbon.kafka.topology.TopologyBuilderConfig.REDIS_HOST_CONFIG;
 import static com.purbon.kafka.topology.TopologyBuilderConfig.REDIS_PORT_CONFIG;
 import static com.purbon.kafka.topology.TopologyBuilderConfig.REDIS_STATE_PROCESSOR_CLASS;
 import static com.purbon.kafka.topology.TopologyBuilderConfig.STATE_PROCESSOR_DEFAULT_CLASS;
-import static com.purbon.kafka.topology.TopologyBuilderConfig.STATE_PROCESSOR_IMPLEMENTATION_CLASS;
 
 import com.purbon.kafka.topology.api.mds.MDSApiClientBuilder;
 import com.purbon.kafka.topology.clusterstate.FileStateProcessor;
@@ -21,8 +20,6 @@ import java.util.Map;
 import java.util.Properties;
 
 public class KafkaTopologyBuilder implements AutoCloseable {
-
-  public static final String SCHEMA_REGISTRY_URL = "confluent.schema.registry.url";
 
   private TopicManager topicManager;
   private AccessControlManager accessControlManager;
@@ -69,9 +66,9 @@ public class KafkaTopologyBuilder implements AutoCloseable {
     ClusterState cs = buildStateProcessor(config);
 
     AccessControlManager accessControlManager =
-        new AccessControlManager(accessControlProvider, cs, config.params());
+        new AccessControlManager(accessControlProvider, cs, config);
 
-    String schemaRegistryUrl = (String) config.getOrDefault(SCHEMA_REGISTRY_URL, "http://foo:8082");
+    String schemaRegistryUrl = config.getSchemaRegistryUrl();
     SchemaRegistryClient schemaRegistryClient =
         new CachedSchemaRegistryClient(schemaRegistryUrl, 10);
     SchemaRegistryManager schemaRegistryManager =
@@ -120,16 +117,13 @@ public class KafkaTopologyBuilder implements AutoCloseable {
       return prop.getProperty("version");
     } catch (IOException e) {
       e.printStackTrace();
-      return "unkown";
+      return "unknown";
     }
   }
 
   private static ClusterState buildStateProcessor(TopologyBuilderConfig config) throws IOException {
 
-    String stateProcessorClass =
-        config
-            .getOrDefault(STATE_PROCESSOR_IMPLEMENTATION_CLASS, STATE_PROCESSOR_DEFAULT_CLASS)
-            .toString();
+    String stateProcessorClass = config.getStateProcessorImplementationClassName();
 
     try {
       if (stateProcessorClass.equalsIgnoreCase(STATE_PROCESSOR_DEFAULT_CLASS)) {

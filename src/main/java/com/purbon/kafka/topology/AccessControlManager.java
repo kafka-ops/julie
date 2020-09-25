@@ -1,7 +1,5 @@
 package com.purbon.kafka.topology;
 
-import static com.purbon.kafka.topology.BuilderCLI.ALLOW_DELETE_OPTION;
-import static com.purbon.kafka.topology.BuilderCLI.DRY_RUN_OPTION;
 import static com.purbon.kafka.topology.model.Component.KAFKA;
 import static com.purbon.kafka.topology.model.Component.KAFKA_CONNECT;
 import static com.purbon.kafka.topology.model.Component.SCHEMA_REGISTRY;
@@ -35,7 +33,6 @@ import com.purbon.kafka.topology.roles.SimpleAclsProvider;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -53,31 +50,28 @@ public class AccessControlManager {
 
   private AccessControlProvider controlProvider;
   private ClusterState clusterState;
-  private Map<String, String> cliParams;
 
   public AccessControlManager(AccessControlProvider controlProvider) {
-    this(controlProvider, new ClusterState(), new HashMap<>());
+    this(controlProvider, new ClusterState(), new TopologyBuilderConfig());
   }
 
-  public AccessControlManager(
-      AccessControlProvider controlProvider, Map<String, String> cliParams) {
-    this(controlProvider, new ClusterState(), cliParams);
+  public AccessControlManager(AccessControlProvider controlProvider, TopologyBuilderConfig config) {
+    this(controlProvider, new ClusterState(), config);
   }
 
   public AccessControlManager(AccessControlProvider controlProvider, ClusterState clusterState) {
-    this(controlProvider, clusterState, new HashMap<>());
+    this(controlProvider, clusterState, new TopologyBuilderConfig());
   }
 
   public AccessControlManager(
       AccessControlProvider controlProvider,
       ClusterState clusterState,
-      Map<String, String> cliParams) {
+      TopologyBuilderConfig config) {
     this.controlProvider = controlProvider;
     this.clusterState = clusterState;
-    this.cliParams = cliParams;
     this.plan = new ArrayList<>();
-    this.allowDelete = Boolean.valueOf(cliParams.getOrDefault(ALLOW_DELETE_OPTION, "true"));
-    this.dryRun = Boolean.valueOf(cliParams.get(DRY_RUN_OPTION));
+    this.allowDelete = config.allowDeletes();
+    this.dryRun = config.isDryRun();
     this.outputStream = System.out;
   }
 
