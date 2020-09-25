@@ -10,8 +10,12 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 public class SyncTopicAction extends BaseAction {
+
+  private static final Logger LOGGER = LogManager.getLogger(SyncTopicAction.class);
 
   private final Topic topic;
   private final String fullTopicName;
@@ -37,13 +41,9 @@ public class SyncTopicAction extends BaseAction {
     syncTopic(topic, fullTopicName, listOfTopics);
   }
 
-  public void syncTopic(Topic topic, Set<String> listOfTopics) throws IOException {
-    String fullTopicName = topic.toString();
-    syncTopic(topic, fullTopicName, listOfTopics);
-  }
-
   public void syncTopic(Topic topic, String fullTopicName, Set<String> listOfTopics)
       throws IOException {
+    LOGGER.debug("SyncTopic: " + topic);
     if (existTopic(fullTopicName, listOfTopics)) {
       if (topic.partitionsCount() > adminClient.getPartitionCount(fullTopicName)) {
         adminClient.updatePartitionCount(topic, fullTopicName);
