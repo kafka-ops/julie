@@ -22,28 +22,22 @@ public class ExecutionPlan {
   private ClusterState clusterState;
   private Set<TopologyAclBinding> bindings;
 
-  public ExecutionPlan(List<Action> plan, PrintStream outputStream, ClusterState clusterState) {
+  private ExecutionPlan(List<Action> plan, PrintStream outputStream, ClusterState clusterState) {
     this.plan = plan;
     this.outputStream = outputStream;
     this.bindings = new HashSet<>();
     this.clusterState = clusterState;
   }
 
-  public ExecutionPlan() {
-    this(new ArrayList<>(), System.out, new ClusterState());
-  }
-
   public void add(Action action) {
     this.plan.add(action);
   }
 
-  public void init(ClusterState clusterState, Boolean allowDelete, PrintStream outputStream)
+  public static ExecutionPlan init(ClusterState clusterState, PrintStream outputStream)
       throws IOException {
-    this.clusterState = clusterState;
-    this.clusterState.load();
-    this.plan.clear();
-    this.bindings.clear();
-    this.outputStream = outputStream;
+    clusterState.load();
+    ExecutionPlan plan = new ExecutionPlan(new ArrayList<>(), outputStream, clusterState);
+    return plan;
   }
 
   public void run() throws IOException {

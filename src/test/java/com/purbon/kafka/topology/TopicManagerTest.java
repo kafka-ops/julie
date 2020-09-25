@@ -45,8 +45,7 @@ public class TopicManagerTest {
   public void setup() throws IOException {
     cliOps = new HashMap<>();
     cliOps.put(BROKERS_OPTION, "");
-    plan = new ExecutionPlan();
-    plan.init(clusterState, true, System.out);
+    plan = ExecutionPlan.init(clusterState, System.out);
     topicManager = new TopicManager(adminClient, schemaRegistryManager);
   }
 
@@ -204,7 +203,7 @@ public class TopicManagerTest {
   @Test
   public void dryRunTest() throws IOException {
 
-    plan.init(clusterState, true, outputStream);
+    plan = ExecutionPlan.init(clusterState, outputStream);
     Project project = new ProjectImpl("project");
     Topic topicA = new TopicImpl("topicA");
     project.addTopic(topicA);

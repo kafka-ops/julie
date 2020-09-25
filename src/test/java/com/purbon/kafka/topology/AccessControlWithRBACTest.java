@@ -42,7 +42,7 @@ public class AccessControlWithRBACTest {
   @Before
   public void setup() throws IOException {
     accessControlManager = new AccessControlManager(aclsProvider);
-    plan.init(clusterState, true, System.out);
+    plan = ExecutionPlan.init(clusterState, System.out);
   }
 
   @Test

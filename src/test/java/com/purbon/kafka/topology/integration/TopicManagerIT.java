@@ -3,6 +3,7 @@ package com.purbon.kafka.topology.integration;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
+import com.purbon.kafka.topology.ClusterState;
 import com.purbon.kafka.topology.ExecutionPlan;
 import com.purbon.kafka.topology.TopicManager;
 import com.purbon.kafka.topology.TopologyBuilderAdminClient;
@@ -69,7 +70,7 @@ public class TopicManagerIT {
   }
 
   @Before
-  public void before() {
+  public void before() throws IOException {
     kafkaAdminClient = AdminClient.create(config());
     TopologyBuilderAdminClient adminClient =
         new TopologyBuilderAdminClient(kafkaAdminClient, config);
@@ -77,9 +78,8 @@ public class TopicManagerIT {
     final SchemaRegistryClient schemaRegistryClient = new MockSchemaRegistryClient();
     final SchemaRegistryManager schemaRegistryManager =
         new SchemaRegistryManager(schemaRegistryClient, System.getProperty("user.dir"));
-
-    this.plan = new ExecutionPlan();
-    topicManager = new TopicManager(adminClient, schemaRegistryManager);
+    this.plan = ExecutionPlan.init(new ClusterState(), System.out);
+    this.topicManager = new TopicManager(adminClient, schemaRegistryManager);
   }
 
   @Test

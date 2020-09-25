@@ -72,9 +72,8 @@ public class AccessControlManagerIT {
         new TopologyBuilderAdminClient(kafkaAdminClient, config);
     adminClient.clearAcls();
 
-    this.plan = new ExecutionPlan();
     this.cs = new ClusterState();
-    this.plan.init(cs, true, System.out);
+    this.plan = ExecutionPlan.init(cs, System.out);
 
     aclsProvider = new SimpleAclsProvider(adminClient);
     accessControlManager = new AccessControlManager(aclsProvider);

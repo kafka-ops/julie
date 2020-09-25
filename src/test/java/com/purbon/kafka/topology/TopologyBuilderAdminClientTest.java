@@ -67,8 +67,7 @@ public class TopologyBuilderAdminClientTest {
     aclsProvider = new SimpleAclsProvider(adminClient);
     accessControlManager = new AccessControlManager(aclsProvider);
 
-    plan = new ExecutionPlan();
-    plan.init(clusterState, true, System.out);
+    plan = ExecutionPlan.init(clusterState, System.out);
 
     doNothing().when(clusterState).add(Matchers.anyList());
     doNothing().when(clusterState).flushAndClose();

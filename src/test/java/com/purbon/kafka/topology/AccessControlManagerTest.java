@@ -71,8 +71,7 @@ public class AccessControlManagerTest {
 
   @Before
   public void setup() throws IOException {
-    plan = new ExecutionPlan();
-    plan.init(clusterState, true, mockPrintStream);
+    plan = ExecutionPlan.init(clusterState, mockPrintStream);
     accessControlManager = new AccessControlManager(aclsProvider);
     doNothing().when(clusterState).add(Matchers.anyList());
     doNothing().when(clusterState).flushAndClose();
@@ -304,7 +303,7 @@ public class AccessControlManagerTest {
   @Test
   public void testDryRunMode() throws IOException {
 
-    plan.init(clusterState, true, mockPrintStream);
+    plan = ExecutionPlan.init(clusterState, mockPrintStream);
 
     List<Consumer> consumers = new ArrayList<>();
     consumers.add(new Consumer("User:app1"));
@@ -335,7 +334,7 @@ public class AccessControlManagerTest {
     ClusterState clusterState = new ClusterState();
     clusterState.load();
     clusterState.reset();
-    plan.init(clusterState, true, mockPrintStream);
+    plan = ExecutionPlan.init(clusterState, mockPrintStream);
     accessControlManager = new AccessControlManager(aclsProvider);
 
     List<Consumer> consumers = new ArrayList<>();

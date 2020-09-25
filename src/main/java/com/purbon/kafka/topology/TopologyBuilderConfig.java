@@ -1,5 +1,7 @@
 package com.purbon.kafka.topology;
 
+import static com.purbon.kafka.topology.BuilderCLI.DRY_RUN_OPTION;
+
 import com.purbon.kafka.topology.exceptions.ConfigurationException;
 import com.purbon.kafka.topology.model.Project;
 import com.purbon.kafka.topology.model.Topic;
@@ -197,7 +199,7 @@ public class TopologyBuilderConfig {
   }
 
   public boolean isDryRun() {
-    return Boolean.valueOf(cliParams.getOrDefault(BuilderCLI.DRY_RUN_OPTION, "false"));
+    return Boolean.valueOf(cliParams.getOrDefault(DRY_RUN_OPTION, "false"));
   }
 
   private static Properties buildProperties(Map<String, String> cliParams) {

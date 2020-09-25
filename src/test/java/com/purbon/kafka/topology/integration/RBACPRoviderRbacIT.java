@@ -71,8 +71,7 @@ public class RBACPRoviderRbacIT extends MDSBaseTest {
     apiClient.setSchemaRegistryClusterID(getSchemaRegistryClusterID());
     apiClient.setConnectClusterID(getKafkaConnectClusterID());
 
-    plan = new ExecutionPlan();
-    plan.init(cs, true, System.out);
+    plan = ExecutionPlan.init(cs, System.out);
     RBACProvider rbacProvider = new RBACProvider(apiClient);
     accessControlManager = new AccessControlManager(rbacProvider);
   }

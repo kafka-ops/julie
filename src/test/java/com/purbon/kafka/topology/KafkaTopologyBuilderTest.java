@@ -163,7 +163,6 @@ public class KafkaTopologyBuilderTest {
   @Test
   public void builderRunTestAsFromCLIWithARedisBackend() throws URISyntaxException, IOException {
 
-    plan = new ExecutionPlan();
     URL dirOfDescriptors = getClass().getResource("/descriptor.yaml");
     String fileOrDirPath = Paths.get(dirOfDescriptors.toURI()).toFile().toString();
 
@@ -187,7 +186,7 @@ public class KafkaTopologyBuilderTest {
     doNothing().when(accessControlManager).apply(anyObject(), anyObject());
 
     ClusterState cs = new ClusterState(stateProcessor);
-    plan.init(cs, true, System.out);
+    plan = ExecutionPlan.init(cs, System.out);
 
     builder.run(plan);
     builder.close();

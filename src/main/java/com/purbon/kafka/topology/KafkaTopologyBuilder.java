@@ -1,6 +1,5 @@
 package com.purbon.kafka.topology;
 
-import static com.purbon.kafka.topology.BuilderCLI.ALLOW_DELETE_OPTION;
 import static com.purbon.kafka.topology.TopologyBuilderConfig.REDIS_HOST_CONFIG;
 import static com.purbon.kafka.topology.TopologyBuilderConfig.REDIS_PORT_CONFIG;
 import static com.purbon.kafka.topology.TopologyBuilderConfig.REDIS_STATE_PROCESSOR_CLASS;
@@ -28,7 +27,6 @@ public class KafkaTopologyBuilder implements AutoCloseable {
   private Topology topology;
   private TopologyBuilderConfig config;
   private PrintStream outputStream;
-  private Boolean allowDelete;
 
   private KafkaTopologyBuilder(
       Topology topology,
@@ -40,7 +38,6 @@ public class KafkaTopologyBuilder implements AutoCloseable {
     this.topicManager = topicManager;
     this.accessControlManager = accessControlManager;
     this.outputStream = System.out;
-    this.allowDelete = Boolean.valueOf((String) config.getOrDefault(ALLOW_DELETE_OPTION, "true"));
   }
 
   public static KafkaTopologyBuilder build(String topologyFile, Map<String, String> config)
@@ -109,12 +106,8 @@ public class KafkaTopologyBuilder implements AutoCloseable {
   }
 
   public void run() throws IOException {
-
     ClusterState cs = buildStateProcessor(config);
-
-    ExecutionPlan plan = new ExecutionPlan();
-    plan.init(cs, allowDelete, outputStream);
-
+    ExecutionPlan plan = ExecutionPlan.init(cs, outputStream);
     run(plan);
   }
 
