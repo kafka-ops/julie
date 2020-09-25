@@ -1,13 +1,14 @@
 package com.purbon.kafka.topology;
 
-import static java.lang.System.exit;
-
 import com.purbon.kafka.topology.utils.EnvVarTools;
+import org.apache.commons.cli.*;
+import org.apache.kafka.clients.admin.AdminClientConfig;
+
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.*;
-import org.apache.commons.cli.*;
-import org.apache.kafka.clients.admin.AdminClientConfig;
+
+import static java.lang.System.exit;
 
 public class BuilderCLI {
 
@@ -194,7 +195,13 @@ public class BuilderCLI {
   }
 
   /**
-   * Extracts a properties
+   * Builds properties from the given command line.
+   *
+   * Properties are added in the following order, with latter options overwriting earlier ones
+   *
+   * - loaded from properties file specified using ADMIN_CLIENT_CONFIG_OPTION
+   * - add 'bootstrap.servers' from BROKERS_OPTION
+   * - if EXTRACT_PROPS_FROM_ENV_OPTION is specified, add all env vars whose name stars with the specified prefix
    *
    * @param cmd
    * @return
@@ -210,8 +217,6 @@ public class BuilderCLI {
     if (bootstrapServers != null) {
       props.put(AdminClientConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
     }
-
-    props.put(AdminClientConfig.RETRIES_CONFIG, Integer.MAX_VALUE);
 
     final String envVarPrefix = cmd.getOptionValue(EXTRACT_PROPS_FROM_ENV_OPTION);
     if (envVarPrefix != null) {
