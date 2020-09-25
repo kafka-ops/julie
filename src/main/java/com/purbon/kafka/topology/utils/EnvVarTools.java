@@ -15,7 +15,8 @@ public class EnvVarTools {
     Objects.requireNonNull(prefix);
     final Map<String, String> envVarsWithPrefix = new HashMap<>();
     System.getenv()
-        .forEach((envKey, envValue) -> {
+        .forEach(
+            (envKey, envValue) -> {
               if (envKey.startsWith(prefix)) {
                 envVarsWithPrefix.put(envVarNameToPropertyName(envKey, prefix), envValue);
               }
@@ -26,22 +27,17 @@ public class EnvVarTools {
   /**
    * Converts a environment variable name to a corresponding property name.
    *
-   * Conversion happens according to the following rules:
+   * <p>Conversion happens according to the following rules:
    *
-   * - drop prefix and a single separator character
-   * - convert to lower-case
-   * - replace every '_' with a '.', can be escaped by using "___", which will be replaced by a single '_'
+   * <p>- drop prefix and a single separator character - convert to lower-case - replace every '_'
+   * with a '.', can be escaped by using "___", which will be replaced by a single '_'
    *
    * @param envVarName
    * @param prefixToDrop
    * @return
    */
   public static String envVarNameToPropertyName(String envVarName, String prefixToDrop) {
-      final int dropLength = prefixToDrop.length() + 1;
-    return envVarName
-            .substring(dropLength)
-            .toLowerCase()
-            .replace('_', '.')
-            .replace("...", "_");
+    final int dropLength = prefixToDrop.length() + 1;
+    return envVarName.substring(dropLength).toLowerCase().replace('_', '.').replace("...", "_");
   }
 }

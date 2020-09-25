@@ -59,7 +59,12 @@ public class BuilderCLI {
         Option.builder().longOpt(TOPOLOGY_OPTION).hasArg().desc(TOPOLOGY_DESC).required().build();
 
     final Option brokersListOption =
-        Option.builder().longOpt(BROKERS_OPTION).hasArg().desc(BROKERS_DESC).required().build();
+        Option.builder()
+            .longOpt(BROKERS_OPTION)
+            .hasArg()
+            .desc(BROKERS_DESC)
+            .required(false)
+            .build();
 
     final Option envVarsPrefixOption =
         Option.builder()
@@ -74,7 +79,7 @@ public class BuilderCLI {
             .longOpt(ADMIN_CLIENT_CONFIG_OPTION)
             .hasArg()
             .desc(ADMIN_CLIENT_CONFIG_DESC)
-            .required()
+            .required(false)
             .build();
 
     final Option allowDeleteOption =
@@ -143,6 +148,8 @@ public class BuilderCLI {
     final Map<String, String> config = parseConfig(cmd);
     final Properties properties = parseProperties(cmd);
 
+    validateProperties(properties);
+
     processTopology(topologyFile, config, properties);
     System.out.println("Kafka Topology updated");
   }
@@ -156,13 +163,11 @@ public class BuilderCLI {
   }
 
   private Map<String, String> parseConfig(CommandLine cmd) {
-    String brokersList = cmd.getOptionValue(BROKERS_OPTION);
     boolean allowDelete = cmd.hasOption(ALLOW_DELETE_OPTION);
     boolean dryRun = cmd.hasOption(DRY_RUN_OPTION);
     boolean quiet = cmd.hasOption(QUIET_OPTION);
 
     Map<String, String> config = new HashMap<>();
-    config.put(BROKERS_OPTION, brokersList);
     config.put(ALLOW_DELETE_OPTION, String.valueOf(allowDelete));
     config.put(DRY_RUN_OPTION, String.valueOf(dryRun));
     config.put(QUIET_OPTION, String.valueOf(quiet));
@@ -183,6 +188,13 @@ public class BuilderCLI {
     }
   }
 
+  private void validateProperties(Properties properties) {
+    if (!properties.containsKey(AdminClientConfig.BOOTSTRAP_SERVERS_CONFIG)) {
+      System.err.println("No bootstrap.servers specified.");
+      exit(1);
+    }
+  }
+
   private CommandLine parseArgsOrExit(String[] args) {
     try {
       return parser.parse(options, args);
@@ -197,11 +209,11 @@ public class BuilderCLI {
   /**
    * Builds properties from the given command line.
    *
-   * Properties are added in the following order, with latter options overwriting earlier ones
+   * <p>Properties are added in the following order, with latter options overwriting earlier ones
    *
-   * - loaded from properties file specified using ADMIN_CLIENT_CONFIG_OPTION
-   * - add 'bootstrap.servers' from BROKERS_OPTION
-   * - if EXTRACT_PROPS_FROM_ENV_OPTION is specified, add all env vars whose name stars with the specified prefix
+   * <p>- loaded from properties file specified using ADMIN_CLIENT_CONFIG_OPTION - add
+   * 'bootstrap.servers' from BROKERS_OPTION - if EXTRACT_PROPS_FROM_ENV_OPTION is specified, add
+   * all env vars whose name stars with the specified prefix
    *
    * @param cmd
    * @return
