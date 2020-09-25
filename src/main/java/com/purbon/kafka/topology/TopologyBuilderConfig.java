@@ -190,7 +190,7 @@ public class TopologyBuilderConfig {
         .toString();
   }
 
-  public boolean allowDeletes() {
+  public boolean allowDelete() {
     return Boolean.valueOf(cliParams.getOrDefault(BuilderCLI.ALLOW_DELETE_OPTION, "true"));
   }
 

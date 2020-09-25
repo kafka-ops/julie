@@ -66,7 +66,7 @@ public class TopicManager {
       }
     }
 
-    if (config.allowDeletes()) {
+    if (config.allowDelete()) {
       // Handle topic delete: Topics in the initial list, but not present anymore after a
       // full topic sync should be deleted
       List<String> topicsToBeDeleted =

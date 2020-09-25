@@ -124,7 +124,7 @@ public class AccessControlManager {
     CreateBindings createBindings = new CreateBindings(controlProvider, bindingsToBeCreated);
     plan.add(createBindings);
 
-    if (config.allowDeletes()) {
+    if (config.allowDelete()) {
       // clear acls that does not appear anymore in the new generated list,
       // but where previously created
       Set<TopologyAclBinding> bindingsToDelete =
