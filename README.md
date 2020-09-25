@@ -24,7 +24,7 @@ There's quite a bit of detailed information about gitops, Apache Kafka and how t
 
 You might be wondering what is the usual workflow to implement this approach:
 
-**Action**: As a user, part of a developer team (for example), i like to have some changes in Apache Kafka.
+**Action**: As a user, part of a developer team (for example), I like to have some changes in Apache Kafka.
 
 **Change Request**: As a user:
 
