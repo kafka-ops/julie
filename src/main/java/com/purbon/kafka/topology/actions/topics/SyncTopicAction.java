@@ -1,6 +1,7 @@
-package com.purbon.kafka.topology.actions;
+package com.purbon.kafka.topology.actions.topics;
 
 import com.purbon.kafka.topology.TopologyBuilderAdminClient;
+import com.purbon.kafka.topology.actions.BaseAction;
 import com.purbon.kafka.topology.model.Topic;
 import com.purbon.kafka.topology.model.TopicSchemas;
 import com.purbon.kafka.topology.schemas.SchemaRegistryManager;
@@ -70,15 +71,12 @@ public class SyncTopicAction extends BaseAction {
   }
 
   @Override
-  Map<String, Object> props() {
+  protected Map<String, Object> props() {
     Map<String, Object> map = new HashMap<>();
     map.put("Operation", getClass().getName());
     map.put("Topic", fullTopicName);
-    if (existTopic(fullTopicName, listOfTopics)) {
-      map.put("Action", "update");
-    } else {
-      map.put("Action", "create");
-    }
+    String actionName = existTopic(fullTopicName, listOfTopics) ? "update" : "create";
+    map.put("Action", actionName);
     return map;
   }
 }

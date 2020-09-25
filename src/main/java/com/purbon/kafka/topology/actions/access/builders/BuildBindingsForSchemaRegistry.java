@@ -1,17 +1,18 @@
-package com.purbon.kafka.topology.actions;
+package com.purbon.kafka.topology.actions.access.builders;
 
 import com.purbon.kafka.topology.AccessControlProvider;
+import com.purbon.kafka.topology.actions.BaseAccessControlAction;
 import com.purbon.kafka.topology.model.users.platform.SchemaRegistryInstance;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
-public class SetAclsForSchemaRegistry extends BaseAccessControlAction {
+public class BuildBindingsForSchemaRegistry extends BaseAccessControlAction {
 
   private final AccessControlProvider controlProvider;
   private final SchemaRegistryInstance schemaRegistry;
 
-  public SetAclsForSchemaRegistry(
+  public BuildBindingsForSchemaRegistry(
       AccessControlProvider controlProvider, SchemaRegistryInstance schemaRegistry) {
     super();
     this.controlProvider = controlProvider;
@@ -24,7 +25,7 @@ public class SetAclsForSchemaRegistry extends BaseAccessControlAction {
   }
 
   @Override
-  Map<String, Object> props() {
+  protected Map<String, Object> props() {
     Map<String, Object> map = new HashMap<>();
     map.put("Operation", getClass().getName());
     map.put("Principal", schemaRegistry.getPrincipal());

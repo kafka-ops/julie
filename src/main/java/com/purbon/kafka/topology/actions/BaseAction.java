@@ -6,7 +6,7 @@ import java.util.Map;
 
 public abstract class BaseAction implements Action {
 
-  abstract Map<String, Object> props();
+  protected abstract Map<String, Object> props();
 
   @Override
   public String toString() {

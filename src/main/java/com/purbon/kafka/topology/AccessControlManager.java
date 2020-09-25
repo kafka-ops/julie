@@ -5,18 +5,18 @@ import static com.purbon.kafka.topology.model.Component.KAFKA_CONNECT;
 import static com.purbon.kafka.topology.model.Component.SCHEMA_REGISTRY;
 
 import com.purbon.kafka.topology.actions.Action;
-import com.purbon.kafka.topology.actions.AddConnectorAuthorization;
-import com.purbon.kafka.topology.actions.ClearAcls;
-import com.purbon.kafka.topology.actions.CreateBindings;
-import com.purbon.kafka.topology.actions.SetAclsForConsumer;
-import com.purbon.kafka.topology.actions.SetAclsForControlCenter;
-import com.purbon.kafka.topology.actions.SetAclsForKConnect;
-import com.purbon.kafka.topology.actions.SetAclsForKStreams;
-import com.purbon.kafka.topology.actions.SetAclsForProducer;
-import com.purbon.kafka.topology.actions.SetAclsForSchemaRegistry;
-import com.purbon.kafka.topology.actions.SetClusterLevelRole;
-import com.purbon.kafka.topology.actions.SetPredefinedRole;
-import com.purbon.kafka.topology.actions.SetSchemaAuthorization;
+import com.purbon.kafka.topology.actions.access.AddConnectorAuthorization;
+import com.purbon.kafka.topology.actions.access.ClearBindings;
+import com.purbon.kafka.topology.actions.access.CreateBindings;
+import com.purbon.kafka.topology.actions.access.SetSchemaAuthorization;
+import com.purbon.kafka.topology.actions.access.builders.BuildBindingsForConsumer;
+import com.purbon.kafka.topology.actions.access.builders.BuildBindingsForControlCenter;
+import com.purbon.kafka.topology.actions.access.builders.BuildBindingsForKConnect;
+import com.purbon.kafka.topology.actions.access.builders.BuildBindingsForKStreams;
+import com.purbon.kafka.topology.actions.access.builders.BuildBindingsForProducer;
+import com.purbon.kafka.topology.actions.access.builders.BuildBindingsForSchemaRegistry;
+import com.purbon.kafka.topology.actions.access.builders.rbac.BuildClusterLevelBinding;
+import com.purbon.kafka.topology.actions.access.builders.rbac.BuildPredefinedBinding;
 import com.purbon.kafka.topology.model.Component;
 import com.purbon.kafka.topology.model.DynamicUser;
 import com.purbon.kafka.topology.model.Platform;
@@ -80,13 +80,13 @@ public class AccessControlManager {
                 final String fullTopicName = topic.toString();
                 if (!project.getConsumers().isEmpty()) {
                   Action action =
-                      new SetAclsForConsumer(
+                      new BuildBindingsForConsumer(
                           controlProvider, project.getConsumers(), fullTopicName);
                   actions.add(action);
                 }
                 if (!project.getProducers().isEmpty()) {
                   Action action =
-                      new SetAclsForProducer(
+                      new BuildBindingsForProducer(
                           controlProvider, project.getProducers(), fullTopicName);
                   actions.add(action);
                 }
@@ -135,8 +135,8 @@ public class AccessControlManager {
               .filter(binding -> !allFinalBindings.contains(binding))
               .collect(Collectors.toSet());
 
-      ClearAcls clearAcls = new ClearAcls(controlProvider, bindingsToDelete);
-      plan.add(clearAcls);
+      ClearBindings clearBindings = new ClearBindings(controlProvider, bindingsToDelete);
+      plan.add(clearBindings);
     }
   }
 
@@ -163,10 +163,10 @@ public class AccessControlManager {
 
     // Set component level ACLs
     for (SchemaRegistryInstance schemaRegistry : platform.getSchemaRegistry().getInstances()) {
-      actions.add(new SetAclsForSchemaRegistry(controlProvider, schemaRegistry));
+      actions.add(new BuildBindingsForSchemaRegistry(controlProvider, schemaRegistry));
     }
     for (ControlCenterInstance controlCenter : platform.getControlCenter().getInstances()) {
-      actions.add(new SetAclsForControlCenter(controlProvider, controlCenter));
+      actions.add(new BuildBindingsForControlCenter(controlProvider, controlCenter));
     }
   }
 
@@ -176,7 +176,7 @@ public class AccessControlManager {
       Map<String, List<User>> roles = rbac.get();
       for (String role : roles.keySet()) {
         for (User user : roles.get(role)) {
-          actions.add(new SetClusterLevelRole(controlProvider, role, user, cmp));
+          actions.add(new BuildClusterLevelBinding(controlProvider, role, user, cmp));
         }
       }
     }
@@ -189,15 +189,15 @@ public class AccessControlManager {
             principals.forEach(
                 principal ->
                     actions.add(
-                        new SetPredefinedRole(
+                        new BuildPredefinedBinding(
                             controlProvider, principal, predefinedRole, topicPrefix))));
   }
 
   private Action syncApplicationAcls(DynamicUser app, String topicPrefix) throws IOException {
     if (app instanceof KStream) {
-      return new SetAclsForKStreams(controlProvider, (KStream) app, topicPrefix);
+      return new BuildBindingsForKStreams(controlProvider, (KStream) app, topicPrefix);
     } else if (app instanceof Connector) {
-      return new SetAclsForKConnect(controlProvider, (Connector) app, topicPrefix);
+      return new BuildBindingsForKConnect(controlProvider, (Connector) app, topicPrefix);
     } else {
       throw new IOException("Wrong dynamic app used.");
     }

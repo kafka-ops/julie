@@ -1,17 +1,18 @@
-package com.purbon.kafka.topology.actions;
+package com.purbon.kafka.topology.actions.access.builders;
 
 import com.purbon.kafka.topology.AccessControlProvider;
+import com.purbon.kafka.topology.actions.BaseAccessControlAction;
 import com.purbon.kafka.topology.model.users.platform.ControlCenterInstance;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
-public class SetAclsForControlCenter extends BaseAccessControlAction {
+public class BuildBindingsForControlCenter extends BaseAccessControlAction {
 
   private final AccessControlProvider controlProvider;
   private final ControlCenterInstance controlCenter;
 
-  public SetAclsForControlCenter(
+  public BuildBindingsForControlCenter(
       AccessControlProvider controlProvider, ControlCenterInstance controlCenter) {
     super();
     this.controlProvider = controlProvider;
@@ -26,7 +27,7 @@ public class SetAclsForControlCenter extends BaseAccessControlAction {
   }
 
   @Override
-  Map<String, Object> props() {
+  protected Map<String, Object> props() {
     Map<String, Object> map = new HashMap<>();
     map.put("Operation", getClass().getName());
     map.put("Principal", controlCenter.getPrincipal());

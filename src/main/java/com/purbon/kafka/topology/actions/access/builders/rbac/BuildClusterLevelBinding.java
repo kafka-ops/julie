@@ -1,20 +1,21 @@
-package com.purbon.kafka.topology.actions;
+package com.purbon.kafka.topology.actions.access.builders.rbac;
 
 import com.purbon.kafka.topology.AccessControlProvider;
+import com.purbon.kafka.topology.actions.BaseAccessControlAction;
 import com.purbon.kafka.topology.model.Component;
 import com.purbon.kafka.topology.model.User;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
-public class SetClusterLevelRole extends BaseAccessControlAction {
+public class BuildClusterLevelBinding extends BaseAccessControlAction {
 
   private final String role;
   private final User user;
   private final Component cmp;
   private final AccessControlProvider controlProvider;
 
-  public SetClusterLevelRole(
+  public BuildClusterLevelBinding(
       AccessControlProvider controlProvider, String role, User user, Component cmp) {
     super();
     this.controlProvider = controlProvider;
@@ -29,7 +30,7 @@ public class SetClusterLevelRole extends BaseAccessControlAction {
   }
 
   @Override
-  Map<String, Object> props() {
+  protected Map<String, Object> props() {
     Map<String, Object> map = new HashMap<>();
     map.put("Operation", getClass().getName());
     map.put("Role", role);

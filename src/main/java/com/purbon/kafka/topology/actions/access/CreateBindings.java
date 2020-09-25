@@ -1,6 +1,7 @@
-package com.purbon.kafka.topology.actions;
+package com.purbon.kafka.topology.actions.access;
 
 import com.purbon.kafka.topology.AccessControlProvider;
+import com.purbon.kafka.topology.actions.BaseAccessControlAction;
 import com.purbon.kafka.topology.roles.TopologyAclBinding;
 import java.io.IOException;
 import java.util.HashMap;
@@ -23,7 +24,7 @@ public class CreateBindings extends BaseAccessControlAction {
   }
 
   @Override
-  Map<String, Object> props() {
+  protected Map<String, Object> props() {
     Map<String, Object> map = new HashMap<>();
     map.put("Operation", getClass().getName());
     map.put("Bindings", bindings);

@@ -1,6 +1,7 @@
-package com.purbon.kafka.topology.actions;
+package com.purbon.kafka.topology.actions.access;
 
 import com.purbon.kafka.topology.AccessControlProvider;
+import com.purbon.kafka.topology.actions.BaseAccessControlAction;
 import com.purbon.kafka.topology.roles.TopologyAclBinding;
 import java.io.IOException;
 import java.util.Collection;
@@ -8,11 +9,11 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 
-public class ClearAcls extends BaseAccessControlAction {
+public class ClearBindings extends BaseAccessControlAction {
 
   private final AccessControlProvider controlProvider;
 
-  public ClearAcls(
+  public ClearBindings(
       AccessControlProvider controlProvider, Collection<TopologyAclBinding> bindingsForRemoval) {
     super(bindingsForRemoval);
     this.controlProvider = controlProvider;
@@ -24,7 +25,7 @@ public class ClearAcls extends BaseAccessControlAction {
   }
 
   @Override
-  Map<String, Object> props() {
+  protected Map<String, Object> props() {
     Map<String, Object> map = new HashMap<>();
     map.put("Operation", getClass().getName());
     return map;

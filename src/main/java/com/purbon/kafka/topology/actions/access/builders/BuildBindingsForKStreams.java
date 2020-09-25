@@ -1,19 +1,20 @@
-package com.purbon.kafka.topology.actions;
+package com.purbon.kafka.topology.actions.access.builders;
 
 import com.purbon.kafka.topology.AccessControlProvider;
+import com.purbon.kafka.topology.actions.BaseAccessControlAction;
 import com.purbon.kafka.topology.model.users.KStream;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class SetAclsForKStreams extends BaseAccessControlAction {
+public class BuildBindingsForKStreams extends BaseAccessControlAction {
 
   private final AccessControlProvider controlProvider;
   private final KStream app;
   private final String topicPrefix;
 
-  public SetAclsForKStreams(
+  public BuildBindingsForKStreams(
       AccessControlProvider controlProvider, KStream app, String topicPrefix) {
     super();
     this.controlProvider = controlProvider;
@@ -32,7 +33,7 @@ public class SetAclsForKStreams extends BaseAccessControlAction {
   }
 
   @Override
-  Map<String, Object> props() {
+  protected Map<String, Object> props() {
     Map<String, Object> map = new HashMap<>();
     map.put("Operation", getClass().getName());
     map.put("Principal", app.getPrincipal());

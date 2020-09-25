@@ -1,7 +1,7 @@
 package com.purbon.kafka.topology;
 
 import com.purbon.kafka.topology.actions.Action;
-import com.purbon.kafka.topology.actions.ClearAcls;
+import com.purbon.kafka.topology.actions.access.ClearBindings;
 import com.purbon.kafka.topology.roles.TopologyAclBinding;
 import java.io.IOException;
 import java.io.PrintStream;
@@ -65,7 +65,7 @@ public class ExecutionPlan {
     } else {
       action.run();
       if (!action.getBindings().isEmpty()) {
-        if (action instanceof ClearAcls) {
+        if (action instanceof ClearBindings) {
           bindings =
               bindings.stream()
                   .filter(binding -> action.getBindings().contains(binding))

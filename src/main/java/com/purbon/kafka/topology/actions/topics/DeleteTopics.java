@@ -1,6 +1,7 @@
-package com.purbon.kafka.topology.actions;
+package com.purbon.kafka.topology.actions.topics;
 
 import com.purbon.kafka.topology.TopologyBuilderAdminClient;
+import com.purbon.kafka.topology.actions.BaseAction;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
@@ -22,7 +23,7 @@ public class DeleteTopics extends BaseAction {
   }
 
   @Override
-  Map<String, Object> props() {
+  protected Map<String, Object> props() {
     Map<String, Object> map = new HashMap<>();
     map.put("Operation", getClass().getName());
     map.put("topics", topicsToBeDeleted);
