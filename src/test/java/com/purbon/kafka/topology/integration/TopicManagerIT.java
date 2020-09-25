@@ -73,7 +73,7 @@ public class TopicManagerIT {
 
     final SchemaRegistryClient schemaRegistryClient = new MockSchemaRegistryClient();
     final SchemaRegistryManager schemaRegistryManager =
-        new SchemaRegistryManager(schemaRegistryClient);
+        new SchemaRegistryManager(schemaRegistryClient, System.getProperty("user.dir"));
 
     topicManager = new TopicManager(adminClient, schemaRegistryManager);
   }
