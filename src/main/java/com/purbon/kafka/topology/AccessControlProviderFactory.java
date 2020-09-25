@@ -42,10 +42,7 @@ public class AccessControlProviderFactory {
           return (SimpleAclsProvider) aclsProviderConstructor.newInstance(builderAdminClient);
         case RBAC_ACCESS_CONTROL_CLASS:
           Constructor<?> rbacProviderContructor = clazz.getConstructor(MDSApiClient.class);
-          MDSApiClient apiClient = mdsApiClientBuilder.build();
-          String mdsUser = config.getProperty(MDS_USER_CONFIG);
-          String mdsPassword = config.getProperty(MDS_PASSWORD_CONFIG);
-          apiClient.login(mdsUser, mdsPassword);
+          MDSApiClient apiClient = apiClientLogIn();
           apiClient.authenticate();
           return (RBACProvider) rbacProviderContructor.newInstance(apiClient);
         default:
@@ -62,10 +59,7 @@ public class AccessControlProviderFactory {
       if (accessControlClass.equalsIgnoreCase(ACCESS_CONTROL_DEFAULT_CLASS)) {
         return new AclsBindingsBuilder(builderAdminClient);
       } else if (accessControlClass.equalsIgnoreCase(RBAC_ACCESS_CONTROL_CLASS)) {
-        MDSApiClient apiClient = mdsApiClientBuilder.build();
-        String mdsUser = config.getProperty(MDS_USER_CONFIG);
-        String mdsPassword = config.getProperty(MDS_PASSWORD_CONFIG);
-        apiClient.login(mdsUser, mdsPassword);
+        MDSApiClient apiClient = apiClientLogIn();
         apiClient.authenticate();
         return new RBACBindingsBuilder(apiClient);
       } else {
@@ -75,4 +69,13 @@ public class AccessControlProviderFactory {
       throw new IOException(ex);
     }
   }
+
+  private MDSApiClient apiClientLogIn() {
+    MDSApiClient apiClient = mdsApiClientBuilder.build();
+    String mdsUser = config.getProperty(MDS_USER_CONFIG);
+    String mdsPassword = config.getProperty(MDS_PASSWORD_CONFIG);
+    apiClient.login(mdsUser, mdsPassword);
+    return apiClient;
+  }
+
 }
