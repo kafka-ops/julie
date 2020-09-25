@@ -8,8 +8,12 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 public class CreateBindings extends BaseAccessControlAction {
+
+  private static final Logger LOGGER = LogManager.getLogger(CreateBindings.class);
 
   private final AccessControlProvider controlProvider;
 
@@ -20,6 +24,7 @@ public class CreateBindings extends BaseAccessControlAction {
 
   @Override
   public void run() throws IOException {
+    LOGGER.debug("CreateBindings: " + bindings);
     controlProvider.createBindings(new HashSet<>(bindings));
   }
 
