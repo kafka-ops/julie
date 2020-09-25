@@ -13,11 +13,15 @@ import com.purbon.kafka.topology.model.Topic;
 import com.purbon.kafka.topology.model.Topology;
 import com.purbon.kafka.topology.roles.RBACProvider;
 import com.purbon.kafka.topology.roles.TopologyAclBinding;
+import com.purbon.kafka.topology.roles.rbac.RBACBindingsBuilder;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import org.apache.kafka.common.acl.AclOperation;
+import org.apache.kafka.common.resource.PatternType;
+import org.apache.kafka.common.resource.ResourceType;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -28,14 +32,19 @@ import org.mockito.junit.MockitoRule;
 public class AccessControlWithRBACTest {
 
   @Mock RBACProvider aclsProvider;
+  @Mock RBACBindingsBuilder bindingsBuilder;
+
+  @Mock ExecutionPlan plan;
+  @Mock ClusterState clusterState;
 
   @Rule public MockitoRule mockitoRule = MockitoJUnit.rule();
 
   private AccessControlManager accessControlManager;
 
   @Before
-  public void setup() {
-    accessControlManager = new AccessControlManager(aclsProvider);
+  public void setup() throws IOException {
+    accessControlManager = new AccessControlManager(aclsProvider, bindingsBuilder);
+    plan = ExecutionPlan.init(clusterState, System.out);
   }
 
   @Test
@@ -53,12 +62,20 @@ public class AccessControlWithRBACTest {
     Topology topology = new TopologyImpl();
     topology.addProject(project);
 
-    when(aclsProvider.setPredefinedRole("User:Foo", "ResourceOwner", project.buildTopicPrefix()))
-        .thenReturn(new TopologyAclBinding());
+    TopologyAclBinding binding =
+        TopologyAclBinding.build(
+            ResourceType.TOPIC.name(),
+            "foo",
+            "host",
+            AclOperation.DESCRIBE_CONFIGS.name(),
+            "User:Foo",
+            PatternType.ANY.name());
+    when(bindingsBuilder.setPredefinedRole("User:Foo", "ResourceOwner", project.buildTopicPrefix()))
+        .thenReturn(binding);
 
-    accessControlManager.sync(topology);
+    accessControlManager.apply(topology, plan);
 
-    verify(aclsProvider, times(1))
+    verify(bindingsBuilder, times(1))
         .setPredefinedRole(eq("User:Foo"), eq("ResourceOwner"), eq(project.buildTopicPrefix()));
   }
 }

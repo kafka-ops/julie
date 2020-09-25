@@ -1,5 +1,6 @@
 package com.purbon.kafka.topology;
 
+import static java.util.Arrays.asList;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
@@ -9,6 +10,7 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
 import com.purbon.kafka.topology.actions.Action;
+import com.purbon.kafka.topology.adminclient.AclBuilder;
 import com.purbon.kafka.topology.model.Component;
 import com.purbon.kafka.topology.model.Impl.ProjectImpl;
 import com.purbon.kafka.topology.model.Impl.TopicImpl;
@@ -30,15 +32,22 @@ import com.purbon.kafka.topology.model.users.platform.SchemaRegistry;
 import com.purbon.kafka.topology.model.users.platform.SchemaRegistryInstance;
 import com.purbon.kafka.topology.roles.SimpleAclsProvider;
 import com.purbon.kafka.topology.roles.TopologyAclBinding;
+import com.purbon.kafka.topology.roles.acls.AclsBindingsBuilder;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
+import org.apache.kafka.common.acl.AclBinding;
+import org.apache.kafka.common.acl.AclOperation;
+import org.apache.kafka.common.acl.AclPermissionType;
+import org.apache.kafka.common.resource.PatternType;
+import org.apache.kafka.common.resource.ResourceType;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -50,18 +59,22 @@ import org.mockito.junit.MockitoRule;
 public class AccessControlManagerTest {
 
   @Mock SimpleAclsProvider aclsProvider;
+  @Mock AclsBindingsBuilder aclsBuilder;
 
   @Mock ClusterState clusterState;
 
   @Mock PrintStream mockPrintStream;
+
+  ExecutionPlan plan;
 
   @Rule public MockitoRule mockitoRule = MockitoJUnit.rule();
 
   private AccessControlManager accessControlManager;
 
   @Before
-  public void setup() {
-    accessControlManager = new AccessControlManager(aclsProvider, clusterState);
+  public void setup() throws IOException {
+    plan = ExecutionPlan.init(clusterState, mockPrintStream);
+    accessControlManager = new AccessControlManager(aclsProvider, aclsBuilder);
     doNothing().when(clusterState).add(Matchers.anyList());
     doNothing().when(clusterState).flushAndClose();
   }
@@ -80,13 +93,13 @@ public class AccessControlManagerTest {
     Topology topology = new TopologyImpl();
     topology.addProject(project);
 
-    List<Consumer> users = Arrays.asList(new Consumer("User:app1"));
+    List<Consumer> users = asList(new Consumer("User:app1"));
 
     doReturn(new ArrayList<TopologyAclBinding>())
-        .when(aclsProvider)
-        .setAclsForConsumers(users, topicA.toString());
-    accessControlManager.sync(topology);
-    verify(aclsProvider, times(1)).setAclsForConsumers(eq(users), eq(topicA.toString()));
+        .when(aclsBuilder)
+        .buildBindingsForConsumers(users, topicA.toString());
+    accessControlManager.apply(topology, plan);
+    verify(aclsBuilder, times(1)).buildBindingsForConsumers(eq(users), eq(topicA.toString()));
   }
 
   @Test
@@ -103,13 +116,13 @@ public class AccessControlManagerTest {
     Topology topology = new TopologyImpl();
     topology.addProject(project);
 
-    List<String> users = Arrays.asList(new String[] {"User:app1"});
+    List<String> users = asList(new String[] {"User:app1"});
 
     doReturn(new ArrayList<TopologyAclBinding>())
-        .when(aclsProvider)
-        .setAclsForProducers(users, topicA.toString());
-    accessControlManager.sync(topology);
-    verify(aclsProvider, times(1)).setAclsForProducers(eq(users), eq(topicA.toString()));
+        .when(aclsBuilder)
+        .buildBindingsForProducers(users, topicA.toString());
+    accessControlManager.apply(topology, plan);
+    verify(aclsBuilder, times(1)).buildBindingsForProducers(eq(users), eq(topicA.toString()));
   }
 
   @Test
@@ -120,26 +133,26 @@ public class AccessControlManagerTest {
     KStream app = new KStream();
     app.setPrincipal("User:App0");
     HashMap<String, List<String>> topics = new HashMap<>();
-    topics.put(KStream.READ_TOPICS, Arrays.asList("topicA", "topicB"));
-    topics.put(KStream.WRITE_TOPICS, Arrays.asList("topicC", "topicD"));
+    topics.put(KStream.READ_TOPICS, asList("topicA", "topicB"));
+    topics.put(KStream.WRITE_TOPICS, asList("topicC", "topicD"));
     app.setTopics(topics);
     project.setStreams(Collections.singletonList(app));
 
     Topology topology = new TopologyImpl();
     topology.addProject(project);
 
-    accessControlManager.sync(topology);
+    accessControlManager.apply(topology, plan);
     String topicPrefix = project.buildTopicPrefix(topology.buildNamePrefix());
 
     doReturn(new ArrayList<TopologyAclBinding>())
-        .when(aclsProvider)
-        .setAclsForStreamsApp(
+        .when(aclsBuilder)
+        .buildBindingsForStreamsApp(
             "User:App0",
             topicPrefix,
             topics.get(KStream.READ_TOPICS),
             topics.get(KStream.WRITE_TOPICS));
-    verify(aclsProvider, times(1))
-        .setAclsForStreamsApp(
+    verify(aclsBuilder, times(1))
+        .buildBindingsForStreamsApp(
             eq("User:App0"),
             eq(topicPrefix),
             eq(topics.get(KStream.READ_TOPICS)),
@@ -168,20 +181,20 @@ public class AccessControlManagerTest {
     platform.setSchemaRegistry(sr);
     topology.setPlatform(platform);
 
-    accessControlManager.sync(topology);
+    accessControlManager.apply(topology, plan);
 
     doReturn(new ArrayList<TopologyAclBinding>())
-        .when(aclsProvider)
-        .setAclsForSchemaRegistry(instance);
+        .when(aclsBuilder)
+        .buildBindingsForSchemaRegistry(instance);
 
     doReturn(new ArrayList<TopologyAclBinding>())
-        .when(aclsProvider)
+        .when(aclsBuilder)
         .setClusterLevelRole(anyString(), anyString(), eq(Component.SCHEMA_REGISTRY));
 
-    verify(aclsProvider, times(1)).setAclsForSchemaRegistry(instance);
-    verify(aclsProvider, times(1))
+    verify(aclsBuilder, times(1)).buildBindingsForSchemaRegistry(instance);
+    verify(aclsBuilder, times(1))
         .setClusterLevelRole("SecurityAdmin", "User:foo", Component.SCHEMA_REGISTRY);
-    verify(aclsProvider, times(1))
+    verify(aclsBuilder, times(1))
         .setClusterLevelRole("ClusterAdmin", "User:bar", Component.SCHEMA_REGISTRY);
   }
 
@@ -201,13 +214,13 @@ public class AccessControlManagerTest {
     platform.setControlCenter(c3);
     topology.setPlatform(platform);
 
-    accessControlManager.sync(topology);
+    accessControlManager.apply(topology, plan);
 
     doReturn(new ArrayList<TopologyAclBinding>())
-        .when(aclsProvider)
-        .setAclsForControlCenter("User:foo", "appid");
+        .when(aclsBuilder)
+        .buildBindingsForControlCenter("User:foo", "appid");
 
-    verify(aclsProvider, times(1)).setAclsForControlCenter("User:foo", "appid");
+    verify(aclsBuilder, times(1)).buildBindingsForControlCenter("User:foo", "appid");
   }
 
   @Test
@@ -225,14 +238,14 @@ public class AccessControlManagerTest {
     platform.setKafka(kafka);
     topology.setPlatform(platform);
 
-    accessControlManager.sync(topology);
+    accessControlManager.apply(topology, plan);
 
     doReturn(new ArrayList<TopologyAclBinding>())
-        .when(aclsProvider)
+        .when(aclsBuilder)
         .setClusterLevelRole(anyString(), anyString(), eq(Component.KAFKA));
 
-    verify(aclsProvider, times(1)).setClusterLevelRole("Operator", "User:foo", Component.KAFKA);
-    verify(aclsProvider, times(1)).setClusterLevelRole("ClusterAdmin", "User:bar", Component.KAFKA);
+    verify(aclsBuilder, times(1)).setClusterLevelRole("Operator", "User:foo", Component.KAFKA);
+    verify(aclsBuilder, times(1)).setClusterLevelRole("ClusterAdmin", "User:bar", Component.KAFKA);
   }
 
   @Test
@@ -250,15 +263,15 @@ public class AccessControlManagerTest {
     platform.setKafkaConnect(connect);
     topology.setPlatform(platform);
 
-    accessControlManager.sync(topology);
+    accessControlManager.apply(topology, plan);
 
     doReturn(new ArrayList<TopologyAclBinding>())
-        .when(aclsProvider)
+        .when(aclsBuilder)
         .setClusterLevelRole(anyString(), anyString(), eq(Component.KAFKA_CONNECT));
 
-    verify(aclsProvider, times(1))
+    verify(aclsBuilder, times(1))
         .setClusterLevelRole("Operator", "User:foo", Component.KAFKA_CONNECT);
-    verify(aclsProvider, times(1))
+    verify(aclsBuilder, times(1))
         .setClusterLevelRole("ClusterAdmin", "User:bar", Component.KAFKA_CONNECT);
   }
 
@@ -270,29 +283,29 @@ public class AccessControlManagerTest {
     Connector connector1 = new Connector();
     connector1.setPrincipal("User:Connect1");
     HashMap<String, List<String>> topics = new HashMap<>();
-    topics.put(Connector.READ_TOPICS, Arrays.asList("topicA", "topicB"));
+    topics.put(Connector.READ_TOPICS, asList("topicA", "topicB"));
     connector1.setTopics(topics);
 
-    project.setConnectors(Arrays.asList(connector1));
+    project.setConnectors(asList(connector1));
 
     Topology topology = new TopologyImpl();
     topology.addProject(project);
 
-    accessControlManager.sync(topology);
+    accessControlManager.apply(topology, plan);
+
     String topicPrefix = project.buildTopicPrefix(topology.buildNamePrefix());
 
     doReturn(new ArrayList<TopologyAclBinding>())
-        .when(aclsProvider)
-        .setAclsForConnect(connector1, topicPrefix);
+        .when(aclsBuilder)
+        .buildBindingsForConnect(connector1, topicPrefix);
 
-    verify(aclsProvider, times(1)).setAclsForConnect(eq(connector1), eq(topicPrefix));
+    verify(aclsBuilder, times(1)).buildBindingsForConnect(eq(connector1), eq(topicPrefix));
   }
 
   @Test
   public void testDryRunMode() throws IOException {
 
-    accessControlManager.setDryRun(true);
-    accessControlManager.setOutputStream(mockPrintStream);
+    plan = ExecutionPlan.init(clusterState, mockPrintStream);
 
     List<Consumer> consumers = new ArrayList<>();
     consumers.add(new Consumer("User:app1"));
@@ -305,13 +318,114 @@ public class AccessControlManagerTest {
     Topology topology = new TopologyImpl();
     topology.addProject(project);
 
-    List<Consumer> users = Arrays.asList(new Consumer("User:app1"));
+    List<Consumer> users = asList(new Consumer("User:app1"));
 
     doReturn(new ArrayList<TopologyAclBinding>())
-        .when(aclsProvider)
-        .setAclsForConsumers(users, topicA.toString());
-    accessControlManager.sync(topology);
+        .when(aclsBuilder)
+        .buildBindingsForConsumers(users, topicA.toString());
+    accessControlManager.apply(topology, plan);
+
+    plan.run(true);
 
     verify(mockPrintStream, times(2)).println(any(Action.class));
+  }
+
+  @Test
+  public void testAclDeleteLogic() throws IOException {
+
+    ClusterState clusterState = new ClusterState();
+    clusterState.load();
+    clusterState.reset();
+    plan = ExecutionPlan.init(clusterState, mockPrintStream);
+    accessControlManager = new AccessControlManager(aclsProvider, aclsBuilder);
+
+    List<Consumer> consumers = new ArrayList<>();
+    consumers.add(new Consumer("User:app1"));
+    consumers.add(new Consumer("User:app2"));
+
+    Topic topicA = new TopicImpl("topicA");
+
+    Topology topology = buildTopology(consumers, asList(topicA));
+
+    List<TopologyAclBinding> bindings = returnAclsForConsumers(consumers, topicA.getName());
+    doReturn(bindings).when(aclsBuilder).buildBindingsForConsumers(any(), eq(topicA.toString()));
+
+    accessControlManager.apply(topology, plan);
+    plan.run();
+
+    verify(aclsBuilder, times(1)).buildBindingsForConsumers(consumers, topicA.toString());
+
+    consumers = new ArrayList<>();
+    consumers.add(new Consumer("User:app1"));
+
+    bindings = returnAclsForConsumers(consumers, topicA.getName());
+    doReturn(bindings)
+        .when(aclsBuilder)
+        .buildBindingsForConsumers(eq(consumers), eq(topicA.toString()));
+
+    Topology newTopology = buildTopology(consumers, asList(topicA));
+
+    accessControlManager.apply(newTopology, plan);
+    plan.run();
+
+    List<TopologyAclBinding> bindingsToDelete =
+        returnAclsForConsumers(asList(new Consumer("User:app2")), topicA.getName());
+
+    verify(aclsProvider, times(1)).clearBindings(new HashSet<>(bindingsToDelete));
+  }
+
+  private Topology buildTopology(List<Consumer> consumers, List<Topic> topics) {
+
+    Project project = new ProjectImpl();
+    project.setConsumers(consumers);
+
+    for (Topic topic : topics) {
+      project.addTopic(topic);
+    }
+
+    Topology topology = new TopologyImpl();
+    topology.addProject(project);
+
+    return topology;
+  }
+
+  private List<TopologyAclBinding> returnAclsForConsumers(List<Consumer> consumers, String topic) {
+
+    List<AclBinding> acls = new ArrayList<>();
+
+    for (Consumer consumer : consumers) {
+      acls.add(
+          buildTopicLevelAcl(
+              consumer.getPrincipal(), topic, PatternType.LITERAL, AclOperation.DESCRIBE));
+      acls.add(
+          buildTopicLevelAcl(
+              consumer.getPrincipal(), topic, PatternType.LITERAL, AclOperation.READ));
+      acls.add(
+          buildGroupLevelAcl(
+              consumer.getPrincipal(),
+              consumer.groupString(),
+              consumer.groupString().equals("*") ? PatternType.PREFIXED : PatternType.LITERAL,
+              AclOperation.READ));
+    }
+
+    return acls.stream()
+        .map(aclBinding -> new TopologyAclBinding(aclBinding))
+        .collect(Collectors.toList());
+  }
+
+  private AclBinding buildTopicLevelAcl(
+      String principal, String topic, PatternType patternType, AclOperation op) {
+    return new AclBuilder(principal)
+        .addResource(ResourceType.TOPIC, topic, patternType)
+        .addControlEntry("*", op, AclPermissionType.ALLOW)
+        .build();
+  }
+
+  private AclBinding buildGroupLevelAcl(
+      String principal, String group, PatternType patternType, AclOperation op) {
+    return new AclBuilder(principal)
+        .addResource(ResourceType.GROUP, group, patternType)
+        .addControlEntry("*", op, AclPermissionType.ALLOW)
+        .build();
   }
 }

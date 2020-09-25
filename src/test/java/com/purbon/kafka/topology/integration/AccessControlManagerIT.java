@@ -4,6 +4,7 @@ import static org.mockito.Mockito.when;
 
 import com.purbon.kafka.topology.AccessControlManager;
 import com.purbon.kafka.topology.ClusterState;
+import com.purbon.kafka.topology.ExecutionPlan;
 import com.purbon.kafka.topology.TopologyBuilderAdminClient;
 import com.purbon.kafka.topology.TopologyBuilderConfig;
 import com.purbon.kafka.topology.model.Impl.ProjectImpl;
@@ -22,12 +23,15 @@ import com.purbon.kafka.topology.model.users.platform.ControlCenterInstance;
 import com.purbon.kafka.topology.model.users.platform.SchemaRegistry;
 import com.purbon.kafka.topology.model.users.platform.SchemaRegistryInstance;
 import com.purbon.kafka.topology.roles.SimpleAclsProvider;
+import com.purbon.kafka.topology.roles.TopologyAclBinding;
+import com.purbon.kafka.topology.roles.acls.AclsBindingsBuilder;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Properties;
 import java.util.concurrent.ExecutionException;
@@ -54,9 +58,11 @@ public class AccessControlManagerIT {
 
   private static AdminClient kafkaAdminClient;
   private AccessControlManager accessControlManager;
-  private ClusterState cs;
   private SimpleAclsProvider aclsProvider;
+  private AclsBindingsBuilder bindingsBuilder;
 
+  private ExecutionPlan plan;
+  private ClusterState cs;
   @Rule public MockitoRule mockitoRule = MockitoJUnit.rule();
 
   @Mock private TopologyBuilderConfig config;
@@ -68,16 +74,21 @@ public class AccessControlManagerIT {
         new TopologyBuilderAdminClient(kafkaAdminClient, config);
     adminClient.clearAcls();
 
-    cs = new ClusterState();
+    this.cs = new ClusterState();
+    this.plan = ExecutionPlan.init(cs, System.out);
+
     aclsProvider = new SimpleAclsProvider(adminClient);
-    accessControlManager = new AccessControlManager(aclsProvider, cs);
+    bindingsBuilder = new AclsBindingsBuilder(adminClient);
+    accessControlManager = new AccessControlManager(aclsProvider, bindingsBuilder);
   }
 
   @Test
   public void aclsRemoval() throws ExecutionException, InterruptedException, IOException {
 
     // Crate an ACL outside of the control of the state manager.
-    aclsProvider.setAclsForProducers(Collections.singleton("User:foo"), "bar");
+    List<TopologyAclBinding> bindings =
+        bindingsBuilder.buildBindingsForProducers(Collections.singleton("User:foo"), "bar");
+    aclsProvider.createBindings(new HashSet<>(bindings));
 
     List<Consumer> consumers = new ArrayList<>();
     consumers.add(new Consumer("User:testAclsRemovalUser1"));
@@ -93,7 +104,8 @@ public class AccessControlManagerIT {
     topology.addOther("source", "testAclsRemoval");
     topology.addProject(project);
 
-    accessControlManager.sync(topology);
+    accessControlManager.apply(topology, plan);
+    plan.run();
 
     Assert.assertEquals(6, cs.size());
     verifyAclsOfSize(8); // Total of 3 acls per consumer + 2 for the producer
@@ -101,7 +113,9 @@ public class AccessControlManagerIT {
     consumers.remove(1);
     project.setConsumers(consumers);
 
-    accessControlManager.sync(topology);
+    plan.getActions().clear();
+    accessControlManager.apply(topology, plan);
+    plan.run();
 
     Assert.assertEquals(3, cs.size());
     verifyAclsOfSize(5);
@@ -123,7 +137,8 @@ public class AccessControlManagerIT {
     topology.addOther("source", "testConsumerAclsCreation");
     topology.addProject(project);
 
-    accessControlManager.sync(topology);
+    accessControlManager.apply(topology, plan);
+    plan.run(false);
 
     verifyConsumerAcls(consumers, topicA.toString());
   }
@@ -144,7 +159,8 @@ public class AccessControlManagerIT {
     topology.addOther("source", "producerAclsCreation");
     topology.addProject(project);
 
-    accessControlManager.sync(topology);
+    accessControlManager.apply(topology, plan);
+    plan.run(false);
 
     verifyProducerAcls(producers, topicA.toString());
   }
@@ -166,7 +182,8 @@ public class AccessControlManagerIT {
     topology.addOther("source", "kstreamsAclsCreation");
     topology.addProject(project);
 
-    accessControlManager.sync(topology);
+    accessControlManager.apply(topology, plan);
+    plan.run();
 
     verifyKStreamsAcls(app);
   }
@@ -194,7 +211,8 @@ public class AccessControlManagerIT {
 
     topology.setPlatform(platform);
 
-    accessControlManager.sync(topology);
+    accessControlManager.apply(topology, plan);
+    plan.run();
 
     verifySchemaRegistryAcls(platform);
   }
@@ -224,7 +242,8 @@ public class AccessControlManagerIT {
 
     topology.setPlatform(platform);
 
-    accessControlManager.sync(topology);
+    accessControlManager.apply(topology, plan);
+    plan.run();
 
     verifyControlCenterAcls(platform);
   }
@@ -245,7 +264,8 @@ public class AccessControlManagerIT {
     topology.addOther("source", "connectAclsCreation");
     topology.addProject(project);
 
-    accessControlManager.sync(topology);
+    accessControlManager.apply(topology, plan);
+    plan.run();
 
     verifyConnectAcls(connector);
   }

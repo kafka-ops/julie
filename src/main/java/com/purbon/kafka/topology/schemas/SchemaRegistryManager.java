@@ -1,6 +1,5 @@
 package com.purbon.kafka.topology.schemas;
 
-import com.purbon.kafka.topology.roles.SimpleAclsProvider;
 import io.confluent.kafka.schemaregistry.ParsedSchema;
 import io.confluent.kafka.schemaregistry.avro.AvroSchema;
 import io.confluent.kafka.schemaregistry.client.SchemaRegistryClient;

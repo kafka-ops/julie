@@ -1,12 +1,11 @@
 package com.purbon.kafka.topology;
 
-import static com.purbon.kafka.topology.roles.RBACPredefinedRoles.DEVELOPER_READ;
-import static com.purbon.kafka.topology.roles.RBACPredefinedRoles.DEVELOPER_WRITE;
-import static com.purbon.kafka.topology.roles.RBACProvider.LITERAL;
+import static com.purbon.kafka.topology.roles.rbac.RBACBindingsBuilder.LITERAL;
+import static com.purbon.kafka.topology.roles.rbac.RBACPredefinedRoles.DEVELOPER_READ;
+import static com.purbon.kafka.topology.roles.rbac.RBACPredefinedRoles.DEVELOPER_WRITE;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -29,9 +28,10 @@ import com.purbon.kafka.topology.model.users.platform.ControlCenter;
 import com.purbon.kafka.topology.model.users.platform.ControlCenterInstance;
 import com.purbon.kafka.topology.model.users.platform.SchemaRegistry;
 import com.purbon.kafka.topology.model.users.platform.SchemaRegistryInstance;
-import com.purbon.kafka.topology.roles.AdminRoleRunner;
 import com.purbon.kafka.topology.roles.RBACProvider;
 import com.purbon.kafka.topology.roles.TopologyAclBinding;
+import com.purbon.kafka.topology.roles.rbac.AdminRoleRunner;
+import com.purbon.kafka.topology.roles.rbac.RBACBindingsBuilder;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -43,7 +43,6 @@ import java.util.Optional;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-import org.mockito.Matchers;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnit;
 import org.mockito.junit.MockitoRule;
@@ -52,9 +51,7 @@ public class RbacProviderTest {
 
   @Mock MDSApiClient apiClient;
 
-  RBACProvider aclsProvider;
-
-  @Mock ClusterState clusterState;
+  @Mock ExecutionPlan plan;
 
   @Mock AdminRoleRunner runner;
 
@@ -68,10 +65,9 @@ public class RbacProviderTest {
     apiClient.setSchemaRegistryClusterID("sr");
     apiClient.setKafkaClusterId("ak");
 
-    aclsProvider = new RBACProvider(apiClient);
-    accessControlManager = new AccessControlManager(aclsProvider, clusterState);
-    doNothing().when(clusterState).add(Matchers.anyList());
-    doNothing().when(clusterState).flushAndClose();
+    RBACProvider aclsProvider = new RBACProvider(apiClient);
+    RBACBindingsBuilder bindingsBuilder = new RBACBindingsBuilder(apiClient);
+    accessControlManager = new AccessControlManager(aclsProvider, bindingsBuilder);
   }
 
   @Test
@@ -92,7 +88,7 @@ public class RbacProviderTest {
         .when(apiClient)
         .bind("User:app1", DEVELOPER_READ, topicA.toString(), LITERAL);
 
-    accessControlManager.sync(topology);
+    accessControlManager.apply(topology, plan);
 
     verify(apiClient, times(1))
         .bind(eq("User:app1"), anyString(), eq(topicA.toString()), anyString());
@@ -116,7 +112,7 @@ public class RbacProviderTest {
         .when(apiClient)
         .bind("User:app1", DEVELOPER_WRITE, topicA.toString(), LITERAL);
 
-    accessControlManager.sync(topology);
+    accessControlManager.apply(topology, plan);
 
     verify(apiClient, times(1))
         .bind(eq("User:app1"), anyString(), eq(topicA.toString()), anyString());
@@ -142,7 +138,7 @@ public class RbacProviderTest {
         .when(apiClient)
         .bind(anyString(), anyString(), anyString(), anyString());
 
-    accessControlManager.sync(topology);
+    accessControlManager.apply(topology, plan);
 
     verify(apiClient, times(6)).bind(eq("User:App0"), anyString(), anyString(), anyString());
   }
@@ -176,7 +172,7 @@ public class RbacProviderTest {
         .when(apiClient)
         .bindClusterRole(anyString(), anyString(), any(RequestScope.class));
 
-    accessControlManager.sync(topology);
+    accessControlManager.apply(topology, plan);
 
     verify(apiClient, times(1))
         .bind(anyString(), anyString(), anyString(), anyString(), anyString());
@@ -206,7 +202,7 @@ public class RbacProviderTest {
         .when(apiClient)
         .bindClusterRole(anyString(), anyString(), any(RequestScope.class));
 
-    accessControlManager.sync(topology);
+    accessControlManager.apply(topology, plan);
 
     verify(apiClient, times(1)).bind(anyString(), anyString());
   }
@@ -222,7 +218,7 @@ public class RbacProviderTest {
     topics.put(Connector.READ_TOPICS, Arrays.asList("topicA", "topicB"));
     connector1.setTopics(topics);
 
-    project.setConnectors(Arrays.asList(connector1));
+    project.setConnectors(Collections.singletonList(connector1));
 
     Topology topology = new TopologyImpl();
     topology.addProject(project);
@@ -235,7 +231,7 @@ public class RbacProviderTest {
         .when(apiClient)
         .bindClusterRole(anyString(), anyString(), any(RequestScope.class));
 
-    accessControlManager.sync(topology);
+    accessControlManager.apply(topology, plan);
 
     verify(apiClient, times(1)).bind(anyString(), anyString());
     verify(apiClient, times(6))

@@ -1,8 +1,7 @@
 package com.purbon.kafka.topology;
 
-import com.purbon.kafka.topology.actions.Action;
-import com.purbon.kafka.topology.actions.DeleteTopics;
-import com.purbon.kafka.topology.actions.SyncTopicAction;
+import com.purbon.kafka.topology.actions.topics.DeleteTopics;
+import com.purbon.kafka.topology.actions.topics.SyncTopicAction;
 import com.purbon.kafka.topology.model.Project;
 import com.purbon.kafka.topology.model.Topic;
 import com.purbon.kafka.topology.model.Topology;
@@ -28,10 +27,7 @@ public class TopicManager {
   private final SchemaRegistryManager schemaRegistryManager;
   private final TopologyBuilderAdminClient adminClient;
   private final TopologyBuilderConfig config;
-  private final Boolean allowDelete;
   private final List<String> internalTopicPrefixes;
-  private boolean dryRun;
-  private PrintStream outputStream;
 
   public TopicManager(
       TopologyBuilderAdminClient adminClient, SchemaRegistryManager schemaRegistryManager) {
@@ -42,18 +38,13 @@ public class TopicManager {
       TopologyBuilderAdminClient adminClient,
       SchemaRegistryManager schemaRegistryManager,
       TopologyBuilderConfig config) {
-
     this.adminClient = adminClient;
     this.schemaRegistryManager = schemaRegistryManager;
     this.config = config;
-    this.allowDelete = config.allowDeletes();
-    this.dryRun = config.isDryRun();
-    this.outputStream = System.out;
     this.internalTopicPrefixes = config.getKafkaInternalTopicPrefixes();
   }
 
-  public void sync(Topology topology) throws IOException {
-
+  public void apply(Topology topology, ExecutionPlan plan) throws IOException {
     // List all topics existing in the cluster, excluding internal topics
     Set<String> listOfTopics = adminClient.listApplicationTopics();
     if (listOfTopics.size() > 0)
@@ -64,19 +55,18 @@ public class TopicManager {
     Set<String> updatedListOfTopics = new HashSet<>();
     // Foreach topic in the topology, sync it's content
     // if topics does not exist already it's created
-    List<Action> actionPlan = new ArrayList<>();
 
     for (Project project : topology.getProjects()) {
       for (Topic topic : project.getTopics()) {
         String fullTopicName = topic.toString();
-        actionPlan.add(
+        plan.add(
             new SyncTopicAction(
                 adminClient, schemaRegistryManager, topic, fullTopicName, listOfTopics));
         updatedListOfTopics.add(fullTopicName);
       }
     }
 
-    if (allowDelete) {
+    if (config.allowDelete()) {
       // Handle topic delete: Topics in the initial list, but not present anymore after a
       // full topic sync should be deleted
       List<String> topicsToBeDeleted =
@@ -86,14 +76,7 @@ public class TopicManager {
 
       if (topicsToBeDeleted.size() > 0) {
         LOGGER.debug("Topic to be deleted: " + StringUtils.join(topicsToBeDeleted, ","));
-        actionPlan.add(new DeleteTopics(adminClient, topicsToBeDeleted));
-      }
-    }
-    for (Action action : actionPlan) {
-      if (dryRun) {
-        outputStream.println(action);
-      } else {
-        action.run();
+        plan.add(new DeleteTopics(adminClient, topicsToBeDeleted));
       }
     }
   }
@@ -102,17 +85,9 @@ public class TopicManager {
     return internalTopicPrefixes.stream().anyMatch(topic::startsWith);
   }
 
-  public void printCurrentState(PrintStream os) throws IOException {
+  void printCurrentState(PrintStream os) throws IOException {
     os.println("List of Topics:");
     adminClient.listTopics().forEach(os::println);
-  }
-
-  public void setDryRun(boolean dryRun) {
-    this.dryRun = dryRun;
-  }
-
-  public void setOutputStream(PrintStream os) {
-    this.outputStream = os;
   }
 
   public void close() {
