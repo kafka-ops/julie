@@ -15,8 +15,7 @@ public class EnvVarToolsTest {
 
   @Test
   public void tripleUnderscoresShouldConvertToSingle() {
-    assertEquals("cde_ghi.klm",
-            EnvVarTools.envVarNameToPropertyName("abc_cde___ghi.klm", "abc"));
+    assertEquals("cde_ghi.klm", EnvVarTools.envVarNameToPropertyName("abc_cde___ghi.klm", "abc"));
   }
 
   @Test

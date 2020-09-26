@@ -1,10 +1,5 @@
 package com.purbon.kafka.topology;
 
-import static com.purbon.kafka.topology.TopologyBuilderConfig.REDIS_HOST_CONFIG;
-import static com.purbon.kafka.topology.TopologyBuilderConfig.REDIS_PORT_CONFIG;
-import static com.purbon.kafka.topology.TopologyBuilderConfig.REDIS_STATE_PROCESSOR_CLASS;
-import static com.purbon.kafka.topology.TopologyBuilderConfig.STATE_PROCESSOR_DEFAULT_CLASS;
-
 import com.purbon.kafka.topology.api.mds.MDSApiClientBuilder;
 import com.purbon.kafka.topology.clusterstate.FileStateProcessor;
 import com.purbon.kafka.topology.clusterstate.RedisStateProcessor;
@@ -12,6 +7,7 @@ import com.purbon.kafka.topology.model.Topology;
 import com.purbon.kafka.topology.schemas.SchemaRegistryManager;
 import io.confluent.kafka.schemaregistry.client.CachedSchemaRegistryClient;
 import io.confluent.kafka.schemaregistry.client.SchemaRegistryClient;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintStream;
@@ -19,6 +15,8 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.Map;
 import java.util.Properties;
+
+import static com.purbon.kafka.topology.TopologyBuilderConfig.*;
 
 public class KafkaTopologyBuilder implements AutoCloseable {
 
@@ -85,12 +83,6 @@ public class KafkaTopologyBuilder implements AutoCloseable {
       throws IOException {
     if (!Files.exists(Paths.get(topologyFile))) {
       throw new IOException("Topology file does not exist");
-    }
-
-    String configFilePath = config.get(BuilderCLI.ADMIN_CLIENT_CONFIG_OPTION);
-
-    if (!Files.exists(Paths.get(configFilePath))) {
-      throw new IOException("AdminClient config file does not exist");
     }
   }
 

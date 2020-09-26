@@ -1,25 +1,7 @@
 package com.purbon.kafka.topology;
 
-import static com.purbon.kafka.topology.BuilderCLI.ADMIN_CLIENT_CONFIG_OPTION;
-import static com.purbon.kafka.topology.BuilderCLI.ALLOW_DELETE_OPTION;
-import static com.purbon.kafka.topology.BuilderCLI.BROKERS_OPTION;
-import static com.purbon.kafka.topology.BuilderCLI.DRY_RUN_OPTION;
-import static com.purbon.kafka.topology.BuilderCLI.QUIET_OPTION;
-import static org.junit.Assert.assertEquals;
-import static org.mockito.Matchers.anyObject;
-import static org.mockito.Mockito.doNothing;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-
 import com.purbon.kafka.topology.clusterstate.RedisStateProcessor;
 import com.purbon.kafka.topology.model.Topology;
-import java.io.IOException;
-import java.net.URISyntaxException;
-import java.net.URL;
-import java.nio.file.Paths;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Properties;
 import org.apache.kafka.clients.admin.AdminClientConfig;
 import org.junit.Before;
 import org.junit.Rule;
@@ -27,6 +9,19 @@ import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnit;
 import org.mockito.junit.MockitoRule;
+
+import java.io.IOException;
+import java.net.URISyntaxException;
+import java.net.URL;
+import java.nio.file.Paths;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Properties;
+
+import static com.purbon.kafka.topology.BuilderCLI.*;
+import static org.junit.Assert.assertEquals;
+import static org.mockito.Matchers.anyObject;
+import static org.mockito.Mockito.*;
 
 public class KafkaTopologyBuilderTest {
 
@@ -104,23 +99,6 @@ public class KafkaTopologyBuilderTest {
             bindingsBuilderProvider);
 
     builder.verifyRequiredParameters(file, cliOps);
-  }
-
-  @Test(expected = IOException.class)
-  public void verifyProblematicParametersTest2() throws IOException, URISyntaxException {
-    URL dirOfDescriptors = getClass().getResource("/descriptor.yaml");
-    String fileOrDirPath = Paths.get(dirOfDescriptors.toURI()).toFile().toString();
-
-    TopologyBuilderConfig builderConfig = new TopologyBuilderConfig(cliOps, props);
-    KafkaTopologyBuilder builder =
-        KafkaTopologyBuilder.build(
-            fileOrDirPath,
-            builderConfig,
-            topologyAdminClient,
-            accessControlProvider,
-            bindingsBuilderProvider);
-
-    builder.verifyRequiredParameters(fileOrDirPath, cliOps);
   }
 
   @Test

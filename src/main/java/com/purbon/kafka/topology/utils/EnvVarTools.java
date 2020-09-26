@@ -16,7 +16,8 @@ public class EnvVarTools {
     return filterAndMapEnvironment(System.getenv(), prefix);
   }
 
-  static Map<String, String> filterAndMapEnvironment(Map<String, String> env, String prefix) {
+  public static Map<String, String> filterAndMapEnvironment(
+      Map<String, String> env, String prefix) {
     Objects.requireNonNull(prefix);
     return env.entrySet().stream()
         .filter(entry -> entry.getKey().startsWith(prefix))

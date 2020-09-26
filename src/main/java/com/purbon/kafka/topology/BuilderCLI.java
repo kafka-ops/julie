@@ -146,7 +146,7 @@ public class BuilderCLI {
 
     final String topologyFile = cmd.getOptionValue(TOPOLOGY_OPTION);
     final Map<String, String> config = parseConfig(cmd);
-    final Properties properties = parseProperties(cmd);
+    final Properties properties = parseProperties(cmd, System.getenv());
 
     validateProperties(properties);
 
@@ -195,7 +195,7 @@ public class BuilderCLI {
     }
   }
 
-  private CommandLine parseArgsOrExit(String[] args) {
+  CommandLine parseArgsOrExit(String[] args) {
     try {
       return parser.parse(options, args);
     } catch (ParseException e) {
@@ -211,15 +211,21 @@ public class BuilderCLI {
    *
    * <p>Properties are added in the following order, with latter options overwriting earlier ones
    *
-   * <p>- loaded from properties file specified using ADMIN_CLIENT_CONFIG_OPTION - add
-   * 'bootstrap.servers' from BROKERS_OPTION - if EXTRACT_PROPS_FROM_ENV_OPTION is specified, add
-   * all env vars whose name stars with the specified prefix
+   * <p>
+   *
+   * <ul>
+   *   <li>loaded from properties file specified using ADMIN_CLIENT_CONFIG_OPTION
+   *   <li>bootstrap.servers' from BROKERS_OPTION
+   *   <li>if EXTRACT_PROPS_FROM_ENV_OPTION is specified, add all entries from environment whose
+   *       name stars with the specified prefix
+   * </ul>
    *
    * @param cmd
    * @return
    * @throws IOException
    */
-  Properties parseProperties(CommandLine cmd) throws IOException {
+  Properties parseProperties(CommandLine cmd, Map<String, String> environment) throws IOException {
+
     final Properties props = new Properties();
     final String adminClientConfigPath = cmd.getOptionValue(ADMIN_CLIENT_CONFIG_OPTION);
     if (adminClientConfigPath != null) {
@@ -233,7 +239,7 @@ public class BuilderCLI {
     final String envVarPrefix = cmd.getOptionValue(EXTRACT_PROPS_FROM_ENV_OPTION);
     if (envVarPrefix != null) {
       final Map<String, String> envVarsStartingWithPrefix =
-          EnvVarTools.getEnvVarsStartingWith(envVarPrefix);
+          EnvVarTools.filterAndMapEnvironment(environment, envVarPrefix);
       props.putAll(envVarsStartingWithPrefix);
     }
     return props;
