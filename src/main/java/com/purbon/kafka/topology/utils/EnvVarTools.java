@@ -1,8 +1,8 @@
 package com.purbon.kafka.topology.utils;
 
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 public class EnvVarTools {
   /**
@@ -12,16 +12,16 @@ public class EnvVarTools {
    * @return all environment variables starting with prefix
    */
   public static Map<String, String> getEnvVarsStartingWith(String prefix) {
+
+    return filterAndMapEnvironment(System.getenv(), prefix);
+  }
+
+  static Map<String, String> filterAndMapEnvironment(Map<String, String> env, String prefix) {
     Objects.requireNonNull(prefix);
-    final Map<String, String> envVarsWithPrefix = new HashMap<>();
-    System.getenv()
-        .forEach(
-            (envKey, envValue) -> {
-              if (envKey.startsWith(prefix)) {
-                envVarsWithPrefix.put(envVarNameToPropertyName(envKey, prefix), envValue);
-              }
-            });
-    return envVarsWithPrefix;
+    return env.entrySet().stream()
+        .filter(entry -> entry.getKey().startsWith(prefix))
+        .collect(
+            Collectors.toMap(e -> envVarNameToPropertyName(e.getKey(), prefix), e -> e.getValue()));
   }
 
   /**
@@ -36,7 +36,7 @@ public class EnvVarTools {
    * @param prefixToDrop
    * @return
    */
-  public static String envVarNameToPropertyName(String envVarName, String prefixToDrop) {
+  static String envVarNameToPropertyName(String envVarName, String prefixToDrop) {
     final int dropLength = prefixToDrop.length() + 1;
     return envVarName.substring(dropLength).toLowerCase().replace('_', '.').replace("...", "_");
   }

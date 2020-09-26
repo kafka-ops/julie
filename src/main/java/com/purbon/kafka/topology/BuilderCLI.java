@@ -199,7 +199,7 @@ public class BuilderCLI {
     try {
       return parser.parse(options, args);
     } catch (ParseException e) {
-      System.out.println("Parsing failed cause of " + e.getMessage());
+      System.err.println("Parsing failed cause of " + e.getMessage());
       formatter.printHelp("cli", options);
       exit(1);
     }
