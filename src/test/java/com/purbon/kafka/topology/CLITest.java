@@ -44,17 +44,17 @@ public class CLITest {
           "--clientConfig", "topology-builder-sasl-plain.properties"
         };
 
-    doNothing().when(cli).processTopology(eq("descriptor.yaml"), anyMap(), eq(new Properties()));
+    doNothing().when(cli).processTopology(eq("descriptor.yaml"), anyMap(), any(Properties.class));
 
+    cli.run(args);
     Map<String, String> config = new HashMap<>();
     config.put(BROKERS_OPTION, "localhost:9092");
     config.put(ALLOW_DELETE_OPTION, "false");
     config.put(DRY_RUN_OPTION, "false");
     config.put(QUIET_OPTION, "false");
     config.put(ADMIN_CLIENT_CONFIG_OPTION, "topology-builder-sasl-plain.properties");
-    cli.run(args);
-
-    verify(cli, times(1)).processTopology(eq("descriptor.yaml"), eq(config), eq(new Properties()));
+    
+    verify(cli, times(1)).processTopology(eq("descriptor.yaml"), eq(config), any(Properties.class));
   }
 
   @Test
@@ -64,7 +64,7 @@ public class CLITest {
           "--brokers", "localhost:9092", "--topology", "example/descriptor.yaml", "--dryRun"
         };
 
-    doNothing().when(cli).processTopology(eq("descriptor.yaml"), anyMap(), eq(new Properties()));
+   doNothing().when(cli).processTopology(eq("example/descriptor.yaml"), anyMap(), any(Properties.class));
 
     Map<String, String> config = new HashMap<>();
     config.put(ALLOW_DELETE_OPTION, "false");
@@ -74,6 +74,9 @@ public class CLITest {
 
     final Properties props = new Properties();
     props.put("bootstrap.servers", "localhost:9092");
+
+
+
 
     verify(cli, times(1)).processTopology(eq("example/descriptor.yaml"), eq(config), eq(props));
   }

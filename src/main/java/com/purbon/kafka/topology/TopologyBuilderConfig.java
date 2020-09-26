@@ -4,7 +4,6 @@ import com.purbon.kafka.topology.exceptions.ConfigurationException;
 import com.purbon.kafka.topology.model.Project;
 import com.purbon.kafka.topology.model.Topic;
 import com.purbon.kafka.topology.model.Topology;
-
 import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
