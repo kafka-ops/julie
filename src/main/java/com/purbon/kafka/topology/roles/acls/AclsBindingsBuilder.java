@@ -1,7 +1,7 @@
 package com.purbon.kafka.topology.roles.acls;
 
 import com.purbon.kafka.topology.BindingsBuilderProvider;
-import com.purbon.kafka.topology.TopologyBuilderAdminClient;
+import com.purbon.kafka.topology.api.adminclient.TopologyBuilderAdminClient;
 import com.purbon.kafka.topology.model.users.Connector;
 import com.purbon.kafka.topology.model.users.Consumer;
 import com.purbon.kafka.topology.model.users.platform.SchemaRegistryInstance;
