@@ -13,7 +13,7 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
 import com.purbon.kafka.topology.api.adminclient.TopologyBuilderAdminClient;
-import com.purbon.kafka.topology.clusterstate.RedisStateProcessor;
+import com.purbon.kafka.topology.clusterstate.RedisBackend;
 import com.purbon.kafka.topology.model.Topology;
 import java.io.IOException;
 import java.net.URISyntaxException;
@@ -177,7 +177,7 @@ public class KafkaTopologyBuilderTest {
     verify(accessControlManager, times(1)).apply(anyObject(), anyObject());
   }
 
-  @Mock RedisStateProcessor stateProcessor;
+  @Mock RedisBackend stateProcessor;
 
   @Test
   public void builderRunTestAsFromCLIWithARedisBackend() throws URISyntaxException, IOException {

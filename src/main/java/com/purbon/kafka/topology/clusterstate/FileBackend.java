@@ -17,16 +17,16 @@ import java.util.regex.Pattern;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-public class FileStateProcessor implements StateProcessor {
+public class FileBackend implements Backend {
 
-  private static final Logger LOGGER = LogManager.getLogger(FileStateProcessor.class);
+  private static final Logger LOGGER = LogManager.getLogger(FileBackend.class);
 
   private Writer writer;
   private String expression =
       "^\\'(\\S+)\\',\\s*\\'(\\S+)\\',\\s*\\'(\\S+)\\',\\s*\\'(\\S+)\\',\\s*\\'(\\S+)\\',\\s*\\'(\\S+)\\'";
   private Pattern regexp;
 
-  public FileStateProcessor() {
+  public FileBackend() {
     this.regexp = Pattern.compile(expression);
     this.writer = null;
   }

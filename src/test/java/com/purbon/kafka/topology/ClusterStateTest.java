@@ -5,7 +5,7 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.purbon.kafka.topology.clusterstate.FileStateProcessor;
+import com.purbon.kafka.topology.clusterstate.FileBackend;
 import com.purbon.kafka.topology.roles.TopologyAclBinding;
 import java.io.IOException;
 import java.util.Collections;
@@ -18,7 +18,7 @@ import org.mockito.junit.MockitoRule;
 
 public class ClusterStateTest {
 
-  @Mock FileStateProcessor fileStateProcessor;
+  @Mock FileBackend fileStateProcessor;
 
   @Rule public MockitoRule mockitoRule = MockitoJUnit.rule();
 

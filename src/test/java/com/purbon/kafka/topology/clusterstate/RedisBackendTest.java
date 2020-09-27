@@ -1,7 +1,7 @@
 package com.purbon.kafka.topology.clusterstate;
 
-import static com.purbon.kafka.topology.clusterstate.RedisStateProcessor.KAFKA_TOPOLOGY_BUILDER_BINDINGS;
-import static com.purbon.kafka.topology.clusterstate.RedisStateProcessor.KAFKA_TOPOLOGY_BUILDER_TYPE;
+import static com.purbon.kafka.topology.clusterstate.RedisBackend.KAFKA_TOPOLOGY_BUILDER_BINDINGS;
+import static com.purbon.kafka.topology.clusterstate.RedisBackend.KAFKA_TOPOLOGY_BUILDER_TYPE;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
@@ -23,17 +23,17 @@ import org.mockito.junit.MockitoJUnit;
 import org.mockito.junit.MockitoRule;
 import redis.clients.jedis.Jedis;
 
-public class RedisStateProcessorTest {
+public class RedisBackendTest {
 
   @Mock Jedis jedis;
 
   @Rule public MockitoRule mockitoRule = MockitoJUnit.rule();
 
-  private RedisStateProcessor stateProcessor;
+  private RedisBackend stateProcessor;
 
   @Before
   public void before() {
-    stateProcessor = new RedisStateProcessor(jedis);
+    stateProcessor = new RedisBackend(jedis);
   }
 
   @Test

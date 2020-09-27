@@ -8,8 +8,8 @@ import static com.purbon.kafka.topology.TopologyBuilderConfig.STATE_PROCESSOR_DE
 import com.purbon.kafka.topology.api.adminclient.TopologyBuilderAdminClient;
 import com.purbon.kafka.topology.api.adminclient.TopologyBuilderAdminClientBuilder;
 import com.purbon.kafka.topology.api.mds.MDSApiClientBuilder;
-import com.purbon.kafka.topology.clusterstate.FileStateProcessor;
-import com.purbon.kafka.topology.clusterstate.RedisStateProcessor;
+import com.purbon.kafka.topology.clusterstate.FileBackend;
+import com.purbon.kafka.topology.clusterstate.RedisBackend;
 import com.purbon.kafka.topology.model.Topology;
 import com.purbon.kafka.topology.schemas.SchemaRegistryManager;
 import io.confluent.kafka.schemaregistry.client.CachedSchemaRegistryClient;
@@ -142,11 +142,11 @@ public class KafkaTopologyBuilder implements AutoCloseable {
 
     try {
       if (stateProcessorClass.equalsIgnoreCase(STATE_PROCESSOR_DEFAULT_CLASS)) {
-        return new ClusterState(new FileStateProcessor());
+        return new ClusterState(new FileBackend());
       } else if (stateProcessorClass.equalsIgnoreCase(REDIS_STATE_PROCESSOR_CLASS)) {
         String host = config.getProperty(REDIS_HOST_CONFIG);
         int port = Integer.parseInt(config.getProperty(REDIS_PORT_CONFIG));
-        return new ClusterState(new RedisStateProcessor(host, port));
+        return new ClusterState(new RedisBackend(host, port));
       } else {
         throw new IOException(stateProcessorClass + " Unknown state processor provided.");
       }
