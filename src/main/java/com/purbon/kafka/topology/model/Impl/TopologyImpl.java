@@ -1,5 +1,6 @@
 package com.purbon.kafka.topology.model.Impl;
 
+import com.purbon.kafka.topology.TopologyBuilderConfig;
 import com.purbon.kafka.topology.model.Platform;
 import com.purbon.kafka.topology.model.Project;
 import com.purbon.kafka.topology.model.Topology;
@@ -10,8 +11,9 @@ import java.util.Map;
 
 public class TopologyImpl implements Topology, Cloneable {
 
-  private String context;
+  private final TopologyBuilderConfig config;
 
+  private String context;
   private Map<String, String> others;
 
   private List<Project> projects;
@@ -19,11 +21,16 @@ public class TopologyImpl implements Topology, Cloneable {
   private Platform platform;
 
   public TopologyImpl() {
+    this(new TopologyBuilderConfig());
+  }
+
+  public TopologyImpl(TopologyBuilderConfig config) {
     this.context = "default";
     this.others = new HashMap<>();
     this.order = new ArrayList<>();
     this.projects = new ArrayList<>();
     this.platform = new Platform();
+    this.config = config;
   }
 
   public String getContext() {
@@ -52,7 +59,7 @@ public class TopologyImpl implements Topology, Cloneable {
     sb.append(getContext());
     for (String key : order) {
       String value = others.get(key);
-      sb.append(".");
+      sb.append(config.getTopicPrefixSeparator());
       sb.append(value);
     }
     return sb.toString();
@@ -73,6 +80,13 @@ public class TopologyImpl implements Topology, Cloneable {
 
   public Boolean isEmpty() {
     return context.isEmpty();
+  }
+
+  @Override
+  public Map<String, Object> asFullContext() {
+    Map<String, Object> context = new HashMap<>(others);
+    context.put("context", getContext());
+    return context;
   }
 
   @Override

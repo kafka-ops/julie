@@ -3,11 +3,12 @@ package com.purbon.kafka.topology.serdes;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
+import com.purbon.kafka.topology.TopologyBuilderConfig;
 import com.purbon.kafka.topology.model.Project;
 import com.purbon.kafka.topology.model.Topic;
-import com.purbon.kafka.topology.model.Topology;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Consumer;
 
 public class JsonSerdesUtils<T> {
 
@@ -22,17 +23,23 @@ public class JsonSerdesUtils<T> {
     return usersList;
   }
 
-  public static void addProject2Topology(JsonParser parser, Topology topology, JsonNode projects)
+  public static List<Project> parseProjects(JsonParser parser, JsonNode projects)
       throws JsonProcessingException {
-    new JsonSerdesUtils<Project>()
-        .parseApplicationUser(parser, projects, Project.class)
-        .forEach(project -> topology.addProject(project));
+    return new JsonSerdesUtils<Project>().parseApplicationUser(parser, projects, Project.class);
   }
 
-  public static void addTopics2Project(JsonParser parser, Project project, JsonNode topics)
+  public static void addTopics2Project(
+      JsonParser parser, Project project, JsonNode topics, TopologyBuilderConfig config)
       throws JsonProcessingException {
     new JsonSerdesUtils<Topic>()
         .parseApplicationUser(parser, topics, Topic.class)
-        .forEach(topic -> project.addTopic(topic));
+        .forEach(
+            new Consumer<Topic>() {
+              @Override
+              public void accept(Topic topic) {
+                topic.addAppConfig(config);
+                project.addTopic(topic);
+              }
+            });
   }
 }

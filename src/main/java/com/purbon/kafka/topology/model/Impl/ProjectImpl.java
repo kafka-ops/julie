@@ -1,5 +1,7 @@
 package com.purbon.kafka.topology.model.Impl;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.purbon.kafka.topology.TopologyBuilderConfig;
 import com.purbon.kafka.topology.model.Project;
 import com.purbon.kafka.topology.model.Topic;
 import com.purbon.kafka.topology.model.users.Connector;
@@ -13,6 +15,8 @@ import java.util.List;
 import java.util.Map;
 
 public class ProjectImpl implements Project, Cloneable {
+
+  @JsonIgnore private TopologyBuilderConfig config;
 
   private String name;
   private List<String> zookeepers;
@@ -29,10 +33,14 @@ public class ProjectImpl implements Project, Cloneable {
   private String topologyPrefix;
 
   public ProjectImpl() {
-    this("default");
+    this("default", new TopologyBuilderConfig());
   }
 
   public ProjectImpl(String name) {
+    this(name, new TopologyBuilderConfig());
+  }
+
+  public ProjectImpl(String name, TopologyBuilderConfig config) {
     this.name = name;
     this.topics = new ArrayList<>();
     this.consumers = new ArrayList<>();
@@ -43,6 +51,7 @@ public class ProjectImpl implements Project, Cloneable {
     this.connectors = new ArrayList<>();
     this.schemas = new ArrayList<>();
     this.rbacRawRoles = new HashMap<>();
+    this.config = config;
   }
 
   public String getName() {
@@ -112,7 +121,7 @@ public class ProjectImpl implements Project, Cloneable {
 
   public String buildTopicPrefix(String topologyPrefix) {
     StringBuilder sb = new StringBuilder();
-    sb.append(topologyPrefix).append(".").append(name);
+    sb.append(topologyPrefix).append(config.getTopicPrefixSeparator()).append(name);
     return sb.toString();
   }
 
@@ -130,6 +139,11 @@ public class ProjectImpl implements Project, Cloneable {
 
   public Map<String, List<String>> getRbacRawRoles() {
     return rbacRawRoles;
+  }
+
+  @Override
+  public void addConfig(TopologyBuilderConfig config) {
+    this.config = config;
   }
 
   @Override

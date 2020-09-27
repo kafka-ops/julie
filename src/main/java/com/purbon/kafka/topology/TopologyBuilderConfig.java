@@ -64,6 +64,12 @@ public class TopologyBuilderConfig {
   public static final String CONFLUENT_METRICS_TOPIC_CONFIG = "confluent.metrics.topic";
   public static final String CONFLUENT_METRICS_TOPIC_DEFAULT = "_confluent-metrics";
 
+  public static final String TOPIC_PREFIX_FORMAT_CONFIG = "topology.topic.prefix.format";
+  public static final String TOPIC_PREFIX_FORMAT_DEFAULT = "default";
+
+  public static final String TOPIC_PREFIX_SEPARATOR_CONFIG = "topology.topic.prefix.separator";
+  public static final String TOPIC_PREFIX_SEPARATOR_DEFAULT = ".";
+
   private final Map<String, String> cliParams;
   private final Properties properties;
 
@@ -199,6 +205,18 @@ public class TopologyBuilderConfig {
   public String getStateProcessorImplementationClassName() {
     return properties
         .getOrDefault(STATE_PROCESSOR_IMPLEMENTATION_CLASS, STATE_PROCESSOR_DEFAULT_CLASS)
+        .toString();
+  }
+
+  public String getTopicPrefixFormat() {
+    return properties
+        .getOrDefault(TOPIC_PREFIX_FORMAT_CONFIG, TOPIC_PREFIX_FORMAT_DEFAULT)
+        .toString();
+  }
+
+  public String getTopicPrefixSeparator() {
+    return properties
+        .getOrDefault(TOPIC_PREFIX_SEPARATOR_CONFIG, TOPIC_PREFIX_SEPARATOR_DEFAULT)
         .toString();
   }
 

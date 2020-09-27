@@ -1,11 +1,12 @@
 package com.purbon.kafka.topology.serdes;
 
-import static com.purbon.kafka.topology.serdes.JsonSerdesUtils.addProject2Topology;
+import static com.purbon.kafka.topology.serdes.JsonSerdesUtils.parseProjects;
 
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
+import com.purbon.kafka.topology.TopologyBuilderConfig;
 import com.purbon.kafka.topology.model.Impl.TopologyImpl;
 import com.purbon.kafka.topology.model.Platform;
 import com.purbon.kafka.topology.model.Topology;
@@ -29,12 +30,15 @@ public class TopologyCustomDeserializer extends StdDeserializer<Topology> {
   public static final String SCHEMA_REGISTRY_KEY = "schema_registry";
   public static final String CONTROL_CENTER_KEY = "control_center";
 
-  protected TopologyCustomDeserializer() {
-    this(null);
+  private final TopologyBuilderConfig config;
+
+  protected TopologyCustomDeserializer(TopologyBuilderConfig config) {
+    this(null, config);
   }
 
-  protected TopologyCustomDeserializer(Class<?> clazz) {
+  protected TopologyCustomDeserializer(Class<?> clazz, TopologyBuilderConfig config) {
     super(clazz);
+    this.config = config;
   }
 
   @Override
@@ -46,9 +50,14 @@ public class TopologyCustomDeserializer extends StdDeserializer<Topology> {
     validateRequiresKeys(rootNode);
 
     JsonNode projects = rootNode.get(PROJECTS_KEY);
-    Topology topology = new TopologyImpl();
+    Topology topology = new TopologyImpl(config);
 
-    addProject2Topology(parser, topology, projects);
+    parseProjects(parser, projects)
+        .forEach(
+            project -> {
+              project.addConfig(config);
+              topology.addProject(project);
+            });
 
     List<String> excludeAttributes = Arrays.asList(PROJECTS_KEY, CONTEXT_KEY, PLATFORM_KEY);
 

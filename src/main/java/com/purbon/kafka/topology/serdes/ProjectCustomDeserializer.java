@@ -6,6 +6,7 @@ import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
+import com.purbon.kafka.topology.TopologyBuilderConfig;
 import com.purbon.kafka.topology.model.Impl.ProjectImpl;
 import com.purbon.kafka.topology.model.users.Connector;
 import com.purbon.kafka.topology.model.users.Consumer;
@@ -17,22 +18,24 @@ import java.util.*;
 
 public class ProjectCustomDeserializer extends StdDeserializer<ProjectImpl> {
 
-  public static final String NAME_KEY = "name";
-  public static final String CONSUMERS_KEY = "consumers";
-  public static final String PRODUCERS_KEY = "producers";
-  public static final String CONNECTORS_KEY = "connectors";
-  public static final String STREAMS_KEY = "streams";
-  public static final String SCHEMAS_KEY = "schemas";
-  public static final String RBAC_KEY = "rbac";
-  public static final String TOPICS_KEY = "topics";
-  public static final String PRINCIPAL_KEY = "principal";
+  private static final String NAME_KEY = "name";
+  private static final String CONSUMERS_KEY = "consumers";
+  private static final String PRODUCERS_KEY = "producers";
+  private static final String CONNECTORS_KEY = "connectors";
+  private static final String STREAMS_KEY = "streams";
+  private static final String SCHEMAS_KEY = "schemas";
+  private static final String RBAC_KEY = "rbac";
+  private static final String TOPICS_KEY = "topics";
+  private static final String PRINCIPAL_KEY = "principal";
+  private final TopologyBuilderConfig config;
 
-  protected ProjectCustomDeserializer() {
-    this(null);
+  protected ProjectCustomDeserializer(TopologyBuilderConfig config) {
+    this(null, config);
   }
 
-  protected ProjectCustomDeserializer(Class<?> clazz) {
+  protected ProjectCustomDeserializer(Class<?> clazz, TopologyBuilderConfig config) {
     super(clazz);
+    this.config = config;
   }
 
   @Override
@@ -93,7 +96,7 @@ public class ProjectCustomDeserializer extends StdDeserializer<ProjectImpl> {
     }
 
     JsonNode topics = rootNode.get(TOPICS_KEY);
-    addTopics2Project(parser, project, topics);
+    addTopics2Project(parser, project, topics, config);
 
     return project;
   }

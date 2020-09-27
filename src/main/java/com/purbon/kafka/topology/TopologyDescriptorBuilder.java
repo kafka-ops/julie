@@ -12,10 +12,12 @@ import java.util.List;
 
 public class TopologyDescriptorBuilder {
 
-  private static final TopologySerdes parser = new TopologySerdes();
-
   public static Topology build(String fileOrDir) throws IOException {
-    List<Topology> topologies = parseListOfTopologies(fileOrDir);
+    return build(fileOrDir, new TopologyBuilderConfig());
+  }
+
+  public static Topology build(String fileOrDir, TopologyBuilderConfig config) throws IOException {
+    List<Topology> topologies = parseListOfTopologies(fileOrDir, config);
     Topology topology = topologies.get(0);
     if (topologies.size() > 1) {
       List<Topology> subTopologies = topologies.subList(1, topologies.size());
@@ -29,7 +31,9 @@ public class TopologyDescriptorBuilder {
     return topology;
   }
 
-  private static List<Topology> parseListOfTopologies(String fileOrDir) throws IOException {
+  private static List<Topology> parseListOfTopologies(
+      String fileOrDir, TopologyBuilderConfig config) throws IOException {
+    TopologySerdes parser = new TopologySerdes(config);
     List<Topology> topologies = new ArrayList<>();
     boolean isDir = Files.isDirectory(Paths.get(fileOrDir));
     if (isDir) {

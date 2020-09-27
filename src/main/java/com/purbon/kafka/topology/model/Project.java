@@ -1,6 +1,7 @@
 package com.purbon.kafka.topology.model;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.purbon.kafka.topology.TopologyBuilderConfig;
 import com.purbon.kafka.topology.model.Impl.ProjectImpl;
 import com.purbon.kafka.topology.model.users.Connector;
 import com.purbon.kafka.topology.model.users.Consumer;
@@ -58,4 +59,6 @@ public interface Project {
   void setRbacRawRoles(Map<String, List<String>> rbacRawRoles);
 
   Map<String, List<String>> getRbacRawRoles();
+
+  void addConfig(TopologyBuilderConfig config);
 }

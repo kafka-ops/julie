@@ -1,5 +1,9 @@
 package com.purbon.kafka.topology;
 
+import static com.purbon.kafka.topology.BuilderCLI.ADMIN_CLIENT_CONFIG_OPTION;
+import static com.purbon.kafka.topology.BuilderCLI.BROKERS_OPTION;
+import static com.purbon.kafka.topology.TopologyBuilderConfig.TOPIC_PREFIX_FORMAT_CONFIG;
+import static com.purbon.kafka.topology.TopologyBuilderConfig.TOPIC_PREFIX_SEPARATOR_CONFIG;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
@@ -28,6 +32,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Properties;
 import java.util.Set;
 import java.util.stream.Collectors;
 import org.junit.Before;
@@ -251,6 +256,56 @@ public class TopologySerdesTest {
         Arrays.asList("SecurityAdmin", "ClusterAdmin").stream().collect(Collectors.toSet());
     assertEquals(kafkaKeys, kafkaRbacOptional.get().keySet());
     assertEquals(1, kafkaRbacOptional.get().get("SecurityAdmin").size());
+  }
+
+  @Test
+  public void testTopicNameWithCustomSeparator() throws URISyntaxException, IOException {
+
+    Map<String, String> cliOps = new HashMap<>();
+    cliOps.put(BROKERS_OPTION, "");
+    cliOps.put(ADMIN_CLIENT_CONFIG_OPTION, "/fooBar");
+
+    Properties props = new Properties();
+    props.put(TOPIC_PREFIX_SEPARATOR_CONFIG, "_");
+    TopologyBuilderConfig config = new TopologyBuilderConfig(cliOps, props);
+
+    TopologySerdes parser = new TopologySerdes(config);
+
+    URL topologyDescriptor = getClass().getResource("/descriptor-only-topics.yaml");
+    Topology topology = parser.deserialise(Paths.get(topologyDescriptor.toURI()).toFile());
+
+    assertEquals("contextOrg", topology.getContext());
+
+    Project p = topology.getProjects().get(0);
+
+    assertEquals(2, p.getTopics().size());
+    assertEquals("contextOrg_source_foo_foo", p.getTopics().get(0).toString());
+    assertEquals("contextOrg_source_foo_bar_avro", p.getTopics().get(1).toString());
+  }
+
+  @Test
+  public void testTopicNameWithCustomPattern() throws URISyntaxException, IOException {
+
+    Map<String, String> cliOps = new HashMap<>();
+    cliOps.put(BROKERS_OPTION, "");
+    cliOps.put(ADMIN_CLIENT_CONFIG_OPTION, "/fooBar");
+
+    Properties props = new Properties();
+    props.put(TOPIC_PREFIX_FORMAT_CONFIG, "{{source}}.{{context}}.{{project}}.{{topic}}");
+    TopologyBuilderConfig config = new TopologyBuilderConfig(cliOps, props);
+
+    TopologySerdes parser = new TopologySerdes(config);
+
+    URL topologyDescriptor = getClass().getResource("/descriptor-only-topics.yaml");
+    Topology topology = parser.deserialise(Paths.get(topologyDescriptor.toURI()).toFile());
+
+    assertEquals("contextOrg", topology.getContext());
+
+    Project p = topology.getProjects().get(0);
+
+    assertEquals(2, p.getTopics().size());
+    assertEquals("source.contextOrg.foo.foo", p.getTopics().get(0).toString());
+    assertEquals("source.contextOrg.foo.bar", p.getTopics().get(1).toString());
   }
 
   private List<Project> buildProjects() {

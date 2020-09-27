@@ -5,12 +5,14 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
+import com.purbon.kafka.topology.TopologyBuilderConfig;
 import com.purbon.kafka.topology.model.Impl.ProjectImpl;
 import com.purbon.kafka.topology.model.Project;
 import com.purbon.kafka.topology.model.Topic;
 import com.purbon.kafka.topology.model.Topology;
 import java.io.File;
 import java.io.IOException;
+import java.util.Map;
 import java.util.function.Consumer;
 
 public class TopologySerdes {
@@ -18,10 +20,14 @@ public class TopologySerdes {
   ObjectMapper mapper;
 
   public TopologySerdes() {
+    this(new TopologyBuilderConfig());
+  }
+
+  public TopologySerdes(TopologyBuilderConfig config) {
     mapper = new ObjectMapper(new YAMLFactory());
     SimpleModule module = new SimpleModule();
-    module.addDeserializer(Topology.class, new TopologyCustomDeserializer());
-    module.addDeserializer(ProjectImpl.class, new ProjectCustomDeserializer());
+    module.addDeserializer(Topology.class, new TopologyCustomDeserializer(config));
+    module.addDeserializer(ProjectImpl.class, new ProjectCustomDeserializer(config));
     mapper.registerModule(module);
     mapper.registerModule(new Jdk8Module());
     mapper.findAndRegisterModules();
@@ -56,6 +62,9 @@ public class TopologySerdes {
                           @Override
                           public void accept(Topic topic) {
                             topic.setProjectPrefix(project.buildTopicPrefix());
+                            Map<String, Object> context = topology.asFullContext();
+                            context.put("project", project.getName());
+                            topic.setPrefixProperties(context);
                           }
                         });
               }

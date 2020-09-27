@@ -65,7 +65,7 @@ public class KafkaTopologyBuilder implements AutoCloseable {
       BindingsBuilderProvider bindingsBuilderProvider)
       throws IOException {
 
-    Topology topology = TopologyDescriptorBuilder.build(topologyFileOrDir);
+    Topology topology = TopologyDescriptorBuilder.build(topologyFileOrDir, config);
     config.validateWith(topology);
 
     AccessControlManager accessControlManager =

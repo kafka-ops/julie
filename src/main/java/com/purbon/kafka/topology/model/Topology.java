@@ -1,6 +1,7 @@
 package com.purbon.kafka.topology.model;
 
 import java.util.List;
+import java.util.Map;
 
 public interface Topology {
 
@@ -23,4 +24,6 @@ public interface Topology {
   Platform getPlatform();
 
   Boolean isEmpty();
+
+  Map<String, Object> asFullContext();
 }
