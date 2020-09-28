@@ -1,6 +1,5 @@
 package com.purbon.kafka.topology.api.adminclient;
 
-import com.purbon.kafka.topology.TopicManager;
 import com.purbon.kafka.topology.TopologyBuilderConfig;
 import com.purbon.kafka.topology.adminclient.AclBuilder;
 import com.purbon.kafka.topology.model.Topic;

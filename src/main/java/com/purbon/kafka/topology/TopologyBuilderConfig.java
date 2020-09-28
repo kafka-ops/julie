@@ -73,6 +73,9 @@ public class TopologyBuilderConfig {
   public static final String TOPIC_PREFIX_SEPARATOR_CONFIG = "topology.topic.prefix.separator";
   public static final String TOPIC_PREFIX_SEPARATOR_DEFAULT = ".";
 
+  public static final String TOPOLOGY_VALIDATIONS_CONFIG = "topology.validations";
+  public static final String TOPOLOGY_VALIDATIONS_DEFAULT = "";
+
   private final Map<String, String> cliParams;
   private final Properties properties;
 
@@ -249,16 +252,24 @@ public class TopologyBuilderConfig {
         .toString();
   }
 
+  public List<String> getTopologyValidations() {
+    String[] list =
+        ((String)
+                properties.getOrDefault(TOPOLOGY_VALIDATIONS_CONFIG, TOPOLOGY_VALIDATIONS_DEFAULT))
+            .split(",");
+    return Arrays.asList(list).stream().map(v -> v.trim()).collect(Collectors.toList());
+  }
+
   public boolean allowDelete() {
-    return Boolean.valueOf(cliParams.getOrDefault(BuilderCLI.ALLOW_DELETE_OPTION, "true"));
+    return Boolean.parseBoolean(cliParams.getOrDefault(BuilderCLI.ALLOW_DELETE_OPTION, "true"));
   }
 
   public boolean isQuiet() {
-    return Boolean.valueOf(cliParams.getOrDefault(BuilderCLI.QUIET_OPTION, "false"));
+    return Boolean.parseBoolean(cliParams.getOrDefault(BuilderCLI.QUIET_OPTION, "false"));
   }
 
   public boolean isDryRun() {
-    return Boolean.valueOf(cliParams.getOrDefault(DRY_RUN_OPTION, "false"));
+    return Boolean.parseBoolean(cliParams.getOrDefault(DRY_RUN_OPTION, "false"));
   }
 
   private static Properties buildProperties(Map<String, String> cliParams) {

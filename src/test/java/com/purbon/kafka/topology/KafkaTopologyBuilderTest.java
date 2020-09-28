@@ -71,7 +71,7 @@ public class KafkaTopologyBuilderTest {
   }
 
   @Test
-  public void closeAdminClientTest() throws URISyntaxException, IOException {
+  public void closeAdminClientTest() throws Exception {
     URL dirOfDescriptors = getClass().getResource("/descriptor.yaml");
     String fileOrDirPath = Paths.get(dirOfDescriptors.toURI()).toFile().toString();
 
@@ -91,7 +91,7 @@ public class KafkaTopologyBuilderTest {
   }
 
   @Test(expected = IOException.class)
-  public void verifyProblematicParametersTest() throws IOException {
+  public void verifyProblematicParametersTest() throws Exception {
     String file = "fileThatDoesNotExist.yaml";
     TopologyBuilderConfig builderConfig = new TopologyBuilderConfig(cliOps, props);
 
@@ -107,7 +107,7 @@ public class KafkaTopologyBuilderTest {
   }
 
   @Test(expected = IOException.class)
-  public void verifyProblematicParametersTest2() throws IOException, URISyntaxException {
+  public void verifyProblematicParametersTest2() throws Exception {
     URL dirOfDescriptors = getClass().getResource("/descriptor.yaml");
     String fileOrDirPath = Paths.get(dirOfDescriptors.toURI()).toFile().toString();
 
@@ -124,7 +124,7 @@ public class KafkaTopologyBuilderTest {
   }
 
   @Test
-  public void verifyProblematicParametersTestOK() throws IOException, URISyntaxException {
+  public void verifyProblematicParametersTestOK() throws Exception {
     URL dirOfDescriptors = getClass().getResource("/descriptor.yaml");
     String fileOrDirPath = Paths.get(dirOfDescriptors.toURI()).toFile().toString();
 
@@ -146,7 +146,7 @@ public class KafkaTopologyBuilderTest {
   }
 
   @Test
-  public void builderRunTestAsFromCLI() throws URISyntaxException, IOException {
+  public void builderRunTestAsFromCLI() throws Exception {
 
     URL dirOfDescriptors = getClass().getResource("/descriptor.yaml");
     String fileOrDirPath = Paths.get(dirOfDescriptors.toURI()).toFile().toString();
@@ -180,7 +180,7 @@ public class KafkaTopologyBuilderTest {
   @Mock RedisBackend stateProcessor;
 
   @Test
-  public void builderRunTestAsFromCLIWithARedisBackend() throws URISyntaxException, IOException {
+  public void builderRunTestAsFromCLIWithARedisBackend() throws Exception {
 
     URL dirOfDescriptors = getClass().getResource("/descriptor.yaml");
     String fileOrDirPath = Paths.get(dirOfDescriptors.toURI()).toFile().toString();
@@ -216,7 +216,7 @@ public class KafkaTopologyBuilderTest {
   }
 
   @Test
-  public void buiderRunTest() throws URISyntaxException, IOException {
+  public void buiderRunTest() throws Exception {
     URL dirOfDescriptors = getClass().getResource("/descriptor.yaml");
     String fileOrDirPath = Paths.get(dirOfDescriptors.toURI()).toFile().toString();
 

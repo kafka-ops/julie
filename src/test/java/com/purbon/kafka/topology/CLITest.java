@@ -11,20 +11,17 @@ import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.MockitoJUnit;
 import org.mockito.junit.MockitoRule;
 
 public class CLITest {
 
-  @Mock public KafkaTopologyBuilder kafkaTopologyBuilder;
   @Rule public MockitoRule mockitoRule = MockitoJUnit.rule();
 
   private BuilderCLI cli;
@@ -35,7 +32,7 @@ public class CLITest {
   }
 
   @Test
-  public void testParamPassing() throws IOException {
+  public void testParamPassing() throws Exception {
     String[] args =
         new String[] {
           "--brokers", "localhost:9092",
@@ -57,7 +54,7 @@ public class CLITest {
   }
 
   @Test
-  public void testDryRun() throws IOException {
+  public void testDryRun() throws Exception {
     String[] args =
         new String[] {
           "--brokers", "localhost:9092",
