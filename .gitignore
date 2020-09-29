@@ -9,3 +9,4 @@ _build
 
 dependency-reduced-pom.xml
 server-api/logs/
+example/topology-builder-with-schema-cloud.properties
