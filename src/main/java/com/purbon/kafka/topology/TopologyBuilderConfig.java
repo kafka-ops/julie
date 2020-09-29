@@ -80,6 +80,14 @@ public class TopologyBuilderConfig {
     this.properties = properties;
   }
 
+  public Map<String, ?> asMap(String filter) {
+    Map<String, Object> map = new HashMap<>();
+    properties.keySet().stream()
+        .filter(o -> String.valueOf(o).startsWith(filter))
+        .forEach(key -> map.put(String.valueOf(key), properties.get(key)));
+    return map;
+  }
+
   public void validateWith(Topology topology) throws ConfigurationException {
 
     validateGeneralConfiguration(topology);
