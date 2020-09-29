@@ -72,7 +72,7 @@ public class KafkaTopologyBuilder implements AutoCloseable {
         new AccessControlManager(accessControlProvider, bindingsBuilderProvider, config);
 
     RestService restService = new RestService(config.getConfluentSchemaRegistryUrl());
-    Map<String, ?> schemaRegistryConfig = config.asMap("schema.registry");
+    Map<String, ?> schemaRegistryConfig = config.asMap();
     SchemaRegistryClient schemaRegistryClient =
         new CachedSchemaRegistryClient(
             restService, 10, schemaRegistryConfig.isEmpty() ? null : schemaRegistryConfig);
