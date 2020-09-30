@@ -52,7 +52,7 @@ public class TopologyBuilderConfig {
   public static final String MDS_KC_CLUSTER_ID_CONFIG =
       "topology.builder.mds.kafka.connect.cluster.id";
 
-  public static final String CONFLUENT_SCHEMA_REGISTRY_URL_CONFIG = "confluent.schema.registry.url";
+  public static final String CONFLUENT_SCHEMA_REGISTRY_URL_CONFIG = "schema.registry.url";
   public static final String CONFLUENT_SCHEMA_REGISTRY_URL_DEFAULT = "mock://";
 
   public static final String CONFLUENT_MONITORING_TOPIC_CONFIG = "confluent.monitoring.topic";
@@ -78,6 +78,18 @@ public class TopologyBuilderConfig {
   public TopologyBuilderConfig(Map<String, String> cliParams, Properties properties) {
     this.cliParams = cliParams;
     this.properties = properties;
+  }
+
+  public Map<String, ?> asMap() {
+    return asMap("");
+  }
+
+  public Map<String, ?> asMap(String filter) {
+    Map<String, Object> map = new HashMap<>();
+    properties.keySet().stream()
+        .filter(o -> filter.isEmpty() || String.valueOf(o).startsWith(filter))
+        .forEach(key -> map.put(String.valueOf(key), properties.get(key)));
+    return map;
   }
 
   public void validateWith(Topology topology) throws ConfigurationException {

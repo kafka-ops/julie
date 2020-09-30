@@ -12,6 +12,7 @@ import com.purbon.kafka.topology.model.Topology;
 import com.purbon.kafka.topology.schemas.SchemaRegistryManager;
 import io.confluent.kafka.schemaregistry.client.CachedSchemaRegistryClient;
 import io.confluent.kafka.schemaregistry.client.SchemaRegistryClient;
+import io.confluent.kafka.schemaregistry.client.rest.RestService;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintStream;
@@ -70,8 +71,11 @@ public class KafkaTopologyBuilder implements AutoCloseable {
     AccessControlManager accessControlManager =
         new AccessControlManager(accessControlProvider, bindingsBuilderProvider, config);
 
+    RestService restService = new RestService(config.getConfluentSchemaRegistryUrl());
+    Map<String, ?> schemaRegistryConfig = config.asMap();
     SchemaRegistryClient schemaRegistryClient =
-        new CachedSchemaRegistryClient(config.getConfluentSchemaRegistryUrl(), 10);
+        new CachedSchemaRegistryClient(
+            restService, 10, schemaRegistryConfig.isEmpty() ? null : schemaRegistryConfig);
     SchemaRegistryManager schemaRegistryManager =
         new SchemaRegistryManager(schemaRegistryClient, topologyFileOrDir);
 
