@@ -142,9 +142,14 @@ public class TopologyBuilderConfig {
     if (topicPrefixDefinedButNotProjectPrefix || projectPrefixDefinedButNotTopicPrefix) {
       throw new ConfigurationException(
           TOPIC_PREFIX_FORMAT_CONFIG
-              + "and "
+              + " and "
               + PROJECT_PREFIX_FORMAT_CONFIG
-              + "need to be defined together");
+              + " need to be defined together.");
+    }
+
+    if (!getTopicPrefixFormat().startsWith(getProjectPrefixFormat())) {
+      throw new ConfigurationException(
+          TOPIC_PREFIX_FORMAT_CONFIG + "should start by" + PROJECT_PREFIX_FORMAT_CONFIG);
     }
   }
 
