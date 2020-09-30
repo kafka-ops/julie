@@ -29,10 +29,7 @@ public class TopicTest {
   public void before() {
     topology = new TopologyImpl();
     topology.setContext("team");
-
-    project = new ProjectImpl();
-
-    project.setName("project");
+    project = new ProjectImpl("project");
     topology.setProjects(Arrays.asList(project));
   }
 
@@ -89,10 +86,7 @@ public class TopicTest {
     topology.addOther("other-f", "other");
     topology.addOther("another-f", "another");
 
-    Project project = new ProjectImpl();
-    project.addConfig(config);
-
-    project.setName("project");
+    Project project = new ProjectImpl("project", config);
     topology.setProjects(Collections.singletonList(project));
 
     Topic topic = new TopicImpl("topic", config);

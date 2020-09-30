@@ -305,8 +305,7 @@ public class TopologySerdesTest {
 
   private List<Project> buildProjects() {
 
-    Project project = new ProjectImpl();
-    project.setName("project");
+    Project project = new ProjectImpl("project");
     project.setConsumers(buildConsumers());
     project.setProducers(buildProducers());
     project.setStreams(buildStreams());

@@ -1,7 +1,6 @@
 package com.purbon.kafka.topology.model;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.purbon.kafka.topology.TopologyBuilderConfig;
 import com.purbon.kafka.topology.model.Impl.ProjectImpl;
 import com.purbon.kafka.topology.model.users.Connector;
 import com.purbon.kafka.topology.model.users.Consumer;
@@ -16,11 +15,7 @@ public interface Project {
 
   String getName();
 
-  void setName(String name);
-
   List<String> getZookeepers();
-
-  void setZookeepers(List<String> zookeepers);
 
   List<Consumer> getConsumers();
 
@@ -53,8 +48,6 @@ public interface Project {
   void setRbacRawRoles(Map<String, List<String>> rbacRawRoles);
 
   Map<String, List<String>> getRbacRawRoles();
-
-  void addConfig(TopologyBuilderConfig config);
 
   void setPrefixContextAndOrder(Map<String, Object> asFullContext, List<String> order);
 }

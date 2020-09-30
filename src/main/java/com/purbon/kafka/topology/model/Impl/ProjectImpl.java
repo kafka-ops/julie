@@ -34,7 +34,7 @@ public class ProjectImpl implements Project, Cloneable {
   @JsonIgnore private Map<String, Object> prefixContext;
 
   public ProjectImpl() {
-    this("default", new TopologyBuilderConfig());
+    this("default");
   }
 
   public ProjectImpl(String name) {
@@ -42,16 +42,61 @@ public class ProjectImpl implements Project, Cloneable {
   }
 
   public ProjectImpl(String name, TopologyBuilderConfig config) {
+    this(
+        name,
+        new ArrayList<>(),
+        new ArrayList<>(),
+        new ArrayList<>(),
+        new ArrayList<>(),
+        new ArrayList<>(),
+        new ArrayList<>(),
+        new ArrayList<>(),
+        new HashMap<>(),
+        config);
+  }
+
+  public ProjectImpl(
+      String name,
+      List<Consumer> consumers,
+      List<Producer> producers,
+      List<KStream> streams,
+      List<Connector> connectors,
+      List<Schemas> schemas,
+      Map<String, List<String>> rbacRawRoles,
+      TopologyBuilderConfig config) {
+    this(
+        name,
+        new ArrayList<>(),
+        consumers,
+        producers,
+        streams,
+        new ArrayList<>(),
+        connectors,
+        schemas,
+        rbacRawRoles,
+        config);
+  }
+
+  public ProjectImpl(
+      String name,
+      List<Topic> topics,
+      List<Consumer> consumers,
+      List<Producer> producers,
+      List<KStream> streams,
+      List<String> zookeepers,
+      List<Connector> connectors,
+      List<Schemas> schemas,
+      Map<String, List<String>> rbacRawRoles,
+      TopologyBuilderConfig config) {
     this.name = name;
-    this.topics = new ArrayList<>();
-    this.consumers = new ArrayList<>();
-    this.producers = new ArrayList<>();
-    this.streams = new ArrayList<>();
-    this.consumers = new ArrayList<>();
-    this.zookeepers = new ArrayList<>();
-    this.connectors = new ArrayList<>();
-    this.schemas = new ArrayList<>();
-    this.rbacRawRoles = new HashMap<>();
+    this.topics = topics;
+    this.consumers = consumers;
+    this.producers = producers;
+    this.streams = streams;
+    this.zookeepers = zookeepers;
+    this.connectors = connectors;
+    this.schemas = schemas;
+    this.rbacRawRoles = rbacRawRoles;
     this.config = config;
     this.prefixContext = new HashMap<>();
     this.order = new ArrayList<>();
@@ -61,16 +106,8 @@ public class ProjectImpl implements Project, Cloneable {
     return name;
   }
 
-  public void setName(String name) {
-    this.name = name;
-  }
-
   public List<String> getZookeepers() {
     return zookeepers;
-  }
-
-  public void setZookeepers(List<String> zookeepers) {
-    this.zookeepers = zookeepers;
   }
 
   public List<Consumer> getConsumers() {
@@ -118,7 +155,7 @@ public class ProjectImpl implements Project, Cloneable {
 
   public void setTopics(List<Topic> topics) {
     this.topics.clear();
-    topics.forEach(t -> addTopic(t));
+    topics.forEach(this::addTopic);
   }
 
   public String namePrefix() {
@@ -150,11 +187,6 @@ public class ProjectImpl implements Project, Cloneable {
   }
 
   @Override
-  public void addConfig(TopologyBuilderConfig config) {
-    this.config = config;
-  }
-
-  @Override
   public void setPrefixContextAndOrder(Map<String, Object> prefixContext, List<String> order) {
     this.prefixContext = prefixContext;
     this.prefixContext.put("project", getName());
@@ -166,15 +198,18 @@ public class ProjectImpl implements Project, Cloneable {
     try {
       return (ProjectImpl) super.clone();
     } catch (CloneNotSupportedException e) {
-      ProjectImpl project = new ProjectImpl();
-      project.setConnectors(getConnectors());
-      project.setConsumers(getConsumers());
-      project.setName(getName());
-      project.setRbacRawRoles(getRbacRawRoles());
-      project.setProducers(getProducers());
-      project.setStreams(getStreams());
-      project.setTopics(getTopics());
-      project.setZookeepers(getZookeepers());
+      ProjectImpl project =
+          new ProjectImpl(
+              getName(),
+              getTopics(),
+              getConsumers(),
+              getProducers(),
+              getStreams(),
+              getZookeepers(),
+              getConnectors(),
+              getSchemas(),
+              getRbacRawRoles(),
+              config);
       project.setPrefixContextAndOrder(prefixContext, order);
       return project;
     }

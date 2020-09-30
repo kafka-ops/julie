@@ -6,12 +6,15 @@ import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
+import com.google.common.base.Function;
+import com.google.common.collect.Maps;
 import com.purbon.kafka.topology.TopologyBuilderConfig;
 import com.purbon.kafka.topology.model.Impl.ProjectImpl;
 import com.purbon.kafka.topology.model.Impl.TopologyImpl;
 import com.purbon.kafka.topology.model.Platform;
 import com.purbon.kafka.topology.model.Project;
 import com.purbon.kafka.topology.model.Topology;
+import com.purbon.kafka.topology.model.User;
 import com.purbon.kafka.topology.model.users.Connector;
 import com.purbon.kafka.topology.model.users.Consumer;
 import com.purbon.kafka.topology.model.users.KStream;
@@ -25,9 +28,11 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import org.checkerframework.checker.nullness.compatqual.NullableDecl;
 
 public class TopologyCustomDeserializer extends StdDeserializer<Topology> {
 
@@ -112,11 +117,7 @@ public class TopologyCustomDeserializer extends StdDeserializer<Topology> {
 
     JsonNode projects = rootNode.get(PROJECTS_KEY);
 
-    parseProjects(parser, projects, topology, config)
-        .forEach(
-            project -> {
-              topology.addProject(project);
-            });
+    parseProjects(parser, projects, topology, config).forEach(topology::addProject);
 
     return topology;
   }
@@ -136,56 +137,66 @@ public class TopologyCustomDeserializer extends StdDeserializer<Topology> {
       JsonParser parser, JsonNode rootNode, Topology topology, TopologyBuilderConfig config)
       throws IOException {
 
-    String nameFieldValue = rootNode.get(NAME_KEY).asText();
-    ProjectImpl project = new ProjectImpl(nameFieldValue, config);
+    List<String> keys =
+        Arrays.asList(CONSUMERS_KEY, PROJECTS_KEY, CONNECTORS_KEY, STREAMS_KEY, SCHEMAS_KEY);
+
+    Map<String, JsonNode> rootNodes =
+        Maps.asMap(
+            new HashSet<>(keys),
+            new Function<String, JsonNode>() {
+              @NullableDecl
+              @Override
+              public JsonNode apply(@NullableDecl String key) {
+                return rootNode.get(key);
+              }
+            });
+
+    Map<String, List<? extends User>> mapOfValues = new HashMap<>();
+    for (String key : rootNodes.keySet()) {
+      JsonNode keyNode = rootNodes.get(key);
+      if (keyNode != null) {
+        List<? extends User> objs = new ArrayList<>();
+        switch (key) {
+          case CONSUMERS_KEY:
+            objs =
+                new JsonSerdesUtils<Consumer>()
+                    .parseApplicationUser(parser, keyNode, Consumer.class);
+            break;
+          case PRODUCERS_KEY:
+            objs =
+                new JsonSerdesUtils<Producer>()
+                    .parseApplicationUser(parser, keyNode, Producer.class);
+            break;
+          case CONNECTORS_KEY:
+            objs =
+                new JsonSerdesUtils<Connector>()
+                    .parseApplicationUser(parser, keyNode, Connector.class);
+            break;
+          case STREAMS_KEY:
+            objs =
+                new JsonSerdesUtils<KStream>().parseApplicationUser(parser, keyNode, KStream.class);
+            break;
+          case SCHEMAS_KEY:
+            objs =
+                new JsonSerdesUtils<Schemas>().parseApplicationUser(parser, keyNode, Schemas.class);
+            break;
+        }
+        mapOfValues.put(key, objs);
+      }
+    }
+
+    ProjectImpl project =
+        new ProjectImpl(
+            rootNode.get(NAME_KEY).asText(),
+            (List<Consumer>) mapOfValues.getOrDefault(CONSUMERS_KEY, new ArrayList<>()),
+            (List<Producer>) mapOfValues.getOrDefault(PRODUCERS_KEY, new ArrayList<>()),
+            (List<KStream>) mapOfValues.getOrDefault(STREAMS_KEY, new ArrayList<>()),
+            (List<Connector>) mapOfValues.getOrDefault(CONNECTORS_KEY, new ArrayList<>()),
+            (List<Schemas>) mapOfValues.getOrDefault(SCHEMAS_KEY, new ArrayList<>()),
+            parseOptionalRbacRoles(rootNode.get(RBAC_KEY)),
+            config);
+
     project.setPrefixContextAndOrder(topology.asFullContext(), topology.getOrder());
-
-    JsonSerdesUtils<Consumer> consumerSerdes = new JsonSerdesUtils<>();
-    JsonNode consumers = rootNode.get(CONSUMERS_KEY);
-    if (consumers != null) {
-      List<Consumer> consumersList =
-          consumerSerdes.parseApplicationUser(parser, consumers, Consumer.class);
-      project.setConsumers(consumersList);
-    }
-
-    JsonSerdesUtils<Producer> producerSerdes = new JsonSerdesUtils<>();
-    JsonNode producers = rootNode.get(PRODUCERS_KEY);
-    if (producers != null) {
-      List<Producer> producersList =
-          producerSerdes.parseApplicationUser(parser, producers, Producer.class);
-      project.setProducers(producersList);
-    }
-
-    JsonSerdesUtils<Connector> connectorSerdes = new JsonSerdesUtils<>();
-    JsonNode connectors = rootNode.get(CONNECTORS_KEY);
-    if (connectors != null) {
-      List<Connector> connectorList =
-          connectorSerdes.parseApplicationUser(parser, connectors, Connector.class);
-      project.setConnectors(connectorList);
-    }
-
-    JsonSerdesUtils<KStream> streamsSerdes = new JsonSerdesUtils<>();
-    JsonNode streams = rootNode.get(STREAMS_KEY);
-    if (streams != null) {
-      List<KStream> streamsList =
-          streamsSerdes.parseApplicationUser(parser, streams, KStream.class);
-      project.setStreams(streamsList);
-    }
-
-    JsonSerdesUtils<Schemas> schemasSerdes = new JsonSerdesUtils<>();
-    JsonNode schemas = rootNode.get(SCHEMAS_KEY);
-    if (schemas != null) {
-      List<Schemas> schemasList =
-          schemasSerdes.parseApplicationUser(parser, schemas, Schemas.class);
-      project.setSchemas(schemasList);
-    }
-
-    // Parser optional RBAC object, only there if using RBAC provider
-    JsonNode rbacRootNode = rootNode.get(RBAC_KEY);
-    if (rbacRootNode != null) {
-      Map<String, List<String>> roles = parseOptionalRbacRoles(rbacRootNode);
-      project.setRbacRawRoles(roles);
-    }
 
     JsonNode topics = rootNode.get(TOPICS_KEY);
     addTopics2Project(parser, project, topics, config);
@@ -195,6 +206,7 @@ public class TopologyCustomDeserializer extends StdDeserializer<Topology> {
 
   private Map<String, List<String>> parseOptionalRbacRoles(JsonNode rbacRootNode) {
     Map<String, List<String>> roles = new HashMap<>();
+    if (rbacRootNode == null) return roles;
     for (int i = 0; i < rbacRootNode.size(); i++) {
       JsonNode elem = rbacRootNode.get(i);
       Iterator<String> fields = elem.fieldNames();
