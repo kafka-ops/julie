@@ -12,27 +12,21 @@ public interface Topic {
 
   String getName();
 
-  void setName(String name);
-
   TopicSchemas getSchemas();
 
   void setSchemas(TopicSchemas schemas);
 
   HashMap<String, String> getConfig();
 
-  void setConfig(HashMap<String, String> config);
-
-  Map<String, String> rawConfig();
+  void initializeConfig();
 
   Optional<String> getDataType();
 
-  void setProjectPrefix(String projectPrefix);
-
-  void setPrefixProperties(Map<String, Object> properties);
-
   void addAppConfig(TopologyBuilderConfig appConfig);
 
-  String getProjectPrefix();
-
   int partitionsCount();
+
+  void setDefaultProjectPrefix(String projectPrefix);
+
+  void setPrefixContext(Map<String, Object> prefixContext);
 }

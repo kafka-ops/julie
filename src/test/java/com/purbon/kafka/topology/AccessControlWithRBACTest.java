@@ -70,12 +70,12 @@ public class AccessControlWithRBACTest {
             AclOperation.DESCRIBE_CONFIGS.name(),
             "User:Foo",
             PatternType.ANY.name());
-    when(bindingsBuilder.setPredefinedRole("User:Foo", "ResourceOwner", project.buildTopicPrefix()))
+    when(bindingsBuilder.setPredefinedRole("User:Foo", "ResourceOwner", project.namePrefix()))
         .thenReturn(binding);
 
     accessControlManager.apply(topology, plan);
 
     verify(bindingsBuilder, times(1))
-        .setPredefinedRole(eq("User:Foo"), eq("ResourceOwner"), eq(project.buildTopicPrefix()));
+        .setPredefinedRole(eq("User:Foo"), eq("ResourceOwner"), eq(project.namePrefix()));
   }
 }

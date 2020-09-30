@@ -16,7 +16,7 @@ import java.util.Optional;
 
 public class TopicImpl implements Topic, Cloneable {
 
-  public static final String DEFAULT_TOPIC_NAME = "default";
+  private static final String DEFAULT_TOPIC_NAME = "default";
 
   @JsonInclude(Include.NON_EMPTY)
   private Optional<String> dataType;
@@ -43,8 +43,20 @@ public class TopicImpl implements Topic, Cloneable {
     this(name, Optional.empty(), new HashMap<>(), new TopologyBuilderConfig());
   }
 
+  public TopicImpl(String name, TopologyBuilderConfig config) {
+    this(name, Optional.empty(), new HashMap<>(), config);
+  }
+
   public TopicImpl(String name, String dataType) {
     this(name, Optional.of(dataType), new HashMap<>(), new TopologyBuilderConfig());
+  }
+
+  public TopicImpl(String name, String dataType, HashMap<String, String> config) {
+    this(name, Optional.of(dataType), config, new TopologyBuilderConfig());
+  }
+
+  public TopicImpl(String name, HashMap<String, String> config) {
+    this(name, Optional.empty(), config, new TopologyBuilderConfig());
   }
 
   public TopicImpl(
@@ -83,7 +95,7 @@ public class TopicImpl implements Topic, Cloneable {
 
   private String patternBasedTopicNameStructureString() {
     context.put("topic", name);
-    if (dataType.isPresent()) context.put("dataType", dataType.get());
+    dataType.ifPresent(s -> context.put("dataType", s));
     return JinjaUtils.serialise(appConfig.getTopicPrefixFormat(), context);
   }
 
@@ -103,45 +115,32 @@ public class TopicImpl implements Topic, Cloneable {
     return toString(projectPrefix);
   }
 
-  public void setName(String name) {
-    this.name = name;
-  }
-
   public HashMap<String, String> getConfig() {
     return config;
   }
 
-  public void setConfig(HashMap<String, String> config) {
-    this.config = config;
-  }
-
-  public Map<String, String> rawConfig() {
+  public void initializeConfig() {
     String value = getConfig().remove(TopicManager.NUM_PARTITIONS);
     if (value != null) {
-      partitionCount = Integer.valueOf(value);
+      partitionCount = Integer.parseInt(value);
     }
     value = getConfig().remove(TopicManager.REPLICATION_FACTOR);
     if (value != null) {
-      replicationFactor = Integer.valueOf(value);
+      replicationFactor = Integer.parseInt(value);
     }
-    return getConfig();
   }
 
   public Optional<String> getDataType() {
     return dataType;
   }
 
-  public void setProjectPrefix(String projectPrefix) {
+  public void setDefaultProjectPrefix(String projectPrefix) {
     this.projectPrefix = projectPrefix;
   }
 
   @Override
-  public void setPrefixProperties(Map<String, Object> properties) {
+  public void setPrefixContext(Map<String, Object> properties) {
     this.context = properties;
-  }
-
-  public String getProjectPrefix() {
-    return projectPrefix;
   }
 
   @Override
@@ -150,7 +149,7 @@ public class TopicImpl implements Topic, Cloneable {
     if (configValue == null) {
       return partitionCount;
     } else {
-      return Integer.valueOf(configValue);
+      return Integer.parseInt(configValue);
     }
   }
 

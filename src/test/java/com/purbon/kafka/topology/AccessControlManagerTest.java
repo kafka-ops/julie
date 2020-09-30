@@ -142,19 +142,18 @@ public class AccessControlManagerTest {
     topology.addProject(project);
 
     accessControlManager.apply(topology, plan);
-    String topicPrefix = project.buildTopicPrefix(topology.buildNamePrefix());
 
     doReturn(new ArrayList<TopologyAclBinding>())
         .when(aclsBuilder)
         .buildBindingsForStreamsApp(
             "User:App0",
-            topicPrefix,
+            project.namePrefix(),
             topics.get(KStream.READ_TOPICS),
             topics.get(KStream.WRITE_TOPICS));
     verify(aclsBuilder, times(1))
         .buildBindingsForStreamsApp(
             eq("User:App0"),
-            eq(topicPrefix),
+            eq(project.namePrefix()),
             eq(topics.get(KStream.READ_TOPICS)),
             eq(topics.get(KStream.WRITE_TOPICS)));
   }
@@ -293,13 +292,11 @@ public class AccessControlManagerTest {
 
     accessControlManager.apply(topology, plan);
 
-    String topicPrefix = project.buildTopicPrefix(topology.buildNamePrefix());
-
     doReturn(new ArrayList<TopologyAclBinding>())
         .when(aclsBuilder)
-        .buildBindingsForConnect(connector1, topicPrefix);
+        .buildBindingsForConnect(connector1, project.namePrefix());
 
-    verify(aclsBuilder, times(1)).buildBindingsForConnect(eq(connector1), eq(topicPrefix));
+    verify(aclsBuilder, times(1)).buildBindingsForConnect(eq(connector1), eq(project.namePrefix()));
   }
 
   @Test

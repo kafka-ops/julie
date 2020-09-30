@@ -89,7 +89,7 @@ public class AccessControlManager {
                 }
               });
       // Setup global Kafka Stream Access control lists
-      String topicPrefix = project.buildTopicPrefix(topology.buildNamePrefix());
+      String topicPrefix = project.namePrefix();
       for (KStream app : project.getStreams()) {
         Action action = syncApplicationAcls(app, topicPrefix);
         actions.add(action);

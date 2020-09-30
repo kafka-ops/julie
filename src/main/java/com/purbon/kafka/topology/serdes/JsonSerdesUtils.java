@@ -8,7 +8,6 @@ import com.purbon.kafka.topology.model.Project;
 import com.purbon.kafka.topology.model.Topic;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.function.Consumer;
 
 public class JsonSerdesUtils<T> {
 
@@ -23,23 +22,16 @@ public class JsonSerdesUtils<T> {
     return usersList;
   }
 
-  public static List<Project> parseProjects(JsonParser parser, JsonNode projects)
-      throws JsonProcessingException {
-    return new JsonSerdesUtils<Project>().parseApplicationUser(parser, projects, Project.class);
-  }
-
   public static void addTopics2Project(
       JsonParser parser, Project project, JsonNode topics, TopologyBuilderConfig config)
       throws JsonProcessingException {
     new JsonSerdesUtils<Topic>()
         .parseApplicationUser(parser, topics, Topic.class)
         .forEach(
-            new Consumer<Topic>() {
-              @Override
-              public void accept(Topic topic) {
-                topic.addAppConfig(config);
-                project.addTopic(topic);
-              }
+            topic -> {
+              topic.initializeConfig();
+              topic.addAppConfig(config);
+              project.addTopic(topic);
             });
   }
 }

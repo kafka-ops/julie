@@ -154,13 +154,13 @@ public class TopologyBuilderAdminClient {
     ArrayList<AlterConfigOp> listOfValues = new ArrayList<>();
 
     topic
-        .rawConfig()
+        .getConfig()
         .forEach(
             (configKey, configValue) -> {
               listOfValues.add(
                   new AlterConfigOp(new ConfigEntry(configKey, configValue), OpType.SET));
             });
-    Set<String> newEntryKeys = topic.rawConfig().keySet();
+    Set<String> newEntryKeys = topic.getConfig().keySet();
 
     currentConfigs
         .entries()
@@ -194,7 +194,7 @@ public class TopologyBuilderAdminClient {
         Short.parseShort(topic.getConfig().getOrDefault(TopicManager.REPLICATION_FACTOR, "2"));
 
     NewTopic newTopic =
-        new NewTopic(fullTopicName, numPartitions, replicationFactor).configs(topic.rawConfig());
+        new NewTopic(fullTopicName, numPartitions, replicationFactor).configs(topic.getConfig());
     Collection<NewTopic> newTopics = Collections.singleton(newTopic);
     try {
       createAllTopics(newTopics);

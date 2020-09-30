@@ -30,7 +30,8 @@ public class ProjectImpl implements Project, Cloneable {
 
   private List<Topic> topics;
 
-  private String topologyPrefix;
+  @JsonIgnore private List<String> order;
+  @JsonIgnore private Map<String, Object> prefixContext;
 
   public ProjectImpl() {
     this("default", new TopologyBuilderConfig());
@@ -52,6 +53,8 @@ public class ProjectImpl implements Project, Cloneable {
     this.schemas = new ArrayList<>();
     this.rbacRawRoles = new HashMap<>();
     this.config = config;
+    this.prefixContext = new HashMap<>();
+    this.order = new ArrayList<>();
   }
 
   public String getName() {
@@ -107,30 +110,35 @@ public class ProjectImpl implements Project, Cloneable {
   }
 
   public void addTopic(Topic topic) {
-    topic.setProjectPrefix(buildTopicPrefix());
+    topic.setDefaultProjectPrefix(namePrefix());
+    prefixContext.put("project", getName());
+    topic.setPrefixContext(prefixContext);
     this.topics.add(topic);
   }
 
   public void setTopics(List<Topic> topics) {
-    this.topics = topics;
+    this.topics.clear();
+    topics.forEach(t -> addTopic(t));
   }
 
-  public String buildTopicPrefix() {
-    return buildTopicPrefix(topologyPrefix);
+  public String namePrefix() {
+    return namePrefix(buildNamePrefix());
   }
 
-  public String buildTopicPrefix(String topologyPrefix) {
+  private String namePrefix(String topologyPrefix) {
     StringBuilder sb = new StringBuilder();
     sb.append(topologyPrefix).append(config.getTopicPrefixSeparator()).append(name);
     return sb.toString();
   }
 
-  public void setTopologyPrefix(String topologyPrefix) {
-    this.topologyPrefix = topologyPrefix;
-  }
-
-  public String getTopologyPrefix() {
-    return topologyPrefix;
+  private String buildNamePrefix() {
+    StringBuilder sb = new StringBuilder();
+    sb.append(prefixContext.get("context"));
+    for (String key : order) {
+      sb.append(config.getTopicPrefixSeparator());
+      sb.append(prefixContext.get(key));
+    }
+    return sb.toString();
   }
 
   public void setRbacRawRoles(Map<String, List<String>> rbacRawRoles) {
@@ -147,6 +155,13 @@ public class ProjectImpl implements Project, Cloneable {
   }
 
   @Override
+  public void setPrefixContextAndOrder(Map<String, Object> prefixContext, List<String> order) {
+    this.prefixContext = prefixContext;
+    this.prefixContext.put("project", getName());
+    this.order = order;
+  }
+
+  @Override
   public ProjectImpl clone() {
     try {
       return (ProjectImpl) super.clone();
@@ -159,8 +174,8 @@ public class ProjectImpl implements Project, Cloneable {
       project.setProducers(getProducers());
       project.setStreams(getStreams());
       project.setTopics(getTopics());
-      project.setTopologyPrefix(getTopologyPrefix());
       project.setZookeepers(getZookeepers());
+      project.setPrefixContextAndOrder(prefixContext, order);
       return project;
     }
   }

@@ -15,8 +15,6 @@ public interface Topology {
 
   void setProjects(List<Project> projects);
 
-  String buildNamePrefix();
-
   void addOther(String fieldName, String value);
 
   void setPlatform(Platform platform);
@@ -26,4 +24,6 @@ public interface Topology {
   Boolean isEmpty();
 
   Map<String, Object> asFullContext();
+
+  List<String> getOrder();
 }

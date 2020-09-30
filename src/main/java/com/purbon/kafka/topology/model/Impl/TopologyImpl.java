@@ -46,23 +46,13 @@ public class TopologyImpl implements Topology, Cloneable {
   }
 
   public void addProject(Project project) {
-    project.setTopologyPrefix(buildNamePrefix());
+    project.setPrefixContextAndOrder(asFullContext(), getOrder());
     this.projects.add(project);
   }
 
   public void setProjects(List<Project> projects) {
-    this.projects = projects;
-  }
-
-  public String buildNamePrefix() {
-    StringBuilder sb = new StringBuilder();
-    sb.append(getContext());
-    for (String key : order) {
-      String value = others.get(key);
-      sb.append(config.getTopicPrefixSeparator());
-      sb.append(value);
-    }
-    return sb.toString();
+    this.projects.clear();
+    projects.forEach(this::addProject);
   }
 
   public void addOther(String fieldName, String value) {
@@ -87,6 +77,11 @@ public class TopologyImpl implements Topology, Cloneable {
     Map<String, Object> context = new HashMap<>(others);
     context.put("context", getContext());
     return context;
+  }
+
+  @Override
+  public List<String> getOrder() {
+    return order;
   }
 
   @Override
