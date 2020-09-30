@@ -43,8 +43,16 @@ public class ProjectImpl implements Project, Cloneable {
 
   public ProjectImpl(String name, TopologyBuilderConfig config) {
     this(
-        name, new ArrayList<>(), new ArrayList<>(), new ArrayList<>(), new ArrayList<>(),
-        new ArrayList<>(), new ArrayList<>(), new ArrayList<>(), new HashMap<>(), config);
+        name,
+        new ArrayList<>(),
+        new ArrayList<>(),
+        new ArrayList<>(),
+        new ArrayList<>(),
+        new ArrayList<>(),
+        new ArrayList<>(),
+        new ArrayList<>(),
+        new HashMap<>(),
+        config);
   }
 
   public ProjectImpl(
@@ -57,8 +65,16 @@ public class ProjectImpl implements Project, Cloneable {
       Map<String, List<String>> rbacRawRoles,
       TopologyBuilderConfig config) {
     this(
-        name, new ArrayList<>(), consumers, producers, streams,
-        new ArrayList<>(), connectors, schemas, rbacRawRoles, config);
+        name,
+        new ArrayList<>(),
+        consumers,
+        producers,
+        streams,
+        new ArrayList<>(),
+        connectors,
+        schemas,
+        rbacRawRoles,
+        config);
   }
 
   public ProjectImpl(
