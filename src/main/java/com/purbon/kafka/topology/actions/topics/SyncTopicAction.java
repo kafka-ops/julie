@@ -57,11 +57,11 @@ public class SyncTopicAction extends BaseAction {
       final TopicSchemas schemas = topic.getSchemas();
 
       if (StringUtils.isNotBlank(schemas.getKeySchemaFile())) {
-        schemaRegistryManager.register(fullTopicName, schemas.getKeySchemaFile());
+        schemaRegistryManager.register(fullTopicName + "-key", schemas.getKeySchemaFile());
       }
 
       if (StringUtils.isNotBlank(schemas.getValueSchemaFile())) {
-        schemaRegistryManager.register(fullTopicName, schemas.getValueSchemaFile());
+        schemaRegistryManager.register(fullTopicName + "-value", schemas.getValueSchemaFile());
       }
     }
   }
