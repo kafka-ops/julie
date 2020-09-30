@@ -1,5 +1,7 @@
 package com.purbon.kafka.topology.model.Impl;
 
+import static com.purbon.kafka.topology.TopologyBuilderConfig.PROJECT_PREFIX_FORMAT_DEFAULT;
+
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.purbon.kafka.topology.TopologyBuilderConfig;
 import com.purbon.kafka.topology.model.Project;
@@ -9,6 +11,7 @@ import com.purbon.kafka.topology.model.users.Consumer;
 import com.purbon.kafka.topology.model.users.KStream;
 import com.purbon.kafka.topology.model.users.Producer;
 import com.purbon.kafka.topology.model.users.Schemas;
+import com.purbon.kafka.topology.utils.JinjaUtils;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -159,7 +162,13 @@ public class ProjectImpl implements Project, Cloneable {
   }
 
   public String namePrefix() {
-    return namePrefix(buildNamePrefix());
+    if (config.getProjectPrefixFormat().equals(PROJECT_PREFIX_FORMAT_DEFAULT))
+      return namePrefix(buildNamePrefix());
+    else return patternBasedProjectPrefix();
+  }
+
+  private String patternBasedProjectPrefix() {
+    return JinjaUtils.serialise(config.getProjectPrefixFormat(), prefixContext);
   }
 
   private String namePrefix(String topologyPrefix) {

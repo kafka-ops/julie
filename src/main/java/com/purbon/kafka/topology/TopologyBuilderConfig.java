@@ -67,6 +67,9 @@ public class TopologyBuilderConfig {
   public static final String TOPIC_PREFIX_FORMAT_CONFIG = "topology.topic.prefix.format";
   public static final String TOPIC_PREFIX_FORMAT_DEFAULT = "default";
 
+  public static final String PROJECT_PREFIX_FORMAT_CONFIG = "topology.project.prefix.format";
+  public static final String PROJECT_PREFIX_FORMAT_DEFAULT = "default";
+
   public static final String TOPIC_PREFIX_SEPARATOR_CONFIG = "topology.topic.prefix.separator";
   public static final String TOPIC_PREFIX_SEPARATOR_DEFAULT = ".";
 
@@ -127,6 +130,21 @@ public class TopologyBuilderConfig {
   private void validateGeneralConfiguration(Topology topology) throws ConfigurationException {
     if (countOfSchemas(topology) > 0) {
       raiseIfNull(CONFLUENT_SCHEMA_REGISTRY_URL_CONFIG);
+    }
+    boolean topicPrefixDefinedButNotProjectPrefix =
+        !getTopicPrefixFormat().equals(TOPIC_PREFIX_FORMAT_DEFAULT)
+            && getProjectPrefixFormat().equals(PROJECT_PREFIX_FORMAT_DEFAULT);
+
+    boolean projectPrefixDefinedButNotTopicPrefix =
+        getTopicPrefixFormat().equals(TOPIC_PREFIX_FORMAT_DEFAULT)
+            && !getProjectPrefixFormat().equals(PROJECT_PREFIX_FORMAT_DEFAULT);
+
+    if (topicPrefixDefinedButNotProjectPrefix || projectPrefixDefinedButNotTopicPrefix) {
+      throw new ConfigurationException(
+          TOPIC_PREFIX_FORMAT_CONFIG
+              + "and "
+              + PROJECT_PREFIX_FORMAT_CONFIG
+              + "need to be defined together");
     }
   }
 
@@ -211,6 +229,12 @@ public class TopologyBuilderConfig {
   public String getTopicPrefixFormat() {
     return properties
         .getOrDefault(TOPIC_PREFIX_FORMAT_CONFIG, TOPIC_PREFIX_FORMAT_DEFAULT)
+        .toString();
+  }
+
+  public String getProjectPrefixFormat() {
+    return properties
+        .getOrDefault(PROJECT_PREFIX_FORMAT_CONFIG, PROJECT_PREFIX_FORMAT_DEFAULT)
         .toString();
   }
 
