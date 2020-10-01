@@ -22,6 +22,7 @@ it will have to be properly configured.
 * Fix bug with schema registration and file path reference,  now by default all are relative to the main directory where the topology file is staying.
 * Improved delete and general management of acls logic, only create what is necessary, only delete what is mandatory.
 * Fixed a problem with the schema registry client that got no configs, so it would not be possible to use with security contrain systems such as confluent cloud.
+* Add the possibility to define a topic and project pattern using the jinja format, like this users can tune the order of the variables without hampeting the full idea of the structure
 
 v1.0.0-rc1:
 * Add support for platform wide acls for control center in teh topology description file.
