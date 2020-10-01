@@ -15,11 +15,7 @@ public interface Project {
 
   String getName();
 
-  void setName(String name);
-
   List<String> getZookeepers();
-
-  void setZookeepers(List<String> zookeepers);
 
   List<Consumer> getConsumers();
 
@@ -47,15 +43,11 @@ public interface Project {
 
   void setTopics(List<Topic> topics);
 
-  String buildTopicPrefix();
-
-  String buildTopicPrefix(String topologyPrefix);
-
-  void setTopologyPrefix(String topologyPrefix);
-
-  String getTopologyPrefix();
+  String namePrefix();
 
   void setRbacRawRoles(Map<String, List<String>> rbacRawRoles);
 
   Map<String, List<String>> getRbacRawRoles();
+
+  void setPrefixContextAndOrder(Map<String, Object> asFullContext, List<String> order);
 }

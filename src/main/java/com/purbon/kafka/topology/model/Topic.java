@@ -1,6 +1,7 @@
 package com.purbon.kafka.topology.model;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.purbon.kafka.topology.TopologyBuilderConfig;
 import com.purbon.kafka.topology.model.Impl.TopicImpl;
 import java.util.HashMap;
 import java.util.Map;
@@ -11,23 +12,23 @@ public interface Topic {
 
   String getName();
 
-  void setName(String name);
-
   TopicSchemas getSchemas();
 
   void setSchemas(TopicSchemas schemas);
 
   HashMap<String, String> getConfig();
 
-  void setConfig(HashMap<String, String> config);
-
-  Map<String, String> rawConfig();
+  HashMap<String, String> getRawConfig();
 
   Optional<String> getDataType();
 
-  void setProjectPrefix(String projectPrefix);
-
-  String getProjectPrefix();
+  void addAppConfig(TopologyBuilderConfig appConfig);
 
   int partitionsCount();
+
+  void setDefaultProjectPrefix(String projectPrefix);
+
+  void setPrefixContext(Map<String, Object> prefixContext);
+
+  short replicationFactor();
 }

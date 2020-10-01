@@ -1,5 +1,9 @@
 package com.purbon.kafka.topology;
 
+import static com.purbon.kafka.topology.BuilderCLI.ADMIN_CLIENT_CONFIG_OPTION;
+import static com.purbon.kafka.topology.BuilderCLI.BROKERS_OPTION;
+import static com.purbon.kafka.topology.TopologyBuilderConfig.TOPIC_PREFIX_FORMAT_CONFIG;
+import static com.purbon.kafka.topology.TopologyBuilderConfig.TOPIC_PREFIX_SEPARATOR_CONFIG;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
@@ -28,8 +32,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Properties;
 import java.util.Set;
 import java.util.stream.Collectors;
+import org.assertj.core.api.Assertions;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -48,13 +54,16 @@ public class TopologySerdesTest {
     URL descriptorWithOptionals = getClass().getResource("/descriptor-with-others.yml");
 
     Topology topology = parser.deserialise(Paths.get(descriptorWithOptionals.toURI()).toFile());
-    assertEquals("contextOrg.source.foo.bar.zet", topology.buildNamePrefix());
+    Project project = topology.getProjects().get(0);
+    Assertions.assertThat(project.namePrefix()).startsWith("contextOrg.source.foo.bar.zet");
 
     URL descriptorWithoutOptionals = getClass().getResource("/descriptor.yaml");
 
     Topology anotherTopology =
         parser.deserialise(Paths.get(descriptorWithoutOptionals.toURI()).toFile());
-    assertEquals("contextOrg.source", anotherTopology.buildNamePrefix());
+    Project anotherProject = anotherTopology.getProjects().get(0);
+
+    assertEquals("contextOrg.source.foo", anotherProject.namePrefix());
   }
 
   @Test
@@ -77,18 +86,15 @@ public class TopologySerdesTest {
     Topology topology = new TopologyImpl();
     topology.setContext("team");
 
-    Topic topic = new TopicImpl();
-    topic.setName("foo");
     HashMap<String, String> topicConfig = new HashMap<>();
     topicConfig.put("num.partitions", "1");
     topicConfig.put("replication.factor", "1");
-    topic.setConfig(topicConfig);
+    Topic topic = new TopicImpl("foo", topicConfig);
 
-    Topic topicBar = new TopicImpl("bar", "avro");
     HashMap<String, String> topicBarConfig = new HashMap<>();
     topicBarConfig.put("num.partitions", "1");
     topicBarConfig.put("replication.factor", "1");
-    topicBar.setConfig(topicBarConfig);
+    Topic topicBar = new TopicImpl("bar", "avro", topicBarConfig);
 
     Project project = new ProjectImpl("foo");
 
@@ -131,8 +137,7 @@ public class TopologySerdesTest {
     Topic serdesTopic = serdesProject.getTopics().get(0);
 
     assertEquals(topic.getName(), serdesTopic.getName());
-    assertEquals(
-        topic.getConfig().get("num.partitions"), serdesTopic.getConfig().get("num.partitions"));
+    assertEquals(topic.partitionsCount(), serdesTopic.partitionsCount());
   }
 
   @Test
@@ -142,20 +147,15 @@ public class TopologySerdesTest {
 
     Topology topology = new TopologyImpl();
     topology.setContext("team");
-
-    project.setTopologyPrefix(topology.buildNamePrefix());
     topology.addProject(project);
 
-    Topic topic = new TopicImpl("foo", "json");
     HashMap<String, String> topicConfig = new HashMap<>();
     topicConfig.put("num.partitions", "3");
     topicConfig.put("replication.factor", "2");
-    topic.setConfig(topicConfig);
-
+    Topic topic = new TopicImpl("foo", "json", topicConfig);
     project.addTopic(topic);
 
-    Topic topic2 = new TopicImpl("topic2");
-    topic.setConfig(topicConfig);
+    Topic topic2 = new TopicImpl("topic2", topicConfig);
     project.addTopic(topic2);
 
     String topologyYamlString = parser.serialise(topology);
@@ -253,10 +253,59 @@ public class TopologySerdesTest {
     assertEquals(1, kafkaRbacOptional.get().get("SecurityAdmin").size());
   }
 
+  @Test
+  public void testTopicNameWithCustomSeparator() throws URISyntaxException, IOException {
+
+    Map<String, String> cliOps = new HashMap<>();
+    cliOps.put(BROKERS_OPTION, "");
+    cliOps.put(ADMIN_CLIENT_CONFIG_OPTION, "/fooBar");
+
+    Properties props = new Properties();
+    props.put(TOPIC_PREFIX_SEPARATOR_CONFIG, "_");
+    TopologyBuilderConfig config = new TopologyBuilderConfig(cliOps, props);
+
+    TopologySerdes parser = new TopologySerdes(config);
+
+    URL topologyDescriptor = getClass().getResource("/descriptor-only-topics.yaml");
+    Topology topology = parser.deserialise(Paths.get(topologyDescriptor.toURI()).toFile());
+
+    assertEquals("contextOrg", topology.getContext());
+
+    Project p = topology.getProjects().get(0);
+
+    assertEquals(2, p.getTopics().size());
+    assertEquals("contextOrg_source_foo_foo", p.getTopics().get(0).toString());
+    assertEquals("contextOrg_source_foo_bar_avro", p.getTopics().get(1).toString());
+  }
+
+  @Test
+  public void testTopicNameWithCustomPattern() throws URISyntaxException, IOException {
+
+    Map<String, String> cliOps = new HashMap<>();
+    cliOps.put(BROKERS_OPTION, "");
+    cliOps.put(ADMIN_CLIENT_CONFIG_OPTION, "/fooBar");
+
+    Properties props = new Properties();
+    props.put(TOPIC_PREFIX_FORMAT_CONFIG, "{{source}}.{{context}}.{{project}}.{{topic}}");
+    TopologyBuilderConfig config = new TopologyBuilderConfig(cliOps, props);
+
+    TopologySerdes parser = new TopologySerdes(config);
+
+    URL topologyDescriptor = getClass().getResource("/descriptor-only-topics.yaml");
+    Topology topology = parser.deserialise(Paths.get(topologyDescriptor.toURI()).toFile());
+
+    assertEquals("contextOrg", topology.getContext());
+
+    Project p = topology.getProjects().get(0);
+
+    assertEquals(2, p.getTopics().size());
+    assertEquals("source.contextOrg.foo.foo", p.getTopics().get(0).toString());
+    assertEquals("source.contextOrg.foo.bar", p.getTopics().get(1).toString());
+  }
+
   private List<Project> buildProjects() {
 
-    Project project = new ProjectImpl();
-    project.setName("project");
+    Project project = new ProjectImpl("project");
     project.setConsumers(buildConsumers());
     project.setProducers(buildProducers());
     project.setStreams(buildStreams());

@@ -1,6 +1,7 @@
 package com.purbon.kafka.topology.model;
 
 import java.util.List;
+import java.util.Map;
 
 public interface Topology {
 
@@ -14,8 +15,6 @@ public interface Topology {
 
   void setProjects(List<Project> projects);
 
-  String buildNamePrefix();
-
   void addOther(String fieldName, String value);
 
   void setPlatform(Platform platform);
@@ -23,4 +22,8 @@ public interface Topology {
   Platform getPlatform();
 
   Boolean isEmpty();
+
+  Map<String, Object> asFullContext();
+
+  List<String> getOrder();
 }

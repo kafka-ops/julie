@@ -431,9 +431,20 @@
     <jersey.version>2.22.2</jersey.version>
     <hamcrest.version>2.2</hamcrest.version>
     <assertj.version>3.15.0</assertj.version>
+    <jinjava.version>2.5.4</jinjava.version>
   </properties>
 
   <dependencies>
+    <dependency>
+      <groupId>com.hubspot.jinjava</groupId>
+      <artifactId>jinjava</artifactId>
+      <version>${jinjava.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>com.fasterxml.jackson.core</groupId>
+      <artifactId>jackson-annotations</artifactId>
+      <version>${jackson.version}</version>
+    </dependency>
     <dependency>
       <groupId>redis.clients</groupId>
       <artifactId>jedis</artifactId>

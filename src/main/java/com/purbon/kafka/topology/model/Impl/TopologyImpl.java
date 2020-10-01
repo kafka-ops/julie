@@ -1,5 +1,7 @@
 package com.purbon.kafka.topology.model.Impl;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.purbon.kafka.topology.TopologyBuilderConfig;
 import com.purbon.kafka.topology.model.Platform;
 import com.purbon.kafka.topology.model.Project;
 import com.purbon.kafka.topology.model.Topology;
@@ -10,20 +12,26 @@ import java.util.Map;
 
 public class TopologyImpl implements Topology, Cloneable {
 
-  private String context;
+  @JsonIgnore private final TopologyBuilderConfig config;
 
-  private Map<String, String> others;
+  private String context;
+  @JsonIgnore private Map<String, String> others;
 
   private List<Project> projects;
-  private List<String> order;
+  @JsonIgnore private List<String> order;
   private Platform platform;
 
   public TopologyImpl() {
+    this(new TopologyBuilderConfig());
+  }
+
+  public TopologyImpl(TopologyBuilderConfig config) {
     this.context = "default";
     this.others = new HashMap<>();
     this.order = new ArrayList<>();
     this.projects = new ArrayList<>();
     this.platform = new Platform();
+    this.config = config;
   }
 
   public String getContext() {
@@ -39,23 +47,13 @@ public class TopologyImpl implements Topology, Cloneable {
   }
 
   public void addProject(Project project) {
-    project.setTopologyPrefix(buildNamePrefix());
+    project.setPrefixContextAndOrder(asFullContext(), getOrder());
     this.projects.add(project);
   }
 
   public void setProjects(List<Project> projects) {
-    this.projects = projects;
-  }
-
-  public String buildNamePrefix() {
-    StringBuilder sb = new StringBuilder();
-    sb.append(getContext());
-    for (String key : order) {
-      String value = others.get(key);
-      sb.append(".");
-      sb.append(value);
-    }
-    return sb.toString();
+    this.projects.clear();
+    projects.forEach(this::addProject);
   }
 
   public void addOther(String fieldName, String value) {
@@ -73,6 +71,18 @@ public class TopologyImpl implements Topology, Cloneable {
 
   public Boolean isEmpty() {
     return context.isEmpty();
+  }
+
+  @Override
+  public Map<String, Object> asFullContext() {
+    Map<String, Object> context = new HashMap<>(others);
+    context.put("context", getContext());
+    return context;
+  }
+
+  @Override
+  public List<String> getOrder() {
+    return order;
   }
 
   @Override

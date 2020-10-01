@@ -7,6 +7,8 @@ import static com.purbon.kafka.topology.TopologyBuilderConfig.MDS_KAFKA_CLUSTER_
 import static com.purbon.kafka.topology.TopologyBuilderConfig.MDS_PASSWORD_CONFIG;
 import static com.purbon.kafka.topology.TopologyBuilderConfig.MDS_SERVER;
 import static com.purbon.kafka.topology.TopologyBuilderConfig.MDS_USER_CONFIG;
+import static com.purbon.kafka.topology.TopologyBuilderConfig.PROJECT_PREFIX_FORMAT_CONFIG;
+import static com.purbon.kafka.topology.TopologyBuilderConfig.TOPIC_PREFIX_FORMAT_CONFIG;
 
 import com.purbon.kafka.topology.exceptions.ConfigurationException;
 import com.purbon.kafka.topology.model.Impl.ProjectImpl;
@@ -91,6 +93,64 @@ public class TopologyBuilderConfigTest {
     topology.addProject(project);
 
     props.put(CONFLUENT_SCHEMA_REGISTRY_URL_CONFIG, "http://foo:8082");
+
+    TopologyBuilderConfig config = new TopologyBuilderConfig(cliOps, props);
+    config.validateWith(topology);
+  }
+
+  @Test
+  public void testPrefixValidConfigFields() throws ConfigurationException {
+    Topology topology = new TopologyImpl();
+    Project project = new ProjectImpl();
+    Topic topic = new TopicImpl();
+    project.addTopic(topic);
+    topology.addProject(project);
+
+    props.put(TOPIC_PREFIX_FORMAT_CONFIG, "{{foo}}{{topic}}");
+    props.put(PROJECT_PREFIX_FORMAT_CONFIG, "{{foo}}");
+
+    TopologyBuilderConfig config = new TopologyBuilderConfig(cliOps, props);
+    config.validateWith(topology);
+  }
+
+  @Test(expected = ConfigurationException.class)
+  public void testMissingPrefixValidConfigFields() throws ConfigurationException {
+    Topology topology = new TopologyImpl();
+    Project project = new ProjectImpl();
+    Topic topic = new TopicImpl();
+    project.addTopic(topic);
+    topology.addProject(project);
+
+    props.put(TOPIC_PREFIX_FORMAT_CONFIG, "{{foo}}{{topic}}");
+
+    TopologyBuilderConfig config = new TopologyBuilderConfig(cliOps, props);
+    config.validateWith(topology);
+  }
+
+  @Test(expected = ConfigurationException.class)
+  public void testMissingTopicPrefixValidConfigFields() throws ConfigurationException {
+    Topology topology = new TopologyImpl();
+    Project project = new ProjectImpl();
+    Topic topic = new TopicImpl();
+    project.addTopic(topic);
+    topology.addProject(project);
+
+    props.put(PROJECT_PREFIX_FORMAT_CONFIG, "{{foo}}{{topic}}");
+
+    TopologyBuilderConfig config = new TopologyBuilderConfig(cliOps, props);
+    config.validateWith(topology);
+  }
+
+  @Test(expected = ConfigurationException.class)
+  public void testIncompatiblePrefixValidConfigFields() throws ConfigurationException {
+    Topology topology = new TopologyImpl();
+    Project project = new ProjectImpl();
+    Topic topic = new TopicImpl();
+    project.addTopic(topic);
+    topology.addProject(project);
+
+    props.put(PROJECT_PREFIX_FORMAT_CONFIG, "{{foo}}{{topic}}");
+    props.put(PROJECT_PREFIX_FORMAT_CONFIG, "{{banana}}");
 
     TopologyBuilderConfig config = new TopologyBuilderConfig(cliOps, props);
     config.validateWith(topology);

@@ -89,16 +89,14 @@ public class TopicManagerIT {
     config.put(TopicManager.REPLICATION_FACTOR, "1");
 
     Project project = new ProjectImpl("project");
-    Topic topicA = new TopicImpl("topicA");
-    topicA.setConfig(config);
+    Topic topicA = new TopicImpl("topicA", config);
     project.addTopic(topicA);
 
     config = new HashMap<>();
     config.put(TopicManager.NUM_PARTITIONS, "1");
     config.put(TopicManager.REPLICATION_FACTOR, "1");
 
-    Topic topicB = new TopicImpl("topicB");
-    topicB.setConfig(config);
+    Topic topicB = new TopicImpl("topicB", config);
     project.addTopic(topicB);
 
     Topology topology = new TopologyImpl();
@@ -118,8 +116,7 @@ public class TopicManagerIT {
     config.put("banana", "bar");
 
     Project project = new ProjectImpl("project");
-    Topic topicA = new TopicImpl("topicA");
-    topicA.setConfig(config);
+    Topic topicA = new TopicImpl("topicA", config);
     project.addTopic(topicA);
 
     Topology topology = new TopologyImpl();
@@ -140,16 +137,14 @@ public class TopicManagerIT {
     Project project = new ProjectImpl("project");
     topology.addProject(project);
 
-    Topic topicA = new TopicImpl("topicA");
-    topicA.setConfig(config);
+    Topic topicA = new TopicImpl("topicA", config);
     project.addTopic(topicA);
 
     config = new HashMap<>();
     config.put(TopicManager.NUM_PARTITIONS, "1");
     config.put(TopicManager.REPLICATION_FACTOR, "1");
 
-    Topic topicB = new TopicImpl("topicB");
-    topicB.setConfig(config);
+    Topic topicB = new TopicImpl("topicB", config);
     project.addTopic(topicB);
 
     topicManager.apply(topology, plan);
@@ -166,18 +161,14 @@ public class TopicManagerIT {
     config.put(TopicManager.NUM_PARTITIONS, "1");
     config.put(TopicManager.REPLICATION_FACTOR, "1");
 
-    topicA = new TopicImpl("topicA");
-    topicA.setConfig(config);
-
+    topicA = new TopicImpl("topicA", config);
     upProject.addTopic(topicA);
 
     config = new HashMap<>();
     config.put(TopicManager.NUM_PARTITIONS, "1");
     config.put(TopicManager.REPLICATION_FACTOR, "1");
 
-    topicB = new TopicImpl("topicB");
-    topicB.setConfig(config);
-
+    topicB = new TopicImpl("topicB", config);
     upProject.addTopic(topicB);
 
     plan.getActions().clear();
@@ -191,12 +182,10 @@ public class TopicManagerIT {
   public void testTopicDelete() throws ExecutionException, InterruptedException, IOException {
 
     Project project = new ProjectImpl("project");
-    Topic topicA = new TopicImpl("topicA");
-    topicA.setConfig(buildDummyTopicConfig());
+    Topic topicA = new TopicImpl("topicA", buildDummyTopicConfig());
     project.addTopic(topicA);
 
-    Topic topicB = new TopicImpl("topicB");
-    topicB.setConfig(buildDummyTopicConfig());
+    Topic topicB = new TopicImpl("topicB", buildDummyTopicConfig());
     project.addTopic(topicB);
 
     String internalTopic = createInternalTopic();
@@ -208,8 +197,7 @@ public class TopicManagerIT {
     topicManager.apply(topology, plan);
     plan.run();
 
-    Topic topicC = new TopicImpl("topicC");
-    topicC.setConfig(buildDummyTopicConfig());
+    Topic topicC = new TopicImpl("topicC", buildDummyTopicConfig());
 
     topology = new TopologyImpl();
     topology.setContext("testTopicDelete-test");
@@ -248,8 +236,7 @@ public class TopicManagerIT {
     HashMap<String, String> config = buildDummyTopicConfig();
     config.put("retention.bytes", "104857600"); // set the retention.bytes per partition to 100mb
     Project project = new ProjectImpl("project");
-    Topic topicA = new TopicImpl("topicA");
-    topicA.setConfig(config);
+    Topic topicA = new TopicImpl("topicA", config);
     project.addTopic(topicA);
 
     Topology topology = new TopologyImpl();
@@ -270,8 +257,7 @@ public class TopicManagerIT {
     config.put("segment.bytes", "104857600");
 
     Project project = new ProjectImpl("project");
-    Topic topicA = new TopicImpl("topicA");
-    topicA.setConfig(config);
+    Topic topicA = new TopicImpl("topicA", config);
     project.addTopic(topicA);
 
     Topology topology = new TopologyImpl();
@@ -283,10 +269,9 @@ public class TopicManagerIT {
 
     verifyTopicConfiguration(topicA.toString(), config);
 
+    config = buildDummyTopicConfig();
     config.put("retention.bytes", "104");
-    config.remove("segment.bytes");
-
-    topicA.setConfig(config);
+    topicA = new TopicImpl("topicA", config);
     project.setTopics(Collections.singletonList(topicA));
     topology.setContext("testTopicConfigUpdate-test");
     topology.setProjects(Collections.singletonList(project));
