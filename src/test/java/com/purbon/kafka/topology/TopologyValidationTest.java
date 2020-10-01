@@ -65,6 +65,31 @@ public class TopologyValidationTest {
 
     TopologyValidator validator = new TopologyValidator(config);
     List<String> results = validator.validate(topology);
+    assertThat(results).hasSize(0);
+  }
+
+  @Test
+  public void testInvalidExecutionWithFailedValidation()
+      throws IOException, URISyntaxException {
+
+    URL descriptorWithOptionals = getClass().getResource("/descriptor.yaml");
+    Topology topology = parser.deserialise(Paths.get(descriptorWithOptionals.toURI()).toFile());
+
+    Map<String, String> cliOps = new HashMap<>();
+    cliOps.put(BROKERS_OPTION, "");
+    cliOps.put(ADMIN_CLIENT_CONFIG_OPTION, "/fooBar");
+
+    Properties props = new Properties();
+    props.put(
+        TOPOLOGY_VALIDATIONS_CONFIG,
+        "topology.CamelCaseNameFormatValidation, topic.PartitionNumberValidation");
+    TopologyBuilderConfig config = new TopologyBuilderConfig(cliOps, props);
+
+    TopologyValidator validator = new TopologyValidator(config);
+    List<String> results = validator.validate(topology);
     assertThat(results).hasSize(3);
+    assertThat(results.get(0)).isEqualTo("Project name does not follow the camelCase format: foo");
+    assertThat(results.get(1)).isEqualTo("Topic contextOrg.source.foo.foo has an invalid number of partitions: 1");
+    assertThat(results.get(2)).isEqualTo("Topic contextOrg.source.bar.bar.avro has an invalid number of partitions: 1");
   }
 }

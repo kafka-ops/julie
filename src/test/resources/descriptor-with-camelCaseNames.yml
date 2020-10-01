@@ -34,13 +34,13 @@ projects:
     topics:
       - name: "fooBar"
         config:
-          replication.factor: "1"
-          num.partitions: "1"
+          replication.factor: "3"
+          num.partitions: "3"
       - dataType: "avro"
         name: "barFoo"
         config:
-          replication.factor: "1"
-          num.partitions: "1"
+          replication.factor: "3"
+          num.partitions: "3"
   - name: "barFoo"
     zookeepers: []
     consumers: []
@@ -51,5 +51,5 @@ projects:
       - dataType: "avro"
         name: "barFoo"
         config:
-          replication.factor: "1"
-          num.partitions: "1"
+          replication.factor: "3"
+          num.partitions: "3"
