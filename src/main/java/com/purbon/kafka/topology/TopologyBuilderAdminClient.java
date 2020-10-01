@@ -154,13 +154,13 @@ public class TopologyBuilderAdminClient {
     ArrayList<AlterConfigOp> listOfValues = new ArrayList<>();
 
     topic
-        .getConfig()
+        .getRawConfig()
         .forEach(
             (configKey, configValue) -> {
               listOfValues.add(
                   new AlterConfigOp(new ConfigEntry(configKey, configValue), OpType.SET));
             });
-    Set<String> newEntryKeys = topic.getConfig().keySet();
+    Set<String> newEntryKeys = topic.getRawConfig().keySet();
 
     currentConfigs
         .entries()
@@ -187,14 +187,9 @@ public class TopologyBuilderAdminClient {
   }
 
   public void createTopic(Topic topic, String fullTopicName) throws IOException {
-
-    int numPartitions =
-        Integer.parseInt(topic.getConfig().getOrDefault(TopicManager.NUM_PARTITIONS, "3"));
-    short replicationFactor =
-        Short.parseShort(topic.getConfig().getOrDefault(TopicManager.REPLICATION_FACTOR, "2"));
-
     NewTopic newTopic =
-        new NewTopic(fullTopicName, numPartitions, replicationFactor).configs(topic.getConfig());
+        new NewTopic(fullTopicName, topic.partitionsCount(), topic.replicationFactor())
+            .configs(topic.getRawConfig());
     Collection<NewTopic> newTopics = Collections.singleton(newTopic);
     try {
       createAllTopics(newTopics);

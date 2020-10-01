@@ -31,9 +31,11 @@ public class TopicImpl implements Topic, Cloneable {
   @JsonIgnore private Map<String, Object> context;
 
   private int partitionCount;
-  private int replicationFactor;
+  private short replicationFactor;
 
   @JsonIgnore private String projectPrefix;
+  private static String DEFAULT_PARTITION_COUNT = "3";
+  private static String DEFAULT_REPLICATION_FACTOR = "2";
 
   public TopicImpl() {
     this(DEFAULT_TOPIC_NAME, Optional.empty(), new HashMap<>(), new TopologyBuilderConfig());
@@ -70,6 +72,10 @@ public class TopicImpl implements Topic, Cloneable {
     this.replicationFactor = 0;
     this.partitionCount = 0;
     this.appConfig = appConfig;
+    String value = config.getOrDefault(TopicManager.NUM_PARTITIONS, DEFAULT_PARTITION_COUNT);
+    partitionCount = Integer.parseInt(value);
+    value = config.getOrDefault(TopicManager.REPLICATION_FACTOR, DEFAULT_REPLICATION_FACTOR);
+    replicationFactor = Short.parseShort(value);
   }
 
   public String getName() {
@@ -115,19 +121,18 @@ public class TopicImpl implements Topic, Cloneable {
     return toString(projectPrefix);
   }
 
+  @Override
   public HashMap<String, String> getConfig() {
     return config;
   }
 
-  public void initializeConfig() {
-    String value = getConfig().remove(TopicManager.NUM_PARTITIONS);
-    if (value != null) {
-      partitionCount = Integer.parseInt(value);
-    }
-    value = getConfig().remove(TopicManager.REPLICATION_FACTOR);
-    if (value != null) {
-      replicationFactor = Integer.parseInt(value);
-    }
+  @JsonIgnore
+  @Override
+  public HashMap<String, String> getRawConfig() {
+    HashMap<String, String> raw = new HashMap<>(config);
+    raw.remove(TopicManager.REPLICATION_FACTOR);
+    raw.remove(TopicManager.NUM_PARTITIONS);
+    return raw;
   }
 
   public Optional<String> getDataType() {
@@ -144,13 +149,13 @@ public class TopicImpl implements Topic, Cloneable {
   }
 
   @Override
+  public short replicationFactor() {
+    return replicationFactor;
+  }
+
+  @Override
   public int partitionsCount() {
-    String configValue = getConfig().get(TopicManager.NUM_PARTITIONS);
-    if (configValue == null) {
-      return partitionCount;
-    } else {
-      return Integer.parseInt(configValue);
-    }
+    return partitionCount;
   }
 
   public TopologyBuilderConfig getAppConfig() {

@@ -1,7 +1,5 @@
 package com.purbon.kafka.topology.serdes;
 
-import static com.purbon.kafka.topology.serdes.JsonSerdesUtils.addTopics2Project;
-
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -13,6 +11,7 @@ import com.purbon.kafka.topology.model.Impl.ProjectImpl;
 import com.purbon.kafka.topology.model.Impl.TopologyImpl;
 import com.purbon.kafka.topology.model.Platform;
 import com.purbon.kafka.topology.model.Project;
+import com.purbon.kafka.topology.model.Topic;
 import com.purbon.kafka.topology.model.Topology;
 import com.purbon.kafka.topology.model.User;
 import com.purbon.kafka.topology.model.users.Connector;
@@ -198,8 +197,9 @@ public class TopologyCustomDeserializer extends StdDeserializer<Topology> {
 
     project.setPrefixContextAndOrder(topology.asFullContext(), topology.getOrder());
 
-    JsonNode topics = rootNode.get(TOPICS_KEY);
-    addTopics2Project(parser, project, topics, config);
+    new JsonSerdesUtils<Topic>()
+        .parseApplicationUser(parser, rootNode.get(TOPICS_KEY), Topic.class)
+        .forEach(project::addTopic);
 
     return project;
   }

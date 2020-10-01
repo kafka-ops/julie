@@ -18,7 +18,7 @@ public interface Topic {
 
   HashMap<String, String> getConfig();
 
-  void initializeConfig();
+  HashMap<String, String> getRawConfig();
 
   Optional<String> getDataType();
 
@@ -29,4 +29,6 @@ public interface Topic {
   void setDefaultProjectPrefix(String projectPrefix);
 
   void setPrefixContext(Map<String, Object> prefixContext);
+
+  short replicationFactor();
 }

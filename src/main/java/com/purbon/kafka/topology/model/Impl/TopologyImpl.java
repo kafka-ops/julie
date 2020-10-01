@@ -1,5 +1,6 @@
 package com.purbon.kafka.topology.model.Impl;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.purbon.kafka.topology.TopologyBuilderConfig;
 import com.purbon.kafka.topology.model.Platform;
 import com.purbon.kafka.topology.model.Project;
@@ -11,13 +12,13 @@ import java.util.Map;
 
 public class TopologyImpl implements Topology, Cloneable {
 
-  private final TopologyBuilderConfig config;
+  @JsonIgnore private final TopologyBuilderConfig config;
 
   private String context;
-  private Map<String, String> others;
+  @JsonIgnore private Map<String, String> others;
 
   private List<Project> projects;
-  private List<String> order;
+  @JsonIgnore private List<String> order;
   private Platform platform;
 
   public TopologyImpl() {
