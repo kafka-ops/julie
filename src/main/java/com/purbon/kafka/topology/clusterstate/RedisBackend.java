@@ -11,9 +11,9 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import redis.clients.jedis.Jedis;
 
-public class RedisStateProcessor implements StateProcessor {
+public class RedisBackend implements Backend {
 
-  private static final Logger LOGGER = LogManager.getLogger(RedisStateProcessor.class);
+  private static final Logger LOGGER = LogManager.getLogger(RedisBackend.class);
   static final String KAFKA_TOPOLOGY_BUILDER_BINDINGS = "kafka.topology.builder.bindings";
   static final String KAFKA_TOPOLOGY_BUILDER_TYPE = "kafka.topology.builder.type";
 
@@ -22,11 +22,11 @@ public class RedisStateProcessor implements StateProcessor {
   private Pattern regexp;
   private Jedis jedis;
 
-  public RedisStateProcessor(String host, int port) {
+  public RedisBackend(String host, int port) {
     this(new Jedis(host, port));
   }
 
-  public RedisStateProcessor(Jedis jedis) {
+  public RedisBackend(Jedis jedis) {
     this.jedis = jedis;
     this.regexp = Pattern.compile(expression);
   }

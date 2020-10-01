@@ -1,7 +1,7 @@
 package com.purbon.kafka.topology.actions.topics;
 
-import com.purbon.kafka.topology.TopologyBuilderAdminClient;
 import com.purbon.kafka.topology.actions.BaseAction;
+import com.purbon.kafka.topology.api.adminclient.TopologyBuilderAdminClient;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;

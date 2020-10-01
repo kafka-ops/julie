@@ -2,7 +2,6 @@ package com.purbon.kafka.topology;
 
 import static java.lang.System.exit;
 
-import java.io.IOException;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -114,14 +113,14 @@ public class BuilderCLI {
     return options;
   }
 
-  public static void main(String[] args) throws IOException {
+  public static void main(String[] args) throws Exception {
 
     BuilderCLI cli = new BuilderCLI();
     cli.run(args);
     exit(0);
   }
 
-  public void run(String[] args) throws IOException {
+  public void run(String[] args) throws Exception {
     printHelpOrVersion(args);
     CommandLine cmd = parseArgsOrExit(args);
 
@@ -132,7 +131,7 @@ public class BuilderCLI {
     System.out.println("Kafka Topology updated");
   }
 
-  public Map<String, String> parseConfig(CommandLine cmd) {
+  private Map<String, String> parseConfig(CommandLine cmd) {
     String brokersList = cmd.getOptionValue(BROKERS_OPTION);
     boolean allowDelete = cmd.hasOption(ALLOW_DELETE_OPTION);
     boolean dryRun = cmd.hasOption(DRY_RUN_OPTION);
@@ -148,7 +147,7 @@ public class BuilderCLI {
     return config;
   }
 
-  public void printHelpOrVersion(String[] args) {
+  private void printHelpOrVersion(String[] args) {
 
     List<String> listOfArgs = Arrays.asList(args);
 
@@ -161,7 +160,7 @@ public class BuilderCLI {
     }
   }
 
-  public CommandLine parseArgsOrExit(String[] args) {
+  private CommandLine parseArgsOrExit(String[] args) {
     CommandLine cmd = null;
     try {
       cmd = parser.parse(options, args);
@@ -173,7 +172,7 @@ public class BuilderCLI {
     return cmd;
   }
 
-  public void processTopology(String topologyFile, Map<String, String> config) throws IOException {
+  void processTopology(String topologyFile, Map<String, String> config) throws Exception {
     try (KafkaTopologyBuilder builder = KafkaTopologyBuilder.build(topologyFile, config)) {
       builder.run();
     }

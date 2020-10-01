@@ -1,7 +1,7 @@
 package com.purbon.kafka.topology;
 
-import com.purbon.kafka.topology.clusterstate.FileStateProcessor;
-import com.purbon.kafka.topology.clusterstate.StateProcessor;
+import com.purbon.kafka.topology.clusterstate.Backend;
+import com.purbon.kafka.topology.clusterstate.FileBackend;
 import com.purbon.kafka.topology.roles.TopologyAclBinding;
 import java.io.IOException;
 import java.util.HashSet;
@@ -12,15 +12,15 @@ public class ClusterState {
 
   private static final String STORE_TYPE = "acls";
 
-  private final StateProcessor stateProcessor;
+  private final Backend backend;
   private Set<TopologyAclBinding> bindings;
 
   public ClusterState() {
-    this(new FileStateProcessor());
+    this(new FileBackend());
   }
 
-  public ClusterState(StateProcessor stateProcessor) {
-    this.stateProcessor = stateProcessor;
+  public ClusterState(Backend backend) {
+    this.backend = backend;
     this.bindings = new HashSet<>();
   }
 
@@ -37,15 +37,15 @@ public class ClusterState {
   }
 
   public void flushAndClose() {
-    stateProcessor.createOrOpen();
-    stateProcessor.saveType(STORE_TYPE);
-    stateProcessor.saveBindings(bindings);
-    stateProcessor.close();
+    backend.createOrOpen();
+    backend.saveType(STORE_TYPE);
+    backend.saveBindings(bindings);
+    backend.close();
   }
 
   public void load() throws IOException {
-    stateProcessor.createOrOpen();
-    bindings.addAll(stateProcessor.load());
+    backend.createOrOpen();
+    bindings.addAll(backend.load());
   }
 
   public void reset() {

@@ -1,6 +1,6 @@
 package com.purbon.kafka.topology.integration.clusterstate;
 
-import com.purbon.kafka.topology.clusterstate.RedisStateProcessor;
+import com.purbon.kafka.topology.clusterstate.RedisBackend;
 import com.purbon.kafka.topology.roles.TopologyAclBinding;
 import java.io.IOException;
 import java.util.Arrays;
@@ -12,7 +12,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.testcontainers.containers.GenericContainer;
 
-public class RedisStateProcessorIT {
+public class RedisBackendIT {
 
   @Rule
   public GenericContainer redis =
@@ -23,7 +23,7 @@ public class RedisStateProcessorIT {
 
     String host = redis.getContainerIpAddress();
     int port = redis.getFirstMappedPort();
-    RedisStateProcessor rsp = new RedisStateProcessor(host, port);
+    RedisBackend rsp = new RedisBackend(host, port);
     rsp.createOrOpen();
 
     rsp.saveType("acls");

@@ -1,0 +1,55 @@
+---
+context: "contextOrg"
+source: "source"
+foo: "foo"
+bar: "bar"
+zet: "zet"
+projects:
+  - name: "fooBar"
+    zookeepers: []
+    consumers:
+      - principal: "User:App0"
+      - principal: "User:App1"
+    producers: []
+    streams:
+      - principal: "User:App0"
+        topics:
+          read:
+            - "topicA"
+            - "topicB"
+          write:
+            - "topicC"
+            - "topicD"
+    connectors:
+      - principal: "User:Connect1"
+        topics:
+          read:
+            - "topicA"
+            - "topicB"
+      - principal: "User:Connect2"
+        topics:
+          write:
+            - "topicC"
+            - "topicD"
+    topics:
+      - name: "fooBar"
+        config:
+          replication.factor: "3"
+          num.partitions: "3"
+      - dataType: "avro"
+        name: "barFoo"
+        config:
+          replication.factor: "3"
+          num.partitions: "3"
+  - name: "barFoo"
+    zookeepers: []
+    consumers: []
+    producers: []
+    streams: []
+    connectors: []
+    topics:
+      - dataType: "avro"
+        name: "barFoo"
+        config:
+          replication.factor: "3"
+          num.partitions: "3"

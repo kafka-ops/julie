@@ -5,7 +5,7 @@ import java.io.IOException;
 import java.net.URI;
 import java.util.Set;
 
-public interface StateProcessor {
+public interface Backend {
 
   void createOrOpen();
 

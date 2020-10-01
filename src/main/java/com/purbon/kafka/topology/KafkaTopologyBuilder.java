@@ -5,9 +5,12 @@ import static com.purbon.kafka.topology.TopologyBuilderConfig.REDIS_PORT_CONFIG;
 import static com.purbon.kafka.topology.TopologyBuilderConfig.REDIS_STATE_PROCESSOR_CLASS;
 import static com.purbon.kafka.topology.TopologyBuilderConfig.STATE_PROCESSOR_DEFAULT_CLASS;
 
+import com.purbon.kafka.topology.api.adminclient.TopologyBuilderAdminClient;
+import com.purbon.kafka.topology.api.adminclient.TopologyBuilderAdminClientBuilder;
 import com.purbon.kafka.topology.api.mds.MDSApiClientBuilder;
-import com.purbon.kafka.topology.clusterstate.FileStateProcessor;
-import com.purbon.kafka.topology.clusterstate.RedisStateProcessor;
+import com.purbon.kafka.topology.clusterstate.FileBackend;
+import com.purbon.kafka.topology.clusterstate.RedisBackend;
+import com.purbon.kafka.topology.exceptions.ValidationException;
 import com.purbon.kafka.topology.model.Topology;
 import com.purbon.kafka.topology.schemas.SchemaRegistryManager;
 import io.confluent.kafka.schemaregistry.client.CachedSchemaRegistryClient;
@@ -18,6 +21,7 @@ import java.io.InputStream;
 import java.io.PrintStream;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
@@ -42,7 +46,7 @@ public class KafkaTopologyBuilder implements AutoCloseable {
   }
 
   public static KafkaTopologyBuilder build(String topologyFile, Map<String, String> config)
-      throws IOException {
+      throws Exception {
 
     TopologyBuilderConfig builderConfig = new TopologyBuilderConfig(config);
     TopologyBuilderAdminClient adminClient =
@@ -63,9 +67,16 @@ public class KafkaTopologyBuilder implements AutoCloseable {
       TopologyBuilderAdminClient adminClient,
       AccessControlProvider accessControlProvider,
       BindingsBuilderProvider bindingsBuilderProvider)
-      throws IOException {
+      throws Exception {
 
     Topology topology = TopologyDescriptorBuilder.build(topologyFileOrDir, config);
+
+    TopologyValidator validator = new TopologyValidator(config);
+    List<String> validationResults = validator.validate(topology);
+    if (!validationResults.isEmpty()) {
+      String resultsMessage = String.join("\n", validationResults);
+      throw new ValidationException(resultsMessage);
+    }
     config.validateWith(topology);
 
     AccessControlManager accessControlManager =
@@ -140,11 +151,11 @@ public class KafkaTopologyBuilder implements AutoCloseable {
 
     try {
       if (stateProcessorClass.equalsIgnoreCase(STATE_PROCESSOR_DEFAULT_CLASS)) {
-        return new ClusterState(new FileStateProcessor());
+        return new ClusterState(new FileBackend());
       } else if (stateProcessorClass.equalsIgnoreCase(REDIS_STATE_PROCESSOR_CLASS)) {
         String host = config.getProperty(REDIS_HOST_CONFIG);
         int port = Integer.parseInt(config.getProperty(REDIS_PORT_CONFIG));
-        return new ClusterState(new RedisStateProcessor(host, port));
+        return new ClusterState(new RedisBackend(host, port));
       } else {
         throw new IOException(stateProcessorClass + " Unknown state processor provided.");
       }

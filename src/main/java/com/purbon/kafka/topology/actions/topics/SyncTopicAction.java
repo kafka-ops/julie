@@ -1,7 +1,7 @@
 package com.purbon.kafka.topology.actions.topics;
 
-import com.purbon.kafka.topology.TopologyBuilderAdminClient;
 import com.purbon.kafka.topology.actions.BaseAction;
+import com.purbon.kafka.topology.api.adminclient.TopologyBuilderAdminClient;
 import com.purbon.kafka.topology.model.Topic;
 import com.purbon.kafka.topology.model.TopicSchemas;
 import com.purbon.kafka.topology.schemas.SchemaRegistryManager;
