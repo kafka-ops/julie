@@ -1,7 +1,5 @@
 package com.purbon.kafka.topology.model.Impl;
 
-import static com.purbon.kafka.topology.TopologyBuilderConfig.PROJECT_PREFIX_FORMAT_DEFAULT;
-
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.purbon.kafka.topology.TopologyBuilderConfig;
 import com.purbon.kafka.topology.model.Project;
@@ -162,8 +160,7 @@ public class ProjectImpl implements Project, Cloneable {
   }
 
   public String namePrefix() {
-    if (config.getProjectPrefixFormat().equals(PROJECT_PREFIX_FORMAT_DEFAULT))
-      return namePrefix(buildNamePrefix());
+    if (config.getProjectPrefixFormat().equals("default")) return namePrefix(buildNamePrefix());
     else return patternBasedProjectPrefix();
   }
 

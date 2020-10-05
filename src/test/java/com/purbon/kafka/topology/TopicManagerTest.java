@@ -134,7 +134,7 @@ public class TopicManagerTest {
   public void topicDeleteWithConfiguredInternalTopicsTest() throws IOException {
 
     Properties props = new Properties();
-    props.put(KAFKA_INTERNAL_TOPIC_PREFIXES, "foo.,_");
+    props.put(KAFKA_INTERNAL_TOPIC_PREFIXES, Arrays.asList("foo.", "_"));
 
     TopologyBuilderConfig config = new TopologyBuilderConfig(cliOps, props);
 
@@ -170,7 +170,7 @@ public class TopicManagerTest {
   public void topicDeleteWithConfiguredNoDelete() throws IOException {
 
     Properties props = new Properties();
-    props.put(KAFKA_INTERNAL_TOPIC_PREFIXES, "foo.,_");
+    props.put(KAFKA_INTERNAL_TOPIC_PREFIXES, Arrays.asList("foo.", "_"));
 
     HashMap<String, String> cliOps = new HashMap<>();
     cliOps.put(BROKERS_OPTION, "");

@@ -12,7 +12,7 @@ public class TopologyBuilderAdminClientBuilder {
   }
 
   public TopologyBuilderAdminClient build() {
-    AdminClient adminClient = AdminClient.create(config.getProperties());
+    AdminClient adminClient = AdminClient.create(config.asProperties());
     return new TopologyBuilderAdminClient(adminClient, config);
   }
 }

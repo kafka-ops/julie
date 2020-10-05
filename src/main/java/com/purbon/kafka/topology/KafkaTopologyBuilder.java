@@ -48,7 +48,7 @@ public class KafkaTopologyBuilder implements AutoCloseable {
   public static KafkaTopologyBuilder build(String topologyFile, Map<String, String> config)
       throws Exception {
 
-    TopologyBuilderConfig builderConfig = new TopologyBuilderConfig(config);
+    TopologyBuilderConfig builderConfig = TopologyBuilderConfig.build(config);
     TopologyBuilderAdminClient adminClient =
         new TopologyBuilderAdminClientBuilder(builderConfig).build();
     AccessControlProviderFactory factory =

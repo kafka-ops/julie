@@ -1,7 +1,5 @@
 package com.purbon.kafka.topology.model.Impl;
 
-import static com.purbon.kafka.topology.TopologyBuilderConfig.TOPIC_PREFIX_FORMAT_DEFAULT;
-
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
@@ -92,7 +90,7 @@ public class TopicImpl implements Topic, Cloneable {
 
   private String toString(String projectPrefix) {
     switch (appConfig.getTopicPrefixFormat()) {
-      case TOPIC_PREFIX_FORMAT_DEFAULT:
+      case "default":
         return defaultTopicStructureString(projectPrefix);
       default:
         return patternBasedTopicNameStructureString();

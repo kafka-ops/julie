@@ -11,6 +11,7 @@ import java.io.IOException;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.file.Paths;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -38,7 +39,7 @@ public class TopologyValidationTest {
     cliOps.put(ADMIN_CLIENT_CONFIG_OPTION, "/fooBar");
 
     Properties props = new Properties();
-    props.put(TOPOLOGY_VALIDATIONS_CONFIG, "topology.CamelCaseNameFormatValidation");
+    props.put(TOPOLOGY_VALIDATIONS_CONFIG, Arrays.asList("topology.CamelCaseNameFormatValidation"));
     TopologyBuilderConfig config = new TopologyBuilderConfig(cliOps, props);
 
     TopologyValidator validator = new TopologyValidator(config);
@@ -60,7 +61,7 @@ public class TopologyValidationTest {
     Properties props = new Properties();
     props.put(
         TOPOLOGY_VALIDATIONS_CONFIG,
-        "topology.CamelCaseNameFormatValidation, topic.PartitionNumberValidation");
+        Arrays.asList("topology.CamelCaseNameFormatValidation", "topic.PartitionNumberValidation"));
     TopologyBuilderConfig config = new TopologyBuilderConfig(cliOps, props);
 
     TopologyValidator validator = new TopologyValidator(config);
@@ -69,8 +70,7 @@ public class TopologyValidationTest {
   }
 
   @Test
-  public void testInvalidExecutionWithFailedValidation()
-      throws IOException, URISyntaxException {
+  public void testInvalidExecutionWithFailedValidation() throws IOException, URISyntaxException {
 
     URL descriptorWithOptionals = getClass().getResource("/descriptor.yaml");
     Topology topology = parser.deserialise(Paths.get(descriptorWithOptionals.toURI()).toFile());
@@ -82,14 +82,16 @@ public class TopologyValidationTest {
     Properties props = new Properties();
     props.put(
         TOPOLOGY_VALIDATIONS_CONFIG,
-        "topology.CamelCaseNameFormatValidation, topic.PartitionNumberValidation");
+        Arrays.asList("topology.CamelCaseNameFormatValidation", "topic.PartitionNumberValidation"));
     TopologyBuilderConfig config = new TopologyBuilderConfig(cliOps, props);
 
     TopologyValidator validator = new TopologyValidator(config);
     List<String> results = validator.validate(topology);
     assertThat(results).hasSize(3);
     assertThat(results.get(0)).isEqualTo("Project name does not follow the camelCase format: foo");
-    assertThat(results.get(1)).isEqualTo("Topic contextOrg.source.foo.foo has an invalid number of partitions: 1");
-    assertThat(results.get(2)).isEqualTo("Topic contextOrg.source.bar.bar.avro has an invalid number of partitions: 1");
+    assertThat(results.get(1))
+        .isEqualTo("Topic contextOrg.source.foo.foo has an invalid number of partitions: 1");
+    assertThat(results.get(2))
+        .isEqualTo("Topic contextOrg.source.bar.bar.avro has an invalid number of partitions: 1");
   }
 }
