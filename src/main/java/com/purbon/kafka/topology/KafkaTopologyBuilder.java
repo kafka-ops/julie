@@ -8,8 +8,8 @@ import static com.purbon.kafka.topology.TopologyBuilderConfig.STATE_PROCESSOR_DE
 import com.purbon.kafka.topology.api.adminclient.TopologyBuilderAdminClient;
 import com.purbon.kafka.topology.api.adminclient.TopologyBuilderAdminClientBuilder;
 import com.purbon.kafka.topology.api.mds.MDSApiClientBuilder;
-import com.purbon.kafka.topology.clusterstate.FileBackend;
-import com.purbon.kafka.topology.clusterstate.RedisBackend;
+import com.purbon.kafka.topology.backend.FileBackend;
+import com.purbon.kafka.topology.backend.RedisBackend;
 import com.purbon.kafka.topology.exceptions.ValidationException;
 import com.purbon.kafka.topology.model.Topology;
 import com.purbon.kafka.topology.schemas.SchemaRegistryManager;
@@ -48,7 +48,7 @@ public class KafkaTopologyBuilder implements AutoCloseable {
   public static KafkaTopologyBuilder build(String topologyFile, Map<String, String> config)
       throws Exception {
 
-    TopologyBuilderConfig builderConfig = new TopologyBuilderConfig(config);
+    TopologyBuilderConfig builderConfig = TopologyBuilderConfig.build(config);
     TopologyBuilderAdminClient adminClient =
         new TopologyBuilderAdminClientBuilder(builderConfig).build();
     AccessControlProviderFactory factory =

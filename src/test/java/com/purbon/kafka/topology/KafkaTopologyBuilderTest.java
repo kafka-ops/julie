@@ -13,7 +13,7 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
 import com.purbon.kafka.topology.api.adminclient.TopologyBuilderAdminClient;
-import com.purbon.kafka.topology.clusterstate.RedisBackend;
+import com.purbon.kafka.topology.backend.RedisBackend;
 import com.purbon.kafka.topology.model.Topology;
 import java.io.IOException;
 import java.net.URISyntaxException;

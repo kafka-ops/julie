@@ -24,7 +24,8 @@ it will have to be properly configured.
 * Fixed a problem with the schema registry client that got no configs, so it would not be possible to use with security contrain systems such as confluent cloud.
 * Add the possibility to define a topic and project pattern using the jinja format, like this users can tune the order of the variables without hampeting the full idea of the structure
 * Add a framework to add incoming validation for topology files, this could be configured with the topology.validations config array.
-
+* Added the lightbend config library to support a more structured config management, including usage of environment variables and multiple config formats.
+* Made the broker CLI param optional, however one of both config or CLI has to be present, CLI takes always precedence over the config value.
 
 v1.0.0-rc1:
 * Add support for platform wide acls for control center in teh topology description file.

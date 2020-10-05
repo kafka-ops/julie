@@ -1,7 +1,7 @@
 package com.purbon.kafka.topology;
 
-import com.purbon.kafka.topology.clusterstate.Backend;
-import com.purbon.kafka.topology.clusterstate.FileBackend;
+import com.purbon.kafka.topology.backend.Backend;
+import com.purbon.kafka.topology.backend.FileBackend;
 import com.purbon.kafka.topology.roles.TopologyAclBinding;
 import java.io.IOException;
 import java.util.HashSet;

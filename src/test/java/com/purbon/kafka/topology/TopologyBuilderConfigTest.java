@@ -61,6 +61,7 @@ public class TopologyBuilderConfigTest {
     topic.setSchemas(schema);
     project.addTopic(topic);
     topology.addProject(project);
+    props.put(CONFLUENT_SCHEMA_REGISTRY_URL_CONFIG, "mock://");
 
     TopologyBuilderConfig config = new TopologyBuilderConfig(cliOps, props);
     config.validateWith(topology);

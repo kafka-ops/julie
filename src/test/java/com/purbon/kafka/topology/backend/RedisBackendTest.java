@@ -1,7 +1,7 @@
-package com.purbon.kafka.topology.clusterstate;
+package com.purbon.kafka.topology.backend;
 
-import static com.purbon.kafka.topology.clusterstate.RedisBackend.KAFKA_TOPOLOGY_BUILDER_BINDINGS;
-import static com.purbon.kafka.topology.clusterstate.RedisBackend.KAFKA_TOPOLOGY_BUILDER_TYPE;
+import static com.purbon.kafka.topology.backend.RedisBackend.KAFKA_TOPOLOGY_BUILDER_BINDINGS;
+import static com.purbon.kafka.topology.backend.RedisBackend.KAFKA_TOPOLOGY_BUILDER_TYPE;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;

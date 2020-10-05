@@ -53,7 +53,12 @@ public class BuilderCLI {
         Option.builder().longOpt(TOPOLOGY_OPTION).hasArg().desc(TOPOLOGY_DESC).required().build();
 
     final Option brokersListOption =
-        Option.builder().longOpt(BROKERS_OPTION).hasArg().desc(BROKERS_DESC).required().build();
+        Option.builder()
+            .longOpt(BROKERS_OPTION)
+            .hasArg()
+            .desc(BROKERS_DESC)
+            .required(false)
+            .build();
 
     final Option adminClientConfigFileOption =
         Option.builder()
@@ -114,7 +119,6 @@ public class BuilderCLI {
   }
 
   public static void main(String[] args) throws Exception {
-
     BuilderCLI cli = new BuilderCLI();
     cli.run(args);
     exit(0);
@@ -124,26 +128,21 @@ public class BuilderCLI {
     printHelpOrVersion(args);
     CommandLine cmd = parseArgsOrExit(args);
 
-    String topology = cmd.getOptionValue(TOPOLOGY_OPTION);
     Map<String, String> config = parseConfig(cmd);
 
-    processTopology(topology, config);
+    processTopology(cmd.getOptionValue(TOPOLOGY_OPTION), config);
     System.out.println("Kafka Topology updated");
   }
 
   private Map<String, String> parseConfig(CommandLine cmd) {
-    String brokersList = cmd.getOptionValue(BROKERS_OPTION);
-    boolean allowDelete = cmd.hasOption(ALLOW_DELETE_OPTION);
-    boolean dryRun = cmd.hasOption(DRY_RUN_OPTION);
-    boolean quiet = cmd.hasOption(QUIET_OPTION);
-    String adminClientConfigFile = cmd.getOptionValue(ADMIN_CLIENT_CONFIG_OPTION);
-
     Map<String, String> config = new HashMap<>();
-    config.put(BROKERS_OPTION, brokersList);
-    config.put(ALLOW_DELETE_OPTION, String.valueOf(allowDelete));
-    config.put(DRY_RUN_OPTION, String.valueOf(dryRun));
-    config.put(QUIET_OPTION, String.valueOf(quiet));
-    config.put(ADMIN_CLIENT_CONFIG_OPTION, adminClientConfigFile);
+    if (cmd.hasOption(BROKERS_OPTION)) {
+      config.put(BROKERS_OPTION, cmd.getOptionValue(BROKERS_OPTION));
+    }
+    config.put(ALLOW_DELETE_OPTION, String.valueOf(cmd.hasOption(ALLOW_DELETE_OPTION)));
+    config.put(DRY_RUN_OPTION, String.valueOf(cmd.hasOption(DRY_RUN_OPTION)));
+    config.put(QUIET_OPTION, String.valueOf(cmd.hasOption(QUIET_OPTION)));
+    config.put(ADMIN_CLIENT_CONFIG_OPTION, cmd.getOptionValue(ADMIN_CLIENT_CONFIG_OPTION));
     return config;
   }
 
