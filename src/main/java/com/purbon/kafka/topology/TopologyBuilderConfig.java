@@ -103,6 +103,17 @@ public class TopologyBuilderConfig {
     return map;
   }
 
+  public Properties asProperties() {
+    Properties props = new Properties();
+    config.entrySet().forEach(entry -> props.put(entry.getKey(), entry.getValue().unwrapped()));
+    if (cliParams.get(BuilderCLI.BROKERS_OPTION) != null) {
+      props.put(
+          AdminClientConfig.BOOTSTRAP_SERVERS_CONFIG, cliParams.get(BuilderCLI.BROKERS_OPTION));
+    }
+    props.put(AdminClientConfig.RETRIES_CONFIG, Integer.MAX_VALUE);
+    return props;
+  }
+
   public void validateWith(Topology topology) throws ConfigurationException {
     validateGeneralConfiguration(topology);
     boolean isRBAC = this.getAccessControlClassName().equalsIgnoreCase(RBAC_ACCESS_CONTROL_CLASS);
@@ -130,6 +141,9 @@ public class TopologyBuilderConfig {
     if (countOfSchemas(topology) > 0) {
       raiseIfDefault(CONFLUENT_SCHEMA_REGISTRY_URL_CONFIG, "mock://");
     }
+
+    validateBrokersConfig();
+
     boolean topicPrefixDefinedButNotProjectPrefix =
         !getTopicPrefixFormat().equals("default") && getProjectPrefixFormat().equals("default");
 
@@ -147,6 +161,24 @@ public class TopologyBuilderConfig {
     if (!getTopicPrefixFormat().startsWith(getProjectPrefixFormat())) {
       throw new ConfigurationException(
           TOPIC_PREFIX_FORMAT_CONFIG + "should start by" + PROJECT_PREFIX_FORMAT_CONFIG);
+    }
+  }
+
+  private void validateBrokersConfig() throws ConfigurationException {
+    boolean existServersAsConfig;
+    try {
+      config.getString(AdminClientConfig.BOOTSTRAP_SERVERS_CONFIG);
+      existServersAsConfig = true;
+    } catch (Exception ex) {
+      existServersAsConfig = false;
+    }
+
+    if (cliParams.get(BuilderCLI.BROKERS_OPTION) == null && !existServersAsConfig) {
+      String msg =
+          String.format(
+              "Either the CLI option %s or the configuration %s should be specified",
+              BuilderCLI.BROKERS_OPTION, AdminClientConfig.BOOTSTRAP_SERVERS_CONFIG);
+      throw new ConfigurationException(msg);
     }
   }
 
@@ -236,13 +268,5 @@ public class TopologyBuilderConfig {
 
   public boolean isDryRun() {
     return Boolean.parseBoolean(cliParams.getOrDefault(DRY_RUN_OPTION, "false"));
-  }
-
-  public Properties asProperties() {
-    Properties props = new Properties();
-    config.entrySet().forEach(entry -> props.put(entry.getKey(), entry.getValue().unwrapped()));
-    props.put(AdminClientConfig.BOOTSTRAP_SERVERS_CONFIG, cliParams.get(BuilderCLI.BROKERS_OPTION));
-    props.put(AdminClientConfig.RETRIES_CONFIG, Integer.MAX_VALUE);
-    return props;
   }
 }
