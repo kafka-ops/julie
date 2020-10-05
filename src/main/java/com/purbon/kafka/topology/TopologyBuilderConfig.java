@@ -33,9 +33,9 @@ public class TopologyBuilderConfig {
       "topology.builder.state.processor.class";
 
   public static final String STATE_PROCESSOR_DEFAULT_CLASS =
-      "com.purbon.kafka.topology.clusterstate.FileStateProcessor";
+      "com.purbon.kafka.topology.clusterstate.FileBackend";
   public static final String REDIS_STATE_PROCESSOR_CLASS =
-      "com.purbon.kafka.topology.clusterstate.RedisStateProcessor";
+      "com.purbon.kafka.topology.clusterstate.RedisBackend";
 
   static final String REDIS_HOST_CONFIG = "topology.builder.redis.host";
   static final String REDIS_PORT_CONFIG = "topology.builder.redis.port";
