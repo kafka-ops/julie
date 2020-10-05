@@ -38,10 +38,10 @@ To configure it you can use:
 
 Configure the state management system.
 **Property**: *topology.builder.state.processor.class*
-**Default value**: "com.purbon.kafka.topology.clusterstate.FileBackend"
+**Default value**: "com.purbon.kafka.topology.backend.FileBackend"
 **values**:
- - File: "com.purbon.kafka.topology.clusterstate.FileBackend"
- - Redis: "com.purbon.kafka.topology.clusterstate.RedisBackend"
+ - File: "com.purbon.kafka.topology.backend.FileBackend"
+ - Redis: "com.purbon.kafka.topology.backend.RedisBackend"
 
 If you are using redis, you need to extend two other properties to setup the server location:
 ::

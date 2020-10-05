@@ -1,6 +1,6 @@
-package com.purbon.kafka.topology.integration.clusterstate;
+package com.purbon.kafka.topology.integration.backend;
 
-import com.purbon.kafka.topology.clusterstate.RedisBackend;
+import com.purbon.kafka.topology.backend.RedisBackend;
 import com.purbon.kafka.topology.roles.TopologyAclBinding;
 import java.io.IOException;
 import java.util.Arrays;

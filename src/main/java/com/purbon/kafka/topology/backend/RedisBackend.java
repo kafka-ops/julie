@@ -1,4 +1,4 @@
-package com.purbon.kafka.topology.clusterstate;
+package com.purbon.kafka.topology.backend;
 
 import com.purbon.kafka.topology.roles.TopologyAclBinding;
 import java.io.IOException;
