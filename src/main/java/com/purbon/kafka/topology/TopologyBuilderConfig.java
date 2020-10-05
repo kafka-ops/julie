@@ -12,6 +12,7 @@ import com.typesafe.config.ConfigFactory;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Properties;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -185,8 +186,8 @@ public class TopologyBuilderConfig {
   private static long countOfSchemas(Topology topology) {
     return topology.getProjects().stream()
         .flatMap((Function<Project, Stream<Topic>>) project -> project.getTopics().stream())
-        .map(topic -> topic.getSchemas())
-        .filter(topicSchemas -> topicSchemas != null)
+        .map(Topic::getSchemas)
+        .filter(Objects::nonNull)
         .count();
   }
 
