@@ -99,7 +99,7 @@ public class TopologyBuilderConfig {
     Map<String, Object> map = new HashMap<>();
     config.entrySet().stream()
         .filter(entry -> filter.isEmpty() || entry.getKey().startsWith(filter))
-        .forEach(entry -> map.put(entry.getKey(), entry.getValue()));
+        .forEach(entry -> map.put(entry.getKey(), entry.getValue().unwrapped()));
     return map;
   }
 
