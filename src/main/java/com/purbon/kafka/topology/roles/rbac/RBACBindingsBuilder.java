@@ -128,7 +128,7 @@ public class RBACBindingsBuilder implements BindingsBuilderProvider {
           String pattern = consumer.groupString().equals("*") ? PREFIX : LITERAL;
           binding =
               apiClient.bind(
-                  consumer.getPrincipal(), RESOURCE_OWNER, consumer.groupString(), pattern);
+                  consumer.getPrincipal(), RESOURCE_OWNER, consumer.groupString(), "Group", pattern);
           bindings.add(binding);
         });
     return bindings;
