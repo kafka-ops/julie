@@ -55,9 +55,7 @@ public class TopologyBuilderConfigTest {
     Topology topology = new TopologyImpl();
     Project project = new ProjectImpl();
     Topic topic = new TopicImpl();
-    TopicSchemas schema = new TopicSchemas();
-    schema.setKeySchemaFile("foo");
-    schema.setValueSchemaFile("bar");
+    TopicSchemas schema = new TopicSchemas("foo", "bar");
     topic.setSchemas(schema);
     project.addTopic(topic);
     topology.addProject(project);
@@ -72,9 +70,7 @@ public class TopologyBuilderConfigTest {
     Topology topology = new TopologyImpl();
     Project project = new ProjectImpl();
     Topic topic = new TopicImpl();
-    TopicSchemas schema = new TopicSchemas();
-    schema.setKeySchemaFile("foo");
-    schema.setValueSchemaFile("bar");
+    TopicSchemas schema = new TopicSchemas("foo", "bar");
     topic.setSchemas(schema);
     project.addTopic(topic);
     topology.addProject(project);

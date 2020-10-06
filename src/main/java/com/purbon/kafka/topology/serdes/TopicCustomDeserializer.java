@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.purbon.kafka.topology.TopologyBuilderConfig;
 import com.purbon.kafka.topology.model.Impl.TopicImpl;
+import com.purbon.kafka.topology.model.TopicSchemas;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Optional;
@@ -39,6 +40,16 @@ public class TopicCustomDeserializer extends StdDeserializer<TopicImpl> {
           .fields()
           .forEachRemaining(entry -> config.put(entry.getKey(), entry.getValue().asText()));
     }
-    return new TopicImpl(name, optionalDataType, config, this.config);
+    TopicImpl topic = new TopicImpl(name, optionalDataType, config, this.config);
+
+    JsonNode schemasNode = rootNode.get("schemas");
+    if (schemasNode != null) {
+      TopicSchemas schemas =
+          new TopicSchemas(
+              schemasNode.get("key.schema.file").asText(),
+              schemasNode.get("value.schema.file").asText());
+      topic.setSchemas(schemas);
+    }
+    return topic;
   }
 }

@@ -9,21 +9,16 @@ public class TopicSchemas {
   private String keySchemaFile;
   private String valueSchemaFile;
 
-  public TopicSchemas() {}
+  public TopicSchemas(String keySchemaFile, String valueSchemaFile) {
+    this.keySchemaFile = keySchemaFile;
+    this.valueSchemaFile = valueSchemaFile;
+  }
 
   public String getKeySchemaFile() {
     return keySchemaFile;
   }
 
-  public void setKeySchemaFile(String keySchemaFile) {
-    this.keySchemaFile = keySchemaFile;
-  }
-
   public String getValueSchemaFile() {
     return valueSchemaFile;
-  }
-
-  public void setValueSchemaFile(String valueSchemaFile) {
-    this.valueSchemaFile = valueSchemaFile;
   }
 }
