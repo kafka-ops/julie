@@ -11,7 +11,7 @@ import static org.mockito.Mockito.when;
 import com.purbon.kafka.topology.api.mds.ClusterIDs;
 import com.purbon.kafka.topology.api.mds.MDSApiClient;
 import com.purbon.kafka.topology.model.users.Connector;
-import com.purbon.kafka.topology.roles.rbac.AdminRoleRunner;
+import com.purbon.kafka.topology.roles.rbac.ClusterLevelRoleBuilder;
 import java.io.IOException;
 import java.util.Map;
 import org.junit.Before;
@@ -22,7 +22,7 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnit;
 import org.mockito.junit.MockitoRule;
 
-public class AdminRoleRunnerTest {
+public class ClusterLevelRoleBuilderTest {
 
   @Mock MDSApiClient apiClient;
 
@@ -53,7 +53,7 @@ public class AdminRoleRunnerTest {
   public void testWithAllClientIdsForConnect() {
     when(apiClient.withClusterIDs()).thenReturn(allClusterIDs);
 
-    AdminRoleRunner runner = new AdminRoleRunner("foo", SECURITY_ADMIN, apiClient);
+    ClusterLevelRoleBuilder runner = new ClusterLevelRoleBuilder("foo", SECURITY_ADMIN, apiClient);
     runner.forKafkaConnect(connector);
 
     assertEquals("kafka-connect", runner.getScope().getResource(0).get(RESOURCE_NAME));
@@ -67,7 +67,7 @@ public class AdminRoleRunnerTest {
   public void testWithAllClientIdsForSchemaRegistry() {
     when(apiClient.withClusterIDs()).thenReturn(allClusterIDs);
 
-    AdminRoleRunner runner = new AdminRoleRunner("foo", SECURITY_ADMIN, apiClient);
+    ClusterLevelRoleBuilder runner = new ClusterLevelRoleBuilder("foo", SECURITY_ADMIN, apiClient);
     runner.forSchemaRegistry();
 
     String connectClusterId = "4321";
@@ -79,7 +79,7 @@ public class AdminRoleRunnerTest {
   public void testKafkaRun() {
     when(apiClient.withClusterIDs()).thenReturn(allClusterIDs);
 
-    AdminRoleRunner runner = new AdminRoleRunner("foo", SECURITY_ADMIN, apiClient);
+    ClusterLevelRoleBuilder runner = new ClusterLevelRoleBuilder("foo", SECURITY_ADMIN, apiClient);
     runner.forKafka();
 
     String clusterId = "abcd";
@@ -91,7 +91,7 @@ public class AdminRoleRunnerTest {
   public void testControlCenterRun() {
     when(apiClient.withClusterIDs()).thenReturn(allClusterIDs);
 
-    AdminRoleRunner runner = new AdminRoleRunner("foo", SECURITY_ADMIN, apiClient);
+    ClusterLevelRoleBuilder runner = new ClusterLevelRoleBuilder("foo", SECURITY_ADMIN, apiClient);
     runner.forControlCenter();
 
     String clusterId = "abcd";
@@ -103,7 +103,7 @@ public class AdminRoleRunnerTest {
   public void testKafkaConnectRun() throws IOException {
     when(apiClient.withClusterIDs()).thenReturn(allClusterIDs);
 
-    AdminRoleRunner runner = new AdminRoleRunner("foo", SECURITY_ADMIN, apiClient);
+    ClusterLevelRoleBuilder runner = new ClusterLevelRoleBuilder("foo", SECURITY_ADMIN, apiClient);
     runner.forKafkaConnect();
 
     Map<String, String> clusterIDs = runner.getScope().getClusterIDs();
@@ -115,7 +115,7 @@ public class AdminRoleRunnerTest {
   public void testSchemaRegistryRun() throws IOException {
     when(apiClient.withClusterIDs()).thenReturn(allClusterIDs);
 
-    AdminRoleRunner runner = new AdminRoleRunner("foo", SECURITY_ADMIN, apiClient);
+    ClusterLevelRoleBuilder runner = new ClusterLevelRoleBuilder("foo", SECURITY_ADMIN, apiClient);
     runner.forSchemaSubject("foo");
 
     Map<String, String> clusterIDs = runner.getScope().getClusterIDs();

@@ -363,8 +363,9 @@ public class RBACPRoviderRbacIT extends MDSBaseTest {
     consumers.forEach(
         consumer -> {
           List<String> roles = apiClient.lookupRoles(consumer.getPrincipal());
-          assertEquals(1, roles.size());
+          assertEquals(2, roles.size());
           assertTrue(roles.contains(DEVELOPER_READ));
+          assertTrue(roles.contains(RESOURCE_OWNER));
         });
   }
 }

@@ -30,7 +30,7 @@ import com.purbon.kafka.topology.model.users.platform.SchemaRegistry;
 import com.purbon.kafka.topology.model.users.platform.SchemaRegistryInstance;
 import com.purbon.kafka.topology.roles.RBACProvider;
 import com.purbon.kafka.topology.roles.TopologyAclBinding;
-import com.purbon.kafka.topology.roles.rbac.AdminRoleRunner;
+import com.purbon.kafka.topology.roles.rbac.ClusterLevelRoleBuilder;
 import com.purbon.kafka.topology.roles.rbac.RBACBindingsBuilder;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -53,7 +53,7 @@ public class RbacProviderTest {
 
   @Mock ExecutionPlan plan;
 
-  @Mock AdminRoleRunner runner;
+  @Mock ClusterLevelRoleBuilder runner;
 
   @Rule public MockitoRule mockitoRule = MockitoJUnit.rule();
 

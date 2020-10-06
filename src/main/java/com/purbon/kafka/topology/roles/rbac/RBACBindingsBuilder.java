@@ -125,6 +125,11 @@ public class RBACBindingsBuilder implements BindingsBuilderProvider {
           TopologyAclBinding binding =
               apiClient.bind(consumer.getPrincipal(), DEVELOPER_READ, topic, LITERAL);
           bindings.add(binding);
+          String pattern = consumer.groupString().equals("*") ? PREFIX : LITERAL;
+          binding =
+              apiClient.bind(
+                  consumer.getPrincipal(), RESOURCE_OWNER, consumer.groupString(), pattern);
+          bindings.add(binding);
         });
     return bindings;
   }
@@ -179,17 +184,17 @@ public class RBACBindingsBuilder implements BindingsBuilderProvider {
   public List<TopologyAclBinding> setClusterLevelRole(
       String role, String principal, Component component) throws IOException {
 
-    AdminRoleRunner adminRoleRunner = apiClient.bind(principal, role);
+    ClusterLevelRoleBuilder clusterLevelRoleBuilder = apiClient.bind(principal, role);
     TopologyAclBinding binding;
     switch (component) {
       case KAFKA:
-        binding = adminRoleRunner.forKafka().apply();
+        binding = clusterLevelRoleBuilder.forKafka().apply();
         break;
       case SCHEMA_REGISTRY:
-        binding = adminRoleRunner.forSchemaRegistry().apply();
+        binding = clusterLevelRoleBuilder.forSchemaRegistry().apply();
         break;
       case KAFKA_CONNECT:
-        binding = adminRoleRunner.forKafkaConnect().apply();
+        binding = clusterLevelRoleBuilder.forKafkaConnect().apply();
         break;
       default:
         throw new IOException("Non valid component selected");

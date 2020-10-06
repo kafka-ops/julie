@@ -10,21 +10,21 @@ import java.util.Map;
 import java.util.Optional;
 import org.apache.kafka.common.resource.PatternType;
 
-public class AdminRoleRunner {
+public class ClusterLevelRoleBuilder {
 
   private final String principal;
   private final String role;
   private final MDSApiClient client;
   private RequestScope scope;
 
-  public AdminRoleRunner(String principal, String role, MDSApiClient client) {
+  public ClusterLevelRoleBuilder(String principal, String role, MDSApiClient client) {
     this.principal = principal;
     this.role = role;
     this.client = client;
     this.scope = new RequestScope();
   }
 
-  public AdminRoleRunner forSchemaRegistry() {
+  public ClusterLevelRoleBuilder forSchemaRegistry() {
     Map<String, Map<String, String>> clusters =
         client.withClusterIDs().forSchemaRegistry().forKafka().asMap();
 
@@ -35,7 +35,7 @@ public class AdminRoleRunner {
     return this;
   }
 
-  public AdminRoleRunner forSchemaSubject(String subject) {
+  public ClusterLevelRoleBuilder forSchemaSubject(String subject) {
     Map<String, Map<String, String>> clusters =
         client.withClusterIDs().forSchemaRegistry().forKafka().asMap();
 
@@ -47,7 +47,7 @@ public class AdminRoleRunner {
     return this;
   }
 
-  public AdminRoleRunner forAKafkaConnector(String connector) {
+  public ClusterLevelRoleBuilder forAKafkaConnector(String connector) {
     Map<String, Map<String, String>> clusters =
         client.withClusterIDs().forKafkaConnect().forKafka().asMap();
 
@@ -66,7 +66,7 @@ public class AdminRoleRunner {
     return client.bindClusterRole(principal, role, scope);
   }
 
-  public AdminRoleRunner forKafka() {
+  public ClusterLevelRoleBuilder forKafka() {
     Map<String, Map<String, String>> clusters = client.withClusterIDs().forKafka().asMap();
 
     scope = new RequestScope();
@@ -76,7 +76,7 @@ public class AdminRoleRunner {
     return this;
   }
 
-  public AdminRoleRunner forControlCenter() {
+  public ClusterLevelRoleBuilder forControlCenter() {
     Map<String, Map<String, String>> clusters = client.withClusterIDs().forKafka().asMap();
 
     scope = new RequestScope();
@@ -87,7 +87,7 @@ public class AdminRoleRunner {
     return this;
   }
 
-  public AdminRoleRunner forKafkaConnect() {
+  public ClusterLevelRoleBuilder forKafkaConnect() {
     Map<String, Map<String, String>> clusters =
         client.withClusterIDs().forKafkaConnect().forKafka().asMap();
 
@@ -100,7 +100,7 @@ public class AdminRoleRunner {
     return this;
   }
 
-  public AdminRoleRunner forKafkaConnect(Connector connector) {
+  public ClusterLevelRoleBuilder forKafkaConnect(Connector connector) {
     Map<String, Map<String, String>> clusters =
         client.withClusterIDs().forKafkaConnect().forKafka().asMap();
 

@@ -6,7 +6,7 @@ import static com.purbon.kafka.topology.api.mds.RequestScope.RESOURCE_TYPE;
 
 import com.purbon.kafka.topology.api.mds.http.HttpDeleteWithBody;
 import com.purbon.kafka.topology.roles.TopologyAclBinding;
-import com.purbon.kafka.topology.roles.rbac.AdminRoleRunner;
+import com.purbon.kafka.topology.roles.rbac.ClusterLevelRoleBuilder;
 import com.purbon.kafka.topology.utils.JSON;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -72,8 +72,8 @@ public class MDSApiClient {
     }
   }
 
-  public AdminRoleRunner bind(String principal, String role) {
-    return new AdminRoleRunner(principal, role, this);
+  public ClusterLevelRoleBuilder bind(String principal, String role) {
+    return new ClusterLevelRoleBuilder(principal, role, this);
   }
 
   public TopologyAclBinding bind(String principal, String role, String topic, String patternType) {
