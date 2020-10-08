@@ -226,6 +226,7 @@ public class TopologySerdesTest {
     Topology topology = parser.deserialise(Paths.get(descriptor.toURI()).toFile());
     Project myProject = topology.getProjects().get(0);
 
+    assertEquals(2, myProject.getRbacRawRoles().size());
     assertEquals(2, myProject.getSchemas().size());
     assertEquals("User:App0", myProject.getSchemas().get(0).getPrincipal());
     assertEquals(1, myProject.getSchemas().get(0).getSubjects().size());

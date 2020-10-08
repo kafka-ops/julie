@@ -1,5 +1,9 @@
 package com.purbon.kafka.topology.serdes;
 
+import static java.util.stream.Collectors.groupingBy;
+import static java.util.stream.Collectors.mapping;
+import static java.util.stream.Collectors.toList;
+
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.DeserializationContext;
@@ -23,6 +27,7 @@ import com.purbon.kafka.topology.model.users.platform.ControlCenter;
 import com.purbon.kafka.topology.model.users.platform.Kafka;
 import com.purbon.kafka.topology.model.users.platform.KafkaConnect;
 import com.purbon.kafka.topology.model.users.platform.SchemaRegistry;
+import com.purbon.kafka.topology.utils.Pair;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -32,6 +37,9 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.function.Function;
+import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -201,24 +209,22 @@ public class TopologyCustomDeserializer extends StdDeserializer<Topology> {
   }
 
   private Map<String, List<String>> parseOptionalRbacRoles(JsonNode rbacRootNode) {
-    Map<String, List<String>> roles = new HashMap<>();
-    if (rbacRootNode == null) return roles;
-    for (int i = 0; i < rbacRootNode.size(); i++) {
-      JsonNode elem = rbacRootNode.get(i);
-      Iterator<String> fields = elem.fieldNames();
-      while (fields.hasNext()) {
-        String field = fields.next(); // field == RoleName
-        List<String> principalsByRole = new ArrayList<>();
-        JsonNode principals = elem.get(field);
-        for (int j = 0; j < principals.size(); j++) {
-          JsonNode principalNode = principals.get(j);
-          String principal = principalNode.get(PRINCIPAL_KEY).asText();
-          principalsByRole.add(principal);
-        }
-        roles.put(field, principalsByRole);
-      }
-    }
-    return roles;
+    if (rbacRootNode == null) return new HashMap<>();
+    return StreamSupport.stream(rbacRootNode.spliterator(), true)
+        .map(
+            (Function<JsonNode, Pair<String, JsonNode>>)
+                node -> {
+                  String key = node.fieldNames().next();
+                  return new Pair(key, node.get(key));
+                })
+        .flatMap(
+            (Function<Pair<String, JsonNode>, Stream<Pair<String, String>>>)
+                principals ->
+                    StreamSupport.stream(principals.getValue().spliterator(), true)
+                        .map(
+                            node ->
+                                new Pair<>(principals.getKey(), node.get(PRINCIPAL_KEY).asText())))
+        .collect(groupingBy(Pair::getKey, mapping(Pair::getValue, toList())));
   }
 
   private void validateRequiresKeys(JsonNode rootNode, String... keys) throws IOException {
