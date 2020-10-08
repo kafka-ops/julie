@@ -10,7 +10,7 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
 import com.purbon.kafka.topology.actions.Action;
-import com.purbon.kafka.topology.adminclient.AclBuilder;
+import com.purbon.kafka.topology.api.adminclient.AclBuilder;
 import com.purbon.kafka.topology.model.Component;
 import com.purbon.kafka.topology.model.Impl.ProjectImpl;
 import com.purbon.kafka.topology.model.Impl.TopicImpl;
