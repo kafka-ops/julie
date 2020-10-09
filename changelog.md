@@ -1,3 +1,6 @@
+v1.0.0:
+* Extended the logging support to many components and classes in the KTB with the idea to support better troubleshooting. (Closes #101)
+
 v1.0.0-rc2:
 * Check for required configuration values for the configuration of RBAC, if not present it raises a Configuration error
 * Update Log4j version to 2.13.3 to prevent CVE-2020-9488
