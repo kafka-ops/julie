@@ -1,5 +1,6 @@
 package com.purbon.kafka.topology.serdes;
 
+import static com.purbon.kafka.topology.serdes.JsonSerdesUtils.validateRequiresKeys;
 import static java.util.stream.Collectors.groupingBy;
 import static java.util.stream.Collectors.mapping;
 import static java.util.stream.Collectors.toList;
@@ -82,7 +83,6 @@ public class TopologyCustomDeserializer extends StdDeserializer<Topology> {
       throws IOException {
 
     JsonNode rootNode = parser.getCodec().readTree(parser);
-
     validateRequiresKeys(rootNode, CONTEXT_KEY, PROJECTS_KEY);
 
     Topology topology = new TopologyImpl(config);
@@ -225,13 +225,5 @@ public class TopologyCustomDeserializer extends StdDeserializer<Topology> {
                             node ->
                                 new Pair<>(principals.getKey(), node.get(PRINCIPAL_KEY).asText())))
         .collect(groupingBy(Pair::getKey, mapping(Pair::getValue, toList())));
-  }
-
-  private void validateRequiresKeys(JsonNode rootNode, String... keys) throws IOException {
-    for (String key : keys) {
-      if (rootNode.get(key) == null) {
-        throw new IOException(key + " is a required field in the topology, please specify.");
-      }
-    }
   }
 }

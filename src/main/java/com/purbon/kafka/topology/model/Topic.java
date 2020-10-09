@@ -16,7 +16,7 @@ public interface Topic {
 
   void setSchemas(TopicSchemas schemas);
 
-  HashMap<String, String> getConfig();
+  Map<String, String> getConfig();
 
   HashMap<String, String> getRawConfig();
 
