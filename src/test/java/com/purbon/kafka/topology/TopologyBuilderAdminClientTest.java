@@ -66,9 +66,9 @@ public class TopologyBuilderAdminClientTest {
 
   @Before
   public void setup() throws ExecutionException, InterruptedException, IOException {
-    adminClient = new TopologyBuilderAdminClient(kafkaAdminClient, config);
+    adminClient = new TopologyBuilderAdminClient(kafkaAdminClient);
     aclsProvider = new SimpleAclsProvider(adminClient);
-    bindingsBuilder = new AclsBindingsBuilder(adminClient);
+    bindingsBuilder = new AclsBindingsBuilder(config);
     accessControlManager = new AccessControlManager(aclsProvider, bindingsBuilder);
 
     plan = ExecutionPlan.init(backendController, System.out);

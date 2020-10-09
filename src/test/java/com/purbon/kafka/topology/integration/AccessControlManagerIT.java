@@ -70,15 +70,14 @@ public class AccessControlManagerIT {
   @Before
   public void before() throws IOException {
     kafkaAdminClient = AdminClient.create(config());
-    TopologyBuilderAdminClient adminClient =
-        new TopologyBuilderAdminClient(kafkaAdminClient, config);
+    TopologyBuilderAdminClient adminClient = new TopologyBuilderAdminClient(kafkaAdminClient);
     adminClient.clearAcls();
 
     this.cs = new BackendController();
     this.plan = ExecutionPlan.init(cs, System.out);
 
     aclsProvider = new SimpleAclsProvider(adminClient);
-    bindingsBuilder = new AclsBindingsBuilder(adminClient);
+    bindingsBuilder = new AclsBindingsBuilder(config);
     accessControlManager = new AccessControlManager(aclsProvider, bindingsBuilder);
   }
 

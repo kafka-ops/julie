@@ -24,6 +24,6 @@ public class TopologyBuilderAdminClientBuilder {
         String.format(
             "Connecting AdminClient to %s",
             props.getProperty(AdminClientConfig.BOOTSTRAP_SERVERS_CONFIG)));
-    return new TopologyBuilderAdminClient(AdminClient.create(props), config);
+    return new TopologyBuilderAdminClient(AdminClient.create(props));
   }
 }
