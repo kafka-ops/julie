@@ -153,7 +153,7 @@ public class TopologyBuilderAdminClient {
         .entries()
         .forEach(
             entry -> {
-              if (!newEntryKeys.contains(entry.name())) {
+              if (!entry.isDefault() && !newEntryKeys.contains(entry.name())) {
                 listOfValues.add(new AlterConfigOp(entry, OpType.DELETE));
               }
             });
