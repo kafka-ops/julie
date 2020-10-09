@@ -62,7 +62,8 @@ public class TopicCustomDeserializer extends StdDeserializer<TopicImpl> {
                       node.get("key.schema.file").asText(),
                       node.get("value.schema.file").asText()));
             });
-    LOGGER.debug(String.format("Topic %s with config %s has been created", topic, config));
+    LOGGER.debug(
+        String.format("Topic %s with config %s has been created", topic.getName(), config));
     return topic;
   }
 }

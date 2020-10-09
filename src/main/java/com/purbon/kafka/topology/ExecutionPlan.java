@@ -49,7 +49,7 @@ public class ExecutionPlan {
       try {
         execute(action, dryRun);
       } catch (IOException e) {
-        LOGGER.error(e.getCause());
+        LOGGER.error(String.format("Something happen running action %s", action), e);
         throw e;
       }
     }
@@ -60,6 +60,7 @@ public class ExecutionPlan {
   }
 
   private void execute(Action action, boolean dryRun) throws IOException {
+    LOGGER.debug(String.format("Execution action %s (dryRun=%s)", action, dryRun));
     if (dryRun) {
       outputStream.println(action);
     } else {
