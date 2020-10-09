@@ -6,8 +6,12 @@ import static com.purbon.kafka.topology.TopologyBuilderConfig.MDS_SERVER;
 import static com.purbon.kafka.topology.TopologyBuilderConfig.MDS_SR_CLUSTER_ID_CONFIG;
 
 import com.purbon.kafka.topology.TopologyBuilderConfig;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 public class MDSApiClientBuilder {
+
+  private static final Logger LOGGER = LogManager.getLogger(MDSApiClientBuilder.class);
 
   private TopologyBuilderConfig config;
 
@@ -19,7 +23,6 @@ public class MDSApiClientBuilder {
     String mdsServer = config.getProperty(MDS_SERVER);
 
     MDSApiClient apiClient = new MDSApiClient(mdsServer);
-
     // Pass Cluster IDS
     String kafkaClusterID = config.getProperty(MDS_KAFKA_CLUSTER_ID_CONFIG);
     apiClient.setKafkaClusterId(kafkaClusterID);
@@ -28,6 +31,7 @@ public class MDSApiClientBuilder {
     String kafkaConnectClusterID = config.getProperty(MDS_KC_CLUSTER_ID_CONFIG);
     apiClient.setConnectClusterID(kafkaConnectClusterID);
 
+    LOGGER.info(String.format("Connecting to an MDS server at %s", mdsServer));
     return apiClient;
   }
 

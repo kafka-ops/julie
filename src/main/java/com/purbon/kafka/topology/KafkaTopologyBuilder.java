@@ -24,8 +24,12 @@ import java.nio.file.Paths;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 public class KafkaTopologyBuilder implements AutoCloseable {
+
+  private static final Logger LOGGER = LogManager.getLogger(KafkaTopologyBuilder.class);
 
   private TopicManager topicManager;
   private AccessControlManager accessControlManager;
@@ -109,6 +113,10 @@ public class KafkaTopologyBuilder implements AutoCloseable {
   }
 
   void run(ExecutionPlan plan) throws IOException {
+    LOGGER.debug(
+        String.format(
+            "Running topology builder with TopicManager=[%s], accessControlManager=[%s], dryRun=[%s], isQuite=[%s]",
+            topicManager, accessControlManager, config.isDryRun(), config.isQuiet()));
 
     topicManager.apply(topology, plan);
     accessControlManager.apply(topology, plan);
