@@ -16,7 +16,7 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnit;
 import org.mockito.junit.MockitoRule;
 
-public class ClusterStateTest {
+public class BackendControllerTest {
 
   @Mock FileBackend fileStateProcessor;
 
@@ -25,7 +25,7 @@ public class ClusterStateTest {
   @Test
   public void testClusterStateRecovery() throws IOException {
 
-    ClusterState backend = new ClusterState(fileStateProcessor);
+    BackendController backend = new BackendController(fileStateProcessor);
     TopologyAclBinding binding =
         TopologyAclBinding.build(
             ResourceType.CLUSTER.name(), "Topic", "host", "op", "principal", "LITERAL");
@@ -38,7 +38,7 @@ public class ClusterStateTest {
   @Test
   public void testClusterStateSize() {
 
-    ClusterState backend = new ClusterState(fileStateProcessor);
+    BackendController backend = new BackendController(fileStateProcessor);
     TopologyAclBinding binding =
         TopologyAclBinding.build(
             ResourceType.CLUSTER.name(), "Topic", "host", "op", "principal", "LITERAL");

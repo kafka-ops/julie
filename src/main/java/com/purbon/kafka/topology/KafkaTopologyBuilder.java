@@ -130,7 +130,7 @@ public class KafkaTopologyBuilder implements AutoCloseable {
   }
 
   public void run() throws IOException {
-    ClusterState cs = buildStateProcessor(config);
+    BackendController cs = buildStateProcessor(config);
     ExecutionPlan plan = ExecutionPlan.init(cs, outputStream);
     run(plan);
   }
@@ -153,17 +153,18 @@ public class KafkaTopologyBuilder implements AutoCloseable {
     }
   }
 
-  private static ClusterState buildStateProcessor(TopologyBuilderConfig config) throws IOException {
+  private static BackendController buildStateProcessor(TopologyBuilderConfig config)
+      throws IOException {
 
     String stateProcessorClass = config.getStateProcessorImplementationClassName();
 
     try {
       if (stateProcessorClass.equalsIgnoreCase(STATE_PROCESSOR_DEFAULT_CLASS)) {
-        return new ClusterState(new FileBackend());
+        return new BackendController(new FileBackend());
       } else if (stateProcessorClass.equalsIgnoreCase(REDIS_STATE_PROCESSOR_CLASS)) {
         String host = config.getProperty(REDIS_HOST_CONFIG);
         int port = Integer.parseInt(config.getProperty(REDIS_PORT_CONFIG));
-        return new ClusterState(new RedisBackend(host, port));
+        return new BackendController(new RedisBackend(host, port));
       } else {
         throw new IOException(stateProcessorClass + " Unknown state processor provided.");
       }

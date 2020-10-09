@@ -3,7 +3,7 @@ package com.purbon.kafka.topology.integration;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
-import com.purbon.kafka.topology.ClusterState;
+import com.purbon.kafka.topology.BackendController;
 import com.purbon.kafka.topology.ExecutionPlan;
 import com.purbon.kafka.topology.TopicManager;
 import com.purbon.kafka.topology.TopologyBuilderConfig;
@@ -78,7 +78,7 @@ public class TopicManagerIT {
     final SchemaRegistryClient schemaRegistryClient = new MockSchemaRegistryClient();
     final SchemaRegistryManager schemaRegistryManager =
         new SchemaRegistryManager(schemaRegistryClient, System.getProperty("user.dir"));
-    this.plan = ExecutionPlan.init(new ClusterState(), System.out);
+    this.plan = ExecutionPlan.init(new BackendController(), System.out);
     this.topicManager = new TopicManager(adminClient, schemaRegistryManager);
   }
 

@@ -204,7 +204,7 @@ public class KafkaTopologyBuilderTest {
 
     doNothing().when(accessControlManager).apply(anyObject(), anyObject());
 
-    ClusterState cs = new ClusterState(stateProcessor);
+    BackendController cs = new BackendController(stateProcessor);
     ExecutionPlan plan = ExecutionPlan.init(cs, System.out);
 
     builder.run(plan);

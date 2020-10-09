@@ -10,20 +10,20 @@ import java.util.Set;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-public class ClusterState {
+public class BackendController {
 
-  private static final Logger LOGGER = LogManager.getLogger(ClusterState.class);
+  private static final Logger LOGGER = LogManager.getLogger(BackendController.class);
 
   private static final String STORE_TYPE = "acls";
 
   private final Backend backend;
   private Set<TopologyAclBinding> bindings;
 
-  public ClusterState() {
+  public BackendController() {
     this(new FileBackend());
   }
 
-  public ClusterState(Backend backend) {
+  public BackendController(Backend backend) {
     this.backend = backend;
     this.bindings = new HashSet<>();
   }
