@@ -24,7 +24,7 @@ public class TopicImpl implements Topic, Cloneable {
 
   private String name;
 
-  private HashMap<String, String> config;
+  private Map<String, String> config;
   @JsonIgnore private TopologyBuilderConfig appConfig;
   @JsonIgnore private Map<String, Object> context;
 
@@ -62,7 +62,7 @@ public class TopicImpl implements Topic, Cloneable {
   public TopicImpl(
       String name,
       Optional<String> dataType,
-      HashMap<String, String> config,
+      Map<String, String> config,
       TopologyBuilderConfig appConfig) {
     this.name = name;
     this.dataType = dataType;
@@ -120,7 +120,7 @@ public class TopicImpl implements Topic, Cloneable {
   }
 
   @Override
-  public HashMap<String, String> getConfig() {
+  public Map<String, String> getConfig() {
     return config;
   }
 

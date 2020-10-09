@@ -23,7 +23,7 @@ public class CreateBindings extends BaseAccessControlAction {
   }
 
   @Override
-  public void run() throws IOException {
+  protected void execute() throws IOException {
     LOGGER.debug("CreateBindings: " + bindings);
     controlProvider.createBindings(new HashSet<>(bindings));
   }

@@ -1,4 +1,4 @@
-package com.purbon.kafka.topology.adminclient;
+package com.purbon.kafka.topology.api.adminclient;
 
 import org.apache.kafka.common.acl.AccessControlEntry;
 import org.apache.kafka.common.acl.AclBinding;

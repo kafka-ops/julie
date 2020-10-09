@@ -3,7 +3,7 @@ package com.purbon.kafka.topology.integration;
 import static org.mockito.Mockito.when;
 
 import com.purbon.kafka.topology.AccessControlManager;
-import com.purbon.kafka.topology.ClusterState;
+import com.purbon.kafka.topology.BackendController;
 import com.purbon.kafka.topology.ExecutionPlan;
 import com.purbon.kafka.topology.TopologyBuilderConfig;
 import com.purbon.kafka.topology.api.adminclient.TopologyBuilderAdminClient;
@@ -62,7 +62,7 @@ public class AccessControlManagerIT {
   private AclsBindingsBuilder bindingsBuilder;
 
   private ExecutionPlan plan;
-  private ClusterState cs;
+  private BackendController cs;
   @Rule public MockitoRule mockitoRule = MockitoJUnit.rule();
 
   @Mock private TopologyBuilderConfig config;
@@ -70,15 +70,14 @@ public class AccessControlManagerIT {
   @Before
   public void before() throws IOException {
     kafkaAdminClient = AdminClient.create(config());
-    TopologyBuilderAdminClient adminClient =
-        new TopologyBuilderAdminClient(kafkaAdminClient, config);
+    TopologyBuilderAdminClient adminClient = new TopologyBuilderAdminClient(kafkaAdminClient);
     adminClient.clearAcls();
 
-    this.cs = new ClusterState();
+    this.cs = new BackendController();
     this.plan = ExecutionPlan.init(cs, System.out);
 
     aclsProvider = new SimpleAclsProvider(adminClient);
-    bindingsBuilder = new AclsBindingsBuilder(adminClient);
+    bindingsBuilder = new AclsBindingsBuilder(config);
     accessControlManager = new AccessControlManager(aclsProvider, bindingsBuilder);
   }
 

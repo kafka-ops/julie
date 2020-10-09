@@ -36,6 +36,12 @@ projects:
       - principal: "User:App1"
         subjects:
           - "contracts"
+    rbac:
+      - ResourceOwner:
+          - principal: "User:Foo"
+      - SecurityAdmin:
+          - principal: "User:Boo"
+          - principal: "User:Zoo"
     topics:
       - name: "foo"
         config:

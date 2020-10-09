@@ -58,7 +58,7 @@ public class AccessControlProviderFactory {
     String accessControlClass = config.getAccessControlClassName();
     try {
       if (accessControlClass.equalsIgnoreCase(ACCESS_CONTROL_DEFAULT_CLASS)) {
-        return new AclsBindingsBuilder(builderAdminClient);
+        return new AclsBindingsBuilder(config);
       } else if (accessControlClass.equalsIgnoreCase(RBAC_ACCESS_CONTROL_CLASS)) {
         MDSApiClient apiClient = apiClientLogIn();
         apiClient.authenticate();

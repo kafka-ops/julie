@@ -23,7 +23,7 @@ public class BuildBindingsForConsumer extends BaseAccessControlAction {
   }
 
   @Override
-  public void run() {
+  protected void execute() {
     bindings = builderProvider.buildBindingsForConsumers(consumers, fullTopicName);
   }
 

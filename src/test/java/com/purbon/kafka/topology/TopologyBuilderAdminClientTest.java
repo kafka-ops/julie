@@ -58,7 +58,7 @@ public class TopologyBuilderAdminClientTest {
   private AclsBindingsBuilder bindingsBuilder;
   private ExecutionPlan plan;
 
-  @Mock ClusterState clusterState;
+  @Mock BackendController backendController;
 
   @Rule public MockitoRule mockitoRule = MockitoJUnit.rule();
 
@@ -66,15 +66,15 @@ public class TopologyBuilderAdminClientTest {
 
   @Before
   public void setup() throws ExecutionException, InterruptedException, IOException {
-    adminClient = new TopologyBuilderAdminClient(kafkaAdminClient, config);
+    adminClient = new TopologyBuilderAdminClient(kafkaAdminClient);
     aclsProvider = new SimpleAclsProvider(adminClient);
-    bindingsBuilder = new AclsBindingsBuilder(adminClient);
+    bindingsBuilder = new AclsBindingsBuilder(config);
     accessControlManager = new AccessControlManager(aclsProvider, bindingsBuilder);
 
-    plan = ExecutionPlan.init(clusterState, System.out);
+    plan = ExecutionPlan.init(backendController, System.out);
 
-    doNothing().when(clusterState).add(Matchers.anyList());
-    doNothing().when(clusterState).flushAndClose();
+    doNothing().when(backendController).add(Matchers.anyList());
+    doNothing().when(backendController).flushAndClose();
 
     doReturn("foo").when(config).getConfluentCommandTopic();
     doReturn("foo").when(config).getConfluentMetricsTopic();

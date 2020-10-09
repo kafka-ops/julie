@@ -43,13 +43,15 @@ public class SyncTopicAction extends BaseAction {
 
   public void syncTopic(Topic topic, String fullTopicName, Set<String> listOfTopics)
       throws IOException {
-    LOGGER.debug("SyncTopic: " + topic);
+    LOGGER.debug(String.format("Sync topic %s", fullTopicName));
     if (existTopic(fullTopicName, listOfTopics)) {
       if (topic.partitionsCount() > adminClient.getPartitionCount(fullTopicName)) {
+        LOGGER.debug(String.format("Update partition count of topic %s", fullTopicName));
         adminClient.updatePartitionCount(topic, fullTopicName);
       }
       adminClient.updateTopicConfig(topic, fullTopicName);
     } else {
+      LOGGER.debug(String.format("Create new topic with name %s", fullTopicName));
       adminClient.createTopic(topic, fullTopicName);
     }
 

@@ -3,10 +3,9 @@ package com.purbon.kafka.topology.integration;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
-import com.purbon.kafka.topology.ClusterState;
+import com.purbon.kafka.topology.BackendController;
 import com.purbon.kafka.topology.ExecutionPlan;
 import com.purbon.kafka.topology.TopicManager;
-import com.purbon.kafka.topology.TopologyBuilderConfig;
 import com.purbon.kafka.topology.api.adminclient.TopologyBuilderAdminClient;
 import com.purbon.kafka.topology.model.Impl.ProjectImpl;
 import com.purbon.kafka.topology.model.Impl.TopicImpl;
@@ -41,7 +40,6 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Rule;
 import org.junit.Test;
-import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnit;
 import org.mockito.junit.MockitoRule;
 import org.testcontainers.containers.KafkaContainer;
@@ -55,8 +53,6 @@ public class TopicManagerIT {
   private ExecutionPlan plan;
 
   @Rule public MockitoRule mockitoRule = MockitoJUnit.rule();
-
-  @Mock private TopologyBuilderConfig config;
 
   @BeforeClass
   public static void setup() {
@@ -72,13 +68,12 @@ public class TopicManagerIT {
   @Before
   public void before() throws IOException {
     kafkaAdminClient = AdminClient.create(config());
-    TopologyBuilderAdminClient adminClient =
-        new TopologyBuilderAdminClient(kafkaAdminClient, config);
+    TopologyBuilderAdminClient adminClient = new TopologyBuilderAdminClient(kafkaAdminClient);
 
     final SchemaRegistryClient schemaRegistryClient = new MockSchemaRegistryClient();
     final SchemaRegistryManager schemaRegistryManager =
         new SchemaRegistryManager(schemaRegistryClient, System.getProperty("user.dir"));
-    this.plan = ExecutionPlan.init(new ClusterState(), System.out);
+    this.plan = ExecutionPlan.init(new BackendController(), System.out);
     this.topicManager = new TopicManager(adminClient, schemaRegistryManager);
   }
 

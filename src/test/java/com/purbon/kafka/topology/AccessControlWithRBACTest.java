@@ -35,7 +35,7 @@ public class AccessControlWithRBACTest {
   @Mock RBACBindingsBuilder bindingsBuilder;
 
   @Mock ExecutionPlan plan;
-  @Mock ClusterState clusterState;
+  @Mock BackendController backendController;
 
   @Rule public MockitoRule mockitoRule = MockitoJUnit.rule();
 
@@ -44,7 +44,7 @@ public class AccessControlWithRBACTest {
   @Before
   public void setup() throws IOException {
     accessControlManager = new AccessControlManager(aclsProvider, bindingsBuilder);
-    plan = ExecutionPlan.init(clusterState, System.out);
+    plan = ExecutionPlan.init(backendController, System.out);
   }
 
   @Test

@@ -33,7 +33,7 @@ public class TopicManagerTest {
 
   @Mock SchemaRegistryManager schemaRegistryManager;
 
-  @Mock ClusterState clusterState;
+  @Mock BackendController backendController;
   ExecutionPlan plan;
   @Mock PrintStream outputStream;
 
@@ -46,7 +46,7 @@ public class TopicManagerTest {
   public void setup() throws IOException {
     cliOps = new HashMap<>();
     cliOps.put(BROKERS_OPTION, "");
-    plan = ExecutionPlan.init(clusterState, System.out);
+    plan = ExecutionPlan.init(backendController, System.out);
     topicManager = new TopicManager(adminClient, schemaRegistryManager);
   }
 
@@ -204,7 +204,7 @@ public class TopicManagerTest {
   @Test
   public void dryRunTest() throws IOException {
 
-    plan = ExecutionPlan.init(clusterState, outputStream);
+    plan = ExecutionPlan.init(backendController, outputStream);
     Project project = new ProjectImpl("project");
     Topic topicA = new TopicImpl("topicA");
     project.addTopic(topicA);

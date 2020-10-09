@@ -24,8 +24,12 @@ import java.nio.file.Paths;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 public class KafkaTopologyBuilder implements AutoCloseable {
+
+  private static final Logger LOGGER = LogManager.getLogger(KafkaTopologyBuilder.class);
 
   private TopicManager topicManager;
   private AccessControlManager accessControlManager;
@@ -109,6 +113,10 @@ public class KafkaTopologyBuilder implements AutoCloseable {
   }
 
   void run(ExecutionPlan plan) throws IOException {
+    LOGGER.debug(
+        String.format(
+            "Running topology builder with TopicManager=[%s], accessControlManager=[%s], dryRun=[%s], isQuite=[%s]",
+            topicManager, accessControlManager, config.isDryRun(), config.isQuiet()));
 
     topicManager.apply(topology, plan);
     accessControlManager.apply(topology, plan);
@@ -122,7 +130,7 @@ public class KafkaTopologyBuilder implements AutoCloseable {
   }
 
   public void run() throws IOException {
-    ClusterState cs = buildStateProcessor(config);
+    BackendController cs = buildStateProcessor(config);
     ExecutionPlan plan = ExecutionPlan.init(cs, outputStream);
     run(plan);
   }
@@ -145,17 +153,18 @@ public class KafkaTopologyBuilder implements AutoCloseable {
     }
   }
 
-  private static ClusterState buildStateProcessor(TopologyBuilderConfig config) throws IOException {
+  private static BackendController buildStateProcessor(TopologyBuilderConfig config)
+      throws IOException {
 
     String stateProcessorClass = config.getStateProcessorImplementationClassName();
 
     try {
       if (stateProcessorClass.equalsIgnoreCase(STATE_PROCESSOR_DEFAULT_CLASS)) {
-        return new ClusterState(new FileBackend());
+        return new BackendController(new FileBackend());
       } else if (stateProcessorClass.equalsIgnoreCase(REDIS_STATE_PROCESSOR_CLASS)) {
         String host = config.getProperty(REDIS_HOST_CONFIG);
         int port = Integer.parseInt(config.getProperty(REDIS_PORT_CONFIG));
-        return new ClusterState(new RedisBackend(host, port));
+        return new BackendController(new RedisBackend(host, port));
       } else {
         throw new IOException(stateProcessorClass + " Unknown state processor provided.");
       }

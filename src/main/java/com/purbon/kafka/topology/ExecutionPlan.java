@@ -19,24 +19,25 @@ public class ExecutionPlan {
 
   private final List<Action> plan;
   private PrintStream outputStream;
-  private ClusterState clusterState;
+  private BackendController backendController;
   private Set<TopologyAclBinding> bindings;
 
-  private ExecutionPlan(List<Action> plan, PrintStream outputStream, ClusterState clusterState) {
+  private ExecutionPlan(
+      List<Action> plan, PrintStream outputStream, BackendController backendController) {
     this.plan = plan;
     this.outputStream = outputStream;
     this.bindings = new HashSet<>();
-    this.clusterState = clusterState;
+    this.backendController = backendController;
   }
 
   public void add(Action action) {
     this.plan.add(action);
   }
 
-  public static ExecutionPlan init(ClusterState clusterState, PrintStream outputStream)
+  public static ExecutionPlan init(BackendController backendController, PrintStream outputStream)
       throws IOException {
-    clusterState.load();
-    ExecutionPlan plan = new ExecutionPlan(new ArrayList<>(), outputStream, clusterState);
+    backendController.load();
+    ExecutionPlan plan = new ExecutionPlan(new ArrayList<>(), outputStream, backendController);
     return plan;
   }
 
@@ -49,17 +50,18 @@ public class ExecutionPlan {
       try {
         execute(action, dryRun);
       } catch (IOException e) {
-        LOGGER.error(e.getCause());
+        LOGGER.error(String.format("Something happen running action %s", action), e);
         throw e;
       }
     }
 
-    clusterState.reset();
-    clusterState.add(new ArrayList<>(bindings));
-    clusterState.flushAndClose();
+    backendController.reset();
+    backendController.add(new ArrayList<>(bindings));
+    backendController.flushAndClose();
   }
 
   private void execute(Action action, boolean dryRun) throws IOException {
+    LOGGER.debug(String.format("Execution action %s (dryRun=%s)", action, dryRun));
     if (dryRun) {
       outputStream.println(action);
     } else {

@@ -1,24 +1,15 @@
 package com.purbon.kafka.topology.api.adminclient;
 
-import com.purbon.kafka.topology.TopologyBuilderConfig;
-import com.purbon.kafka.topology.adminclient.AclBuilder;
 import com.purbon.kafka.topology.model.Topic;
-import com.purbon.kafka.topology.model.users.Connector;
-import com.purbon.kafka.topology.model.users.Consumer;
-import com.purbon.kafka.topology.model.users.platform.SchemaRegistryInstance;
 import com.purbon.kafka.topology.roles.TopologyAclBinding;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ExecutionException;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 import org.apache.kafka.clients.admin.AdminClient;
 import org.apache.kafka.clients.admin.AlterConfigOp;
 import org.apache.kafka.clients.admin.AlterConfigOp.OpType;
@@ -28,7 +19,6 @@ import org.apache.kafka.clients.admin.ListTopicsOptions;
 import org.apache.kafka.clients.admin.NewPartitions;
 import org.apache.kafka.clients.admin.NewTopic;
 import org.apache.kafka.clients.admin.TopicDescription;
-import org.apache.kafka.common.acl.AccessControlEntry;
 import org.apache.kafka.common.acl.AccessControlEntryFilter;
 import org.apache.kafka.common.acl.AclBinding;
 import org.apache.kafka.common.acl.AclBindingFilter;
@@ -39,9 +29,7 @@ import org.apache.kafka.common.config.ConfigResource.Type;
 import org.apache.kafka.common.errors.InvalidConfigurationException;
 import org.apache.kafka.common.errors.TopicExistsException;
 import org.apache.kafka.common.resource.PatternType;
-import org.apache.kafka.common.resource.ResourcePattern;
 import org.apache.kafka.common.resource.ResourcePatternFilter;
-import org.apache.kafka.common.resource.ResourceType;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -50,11 +38,9 @@ public class TopologyBuilderAdminClient {
   private static final Logger LOGGER = LogManager.getLogger(TopologyBuilderAdminClient.class);
 
   private final AdminClient adminClient;
-  private final TopologyBuilderConfig config;
 
-  public TopologyBuilderAdminClient(AdminClient adminClient, TopologyBuilderConfig config) {
+  public TopologyBuilderAdminClient(AdminClient adminClient) {
     this.adminClient = adminClient;
-    this.config = config;
   }
 
   public Set<String> listTopics(ListTopicsOptions options) throws IOException {
@@ -216,30 +202,6 @@ public class TopologyBuilderAdminClient {
     }
   }
 
-  public List<AclBinding> setAclsForProducer(String principal, String topic) {
-    List<AclBinding> acls = new ArrayList<>();
-    acls.add(buildTopicLevelAcl(principal, topic, PatternType.LITERAL, AclOperation.DESCRIBE));
-    acls.add(buildTopicLevelAcl(principal, topic, PatternType.LITERAL, AclOperation.WRITE));
-    return acls;
-  }
-
-  public List<AclBinding> setAclsForConsumer(Consumer consumer, String topic) {
-
-    List<AclBinding> acls = new ArrayList<>();
-    acls.add(
-        buildTopicLevelAcl(
-            consumer.getPrincipal(), topic, PatternType.LITERAL, AclOperation.DESCRIBE));
-    acls.add(
-        buildTopicLevelAcl(consumer.getPrincipal(), topic, PatternType.LITERAL, AclOperation.READ));
-    acls.add(
-        buildGroupLevelAcl(
-            consumer.getPrincipal(),
-            consumer.groupString(),
-            consumer.groupString().equals("*") ? PatternType.PREFIXED : PatternType.LITERAL,
-            AclOperation.READ));
-    return acls;
-  }
-
   public Map<String, Collection<AclBinding>> fetchAclsList() {
     Map<String, Collection<AclBinding>> acls = new HashMap<>();
 
@@ -261,127 +223,6 @@ public class TopologyBuilderAdminClient {
     return acls;
   }
 
-  public List<AclBinding> setAclForSchemaRegistry(SchemaRegistryInstance schemaRegistry) {
-    List<AclBinding> bindings =
-        Arrays.asList(AclOperation.DESCRIBE_CONFIGS, AclOperation.WRITE, AclOperation.READ).stream()
-            .map(
-                aclOperation ->
-                    buildTopicLevelAcl(
-                        schemaRegistry.getPrincipal(),
-                        schemaRegistry.topicString(),
-                        PatternType.LITERAL,
-                        aclOperation))
-            .collect(Collectors.toList());
-    return bindings;
-  }
-
-  public List<AclBinding> setAclsForControlCenter(String principal, String appId) {
-    List<AclBinding> bindings = new ArrayList<>();
-
-    bindings.add(buildGroupLevelAcl(principal, appId, PatternType.PREFIXED, AclOperation.READ));
-    bindings.add(
-        buildGroupLevelAcl(principal, appId + "-command", PatternType.PREFIXED, AclOperation.READ));
-
-    Arrays.asList(
-            config.getConfluentMonitoringTopic(),
-            config.getConfluentCommandTopic(),
-            config.getConfluentMetricsTopic())
-        .forEach(
-            topic ->
-                Stream.of(
-                        AclOperation.WRITE,
-                        AclOperation.READ,
-                        AclOperation.CREATE,
-                        AclOperation.DESCRIBE)
-                    .map(
-                        aclOperation ->
-                            buildTopicLevelAcl(principal, topic, PatternType.LITERAL, aclOperation))
-                    .forEach(bindings::add));
-
-    Stream.of(AclOperation.WRITE, AclOperation.READ, AclOperation.CREATE, AclOperation.DESCRIBE)
-        .map(
-            aclOperation ->
-                buildTopicLevelAcl(principal, appId, PatternType.PREFIXED, aclOperation))
-        .forEach(bindings::add);
-
-    ResourcePattern resourcePattern =
-        new ResourcePattern(ResourceType.CLUSTER, "kafka-cluster", PatternType.LITERAL);
-    AccessControlEntry entry =
-        new AccessControlEntry(principal, "*", AclOperation.DESCRIBE, AclPermissionType.ALLOW);
-    bindings.add(new AclBinding(resourcePattern, entry));
-
-    entry =
-        new AccessControlEntry(
-            principal, "*", AclOperation.DESCRIBE_CONFIGS, AclPermissionType.ALLOW);
-    bindings.add(new AclBinding(resourcePattern, entry));
-    return bindings;
-  }
-
-  public List<AclBinding> setAclsForStreamsApp(
-      String principal, String topicPrefix, List<String> readTopics, List<String> writeTopics) {
-
-    List<AclBinding> acls = new ArrayList<>();
-
-    readTopics.forEach(
-        topic -> {
-          acls.add(buildTopicLevelAcl(principal, topic, PatternType.LITERAL, AclOperation.READ));
-        });
-
-    writeTopics.forEach(
-        topic -> {
-          acls.add(buildTopicLevelAcl(principal, topic, PatternType.LITERAL, AclOperation.WRITE));
-        });
-
-    acls.add(buildTopicLevelAcl(principal, topicPrefix, PatternType.PREFIXED, AclOperation.ALL));
-    return acls;
-  }
-
-  public List<AclBinding> setAclsForConnect(Connector connector) {
-
-    String principal = connector.getPrincipal();
-    List<String> readTopics = connector.getTopics().get("read");
-    List<String> writeTopics = connector.getTopics().get("write");
-
-    List<AclBinding> acls = new ArrayList<>();
-
-    List<String> topics =
-        Arrays.asList(
-            connector.statusTopicString(),
-            connector.offsetTopicString(),
-            connector.configsTopicString());
-
-    for (String topic : topics) {
-      acls.add(buildTopicLevelAcl(principal, topic, PatternType.LITERAL, AclOperation.READ));
-      acls.add(buildTopicLevelAcl(principal, topic, PatternType.LITERAL, AclOperation.WRITE));
-    }
-
-    ResourcePattern resourcePattern =
-        new ResourcePattern(ResourceType.CLUSTER, "kafka-cluster", PatternType.LITERAL);
-    AccessControlEntry entry =
-        new AccessControlEntry(principal, "*", AclOperation.CREATE, AclPermissionType.ALLOW);
-    acls.add(new AclBinding(resourcePattern, entry));
-
-    resourcePattern =
-        new ResourcePattern(ResourceType.GROUP, connector.groupString(), PatternType.LITERAL);
-    entry = new AccessControlEntry(principal, "*", AclOperation.READ, AclPermissionType.ALLOW);
-    acls.add(new AclBinding(resourcePattern, entry));
-
-    if (readTopics != null) {
-      readTopics.forEach(
-          topic -> {
-            acls.add(buildTopicLevelAcl(principal, topic, PatternType.LITERAL, AclOperation.READ));
-          });
-    }
-
-    if (writeTopics != null) {
-      writeTopics.forEach(
-          topic -> {
-            acls.add(buildTopicLevelAcl(principal, topic, PatternType.LITERAL, AclOperation.WRITE));
-          });
-    }
-    return acls;
-  }
-
   public void createAcls(Collection<AclBinding> acls) throws IOException {
     try {
       adminClient.createAcls(acls).all().get();
@@ -391,22 +232,6 @@ public class TopologyBuilderAdminClient {
     } catch (ExecutionException | InterruptedException e) {
       LOGGER.error(e);
     }
-  }
-
-  private AclBinding buildTopicLevelAcl(
-      String principal, String topic, PatternType patternType, AclOperation op) {
-    return new AclBuilder(principal)
-        .addResource(ResourceType.TOPIC, topic, patternType)
-        .addControlEntry("*", op, AclPermissionType.ALLOW)
-        .build();
-  }
-
-  private AclBinding buildGroupLevelAcl(
-      String principal, String group, PatternType patternType, AclOperation op) {
-    return new AclBuilder(principal)
-        .addResource(ResourceType.GROUP, group, patternType)
-        .addControlEntry("*", op, AclPermissionType.ALLOW)
-        .build();
   }
 
   public void close() {

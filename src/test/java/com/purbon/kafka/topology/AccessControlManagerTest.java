@@ -10,7 +10,7 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
 import com.purbon.kafka.topology.actions.Action;
-import com.purbon.kafka.topology.adminclient.AclBuilder;
+import com.purbon.kafka.topology.api.adminclient.AclBuilder;
 import com.purbon.kafka.topology.model.Component;
 import com.purbon.kafka.topology.model.Impl.ProjectImpl;
 import com.purbon.kafka.topology.model.Impl.TopicImpl;
@@ -61,7 +61,7 @@ public class AccessControlManagerTest {
   @Mock SimpleAclsProvider aclsProvider;
   @Mock AclsBindingsBuilder aclsBuilder;
 
-  @Mock ClusterState clusterState;
+  @Mock BackendController backendController;
 
   @Mock PrintStream mockPrintStream;
 
@@ -73,10 +73,10 @@ public class AccessControlManagerTest {
 
   @Before
   public void setup() throws IOException {
-    plan = ExecutionPlan.init(clusterState, mockPrintStream);
+    plan = ExecutionPlan.init(backendController, mockPrintStream);
     accessControlManager = new AccessControlManager(aclsProvider, aclsBuilder);
-    doNothing().when(clusterState).add(Matchers.anyList());
-    doNothing().when(clusterState).flushAndClose();
+    doNothing().when(backendController).add(Matchers.anyList());
+    doNothing().when(backendController).flushAndClose();
   }
 
   @Test
@@ -302,7 +302,7 @@ public class AccessControlManagerTest {
   @Test
   public void testDryRunMode() throws IOException {
 
-    plan = ExecutionPlan.init(clusterState, mockPrintStream);
+    plan = ExecutionPlan.init(backendController, mockPrintStream);
 
     List<Consumer> consumers = new ArrayList<>();
     consumers.add(new Consumer("User:app1"));
@@ -330,10 +330,10 @@ public class AccessControlManagerTest {
   @Test
   public void testAclDeleteLogic() throws IOException {
 
-    ClusterState clusterState = new ClusterState();
-    clusterState.load();
-    clusterState.reset();
-    plan = ExecutionPlan.init(clusterState, mockPrintStream);
+    BackendController backendController = new BackendController();
+    backendController.load();
+    backendController.reset();
+    plan = ExecutionPlan.init(backendController, mockPrintStream);
     accessControlManager = new AccessControlManager(aclsProvider, aclsBuilder);
 
     List<Consumer> consumers = new ArrayList<>();

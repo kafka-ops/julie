@@ -1,10 +1,15 @@
 package com.purbon.kafka.topology.serdes;
 
+import static com.purbon.kafka.topology.serdes.JsonSerdesUtils.validateRequiresKeys;
+import static java.util.stream.Collectors.groupingBy;
+import static java.util.stream.Collectors.mapping;
+import static java.util.stream.Collectors.toList;
+
 import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
-import com.google.common.base.Function;
 import com.google.common.collect.Maps;
 import com.purbon.kafka.topology.TopologyBuilderConfig;
 import com.purbon.kafka.topology.model.Impl.ProjectImpl;
@@ -23,6 +28,7 @@ import com.purbon.kafka.topology.model.users.platform.ControlCenter;
 import com.purbon.kafka.topology.model.users.platform.Kafka;
 import com.purbon.kafka.topology.model.users.platform.KafkaConnect;
 import com.purbon.kafka.topology.model.users.platform.SchemaRegistry;
+import com.purbon.kafka.topology.utils.Pair;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -31,9 +37,16 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import org.checkerframework.checker.nullness.compatqual.NullableDecl;
+import java.util.Optional;
+import java.util.function.Function;
+import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 public class TopologyCustomDeserializer extends StdDeserializer<Topology> {
+
+  private static final Logger LOGGER = LogManager.getLogger(TopologyCustomDeserializer.class);
 
   private static final String PROJECTS_KEY = "projects";
   private static final String CONTEXT_KEY = "context";
@@ -70,8 +83,7 @@ public class TopologyCustomDeserializer extends StdDeserializer<Topology> {
       throws IOException {
 
     JsonNode rootNode = parser.getCodec().readTree(parser);
-
-    validateRequiresKeys(rootNode);
+    validateRequiresKeys(rootNode, CONTEXT_KEY, PROJECTS_KEY);
 
     Topology topology = new TopologyImpl(config);
     List<String> excludeAttributes = Arrays.asList(PROJECTS_KEY, CONTEXT_KEY, PLATFORM_KEY);
@@ -88,37 +100,35 @@ public class TopologyCustomDeserializer extends StdDeserializer<Topology> {
     JsonNode platformNode = rootNode.get(PLATFORM_KEY);
     Platform platform = new Platform();
     if (platformNode != null && platformNode.size() > 0) {
-      JsonNode kafkaNode = platformNode.get(KAFKA_KEY);
-      if (kafkaNode != null) {
-        Kafka kafka = parser.getCodec().treeToValue(kafkaNode, Kafka.class);
-        platform.setKafka(kafka);
-      }
-      JsonNode kafkaConnectNode = platformNode.get(KAFKA_CONNECT_KEY);
-      if (kafkaConnectNode != null) {
-        KafkaConnect kafkaConnect =
-            parser.getCodec().treeToValue(kafkaConnectNode, KafkaConnect.class);
-        platform.setKafkaConnect(kafkaConnect);
-      }
-      JsonNode schemaRegistryNode = platformNode.get(SCHEMA_REGISTRY_KEY);
-      if (schemaRegistryNode != null) {
-        SchemaRegistry schemaRegistry =
-            parser.getCodec().treeToValue(schemaRegistryNode, SchemaRegistry.class);
-        platform.setSchemaRegistry(schemaRegistry);
-      }
-      JsonNode controlCenterNode = platformNode.get(CONTROL_CENTER_KEY);
-      if (controlCenterNode != null) {
-        ControlCenter controlCenter =
-            parser.getCodec().treeToValue(controlCenterNode, ControlCenter.class);
-        platform.setControlCenter(controlCenter);
-      }
+      parse(platformNode, KAFKA_KEY, parser, Kafka.class)
+          .ifPresent(obj -> platform.setKafka((Kafka) obj));
+      parse(platformNode, KAFKA_CONNECT_KEY, parser, KafkaConnect.class)
+          .ifPresent(obj -> platform.setKafkaConnect((KafkaConnect) obj));
+      parse(platformNode, SCHEMA_REGISTRY_KEY, parser, SchemaRegistry.class)
+          .ifPresent(obj -> platform.setSchemaRegistry((SchemaRegistry) obj));
+      parse(platformNode, CONTROL_CENTER_KEY, parser, ControlCenter.class)
+          .ifPresent(obj -> platform.setControlCenter((ControlCenter) obj));
+    } else {
+      LOGGER.debug("No platform components defined in the topology.");
     }
+
     topology.setPlatform(platform);
-
-    JsonNode projects = rootNode.get(PROJECTS_KEY);
-
-    parseProjects(parser, projects, topology, config).forEach(topology::addProject);
+    parseProjects(parser, rootNode.get(PROJECTS_KEY), topology, config)
+        .forEach(topology::addProject);
 
     return topology;
+  }
+
+  private Optional<Object> parse(JsonNode node, String key, JsonParser parser, Class klass)
+      throws JsonProcessingException {
+    JsonNode pNode = node.get(key);
+    if (pNode == null) {
+      LOGGER.debug(String.format("%s key is missing.", key));
+      return Optional.empty();
+    }
+    Object obj = parser.getCodec().treeToValue(pNode, klass);
+    LOGGER.debug(String.format("Extracting key %s with value %s", key, obj));
+    return Optional.of(obj);
   }
 
   private List<Project> parseProjects(
@@ -127,6 +137,9 @@ public class TopologyCustomDeserializer extends StdDeserializer<Topology> {
     List<Project> projects = new ArrayList<>();
     for (int i = 0; i < projectsNode.size(); i++) {
       Project project = parseProject(parser, projectsNode.get(i), topology, config);
+      LOGGER.debug(
+          String.format(
+              "Adding project %s to the Topology %s", project.getName(), topology.getContext()));
       projects.add(project);
     }
     return projects;
@@ -139,16 +152,7 @@ public class TopologyCustomDeserializer extends StdDeserializer<Topology> {
     List<String> keys =
         Arrays.asList(CONSUMERS_KEY, PROJECTS_KEY, CONNECTORS_KEY, STREAMS_KEY, SCHEMAS_KEY);
 
-    Map<String, JsonNode> rootNodes =
-        Maps.asMap(
-            new HashSet<>(keys),
-            new Function<String, JsonNode>() {
-              @NullableDecl
-              @Override
-              public JsonNode apply(@NullableDecl String key) {
-                return rootNode.get(key);
-              }
-            });
+    Map<String, JsonNode> rootNodes = Maps.asMap(new HashSet<>(keys), (key) -> rootNode.get(key));
 
     Map<String, List<? extends User>> mapOfValues = new HashMap<>();
     for (String key : rootNodes.keySet()) {
@@ -205,32 +209,21 @@ public class TopologyCustomDeserializer extends StdDeserializer<Topology> {
   }
 
   private Map<String, List<String>> parseOptionalRbacRoles(JsonNode rbacRootNode) {
-    Map<String, List<String>> roles = new HashMap<>();
-    if (rbacRootNode == null) return roles;
-    for (int i = 0; i < rbacRootNode.size(); i++) {
-      JsonNode elem = rbacRootNode.get(i);
-      Iterator<String> fields = elem.fieldNames();
-      while (fields.hasNext()) {
-        String field = fields.next(); // field == RoleName
-        List<String> principalsByRole = new ArrayList<>();
-        JsonNode principals = elem.get(field);
-        for (int j = 0; j < principals.size(); j++) {
-          JsonNode principalNode = principals.get(j);
-          String principal = principalNode.get(PRINCIPAL_KEY).asText();
-          principalsByRole.add(principal);
-        }
-        roles.put(field, principalsByRole);
-      }
-    }
-    return roles;
-  }
-
-  private void validateRequiresKeys(JsonNode rootNode) throws IOException {
-    List<String> keys = Arrays.asList(CONTEXT_KEY, PROJECTS_KEY);
-    for (String key : keys) {
-      if (rootNode.get(key) == null) {
-        throw new IOException(key + " is a required field in the topology, please specify.");
-      }
-    }
+    if (rbacRootNode == null) return new HashMap<>();
+    return StreamSupport.stream(rbacRootNode.spliterator(), true)
+        .map(
+            (Function<JsonNode, Pair<String, JsonNode>>)
+                node -> {
+                  String key = node.fieldNames().next();
+                  return new Pair(key, node.get(key));
+                })
+        .flatMap(
+            (Function<Pair<String, JsonNode>, Stream<Pair<String, String>>>)
+                principals ->
+                    StreamSupport.stream(principals.getValue().spliterator(), true)
+                        .map(
+                            node ->
+                                new Pair<>(principals.getKey(), node.get(PRINCIPAL_KEY).asText())))
+        .collect(groupingBy(Pair::getKey, mapping(Pair::getValue, toList())));
   }
 }
