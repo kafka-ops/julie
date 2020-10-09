@@ -135,14 +135,10 @@ public class AclsBindingsBuilder implements BindingsBuilderProvider {
     List<AclBinding> acls = new ArrayList<>();
 
     readTopics.forEach(
-        topic -> {
-          acls.add(buildTopicLevelAcl(principal, topic, PatternType.LITERAL, AclOperation.READ));
-        });
+        topic -> acls.add(buildTopicLevelAcl(principal, topic, PatternType.LITERAL, AclOperation.READ)));
 
     writeTopics.forEach(
-        topic -> {
-          acls.add(buildTopicLevelAcl(principal, topic, PatternType.LITERAL, AclOperation.WRITE));
-        });
+        topic -> acls.add(buildTopicLevelAcl(principal, topic, PatternType.LITERAL, AclOperation.WRITE)));
 
     acls.add(buildTopicLevelAcl(principal, topicPrefix, PatternType.PREFIXED, AclOperation.ALL));
     return acls.stream();
@@ -150,7 +146,7 @@ public class AclsBindingsBuilder implements BindingsBuilderProvider {
 
   private Stream<AclBinding> schemaRegistryAclsStream(SchemaRegistryInstance schemaRegistry) {
     List<AclBinding> bindings =
-        asList(AclOperation.DESCRIBE_CONFIGS, AclOperation.WRITE, AclOperation.READ).stream()
+        Stream.of(AclOperation.DESCRIBE_CONFIGS, AclOperation.WRITE, AclOperation.READ)
             .map(
                 aclOperation ->
                     buildTopicLevelAcl(
