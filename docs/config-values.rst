@@ -7,6 +7,7 @@ Access control configuration
 -----------
 
 Configure the access control methodology.
+
 **Property**: *topology.builder.access.control.class*
 **Default value**: "com.purbon.kafka.topology.roles.SimpleAclsProvider"
 **values**:
@@ -30,10 +31,13 @@ A part from that, you need to setup the UUID for each of your clusters. This is 
     topology.builder.mds.kafka.connect.cluster.id = "connect-cluster"
 
 
-Topology Builder state management
+Topology Builder backend usage and selection
 -----------
 
-The topology builder keeps necessary state list to manage differences internally. This method is by default using a file, however is possible to use external systems.
+It is necessary for the topology builder to keep some state, for example for situations when the tool needs to decide what ACLs to remove.
+As well this property is important when the tool does not manage all topics in the cluster, so it is important to know it context.
+
+The default implementation is a File, however is possible ot use other systems.
 To configure it you can use:
 
 Configure the state management system.
@@ -48,3 +52,29 @@ If you are using redis, you need to extend two other properties to setup the ser
   topology.builder.redis.host = "example.com"
   topology.builder.redis.port = 6379
 
+Customize the topic naming convention
+-----------
+
+A request, not either common, but necessary in some situations is to customize the topic naming convention.
+For this the Kafka Topology Builder offers the user the option to set it up using the configuration file.
+
+This future accepts patterns using the `jinja template <https://jinja.palletsprojects.com/en/2.11.x/>`_ formatting.
+*NOTE*: The properties used in the template need to exist in the topology as attributes.
+
+As a user you can customize:
+
+- **Property**: *topology.topic.prefix.format*, to set the full topic naming format.
+- **Property**: *topology.project.prefix.format*, to set the project level name format, it should be a subset of the previous one.
+- **Property**: *topology.topic.prefix.separator*, to select a custom separator between attributes.
+
+Topology level validations
+-----------
+
+It is now possible to define a list of validations to be applied to the desired Topology file.
+
+As a user you can list the validations to be applied using the configuration property:
+
+- **Property**: *topology.validations*
+
+This property accepts the list of validations available in the class path.
+They will be applied in sequence as defined.

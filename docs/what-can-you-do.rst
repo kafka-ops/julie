@@ -39,7 +39,8 @@ Consumers
 ^^^^^^^^^^^
 
 As a user you can configure consumers for each project.
-Consumer have a principal and optionally a consumer group name, if the consumer group is not defined a group ACL with "*" will be created.
+Consumer have a principal and optionally a consumer group name, if the consumer group is by default defined as prefix ACL with "*".
+Users can customize this property by defining a *group* attribute for each consumer.
 
 
 .. code-block:: YAML
@@ -233,15 +234,107 @@ When using Confluent Cloud, a *service account* with the proper rights to run th
   ccloud kafka acl create --allow --service-account 123456 --topic samplecontext --prefix --operation DELETE
 
 
-
-
-
-
-
-
-
 RBAC
 -----------
+
+
+Having multiple Kafka Connect clusters
+^^^^^^^^^^^
+
+A more than common scenario in many organisations is to have multiple Kafka Connect clusters.
+The Kafka Topology Builder will allow you to configure and manage them using a single Topology, using a descriptor yaml like this one:
+
+.. code-block:: YAML
+
+  ---
+    context: "context"
+    projects:
+      - name: "projectA"
+        consumers:
+          - principal: "User:App0"
+          - principal: "User:App1"
+        producers:
+          - principal: "User:App3"
+          - principal: "User:App4"
+        connectors:
+          - principal: "User:Connect1"
+            group: "group"
+            status_topic: "status"
+            offset_topic: "offset"
+            configs_topic: "configs"
+            topics:
+              read:
+                - "topicA"
+                - "topicB"
+
+The reader can see with the previous YAML code block that *User:Connect1* will be authorized for a custom set of group, status, offset and configs topics.
+This future is very flexible as single topology files can be used to describe permission for multiple Connect clusters.
+
+Access for specific Connectors
+^^^^^^^^^^^
+
+It is possible in RBAC to assign permission for a given principal to access a given set of Connectors.
+This is possible with the Kafka Topology Builder with a topology like the one below, where *User:Connect1* will have access to connectors *jdbc-sync* and *jdbc-source*.
+
+.. code-block:: YAML
+
+  ---
+    context: "context"
+    source: "source"
+    projects:
+      - name: "foo"
+        consumers:
+          - principal: "User:App0"
+          - principal: "User:App1"
+        connectors:
+          - principal: "User:Connect1"
+            connectors:
+              - "jdbc-sync"
+              - "ibmmq-source"
+            topics:
+              read:
+                - "topicA"
+                - "topicB"
+          - principal: "User:Connect2"
+            topics:
+              write:
+                - "topicC"
+                - "topicD"
+
+Access for specific Schemas
+^^^^^^^^^^^
+
+It is possible in RBAC to assign permission for a given principal to access a given set of Schemas.
+This is possible with the Kafka Topology Builder with a topology like the one below, where *User:App0* will
+have access to schemas in subjects *transactions* and *User:App1* to subject *contracts*.
+
+.. code-block:: YAML
+
+  ---
+    context: "context"
+    source: "source"
+    projects:
+      - name: "foo"
+        consumers:
+          - principal: "User:App0"
+          - principal: "User:App1"
+        streams:
+          - principal: "User:App0"
+            topics:
+              read:
+                - "topicA"
+                - "topicB"
+              write:
+                - "topicC"
+                - "topicD"
+        schemas:
+          - principal: "User:App0"
+            subjects:
+              - "transactions"
+          - principal: "User:App1"
+            subjects:
+              - "contracts"
+
 
 Cluster wide roles
 ^^^^^^^^^^^
@@ -281,3 +374,43 @@ It might be extended in the future for other clusters in the platform.
 
 
 In the previous example the reader can see how to add cluster wide roles into each of the available clusters, all roles go under the rbac label.
+
+*NOTE*: The syntax support having multiple schema registry instance where the reader can configure specific *schema topics* and *groups*.
+This capability allows a high degree of personalisation for the permissions being generated.
+
+
+Schema Management
+-----------
+
+Because not only from Topics and Access live the Kafka team, with the Kafka Topology Builder you can manage as well your schemas.
+This functionality can be very useful for administering your cross environment, but as well to register specific schemas per topic.
+
+An example topology for managing schemas would look like this (*only the topics section*).
+
+.. code-block:: YAML
+
+  ---
+    context: "context"
+    company: "company"
+    env: "env"
+    source: "source"
+    projects:
+      - name: "projectA"
+        topics:
+          - name: "foo"
+            config:
+              replication.factor: "1"
+              num.partitions: "1"
+          - name: "bar"
+            dataType: "avro"
+            schemas:
+              key.schema.file: "schemas/bar-key.avsc"
+              value.schema.file: "schemas/bar-value.avsc"
+            config:
+              replication.factor: "1"
+              num.partitions: "1"
+
+If using an example like this, for the topic _bar_ there is going to be an schema registered for key and value.
+Currently the schemas are managed as files and need to be accessible for the KTB tool, for example inside the git repository.
+
+*NOTE*: The path for the files is relative to the location of the of the topology.
