@@ -54,6 +54,7 @@ Contents
 
    core-concepts
    what-can-you-do
+   how-to-run-it
    workflow-setup
    powered-with
    config-values
