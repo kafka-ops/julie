@@ -1,5 +1,7 @@
 package com.purbon.kafka.topology.roles.acls;
 
+import static java.util.Arrays.asList;
+
 import com.purbon.kafka.topology.BindingsBuilderProvider;
 import com.purbon.kafka.topology.TopologyBuilderConfig;
 import com.purbon.kafka.topology.api.adminclient.AclBuilder;
@@ -8,7 +10,6 @@ import com.purbon.kafka.topology.model.users.Consumer;
 import com.purbon.kafka.topology.model.users.platform.SchemaRegistryInstance;
 import com.purbon.kafka.topology.roles.TopologyAclBinding;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -31,77 +32,6 @@ public class AclsBindingsBuilder implements BindingsBuilderProvider {
 
   @Override
   public List<TopologyAclBinding> buildBindingsForConnect(Connector connector, String topicPrefix) {
-    return setAclsForConnect(connector).stream()
-        .map(TopologyAclBinding::new)
-        .collect(Collectors.toList());
-  }
-
-  @Override
-  public List<TopologyAclBinding> buildBindingsForStreamsApp(
-      String principal, String topicPrefix, List<String> readTopics, List<String> writeTopics) {
-    return setAclsForStreamsApp(principal, topicPrefix, readTopics, writeTopics).stream()
-        .map(TopologyAclBinding::new)
-        .collect(Collectors.toList());
-  }
-
-  @Override
-  public List<TopologyAclBinding> buildBindingsForConsumers(
-      Collection<Consumer> consumers, String topic) {
-    return consumers.stream()
-        .flatMap(
-            consumer -> setAclsForConsumer(consumer, topic).stream().map(TopologyAclBinding::new))
-        .collect(Collectors.toList());
-  }
-
-  @Override
-  public List<TopologyAclBinding> buildBindingsForProducers(
-      Collection<String> principals, String topic) {
-    return principals.stream()
-        .flatMap(
-            principal -> setAclsForProducer(principal, topic).stream().map(TopologyAclBinding::new))
-        .collect(Collectors.toList());
-  }
-
-  @Override
-  public List<TopologyAclBinding> buildBindingsForSchemaRegistry(
-      SchemaRegistryInstance schemaRegistry) {
-    return setAclForSchemaRegistry(schemaRegistry).stream()
-        .map(TopologyAclBinding::new)
-        .collect(Collectors.toList());
-  }
-
-  @Override
-  public List<TopologyAclBinding> buildBindingsForControlCenter(String principal, String appId) {
-    return setAclsForControlCenter(principal, appId).stream()
-        .map(TopologyAclBinding::new)
-        .collect(Collectors.toList());
-  }
-
-  private List<AclBinding> setAclsForProducer(String principal, String topic) {
-    List<AclBinding> acls = new ArrayList<>();
-    acls.add(buildTopicLevelAcl(principal, topic, PatternType.LITERAL, AclOperation.DESCRIBE));
-    acls.add(buildTopicLevelAcl(principal, topic, PatternType.LITERAL, AclOperation.WRITE));
-    return acls;
-  }
-
-  private List<AclBinding> setAclsForConsumer(Consumer consumer, String topic) {
-
-    List<AclBinding> acls = new ArrayList<>();
-    acls.add(
-        buildTopicLevelAcl(
-            consumer.getPrincipal(), topic, PatternType.LITERAL, AclOperation.DESCRIBE));
-    acls.add(
-        buildTopicLevelAcl(consumer.getPrincipal(), topic, PatternType.LITERAL, AclOperation.READ));
-    acls.add(
-        buildGroupLevelAcl(
-            consumer.getPrincipal(),
-            consumer.groupString(),
-            consumer.groupString().equals("*") ? PatternType.PREFIXED : PatternType.LITERAL,
-            AclOperation.READ));
-    return acls;
-  }
-
-  private List<AclBinding> setAclsForConnect(Connector connector) {
 
     String principal = connector.getPrincipal();
     List<String> readTopics = connector.getTopics().get("read");
@@ -110,7 +40,7 @@ public class AclsBindingsBuilder implements BindingsBuilderProvider {
     List<AclBinding> acls = new ArrayList<>();
 
     List<String> topics =
-        Arrays.asList(
+        asList(
             connector.statusTopicString(),
             connector.offsetTopicString(),
             connector.configsTopicString());
@@ -133,21 +63,73 @@ public class AclsBindingsBuilder implements BindingsBuilderProvider {
 
     if (readTopics != null) {
       readTopics.forEach(
-          topic -> {
-            acls.add(buildTopicLevelAcl(principal, topic, PatternType.LITERAL, AclOperation.READ));
-          });
+          topic ->
+              acls.add(
+                  buildTopicLevelAcl(principal, topic, PatternType.LITERAL, AclOperation.READ)));
     }
 
     if (writeTopics != null) {
       writeTopics.forEach(
-          topic -> {
-            acls.add(buildTopicLevelAcl(principal, topic, PatternType.LITERAL, AclOperation.WRITE));
-          });
+          topic ->
+              acls.add(
+                  buildTopicLevelAcl(principal, topic, PatternType.LITERAL, AclOperation.WRITE)));
     }
-    return acls;
+
+    return toList(acls.stream());
   }
 
-  private List<AclBinding> setAclsForStreamsApp(
+  @Override
+  public List<TopologyAclBinding> buildBindingsForStreamsApp(
+      String principal, String topicPrefix, List<String> readTopics, List<String> writeTopics) {
+    return toList(streamsAppStream(principal, topicPrefix, readTopics, writeTopics));
+  }
+
+  @Override
+  public List<TopologyAclBinding> buildBindingsForConsumers(
+      Collection<Consumer> consumers, String topic) {
+    return toList(consumers.stream().flatMap(consumer -> consumerAclsStream(consumer, topic)));
+  }
+
+  @Override
+  public List<TopologyAclBinding> buildBindingsForProducers(
+      Collection<String> principals, String topic) {
+    return toList(principals.stream().flatMap(principal -> producerAclsStream(principal, topic)));
+  }
+
+  @Override
+  public List<TopologyAclBinding> buildBindingsForSchemaRegistry(
+      SchemaRegistryInstance schemaRegistry) {
+    return toList(schemaRegistryAclsStream(schemaRegistry));
+  }
+
+  @Override
+  public List<TopologyAclBinding> buildBindingsForControlCenter(String principal, String appId) {
+    return toList(controlCenterStream(principal, appId));
+  }
+
+  private List<TopologyAclBinding> toList(Stream<AclBinding> bindingStream) {
+    return bindingStream.map(TopologyAclBinding::new).collect(Collectors.toList());
+  }
+
+  private Stream<AclBinding> producerAclsStream(String principal, String topic) {
+    return Stream.of(
+        buildTopicLevelAcl(principal, topic, PatternType.LITERAL, AclOperation.DESCRIBE),
+        buildTopicLevelAcl(principal, topic, PatternType.LITERAL, AclOperation.WRITE));
+  }
+
+  private Stream<AclBinding> consumerAclsStream(Consumer consumer, String topic) {
+    return Stream.of(
+        buildTopicLevelAcl(
+            consumer.getPrincipal(), topic, PatternType.LITERAL, AclOperation.DESCRIBE),
+        buildTopicLevelAcl(consumer.getPrincipal(), topic, PatternType.LITERAL, AclOperation.READ),
+        buildGroupLevelAcl(
+            consumer.getPrincipal(),
+            consumer.groupString(),
+            consumer.groupString().equals("*") ? PatternType.PREFIXED : PatternType.LITERAL,
+            AclOperation.READ));
+  }
+
+  private Stream<AclBinding> streamsAppStream(
       String principal, String topicPrefix, List<String> readTopics, List<String> writeTopics) {
 
     List<AclBinding> acls = new ArrayList<>();
@@ -163,12 +145,12 @@ public class AclsBindingsBuilder implements BindingsBuilderProvider {
         });
 
     acls.add(buildTopicLevelAcl(principal, topicPrefix, PatternType.PREFIXED, AclOperation.ALL));
-    return acls;
+    return acls.stream();
   }
 
-  private List<AclBinding> setAclForSchemaRegistry(SchemaRegistryInstance schemaRegistry) {
+  private Stream<AclBinding> schemaRegistryAclsStream(SchemaRegistryInstance schemaRegistry) {
     List<AclBinding> bindings =
-        Arrays.asList(AclOperation.DESCRIBE_CONFIGS, AclOperation.WRITE, AclOperation.READ).stream()
+        asList(AclOperation.DESCRIBE_CONFIGS, AclOperation.WRITE, AclOperation.READ).stream()
             .map(
                 aclOperation ->
                     buildTopicLevelAcl(
@@ -177,17 +159,17 @@ public class AclsBindingsBuilder implements BindingsBuilderProvider {
                         PatternType.LITERAL,
                         aclOperation))
             .collect(Collectors.toList());
-    return bindings;
+    return bindings.stream();
   }
 
-  public List<AclBinding> setAclsForControlCenter(String principal, String appId) {
+  private Stream<AclBinding> controlCenterStream(String principal, String appId) {
     List<AclBinding> bindings = new ArrayList<>();
 
     bindings.add(buildGroupLevelAcl(principal, appId, PatternType.PREFIXED, AclOperation.READ));
     bindings.add(
         buildGroupLevelAcl(principal, appId + "-command", PatternType.PREFIXED, AclOperation.READ));
 
-    Arrays.asList(
+    asList(
             config.getConfluentMonitoringTopic(),
             config.getConfluentCommandTopic(),
             config.getConfluentMetricsTopic())
@@ -219,7 +201,7 @@ public class AclsBindingsBuilder implements BindingsBuilderProvider {
         new AccessControlEntry(
             principal, "*", AclOperation.DESCRIBE_CONFIGS, AclPermissionType.ALLOW);
     bindings.add(new AclBinding(resourcePattern, entry));
-    return bindings;
+    return bindings.stream();
   }
 
   private AclBinding buildTopicLevelAcl(
