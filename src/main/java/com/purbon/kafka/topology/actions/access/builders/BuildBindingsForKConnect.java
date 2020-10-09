@@ -22,7 +22,7 @@ public class BuildBindingsForKConnect extends BaseAccessControlAction {
   }
 
   @Override
-  public void run() throws IOException {
+  protected void execute() throws IOException {
     bindings = controlProvider.buildBindingsForConnect(app, topicPrefix);
   }
 

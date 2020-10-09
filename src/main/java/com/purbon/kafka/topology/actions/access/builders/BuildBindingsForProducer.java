@@ -25,7 +25,7 @@ public class BuildBindingsForProducer extends BaseAccessControlAction {
   }
 
   @Override
-  public void run() throws IOException {
+  protected void execute() throws IOException {
     Stream<String> producersStream = producers.stream().map(p -> p.getPrincipal());
     bindings =
         builderProvider.buildBindingsForProducers(

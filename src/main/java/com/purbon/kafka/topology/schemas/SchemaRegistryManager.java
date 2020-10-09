@@ -47,7 +47,8 @@ public class SchemaRegistryManager {
   }
 
   public int register(String subjectName, Path schemaFilePath) {
-    LOGGER.debug(String.format("Registering subject %s with source %s", subjectName, schemaFilePath));
+    LOGGER.debug(
+        String.format("Registering subject %s with source %s", subjectName, schemaFilePath));
     try {
       final String schema = new String(Files.readAllBytes(schemaFilePath));
       return register(subjectName, AvroSchema.TYPE, schema);

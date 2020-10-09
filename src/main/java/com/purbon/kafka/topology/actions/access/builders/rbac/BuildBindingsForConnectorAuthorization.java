@@ -20,7 +20,7 @@ public class BuildBindingsForConnectorAuthorization extends BaseAccessControlAct
   }
 
   @Override
-  public void run() {
+  protected void execute() {
     bindings =
         builderProvider.setConnectorAuthorization(
             connector.getPrincipal(), connector.getConnectors().orElse(new ArrayList<>()));

@@ -23,7 +23,7 @@ public class BuildBindingsForKStreams extends BaseAccessControlAction {
   }
 
   @Override
-  public void run() throws IOException {
+  protected void execute() throws IOException {
     List<String> readTopics = app.getTopics().get(KStream.READ_TOPICS);
     List<String> writeTopics = app.getTopics().get(KStream.WRITE_TOPICS);
 

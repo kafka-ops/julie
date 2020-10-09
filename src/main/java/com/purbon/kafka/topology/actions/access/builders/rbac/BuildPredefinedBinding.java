@@ -28,7 +28,7 @@ public class BuildPredefinedBinding extends BaseAccessControlAction {
   }
 
   @Override
-  public void run() throws IOException {
+  protected void execute() throws IOException {
     TopologyAclBinding binding =
         builderProvider.setPredefinedRole(principal, predefinedRole, topicPrefix);
     bindings = Collections.singletonList(binding);
