@@ -7,6 +7,7 @@ import com.purbon.kafka.topology.exceptions.ConfigurationException;
 import com.purbon.kafka.topology.model.Project;
 import com.purbon.kafka.topology.model.Topic;
 import com.purbon.kafka.topology.model.Topology;
+import com.purbon.kafka.topology.serdes.TopologySerdes.FileType;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
 import java.util.HashMap;
@@ -58,6 +59,8 @@ public class TopologyBuilderConfig {
   static final String PROJECT_PREFIX_FORMAT_CONFIG = "topology.project.prefix.format";
   static final String TOPIC_PREFIX_SEPARATOR_CONFIG = "topology.topic.prefix.separator";
   static final String TOPOLOGY_VALIDATIONS_CONFIG = "topology.validations";
+
+  static final String TOPOLOGY_FILE_TYPE = "topology.file.type";
 
   private final Map<String, String> cliParams;
   private Config config;
@@ -269,5 +272,9 @@ public class TopologyBuilderConfig {
 
   public boolean isDryRun() {
     return Boolean.parseBoolean(cliParams.getOrDefault(DRY_RUN_OPTION, "false"));
+  }
+
+  public FileType getTopologyFileType() {
+    return config.getEnum(FileType.class, TOPOLOGY_FILE_TYPE);
   }
 }

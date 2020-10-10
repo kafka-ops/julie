@@ -1,0 +1,20 @@
+{
+  "context": "team",
+  "projects": [{
+    "name": "foo",
+    "topics": [{
+      "dataType": "json",
+      "name": "foo",
+      "config": {
+        "replication.factor": "2",
+        "num.partitions": "3"
+      }
+    }, {
+      "name": "topic2",
+      "config": {
+        "replication.factor": "2",
+        "num.partitions": "3"
+      }
+    }]
+  }]
+}

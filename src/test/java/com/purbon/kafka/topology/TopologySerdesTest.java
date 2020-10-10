@@ -21,6 +21,7 @@ import com.purbon.kafka.topology.model.users.Producer;
 import com.purbon.kafka.topology.model.users.platform.ControlCenterInstance;
 import com.purbon.kafka.topology.model.users.platform.SchemaRegistryInstance;
 import com.purbon.kafka.topology.serdes.TopologySerdes;
+import com.purbon.kafka.topology.serdes.TopologySerdes.FileType;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.net.URL;
@@ -302,6 +303,18 @@ public class TopologySerdesTest {
     assertEquals(2, p.getTopics().size());
     assertEquals("source.contextOrg.foo.foo", p.getTopics().get(0).toString());
     assertEquals("source.contextOrg.foo.bar", p.getTopics().get(1).toString());
+  }
+
+  @Test
+  public void testJsonDescriptorFileSerdes() throws IOException, URISyntaxException {
+
+    TopologySerdes parser = new TopologySerdes(new TopologyBuilderConfig(), FileType.JSON);
+    URL descriptorWithOptionals = getClass().getResource("/descriptor.json");
+    Topology topology = parser.deserialise(Paths.get(descriptorWithOptionals.toURI()).toFile());
+
+    assertEquals(1, topology.getProjects().size());
+    assertEquals("foo", topology.getProjects().get(0).getName());
+    assertEquals(2, topology.getProjects().get(0).getTopics().size());
   }
 
   private List<Project> buildProjects() {
