@@ -15,12 +15,19 @@ public class TopologySerdes {
 
   private ObjectMapper mapper;
 
+  public enum FileType {
+    JSON, YAML
+  }
   public TopologySerdes() {
-    this(new TopologyBuilderConfig());
+    this(new TopologyBuilderConfig(), FileType.YAML);
   }
 
   public TopologySerdes(TopologyBuilderConfig config) {
-    mapper = new ObjectMapper(new YAMLFactory());
+    this(config, FileType.YAML);
+  }
+
+  public TopologySerdes(TopologyBuilderConfig config, FileType type) {
+    mapper = type.equals(FileType.YAML) ?  new ObjectMapper(new YAMLFactory()) : new ObjectMapper();
     SimpleModule module = new SimpleModule();
     module.addDeserializer(Topology.class, new TopologyCustomDeserializer(config));
     module.addDeserializer(TopicImpl.class, new TopicCustomDeserializer(config));
