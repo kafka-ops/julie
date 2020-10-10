@@ -1,7 +1,7 @@
 What can you do with Kafka Topology Builder
 *******************************
 
-In a nutshell with Kafka Topology Builder you can manage your topics and acls in an structure and autonomous way.
+In a nutshell with Kafka Topology Builder, or KTB, you can manage your topics and acls in an structure and autonomous way.
 As well you can manage your topics schemas as register.
 
 In this chapter we will introduce the different things one can configure in each topology file(s).

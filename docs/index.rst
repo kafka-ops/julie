@@ -37,8 +37,13 @@ See the  :doc:`workflow-setup` section to learn more how to setup the required c
 
 if you already have this components, you can install the topology builder agent:
 
-* As an RPM package. You can self build this package from the git repository or get the latest version from the release page.
-* As a docker image, available from `docker hub <https://hub.docker.com/repository/docker/purbon/kafka-topology-builder>`_.
+* As an RPM package for RedHat/CentOS linux distributions.
+* As a DEB package for Debian based OS.
+* As tar.gz source package.
+* As well in the form of a docker image, available from `docker hub <https://hub.docker.com/repository/docker/purbon/kafka-topology-builder>`_.
+
+You always can self build this package, all information is available from `here <https://github.com/kafka-ops/kafka-topology-builder/blob/master/RELEASE.md>`_.
+Users can download the latest "official" release artifacts directly from the download page `here <https://github.com/kafka-ops/kafka-topology-builder/releases>`_.
 
 Help?
 ------------------------------
@@ -54,6 +59,7 @@ Contents
 
    core-concepts
    what-can-you-do
+   the-descriptor-files
    how-to-run-it
    workflow-setup
    powered-with
