@@ -401,7 +401,7 @@ public class AccessControlManagerTest {
           buildGroupLevelAcl(
               consumer.getPrincipal(),
               consumer.groupString(),
-              consumer.groupString().equals("*") ? PatternType.PREFIXED : PatternType.LITERAL,
+              PatternType.LITERAL,
               AclOperation.READ));
     }
 

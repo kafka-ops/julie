@@ -125,7 +125,7 @@ public class AclsBindingsBuilder implements BindingsBuilderProvider {
         buildGroupLevelAcl(
             consumer.getPrincipal(),
             consumer.groupString(),
-            consumer.groupString().equals("*") ? PatternType.PREFIXED : PatternType.LITERAL,
+            PatternType.LITERAL,
             AclOperation.READ));
   }
 
@@ -135,10 +135,13 @@ public class AclsBindingsBuilder implements BindingsBuilderProvider {
     List<AclBinding> acls = new ArrayList<>();
 
     readTopics.forEach(
-        topic -> acls.add(buildTopicLevelAcl(principal, topic, PatternType.LITERAL, AclOperation.READ)));
+        topic ->
+            acls.add(buildTopicLevelAcl(principal, topic, PatternType.LITERAL, AclOperation.READ)));
 
     writeTopics.forEach(
-        topic -> acls.add(buildTopicLevelAcl(principal, topic, PatternType.LITERAL, AclOperation.WRITE)));
+        topic ->
+            acls.add(
+                buildTopicLevelAcl(principal, topic, PatternType.LITERAL, AclOperation.WRITE)));
 
     acls.add(buildTopicLevelAcl(principal, topicPrefix, PatternType.PREFIXED, AclOperation.ALL));
     return acls.stream();
