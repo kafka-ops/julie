@@ -3,6 +3,8 @@ v1.0.0:
 * Add a filter to delete only topic configurations that are explicitly set, not the ones that use default values. (closes #99)
 * Fix a bug with wrongly set PatternType for Consumer group acls level. (closes #111)
 * Add test and documentation for list type config values as handled using the new config library.
+* Add a Health Check function used during the creation of the internal admin client. This function will describe the cluster and perse test if the setup credentials are ok.
+This fixes (#112)
  
 v1.0.0-rc2:
 * Check for required configuration values for the configuration of RBAC, if not present it raises a Configuration error
