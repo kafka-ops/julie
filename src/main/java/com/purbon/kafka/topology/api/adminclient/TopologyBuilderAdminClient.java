@@ -54,6 +54,15 @@ public class TopologyBuilderAdminClient {
     return listOfTopics;
   }
 
+  public void healthCheck() throws IOException {
+
+    try {
+      adminClient.describeCluster().nodes().get();
+    } catch (Exception ex) {
+      throw new IOException("Problem during the health-check operation", ex);
+    }
+  }
+
   public Set<String> listTopics() throws IOException {
     return listTopics(new ListTopicsOptions());
   }
