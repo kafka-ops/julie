@@ -6,7 +6,7 @@
 
   <groupId>com.purbon.kafka</groupId>
   <artifactId>kafka-topology-builder</artifactId>
-  <version>1.0.0</version>
+  <version>2.0.0-b.0</version>
 
   <name>A Kafka topology builder tool</name>
   <description>
