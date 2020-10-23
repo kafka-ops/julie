@@ -4,7 +4,6 @@ import static com.purbon.kafka.topology.BuilderCLI.ADMIN_CLIENT_CONFIG_OPTION;
 import static com.purbon.kafka.topology.BuilderCLI.BROKERS_OPTION;
 import static com.purbon.kafka.topology.TopologyBuilderConfig.ACCESS_CONTROL_IMPLEMENTATION_CLASS;
 import static com.purbon.kafka.topology.TopologyBuilderConfig.CONFLUENT_SCHEMA_REGISTRY_URL_CONFIG;
-import static com.purbon.kafka.topology.TopologyBuilderConfig.KAFKA_INTERNAL_TOPIC_PREFIXES;
 import static com.purbon.kafka.topology.TopologyBuilderConfig.MDS_KAFKA_CLUSTER_ID_CONFIG;
 import static com.purbon.kafka.topology.TopologyBuilderConfig.MDS_PASSWORD_CONFIG;
 import static com.purbon.kafka.topology.TopologyBuilderConfig.MDS_SERVER;
@@ -179,6 +178,7 @@ public class TopologyBuilderConfigTest {
     cliOps.put(ADMIN_CLIENT_CONFIG_OPTION, clientConfigFile);
 
     TopologyBuilderConfig config = TopologyBuilderConfig.build(cliOps);
-    assertThat(config.getKafkaInternalTopicPrefixes()).isEqualTo(Arrays.asList("_", "topicA", "topicB"));
+    assertThat(config.getKafkaInternalTopicPrefixes())
+        .isEqualTo(Arrays.asList("_", "topicA", "topicB"));
   }
 }
