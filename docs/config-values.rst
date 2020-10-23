@@ -67,6 +67,21 @@ As a user you can customize:
 - **Property**: *topology.project.prefix.format*, to set the project level name format, it should be a subset of the previous one.
 - **Property**: *topology.topic.prefix.separator*, to select a custom separator between attributes.
 
+
+Internal topics prefixes
+-----------
+
+This is used to avoid deleting topics not controlled by topology builder.
+
+**Property**: *kafka.internal.topic.prefixes*
+**Default value**: "_"
+
+An example configuration might look like this:
+::
+    kafka.internal.topic.prefixes.0=_
+    kafka.internal.topic.prefixes.1=topicPrefixA
+    kafka.internal.topic.prefixes.2=topicPrefixB
+
 Topology level validations
 -----------
 
@@ -78,3 +93,10 @@ As a user you can list the validations to be applied using the configuration pro
 
 This property accepts the list of validations available in the class path.
 They will be applied in sequence as defined.
+
+An example configuration might look like this:
+::
+    topology.validations.0=topology.CamelCaseNameFormatValidation
+    topology.validations.1=topic.PartitionNumberValidation
+
+Users can pull custom validation available from the class path.
