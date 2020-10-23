@@ -1,6 +1,7 @@
 package com.purbon.kafka.topology.api.adminclient;
 
 import com.purbon.kafka.topology.TopologyBuilderConfig;
+import java.io.IOException;
 import java.util.Properties;
 import org.apache.kafka.clients.admin.AdminClient;
 import org.apache.kafka.clients.admin.AdminClientConfig;
@@ -18,12 +19,16 @@ public class TopologyBuilderAdminClientBuilder {
     this.config = config;
   }
 
-  public TopologyBuilderAdminClient build() {
+  public TopologyBuilderAdminClient build() throws IOException {
     Properties props = config.asProperties();
     LOGGER.info(
         String.format(
             "Connecting AdminClient to %s",
             props.getProperty(AdminClientConfig.BOOTSTRAP_SERVERS_CONFIG)));
-    return new TopologyBuilderAdminClient(AdminClient.create(props));
+    TopologyBuilderAdminClient client = new TopologyBuilderAdminClient(AdminClient.create(props));
+    if (!config.isDryRun()) {
+      client.healthCheck();
+    }
+    return client;
   }
 }
