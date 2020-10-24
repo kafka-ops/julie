@@ -173,6 +173,7 @@ public class AccessControlManager {
         action.run();
         return action.getBindings().stream();
       } catch (Exception ex) {
+        ex.printStackTrace();
         LOGGER.error(ex);
         return Stream.empty();
       }

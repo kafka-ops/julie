@@ -33,6 +33,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.Properties;
 import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
@@ -86,7 +87,8 @@ public class AccessControlManagerIT {
 
     // Crate an ACL outside of the control of the state manager.
     List<TopologyAclBinding> bindings =
-        bindingsBuilder.buildBindingsForProducers(Collections.singleton("User:foo"), "bar");
+        bindingsBuilder.buildBindingsForProducers(
+            Collections.singleton(new Producer("User:foo")), "bar");
     aclsProvider.createBindings(new HashSet<>(bindings));
 
     List<Consumer> consumers = new ArrayList<>();
@@ -146,7 +148,8 @@ public class AccessControlManagerIT {
   public void producerAclsCreation() throws ExecutionException, InterruptedException, IOException {
 
     List<Producer> producers = new ArrayList<>();
-    producers.add(new Producer("User:Producer1"));
+    Producer producer = new Producer("User:Producer1");
+    producers.add(producer);
 
     Project project = new ProjectImpl("project");
     project.setProducers(producers);
@@ -161,7 +164,32 @@ public class AccessControlManagerIT {
     accessControlManager.apply(topology, plan);
     plan.run(false);
 
-    verifyProducerAcls(producers, topicA.toString());
+    verifyProducerAcls(producers, topicA.toString(), 2);
+  }
+
+  @Test
+  public void producerWithTxAclsCreation()
+      throws ExecutionException, InterruptedException, IOException {
+
+    List<Producer> producers = new ArrayList<>();
+    Producer producer = new Producer("User:Producer1");
+    producer.setTransactionId(Optional.of("1234"));
+    producers.add(producer);
+
+    Project project = new ProjectImpl("project");
+    project.setProducers(producers);
+    Topic topicA = new TopicImpl("topicA");
+    project.addTopic(topicA);
+
+    Topology topology = new TopologyImpl();
+    topology.setContext("integration-test");
+    topology.addOther("source", "producerAclsCreation");
+    topology.addProject(project);
+
+    accessControlManager.apply(topology, plan);
+    plan.run(false);
+
+    verifyProducerAcls(producers, topicA.toString(), 4);
   }
 
   @Test
@@ -390,7 +418,7 @@ public class AccessControlManagerIT {
     Assert.assertEquals(1, acls.size());
   }
 
-  private void verifyProducerAcls(List<Producer> producers, String topic)
+  private void verifyProducerAcls(List<Producer> producers, String topic, int aclsCount)
       throws InterruptedException, ExecutionException {
 
     for (Producer producer : producers) {
@@ -402,7 +430,7 @@ public class AccessControlManagerIT {
       AclBindingFilter filter = new AclBindingFilter(resourceFilter, entryFilter);
       Collection<AclBinding> acls = kafkaAdminClient.describeAcls(filter).values().get();
 
-      Assert.assertEquals(2, acls.size());
+      Assert.assertEquals(aclsCount, acls.size());
 
       List<ResourceType> types =
           acls.stream()

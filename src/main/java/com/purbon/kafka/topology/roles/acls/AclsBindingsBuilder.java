@@ -7,9 +7,11 @@ import com.purbon.kafka.topology.TopologyBuilderConfig;
 import com.purbon.kafka.topology.api.adminclient.AclBuilder;
 import com.purbon.kafka.topology.model.users.Connector;
 import com.purbon.kafka.topology.model.users.Consumer;
+import com.purbon.kafka.topology.model.users.Producer;
 import com.purbon.kafka.topology.model.users.platform.SchemaRegistryInstance;
 import com.purbon.kafka.topology.roles.TopologyAclBinding;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -92,8 +94,8 @@ public class AclsBindingsBuilder implements BindingsBuilderProvider {
 
   @Override
   public List<TopologyAclBinding> buildBindingsForProducers(
-      Collection<String> principals, String topic) {
-    return toList(principals.stream().flatMap(principal -> producerAclsStream(principal, topic)));
+      Collection<Producer> producers, String topic) {
+    return toList(producers.stream().flatMap(p -> producerAclsStream(p, topic)));
   }
 
   @Override
@@ -111,10 +113,36 @@ public class AclsBindingsBuilder implements BindingsBuilderProvider {
     return bindingStream.map(TopologyAclBinding::new).collect(Collectors.toList());
   }
 
-  private Stream<AclBinding> producerAclsStream(String principal, String topic) {
-    return Stream.of(
-        buildTopicLevelAcl(principal, topic, PatternType.LITERAL, AclOperation.DESCRIBE),
-        buildTopicLevelAcl(principal, topic, PatternType.LITERAL, AclOperation.WRITE));
+  private Stream<AclBinding> producerAclsStream(Producer producer, String topic) {
+
+    List<AclBinding> bindings = new ArrayList<>();
+
+    bindings.addAll(
+        Arrays.asList(
+            buildTopicLevelAcl(
+                producer.getPrincipal(), topic, PatternType.LITERAL, AclOperation.DESCRIBE),
+            buildTopicLevelAcl(
+                producer.getPrincipal(), topic, PatternType.LITERAL, AclOperation.WRITE)));
+
+    producer
+        .getTransactionId()
+        .ifPresent(
+            transactionId -> {
+              bindings.add(
+                  buildTransactionIdLevelAcl(
+                      producer.getPrincipal(),
+                      transactionId,
+                      PatternType.LITERAL,
+                      AclOperation.DESCRIBE));
+              bindings.add(
+                  buildTransactionIdLevelAcl(
+                      producer.getPrincipal(),
+                      transactionId,
+                      PatternType.LITERAL,
+                      AclOperation.WRITE));
+            });
+
+    return bindings.stream();
   }
 
   private Stream<AclBinding> consumerAclsStream(Consumer consumer, String topic) {
@@ -207,6 +235,14 @@ public class AclsBindingsBuilder implements BindingsBuilderProvider {
       String principal, String topic, PatternType patternType, AclOperation op) {
     return new AclBuilder(principal)
         .addResource(ResourceType.TOPIC, topic, patternType)
+        .addControlEntry("*", op, AclPermissionType.ALLOW)
+        .build();
+  }
+
+  private AclBinding buildTransactionIdLevelAcl(
+      String principal, String transactionId, PatternType patternType, AclOperation op) {
+    return new AclBuilder(principal)
+        .addResource(ResourceType.TRANSACTIONAL_ID, transactionId, patternType)
         .addControlEntry("*", op, AclPermissionType.ALLOW)
         .build();
   }

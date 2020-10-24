@@ -103,7 +103,7 @@ public class AccessControlManagerTest {
   }
 
   @Test
-  public void newProducerACLsCreation() throws IOException {
+  public void newProducerACLsCreation() {
 
     List<Producer> producers = new ArrayList<>();
     producers.add(new Producer("User:app1"));
@@ -116,13 +116,11 @@ public class AccessControlManagerTest {
     Topology topology = new TopologyImpl();
     topology.addProject(project);
 
-    List<String> users = asList(new String[] {"User:app1"});
-
     doReturn(new ArrayList<TopologyAclBinding>())
         .when(aclsBuilder)
-        .buildBindingsForProducers(users, topicA.toString());
+        .buildBindingsForProducers(producers, topicA.toString());
     accessControlManager.apply(topology, plan);
-    verify(aclsBuilder, times(1)).buildBindingsForProducers(eq(users), eq(topicA.toString()));
+    verify(aclsBuilder, times(1)).buildBindingsForProducers(eq(producers), eq(topicA.toString()));
   }
 
   @Test
