@@ -7,6 +7,8 @@ projects:
       - principal: "User:App0"
         group: "foo"
       - principal: "User:App1"
+    producers:
+      - principal: "User:App0"
     streams:
       - principal: "User:App0"
         topics:
