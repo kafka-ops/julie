@@ -28,9 +28,7 @@ import com.purbon.kafka.topology.model.users.KStream;
 import com.purbon.kafka.topology.model.users.Schemas;
 import com.purbon.kafka.topology.model.users.platform.ControlCenterInstance;
 import com.purbon.kafka.topology.model.users.platform.SchemaRegistryInstance;
-import com.purbon.kafka.topology.roles.SimpleAclsProvider;
 import com.purbon.kafka.topology.roles.TopologyAclBinding;
-import java.io.IOException;
 import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.List;
@@ -65,8 +63,26 @@ public class AccessControlManager {
     this.config = config;
   }
 
-  public void apply(final Topology topology, ExecutionPlan plan) throws IOException {
+  /**
+   * Main apply method, append to the execution plan the necessary bindings to update the access
+   * control
+   *
+   * @param topology A topology file descriptor
+   * @param plan An Execution plan
+   */
+  public void apply(final Topology topology, ExecutionPlan plan) {
+    List<Action> actions = buildProjectActions(topology);
+    actions.addAll(buildPlatformLevelActions(topology));
+    buildUpdateBindingsActions(actions, plan.getBindings()).forEach(plan::add);
+  }
 
+  /**
+   * Build the core list of actions builders for creating access control rules
+   *
+   * @param topology A topology file
+   * @return List<Action> A list of actions required based on the parameters
+   */
+  public List<Action> buildProjectActions(Topology topology) {
     List<Action> actions = new ArrayList<>();
 
     for (Project project : topology.getProjects()) {
@@ -91,14 +107,17 @@ public class AccessControlManager {
       // Setup global Kafka Stream Access control lists
       String topicPrefix = project.namePrefix();
       for (KStream app : project.getStreams()) {
-        Action action = syncApplicationAcls(app, topicPrefix);
-        actions.add(action);
+        syncApplicationAcls(app, topicPrefix).ifPresent(actions::add);
       }
       for (Connector connector : project.getConnectors()) {
-        Action action = syncApplicationAcls(connector, topicPrefix);
-        actions.add(action);
-        if (connector.getConnectors().isPresent())
-          actions.add(new BuildBindingsForConnectorAuthorization(bindingsBuilder, connector));
+        syncApplicationAcls(connector, topicPrefix).ifPresent(actions::add);
+        connector
+            .getConnectors()
+            .ifPresent(
+                (list) -> {
+                  actions.add(
+                      new BuildBindingsForConnectorAuthorization(bindingsBuilder, connector));
+                });
       }
 
       for (Schemas schemaAuthorization : project.getSchemas()) {
@@ -107,50 +126,62 @@ public class AccessControlManager {
 
       syncRbacRawRoles(project.getRbacRawRoles(), topicPrefix, actions);
     }
+    return actions;
+  }
 
-    syncPlatformAcls(topology, actions);
+  /**
+   * Build a list of actions required to create or delete necessary bindings
+   *
+   * @param actions List of pre computed actions based on a topology
+   * @param bindings List of current bindings available in the cluster
+   * @return List<Action> list of actions necessary to update the cluster
+   */
+  public List<Action> buildUpdateBindingsActions(
+      List<Action> actions, Set<TopologyAclBinding> bindings) {
 
-    // Main actions now should be setup to create low level bindings
+    List<Action> updateActions = new ArrayList<>();
 
     Set<TopologyAclBinding> allFinalBindings =
-        actions.stream().flatMap(executeToFunction()).collect(Collectors.toSet());
+        actions.stream().flatMap(actionApplyFunction()).collect(Collectors.toSet());
 
     // Diff of bindings, so we only create what is not already created in the cluster.
     Set<TopologyAclBinding> bindingsToBeCreated =
         allFinalBindings.stream()
-            .filter(binding -> !plan.getBindings().contains(binding))
+            .filter(binding -> !bindings.contains(binding))
             .collect(Collectors.toSet());
 
     CreateBindings createBindings = new CreateBindings(controlProvider, bindingsToBeCreated);
-    plan.add(createBindings);
+    updateActions.add(createBindings);
 
     if (config.allowDelete()) {
       // clear acls that does not appear anymore in the new generated list,
       // but where previously created
       Set<TopologyAclBinding> bindingsToDelete =
-          plan.getBindings().stream()
+          bindings.stream()
               .filter(binding -> !allFinalBindings.contains(binding))
               .collect(Collectors.toSet());
 
       ClearBindings clearBindings = new ClearBindings(controlProvider, bindingsToDelete);
-      plan.add(clearBindings);
+      updateActions.add(clearBindings);
     }
+    return updateActions;
   }
 
-  private Function<Action, Stream<TopologyAclBinding>> executeToFunction() {
+  private Function<Action, Stream<TopologyAclBinding>> actionApplyFunction() {
     return action -> {
       try {
         action.run();
         return action.getBindings().stream();
       } catch (Exception ex) {
         LOGGER.error(ex);
-        return new ArrayList<TopologyAclBinding>().stream();
+        return Stream.empty();
       }
     };
   }
 
-  private void syncPlatformAcls(final Topology topology, List<Action> actions) throws IOException {
-    // Sync platform relevant Access Control List.
+  // Sync platform relevant Access Control List.
+  public List<Action> buildPlatformLevelActions(final Topology topology) {
+    List<Action> actions = new ArrayList<>();
     Platform platform = topology.getPlatform();
 
     // Set cluster level ACLs
@@ -165,6 +196,7 @@ public class AccessControlManager {
     for (ControlCenterInstance controlCenter : platform.getControlCenter().getInstances()) {
       actions.add(new BuildBindingsForControlCenter(bindingsBuilder, controlCenter));
     }
+    return actions;
   }
 
   private void syncClusterLevelRbac(
@@ -190,14 +222,14 @@ public class AccessControlManager {
                             bindingsBuilder, principal, predefinedRole, topicPrefix))));
   }
 
-  private Action syncApplicationAcls(DynamicUser app, String topicPrefix) throws IOException {
+  private Optional<Action> syncApplicationAcls(DynamicUser app, String topicPrefix) {
+    Action action = null;
     if (app instanceof KStream) {
-      return new BuildBindingsForKStreams(bindingsBuilder, (KStream) app, topicPrefix);
+      action = new BuildBindingsForKStreams(bindingsBuilder, (KStream) app, topicPrefix);
     } else if (app instanceof Connector) {
-      return new BuildBindingsForKConnect(bindingsBuilder, (Connector) app, topicPrefix);
-    } else {
-      throw new IOException("Wrong dynamic app used.");
+      action = new BuildBindingsForKConnect(bindingsBuilder, (Connector) app, topicPrefix);
     }
+    return Optional.ofNullable(action);
   }
 
   public void printCurrentState(PrintStream out) {
@@ -207,11 +239,7 @@ public class AccessControlManager {
         .forEach(
             (topic, aclBindings) -> {
               out.println(topic);
-              aclBindings.forEach(binding -> out.println(binding));
+              aclBindings.forEach(out::println);
             });
-  }
-
-  public void setAclsProvider(SimpleAclsProvider aclsProvider) {
-    this.controlProvider = aclsProvider;
   }
 }
