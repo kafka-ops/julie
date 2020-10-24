@@ -4,6 +4,7 @@ import static com.purbon.kafka.topology.BuilderCLI.ADMIN_CLIENT_CONFIG_OPTION;
 import static com.purbon.kafka.topology.BuilderCLI.BROKERS_OPTION;
 import static com.purbon.kafka.topology.TopologyBuilderConfig.TOPIC_PREFIX_FORMAT_CONFIG;
 import static com.purbon.kafka.topology.TopologyBuilderConfig.TOPIC_PREFIX_SEPARATOR_CONFIG;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
@@ -35,7 +36,6 @@ import java.util.Optional;
 import java.util.Properties;
 import java.util.Set;
 import java.util.stream.Collectors;
-import org.assertj.core.api.Assertions;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -55,7 +55,7 @@ public class TopologySerdesTest {
 
     Topology topology = parser.deserialise(Paths.get(descriptorWithOptionals.toURI()).toFile());
     Project project = topology.getProjects().get(0);
-    Assertions.assertThat(project.namePrefix()).startsWith("contextOrg.source.foo.bar.zet");
+    assertThat(project.namePrefix()).startsWith("contextOrg.source.foo.bar.zet");
 
     URL descriptorWithoutOptionals = getClass().getResource("/descriptor.yaml");
 
@@ -181,6 +181,19 @@ public class TopologySerdesTest {
   public void testTopologyWithNoProject() throws IOException, URISyntaxException {
     URL topologyDescriptor = getClass().getResource("/descriptor-with-no-project.yaml");
     parser.deserialise(Paths.get(topologyDescriptor.toURI()).toFile());
+  }
+
+  @Test
+  public void testCoreElementsProcessing() throws IOException, URISyntaxException {
+
+    URL topologyDescriptor = getClass().getResource("/descriptor.yaml");
+    Topology topology = parser.deserialise(Paths.get(topologyDescriptor.toURI()).toFile());
+
+    Project project = topology.getProjects().get(0);
+    assertThat(project.getProducers()).hasSize(1);
+    assertThat(project.getConsumers()).hasSize(2);
+    assertThat(project.getStreams()).hasSize(1);
+    assertThat(project.getConnectors()).hasSize(2);
   }
 
   @Test
