@@ -3,7 +3,6 @@ package com.purbon.kafka.topology.serdes;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.module.SimpleModule;
-import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
 import com.purbon.kafka.topology.TopologyBuilderConfig;
@@ -18,8 +17,7 @@ public class TopologySerdes {
 
   public enum FileType {
     JSON,
-    YAML,
-    XML
+    YAML
   }
 
   public TopologySerdes() {
@@ -51,11 +49,9 @@ public class TopologySerdes {
     public static ObjectMapper build(FileType type, TopologyBuilderConfig config) {
       ObjectMapper mapper;
       if (type.equals(FileType.JSON)) {
-        mapper = buildAJsonObjectMapper();
-      } else if (type.equals(FileType.XML)) {
-        mapper = buildAnXMLObjectMapper();
+        mapper = new ObjectMapper();
       } else {
-        mapper = buildAYamlObjectMapper();
+        mapper = new ObjectMapper(new YAMLFactory());
       }
 
       SimpleModule module = new SimpleModule();
@@ -65,18 +61,6 @@ public class TopologySerdes {
       mapper.registerModule(new Jdk8Module());
       mapper.findAndRegisterModules();
       return mapper;
-    }
-
-    private static ObjectMapper buildAnXMLObjectMapper() {
-      return new XmlMapper();
-    }
-
-    private static ObjectMapper buildAYamlObjectMapper() {
-      return new ObjectMapper(new YAMLFactory());
-    }
-
-    private static ObjectMapper buildAJsonObjectMapper() {
-      return new ObjectMapper();
     }
   }
 }
