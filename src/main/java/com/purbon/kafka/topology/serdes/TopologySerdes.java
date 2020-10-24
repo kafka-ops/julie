@@ -15,18 +15,21 @@ public class TopologySerdes {
 
   private ObjectMapper mapper;
 
+  public enum FileType {
+    JSON,
+    YAML
+  }
+
   public TopologySerdes() {
-    this(new TopologyBuilderConfig());
+    this(new TopologyBuilderConfig(), FileType.YAML);
   }
 
   public TopologySerdes(TopologyBuilderConfig config) {
-    mapper = new ObjectMapper(new YAMLFactory());
-    SimpleModule module = new SimpleModule();
-    module.addDeserializer(Topology.class, new TopologyCustomDeserializer(config));
-    module.addDeserializer(TopicImpl.class, new TopicCustomDeserializer(config));
-    mapper.registerModule(module);
-    mapper.registerModule(new Jdk8Module());
-    mapper.findAndRegisterModules();
+    this(config, config.getTopologyFileType());
+  }
+
+  public TopologySerdes(TopologyBuilderConfig config, FileType type) {
+    mapper = ObjectMapperFactory.build(type, config);
   }
 
   public Topology deserialise(File file) throws IOException {
@@ -39,5 +42,25 @@ public class TopologySerdes {
 
   public String serialise(Topology topology) throws JsonProcessingException {
     return mapper.writeValueAsString(topology);
+  }
+
+  private static class ObjectMapperFactory {
+
+    public static ObjectMapper build(FileType type, TopologyBuilderConfig config) {
+      ObjectMapper mapper;
+      if (type.equals(FileType.JSON)) {
+        mapper = new ObjectMapper();
+      } else {
+        mapper = new ObjectMapper(new YAMLFactory());
+      }
+
+      SimpleModule module = new SimpleModule();
+      module.addDeserializer(Topology.class, new TopologyCustomDeserializer(config));
+      module.addDeserializer(TopicImpl.class, new TopicCustomDeserializer(config));
+      mapper.registerModule(module);
+      mapper.registerModule(new Jdk8Module());
+      mapper.findAndRegisterModules();
+      return mapper;
+    }
   }
 }

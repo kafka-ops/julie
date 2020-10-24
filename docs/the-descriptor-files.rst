@@ -8,7 +8,15 @@ Because users might have complex deployments, the structure is flexible enough t
 The File format
 -----------
 
-Currently the tool only supports reading YAML files. In the future this might change.
+Currently the tool supports reading YAML and JSON files. **Note** that all topologies will need to be using the same file format, a mixture is not supported.
+
+In this guide we will use yaml as the core format, for JSON examples please refer to the examples directory.
+
+The file type is configured using the *topology.file.type* configuration variable.
+
+```
+topology.file.type=JSON
+```
 
 Getting started
 -----------
