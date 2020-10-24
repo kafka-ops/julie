@@ -191,10 +191,14 @@ public class TopologySerdesTest {
     Topology topology = parser.deserialise(Paths.get(topologyDescriptor.toURI()).toFile());
 
     Project project = topology.getProjects().get(0);
-    assertThat(project.getProducers()).hasSize(1);
+    assertThat(project.getProducers()).hasSize(3);
     assertThat(project.getConsumers()).hasSize(2);
     assertThat(project.getStreams()).hasSize(1);
     assertThat(project.getConnectors()).hasSize(2);
+
+    assertThat(project.getProducers().get(0).idempotenceValue()).isEqualTo(false);
+    assertThat(project.getProducers().get(1).transactionIdString()).isEqualTo("1234");
+    assertThat(project.getProducers().get(2).idempotenceValue()).isEqualTo(true);
   }
 
   @Test

@@ -172,7 +172,7 @@ public class AccessControlManagerIT {
       throws ExecutionException, InterruptedException, IOException {
 
     List<Producer> producers = new ArrayList<>();
-    Producer producer = new Producer("User:Producer1");
+    Producer producer = new Producer("User:Producer12");
     producer.setTransactionId(Optional.of("1234"));
     producers.add(producer);
 
@@ -189,7 +189,32 @@ public class AccessControlManagerIT {
     accessControlManager.apply(topology, plan);
     plan.run(false);
 
-    verifyProducerAcls(producers, topicA.toString(), 4);
+    verifyProducerAcls(producers, topicA.toString(), 5);
+  }
+
+  @Test
+  public void producerWithIdempotenceAclsCreation()
+      throws ExecutionException, InterruptedException, IOException {
+
+    List<Producer> producers = new ArrayList<>();
+    Producer producer = new Producer("User:Producer13");
+    producer.setIdempotence(Optional.of(true));
+    producers.add(producer);
+
+    Project project = new ProjectImpl("project");
+    project.setProducers(producers);
+    Topic topicA = new TopicImpl("topicA2");
+    project.addTopic(topicA);
+
+    Topology topology = new TopologyImpl();
+    topology.setContext("integration-test");
+    topology.addOther("source", "producerAclsCreation");
+    topology.addProject(project);
+
+    accessControlManager.apply(topology, plan);
+    plan.run(false);
+
+    verifyProducerAcls(producers, topicA.toString(), 3);
   }
 
   @Test

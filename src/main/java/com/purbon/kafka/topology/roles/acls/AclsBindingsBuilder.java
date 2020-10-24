@@ -142,6 +142,15 @@ public class AclsBindingsBuilder implements BindingsBuilderProvider {
                       AclOperation.WRITE));
             });
 
+    if (producer.getTransactionId().isPresent() || producer.getIdempotence().isPresent()) {
+      ResourcePattern resourcePattern =
+          new ResourcePattern(ResourceType.CLUSTER, "kafka-cluster", PatternType.LITERAL);
+      AccessControlEntry entry =
+          new AccessControlEntry(
+              producer.getPrincipal(), "*", AclOperation.IDEMPOTENT_WRITE, AclPermissionType.ALLOW);
+      bindings.add(new AclBinding(resourcePattern, entry));
+    }
+
     return bindings.stream();
   }
 
