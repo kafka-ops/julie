@@ -62,6 +62,8 @@ public class TopologyBuilderConfig {
 
   static final String TOPOLOGY_FILE_TYPE = "topology.file.type";
 
+  static final String OPTIMIZED_ACLS_CONFIG = "topology.acls.optimized";
+
   private final Map<String, String> cliParams;
   private Config config;
 
@@ -255,6 +257,10 @@ public class TopologyBuilderConfig {
 
   public String getTopicPrefixSeparator() {
     return config.getString(TOPIC_PREFIX_SEPARATOR_CONFIG);
+  }
+
+  public Boolean shouldOptimizeAcls() {
+    return config.getBoolean(OPTIMIZED_ACLS_CONFIG);
   }
 
   public List<String> getTopologyValidations() {

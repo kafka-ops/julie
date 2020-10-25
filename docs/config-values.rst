@@ -67,6 +67,18 @@ As a user you can customize:
 - **Property**: *topology.project.prefix.format*, to set the project level name format, it should be a subset of the previous one.
 - **Property**: *topology.topic.prefix.separator*, to select a custom separator between attributes.
 
+Optimised number of ACLs and RBAC bindings
+-----------
+
+This property is used to reduce the number of ACLs, or RBAC bindings, created. In the normal operational mode, the KTB, will create direct pair of bindings for each user and topic.
+However for some organisations, it might be enough, to create an optimised list by using prefixed bindings.
+
+**Property**: *topology.acls.optimized*
+**Default value**: "false"
+
+An example configuration might look like this:
+::
+    topology.acls.optimized=true
 
 Internal topics prefixes
 -----------

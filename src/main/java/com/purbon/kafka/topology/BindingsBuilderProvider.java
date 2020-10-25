@@ -19,9 +19,11 @@ public interface BindingsBuilderProvider {
   List<TopologyAclBinding> buildBindingsForStreamsApp(
       String principal, String topicPrefix, List<String> readTopics, List<String> writeTopics);
 
-  List<TopologyAclBinding> buildBindingsForConsumers(Collection<Consumer> consumers, String topic);
+  List<TopologyAclBinding> buildBindingsForConsumers(
+      Collection<Consumer> consumers, String resource, boolean prefixed);
 
-  List<TopologyAclBinding> buildBindingsForProducers(Collection<Producer> producers, String topic);
+  List<TopologyAclBinding> buildBindingsForProducers(
+      Collection<Producer> principals, String resource, boolean prefixed);
 
   default TopologyAclBinding setPredefinedRole(
       String principal, String predefinedRole, String topicPrefix) {
