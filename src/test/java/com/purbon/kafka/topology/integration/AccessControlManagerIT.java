@@ -88,7 +88,7 @@ public class AccessControlManagerIT {
     // Crate an ACL outside of the control of the state manager.
     List<TopologyAclBinding> bindings =
         bindingsBuilder.buildBindingsForProducers(
-            Collections.singleton(new Producer("User:foo")), "bar");
+            Collections.singleton(new Producer("User:foo")), "bar", false);
     aclsProvider.createBindings(new HashSet<>(bindings));
 
     List<Consumer> consumers = new ArrayList<>();

@@ -119,21 +119,21 @@ public class RBACBindingsBuilder implements BindingsBuilderProvider {
 
   @Override
   public List<TopologyAclBinding> buildBindingsForConsumers(
-      Collection<Consumer> consumers, String topic) {
+      Collection<Consumer> consumers, String resource, boolean prefixed) {
+    String patternType = prefixed ? PREFIX : LITERAL;
     List<TopologyAclBinding> bindings = new ArrayList<>();
     consumers.forEach(
         consumer -> {
           TopologyAclBinding binding =
-              apiClient.bind(consumer.getPrincipal(), DEVELOPER_READ, topic, LITERAL);
+              apiClient.bind(consumer.getPrincipal(), DEVELOPER_READ, resource, patternType);
           bindings.add(binding);
-          String pattern = consumer.groupString().equals("*") ? PREFIX : LITERAL;
           binding =
               apiClient.bind(
                   consumer.getPrincipal(),
                   RESOURCE_OWNER,
                   consumer.groupString(),
                   "Group",
-                  pattern);
+                  LITERAL);
           bindings.add(binding);
         });
     return bindings;
@@ -141,12 +141,13 @@ public class RBACBindingsBuilder implements BindingsBuilderProvider {
 
   @Override
   public List<TopologyAclBinding> buildBindingsForProducers(
-      Collection<Producer> producers, String topic) {
+      Collection<Producer> producers, String resource, boolean prefixed) {
+    String patternType = prefixed ? PREFIX : LITERAL;
     List<TopologyAclBinding> bindings = new ArrayList<>();
     producers.forEach(
         producer -> {
           TopologyAclBinding binding =
-              apiClient.bind(producer.getPrincipal(), DEVELOPER_WRITE, topic, LITERAL);
+              apiClient.bind(producer.getPrincipal(), DEVELOPER_WRITE, resource, patternType);
           bindings.add(binding);
         });
     return bindings;
