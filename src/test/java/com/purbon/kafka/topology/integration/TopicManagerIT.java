@@ -43,6 +43,7 @@ import org.junit.Test;
 import org.mockito.junit.MockitoJUnit;
 import org.mockito.junit.MockitoRule;
 import org.testcontainers.containers.KafkaContainer;
+import org.testcontainers.utility.TestcontainersConfiguration;
 
 public class TopicManagerIT {
 
@@ -56,7 +57,7 @@ public class TopicManagerIT {
 
   @BeforeClass
   public static void setup() {
-    container = new KafkaContainer("5.5.0");
+    container = new KafkaContainer(TestcontainersConfiguration.getInstance().getKafkaDockerImageName().withTag("5.5.0"));
     container.start();
   }
 
