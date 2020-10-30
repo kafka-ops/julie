@@ -8,7 +8,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 public class BuildBindingsForProducer extends BaseAccessControlAction {
 
@@ -26,10 +25,7 @@ public class BuildBindingsForProducer extends BaseAccessControlAction {
 
   @Override
   protected void execute() throws IOException {
-    Stream<String> producersStream = producers.stream().map(p -> p.getPrincipal());
-    bindings =
-        builderProvider.buildBindingsForProducers(
-            producersStream.collect(Collectors.toList()), fullTopicName);
+    bindings = builderProvider.buildBindingsForProducers(producers, fullTopicName);
   }
 
   @Override
