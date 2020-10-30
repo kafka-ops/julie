@@ -80,7 +80,7 @@ public class AccessControlManagerTest {
   }
 
   @Test
-  public void newConsumerACLsCreation() throws IOException {
+  public void newConsumerACLsCreation() {
 
     List<Consumer> consumers = new ArrayList<>();
     consumers.add(new Consumer("User:app1"));
