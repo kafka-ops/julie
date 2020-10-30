@@ -196,9 +196,9 @@ public class TopologySerdesTest {
     assertThat(project.getStreams()).hasSize(1);
     assertThat(project.getConnectors()).hasSize(2);
 
-    assertThat(project.getProducers().get(0).idempotenceValue()).isEqualTo(false);
-    assertThat(project.getProducers().get(1).transactionIdString()).isEqualTo("1234");
-    assertThat(project.getProducers().get(2).idempotenceValue()).isEqualTo(true);
+    assertThat(project.getProducers().get(0).getIdempotence()).isEmpty();
+    assertThat(project.getProducers().get(1).getTransactionId()).isEqualTo(Optional.of("1234"));
+    assertThat(project.getProducers().get(2).getIdempotence()).isNotEmpty();
   }
 
   @Test

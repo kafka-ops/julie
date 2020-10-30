@@ -24,20 +24,12 @@ public class Producer extends User {
     return transactionId;
   }
 
-  public String transactionIdString() {
-    return transactionId.orElse("default");
-  }
-
   public void setTransactionId(Optional<String> transactionId) {
     this.transactionId = transactionId;
   }
 
   public Optional<Boolean> getIdempotence() {
     return idempotence;
-  }
-
-  public Boolean idempotenceValue() {
-    return idempotence.orElse(false);
   }
 
   public void setIdempotence(Optional<Boolean> idempotence) {
