@@ -40,6 +40,31 @@ Consumer definition with principal "User:App0" and without an specific consumer 
 
 Consumer definition with principal "User:App0" and consumer group name "foo".
 
+In the default mode the KTB will create dedicated ACL for each user and topic pair. For organisations that aim not to have dedicated pair or rules the KTB offer the option
+to optimise the number of ACLs using prefixed rules.
+
+The optimised ACLs/RBAC can be enabled using the *topology.acls.optimized* configuration property.
+
+Producers
+^^^^^^^^^^^
+As a user of KTB you can configure the required set of producers for your application.
+
+Producers have a principal.
+
+.. code-block:: YAML
+
+  ---
+    context: "context"
+    source: "source"
+    projects:
+      - name: "foo"
+        producers:
+          - principal: "User:App0"
+
+In the default mode the KTB will create dedicated ACL for each user and topic pair. For organisations that aim not to have dedicated pair or rules the KTB offer the option
+to optimise the number of ACLs using prefixed rules.
+
+The optimised ACLs/RBAC can be enabled using the *topology.acls.optimized* configuration property.
 
 Connectors
 ^^^^^^^^^^^

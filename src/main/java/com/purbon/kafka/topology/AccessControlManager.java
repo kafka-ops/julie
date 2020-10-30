@@ -7,16 +7,8 @@ import static com.purbon.kafka.topology.model.Component.SCHEMA_REGISTRY;
 import com.purbon.kafka.topology.actions.Action;
 import com.purbon.kafka.topology.actions.access.ClearBindings;
 import com.purbon.kafka.topology.actions.access.CreateBindings;
-import com.purbon.kafka.topology.actions.access.builders.BuildBindingsForConsumer;
-import com.purbon.kafka.topology.actions.access.builders.BuildBindingsForControlCenter;
-import com.purbon.kafka.topology.actions.access.builders.BuildBindingsForKConnect;
-import com.purbon.kafka.topology.actions.access.builders.BuildBindingsForKStreams;
-import com.purbon.kafka.topology.actions.access.builders.BuildBindingsForProducer;
-import com.purbon.kafka.topology.actions.access.builders.BuildBindingsForSchemaRegistry;
-import com.purbon.kafka.topology.actions.access.builders.rbac.BuildBindingsForConnectorAuthorization;
-import com.purbon.kafka.topology.actions.access.builders.rbac.BuildBindingsForSchemaAuthorization;
-import com.purbon.kafka.topology.actions.access.builders.rbac.BuildClusterLevelBinding;
-import com.purbon.kafka.topology.actions.access.builders.rbac.BuildPredefinedBinding;
+import com.purbon.kafka.topology.actions.access.builders.*;
+import com.purbon.kafka.topology.actions.access.builders.rbac.*;
 import com.purbon.kafka.topology.model.Component;
 import com.purbon.kafka.topology.model.DynamicUser;
 import com.purbon.kafka.topology.model.Platform;
@@ -86,24 +78,11 @@ public class AccessControlManager {
     List<Action> actions = new ArrayList<>();
 
     for (Project project : topology.getProjects()) {
-      project
-          .getTopics()
-          .forEach(
-              topic -> {
-                final String fullTopicName = topic.toString();
-                if (!project.getConsumers().isEmpty()) {
-                  Action action =
-                      new BuildBindingsForConsumer(
-                          bindingsBuilder, project.getConsumers(), fullTopicName);
-                  actions.add(action);
-                }
-                if (!project.getProducers().isEmpty()) {
-                  Action action =
-                      new BuildBindingsForProducer(
-                          bindingsBuilder, project.getProducers(), fullTopicName);
-                  actions.add(action);
-                }
-              });
+      if (config.shouldOptimizeAcls()) {
+        actions.addAll(buildOptimizeConsumerAndProducerAcls(project));
+      } else {
+        actions.addAll(buildDetailedConsumerAndProducerAcls(project));
+      }
       // Setup global Kafka Stream Access control lists
       String topicPrefix = project.namePrefix();
       for (KStream app : project.getStreams()) {
@@ -126,6 +105,40 @@ public class AccessControlManager {
 
       syncRbacRawRoles(project.getRbacRawRoles(), topicPrefix, actions);
     }
+    return actions;
+  }
+
+  private List<Action> buildOptimizeConsumerAndProducerAcls(Project project) {
+    List<Action> actions = new ArrayList<>();
+    actions.add(
+        new BuildBindingsForConsumer(
+            bindingsBuilder, project.getConsumers(), project.namePrefix(), true));
+    actions.add(
+        new BuildBindingsForProducer(
+            bindingsBuilder, project.getProducers(), project.namePrefix(), true));
+    return actions;
+  }
+
+  private List<Action> buildDetailedConsumerAndProducerAcls(Project project) {
+    List<Action> actions = new ArrayList<>();
+    project
+        .getTopics()
+        .forEach(
+            topic -> {
+              final String fullTopicName = topic.toString();
+              if (!project.getConsumers().isEmpty()) {
+                Action action =
+                    new BuildBindingsForConsumer(
+                        bindingsBuilder, project.getConsumers(), fullTopicName, false);
+                actions.add(action);
+              }
+              if (!project.getProducers().isEmpty()) {
+                Action action =
+                    new BuildBindingsForProducer(
+                        bindingsBuilder, project.getProducers(), fullTopicName, false);
+                actions.add(action);
+              }
+            });
     return actions;
   }
 

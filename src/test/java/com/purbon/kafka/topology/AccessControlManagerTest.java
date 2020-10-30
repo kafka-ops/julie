@@ -1,5 +1,7 @@
 package com.purbon.kafka.topology;
 
+import static com.purbon.kafka.topology.BuilderCLI.BROKERS_OPTION;
+import static com.purbon.kafka.topology.TopologyBuilderConfig.OPTIMIZED_ACLS_CONFIG;
 import static java.util.Arrays.asList;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
@@ -42,6 +44,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Properties;
 import java.util.stream.Collectors;
 import org.apache.kafka.common.acl.AclBinding;
 import org.apache.kafka.common.acl.AclOperation;
@@ -97,9 +100,42 @@ public class AccessControlManagerTest {
 
     doReturn(new ArrayList<TopologyAclBinding>())
         .when(aclsBuilder)
-        .buildBindingsForConsumers(users, topicA.toString());
+        .buildBindingsForConsumers(users, topicA.toString(), false);
     accessControlManager.apply(topology, plan);
-    verify(aclsBuilder, times(1)).buildBindingsForConsumers(eq(users), eq(topicA.toString()));
+    verify(aclsBuilder, times(1))
+        .buildBindingsForConsumers(eq(users), eq(topicA.toString()), eq(false));
+  }
+
+  @Test
+  public void newConsumerOptimisedACLsCreation() {
+
+    HashMap<String, String> cliOps = new HashMap<>();
+    cliOps.put(BROKERS_OPTION, "");
+    Properties props = new Properties();
+    props.put(OPTIMIZED_ACLS_CONFIG, true);
+
+    TopologyBuilderConfig config = new TopologyBuilderConfig(cliOps, props);
+    accessControlManager = new AccessControlManager(aclsProvider, aclsBuilder, config);
+
+    List<Consumer> consumers = new ArrayList<>();
+    consumers.add(new Consumer("User:app1"));
+    Project project = new ProjectImpl();
+    project.setConsumers(consumers);
+
+    Topic topicA = new TopicImpl("topicA");
+    project.addTopic(topicA);
+
+    Topology topology = new TopologyImpl();
+    topology.addProject(project);
+
+    List<Consumer> users = asList(new Consumer("User:app1"));
+
+    doReturn(new ArrayList<TopologyAclBinding>())
+        .when(aclsBuilder)
+        .buildBindingsForConsumers(users, project.namePrefix(), true);
+    accessControlManager.apply(topology, plan);
+    verify(aclsBuilder, times(1))
+        .buildBindingsForConsumers(eq(users), eq(project.namePrefix()), eq(true));
   }
 
   @Test
@@ -118,9 +154,40 @@ public class AccessControlManagerTest {
 
     doReturn(new ArrayList<TopologyAclBinding>())
         .when(aclsBuilder)
-        .buildBindingsForProducers(producers, topicA.toString());
+        .buildBindingsForProducers(producers, topicA.toString(), false);
+
     accessControlManager.apply(topology, plan);
-    verify(aclsBuilder, times(1)).buildBindingsForProducers(eq(producers), eq(topicA.toString()));
+    verify(aclsBuilder, times(1))
+        .buildBindingsForProducers(eq(producers), eq(topicA.toString()), eq(false));
+  }
+
+  @Test
+  public void newProducerOptimizedACLsCreation() {
+    HashMap<String, String> cliOps = new HashMap<>();
+    cliOps.put(BROKERS_OPTION, "");
+    Properties props = new Properties();
+    props.put(OPTIMIZED_ACLS_CONFIG, true);
+
+    TopologyBuilderConfig config = new TopologyBuilderConfig(cliOps, props);
+    accessControlManager = new AccessControlManager(aclsProvider, aclsBuilder, config);
+
+    List<Producer> producers = new ArrayList<>();
+    producers.add(new Producer("User:app1"));
+    Project project = new ProjectImpl();
+    project.setProducers(producers);
+
+    Topic topicA = new TopicImpl("topicA");
+    project.addTopic(topicA);
+
+    Topology topology = new TopologyImpl();
+    topology.addProject(project);
+
+    doReturn(new ArrayList<TopologyAclBinding>())
+        .when(aclsBuilder)
+        .buildBindingsForProducers(producers, project.namePrefix(), true);
+    accessControlManager.apply(topology, plan);
+    verify(aclsBuilder, times(1))
+        .buildBindingsForProducers(eq(producers), eq(project.namePrefix()), eq(true));
   }
 
   @Test
@@ -317,7 +384,7 @@ public class AccessControlManagerTest {
 
     doReturn(new ArrayList<TopologyAclBinding>())
         .when(aclsBuilder)
-        .buildBindingsForConsumers(users, topicA.toString());
+        .buildBindingsForConsumers(users, topicA.toString(), false);
     accessControlManager.apply(topology, plan);
 
     plan.run(true);
@@ -343,12 +410,14 @@ public class AccessControlManagerTest {
     Topology topology = buildTopology(consumers, asList(topicA));
 
     List<TopologyAclBinding> bindings = returnAclsForConsumers(consumers, topicA.getName());
-    doReturn(bindings).when(aclsBuilder).buildBindingsForConsumers(any(), eq(topicA.toString()));
+    doReturn(bindings)
+        .when(aclsBuilder)
+        .buildBindingsForConsumers(any(), eq(topicA.toString()), eq(false));
 
     accessControlManager.apply(topology, plan);
     plan.run();
 
-    verify(aclsBuilder, times(1)).buildBindingsForConsumers(consumers, topicA.toString());
+    verify(aclsBuilder, times(1)).buildBindingsForConsumers(consumers, topicA.toString(), false);
 
     consumers = new ArrayList<>();
     consumers.add(new Consumer("User:app1"));
@@ -356,7 +425,7 @@ public class AccessControlManagerTest {
     bindings = returnAclsForConsumers(consumers, topicA.getName());
     doReturn(bindings)
         .when(aclsBuilder)
-        .buildBindingsForConsumers(eq(consumers), eq(topicA.toString()));
+        .buildBindingsForConsumers(eq(consumers), eq(topicA.toString()), eq(false));
 
     Topology newTopology = buildTopology(consumers, asList(topicA));
 

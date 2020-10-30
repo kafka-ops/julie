@@ -1,6 +1,9 @@
 package com.purbon.kafka.topology;
 
+import static com.purbon.kafka.topology.BuilderCLI.BROKERS_OPTION;
+import static com.purbon.kafka.topology.TopologyBuilderConfig.OPTIMIZED_ACLS_CONFIG;
 import static com.purbon.kafka.topology.roles.rbac.RBACBindingsBuilder.LITERAL;
+import static com.purbon.kafka.topology.roles.rbac.RBACBindingsBuilder.PREFIX;
 import static com.purbon.kafka.topology.roles.rbac.RBACPredefinedRoles.DEVELOPER_READ;
 import static com.purbon.kafka.topology.roles.rbac.RBACPredefinedRoles.DEVELOPER_WRITE;
 import static org.mockito.Matchers.any;
@@ -40,6 +43,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Properties;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -58,6 +62,8 @@ public class RbacProviderTest {
   @Rule public MockitoRule mockitoRule = MockitoJUnit.rule();
 
   private AccessControlManager accessControlManager;
+  private RBACProvider aclsProvider;
+  private RBACBindingsBuilder bindingsBuilder;
 
   @Before
   public void setup() {
@@ -65,13 +71,13 @@ public class RbacProviderTest {
     apiClient.setSchemaRegistryClusterID("sr");
     apiClient.setKafkaClusterId("ak");
 
-    RBACProvider aclsProvider = new RBACProvider(apiClient);
-    RBACBindingsBuilder bindingsBuilder = new RBACBindingsBuilder(apiClient);
+    aclsProvider = new RBACProvider(apiClient);
+    bindingsBuilder = new RBACBindingsBuilder(apiClient);
     accessControlManager = new AccessControlManager(aclsProvider, bindingsBuilder);
   }
 
   @Test
-  public void newConsumerACLsCreation() throws IOException {
+  public void newConsumerACLsCreation() {
 
     List<Consumer> consumers = new ArrayList<>();
     consumers.add(new Consumer("User:app1"));
@@ -95,7 +101,39 @@ public class RbacProviderTest {
   }
 
   @Test
-  public void newProducerACLsCreation() throws IOException {
+  public void newConsumerOptimisedACLsCreation() {
+
+    HashMap<String, String> cliOps = new HashMap<>();
+    cliOps.put(BROKERS_OPTION, "");
+    Properties props = new Properties();
+    props.put(OPTIMIZED_ACLS_CONFIG, true);
+
+    TopologyBuilderConfig config = new TopologyBuilderConfig(cliOps, props);
+    accessControlManager = new AccessControlManager(aclsProvider, bindingsBuilder, config);
+
+    List<Consumer> consumers = new ArrayList<>();
+    consumers.add(new Consumer("User:app1"));
+    Project project = new ProjectImpl();
+    project.setConsumers(consumers);
+
+    Topic topicA = new TopicImpl("topicA");
+    project.addTopic(topicA);
+
+    Topology topology = new TopologyImpl();
+    topology.addProject(project);
+
+    doReturn(new TopologyAclBinding())
+        .when(apiClient)
+        .bind("User:app1", DEVELOPER_READ, project.namePrefix(), PREFIX);
+
+    accessControlManager.apply(topology, plan);
+
+    verify(apiClient, times(1))
+        .bind(eq("User:app1"), eq(DEVELOPER_READ), eq(project.namePrefix()), eq(PREFIX));
+  }
+
+  @Test
+  public void newProducerACLsCreation() {
 
     List<Producer> producers = new ArrayList<>();
     producers.add(new Producer("User:app1"));
@@ -119,7 +157,38 @@ public class RbacProviderTest {
   }
 
   @Test
-  public void newKafkaStreamsAppACLsCreation() throws IOException {
+  public void newProducerOptimizedACLsCreation() {
+
+    HashMap<String, String> cliOps = new HashMap<>();
+    cliOps.put(BROKERS_OPTION, "");
+    Properties props = new Properties();
+    props.put(OPTIMIZED_ACLS_CONFIG, true);
+
+    TopologyBuilderConfig config = new TopologyBuilderConfig(cliOps, props);
+    accessControlManager = new AccessControlManager(aclsProvider, bindingsBuilder, config);
+    List<Producer> producers = new ArrayList<>();
+    producers.add(new Producer("User:app1"));
+    Project project = new ProjectImpl();
+    project.setProducers(producers);
+
+    Topic topicA = new TopicImpl("topicA");
+    project.addTopic(topicA);
+
+    Topology topology = new TopologyImpl();
+    topology.addProject(project);
+
+    doReturn(new TopologyAclBinding())
+        .when(apiClient)
+        .bind("User:app1", DEVELOPER_WRITE, project.namePrefix(), PREFIX);
+
+    accessControlManager.apply(topology, plan);
+
+    verify(apiClient, times(1))
+        .bind(eq("User:app1"), eq(DEVELOPER_WRITE), eq(project.namePrefix()), eq(PREFIX));
+  }
+
+  @Test
+  public void newKafkaStreamsAppACLsCreation() {
 
     Project project = new ProjectImpl();
 

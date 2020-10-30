@@ -88,14 +88,16 @@ public class AclsBindingsBuilder implements BindingsBuilderProvider {
 
   @Override
   public List<TopologyAclBinding> buildBindingsForConsumers(
-      Collection<Consumer> consumers, String topic) {
-    return toList(consumers.stream().flatMap(consumer -> consumerAclsStream(consumer, topic)));
+      Collection<Consumer> consumers, String resource, boolean prefixed) {
+    return toList(
+        consumers.stream().flatMap(consumer -> consumerAclsStream(consumer, resource, prefixed)));
   }
 
   @Override
   public List<TopologyAclBinding> buildBindingsForProducers(
-      Collection<Producer> producers, String topic) {
-    return toList(producers.stream().flatMap(p -> producerAclsStream(p, topic)));
+      Collection<Producer> producers, String resource, boolean prefixed) {
+    return toList(
+        producers.stream().flatMap(producer -> producerAclsStream(producer, resource, prefixed)));
   }
 
   @Override
@@ -113,16 +115,15 @@ public class AclsBindingsBuilder implements BindingsBuilderProvider {
     return bindingStream.map(TopologyAclBinding::new).collect(Collectors.toList());
   }
 
-  private Stream<AclBinding> producerAclsStream(Producer producer, String topic) {
+  private Stream<AclBinding> producerAclsStream(Producer producer, String topic, boolean prefixed) {
+    PatternType patternType = prefixed ? PatternType.PREFIXED : PatternType.LITERAL;
 
     List<AclBinding> bindings = new ArrayList<>();
 
     bindings.addAll(
         Arrays.asList(
-            buildTopicLevelAcl(
-                producer.getPrincipal(), topic, PatternType.LITERAL, AclOperation.DESCRIBE),
-            buildTopicLevelAcl(
-                producer.getPrincipal(), topic, PatternType.LITERAL, AclOperation.WRITE)));
+            buildTopicLevelAcl(producer.getPrincipal(), topic, patternType, AclOperation.DESCRIBE),
+            buildTopicLevelAcl(producer.getPrincipal(), topic, patternType, AclOperation.WRITE)));
 
     producer
         .getTransactionId()
@@ -154,16 +155,13 @@ public class AclsBindingsBuilder implements BindingsBuilderProvider {
     return bindings.stream();
   }
 
-  private Stream<AclBinding> consumerAclsStream(Consumer consumer, String topic) {
+  private Stream<AclBinding> consumerAclsStream(Consumer consumer, String topic, boolean prefixed) {
+    PatternType patternType = prefixed ? PatternType.PREFIXED : PatternType.LITERAL;
     return Stream.of(
-        buildTopicLevelAcl(
-            consumer.getPrincipal(), topic, PatternType.LITERAL, AclOperation.DESCRIBE),
-        buildTopicLevelAcl(consumer.getPrincipal(), topic, PatternType.LITERAL, AclOperation.READ),
+        buildTopicLevelAcl(consumer.getPrincipal(), topic, patternType, AclOperation.DESCRIBE),
+        buildTopicLevelAcl(consumer.getPrincipal(), topic, patternType, AclOperation.READ),
         buildGroupLevelAcl(
-            consumer.getPrincipal(),
-            consumer.groupString(),
-            PatternType.LITERAL,
-            AclOperation.READ));
+            consumer.getPrincipal(), consumer.groupString(), patternType, AclOperation.READ));
   }
 
   private Stream<AclBinding> streamsAppStream(
