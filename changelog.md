@@ -1,4 +1,16 @@
-v1.0.0:
+
+1.1.0 / 2020-10-30
+==================
+
+  * Grouping acls for consumers and producers when the function is selected via configuration (#120)
+  * Enable JSON and YAML as Topology descriptor file formats. (#108)
+  * Add support for Transactional and Idempotence producing and consuming in KTB (#119)
+  * Fix missing key in the deserializer for project causing projects to not properly extract the producers and perse not create the necessary acls
+  * ammend deb sign script
+
+1.0.0 / 2020-10-23
+==================
+ 
 * Extended the logging support to many components and classes in the KTB with the idea to support better troubleshooting. (Closes #101)
 * Add a filter to delete only topic configurations that are explicitly set, not the ones that use default values. (closes #99)
 * Fix a bug with wrongly set PatternType for Consumer group acls level. (closes #111)
@@ -6,7 +18,8 @@ v1.0.0:
 * Add a Health Check function used during the creation of the internal admin client. This function will describe the cluster and perse test if the setup credentials are ok.
 This fixes (#112)
  
-v1.0.0-rc2:
+1.0.0-rc2 / 2020-10-06
+==================
 * Check for required configuration values for the configuration of RBAC, if not present it raises a Configuration error
 * Update Log4j version to 2.13.3 to prevent CVE-2020-9488
 * Add an option to not delete internal topics, including an option configure rules to filter internal topics that can't not be removed config with  _kafka.internal.topic.prefixes_,
@@ -35,7 +48,8 @@ it will have to be properly configured.
 * Added the lightbend config library to support a more structured config management, including usage of environment variables and multiple config formats.
 * Made the broker CLI param optional, however one of both config or CLI has to be present, CLI takes always precedence over the config value.
 
-v1.0.0-rc1:
+1.0.0-rc1 / 2020-07-28
+==================
 * Add support for platform wide acls for control center in teh topology description file.
 * Port support for schema registry and confluent control center roles in the rbac provider. Now the two providers are future pair.
 * Fix the usage of the source field, it should not be mandatory as the others list and the custom topology serdes can cover a dynamic list 
