@@ -151,7 +151,7 @@ public class TopologyCustomDeserializer extends StdDeserializer<Topology> {
 
     List<String> keys =
         Arrays.asList(
-            CONSUMERS_KEY, PRODUCERS_KEY, PROJECTS_KEY, CONNECTORS_KEY, STREAMS_KEY, SCHEMAS_KEY);
+            CONSUMERS_KEY, PROJECTS_KEY, PRODUCERS_KEY, CONNECTORS_KEY, STREAMS_KEY, SCHEMAS_KEY);
 
     Map<String, JsonNode> rootNodes = Maps.asMap(new HashSet<>(keys), (key) -> rootNode.get(key));
 

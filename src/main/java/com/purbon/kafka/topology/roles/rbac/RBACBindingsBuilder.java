@@ -11,6 +11,7 @@ import com.purbon.kafka.topology.api.mds.MDSApiClient;
 import com.purbon.kafka.topology.model.Component;
 import com.purbon.kafka.topology.model.users.Connector;
 import com.purbon.kafka.topology.model.users.Consumer;
+import com.purbon.kafka.topology.model.users.Producer;
 import com.purbon.kafka.topology.model.users.platform.SchemaRegistryInstance;
 import com.purbon.kafka.topology.roles.TopologyAclBinding;
 import java.io.IOException;
@@ -140,11 +141,12 @@ public class RBACBindingsBuilder implements BindingsBuilderProvider {
 
   @Override
   public List<TopologyAclBinding> buildBindingsForProducers(
-      Collection<String> principals, String topic) {
+      Collection<Producer> producers, String topic) {
     List<TopologyAclBinding> bindings = new ArrayList<>();
-    principals.forEach(
-        principal -> {
-          TopologyAclBinding binding = apiClient.bind(principal, DEVELOPER_WRITE, topic, LITERAL);
+    producers.forEach(
+        producer -> {
+          TopologyAclBinding binding =
+              apiClient.bind(producer.getPrincipal(), DEVELOPER_WRITE, topic, LITERAL);
           bindings.add(binding);
         });
     return bindings;

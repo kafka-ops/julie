@@ -4,6 +4,7 @@ import com.purbon.kafka.topology.exceptions.ConfigurationException;
 import com.purbon.kafka.topology.model.Component;
 import com.purbon.kafka.topology.model.users.Connector;
 import com.purbon.kafka.topology.model.users.Consumer;
+import com.purbon.kafka.topology.model.users.Producer;
 import com.purbon.kafka.topology.model.users.platform.SchemaRegistryInstance;
 import com.purbon.kafka.topology.roles.TopologyAclBinding;
 import java.io.IOException;
@@ -20,7 +21,7 @@ public interface BindingsBuilderProvider {
 
   List<TopologyAclBinding> buildBindingsForConsumers(Collection<Consumer> consumers, String topic);
 
-  List<TopologyAclBinding> buildBindingsForProducers(Collection<String> principals, String topic);
+  List<TopologyAclBinding> buildBindingsForProducers(Collection<Producer> producers, String topic);
 
   default TopologyAclBinding setPredefinedRole(
       String principal, String predefinedRole, String topicPrefix) {
