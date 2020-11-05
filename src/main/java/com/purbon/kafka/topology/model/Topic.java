@@ -3,7 +3,11 @@ package com.purbon.kafka.topology.model;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.purbon.kafka.topology.TopologyBuilderConfig;
 import com.purbon.kafka.topology.model.Impl.TopicImpl;
+import com.purbon.kafka.topology.model.users.Consumer;
+import com.purbon.kafka.topology.model.users.Producer;
+
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
@@ -31,4 +35,8 @@ public interface Topic {
   void setPrefixContext(Map<String, Object> prefixContext);
 
   short replicationFactor();
+
+  List<Consumer> getConsumers();
+
+  List<Producer> getProducers();
 }

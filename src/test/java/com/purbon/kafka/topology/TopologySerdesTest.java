@@ -238,6 +238,24 @@ public class TopologySerdesTest {
   }
 
   @Test
+  public void testRBACTopics() throws URISyntaxException, IOException {
+
+    URL topologyDescriptor = getClass().getResource("/descriptor-with-rbac-topics.yaml");
+    Topology topology = parser.deserialise(Paths.get(topologyDescriptor.toURI()).toFile());
+
+    assertEquals("contextOrg", topology.getContext());
+    assertTrue(topology.getProjects().get(0).getConnectors().isEmpty());
+    assertTrue(topology.getProjects().get(0).getProducers().isEmpty());
+    assertTrue(topology.getProjects().get(0).getStreams().isEmpty());
+    assertTrue(topology.getProjects().get(0).getZookeepers().isEmpty());
+
+    assertEquals("foo", topology.getProjects().get(0).getTopics().get(0).getName());
+    assertEquals("User:App0", topology.getProjects().get(0).getTopics().get(0).getConsumers().get(0).getPrincipal());
+    assertEquals("User:App1", topology.getProjects().get(0).getTopics().get(0).getProducers().get(0).getPrincipal());
+
+  }
+
+  @Test
   public void testWithRBACDescriptor() throws IOException, URISyntaxException {
     URL descriptor = getClass().getResource("/descriptor-with-rbac.yaml");
 

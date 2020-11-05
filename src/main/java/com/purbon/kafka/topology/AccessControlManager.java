@@ -16,7 +16,9 @@ import com.purbon.kafka.topology.model.Project;
 import com.purbon.kafka.topology.model.Topology;
 import com.purbon.kafka.topology.model.User;
 import com.purbon.kafka.topology.model.users.Connector;
+import com.purbon.kafka.topology.model.users.Consumer;
 import com.purbon.kafka.topology.model.users.KStream;
+import com.purbon.kafka.topology.model.users.Producer;
 import com.purbon.kafka.topology.model.users.Schemas;
 import com.purbon.kafka.topology.model.users.platform.ControlCenterInstance;
 import com.purbon.kafka.topology.model.users.platform.SchemaRegistryInstance;
@@ -116,6 +118,28 @@ public class AccessControlManager {
     actions.add(
         new BuildBindingsForProducer(
             bindingsBuilder, project.getProducers(), project.namePrefix(), true));
+
+    //When optimised, still need to add any topic level specific.
+    project
+            .getTopics()
+            .forEach(
+                    topic -> {
+                      final String fullTopicName = topic.toString();
+                      if (!topic.getConsumers().isEmpty()) {
+                        Action action =
+                                new BuildBindingsForConsumer(
+                                        bindingsBuilder, topic.getConsumers(), fullTopicName, false);
+                        actions.add(action);
+                      }
+                      if (!topic.getProducers().isEmpty()) {
+                        Action action =
+                                new BuildBindingsForProducer(
+                                        bindingsBuilder, topic.getProducers(), fullTopicName, false);
+                        actions.add(action);
+                      }
+                    });
+
+
     return actions;
   }
 
@@ -126,16 +150,22 @@ public class AccessControlManager {
         .forEach(
             topic -> {
               final String fullTopicName = topic.toString();
-              if (!project.getConsumers().isEmpty()) {
+              List<Consumer> consumers = new ArrayList<>();
+              consumers.addAll(project.getConsumers());
+              consumers.addAll(topic.getConsumers());
+              if (!consumers.isEmpty()) {
                 Action action =
                     new BuildBindingsForConsumer(
-                        bindingsBuilder, project.getConsumers(), fullTopicName, false);
+                        bindingsBuilder, consumers, fullTopicName, false);
                 actions.add(action);
               }
-              if (!project.getProducers().isEmpty()) {
+              List<Producer> producers = new ArrayList<>();
+              producers.addAll(project.getProducers());
+              producers.addAll(topic.getProducers());
+              if (!producers.isEmpty()) {
                 Action action =
                     new BuildBindingsForProducer(
-                        bindingsBuilder, project.getProducers(), fullTopicName, false);
+                        bindingsBuilder, producers, fullTopicName, false);
                 actions.add(action);
               }
             });

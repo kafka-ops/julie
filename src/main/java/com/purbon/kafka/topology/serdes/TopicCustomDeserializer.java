@@ -10,8 +10,13 @@ import com.google.common.collect.Maps;
 import com.purbon.kafka.topology.TopologyBuilderConfig;
 import com.purbon.kafka.topology.model.Impl.TopicImpl;
 import com.purbon.kafka.topology.model.TopicSchemas;
+import com.purbon.kafka.topology.model.User;
+import com.purbon.kafka.topology.model.users.Consumer;
+import com.purbon.kafka.topology.model.users.Producer;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import jersey.repackaged.com.google.common.collect.Sets;
@@ -40,6 +45,8 @@ public class TopicCustomDeserializer extends StdDeserializer<TopicImpl> {
     validateRequiresKeys(rootNode, "name");
 
     String name = rootNode.get("name").asText();
+    List<Consumer> consumers = getUsers(parser, rootNode, "consumers", Consumer.class);
+    List<Producer> producers = getUsers(parser, rootNode, "producers", Producer.class);
 
     Optional<JsonNode> optionalDataTypeNode = Optional.ofNullable(rootNode.get("dataType"));
     Optional<String> optionalDataType = optionalDataTypeNode.map(o -> o.asText());
@@ -52,7 +59,7 @@ public class TopicCustomDeserializer extends StdDeserializer<TopicImpl> {
                     Maps.asMap(Sets.newHashSet(node.fieldNames()), (key) -> node.get(key).asText()))
             .orElse(new HashMap<>());
 
-    TopicImpl topic = new TopicImpl(name, optionalDataType, config, this.config);
+    TopicImpl topic = new TopicImpl(name, producers, consumers, optionalDataType, config, this.config);
 
     Optional.ofNullable(rootNode.get("schemas"))
         .ifPresent(
@@ -65,5 +72,10 @@ public class TopicCustomDeserializer extends StdDeserializer<TopicImpl> {
     LOGGER.debug(
         String.format("Topic %s with config %s has been created", topic.getName(), config));
     return topic;
+  }
+
+  private <T extends User> List<T> getUsers(JsonParser parser, JsonNode rootNode, String fieldName, Class<T> tClass) throws com.fasterxml.jackson.core.JsonProcessingException {
+    JsonNode jsonNode = rootNode.get(fieldName);
+    return jsonNode == null ? new ArrayList<>() : new JsonSerdesUtils<T>().parseApplicationUser(parser, jsonNode, tClass);
   }
 }
