@@ -10,7 +10,7 @@ import java.io.RandomAccessFile;
 import java.net.URI;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -62,7 +62,7 @@ public class FileBackend implements Backend {
 
   public Set<TopologyAclBinding> load(URI uri) throws IOException {
     Path filePath = Paths.get(uri);
-    Set<TopologyAclBinding> bindings = new HashSet<>();
+    Set<TopologyAclBinding> bindings = new LinkedHashSet<>();
     BufferedReader in = new BufferedReader(new FileReader(filePath.toFile()));
     String type = in.readLine();
     String line = null;
