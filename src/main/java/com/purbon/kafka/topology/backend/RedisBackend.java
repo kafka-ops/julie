@@ -1,5 +1,6 @@
 package com.purbon.kafka.topology.backend;
 
+import com.purbon.kafka.topology.BackendController.Mode;
 import com.purbon.kafka.topology.roles.TopologyAclBinding;
 import java.io.IOException;
 import java.net.URI;
@@ -14,6 +15,7 @@ import redis.clients.jedis.Jedis;
 public class RedisBackend implements Backend {
 
   private static final Logger LOGGER = LogManager.getLogger(RedisBackend.class);
+
   static final String KAFKA_TOPOLOGY_BUILDER_BINDINGS = "kafka.topology.builder.bindings";
   static final String KAFKA_TOPOLOGY_BUILDER_TYPE = "kafka.topology.builder.type";
 
@@ -33,7 +35,16 @@ public class RedisBackend implements Backend {
 
   @Override
   public void createOrOpen() {
+    createOrOpen(Mode.APPEND);
+  }
+
+  @Override
+  public void createOrOpen(Mode mode) {
     jedis.connect();
+    if (mode.equals(Mode.TRUNCATE)) {
+      jedis.del(KAFKA_TOPOLOGY_BUILDER_TYPE);
+      jedis.del(KAFKA_TOPOLOGY_BUILDER_BINDINGS);
+    }
   }
 
   @Override

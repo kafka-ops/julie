@@ -12,6 +12,11 @@ import org.apache.logging.log4j.Logger;
 
 public class BackendController {
 
+  public enum Mode {
+    TRUNCATE,
+    APPEND
+  }
+
   private static final Logger LOGGER = LogManager.getLogger(BackendController.class);
 
   private static final String STORE_TYPE = "acls";
@@ -44,7 +49,7 @@ public class BackendController {
 
   public void flushAndClose() {
     LOGGER.debug(String.format("Flushing the current state of %s, %s", STORE_TYPE, bindings));
-    backend.createOrOpen();
+    backend.createOrOpen(Mode.TRUNCATE);
     backend.saveType(STORE_TYPE);
     backend.saveBindings(bindings);
     backend.close();

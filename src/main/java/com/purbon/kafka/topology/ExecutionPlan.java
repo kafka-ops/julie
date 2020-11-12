@@ -28,6 +28,9 @@ public class ExecutionPlan {
     this.outputStream = outputStream;
     this.bindings = new HashSet<>();
     this.backendController = backendController;
+    if (backendController.size() > 0) {
+      this.bindings.addAll(backendController.getBindings());
+    }
   }
 
   public void add(Action action) {
@@ -70,7 +73,7 @@ public class ExecutionPlan {
         if (action instanceof ClearBindings) {
           bindings =
               bindings.stream()
-                  .filter(binding -> action.getBindings().contains(binding))
+                  .filter(binding -> !action.getBindings().contains(binding))
                   .collect(Collectors.toSet());
         } else {
           bindings.addAll(action.getBindings());

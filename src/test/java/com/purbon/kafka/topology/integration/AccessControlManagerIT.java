@@ -1,5 +1,6 @@
 package com.purbon.kafka.topology.integration;
 
+import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.when;
 
 import com.purbon.kafka.topology.AccessControlManager;
@@ -26,6 +27,8 @@ import com.purbon.kafka.topology.roles.SimpleAclsProvider;
 import com.purbon.kafka.topology.roles.TopologyAclBinding;
 import com.purbon.kafka.topology.roles.acls.AclsBindingsBuilder;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -73,6 +76,7 @@ public class AccessControlManagerIT {
     kafkaAdminClient = AdminClient.create(config());
     TopologyBuilderAdminClient adminClient = new TopologyBuilderAdminClient(kafkaAdminClient);
     adminClient.clearAcls();
+    Files.deleteIfExists(Paths.get(".cluster-state"));
 
     this.cs = new BackendController();
     this.plan = ExecutionPlan.init(cs, System.out);
@@ -108,7 +112,7 @@ public class AccessControlManagerIT {
     accessControlManager.apply(topology, plan);
     plan.run();
 
-    Assert.assertEquals(6, cs.size());
+    assertEquals(6, cs.size());
     verifyAclsOfSize(8); // Total of 3 acls per consumer + 2 for the producer
 
     consumers.remove(1);
@@ -118,8 +122,48 @@ public class AccessControlManagerIT {
     accessControlManager.apply(topology, plan);
     plan.run();
 
-    Assert.assertEquals(3, cs.size());
+    assertEquals(3, cs.size());
     verifyAclsOfSize(5);
+  }
+
+  @Test
+  public void aclsRemovedTest() throws IOException, ExecutionException, InterruptedException {
+
+    TopologyImpl topology = new TopologyImpl();
+    topology.setContext("aclsRemovedTest-Integration");
+
+    List<Consumer> consumers = new ArrayList<>();
+    consumers.add(new Consumer("User:testAclsRemovalUser1"));
+    consumers.add(new Consumer("User:testAclsRemovalUser2"));
+
+    Project project = new ProjectImpl("project");
+    project.setConsumers(consumers);
+    Topic topicA = new TopicImpl("topicA");
+    project.addTopic(topicA);
+    topology.addProject(project);
+
+    accessControlManager.apply(topology, plan);
+    plan.run();
+    assertEquals(6, cs.size());
+
+    // Reset the execution flow to be only with one consumer. Acls expected should be three.
+
+    BackendController cs = new BackendController();
+    ExecutionPlan plan = ExecutionPlan.init(cs, System.out);
+
+    consumers = new ArrayList<>();
+    consumers.add(new Consumer("User:testAclsRemovalUser1"));
+
+    Project project2 = new ProjectImpl("project");
+    project2.setConsumers(consumers);
+    project2.addTopic(topicA);
+    topology.setProjects(Collections.singletonList(project2));
+
+    accessControlManager.apply(topology, plan);
+    plan.run();
+
+    assertEquals(3, cs.size());
+    verifyAclsOfSize(3);
   }
 
   @Test
@@ -327,7 +371,7 @@ public class AccessControlManagerIT {
     Collection<AclBinding> acls =
         kafkaAdminClient.describeAcls(AclBindingFilter.ANY).values().get();
 
-    Assert.assertEquals(size, acls.size());
+    assertEquals(size, acls.size());
   }
 
   private void verifyConnectAcls(Connector connector)
@@ -344,7 +388,7 @@ public class AccessControlManagerIT {
 
     Collection<AclBinding> acls = kafkaAdminClient.describeAcls(filter).values().get();
 
-    Assert.assertEquals(5, acls.size());
+    assertEquals(5, acls.size());
 
     entryFilter =
         new AccessControlEntryFilter(
@@ -352,7 +396,7 @@ public class AccessControlManagerIT {
     filter = new AclBindingFilter(resourceFilter, entryFilter);
     acls = kafkaAdminClient.describeAcls(filter).values().get();
 
-    Assert.assertEquals(3, acls.size());
+    assertEquals(3, acls.size());
 
     resourceFilter = new ResourcePatternFilter(ResourceType.GROUP, null, PatternType.ANY);
     entryFilter =
@@ -361,7 +405,7 @@ public class AccessControlManagerIT {
     filter = new AclBindingFilter(resourceFilter, entryFilter);
     acls = kafkaAdminClient.describeAcls(filter).values().get();
 
-    Assert.assertEquals(1, acls.size());
+    assertEquals(1, acls.size());
   }
 
   private void verifySchemaRegistryAcls(Platform platform)
@@ -381,7 +425,7 @@ public class AccessControlManagerIT {
 
       Collection<AclBinding> acls = kafkaAdminClient.describeAcls(filter).values().get();
 
-      Assert.assertEquals(3, acls.size());
+      assertEquals(3, acls.size());
     }
   }
 
@@ -402,7 +446,7 @@ public class AccessControlManagerIT {
 
       Collection<AclBinding> acls = kafkaAdminClient.describeAcls(filter).values().get();
 
-      Assert.assertEquals(16, acls.size());
+      assertEquals(16, acls.size());
     }
   }
 
@@ -418,7 +462,7 @@ public class AccessControlManagerIT {
     Collection<AclBinding> acls = kafkaAdminClient.describeAcls(filter).values().get();
 
     // two acls created for the write topics
-    Assert.assertEquals(2, acls.size());
+    assertEquals(2, acls.size());
 
     entryFilter =
         new AccessControlEntryFilter(
@@ -429,7 +473,7 @@ public class AccessControlManagerIT {
     acls = kafkaAdminClient.describeAcls(filter).values().get();
 
     // two acls created for the read topics
-    Assert.assertEquals(2, acls.size());
+    assertEquals(2, acls.size());
 
     entryFilter =
         new AccessControlEntryFilter(
@@ -440,7 +484,7 @@ public class AccessControlManagerIT {
     acls = kafkaAdminClient.describeAcls(filter).values().get();
 
     // 1 acls created for the prefix internal topics
-    Assert.assertEquals(1, acls.size());
+    assertEquals(1, acls.size());
   }
 
   private void verifyProducerAcls(List<Producer> producers, String topic, int aclsCount)
@@ -455,7 +499,7 @@ public class AccessControlManagerIT {
       AclBindingFilter filter = new AclBindingFilter(resourceFilter, entryFilter);
       Collection<AclBinding> acls = kafkaAdminClient.describeAcls(filter).values().get();
 
-      Assert.assertEquals(aclsCount, acls.size());
+      assertEquals(aclsCount, acls.size());
 
       List<ResourceType> types =
           acls.stream()
@@ -486,7 +530,7 @@ public class AccessControlManagerIT {
       AclBindingFilter filter = new AclBindingFilter(resourceFilter, entryFilter);
       Collection<AclBinding> acls = kafkaAdminClient.describeAcls(filter).values().get();
 
-      Assert.assertEquals(3, acls.size());
+      assertEquals(3, acls.size());
 
       List<ResourceType> types =
           acls.stream()
