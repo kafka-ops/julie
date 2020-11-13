@@ -59,7 +59,8 @@ public class TopicCustomDeserializer extends StdDeserializer<TopicImpl> {
                     Maps.asMap(Sets.newHashSet(node.fieldNames()), (key) -> node.get(key).asText()))
             .orElse(new HashMap<>());
 
-    TopicImpl topic = new TopicImpl(name, producers, consumers, optionalDataType, config, this.config);
+    TopicImpl topic =
+        new TopicImpl(name, producers, consumers, optionalDataType, config, this.config);
 
     Optional.ofNullable(rootNode.get("schemas"))
         .ifPresent(
@@ -74,8 +75,12 @@ public class TopicCustomDeserializer extends StdDeserializer<TopicImpl> {
     return topic;
   }
 
-  private <T extends User> List<T> getUsers(JsonParser parser, JsonNode rootNode, String fieldName, Class<T> tClass) throws com.fasterxml.jackson.core.JsonProcessingException {
+  private <T extends User> List<T> getUsers(
+      JsonParser parser, JsonNode rootNode, String fieldName, Class<T> tClass)
+      throws com.fasterxml.jackson.core.JsonProcessingException {
     JsonNode jsonNode = rootNode.get(fieldName);
-    return jsonNode == null ? new ArrayList<>() : new JsonSerdesUtils<T>().parseApplicationUser(parser, jsonNode, tClass);
+    return jsonNode == null
+        ? new ArrayList<>()
+        : new JsonSerdesUtils<T>().parseApplicationUser(parser, jsonNode, tClass);
   }
 }

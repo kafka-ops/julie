@@ -5,7 +5,6 @@ import com.purbon.kafka.topology.TopologyBuilderConfig;
 import com.purbon.kafka.topology.model.Impl.TopicImpl;
 import com.purbon.kafka.topology.model.users.Consumer;
 import com.purbon.kafka.topology.model.users.Producer;
-
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -39,4 +38,8 @@ public interface Topic {
   List<Consumer> getConsumers();
 
   List<Producer> getProducers();
+
+  void setConsumers(List<Consumer> consumers);
+
+  void setProducers(List<Producer> producers);
 }

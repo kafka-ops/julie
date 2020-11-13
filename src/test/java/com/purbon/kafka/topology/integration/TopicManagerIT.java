@@ -57,7 +57,9 @@ public class TopicManagerIT {
 
   @BeforeClass
   public static void setup() {
-    container = new KafkaContainer(TestcontainersConfiguration.getInstance().getKafkaDockerImageName().withTag("5.5.0"));
+    container =
+        new KafkaContainer(
+            TestcontainersConfiguration.getInstance().getKafkaDockerImageName().withTag("5.5.0"));
     container.start();
   }
 

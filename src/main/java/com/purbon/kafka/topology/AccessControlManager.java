@@ -25,6 +25,7 @@ import com.purbon.kafka.topology.model.users.platform.SchemaRegistryInstance;
 import com.purbon.kafka.topology.roles.TopologyAclBinding;
 import java.io.PrintStream;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -119,26 +120,25 @@ public class AccessControlManager {
         new BuildBindingsForProducer(
             bindingsBuilder, project.getProducers(), project.namePrefix(), true));
 
-    //When optimised, still need to add any topic level specific.
+    // When optimised, still need to add any topic level specific.
     project
-            .getTopics()
-            .forEach(
-                    topic -> {
-                      final String fullTopicName = topic.toString();
-                      if (!topic.getConsumers().isEmpty()) {
-                        Action action =
-                                new BuildBindingsForConsumer(
-                                        bindingsBuilder, topic.getConsumers(), fullTopicName, false);
-                        actions.add(action);
-                      }
-                      if (!topic.getProducers().isEmpty()) {
-                        Action action =
-                                new BuildBindingsForProducer(
-                                        bindingsBuilder, topic.getProducers(), fullTopicName, false);
-                        actions.add(action);
-                      }
-                    });
-
+        .getTopics()
+        .forEach(
+            topic -> {
+              final String fullTopicName = topic.toString();
+              if (!topic.getConsumers().isEmpty()) {
+                Action action =
+                    new BuildBindingsForConsumer(
+                        bindingsBuilder, topic.getConsumers(), fullTopicName, false);
+                actions.add(action);
+              }
+              if (!topic.getProducers().isEmpty()) {
+                Action action =
+                    new BuildBindingsForProducer(
+                        bindingsBuilder, topic.getProducers(), fullTopicName, false);
+                actions.add(action);
+              }
+            });
 
     return actions;
   }
@@ -150,22 +150,22 @@ public class AccessControlManager {
         .forEach(
             topic -> {
               final String fullTopicName = topic.toString();
-              List<Consumer> consumers = new ArrayList<>();
+              Set<Consumer> consumers = new HashSet<>(topic.getConsumers());
               consumers.addAll(project.getConsumers());
-              consumers.addAll(topic.getConsumers());
+
               if (!consumers.isEmpty()) {
                 Action action =
                     new BuildBindingsForConsumer(
-                        bindingsBuilder, consumers, fullTopicName, false);
+                        bindingsBuilder, new ArrayList<>(consumers), fullTopicName, false);
                 actions.add(action);
               }
-              List<Producer> producers = new ArrayList<>();
+              Set<Producer> producers = new HashSet<>(topic.getProducers());
               producers.addAll(project.getProducers());
-              producers.addAll(topic.getProducers());
+
               if (!producers.isEmpty()) {
                 Action action =
                     new BuildBindingsForProducer(
-                        bindingsBuilder, producers, fullTopicName, false);
+                        bindingsBuilder, new ArrayList<>(producers), fullTopicName, false);
                 actions.add(action);
               }
             });

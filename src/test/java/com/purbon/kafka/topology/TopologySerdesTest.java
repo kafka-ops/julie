@@ -250,9 +250,12 @@ public class TopologySerdesTest {
     assertTrue(topology.getProjects().get(0).getZookeepers().isEmpty());
 
     assertEquals("foo", topology.getProjects().get(0).getTopics().get(0).getName());
-    assertEquals("User:App0", topology.getProjects().get(0).getTopics().get(0).getConsumers().get(0).getPrincipal());
-    assertEquals("User:App1", topology.getProjects().get(0).getTopics().get(0).getProducers().get(0).getPrincipal());
-
+    assertEquals(
+        "User:App0",
+        topology.getProjects().get(0).getTopics().get(0).getConsumers().get(0).getPrincipal());
+    assertEquals(
+        "User:App1",
+        topology.getProjects().get(0).getTopics().get(0).getProducers().get(0).getPrincipal());
   }
 
   @Test

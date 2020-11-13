@@ -10,7 +10,6 @@ import com.purbon.kafka.topology.model.TopicSchemas;
 import com.purbon.kafka.topology.model.users.Consumer;
 import com.purbon.kafka.topology.model.users.Producer;
 import com.purbon.kafka.topology.utils.JinjaUtils;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -68,10 +67,10 @@ public class TopicImpl implements Topic, Cloneable {
   }
 
   public TopicImpl(
-          String name,
-          Optional<String> dataType,
-          Map<String, String> config,
-          TopologyBuilderConfig appConfig) {
+      String name,
+      Optional<String> dataType,
+      Map<String, String> config,
+      TopologyBuilderConfig appConfig) {
     this(name, new ArrayList<>(), new ArrayList<>(), dataType, config, appConfig);
   }
 
@@ -181,11 +180,13 @@ public class TopicImpl implements Topic, Cloneable {
     return producers;
   }
 
+  @Override
   public void setConsumers(List<Consumer> consumers) {
     this.consumers.clear();
     this.consumers.addAll(consumers);
   }
 
+  @Override
   public void setProducers(List<Producer> producers) {
     this.producers.clear();
     this.producers.addAll(producers);
@@ -209,7 +210,8 @@ public class TopicImpl implements Topic, Cloneable {
     try {
       return (Topic) super.clone();
     } catch (CloneNotSupportedException e) {
-      return new TopicImpl(getName(), getProducers(), getConsumers(), getDataType(), getConfig(), getAppConfig());
+      return new TopicImpl(
+          getName(), getProducers(), getConsumers(), getDataType(), getConfig(), getAppConfig());
     }
   }
 }
