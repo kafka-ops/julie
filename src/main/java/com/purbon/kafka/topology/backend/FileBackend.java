@@ -1,12 +1,12 @@
 package com.purbon.kafka.topology.backend;
 
+import com.purbon.kafka.topology.BackendController.Mode;
 import com.purbon.kafka.topology.roles.TopologyAclBinding;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
-import java.io.FileWriter;
 import java.io.IOException;
-import java.io.Writer;
+import java.io.RandomAccessFile;
 import java.net.URI;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -21,7 +21,7 @@ public class FileBackend implements Backend {
 
   private static final Logger LOGGER = LogManager.getLogger(FileBackend.class);
 
-  private Writer writer;
+  private RandomAccessFile writer;
   private String expression =
       "^\\'(\\S+)\\',\\s*\\'(\\S+)\\',\\s*\\'(\\S+)\\',\\s*\\'(\\S+)\\',\\s*\\'(\\S+)\\',\\s*\\'(\\S+)\\'";
   private Pattern regexp;
@@ -33,10 +33,22 @@ public class FileBackend implements Backend {
 
   @Override
   public void createOrOpen() {
+    createOrOpen(Mode.APPEND);
+  }
+
+  @Override
+  public void createOrOpen(Mode mode) {
     try {
-      writer = new FileWriter(filename());
+      writer = new RandomAccessFile(filename(), "rw");
+      Path path = Paths.get(filename());
+      if (path.toFile().exists()) {
+        writer.seek(0);
+        if (mode.equals(Mode.TRUNCATE)) {
+          writer.getChannel().truncate(0);
+        }
+      }
     } catch (IOException e) {
-      e.printStackTrace();
+      LOGGER.error(e);
     }
   }
 
@@ -92,8 +104,8 @@ public class FileBackend implements Backend {
 
   public void saveType(String type) {
     try {
-      writer.write(type);
-      writer.write("\n");
+      writer.writeBytes(type);
+      writer.writeBytes("\n");
     } catch (IOException e) {
       LOGGER.error(e);
     }
@@ -104,8 +116,8 @@ public class FileBackend implements Backend {
     bindings.forEach(
         binding -> {
           try {
-            writer.write(binding.toString());
-            writer.write("\n");
+            writer.writeBytes(binding.toString());
+            writer.writeBytes("\n");
           } catch (IOException e) {
             LOGGER.error(e);
           }

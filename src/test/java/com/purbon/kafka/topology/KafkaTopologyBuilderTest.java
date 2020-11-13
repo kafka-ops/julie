@@ -12,6 +12,7 @@ import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
+import com.purbon.kafka.topology.BackendController.Mode;
 import com.purbon.kafka.topology.api.adminclient.TopologyBuilderAdminClient;
 import com.purbon.kafka.topology.backend.RedisBackend;
 import com.purbon.kafka.topology.model.Topology;
@@ -210,7 +211,8 @@ public class KafkaTopologyBuilderTest {
     builder.run(plan);
     builder.close();
 
-    verify(stateProcessor, times(2)).createOrOpen();
+    verify(stateProcessor, times(1)).createOrOpen();
+    verify(stateProcessor, times(1)).createOrOpen(Mode.TRUNCATE);
     verify(topicManager, times(1)).apply(anyObject(), anyObject());
     verify(accessControlManager, times(1)).apply(anyObject(), anyObject());
   }

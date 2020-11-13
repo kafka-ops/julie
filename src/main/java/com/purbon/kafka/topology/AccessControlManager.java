@@ -181,8 +181,10 @@ public class AccessControlManager {
             .filter(binding -> !bindings.contains(binding))
             .collect(Collectors.toSet());
 
-    CreateBindings createBindings = new CreateBindings(controlProvider, bindingsToBeCreated);
-    updateActions.add(createBindings);
+    if (!bindingsToBeCreated.isEmpty()) {
+      CreateBindings createBindings = new CreateBindings(controlProvider, bindingsToBeCreated);
+      updateActions.add(createBindings);
+    }
 
     if (config.allowDelete()) {
       // clear acls that does not appear anymore in the new generated list,
@@ -191,9 +193,10 @@ public class AccessControlManager {
           bindings.stream()
               .filter(binding -> !allFinalBindings.contains(binding))
               .collect(Collectors.toSet());
-
-      ClearBindings clearBindings = new ClearBindings(controlProvider, bindingsToDelete);
-      updateActions.add(clearBindings);
+      if (!bindingsToDelete.isEmpty()) {
+        ClearBindings clearBindings = new ClearBindings(controlProvider, bindingsToDelete);
+        updateActions.add(clearBindings);
+      }
     }
     return updateActions;
   }
