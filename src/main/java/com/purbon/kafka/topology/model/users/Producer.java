@@ -1,6 +1,7 @@
 package com.purbon.kafka.topology.model.users;
 
 import com.purbon.kafka.topology.model.User;
+import java.util.Objects;
 import java.util.Optional;
 
 public class Producer extends User {
@@ -34,5 +35,22 @@ public class Producer extends User {
 
   public void setIdempotence(Optional<Boolean> idempotence) {
     this.idempotence = idempotence;
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (!(o instanceof Producer)) {
+      return false;
+    }
+    Producer producer = (Producer) o;
+    return getPrincipal().equals(producer.getPrincipal());
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(getPrincipal());
   }
 }
