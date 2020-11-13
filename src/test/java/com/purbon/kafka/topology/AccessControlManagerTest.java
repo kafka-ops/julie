@@ -41,6 +41,8 @@ import com.purbon.kafka.topology.roles.TopologyAclBinding;
 import com.purbon.kafka.topology.roles.acls.AclsBindingsBuilder;
 import java.io.IOException;
 import java.io.PrintStream;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -82,6 +84,7 @@ public class AccessControlManagerTest {
 
   @Before
   public void setup() throws IOException {
+    Files.deleteIfExists(Paths.get(".cluster-state"));
     plan = ExecutionPlan.init(backendController, mockPrintStream);
     accessControlManager = new AccessControlManager(aclsProvider, aclsBuilder);
     doNothing().when(backendController).add(Matchers.anyList());
@@ -450,28 +453,30 @@ public class AccessControlManagerTest {
   public void testDryRunMode() throws IOException {
 
     plan = ExecutionPlan.init(backendController, mockPrintStream);
+    Topology topology = new TopologyImpl();
+    topology.setContext("foo");
 
     List<Consumer> consumers = new ArrayList<>();
     consumers.add(new Consumer("User:app1"));
-    Project project = new ProjectImpl();
+
+    Project project = new ProjectImpl("project");
     project.setConsumers(consumers);
+    topology.addProject(project);
 
     Topic topicA = new TopicImpl("topicA");
     project.addTopic(topicA);
 
-    Topology topology = new TopologyImpl();
-    topology.addProject(project);
-
     List<Consumer> users = asList(new Consumer("User:app1"));
 
-    doReturn(new ArrayList<TopologyAclBinding>())
+    doReturn(Collections.singletonList(new TopologyAclBinding()))
         .when(aclsBuilder)
         .buildBindingsForConsumers(users, topicA.toString(), false);
+
     accessControlManager.apply(topology, plan);
 
     plan.run(true);
 
-    verify(mockPrintStream, times(2)).println(any(Action.class));
+    verify(mockPrintStream, times(1)).println(any(Action.class));
   }
 
   @Test
