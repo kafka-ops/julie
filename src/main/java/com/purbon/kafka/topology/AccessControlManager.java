@@ -121,29 +121,15 @@ public class AccessControlManager {
             bindingsBuilder, project.getProducers(), project.namePrefix(), true));
 
     // When optimised, still need to add any topic level specific.
-    project
-        .getTopics()
-        .forEach(
-            topic -> {
-              final String fullTopicName = topic.toString();
-              if (!topic.getConsumers().isEmpty()) {
-                Action action =
-                    new BuildBindingsForConsumer(
-                        bindingsBuilder, topic.getConsumers(), fullTopicName, false);
-                actions.add(action);
-              }
-              if (!topic.getProducers().isEmpty()) {
-                Action action =
-                    new BuildBindingsForProducer(
-                        bindingsBuilder, topic.getProducers(), fullTopicName, false);
-                actions.add(action);
-              }
-            });
-
+    actions.addAll(buildBasicUsersAcls(project, false));
     return actions;
   }
 
   private List<Action> buildDetailedConsumerAndProducerAcls(Project project) {
+    return buildBasicUsersAcls(project, true);
+  }
+
+  private List<Action> buildBasicUsersAcls(Project project, boolean includeProjectLevel) {
     List<Action> actions = new ArrayList<>();
     project
         .getTopics()
@@ -151,8 +137,9 @@ public class AccessControlManager {
             topic -> {
               final String fullTopicName = topic.toString();
               Set<Consumer> consumers = new HashSet<>(topic.getConsumers());
-              consumers.addAll(project.getConsumers());
-
+              if (includeProjectLevel) {
+                consumers.addAll(project.getConsumers());
+              }
               if (!consumers.isEmpty()) {
                 Action action =
                     new BuildBindingsForConsumer(
@@ -160,8 +147,9 @@ public class AccessControlManager {
                 actions.add(action);
               }
               Set<Producer> producers = new HashSet<>(topic.getProducers());
-              producers.addAll(project.getProducers());
-
+              if (includeProjectLevel) {
+                producers.addAll(project.getProducers());
+              }
               if (!producers.isEmpty()) {
                 Action action =
                     new BuildBindingsForProducer(
