@@ -58,6 +58,30 @@ In following configuration the reader is seeing an example of how to create a to
 
 Users can as well increase later the number of partitions and the Topology Builder will handle it properly.
 
+Topic Level Consumers and Producers
+-----------
+
+It is possible to setup dedicated access control rules for specific topics instead of project scope.
+An example configuration would look like this:
+
+.. code-block:: YAML
+
+  ---
+    context: "context"
+    projects:
+      - name: "projectA"
+        topics:
+          - name: "foo"
+            consumers:
+              - principal: "User:App0"
+            producers:
+              - principal: "User:App1"
+            config:
+              replication.factor: "1"
+              num.partitions: "1"
+
+This type of Access Control rules allow the reader to setup dedicated access to single topics, without giving global project access.
+
 Handling Configuration
 -----------
 

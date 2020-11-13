@@ -1,0 +1,30 @@
+---
+context: "contextOrg"
+source: "source"
+projects:
+  - name: "foo"
+    topics:
+      - name: "foo"
+        consumers:
+          - principal: "User:App0"
+        producers:
+          - principal: "User:App1"
+        config:
+          replication.factor: "1"
+          num.partitions: "1"
+      - name: "bar"
+        dataType: "avro"
+        consumers:
+          - principal: "User:App3"
+        producers:
+          - principal: "User:App4"
+        config:
+          replication.factor: "1"
+          num.partitions: "1"
+  - name: "bar"
+    topics:
+      - dataType: "avro"
+        name: "bar"
+        config:
+          replication.factor: "1"
+          num.partitions: "1"
