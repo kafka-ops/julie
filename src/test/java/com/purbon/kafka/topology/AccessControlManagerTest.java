@@ -3,9 +3,13 @@ package com.purbon.kafka.topology;
 import static com.purbon.kafka.topology.BuilderCLI.BROKERS_OPTION;
 import static com.purbon.kafka.topology.TopologyBuilderConfig.OPTIMIZED_ACLS_CONFIG;
 import static java.util.Arrays.asList;
+import static org.hamcrest.CoreMatchers.hasItem;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.collection.IsCollectionWithSize.hasSize;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
+import static org.mockito.Matchers.refEq;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.times;
@@ -38,6 +42,7 @@ import com.purbon.kafka.topology.roles.acls.AclsBindingsBuilder;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -54,6 +59,7 @@ import org.apache.kafka.common.resource.ResourceType;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Matchers;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnit;
@@ -139,6 +145,44 @@ public class AccessControlManagerTest {
   }
 
   @Test
+  public void testConsumerAclsAtTopicLevel() {
+
+    Consumer projectConsumer = new Consumer("project-consumer");
+    Consumer topicConsumer = new Consumer("topic-consumer");
+
+    List<Consumer> projectConsumers = Collections.singletonList(projectConsumer);
+
+    Topology topology = new TopologyImpl();
+    topology.setContext("testConsumerAclsAtTopicLevel");
+
+    Project project = new ProjectImpl("project");
+    project.setConsumers(projectConsumers);
+    Topic topic = new TopicImpl("foo");
+
+    List<Consumer> topicConsumers = Arrays.asList(projectConsumer, topicConsumer);
+    topic.setConsumers(topicConsumers);
+
+    project.addTopic(topic);
+    topology.addProject(project);
+
+    doReturn(new ArrayList<TopologyAclBinding>())
+        .when(aclsBuilder)
+        .buildBindingsForConsumers(any(), eq(topic.toString()), eq(false));
+
+    accessControlManager.apply(topology, plan);
+
+    ArgumentCaptor<List> argumentCaptor = ArgumentCaptor.forClass(List.class);
+
+    verify(aclsBuilder, times(1))
+        .buildBindingsForConsumers(argumentCaptor.capture(), eq(topic.toString()), eq(false));
+
+    List<Consumer> capturedList = argumentCaptor.getValue();
+    assertThat(capturedList, hasItem(projectConsumer));
+    assertThat(capturedList, hasItem(topicConsumer));
+    assertThat(capturedList, hasSize(2));
+  }
+
+  @Test
   public void newProducerACLsCreation() {
 
     List<Producer> producers = new ArrayList<>();
@@ -191,7 +235,45 @@ public class AccessControlManagerTest {
   }
 
   @Test
-  public void newKafkaStreamsAppACLsCreation() throws IOException {
+  public void testProducerAclsAtTopicLevel() {
+
+    Producer projectProducer = new Producer("project-producer");
+    Producer topicProducer = new Producer("topic-producer");
+
+    List<Producer> projectProducers = Collections.singletonList(projectProducer);
+
+    Topology topology = new TopologyImpl();
+    topology.setContext("testProducerAclsAtTopicLevel");
+
+    Project project = new ProjectImpl("project");
+    project.setProducers(projectProducers);
+    Topic topic = new TopicImpl("foo");
+
+    List<Producer> topicProducers = Arrays.asList(projectProducer, topicProducer);
+    topic.setProducers(topicProducers);
+
+    project.addTopic(topic);
+    topology.addProject(project);
+
+    doReturn(new ArrayList<TopologyAclBinding>())
+        .when(aclsBuilder)
+        .buildBindingsForProducers(any(), eq(topic.toString()), eq(false));
+
+    accessControlManager.apply(topology, plan);
+
+    ArgumentCaptor<List> argumentCaptor = ArgumentCaptor.forClass(List.class);
+
+    verify(aclsBuilder, times(1))
+        .buildBindingsForProducers(argumentCaptor.capture(), eq(topic.toString()), eq(false));
+
+    List<Producer> capturedList = argumentCaptor.getValue();
+    assertThat(capturedList, hasItem(projectProducer));
+    assertThat(capturedList, hasItem(topicProducer));
+    assertThat(capturedList, hasSize(2));
+  }
+
+  @Test
+  public void newKafkaStreamsAppACLsCreation() {
 
     Project project = new ProjectImpl();
 
@@ -417,7 +499,8 @@ public class AccessControlManagerTest {
     accessControlManager.apply(topology, plan);
     plan.run();
 
-    verify(aclsBuilder, times(1)).buildBindingsForConsumers(consumers, topicA.toString(), false);
+    verify(aclsBuilder, times(1))
+        .buildBindingsForConsumers(refEq(consumers), eq(topicA.toString()), eq(false));
 
     consumers = new ArrayList<>();
     consumers.add(new Consumer("User:app1"));
@@ -425,7 +508,7 @@ public class AccessControlManagerTest {
     bindings = returnAclsForConsumers(consumers, topicA.getName());
     doReturn(bindings)
         .when(aclsBuilder)
-        .buildBindingsForConsumers(eq(consumers), eq(topicA.toString()), eq(false));
+        .buildBindingsForConsumers(any(), eq(topicA.toString()), eq(false));
 
     Topology newTopology = buildTopology(consumers, asList(topicA));
 
