@@ -86,6 +86,7 @@ public class TopicImpl implements Topic, Cloneable {
     this.consumers = consumers;
     this.dataType = dataType;
     this.config = config;
+    this.schemas = new TopicSchemas();
     this.replicationFactor = 0;
     this.partitionCount = 0;
     this.appConfig = appConfig;

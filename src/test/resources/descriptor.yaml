@@ -51,6 +51,8 @@ projects:
   - name: "bar"
     topics:
       - dataType: "avro"
+        schemas:
+          value.schema.file: "schemas/bar-value.avsc"
         name: "bar"
         config:
           replication.factor: "1"

@@ -201,6 +201,12 @@ public class TopologySerdesTest {
     assertThat(project.getProducers().get(2).getIdempotence()).isNotEmpty();
   }
 
+  @Test(expected = IllegalArgumentException.class)
+  public void testSchemaSerdes() throws URISyntaxException, IOException {
+    URL topologyDescriptor = getClass().getResource("/descriptor-wrong-schemas.yaml");
+    parser.deserialise(Paths.get(topologyDescriptor.toURI()).toFile());
+  }
+
   @Test
   public void testPlaformProcessing() throws IOException, URISyntaxException {
 
