@@ -1,0 +1,11 @@
+---
+
+plans:
+  - name: "gold"
+    config:
+      bar: 3
+      foo: "bar"
+  - name: "silver"
+    config:
+      bar: 3
+      foo: "bar"
