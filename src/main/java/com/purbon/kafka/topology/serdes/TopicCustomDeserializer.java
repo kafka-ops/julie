@@ -79,7 +79,7 @@ public class TopicCustomDeserializer extends StdDeserializer<TopicImpl> {
             Map<String, String> planConfigObject = plans.get(planLabel).getConfig();
             planConfigObject.forEach(config::put);
           } else {
-            LOGGER.warn(planLabel+" is missing in the plans definition. It will be ignored.");
+            LOGGER.warn(planLabel + " is missing in the plans definition. It will be ignored.");
           }
         });
 
