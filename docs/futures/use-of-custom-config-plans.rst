@@ -19,7 +19,7 @@ Defining the your plans
 As an operator of the Kafka Topology Builder you can define a set of custom plans, this would be a file that look like this:
 
 .. code-block:: YAML
-  ---
+
   plans:
     gold:
       alias: "gold"
@@ -41,7 +41,7 @@ Using plans in the Topology
 Once the plan is defined, you can use it in your Topology files. This process would look like this:
 
 .. code-block:: YAML
-  ---
+
   context: "contextOrg"
   source: "source"
   projects:
@@ -80,6 +80,7 @@ As a user of the Kafka Topology Builder CLI, if interested to use Plans you can 
 An example call will look like:
 
 .. code-block:: BASH
+
   $>  kafka-topology-builder.sh --brokers localhost:9092  \
                 --clientConfig example/topology-builder.properties \
                 --topology example/descriptor-with-plans.yaml  \
