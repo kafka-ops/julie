@@ -9,7 +9,6 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -58,13 +57,17 @@ public class SyncTopicAction extends BaseAction {
     if (topic.getSchemas() != null) {
       final TopicSchemas schemas = topic.getSchemas();
 
-      if (StringUtils.isNotBlank(schemas.getKeySchemaFile())) {
-        schemaRegistryManager.register(fullTopicName + "-key", schemas.getKeySchemaFile());
-      }
+      schemas
+          .getKeySchemaFile()
+          .ifPresent(
+              keySchemaFile ->
+                  schemaRegistryManager.register(fullTopicName + "-key", keySchemaFile));
 
-      if (StringUtils.isNotBlank(schemas.getValueSchemaFile())) {
-        schemaRegistryManager.register(fullTopicName + "-value", schemas.getValueSchemaFile());
-      }
+      schemas
+          .getValueSchemaFile()
+          .ifPresent(
+              valueSchemaFile ->
+                  schemaRegistryManager.register(fullTopicName + "-value", valueSchemaFile));
     }
   }
 

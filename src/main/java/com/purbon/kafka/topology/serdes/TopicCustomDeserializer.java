@@ -91,9 +91,14 @@ public class TopicCustomDeserializer extends StdDeserializer<TopicImpl> {
             node -> {
               topic.setSchemas(
                   new TopicSchemas(
-                      node.get("key.schema.file").asText(),
-                      node.get("value.schema.file").asText()));
+                      Optional.ofNullable(node.get("key.schema.file")),
+                      Optional.ofNullable(node.get("value.schema.file"))));
             });
+    if (rootNode.get("schemas") != null) {
+      if (!topic.getSchemas().getValueSchemaFile().isPresent()) {
+        throw new IOException("Missing required value.schema.file if key file is present");
+      }
+    }
     LOGGER.debug(
         String.format("Topic %s with config %s has been created", topic.getName(), config));
     return topic;
