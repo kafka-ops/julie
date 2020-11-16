@@ -17,6 +17,8 @@ public interface Topic {
 
   TopicSchemas getSchemas();
 
+  String getPlan();
+
   void setSchemas(TopicSchemas schemas);
 
   Map<String, String> getConfig();
