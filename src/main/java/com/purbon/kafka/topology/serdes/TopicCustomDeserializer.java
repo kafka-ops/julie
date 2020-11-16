@@ -20,7 +20,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.function.Function;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -52,30 +51,20 @@ public class TopicCustomDeserializer extends StdDeserializer<TopicImpl> {
     List<Producer> producers = getUsers(parser, rootNode, "producers", Producer.class);
 
     Optional<JsonNode> optionalDataTypeNode = Optional.ofNullable(rootNode.get("dataType"));
-    Optional<String> optionalDataType = optionalDataTypeNode.map(o -> o.asText());
+    Optional<String> optionalDataType = optionalDataTypeNode.map(JsonNode::asText);
 
     Optional<JsonNode> optionalConfigNode = Optional.ofNullable(rootNode.get("config"));
-    /*Map<String, String> config =
-        optionalConfigNode
-            .map(
-                node ->
-                    Maps.asMap(Sets.newHashSet(node.fieldNames()), (key) -> node.get(key).asText()))
-            .orElse(new HashMap<>());
-    */
     Map<String, String> config =
         optionalConfigNode
             .map(
-                new Function<JsonNode, Map<String, String>>() {
-                  @Override
-                  public Map<String, String> apply(JsonNode node) {
-                    Map<String, String> map = new HashMap<>();
-                    Iterator<Map.Entry<String, JsonNode>> it = node.fields();
-                    while (it.hasNext()) {
-                      Map.Entry<String, JsonNode> entry = it.next();
-                      map.put(entry.getKey(), entry.getValue().asText());
-                    }
-                    return map;
+                node -> {
+                  Map<String, String> map = new HashMap<>();
+                  Iterator<Map.Entry<String, JsonNode>> it = node.fields();
+                  while (it.hasNext()) {
+                    Map.Entry<String, JsonNode> entry = it.next();
+                    map.put(entry.getKey(), entry.getValue().asText());
                   }
+                  return map;
                 })
             .orElse(new HashMap<>());
 
@@ -83,8 +72,8 @@ public class TopicCustomDeserializer extends StdDeserializer<TopicImpl> {
     optionalPlanLabel.ifPresent(
         jsonNode -> {
           String planLabel = jsonNode.asText();
-          if (plans.getPlans().containsKey(planLabel)) {
-            Map<String, String> planConfigObject = plans.getPlans().get(planLabel).getConfig();
+          if (plans.containsKey(planLabel)) {
+            Map<String, String> planConfigObject = plans.get(planLabel).getConfig();
             planConfigObject.forEach(config::put);
           }
         });

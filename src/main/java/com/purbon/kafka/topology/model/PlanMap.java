@@ -15,7 +15,15 @@ public class PlanMap {
     this.plans = plans;
   }
 
-  public Map<String, Plan> getPlans() {
-    return plans;
+  public boolean containsKey(String key) {
+    return plans.containsKey(key);
+  }
+
+  public Plan get(String key) {
+    return plans.get(key);
+  }
+
+  public int size() {
+    return plans.size();
   }
 }

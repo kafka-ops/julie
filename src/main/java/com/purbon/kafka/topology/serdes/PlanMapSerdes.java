@@ -1,5 +1,7 @@
 package com.purbon.kafka.topology.serdes;
 
+import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
+import com.fasterxml.jackson.annotation.PropertyAccessor;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.module.SimpleModule;
@@ -15,6 +17,7 @@ public class PlanMapSerdes {
 
   public PlanMapSerdes() {
     mapper = new ObjectMapper(new YAMLFactory());
+    mapper.setVisibility(PropertyAccessor.FIELD, Visibility.ANY);
     mapper.registerModule(new SimpleModule());
     mapper.registerModule(new Jdk8Module());
     mapper.findAndRegisterModules();

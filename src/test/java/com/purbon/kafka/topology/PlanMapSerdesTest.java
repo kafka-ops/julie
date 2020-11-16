@@ -53,16 +53,15 @@ public class PlanMapSerdesTest {
     URL topologyDescriptor = getClass().getResource("/plans.yaml");
     PlanMap plans = parser.deserialise(Paths.get(topologyDescriptor.toURI()).toFile());
 
-    assertThat(plans.getPlans())
-        .has(new Condition<>(list -> list.size() == 2, "Contains two elements"));
-    assertThat(plans.getPlans().get("gold").getAlias()).isEqualTo("gold");
+    assertThat(plans).has(new Condition<>(list -> list.size() == 2, "Contains two elements"));
+    assertThat(plans.get("gold").getAlias()).isEqualTo("gold");
 
     Map<String, String> config = new HashMap<>();
     config.put("foo", "bar");
     config.put("bar", "3");
 
-    assertThat(plans.getPlans().get("gold").getConfig()).isEqualTo(config);
+    assertThat(plans.get("gold").getConfig()).isEqualTo(config);
 
-    assertThat(plans.getPlans().get("silver").getAlias()).isEqualTo("silver");
+    assertThat(plans.get("silver").getAlias()).isEqualTo("silver");
   }
 }
