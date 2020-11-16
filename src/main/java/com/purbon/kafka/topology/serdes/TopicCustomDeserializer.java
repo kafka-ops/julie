@@ -69,12 +69,17 @@ public class TopicCustomDeserializer extends StdDeserializer<TopicImpl> {
             .orElse(new HashMap<>());
 
     Optional<JsonNode> optionalPlanLabel = Optional.ofNullable(rootNode.get("plan"));
+    if (optionalPlanLabel.isPresent() && plans.size() == 0) {
+      throw new IOException("A plan definition is required if the topology uses them");
+    }
     optionalPlanLabel.ifPresent(
         jsonNode -> {
           String planLabel = jsonNode.asText();
           if (plans.containsKey(planLabel)) {
             Map<String, String> planConfigObject = plans.get(planLabel).getConfig();
             planConfigObject.forEach(config::put);
+          } else {
+            LOGGER.warn(planLabel+" is missing in the plans definition. It will be ignored.");
           }
         });
 

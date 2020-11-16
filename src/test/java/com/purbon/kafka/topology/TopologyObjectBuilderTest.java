@@ -30,7 +30,7 @@ public class TopologyObjectBuilderTest {
 
   @Test
   public void testConfigUpdateWhenUsingCustomPlans() throws URISyntaxException, IOException {
-    URL dirOfDescriptors = getClass().getResource("/descriptor.yaml");
+    URL dirOfDescriptors = getClass().getResource("/descriptor-with-plans.yaml");
     String descriptorFile = Paths.get(dirOfDescriptors.toURI()).toFile().toString();
 
     URL plansFileURL = getClass().getResource("/plans.yaml");
@@ -58,5 +58,12 @@ public class TopologyObjectBuilderTest {
     topic = map.get("barFooBar");
     assertThat(topic.getConfig()).containsEntry("replication.factor", "1");
     assertThat(topic.getConfig()).containsEntry("bar", "3");
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void testTopologyWithPlansButWithNoPlansDef() throws URISyntaxException, IOException {
+    URL dirOfDescriptors = getClass().getResource("/descriptor-with-plans.yaml");
+    String descriptorFile = Paths.get(dirOfDescriptors.toURI()).toFile().toString();
+    TopologyObjectBuilder.build(descriptorFile);
   }
 }
