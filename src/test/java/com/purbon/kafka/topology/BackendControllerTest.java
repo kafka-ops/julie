@@ -6,6 +6,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.purbon.kafka.topology.backend.FileBackend;
+import com.purbon.kafka.topology.model.cluster.ServiceAccount;
 import com.purbon.kafka.topology.roles.TopologyAclBinding;
 import java.io.IOException;
 import java.util.Collections;
@@ -30,9 +31,9 @@ public class BackendControllerTest {
         TopologyAclBinding.build(
             ResourceType.CLUSTER.name(), "Topic", "host", "op", "principal", "LITERAL");
 
-    when(fileStateProcessor.load()).thenReturn(Collections.singleton(binding));
+    when(fileStateProcessor.loadBindings()).thenReturn(Collections.singleton(binding));
     backend.load();
-    verify(fileStateProcessor, times(1)).load();
+    verify(fileStateProcessor, times(1)).loadBindings();
   }
 
   @Test
@@ -46,5 +47,25 @@ public class BackendControllerTest {
     backend.add(binding);
 
     assertEquals(1, backend.size());
+  }
+
+  @Test
+  public void testStoreBindingsAndServiceAccounts() {
+
+    BackendController backend = new BackendController(fileStateProcessor);
+
+    TopologyAclBinding binding =
+        TopologyAclBinding.build(
+            ResourceType.CLUSTER.name(), "Topic", "host", "op", "principal", "LITERAL");
+
+    ServiceAccount serviceAccount = new ServiceAccount(1, "name", "description");
+
+    backend.add(Collections.singletonList(binding));
+    backend.addServiceAccounts(Collections.singleton(serviceAccount));
+
+    backend.flushAndClose();
+
+    verify(fileStateProcessor, times(1)).saveBindings(Collections.singleton(binding));
+    verify(fileStateProcessor, times(1)).saveAccounts(Collections.singleton(serviceAccount));
   }
 }
