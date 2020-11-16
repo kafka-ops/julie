@@ -13,6 +13,9 @@ public class BuilderCLI {
   public static final String TOPOLOGY_OPTION = "topology";
   public static final String TOPOLOGY_DESC = "Topology config file.";
 
+  public static final String PLANS_OPTION = "plans";
+  public static final String PLANS_DESC = "File describing the predefined plans";
+
   public static final String BROKERS_OPTION = "brokers";
   public static final String BROKERS_DESC = "The Apache Kafka server(s) to connect to.";
 
@@ -51,6 +54,9 @@ public class BuilderCLI {
 
     final Option topologyFileOption =
         Option.builder().longOpt(TOPOLOGY_OPTION).hasArg().desc(TOPOLOGY_DESC).required().build();
+
+    final Option plansFileOption =
+        Option.builder().longOpt(PLANS_OPTION).hasArg().desc(PLANS_DESC).required(false).build();
 
     final Option brokersListOption =
         Option.builder()
@@ -106,6 +112,7 @@ public class BuilderCLI {
     final Options options = new Options();
 
     options.addOption(topologyFileOption);
+    options.addOption(plansFileOption);
     options.addOption(brokersListOption);
     options.addOption(adminClientConfigFileOption);
 
@@ -130,7 +137,8 @@ public class BuilderCLI {
 
     Map<String, String> config = parseConfig(cmd);
 
-    processTopology(cmd.getOptionValue(TOPOLOGY_OPTION), config);
+    processTopology(
+        cmd.getOptionValue(TOPOLOGY_OPTION), cmd.getOptionValue(PLANS_OPTION, "default"), config);
     System.out.println("Kafka Topology updated");
   }
 
@@ -171,8 +179,10 @@ public class BuilderCLI {
     return cmd;
   }
 
-  void processTopology(String topologyFile, Map<String, String> config) throws Exception {
-    try (KafkaTopologyBuilder builder = KafkaTopologyBuilder.build(topologyFile, config)) {
+  void processTopology(String topologyFile, String plansFile, Map<String, String> config)
+      throws Exception {
+    try (KafkaTopologyBuilder builder =
+        KafkaTopologyBuilder.build(topologyFile, plansFile, config)) {
       builder.run();
     }
   }

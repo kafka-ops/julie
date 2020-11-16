@@ -43,6 +43,17 @@ projects:
         config:
           replication.factor: "1"
           num.partitions: "1"
+      - name: "fooBar"
+        plan: "gold"
+      - name: "barFoo"
+        plan: "gold"
+        config:
+          replication.factor: "1"
+      - name: "barFooBar"
+        plan: "gold"
+        config:
+          bar: "1"
+          replication.factor: "1"
       - name: "bar"
         dataType: "avro"
         schemas:

@@ -1,22 +1,21 @@
 package com.purbon.kafka.topology.model;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 
 public class PlanMap {
 
-  List<Plan> plans;
+  Map<String, Plan> plans;
 
   public PlanMap() {
-    this.plans = new ArrayList<>();
+    this.plans = new HashMap<>();
   }
 
-  public PlanMap(List<Plan> plans) {
+  public PlanMap(Map<String, Plan> plans) {
     this.plans = plans;
   }
 
-  public List<Plan> getPlans() {
+  public Map<String, Plan> getPlans() {
     return plans;
   }
-
 }

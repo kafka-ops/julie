@@ -7,6 +7,7 @@ import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
 import com.purbon.kafka.topology.TopologyBuilderConfig;
 import com.purbon.kafka.topology.model.Impl.TopicImpl;
+import com.purbon.kafka.topology.model.PlanMap;
 import com.purbon.kafka.topology.model.Topology;
 import java.io.File;
 import java.io.IOException;
@@ -21,15 +22,23 @@ public class TopologySerdes {
   }
 
   public TopologySerdes() {
-    this(new TopologyBuilderConfig(), FileType.YAML);
+    this(new TopologyBuilderConfig(), FileType.YAML, new PlanMap());
   }
 
   public TopologySerdes(TopologyBuilderConfig config) {
-    this(config, config.getTopologyFileType());
+    this(config, config.getTopologyFileType(), new PlanMap());
+  }
+
+  public TopologySerdes(TopologyBuilderConfig config, PlanMap plans) {
+    this(config, config.getTopologyFileType(), plans);
   }
 
   public TopologySerdes(TopologyBuilderConfig config, FileType type) {
-    mapper = ObjectMapperFactory.build(type, config);
+    mapper = ObjectMapperFactory.build(type, config, new PlanMap());
+  }
+
+  public TopologySerdes(TopologyBuilderConfig config, FileType type, PlanMap plans) {
+    mapper = ObjectMapperFactory.build(type, config, plans);
   }
 
   public Topology deserialise(File file) throws IOException {
@@ -46,7 +55,7 @@ public class TopologySerdes {
 
   private static class ObjectMapperFactory {
 
-    public static ObjectMapper build(FileType type, TopologyBuilderConfig config) {
+    public static ObjectMapper build(FileType type, TopologyBuilderConfig config, PlanMap plans) {
       ObjectMapper mapper;
       if (type.equals(FileType.JSON)) {
         mapper = new ObjectMapper();
@@ -56,7 +65,7 @@ public class TopologySerdes {
 
       SimpleModule module = new SimpleModule();
       module.addDeserializer(Topology.class, new TopologyCustomDeserializer(config));
-      module.addDeserializer(TopicImpl.class, new TopicCustomDeserializer(config));
+      module.addDeserializer(TopicImpl.class, new TopicCustomDeserializer(config, plans));
       mapper.registerModule(module);
       mapper.registerModule(new Jdk8Module());
       mapper.findAndRegisterModules();

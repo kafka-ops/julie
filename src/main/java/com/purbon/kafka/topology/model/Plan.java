@@ -1,27 +1,31 @@
 package com.purbon.kafka.topology.model;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import java.util.HashMap;
 import java.util.Map;
 
 public class Plan {
 
-  private String name;
-  private Map<String, Object> config;
+  @JsonInclude(Include.NON_EMPTY)
+  private String alias;
+
+  private Map<String, String> config;
 
   public Plan() {
     this("default", new HashMap<>());
   }
 
-  public Plan(String name, Map<String, Object> config) {
-    this.name = name;
+  public Plan(String alias, Map<String, String> config) {
+    this.alias = alias;
     this.config = config;
   }
 
-  public String getName() {
-    return name;
+  public String getAlias() {
+    return alias;
   }
 
-  public Map<String, Object> getConfig() {
+  public Map<String, String> getConfig() {
     return config;
   }
 }

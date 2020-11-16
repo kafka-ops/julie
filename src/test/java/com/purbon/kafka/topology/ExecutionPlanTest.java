@@ -13,7 +13,6 @@ import java.io.PrintStream;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 import org.apache.kafka.common.resource.ResourceType;
@@ -29,15 +28,11 @@ public class ExecutionPlanTest {
   ExecutionPlan plan;
   BackendController backendController;
 
-  @Mock
-  PrintStream mockPrintStream;
+  @Mock PrintStream mockPrintStream;
 
-  @Mock
-  SimpleAclsProvider aclsProvider;
+  @Mock SimpleAclsProvider aclsProvider;
 
-  @Rule
-  public MockitoRule mockitoRule = MockitoJUnit.rule();
-
+  @Rule public MockitoRule mockitoRule = MockitoJUnit.rule();
 
   @Before
   public void before() throws IOException {
@@ -48,8 +43,10 @@ public class ExecutionPlanTest {
 
   @Test
   public void addBindingsTest() throws IOException {
-    TopologyAclBinding binding1 = new TopologyAclBinding(ResourceType.ANY, "topicA", "*", "ALL", "User:foo", "LITERAL");
-    TopologyAclBinding binding2 = new TopologyAclBinding(ResourceType.ANY, "topicB", "*", "ALL", "User:foo", "LITERAL");
+    TopologyAclBinding binding1 =
+        new TopologyAclBinding(ResourceType.ANY, "topicA", "*", "ALL", "User:foo", "LITERAL");
+    TopologyAclBinding binding2 =
+        new TopologyAclBinding(ResourceType.ANY, "topicB", "*", "ALL", "User:foo", "LITERAL");
     Set<TopologyAclBinding> bindings = new HashSet<>(Arrays.asList(binding1, binding2));
     CreateBindings addBindingsAction = new CreateBindings(aclsProvider, bindings);
 
@@ -63,8 +60,10 @@ public class ExecutionPlanTest {
 
   @Test
   public void deleteBindingsAfterCreateTest() throws IOException {
-    TopologyAclBinding binding1 = new TopologyAclBinding(ResourceType.ANY, "topicA", "*", "ALL", "User:foo", "LITERAL");
-    TopologyAclBinding binding2 = new TopologyAclBinding(ResourceType.ANY, "topicB", "*", "ALL", "User:foo", "LITERAL");
+    TopologyAclBinding binding1 =
+        new TopologyAclBinding(ResourceType.ANY, "topicA", "*", "ALL", "User:foo", "LITERAL");
+    TopologyAclBinding binding2 =
+        new TopologyAclBinding(ResourceType.ANY, "topicB", "*", "ALL", "User:foo", "LITERAL");
     Set<TopologyAclBinding> bindings = new HashSet<>(Arrays.asList(binding1, binding2));
     CreateBindings addBindingsAction = new CreateBindings(aclsProvider, bindings);
 
@@ -91,7 +90,5 @@ public class ExecutionPlanTest {
     backendController = new BackendController();
     backendController.load();
     assertEquals(1, backendController.size());
-
   }
-
 }
