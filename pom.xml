@@ -421,7 +421,7 @@
     <httpclient.version>4.5.11</httpclient.version>
     <zookeeper.version>3.5.7</zookeeper.version>
     <commons.version>1.4</commons.version>
-    <mockito.version>1.10.19</mockito.version>
+    <mockito.version>3.6.0</mockito.version>
     <junit.version>4.13.1</junit.version>
     <testcontainers.version>1.15.0-rc2</testcontainers.version>
     <jedis.version>3.2.0</jedis.version>
@@ -545,7 +545,7 @@
     </dependency>
     <dependency>
       <groupId>org.mockito</groupId>
-      <artifactId>mockito-all</artifactId>
+      <artifactId>mockito-core</artifactId>
       <version>${mockito.version}</version>
       <scope>test</scope>
     </dependency>
