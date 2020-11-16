@@ -99,9 +99,9 @@ public class KafkaTopologyBuilder implements AutoCloseable {
 
     Topology topology;
     if (plansFile.equals("default")) {
-      topology = TopologyDescriptorBuilder.build(topologyFileOrDir, config);
+      topology = TopologyObjectBuilder.build(topologyFileOrDir, config);
     } else {
-      topology = TopologyDescriptorBuilder.build(topologyFileOrDir, plansFile, config);
+      topology = TopologyObjectBuilder.build(topologyFileOrDir, plansFile, config);
     }
 
     TopologyValidator validator = new TopologyValidator(config);

@@ -14,9 +14,9 @@ import java.util.List;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-public class TopologyDescriptorBuilder {
+public class TopologyObjectBuilder {
 
-  private static final Logger LOGGER = LogManager.getLogger(TopologyDescriptorBuilder.class);
+  private static final Logger LOGGER = LogManager.getLogger(TopologyObjectBuilder.class);
 
   public static Topology build(String fileOrDir) throws IOException {
     return build(fileOrDir, "", new TopologyBuilderConfig());

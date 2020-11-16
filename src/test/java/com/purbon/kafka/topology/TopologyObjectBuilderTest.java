@@ -23,7 +23,7 @@ public class TopologyObjectBuilderTest {
     URL dirOfDescriptors = getClass().getResource("/dir");
     String fileOrDirPath = Paths.get(dirOfDescriptors.toURI()).toFile().toString();
 
-    Topology topology = TopologyDescriptorBuilder.build(fileOrDirPath);
+    Topology topology = TopologyObjectBuilder.build(fileOrDirPath);
 
     assertEquals(4, topology.getProjects().size());
   }
@@ -36,7 +36,7 @@ public class TopologyObjectBuilderTest {
     URL plansFileURL = getClass().getResource("/plans.yaml");
     String plansFile = Paths.get(plansFileURL.toURI()).toFile().toString();
 
-    Topology topology = TopologyDescriptorBuilder.build(descriptorFile, plansFile);
+    Topology topology = TopologyObjectBuilder.build(descriptorFile, plansFile);
     assertThat(topology).isNotNull();
 
     List<Topic> topics = topology.getProjects().get(0).getTopics();
