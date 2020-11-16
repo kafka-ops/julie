@@ -1,4 +1,13 @@
 
+1.2.0 / 2020-11-16
+==================
+
+  * Add custom plans to help standardise topic config (#129)
+  * mockito-all was abandoned in 2015. Using mockito-core instead. (#130)
+  * fix bug with state management for acls and deletion of removed rules (#127)
+  * Add topic level Access Control Rules (ACLs/RBAC) (#124)
+  * Upgrade testcontainers to support recent Docker for Mac. (#121)
+
 1.1.0 / 2020-10-30
 ==================
 
