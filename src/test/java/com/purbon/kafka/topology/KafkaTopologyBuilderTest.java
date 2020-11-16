@@ -6,7 +6,6 @@ import static com.purbon.kafka.topology.BuilderCLI.BROKERS_OPTION;
 import static com.purbon.kafka.topology.BuilderCLI.DRY_RUN_OPTION;
 import static com.purbon.kafka.topology.BuilderCLI.QUIET_OPTION;
 import static com.purbon.kafka.topology.TopologyBuilderConfig.CONFLUENT_SCHEMA_REGISTRY_URL_CONFIG;
-import static org.junit.Assert.assertEquals;
 import static org.mockito.Matchers.anyObject;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.times;
@@ -15,9 +14,7 @@ import static org.mockito.Mockito.verify;
 import com.purbon.kafka.topology.BackendController.Mode;
 import com.purbon.kafka.topology.api.adminclient.TopologyBuilderAdminClient;
 import com.purbon.kafka.topology.backend.RedisBackend;
-import com.purbon.kafka.topology.model.Topology;
 import java.io.IOException;
-import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.file.Paths;
 import java.util.HashMap;
@@ -58,17 +55,6 @@ public class KafkaTopologyBuilderTest {
     props.put(CONFLUENT_SCHEMA_REGISTRY_URL_CONFIG, "http://foo:8082");
     props.put(AdminClientConfig.BOOTSTRAP_SERVERS_CONFIG, "");
     props.put(AdminClientConfig.RETRIES_CONFIG, Integer.MAX_VALUE);
-  }
-
-  @Test
-  public void buildTopicNameTest() throws URISyntaxException, IOException {
-
-    URL dirOfDescriptors = getClass().getResource("/dir");
-    String fileOrDirPath = Paths.get(dirOfDescriptors.toURI()).toFile().toString();
-
-    Topology topology = TopologyDescriptorBuilder.build(fileOrDirPath);
-
-    assertEquals(4, topology.getProjects().size());
   }
 
   @Test

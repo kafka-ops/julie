@@ -6,9 +6,9 @@ import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
-import com.google.common.collect.Maps;
 import com.purbon.kafka.topology.TopologyBuilderConfig;
 import com.purbon.kafka.topology.model.Impl.TopicImpl;
+import com.purbon.kafka.topology.model.PlanMap;
 import com.purbon.kafka.topology.model.TopicSchemas;
 import com.purbon.kafka.topology.model.User;
 import com.purbon.kafka.topology.model.users.Consumer;
@@ -16,10 +16,10 @@ import com.purbon.kafka.topology.model.users.Producer;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import jersey.repackaged.com.google.common.collect.Sets;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -28,14 +28,16 @@ public class TopicCustomDeserializer extends StdDeserializer<TopicImpl> {
   private static final Logger LOGGER = LogManager.getLogger(TopicCustomDeserializer.class);
 
   private final TopologyBuilderConfig config;
+  private PlanMap plans;
 
-  TopicCustomDeserializer(TopologyBuilderConfig config) {
-    this(null, config);
+  TopicCustomDeserializer(TopologyBuilderConfig config, PlanMap plans) {
+    this(null, config, plans);
   }
 
-  private TopicCustomDeserializer(Class<?> clazz, TopologyBuilderConfig config) {
+  private TopicCustomDeserializer(Class<?> clazz, TopologyBuilderConfig config, PlanMap plans) {
     super(clazz);
     this.config = config;
+    this.plans = plans;
   }
 
   @Override
@@ -49,15 +51,37 @@ public class TopicCustomDeserializer extends StdDeserializer<TopicImpl> {
     List<Producer> producers = getUsers(parser, rootNode, "producers", Producer.class);
 
     Optional<JsonNode> optionalDataTypeNode = Optional.ofNullable(rootNode.get("dataType"));
-    Optional<String> optionalDataType = optionalDataTypeNode.map(o -> o.asText());
+    Optional<String> optionalDataType = optionalDataTypeNode.map(JsonNode::asText);
 
     Optional<JsonNode> optionalConfigNode = Optional.ofNullable(rootNode.get("config"));
     Map<String, String> config =
         optionalConfigNode
             .map(
-                node ->
-                    Maps.asMap(Sets.newHashSet(node.fieldNames()), (key) -> node.get(key).asText()))
+                node -> {
+                  Map<String, String> map = new HashMap<>();
+                  Iterator<Map.Entry<String, JsonNode>> it = node.fields();
+                  while (it.hasNext()) {
+                    Map.Entry<String, JsonNode> entry = it.next();
+                    map.put(entry.getKey(), entry.getValue().asText());
+                  }
+                  return map;
+                })
             .orElse(new HashMap<>());
+
+    Optional<JsonNode> optionalPlanLabel = Optional.ofNullable(rootNode.get("plan"));
+    if (optionalPlanLabel.isPresent() && plans.size() == 0) {
+      throw new IOException("A plan definition is required if the topology uses them");
+    }
+    optionalPlanLabel.ifPresent(
+        jsonNode -> {
+          String planLabel = jsonNode.asText();
+          if (plans.containsKey(planLabel)) {
+            Map<String, String> planConfigObject = plans.get(planLabel).getConfig();
+            planConfigObject.forEach(config::put);
+          } else {
+            LOGGER.warn(planLabel + " is missing in the plans definition. It will be ignored.");
+          }
+        });
 
     TopicImpl topic =
         new TopicImpl(name, producers, consumers, optionalDataType, config, this.config);

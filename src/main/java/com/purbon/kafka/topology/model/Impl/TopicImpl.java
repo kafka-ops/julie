@@ -31,6 +31,9 @@ public class TopicImpl implements Topic, Cloneable {
   private List<Producer> producers;
   private List<Consumer> consumers;
 
+  @JsonInclude(Include.NON_EMPTY)
+  private String plan;
+
   private Map<String, String> config;
   @JsonIgnore private TopologyBuilderConfig appConfig;
   @JsonIgnore private Map<String, Object> context;
@@ -102,6 +105,11 @@ public class TopicImpl implements Topic, Cloneable {
 
   public TopicSchemas getSchemas() {
     return schemas;
+  }
+
+  @Override
+  public String getPlan() {
+    return plan;
   }
 
   public void setSchemas(TopicSchemas schemas) {

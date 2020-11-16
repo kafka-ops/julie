@@ -1,0 +1,29 @@
+---
+context: "contextOrg"
+source: "source"
+projects:
+  - name: "foo"
+    topics:
+      - name: "foo"
+        config:
+          replication.factor: "1"
+          num.partitions: "1"
+      - name: "fooBar"
+        plan: "silver"
+        config:
+          replication.factor: "1"
+      - name: "barFoo"
+        plan: "gold"
+        config:
+          replication.factor: "1"
+      - name: "barFooBar"
+        plan: "gold"
+        config:
+          replication.factor: "1"
+  - name: "bar"
+    topics:
+      - dataType: "avro"
+        name: "bar"
+        config:
+          replication.factor: "1"
+          num.partitions: "1"

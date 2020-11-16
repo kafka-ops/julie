@@ -51,6 +51,11 @@ public class KafkaTopologyBuilder implements AutoCloseable {
 
   public static KafkaTopologyBuilder build(String topologyFile, Map<String, String> config)
       throws Exception {
+    return build(topologyFile, "default", config);
+  }
+
+  public static KafkaTopologyBuilder build(
+      String topologyFile, String plansFile, Map<String, String> config) throws Exception {
 
     TopologyBuilderConfig builderConfig = TopologyBuilderConfig.build(config);
     TopologyBuilderAdminClient adminClient =
@@ -60,8 +65,10 @@ public class KafkaTopologyBuilder implements AutoCloseable {
             builderConfig, adminClient, new MDSApiClientBuilder(builderConfig));
 
     KafkaTopologyBuilder builder =
-        build(topologyFile, builderConfig, adminClient, factory.get(), factory.builder());
+        build(
+            topologyFile, plansFile, builderConfig, adminClient, factory.get(), factory.builder());
     builder.verifyRequiredParameters(topologyFile, config);
+
     return builder;
   }
 
@@ -72,8 +79,30 @@ public class KafkaTopologyBuilder implements AutoCloseable {
       AccessControlProvider accessControlProvider,
       BindingsBuilderProvider bindingsBuilderProvider)
       throws Exception {
+    return build(
+        topologyFileOrDir,
+        "default",
+        config,
+        adminClient,
+        accessControlProvider,
+        bindingsBuilderProvider);
+  }
 
-    Topology topology = TopologyDescriptorBuilder.build(topologyFileOrDir, config);
+  public static KafkaTopologyBuilder build(
+      String topologyFileOrDir,
+      String plansFile,
+      TopologyBuilderConfig config,
+      TopologyBuilderAdminClient adminClient,
+      AccessControlProvider accessControlProvider,
+      BindingsBuilderProvider bindingsBuilderProvider)
+      throws Exception {
+
+    Topology topology;
+    if (plansFile.equals("default")) {
+      topology = TopologyObjectBuilder.build(topologyFileOrDir, config);
+    } else {
+      topology = TopologyObjectBuilder.build(topologyFileOrDir, plansFile, config);
+    }
 
     TopologyValidator validator = new TopologyValidator(config);
     List<String> validationResults = validator.validate(topology);

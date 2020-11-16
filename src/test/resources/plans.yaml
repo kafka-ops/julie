@@ -1,0 +1,12 @@
+---
+plans:
+  gold:
+    alias: "gold"
+    config:
+      bar: "3"
+      foo: "bar"
+  silver:
+    alias: "silver"
+    config:
+      bar: "3"
+      foo: "bar"

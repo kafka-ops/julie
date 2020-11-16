@@ -1,0 +1,12 @@
+---
+plans:
+  gold:
+    alias: "gold"
+    config:
+      retention.ms: "5000"
+      max.message.bytes: "7340116"
+  silver:
+    alias: "silver"
+    config:
+      retention.ms: "6000"
+      max.message.bytes: "524294"
