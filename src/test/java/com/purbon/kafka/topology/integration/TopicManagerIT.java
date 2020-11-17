@@ -24,12 +24,10 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Properties;
 import java.util.Set;
 import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 import org.apache.kafka.clients.admin.AdminClient;
-import org.apache.kafka.clients.admin.AdminClientConfig;
 import org.apache.kafka.clients.admin.Config;
 import org.apache.kafka.clients.admin.NewTopic;
 import org.apache.kafka.common.config.ConfigResource;
@@ -42,12 +40,10 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.mockito.junit.MockitoJUnit;
 import org.mockito.junit.MockitoRule;
-import org.testcontainers.containers.KafkaContainer;
-import org.testcontainers.utility.TestcontainersConfiguration;
 
 public class TopicManagerIT {
 
-  private static KafkaContainer container;
+  private static SaslPlaintextKafkaContainer container;
   private TopicManager topicManager;
   private AdminClient kafkaAdminClient;
 
@@ -57,9 +53,7 @@ public class TopicManagerIT {
 
   @BeforeClass
   public static void setup() {
-    container =
-        new KafkaContainer(
-            TestcontainersConfiguration.getInstance().getKafkaDockerImageName().withTag("5.5.0"));
+    container = new SaslPlaintextKafkaContainer();
     container.start();
   }
 
@@ -70,7 +64,7 @@ public class TopicManagerIT {
 
   @Before
   public void before() throws IOException {
-    kafkaAdminClient = AdminClient.create(config());
+    kafkaAdminClient = (AdminClient) container.getAdmin();
     TopologyBuilderAdminClient adminClient = new TopologyBuilderAdminClient(kafkaAdminClient);
 
     final SchemaRegistryClient schemaRegistryClient = new MockSchemaRegistryClient();
@@ -340,12 +334,5 @@ public class TopicManagerIT {
     assertEquals(topicsCount, nonInternalTopics.size());
 
     assertTrue("Internal topics not found", isInternal);
-  }
-
-  private Properties config() {
-    Properties props = new Properties();
-    props.put(AdminClientConfig.BOOTSTRAP_SERVERS_CONFIG, container.getBootstrapServers());
-    props.put(AdminClientConfig.RETRIES_CONFIG, Integer.MAX_VALUE);
-    return props;
   }
 }
