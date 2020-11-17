@@ -37,11 +37,9 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
-import java.util.Properties;
 import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 import org.apache.kafka.clients.admin.AdminClient;
-import org.apache.kafka.clients.admin.AdminClientConfig;
 import org.apache.kafka.common.acl.AccessControlEntryFilter;
 import org.apache.kafka.common.acl.AclBinding;
 import org.apache.kafka.common.acl.AclBindingFilter;
@@ -50,16 +48,14 @@ import org.apache.kafka.common.acl.AclPermissionType;
 import org.apache.kafka.common.resource.PatternType;
 import org.apache.kafka.common.resource.ResourcePatternFilter;
 import org.apache.kafka.common.resource.ResourceType;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.*;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnit;
 import org.mockito.junit.MockitoRule;
 
 public class AccessControlManagerIT {
 
+  private static SaslPlaintextKafkaContainer container;
   private static AdminClient kafkaAdminClient;
   private AccessControlManager accessControlManager;
   private SimpleAclsProvider aclsProvider;
@@ -71,9 +67,20 @@ public class AccessControlManagerIT {
 
   @Mock private TopologyBuilderConfig config;
 
+  @BeforeClass
+  public static void setup() {
+    container = new SaslPlaintextKafkaContainer();
+    container.start();
+  }
+
+  @AfterClass
+  public static void teardown() {
+    container.stop();
+  }
+
   @Before
   public void before() throws IOException {
-    kafkaAdminClient = AdminClient.create(config());
+    kafkaAdminClient = (AdminClient) container.getAdmin();
     TopologyBuilderAdminClient adminClient = new TopologyBuilderAdminClient(kafkaAdminClient);
     adminClient.clearAcls();
     Files.deleteIfExists(Paths.get(".cluster-state"));
@@ -548,20 +555,5 @@ public class AccessControlManagerIT {
       Assert.assertTrue(ops.contains(AclOperation.DESCRIBE));
       Assert.assertTrue(ops.contains(AclOperation.READ));
     }
-  }
-
-  private Properties config() {
-    Properties props = new Properties();
-
-    props.put(AdminClientConfig.BOOTSTRAP_SERVERS_CONFIG, "localhost:9092");
-    props.put(AdminClientConfig.RETRIES_CONFIG, Integer.MAX_VALUE);
-    props.put(AdminClientConfig.SECURITY_PROTOCOL_CONFIG, "SASL_PLAINTEXT");
-    props.put("sasl.mechanism", "PLAIN");
-
-    props.put(
-        "sasl.jaas.config",
-        "org.apache.kafka.common.security.plain.PlainLoginModule required username=\"kafka\" password=\"kafka\";");
-
-    return props;
   }
 }

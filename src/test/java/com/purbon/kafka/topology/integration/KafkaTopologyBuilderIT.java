@@ -12,9 +12,24 @@ import java.net.URL;
 import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.Map;
+import org.junit.AfterClass;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
 public class KafkaTopologyBuilderIT {
+
+  private static SaslPlaintextKafkaContainer container;
+
+  @BeforeClass
+  public static void setup() {
+    container = new SaslPlaintextKafkaContainer();
+    container.start();
+  }
+
+  @AfterClass
+  public static void teardown() {
+    container.stop();
+  }
 
   @Test(expected = IOException.class)
   public void testSetupKafkaTopologyBuilderWithWrongCredentialsHC() throws Exception {
@@ -26,7 +41,7 @@ public class KafkaTopologyBuilderIT {
     String clientConfigFile = Paths.get(clientConfigURL.toURI()).toFile().toString();
 
     Map<String, String> config = new HashMap<>();
-    config.put(BROKERS_OPTION, "localhost:9092");
+    config.put(BROKERS_OPTION, container.getBootstrapServers());
     config.put(ALLOW_DELETE_OPTION, "false");
     config.put(DRY_RUN_OPTION, "false");
     config.put(QUIET_OPTION, "true");
@@ -45,7 +60,7 @@ public class KafkaTopologyBuilderIT {
     String clientConfigFile = Paths.get(clientConfigURL.toURI()).toFile().toString();
 
     Map<String, String> config = new HashMap<>();
-    config.put(BROKERS_OPTION, "localhost:9092");
+    config.put(BROKERS_OPTION, container.getBootstrapServers());
     config.put(ALLOW_DELETE_OPTION, "false");
     config.put(DRY_RUN_OPTION, "false");
     config.put(QUIET_OPTION, "true");
