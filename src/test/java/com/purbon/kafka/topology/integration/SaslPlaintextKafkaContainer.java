@@ -8,10 +8,6 @@ import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import org.apache.kafka.clients.CommonClientConfigs;
 import org.apache.kafka.clients.admin.Admin;
-import org.apache.kafka.clients.consumer.Consumer;
-import org.apache.kafka.clients.consumer.KafkaConsumer;
-import org.apache.kafka.clients.producer.KafkaProducer;
-import org.apache.kafka.clients.producer.Producer;
 import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.images.builder.Transferable;
 import org.testcontainers.utility.DockerImageName;
@@ -129,31 +125,11 @@ final class SaslPlaintextKafkaContainer extends GenericContainer<SaslPlaintextKa
     return "127.0.0.1:" + ZOOKEEPER_PORT;
   }
 
-  public Map<String, Object> getAdminConfig() {
-    return getCommonConfig();
-  }
-
   public Admin getAdmin() {
-    return Admin.create(getAdminConfig());
+    return Admin.create(getConfig());
   }
 
-  public Map<String, Object> getProducerConfig() {
-    return getCommonConfig();
-  }
-
-  public Producer<?, ?> getProducer() {
-    return new KafkaProducer<>(getProducerConfig());
-  }
-
-  public Map<String, Object> getConsumerConfig() {
-    return getCommonConfig();
-  }
-
-  public Consumer<?, ?> getConsumer() {
-    return new KafkaConsumer<>(getConsumerConfig());
-  }
-
-  private Map<String, Object> getCommonConfig() {
+  private Map<String, Object> getConfig() {
     final Map<String, Object> map = new HashMap<>();
     map.put(CommonClientConfigs.BOOTSTRAP_SERVERS_CONFIG, getBootstrapServers());
     map.put("security.protocol", "SASL_PLAINTEXT");
