@@ -7,6 +7,7 @@ import static com.purbon.kafka.topology.BuilderCLI.DRY_RUN_OPTION;
 import static com.purbon.kafka.topology.BuilderCLI.QUIET_OPTION;
 
 import com.purbon.kafka.topology.KafkaTopologyBuilder;
+import com.purbon.kafka.topology.integration.containerutils.SaslPlaintextKafkaContainer;
 import java.io.IOException;
 import java.net.URL;
 import java.nio.file.Paths;

@@ -1,4 +1,4 @@
-package com.purbon.kafka.topology.integration;
+package com.purbon.kafka.topology.integration.containerutils;
 
 import com.github.dockerjava.api.command.ExecCreateCmdResponse;
 import com.github.dockerjava.api.command.InspectContainerResponse;
@@ -12,7 +12,8 @@ import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.images.builder.Transferable;
 import org.testcontainers.utility.DockerImageName;
 
-final class SaslPlaintextKafkaContainer extends GenericContainer<SaslPlaintextKafkaContainer> {
+public final class SaslPlaintextKafkaContainer
+    extends GenericContainer<SaslPlaintextKafkaContainer> {
 
   private static final DockerImageName DEFAULT_IMAGE =
       DockerImageName.parse("confluentinc/cp-kafka").withTag("5.5.1");
