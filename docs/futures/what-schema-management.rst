@@ -34,6 +34,9 @@ Currently the schemas are managed as files and need to be accessible for the KTB
 
 *NOTE*: The path for the files is relative to the location of the of the topology.
 
+*NOTE*: Keep in mind that for a usecase like in the example above you have to define the value for `schema.registry.url` in your properties file.
+
+
 Supported Schema Registry
 -----------
 
