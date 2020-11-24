@@ -1,9 +1,11 @@
 
-1.2.1 / 2020-11-24
+1.2.2 / 2020-11-24
 ==================
 
+  * fix path of topology builder gen jar in the deb package mapping (#140)
   * Add schema.registry.url to docs and examples (#139)
   * make usage of key schemas optional, but throw an exception if key is present but not value schemas (#128)
+
 
 1.2.0 / 2020-11-16
 ==================
