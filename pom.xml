@@ -328,7 +328,7 @@
                   <type>file</type>
                   <mapper>
                     <type>perm</type>
-                    <prefix>/usr/local/kafka-topology-builder</prefix>
+                    <prefix>/usr/local/kafka-topology-builder/bin</prefix>
                     <user>ktb-kafka</user>
                     <group>ktb-kafka</group>
                     <filemode>440</filemode>
