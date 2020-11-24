@@ -152,10 +152,10 @@ final class SaslPlaintextKafkaContainer extends GenericContainer<SaslPlaintextKa
   }
 
   public AdminClient getAdmin() {
-    return AdminClient.create(getConfig());
+    return AdminClient.create(getClientConfig());
   }
 
-  private Map<String, Object> getConfig() {
+  private Map<String, Object> getClientConfig() {
     final Map<String, Object> map = new HashMap<>();
     map.put(CommonClientConfigs.BOOTSTRAP_SERVERS_CONFIG, getBootstrapServers());
     map.put("security.protocol", "SASL_PLAINTEXT");
