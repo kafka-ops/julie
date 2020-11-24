@@ -31,6 +31,14 @@ A part from that, you need to setup the UUID for each of your clusters. This is 
     topology.builder.mds.kafka.connect.cluster.id = "connect-cluster"
 
 
+Schema Management
+-----------
+If you plan to manage and deploy schemas with KTB, you must define the url to your Confluent Schema Registry as follows
+::
+    schema.registry.url = "http://localhost:8081"
+
+
+
 Topology Builder backend usage and selection
 -----------
 
