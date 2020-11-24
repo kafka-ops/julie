@@ -64,7 +64,7 @@ public class TopicManagerIT {
 
   @Before
   public void before() throws IOException {
-    kafkaAdminClient = (AdminClient) container.getAdmin();
+    kafkaAdminClient = container.getAdmin();
     TopologyBuilderAdminClient adminClient = new TopologyBuilderAdminClient(kafkaAdminClient);
 
     final SchemaRegistryClient schemaRegistryClient = new MockSchemaRegistryClient();

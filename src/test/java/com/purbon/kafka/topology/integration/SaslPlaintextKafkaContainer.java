@@ -7,7 +7,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import org.apache.kafka.clients.CommonClientConfigs;
-import org.apache.kafka.clients.admin.Admin;
+import org.apache.kafka.clients.admin.AdminClient;
 import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.images.builder.Transferable;
 import org.testcontainers.utility.DockerImageName;
@@ -151,8 +151,8 @@ final class SaslPlaintextKafkaContainer extends GenericContainer<SaslPlaintextKa
     return "127.0.0.1:" + ZOOKEEPER_PORT;
   }
 
-  public Admin getAdmin() {
-    return Admin.create(getConfig());
+  public AdminClient getAdmin() {
+    return AdminClient.create(getConfig());
   }
 
   private Map<String, Object> getConfig() {
