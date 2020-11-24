@@ -80,7 +80,7 @@ public class AccessControlManagerIT {
 
   @Before
   public void before() throws IOException {
-    kafkaAdminClient = container.getAdmin();
+    kafkaAdminClient = container.getAdminClient();
     TopologyBuilderAdminClient adminClient = new TopologyBuilderAdminClient(kafkaAdminClient);
     adminClient.clearAcls();
     Files.deleteIfExists(Paths.get(".cluster-state"));

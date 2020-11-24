@@ -151,7 +151,7 @@ final class SaslPlaintextKafkaContainer extends GenericContainer<SaslPlaintextKa
     return "127.0.0.1:" + ZOOKEEPER_PORT;
   }
 
-  public AdminClient getAdmin() {
+  public AdminClient getAdminClient() {
     return AdminClient.create(getClientConfig());
   }
 
