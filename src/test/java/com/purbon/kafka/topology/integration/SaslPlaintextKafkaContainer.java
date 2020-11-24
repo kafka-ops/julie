@@ -12,7 +12,6 @@ import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.images.builder.Transferable;
 import org.testcontainers.utility.DockerImageName;
 
-/** @author <a href="mailto:shh@thathost.com">Sverre H. Huseby</a> */
 final class SaslPlaintextKafkaContainer extends GenericContainer<SaslPlaintextKafkaContainer> {
 
   private static final DockerImageName DEFAULT_IMAGE =
