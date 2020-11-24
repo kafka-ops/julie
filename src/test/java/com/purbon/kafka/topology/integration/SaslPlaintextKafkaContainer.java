@@ -15,7 +15,7 @@ import org.testcontainers.utility.DockerImageName;
 final class SaslPlaintextKafkaContainer extends GenericContainer<SaslPlaintextKafkaContainer> {
 
   private static final DockerImageName DEFAULT_IMAGE =
-      DockerImageName.parse("confluentinc/cp-kafka").withTag("6.0.0");
+      DockerImageName.parse("confluentinc/cp-kafka").withTag("5.5.1");
   public static final int KAFKA_PORT = 9092;
   public static final int ZOOKEEPER_PORT = 2181;
   private static final int PORT_NOT_ASSIGNED = -1;
@@ -44,7 +44,11 @@ final class SaslPlaintextKafkaContainer extends GenericContainer<SaslPlaintextKa
     withEnv("KAFKA_INTER_BROKER_LISTENER_NAME", "INTERNAL");
     withEnv("KAFKA_SASL_MECHANISM_INTER_BROKER_PROTOCOL", "PLAIN");
     withEnv("KAFKA_SASL_ENABLED_MECHANISMS", "PLAIN");
-    withEnv("KAFKA_AUTHORIZER_CLASS_NAME", "kafka.security.authorizer.AclAuthorizer");
+    withEnv(
+        "KAFKA_AUTHORIZER_CLASS_NAME",
+        dockerImageName.getVersionPart().compareTo("6") >= 0
+            ? "kafka.security.authorizer.AclAuthorizer"
+            : "kafka.security.auth.SimpleAclAuthorizer");
     withEnv("KAFKA_SUPER_USERS", "User:kafka");
     withEnv(
         "KAFKA_LISTENER_NAME_SASL_PLAINTEXT_PLAIN_SASL_JAAS_CONFIG",
