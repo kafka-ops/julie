@@ -74,7 +74,7 @@ public class ExecutionPlan {
           bindings =
               bindings.stream()
                   .filter(binding -> !action.getBindings().contains(binding))
-                  .collect(Collectors.toSet());
+                  .collect(Collectors.toCollection(LinkedHashSet::new));
         } else {
           bindings.addAll(action.getBindings());
         }
