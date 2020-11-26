@@ -54,8 +54,8 @@ public class SyncTopicAction extends BaseAction {
       adminClient.createTopic(topic, fullTopicName);
     }
 
-    if (topic.getSchemas() != null) {
-      final TopicSchemas schemas = topic.getSchemas();
+    if (topic.getSchemas().isPresent()) {
+      final TopicSchemas schemas = topic.getSchemas().get();
 
       schemas
           .getKeySchemaFile()
