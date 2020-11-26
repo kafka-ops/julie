@@ -90,14 +90,16 @@ public class TopicCustomDeserializer extends StdDeserializer<TopicImpl> {
         .ifPresent(
             node -> {
               topic.setSchemas(
-                  new TopicSchemas(
-                      Optional.ofNullable(node.get("key.schema.file")),
-                      Optional.ofNullable(node.get("value.schema.file"))));
+                  Optional.of(
+                      new TopicSchemas(
+                          Optional.ofNullable(node.get("key.schema.file")),
+                          Optional.ofNullable(node.get("value.schema.file")))));
             });
-    if (rootNode.get("schemas") != null) {
-      if (!topic.getSchemas().getValueSchemaFile().isPresent()) {
-        throw new IOException("Missing required value.schema.file if key file is present");
-      }
+    if (topic.getSchemas().isPresent()
+        && !topic.getSchemas().get().getValueSchemaFile().isPresent()) {
+      throw new IOException(
+          String.format(
+              "Missing required value.schema.file on schemas for topic %s", topic.getName()));
     }
     LOGGER.debug(
         String.format("Topic %s with config %s has been created", topic.getName(), config));

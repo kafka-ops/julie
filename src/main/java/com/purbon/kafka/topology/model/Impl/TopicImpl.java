@@ -24,7 +24,7 @@ public class TopicImpl implements Topic, Cloneable {
   private Optional<String> dataType;
 
   @JsonInclude(Include.NON_EMPTY)
-  private TopicSchemas schemas;
+  private Optional<TopicSchemas> schemas;
 
   private String name;
 
@@ -89,7 +89,7 @@ public class TopicImpl implements Topic, Cloneable {
     this.consumers = consumers;
     this.dataType = dataType;
     this.config = config;
-    this.schemas = new TopicSchemas();
+    this.schemas = Optional.empty();
     this.replicationFactor = 0;
     this.partitionCount = 0;
     this.appConfig = appConfig;
@@ -103,16 +103,16 @@ public class TopicImpl implements Topic, Cloneable {
     return name;
   }
 
-  public TopicSchemas getSchemas() {
-    return schemas;
-  }
-
   @Override
   public String getPlan() {
     return plan;
   }
 
-  public void setSchemas(TopicSchemas schemas) {
+  public Optional<TopicSchemas> getSchemas() {
+    return schemas;
+  }
+
+  public void setSchemas(Optional<TopicSchemas> schemas) {
     this.schemas = schemas;
   }
 
