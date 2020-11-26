@@ -15,11 +15,11 @@ public interface Topic {
 
   String getName();
 
-  TopicSchemas getSchemas();
+  Optional<TopicSchemas> getSchemas();
 
   String getPlan();
 
-  void setSchemas(TopicSchemas schemas);
+  void setSchemas(Optional<TopicSchemas> schemas);
 
   Map<String, String> getConfig();
 

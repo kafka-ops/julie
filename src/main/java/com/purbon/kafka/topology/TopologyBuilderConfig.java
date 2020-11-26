@@ -13,7 +13,6 @@ import com.typesafe.config.ConfigFactory;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Properties;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -144,7 +143,7 @@ public class TopologyBuilderConfig {
   }
 
   private void validateGeneralConfiguration(Topology topology) throws ConfigurationException {
-    if (countOfSchemas(topology) > 0) {
+    if (hasSchemas(topology)) {
       raiseIfDefault(CONFLUENT_SCHEMA_REGISTRY_URL_CONFIG, "mock://");
     }
 
@@ -188,12 +187,10 @@ public class TopologyBuilderConfig {
     }
   }
 
-  private static long countOfSchemas(Topology topology) {
+  private static boolean hasSchemas(Topology topology) {
     return topology.getProjects().stream()
         .flatMap((Function<Project, Stream<Topic>>) project -> project.getTopics().stream())
-        .map(Topic::getSchemas)
-        .filter(Objects::nonNull)
-        .count();
+        .anyMatch(topic -> topic.getSchemas().isPresent());
   }
 
   private void raiseIfDefault(String key, String _default) throws ConfigurationException {

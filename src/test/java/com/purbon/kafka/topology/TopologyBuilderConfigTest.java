@@ -26,6 +26,7 @@ import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Properties;
 import org.junit.Before;
 import org.junit.Test;
@@ -62,7 +63,7 @@ public class TopologyBuilderConfigTest {
     Project project = new ProjectImpl();
     Topic topic = new TopicImpl();
     TopicSchemas schema = new TopicSchemas("foo", "bar");
-    topic.setSchemas(schema);
+    topic.setSchemas(Optional.of(schema));
     project.addTopic(topic);
     topology.addProject(project);
     props.put(CONFLUENT_SCHEMA_REGISTRY_URL_CONFIG, "mock://");
@@ -77,7 +78,7 @@ public class TopologyBuilderConfigTest {
     Project project = new ProjectImpl();
     Topic topic = new TopicImpl();
     TopicSchemas schema = new TopicSchemas("foo", "bar");
-    topic.setSchemas(schema);
+    topic.setSchemas(Optional.of(schema));
     project.addTopic(topic);
     topology.addProject(project);
 
@@ -96,6 +97,18 @@ public class TopologyBuilderConfigTest {
     topology.addProject(project);
 
     props.put(CONFLUENT_SCHEMA_REGISTRY_URL_CONFIG, "http://foo:8082");
+
+    TopologyBuilderConfig config = new TopologyBuilderConfig(cliOps, props);
+    config.validateWith(topology);
+  }
+
+  @Test
+  public void testNoSchemaRegistry() throws ConfigurationException {
+    Topology topology = new TopologyImpl();
+    Project project = new ProjectImpl("project");
+    Topic topic = new TopicImpl("topic", "json");
+    project.addTopic(topic);
+    topology.addProject(project);
 
     TopologyBuilderConfig config = new TopologyBuilderConfig(cliOps, props);
     config.validateWith(topology);
