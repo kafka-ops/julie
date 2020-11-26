@@ -1,7 +1,5 @@
 package com.purbon.kafka.topology;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
 import com.purbon.kafka.topology.api.adminclient.AclBuilder;
 import com.purbon.kafka.topology.model.users.Connector;
 import com.purbon.kafka.topology.model.users.Consumer;
@@ -9,11 +7,6 @@ import com.purbon.kafka.topology.model.users.KStream;
 import com.purbon.kafka.topology.model.users.Producer;
 import com.purbon.kafka.topology.roles.TopologyAclBinding;
 import com.purbon.kafka.topology.roles.acls.AclsBindingsBuilder;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Optional;
 import org.apache.kafka.common.acl.AccessControlEntry;
 import org.apache.kafka.common.acl.AclBinding;
 import org.apache.kafka.common.acl.AclOperation;
@@ -23,6 +16,14 @@ import org.apache.kafka.common.resource.ResourcePattern;
 import org.apache.kafka.common.resource.ResourceType;
 import org.junit.Before;
 import org.junit.Test;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Optional;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class AclsBindingsBuilderTest {
 
@@ -184,7 +185,7 @@ public class AclsBindingsBuilderTest {
         builder.buildBindingsForStreamsApp(
             stream.getPrincipal(), "prefix", readTopics, writeTopics);
 
-    assertThat(bindings.size()).isEqualTo(3);
+    assertThat(bindings.size()).isEqualTo(5);
     assertThat(bindings)
         .contains(
             buildTopicLevelAcl(
@@ -195,8 +196,17 @@ public class AclsBindingsBuilderTest {
                 stream.getPrincipal(), "bar", PatternType.LITERAL, AclOperation.WRITE));
     assertThat(bindings)
         .contains(
+            buildGroupLevelAcl(
+                stream.getPrincipal(), "prefix", PatternType.PREFIXED, AclOperation.READ));
+    assertThat(bindings)
+        .contains(
+            buildGroupLevelAcl(
+                stream.getPrincipal(), "prefix", PatternType.PREFIXED, AclOperation.DESCRIBE));
+    assertThat(bindings)
+        .contains(
             buildTopicLevelAcl(
                 stream.getPrincipal(), "prefix", PatternType.PREFIXED, AclOperation.ALL));
+    // TODO: Assert split ALL
   }
 
   private TopologyAclBinding buildTopicLevelAcl(
