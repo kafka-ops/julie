@@ -35,7 +35,6 @@ import com.purbon.kafka.topology.roles.RBACProvider;
 import com.purbon.kafka.topology.roles.TopologyAclBinding;
 import com.purbon.kafka.topology.roles.rbac.ClusterLevelRoleBuilder;
 import com.purbon.kafka.topology.roles.rbac.RBACBindingsBuilder;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -213,7 +212,7 @@ public class RbacProviderTest {
   }
 
   @Test
-  public void newSchemaRegistryACLCreation() throws IOException {
+  public void newSchemaRegistryACLCreation() {
 
     Project project = new ProjectImpl();
     Topology topology = new TopologyImpl();
@@ -249,7 +248,7 @@ public class RbacProviderTest {
   }
 
   @Test
-  public void newControlCenterACLCreation() throws IOException {
+  public void newControlCenterACLCreation() {
 
     Project project = new ProjectImpl();
     Topology topology = new TopologyImpl();
@@ -277,7 +276,7 @@ public class RbacProviderTest {
   }
 
   @Test
-  public void newKafkaConnectACLsCreation() throws IOException {
+  public void newKafkaConnectACLsCreation() {
 
     Project project = new ProjectImpl();
 

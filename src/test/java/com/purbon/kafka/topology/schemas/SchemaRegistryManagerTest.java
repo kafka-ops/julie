@@ -50,12 +50,12 @@ public class SchemaRegistryManagerTest {
   }
 
   @Test(expected = SchemaRegistryManagerException.class)
-  public void shouldThrowAnExceptionWithFailedFilePath() throws Exception {
+  public void shouldThrowAnExceptionWithFailedFilePath() {
     manager.register(subjectName, "schemas/wrong-file-value.avsc");
   }
 
   @Test
-  public void shouldThrowAnExceptionWithValidRelativeFilePath() throws Exception {
+  public void shouldThrowAnExceptionWithValidRelativeFilePath() {
     manager.register(subjectName, "schemas/bar-value.avsc");
   }
 

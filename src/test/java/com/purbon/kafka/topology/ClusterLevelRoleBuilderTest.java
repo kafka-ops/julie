@@ -12,7 +12,6 @@ import com.purbon.kafka.topology.api.mds.ClusterIDs;
 import com.purbon.kafka.topology.api.mds.MDSApiClient;
 import com.purbon.kafka.topology.model.users.Connector;
 import com.purbon.kafka.topology.roles.rbac.ClusterLevelRoleBuilder;
-import java.io.IOException;
 import java.util.Map;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -100,7 +99,7 @@ public class ClusterLevelRoleBuilderTest {
   }
 
   @Test
-  public void testKafkaConnectRun() throws IOException {
+  public void testKafkaConnectRun() {
     when(apiClient.withClusterIDs()).thenReturn(allClusterIDs);
 
     ClusterLevelRoleBuilder runner = new ClusterLevelRoleBuilder("foo", SECURITY_ADMIN, apiClient);
@@ -112,7 +111,7 @@ public class ClusterLevelRoleBuilderTest {
   }
 
   @Test
-  public void testSchemaRegistryRun() throws IOException {
+  public void testSchemaRegistryRun() {
     when(apiClient.withClusterIDs()).thenReturn(allClusterIDs);
 
     ClusterLevelRoleBuilder runner = new ClusterLevelRoleBuilder("foo", SECURITY_ADMIN, apiClient);
