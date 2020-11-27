@@ -185,7 +185,7 @@ public class AclsBindingsBuilderTest {
         builder.buildBindingsForStreamsApp(
             stream.getPrincipal(), "prefix", readTopics, writeTopics);
 
-    assertThat(bindings.size()).isEqualTo(5);
+    assertThat(bindings.size()).isEqualTo(4);
     assertThat(bindings)
         .contains(
             buildTopicLevelAcl(
@@ -198,10 +198,6 @@ public class AclsBindingsBuilderTest {
         .contains(
             buildGroupLevelAcl(
                 stream.getPrincipal(), "prefix", PatternType.PREFIXED, AclOperation.READ));
-    assertThat(bindings)
-        .contains(
-            buildGroupLevelAcl(
-                stream.getPrincipal(), "prefix", PatternType.PREFIXED, AclOperation.DESCRIBE));
     assertThat(bindings)
         .contains(
             buildTopicLevelAcl(

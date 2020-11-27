@@ -1,18 +1,17 @@
 package com.purbon.kafka.topology.actions.access.builders;
 
+import static java.util.Collections.singletonList;
+import static org.assertj.core.api.Assertions.assertThat;
+
 import com.purbon.kafka.topology.TopologyBuilderConfig;
 import com.purbon.kafka.topology.model.users.KStream;
 import com.purbon.kafka.topology.roles.acls.AclsBindingsBuilder;
-import org.apache.kafka.common.resource.ResourceType;
-import org.junit.Before;
-import org.junit.Test;
-
 import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
-
-import static java.util.Collections.singletonList;
-import static org.assertj.core.api.Assertions.assertThat;
+import org.apache.kafka.common.resource.ResourceType;
+import org.junit.Before;
+import org.junit.Test;
 
 public class BuildBindingsForKStreamsTest {
 
