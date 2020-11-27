@@ -162,7 +162,8 @@ projects:
       num.partitions: "3"
 ```
 
-more examples can be found at the [example/](example/) directory.
+more examples can be found at the [example/](example/) directory. 
+Also check the documentation on ACL and RBAC in [the docs](https://kafka-topology-builder.readthedocs.io/) for information on what ACLs are created.
 
 ## Interested in contributing back?
 

@@ -460,7 +460,7 @@ public class AccessControlManagerIT {
     acls = kafkaAdminClient.describeAcls(filter).values().get();
 
     // two acls created for the read topics
-    assertEquals(2, acls.size());
+    assertEquals(3, acls.size());
 
     entryFilter =
         new AccessControlEntryFilter(
