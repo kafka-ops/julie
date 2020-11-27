@@ -3,7 +3,6 @@ package com.purbon.kafka.topology.actions.access.builders;
 import com.purbon.kafka.topology.BindingsBuilderProvider;
 import com.purbon.kafka.topology.actions.BaseAccessControlAction;
 import com.purbon.kafka.topology.model.users.KStream;
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -12,24 +11,24 @@ public class BuildBindingsForKStreams extends BaseAccessControlAction {
 
   private final BindingsBuilderProvider builderProvider;
   private final KStream app;
-  private final String topicPrefix;
+  private final String prefix;
 
   public BuildBindingsForKStreams(
       BindingsBuilderProvider builderProvider, KStream app, String topicPrefix) {
     super();
     this.builderProvider = builderProvider;
     this.app = app;
-    this.topicPrefix = topicPrefix;
+    this.prefix = app.getApplicationId().orElse(topicPrefix);
   }
 
   @Override
-  protected void execute() throws IOException {
+  protected void execute() {
     List<String> readTopics = app.getTopics().get(KStream.READ_TOPICS);
     List<String> writeTopics = app.getTopics().get(KStream.WRITE_TOPICS);
 
     bindings =
         builderProvider.buildBindingsForStreamsApp(
-            app.getPrincipal(), topicPrefix, readTopics, writeTopics);
+            app.getPrincipal(), prefix, readTopics, writeTopics);
   }
 
   @Override
@@ -37,7 +36,7 @@ public class BuildBindingsForKStreams extends BaseAccessControlAction {
     Map<String, Object> map = new HashMap<>();
     map.put("Operation", getClass().getName());
     map.put("Principal", app.getPrincipal());
-    map.put("Topic", topicPrefix);
+    map.put("Topic", prefix);
     return map;
   }
 }

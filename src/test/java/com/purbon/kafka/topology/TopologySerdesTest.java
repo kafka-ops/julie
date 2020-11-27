@@ -201,6 +201,22 @@ public class TopologySerdesTest {
     assertThat(project.getProducers().get(2).getIdempotence()).isNotEmpty();
   }
 
+  @Test
+  public void testStreamsApps() throws IOException, URISyntaxException {
+
+    URL topologyDescriptor = getClass().getResource("/descriptor.yaml");
+    Topology topology = parser.deserialise(Paths.get(topologyDescriptor.toURI()).toFile());
+
+    Project project1 = topology.getProjects().get(0);
+    assertThat(project1.getStreams()).hasSize(1);
+    assertThat(project1.getStreams()).noneMatch(s -> s.getApplicationId().isPresent());
+
+    Project project3 = topology.getProjects().get(2);
+    assertThat(project3.getStreams()).hasSize(1);
+    assertThat(project3.getStreams())
+            .allMatch(s -> s.getApplicationId().orElse("notFound").equals("applicationId-1"));
+  }
+
   @Test(expected = IllegalArgumentException.class)
   public void testSchemaSerdes() throws URISyntaxException, IOException {
     URL topologyDescriptor = getClass().getResource("/descriptor-wrong-schemas.yaml");
@@ -208,7 +224,7 @@ public class TopologySerdesTest {
   }
 
   @Test
-  public void testPlaformProcessing() throws IOException, URISyntaxException {
+  public void testPlatformProcessing() throws IOException, URISyntaxException {
 
     URL topologyDescriptor = getClass().getResource("/descriptor.yaml");
 

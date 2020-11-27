@@ -5,14 +5,14 @@ ACLs
 -----------
 
 In the topology descriptor files users can create permissions for different types of applications, Consumers, Producers, Kafka streams apps or Kafka Connectors.
-With this roles, users can easy create the permissions that map directly to their needs.
+With this roles, users can easily create the permissions that map directly to their needs.
 
 Consumers
 ^^^^^^^^^^^
 
 As a user you can configure consumers for each project.
-Consumer have a principal and optionally a consumer group name, if the consumer group is by default defined as prefix ACL with "*".
-Users can customize this property by defining a *group* attribute for each consumer.
+Consumer have a principal and optionally a consumer group name. The consumer group ACL is by default defined for all groups ("*").
+Users can customize this ACL by defining a *group* attribute for each consumer.
 
 
 .. code-block:: YAML
@@ -40,7 +40,7 @@ Consumer definition with principal "User:App0" and without an specific consumer 
 
 Consumer definition with principal "User:App0" and consumer group name "foo".
 
-In the default mode the KTB will create dedicated ACL for each user and topic pair. For organisations that aim not to have dedicated pair or rules the KTB offer the option
+In the default mode the KTB will create dedicated ACL for each user and topic pair. For organisations that aim not to have dedicated pair of rules the KTB offer the option
 to optimise the number of ACLs using prefixed rules.
 
 The optimised ACLs/RBAC can be enabled using the *topology.acls.optimized* configuration property.
@@ -61,16 +61,65 @@ Producers have a principal.
         producers:
           - principal: "User:App0"
 
-In the default mode the KTB will create dedicated ACL for each user and topic pair. For organisations that aim not to have dedicated pair or rules the KTB offer the option
+In the default mode the KTB will create dedicated ACL for each user and topic pair. For organisations that aim not to have dedicated pair of rules the KTB offer the option
 to optimise the number of ACLs using prefixed rules.
 
 The optimised ACLs/RBAC can be enabled using the *topology.acls.optimized* configuration property.
+
+Streams
+^^^^^^^^^^^
+
+Users can also setup Kafka Streams applications.
+Each one of them will be composed of a principal and a list of topics that this principal needs to read and write.
+The principal is the user used by the streams app to connect to Kafka. You can also optionally specify the *applicationId*.
+
+.. code-block:: YAML
+
+  ---
+    context: "context"
+    source: "source"
+    projects:
+      - name: "foo"
+        streams:
+          - principal: "User:App0"
+            topics:
+              read:
+                - "topicA"
+              write:
+                - "topicB"
+
+KTB will create the necessary ACLs for reading and writing topics, as well as ACLs needed by the app to create/manage internal topics.
+The ACLs for the consumer group and for internal topic creation are prefixed.
+The resource name (prefix) is by default the topic name prefix in the project.
+For the example above the prefix will by default be "context.source.foo".
+
+As you see in the next example this can be overridden by specifying an *applicationId* in the topology.
+
+.. code-block:: YAML
+
+  ---
+    context: "context"
+    source: "source"
+    projects:
+      - name: "foo"
+        streams:
+          - principal: "User:App0"
+            applicationId: "streamsApplicationId"
+            topics:
+              read:
+                - "topicA"
+              write:
+                - "topicB"
+
+
+When the *applicationId* is specified this is used as the resource prefix in the ACLs for consumer groups
+and internal topics for the streams app. In the above example the prefix will be "streamsApplicationId".
 
 Connectors
 ^^^^^^^^^^^
 
 In a similar fashion as with the previous roles, users can setup specific Kafka Connect setups.
-Each one of them will be composed of a principal, this would be the user used by the connect to
+Each one of them will be composed of a principal, this would be the user used by the connector to
 connect to Kafka and a list of topics that this principal needs to read or write to, remember
 Connectors can either read (Sink) or write (Source) into Apache Kafka and they do it to topics.
 
@@ -133,13 +182,16 @@ What ACLs are created
 ^^^^^^^^^^^^^^^^^^^^^
 Kafka Topology Builder will assign the following ACLs:
 
-* each principal in the `consumers` list will get `READ` and `DESCRIBE` permissions on each topic in the containing project as well as `READ` access on every consumer group
-* each principal in the `producers` list will get `WRITE` and `DESCRIBE` permissions on each topic in the containing project
+* each principal in the `consumers` list will get `READ` and `DESCRIBE` permissions on each topic. In addition `READ` access on every consumer group (by default) or the group specified in the topology.
+
+* each principal in the `producers` list will get `WRITE` and `DESCRIBE` permissions on each topic. In addition if a *transactionId* is specified a WRITE and DESCRIBE ACL is created on the transactionId resource. And if either *transactionId* or *idempotence* is specified for the producer the IDEMPOTENT_WRITE ALLOW acl is created.
+
 * each principal in the `streams` list will get
 
   * `READ` access on every topic in its `read` sub-object
   * `WRITE` access on every topic `write` sub-object
-  * `ALL` access on every topic starting with fully-qualified project name, e.g. ``context.company.env.source.projectA`` in the example above. These are `PREFIXED` ACLs.
+  * `ALL` access on every topic starting with the fully-qualified project name (by default) or the given applicationId. These are `PREFIXED` ACLs.
+  * `READ` access on consumer groups starting with the fully-qualified project name (by default) or the given applicationId. These are `PREFIXED` ACLs.
 
 * each principal for a connector will get
 

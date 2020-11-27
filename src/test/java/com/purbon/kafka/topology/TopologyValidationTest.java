@@ -87,11 +87,15 @@ public class TopologyValidationTest {
 
     TopologyValidator validator = new TopologyValidator(config);
     List<String> results = validator.validate(topology);
-    assertThat(results).hasSize(3);
+    assertThat(results).hasSize(5);
     assertThat(results.get(0)).isEqualTo("Project name does not follow the camelCase format: foo");
     assertThat(results.get(1))
         .isEqualTo("Topic contextOrg.source.foo.foo has an invalid number of partitions: 1");
     assertThat(results.get(2))
         .isEqualTo("Topic contextOrg.source.bar.bar.avro has an invalid number of partitions: 1");
+    assertThat(results.get(3))
+        .isEqualTo("Topic contextOrg.source.baz.topicE has an invalid number of partitions: 1");
+    assertThat(results.get(4))
+        .isEqualTo("Topic contextOrg.source.baz.topicF has an invalid number of partitions: 1");
   }
 }
