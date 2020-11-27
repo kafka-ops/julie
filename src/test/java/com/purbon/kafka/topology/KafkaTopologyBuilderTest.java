@@ -1,22 +1,15 @@
 package com.purbon.kafka.topology;
 
-import static com.purbon.kafka.topology.BuilderCLI.ADMIN_CLIENT_CONFIG_OPTION;
-import static com.purbon.kafka.topology.BuilderCLI.ALLOW_DELETE_OPTION;
-import static com.purbon.kafka.topology.BuilderCLI.BROKERS_OPTION;
-import static com.purbon.kafka.topology.BuilderCLI.DRY_RUN_OPTION;
-import static com.purbon.kafka.topology.BuilderCLI.QUIET_OPTION;
+import static com.purbon.kafka.topology.BuilderCLI.*;
 import static com.purbon.kafka.topology.TopologyBuilderConfig.CONFLUENT_SCHEMA_REGISTRY_URL_CONFIG;
 import static org.mockito.Matchers.anyObject;
-import static org.mockito.Mockito.doNothing;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.*;
 
 import com.purbon.kafka.topology.BackendController.Mode;
 import com.purbon.kafka.topology.api.adminclient.TopologyBuilderAdminClient;
 import com.purbon.kafka.topology.backend.RedisBackend;
+import com.purbon.kafka.topology.utils.TestUtils;
 import java.io.IOException;
-import java.net.URL;
-import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
@@ -59,8 +52,7 @@ public class KafkaTopologyBuilderTest {
 
   @Test
   public void closeAdminClientTest() throws Exception {
-    URL dirOfDescriptors = getClass().getResource("/descriptor.yaml");
-    String fileOrDirPath = Paths.get(dirOfDescriptors.toURI()).toFile().toString();
+    String fileOrDirPath = TestUtils.getResourceFilename("/descriptor.yaml");
 
     TopologyBuilderConfig builderConfig = new TopologyBuilderConfig(cliOps, props);
 
@@ -95,8 +87,7 @@ public class KafkaTopologyBuilderTest {
 
   @Test(expected = IOException.class)
   public void verifyProblematicParametersTest2() throws Exception {
-    URL dirOfDescriptors = getClass().getResource("/descriptor.yaml");
-    String fileOrDirPath = Paths.get(dirOfDescriptors.toURI()).toFile().toString();
+    String fileOrDirPath = TestUtils.getResourceFilename("/descriptor.yaml");
 
     TopologyBuilderConfig builderConfig = new TopologyBuilderConfig(cliOps, props);
     KafkaTopologyBuilder builder =
@@ -112,11 +103,8 @@ public class KafkaTopologyBuilderTest {
 
   @Test
   public void verifyProblematicParametersTestOK() throws Exception {
-    URL dirOfDescriptors = getClass().getResource("/descriptor.yaml");
-    String fileOrDirPath = Paths.get(dirOfDescriptors.toURI()).toFile().toString();
-
-    URL clientConfigURL = getClass().getResource("/client-config.properties");
-    String clientConfigFile = Paths.get(clientConfigURL.toURI()).toFile().toString();
+    String fileOrDirPath = TestUtils.getResourceFilename("/descriptor.yaml");
+    String clientConfigFile = TestUtils.getResourceFilename("/client-config.properties");
 
     cliOps.put(ADMIN_CLIENT_CONFIG_OPTION, clientConfigFile);
 
@@ -134,12 +122,8 @@ public class KafkaTopologyBuilderTest {
 
   @Test
   public void builderRunTestAsFromCLI() throws Exception {
-
-    URL dirOfDescriptors = getClass().getResource("/descriptor.yaml");
-    String fileOrDirPath = Paths.get(dirOfDescriptors.toURI()).toFile().toString();
-
-    URL clientConfigURL = getClass().getResource("/client-config.properties");
-    String clientConfigFile = Paths.get(clientConfigURL.toURI()).toFile().toString();
+    String fileOrDirPath = TestUtils.getResourceFilename("/descriptor.yaml");
+    String clientConfigFile = TestUtils.getResourceFilename("/client-config.properties");
 
     Map<String, String> config = new HashMap<>();
     config.put(BROKERS_OPTION, "localhost:9092");
@@ -168,12 +152,8 @@ public class KafkaTopologyBuilderTest {
 
   @Test
   public void builderRunTestAsFromCLIWithARedisBackend() throws Exception {
-
-    URL dirOfDescriptors = getClass().getResource("/descriptor.yaml");
-    String fileOrDirPath = Paths.get(dirOfDescriptors.toURI()).toFile().toString();
-
-    URL clientConfigURL = getClass().getResource("/client-config-redis.properties");
-    String clientConfigFile = Paths.get(clientConfigURL.toURI()).toFile().toString();
+    String fileOrDirPath = TestUtils.getResourceFilename("/descriptor.yaml");
+    String clientConfigFile = TestUtils.getResourceFilename("/client-config-redis.properties");
 
     Map<String, String> config = new HashMap<>();
     config.put(BROKERS_OPTION, "localhost:9092");
@@ -205,8 +185,7 @@ public class KafkaTopologyBuilderTest {
 
   @Test
   public void buiderRunTest() throws Exception {
-    URL dirOfDescriptors = getClass().getResource("/descriptor.yaml");
-    String fileOrDirPath = Paths.get(dirOfDescriptors.toURI()).toFile().toString();
+    String fileOrDirPath = TestUtils.getResourceFilename("/descriptor.yaml");
 
     TopologyBuilderConfig builderConfig = new TopologyBuilderConfig(cliOps, props);
 

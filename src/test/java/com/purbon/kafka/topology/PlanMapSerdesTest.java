@@ -6,10 +6,8 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.purbon.kafka.topology.model.Plan;
 import com.purbon.kafka.topology.model.PlanMap;
 import com.purbon.kafka.topology.serdes.PlanMapSerdes;
+import com.purbon.kafka.topology.utils.TestUtils;
 import java.io.IOException;
-import java.net.URISyntaxException;
-import java.net.URL;
-import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.Map;
 import org.assertj.core.api.Condition;
@@ -27,7 +25,6 @@ public class PlanMapSerdesTest {
 
   @Test
   public void testSerialization() throws JsonProcessingException {
-
     Map<String, String> config = new HashMap<>();
     config.put("foo", "bar");
     config.put("bar", "3");
@@ -49,9 +46,8 @@ public class PlanMapSerdesTest {
   }
 
   @Test
-  public void testHappyDeserialization() throws URISyntaxException, IOException {
-    URL topologyDescriptor = getClass().getResource("/plans.yaml");
-    PlanMap plans = parser.deserialise(Paths.get(topologyDescriptor.toURI()).toFile());
+  public void testHappyDeserialization() throws IOException {
+    PlanMap plans = parser.deserialise(TestUtils.getResourceFile("/plans.yaml"));
 
     assertThat(plans).has(new Condition<>(list -> list.size() == 2, "Contains two elements"));
     assertThat(plans.get("gold").getAlias()).isEqualTo("gold");
