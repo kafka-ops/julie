@@ -16,7 +16,7 @@ public final class SaslPlaintextKafkaContainer
     extends GenericContainer<SaslPlaintextKafkaContainer> {
 
   private static final DockerImageName DEFAULT_IMAGE =
-      DockerImageName.parse("confluentinc/cp-kafka").withTag("5.5.1");
+      DockerImageName.parse("confluentinc/cp-kafka").withTag("5.5.0");
   private static final String STARTER_SCRIPT = "/testcontainers_start.sh";
   private static final String JAAS_CONFIG_FILE = "/tmp/broker_jaas.conf";
   public static final String INTERNAL_LISTENER_NAME = "BROKER";
