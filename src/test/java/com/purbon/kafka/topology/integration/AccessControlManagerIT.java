@@ -1,8 +1,5 @@
 package com.purbon.kafka.topology.integration;
 
-import static org.junit.Assert.assertEquals;
-import static org.mockito.Mockito.when;
-
 import com.purbon.kafka.topology.AccessControlManager;
 import com.purbon.kafka.topology.BackendController;
 import com.purbon.kafka.topology.ExecutionPlan;
@@ -26,27 +23,10 @@ import com.purbon.kafka.topology.model.users.platform.SchemaRegistryInstance;
 import com.purbon.kafka.topology.roles.SimpleAclsProvider;
 import com.purbon.kafka.topology.roles.TopologyAclBinding;
 import com.purbon.kafka.topology.roles.acls.AclsBindingsBuilder;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Optional;
-import java.util.Properties;
-import java.util.concurrent.ExecutionException;
-import java.util.stream.Collectors;
+import com.purbon.kafka.topology.utils.TestUtils;
 import org.apache.kafka.clients.admin.AdminClient;
 import org.apache.kafka.clients.admin.AdminClientConfig;
-import org.apache.kafka.common.acl.AccessControlEntryFilter;
-import org.apache.kafka.common.acl.AclBinding;
-import org.apache.kafka.common.acl.AclBindingFilter;
-import org.apache.kafka.common.acl.AclOperation;
-import org.apache.kafka.common.acl.AclPermissionType;
+import org.apache.kafka.common.acl.*;
 import org.apache.kafka.common.resource.PatternType;
 import org.apache.kafka.common.resource.ResourcePatternFilter;
 import org.apache.kafka.common.resource.ResourceType;
@@ -57,6 +37,14 @@ import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnit;
 import org.mockito.junit.MockitoRule;
+
+import java.io.IOException;
+import java.util.*;
+import java.util.concurrent.ExecutionException;
+import java.util.stream.Collectors;
+
+import static org.junit.Assert.assertEquals;
+import static org.mockito.Mockito.when;
 
 public class AccessControlManagerIT {
 
@@ -76,7 +64,7 @@ public class AccessControlManagerIT {
     kafkaAdminClient = AdminClient.create(config());
     TopologyBuilderAdminClient adminClient = new TopologyBuilderAdminClient(kafkaAdminClient);
     adminClient.clearAcls();
-    Files.deleteIfExists(Paths.get(".cluster-state"));
+    TestUtils.deleteStateFile();
 
     this.cs = new BackendController();
     this.plan = ExecutionPlan.init(cs, System.out);

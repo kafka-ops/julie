@@ -1,20 +1,10 @@
 package com.purbon.kafka.topology;
 
-import static org.junit.Assert.assertEquals;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-
 import com.purbon.kafka.topology.actions.access.ClearBindings;
 import com.purbon.kafka.topology.actions.access.CreateBindings;
 import com.purbon.kafka.topology.roles.SimpleAclsProvider;
 import com.purbon.kafka.topology.roles.TopologyAclBinding;
-import java.io.IOException;
-import java.io.PrintStream;
-import java.nio.file.Files;
-import java.nio.file.Paths;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Set;
+import com.purbon.kafka.topology.utils.TestUtils;
 import org.apache.kafka.common.resource.ResourceType;
 import org.junit.Before;
 import org.junit.Rule;
@@ -22,6 +12,16 @@ import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnit;
 import org.mockito.junit.MockitoRule;
+
+import java.io.IOException;
+import java.io.PrintStream;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
+
+import static org.junit.Assert.assertEquals;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 
 public class ExecutionPlanTest {
 
@@ -36,7 +36,7 @@ public class ExecutionPlanTest {
 
   @Before
   public void before() throws IOException {
-    Files.deleteIfExists(Paths.get(".cluster-state"));
+    TestUtils.deleteStateFile();
     backendController = new BackendController();
     plan = ExecutionPlan.init(backendController, mockPrintStream);
   }
