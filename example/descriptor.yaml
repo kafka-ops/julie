@@ -52,6 +52,24 @@ projects:
         config:
           replication.factor: "1"
           num.partitions: "1"
+  - name: "projectC"
+    streams:
+      - principal: "User:App0"
+        applicationId: "streamsApplicationId"
+        topics:
+          read:
+            - "topicE"
+          write:
+            - "topicF"
+    topics:
+      - name: "topicE"
+        config:
+          replication.factor: "1"
+          num.partitions: "1"
+      - name: "topicF"
+        config:
+          replication.factor: "1"
+          num.partitions: "1"
 platform:
   schema_registry:
     instances:
