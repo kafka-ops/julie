@@ -5,10 +5,8 @@ import static org.junit.Assert.assertEquals;
 
 import com.purbon.kafka.topology.model.Topic;
 import com.purbon.kafka.topology.model.Topology;
+import com.purbon.kafka.topology.utils.TestUtils;
 import java.io.IOException;
-import java.net.URISyntaxException;
-import java.net.URL;
-import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -18,10 +16,8 @@ import org.junit.Test;
 public class TopologyObjectBuilderTest {
 
   @Test
-  public void buildTopicNameTest() throws URISyntaxException, IOException {
-
-    URL dirOfDescriptors = getClass().getResource("/dir");
-    String fileOrDirPath = Paths.get(dirOfDescriptors.toURI()).toFile().toString();
+  public void buildTopicNameTest() throws IOException {
+    String fileOrDirPath = TestUtils.getResourceFilename("/dir");
 
     Topology topology = TopologyObjectBuilder.build(fileOrDirPath);
 
@@ -29,12 +25,9 @@ public class TopologyObjectBuilderTest {
   }
 
   @Test
-  public void testConfigUpdateWhenUsingCustomPlans() throws URISyntaxException, IOException {
-    URL dirOfDescriptors = getClass().getResource("/descriptor-with-plans.yaml");
-    String descriptorFile = Paths.get(dirOfDescriptors.toURI()).toFile().toString();
-
-    URL plansFileURL = getClass().getResource("/plans.yaml");
-    String plansFile = Paths.get(plansFileURL.toURI()).toFile().toString();
+  public void testConfigUpdateWhenUsingCustomPlans() throws IOException {
+    String descriptorFile = TestUtils.getResourceFilename("/descriptor-with-plans.yaml");
+    String plansFile = TestUtils.getResourceFilename("/plans.yaml");
 
     Topology topology = TopologyObjectBuilder.build(descriptorFile, plansFile);
     assertThat(topology).isNotNull();
@@ -61,9 +54,8 @@ public class TopologyObjectBuilderTest {
   }
 
   @Test(expected = IllegalArgumentException.class)
-  public void testTopologyWithPlansButWithNoPlansDef() throws URISyntaxException, IOException {
-    URL dirOfDescriptors = getClass().getResource("/descriptor-with-plans.yaml");
-    String descriptorFile = Paths.get(dirOfDescriptors.toURI()).toFile().toString();
+  public void testTopologyWithPlansButWithNoPlansDef() throws IOException {
+    String descriptorFile = TestUtils.getResourceFilename("/descriptor-with-plans.yaml");
     TopologyObjectBuilder.build(descriptorFile);
   }
 }

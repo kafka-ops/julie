@@ -82,8 +82,8 @@ public class AclsBindingsBuilder implements BindingsBuilderProvider {
 
   @Override
   public List<TopologyAclBinding> buildBindingsForStreamsApp(
-      String principal, String topicPrefix, List<String> readTopics, List<String> writeTopics) {
-    return toList(streamsAppStream(principal, topicPrefix, readTopics, writeTopics));
+      String principal, String prefix, List<String> readTopics, List<String> writeTopics) {
+    return toList(streamsAppStream(principal, prefix, readTopics, writeTopics));
   }
 
   @Override
@@ -165,7 +165,7 @@ public class AclsBindingsBuilder implements BindingsBuilderProvider {
   }
 
   private Stream<AclBinding> streamsAppStream(
-      String principal, String topicPrefix, List<String> readTopics, List<String> writeTopics) {
+      String principal, String prefix, List<String> readTopics, List<String> writeTopics) {
 
     List<AclBinding> acls = new ArrayList<>();
 
@@ -178,7 +178,10 @@ public class AclsBindingsBuilder implements BindingsBuilderProvider {
             acls.add(
                 buildTopicLevelAcl(principal, topic, PatternType.LITERAL, AclOperation.WRITE)));
 
-    acls.add(buildTopicLevelAcl(principal, topicPrefix, PatternType.PREFIXED, AclOperation.ALL));
+    acls.add(buildTopicLevelAcl(principal, prefix, PatternType.PREFIXED, AclOperation.ALL));
+
+    acls.add(buildGroupLevelAcl(principal, prefix, PatternType.PREFIXED, AclOperation.READ));
+
     return acls.stream();
   }
 

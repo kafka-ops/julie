@@ -7,15 +7,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import com.purbon.kafka.topology.model.Topology;
 import com.purbon.kafka.topology.serdes.TopologySerdes;
+import com.purbon.kafka.topology.utils.TestUtils;
 import java.io.IOException;
-import java.net.URISyntaxException;
-import java.net.URL;
-import java.nio.file.Paths;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
+import java.util.*;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -29,10 +23,10 @@ public class TopologyValidationTest {
   }
 
   @Test
-  public void testPositiveExecutionOnCamelCaseNames() throws IOException, URISyntaxException {
+  public void testPositiveExecutionOnCamelCaseNames() throws IOException {
 
-    URL descriptorWithOptionals = getClass().getResource("/descriptor-with-camelCaseNames.yml");
-    Topology topology = parser.deserialise(Paths.get(descriptorWithOptionals.toURI()).toFile());
+    Topology topology =
+        parser.deserialise(TestUtils.getResourceFile("/descriptor-with-camelCaseNames.yml"));
 
     Map<String, String> cliOps = new HashMap<>();
     cliOps.put(BROKERS_OPTION, "");
@@ -48,11 +42,10 @@ public class TopologyValidationTest {
   }
 
   @Test
-  public void testInvalidExecutionBecuaseofNumberOfPartitions()
-      throws IOException, URISyntaxException {
+  public void testInvalidExecutionBecuaseofNumberOfPartitions() throws IOException {
 
-    URL descriptorWithOptionals = getClass().getResource("/descriptor-with-camelCaseNames.yml");
-    Topology topology = parser.deserialise(Paths.get(descriptorWithOptionals.toURI()).toFile());
+    Topology topology =
+        parser.deserialise(TestUtils.getResourceFile("/descriptor-with-camelCaseNames.yml"));
 
     Map<String, String> cliOps = new HashMap<>();
     cliOps.put(BROKERS_OPTION, "");
@@ -70,10 +63,9 @@ public class TopologyValidationTest {
   }
 
   @Test
-  public void testInvalidExecutionWithFailedValidation() throws IOException, URISyntaxException {
+  public void testInvalidExecutionWithFailedValidation() throws IOException {
 
-    URL descriptorWithOptionals = getClass().getResource("/descriptor.yaml");
-    Topology topology = parser.deserialise(Paths.get(descriptorWithOptionals.toURI()).toFile());
+    Topology topology = parser.deserialise(TestUtils.getResourceFile("/descriptor.yaml"));
 
     Map<String, String> cliOps = new HashMap<>();
     cliOps.put(BROKERS_OPTION, "");
@@ -87,11 +79,15 @@ public class TopologyValidationTest {
 
     TopologyValidator validator = new TopologyValidator(config);
     List<String> results = validator.validate(topology);
-    assertThat(results).hasSize(3);
+    assertThat(results).hasSize(5);
     assertThat(results.get(0)).isEqualTo("Project name does not follow the camelCase format: foo");
     assertThat(results.get(1))
         .isEqualTo("Topic contextOrg.source.foo.foo has an invalid number of partitions: 1");
     assertThat(results.get(2))
         .isEqualTo("Topic contextOrg.source.bar.bar.avro has an invalid number of partitions: 1");
+    assertThat(results.get(3))
+        .isEqualTo("Topic contextOrg.source.baz.topicE has an invalid number of partitions: 1");
+    assertThat(results.get(4))
+        .isEqualTo("Topic contextOrg.source.baz.topicF has an invalid number of partitions: 1");
   }
 }

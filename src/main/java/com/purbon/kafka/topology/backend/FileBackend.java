@@ -2,11 +2,7 @@ package com.purbon.kafka.topology.backend;
 
 import com.purbon.kafka.topology.BackendController.Mode;
 import com.purbon.kafka.topology.roles.TopologyAclBinding;
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
-import java.io.IOException;
-import java.io.RandomAccessFile;
+import java.io.*;
 import java.net.URI;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -20,6 +16,7 @@ import org.apache.logging.log4j.Logger;
 public class FileBackend implements Backend {
 
   private static final Logger LOGGER = LogManager.getLogger(FileBackend.class);
+  public static final String STATE_FILE_NAME = ".cluster-state";
 
   private RandomAccessFile writer;
   private String expression =
@@ -39,8 +36,8 @@ public class FileBackend implements Backend {
   @Override
   public void createOrOpen(Mode mode) {
     try {
-      writer = new RandomAccessFile(filename(), "rw");
-      Path path = Paths.get(filename());
+      writer = new RandomAccessFile(STATE_FILE_NAME, "rw");
+      Path path = Paths.get(STATE_FILE_NAME);
       if (path.toFile().exists()) {
         writer.seek(0);
         if (mode.equals(Mode.TRUNCATE)) {
@@ -56,7 +53,7 @@ public class FileBackend implements Backend {
     if (writer == null) {
       throw new IOException("state file does not exist");
     }
-    File file = new File(filename());
+    File file = new File(STATE_FILE_NAME);
     return load(file.toURI());
   }
 
@@ -131,9 +128,5 @@ public class FileBackend implements Backend {
     } catch (IOException e) {
       LOGGER.error(e);
     }
-  }
-
-  private String filename() {
-    return ".cluster-state";
   }
 }
