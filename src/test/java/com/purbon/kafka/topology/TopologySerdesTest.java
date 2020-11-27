@@ -23,19 +23,9 @@ import com.purbon.kafka.topology.model.users.platform.ControlCenterInstance;
 import com.purbon.kafka.topology.model.users.platform.SchemaRegistryInstance;
 import com.purbon.kafka.topology.serdes.TopologySerdes;
 import com.purbon.kafka.topology.serdes.TopologySerdes.FileType;
+import com.purbon.kafka.topology.utils.TestUtils;
 import java.io.IOException;
-import java.net.URISyntaxException;
-import java.net.URL;
-import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Properties;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 import org.junit.Before;
 import org.junit.Test;
@@ -50,18 +40,13 @@ public class TopologySerdesTest {
   }
 
   @Test
-  public void testDynamicFirstLevelAttributes() throws IOException, URISyntaxException {
-
-    URL descriptorWithOptionals = getClass().getResource("/descriptor-with-others.yml");
-
-    Topology topology = parser.deserialise(Paths.get(descriptorWithOptionals.toURI()).toFile());
+  public void testDynamicFirstLevelAttributes() throws IOException {
+    Topology topology =
+        parser.deserialise(TestUtils.getResourceFile("/descriptor-with-others.yml"));
     Project project = topology.getProjects().get(0);
     assertThat(project.namePrefix()).startsWith("contextOrg.source.foo.bar.zet");
 
-    URL descriptorWithoutOptionals = getClass().getResource("/descriptor.yaml");
-
-    Topology anotherTopology =
-        parser.deserialise(Paths.get(descriptorWithoutOptionals.toURI()).toFile());
+    Topology anotherTopology = parser.deserialise(TestUtils.getResourceFile("/descriptor.yaml"));
     Project anotherProject = anotherTopology.getProjects().get(0);
 
     assertEquals("contextOrg.source.foo", anotherProject.namePrefix());
@@ -69,7 +54,6 @@ public class TopologySerdesTest {
 
   @Test
   public void testTopologySerialisation() throws IOException {
-
     Topology topology = new TopologyImpl();
     topology.setContext("contextOrg");
     topology.setProjects(buildProjects());
@@ -83,7 +67,6 @@ public class TopologySerdesTest {
 
   @Test
   public void testTopicConfigSerdes() throws IOException {
-
     Topology topology = new TopologyImpl();
     topology.setContext("team");
 
@@ -143,7 +126,6 @@ public class TopologySerdesTest {
 
   @Test
   public void testTopicWithDataType() throws IOException {
-
     Project project = new ProjectImpl("foo");
 
     Topology topology = new TopologyImpl();
@@ -173,22 +155,18 @@ public class TopologySerdesTest {
   }
 
   @Test(expected = IOException.class)
-  public void testTopologyWithNoTeam() throws IOException, URISyntaxException {
-    URL topologyDescriptor = getClass().getResource("/descriptor-with-no-context.yaml");
-    parser.deserialise(Paths.get(topologyDescriptor.toURI()).toFile());
+  public void testTopologyWithNoTeam() throws IOException {
+    parser.deserialise(TestUtils.getResourceFile("/descriptor-with-no-context.yaml"));
   }
 
   @Test(expected = IOException.class)
-  public void testTopologyWithNoProject() throws IOException, URISyntaxException {
-    URL topologyDescriptor = getClass().getResource("/descriptor-with-no-project.yaml");
-    parser.deserialise(Paths.get(topologyDescriptor.toURI()).toFile());
+  public void testTopologyWithNoProject() throws IOException {
+    parser.deserialise(TestUtils.getResourceFile("/descriptor-with-no-project.yaml"));
   }
 
   @Test
-  public void testCoreElementsProcessing() throws IOException, URISyntaxException {
-
-    URL topologyDescriptor = getClass().getResource("/descriptor.yaml");
-    Topology topology = parser.deserialise(Paths.get(topologyDescriptor.toURI()).toFile());
+  public void testCoreElementsProcessing() throws IOException {
+    Topology topology = parser.deserialise(TestUtils.getResourceFile("/descriptor.yaml"));
 
     Project project = topology.getProjects().get(0);
     assertThat(project.getProducers()).hasSize(3);
@@ -202,17 +180,13 @@ public class TopologySerdesTest {
   }
 
   @Test(expected = IllegalArgumentException.class)
-  public void testSchemaSerdes() throws URISyntaxException, IOException {
-    URL topologyDescriptor = getClass().getResource("/descriptor-wrong-schemas.yaml");
-    parser.deserialise(Paths.get(topologyDescriptor.toURI()).toFile());
+  public void testSchemaSerdes() throws IOException {
+    parser.deserialise(TestUtils.getResourceFile("/descriptor-wrong-schemas.yaml"));
   }
 
   @Test
-  public void testPlaformProcessing() throws IOException, URISyntaxException {
-
-    URL topologyDescriptor = getClass().getResource("/descriptor.yaml");
-
-    Topology topology = parser.deserialise(Paths.get(topologyDescriptor.toURI()).toFile());
+  public void testPlaformProcessing() throws IOException {
+    Topology topology = parser.deserialise(TestUtils.getResourceFile("/descriptor.yaml"));
     assertEquals("contextOrg", topology.getContext());
 
     List<SchemaRegistryInstance> listOfSR =
@@ -231,10 +205,9 @@ public class TopologySerdesTest {
   }
 
   @Test
-  public void testOnlyTopics() throws URISyntaxException, IOException {
-
-    URL topologyDescriptor = getClass().getResource("/descriptor-only-topics.yaml");
-    Topology topology = parser.deserialise(Paths.get(topologyDescriptor.toURI()).toFile());
+  public void testOnlyTopics() throws IOException {
+    Topology topology =
+        parser.deserialise(TestUtils.getResourceFile("/descriptor-only-topics.yaml"));
 
     assertEquals("contextOrg", topology.getContext());
     assertTrue(topology.getProjects().get(0).getConnectors().isEmpty());
@@ -244,10 +217,9 @@ public class TopologySerdesTest {
   }
 
   @Test
-  public void testRBACTopics() throws URISyntaxException, IOException {
-
-    URL topologyDescriptor = getClass().getResource("/descriptor-with-rbac-topics.yaml");
-    Topology topology = parser.deserialise(Paths.get(topologyDescriptor.toURI()).toFile());
+  public void testRBACTopics() throws IOException {
+    Topology topology =
+        parser.deserialise(TestUtils.getResourceFile("/descriptor-with-rbac-topics.yaml"));
 
     Project project = topology.getProjects().get(0);
     assertEquals("contextOrg", topology.getContext());
@@ -268,10 +240,8 @@ public class TopologySerdesTest {
   }
 
   @Test
-  public void testWithRBACDescriptor() throws IOException, URISyntaxException {
-    URL descriptor = getClass().getResource("/descriptor-with-rbac.yaml");
-
-    Topology topology = parser.deserialise(Paths.get(descriptor.toURI()).toFile());
+  public void testWithRBACDescriptor() throws IOException {
+    Topology topology = parser.deserialise(TestUtils.getResourceFile("/descriptor-with-rbac.yaml"));
     Project myProject = topology.getProjects().get(0);
 
     assertEquals(2, myProject.getRbacRawRoles().size());
@@ -303,8 +273,7 @@ public class TopologySerdesTest {
   }
 
   @Test
-  public void testTopicNameWithCustomSeparator() throws URISyntaxException, IOException {
-
+  public void testTopicNameWithCustomSeparator() throws IOException {
     Map<String, String> cliOps = new HashMap<>();
     cliOps.put(BROKERS_OPTION, "");
     cliOps.put(ADMIN_CLIENT_CONFIG_OPTION, "/fooBar");
@@ -315,8 +284,8 @@ public class TopologySerdesTest {
 
     TopologySerdes parser = new TopologySerdes(config);
 
-    URL topologyDescriptor = getClass().getResource("/descriptor-only-topics.yaml");
-    Topology topology = parser.deserialise(Paths.get(topologyDescriptor.toURI()).toFile());
+    Topology topology =
+        parser.deserialise(TestUtils.getResourceFile("/descriptor-only-topics.yaml"));
 
     assertEquals("contextOrg", topology.getContext());
 
@@ -328,8 +297,7 @@ public class TopologySerdesTest {
   }
 
   @Test
-  public void testTopicNameWithCustomPattern() throws URISyntaxException, IOException {
-
+  public void testTopicNameWithCustomPattern() throws IOException {
     Map<String, String> cliOps = new HashMap<>();
     cliOps.put(BROKERS_OPTION, "");
     cliOps.put(ADMIN_CLIENT_CONFIG_OPTION, "/fooBar");
@@ -340,8 +308,8 @@ public class TopologySerdesTest {
 
     TopologySerdes parser = new TopologySerdes(config);
 
-    URL topologyDescriptor = getClass().getResource("/descriptor-only-topics.yaml");
-    Topology topology = parser.deserialise(Paths.get(topologyDescriptor.toURI()).toFile());
+    Topology topology =
+        parser.deserialise(TestUtils.getResourceFile("/descriptor-only-topics.yaml"));
 
     assertEquals("contextOrg", topology.getContext());
 
@@ -353,11 +321,9 @@ public class TopologySerdesTest {
   }
 
   @Test
-  public void testJsonDescriptorFileSerdes() throws IOException, URISyntaxException {
-
+  public void testJsonDescriptorFileSerdes() throws IOException {
     TopologySerdes parser = new TopologySerdes(new TopologyBuilderConfig(), FileType.JSON);
-    URL descriptorWithOptionals = getClass().getResource("/descriptor.json");
-    Topology topology = parser.deserialise(Paths.get(descriptorWithOptionals.toURI()).toFile());
+    Topology topology = parser.deserialise(TestUtils.getResourceFile("/descriptor.json"));
 
     assertEquals(1, topology.getProjects().size());
     assertEquals("foo", topology.getProjects().get(0).getName());
@@ -365,7 +331,6 @@ public class TopologySerdesTest {
   }
 
   private List<Project> buildProjects() {
-
     Project project = new ProjectImpl("project");
     project.setConsumers(buildConsumers());
     project.setProducers(buildProducers());
@@ -375,13 +340,13 @@ public class TopologySerdesTest {
   }
 
   private List<KStream> buildStreams() {
-    List<KStream> streams = new ArrayList<KStream>();
-    HashMap<String, List<String>> topics = new HashMap<String, List<String>>();
+    List<KStream> streams = new ArrayList<>();
+    HashMap<String, List<String>> topics = new HashMap<>();
     topics.put("read", Arrays.asList("topic1", "topic3"));
     topics.put("write", Arrays.asList("topic2", "topic4"));
     streams.add(new KStream("app3", topics));
 
-    topics = new HashMap<String, List<String>>();
+    topics = new HashMap<>();
     topics.put("read", Arrays.asList("topic2", "topic4"));
     topics.put("write", Arrays.asList("topic5"));
     streams.add(new KStream("app4", topics));
@@ -390,14 +355,14 @@ public class TopologySerdesTest {
   }
 
   private List<Producer> buildProducers() {
-    List<Producer> producers = new ArrayList<Producer>();
+    List<Producer> producers = new ArrayList<>();
     producers.add(new Producer("app1"));
     producers.add(new Producer("app3"));
     return producers;
   }
 
   private List<Consumer> buildConsumers() {
-    List<Consumer> consumers = new ArrayList<Consumer>();
+    List<Consumer> consumers = new ArrayList<>();
     consumers.add(new Consumer("app1"));
     consumers.add(new Consumer("app2"));
     return consumers;

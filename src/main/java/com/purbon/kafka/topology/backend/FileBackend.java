@@ -2,9 +2,6 @@ package com.purbon.kafka.topology.backend;
 
 import com.purbon.kafka.topology.BackendController.Mode;
 import com.purbon.kafka.topology.roles.TopologyAclBinding;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-
 import java.io.*;
 import java.net.URI;
 import java.nio.file.Path;
@@ -13,6 +10,8 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 public class FileBackend implements Backend {
 
@@ -130,5 +129,4 @@ public class FileBackend implements Backend {
       LOGGER.error(e);
     }
   }
-
 }

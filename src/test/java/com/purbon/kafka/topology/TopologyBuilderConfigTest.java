@@ -2,14 +2,7 @@ package com.purbon.kafka.topology;
 
 import static com.purbon.kafka.topology.BuilderCLI.ADMIN_CLIENT_CONFIG_OPTION;
 import static com.purbon.kafka.topology.BuilderCLI.BROKERS_OPTION;
-import static com.purbon.kafka.topology.TopologyBuilderConfig.ACCESS_CONTROL_IMPLEMENTATION_CLASS;
-import static com.purbon.kafka.topology.TopologyBuilderConfig.CONFLUENT_SCHEMA_REGISTRY_URL_CONFIG;
-import static com.purbon.kafka.topology.TopologyBuilderConfig.MDS_KAFKA_CLUSTER_ID_CONFIG;
-import static com.purbon.kafka.topology.TopologyBuilderConfig.MDS_PASSWORD_CONFIG;
-import static com.purbon.kafka.topology.TopologyBuilderConfig.MDS_SERVER;
-import static com.purbon.kafka.topology.TopologyBuilderConfig.MDS_USER_CONFIG;
-import static com.purbon.kafka.topology.TopologyBuilderConfig.PROJECT_PREFIX_FORMAT_CONFIG;
-import static com.purbon.kafka.topology.TopologyBuilderConfig.TOPIC_PREFIX_FORMAT_CONFIG;
+import static com.purbon.kafka.topology.TopologyBuilderConfig.*;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.purbon.kafka.topology.exceptions.ConfigurationException;
@@ -20,14 +13,8 @@ import com.purbon.kafka.topology.model.Project;
 import com.purbon.kafka.topology.model.Topic;
 import com.purbon.kafka.topology.model.TopicSchemas;
 import com.purbon.kafka.topology.model.Topology;
-import java.net.URISyntaxException;
-import java.net.URL;
-import java.nio.file.Paths;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Properties;
+import com.purbon.kafka.topology.utils.TestUtils;
+import java.util.*;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -173,9 +160,8 @@ public class TopologyBuilderConfigTest {
   }
 
   @Test
-  public void testKafkaInternalTopicDefaultPrefix() throws URISyntaxException {
-    URL clientConfigURL = getClass().getResource("/client-config.properties");
-    String clientConfigFile = Paths.get(clientConfigURL.toURI()).toFile().toString();
+  public void testKafkaInternalTopicDefaultPrefix() {
+    String clientConfigFile = TestUtils.getResourceFilename("/client-config.properties");
 
     cliOps.put(ADMIN_CLIENT_CONFIG_OPTION, clientConfigFile);
 
@@ -184,9 +170,9 @@ public class TopologyBuilderConfigTest {
   }
 
   @Test
-  public void testKafkaInternalTopicExtendedPrefix() throws URISyntaxException {
-    URL clientConfigURL = getClass().getResource("/config-internals-extended.properties");
-    String clientConfigFile = Paths.get(clientConfigURL.toURI()).toFile().toString();
+  public void testKafkaInternalTopicExtendedPrefix() {
+    String clientConfigFile =
+        TestUtils.getResourceFilename("/config-internals-extended.properties");
 
     cliOps.put(ADMIN_CLIENT_CONFIG_OPTION, clientConfigFile);
 
