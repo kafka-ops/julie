@@ -209,12 +209,12 @@ public class TopologySerdesTest {
 
     Project project1 = topology.getProjects().get(0);
     assertThat(project1.getStreams()).hasSize(1);
-    assertThat(project1.getStreams()).allMatch(s -> !s.getApplicationId().isPresent());
+    assertThat(project1.getStreams()).noneMatch(s -> s.getApplicationId().isPresent());
 
     Project project3 = topology.getProjects().get(2);
     assertThat(project3.getStreams()).hasSize(1);
     assertThat(project3.getStreams())
-        .allMatch(s -> s.getApplicationId().orElse("notFound").equals("applicationId-1"));
+            .allMatch(s -> s.getApplicationId().orElse("notFound").equals("applicationId-1"));
   }
 
   @Test(expected = IllegalArgumentException.class)
