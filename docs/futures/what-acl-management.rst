@@ -190,7 +190,7 @@ Kafka Topology Builder will assign the following ACLs:
 
   * `READ` access on every topic in its `read` sub-object
   * `WRITE` access on every topic `write` sub-object
-  * `ALL` access on every topic starting with fully-qualified project name, e.g. ``context.company.env.source.projectA`` in the example above. These are `PREFIXED` ACLs.
+  * `ALL` access on every topic starting with the fully-qualified project name (by default) or the given applicationId. These are `PREFIXED` ACLs.
   * `READ` access on consumer groups starting with the fully-qualified project name (by default) or the given applicationId. These are `PREFIXED` ACLs.
 
 * each principal for a connector will get
