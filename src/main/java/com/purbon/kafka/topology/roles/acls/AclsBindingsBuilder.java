@@ -182,7 +182,6 @@ public class AclsBindingsBuilder implements BindingsBuilderProvider {
     acls.add(buildTopicLevelAcl(principal, prefix, PatternType.PREFIXED, AclOperation.ALL));
 
     acls.add(buildGroupLevelAcl(principal, prefix, PatternType.PREFIXED, AclOperation.READ));
-    acls.add(buildGroupLevelAcl(principal, prefix, PatternType.PREFIXED, AclOperation.DESCRIBE));
 
     return acls.stream();
   }
