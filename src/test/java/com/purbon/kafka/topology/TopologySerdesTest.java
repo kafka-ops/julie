@@ -180,10 +180,8 @@ public class TopologySerdesTest {
   }
 
   @Test
-  public void testStreamsApps() throws IOException, URISyntaxException {
-
-    URL topologyDescriptor = getClass().getResource("/descriptor.yaml");
-    Topology topology = parser.deserialise(Paths.get(topologyDescriptor.toURI()).toFile());
+  public void testStreamsApps() throws IOException {
+    Topology topology = parser.deserialise(TestUtils.getResourceFile("/descriptor.yaml"));
 
     Project project1 = topology.getProjects().get(0);
     assertThat(project1.getStreams()).hasSize(1);
@@ -192,7 +190,7 @@ public class TopologySerdesTest {
     Project project3 = topology.getProjects().get(2);
     assertThat(project3.getStreams()).hasSize(1);
     assertThat(project3.getStreams())
-            .allMatch(s -> s.getApplicationId().orElse("notFound").equals("applicationId-1"));
+        .allMatch(s -> s.getApplicationId().orElse("notFound").equals("applicationId-1"));
   }
 
   @Test(expected = IllegalArgumentException.class)
