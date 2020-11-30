@@ -3,6 +3,7 @@ package com.purbon.kafka.topology;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertEquals;
 
+import com.purbon.kafka.topology.exceptions.TopologyParsingException;
 import com.purbon.kafka.topology.model.Topic;
 import com.purbon.kafka.topology.model.Topology;
 import com.purbon.kafka.topology.utils.TestUtils;
@@ -57,5 +58,17 @@ public class TopologyObjectBuilderTest {
   public void testTopologyWithPlansButWithNoPlansDef() throws IOException {
     String descriptorFile = TestUtils.getResourceFilename("/descriptor-with-plans.yaml");
     TopologyObjectBuilder.build(descriptorFile);
+  }
+
+  @Test(expected = TopologyParsingException.class)
+  public void testInvalidTopology() throws IOException {
+    String descriptorFile = TestUtils.getResourceFilename("/errors_dir/descriptor-with-errors.yaml");
+    TopologyObjectBuilder.build(descriptorFile);
+  }
+
+  @Test(expected = TopologyParsingException.class)
+  public void testInvalidTopologyFromDir() throws IOException {
+    String dirPath = TestUtils.getResourceFilename("/errors_dir");
+    TopologyObjectBuilder.build(dirPath);
   }
 }

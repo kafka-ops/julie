@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
 import com.purbon.kafka.topology.TopologyBuilderConfig;
+import com.purbon.kafka.topology.exceptions.TopologyParsingException;
 import com.purbon.kafka.topology.model.Impl.TopicImpl;
 import com.purbon.kafka.topology.model.PlanMap;
 import com.purbon.kafka.topology.model.Topology;
@@ -41,12 +42,21 @@ public class TopologySerdes {
     mapper = ObjectMapperFactory.build(type, config, plans);
   }
 
-  public Topology deserialise(File file) throws IOException {
-    return mapper.readValue(file, Topology.class);
+  public Topology deserialise(File file) {
+    try {
+      return mapper.readValue(file, Topology.class);
+    } catch (IOException e) {
+      throw new TopologyParsingException(
+          "Failed to deserialize topology from " + file.getPath(), e);
+    }
   }
 
-  public Topology deserialise(String content) throws IOException {
-    return mapper.readValue(content, Topology.class);
+  public Topology deserialise(String content) {
+    try {
+      return mapper.readValue(content, Topology.class);
+    } catch (IOException e) {
+      throw new TopologyParsingException("Failed to deserialize topology from " + content, e);
+    }
   }
 
   public String serialise(Topology topology) throws JsonProcessingException {
