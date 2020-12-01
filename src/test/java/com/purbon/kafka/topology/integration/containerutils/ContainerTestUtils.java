@@ -8,6 +8,7 @@ import com.purbon.kafka.topology.api.adminclient.TopologyBuilderAdminClient;
 import com.purbon.kafka.topology.roles.SimpleAclsProvider;
 import com.purbon.kafka.topology.roles.acls.AclsBindingsBuilder;
 import com.purbon.kafka.topology.utils.TestUtils;
+import com.typesafe.config.ConfigFactory;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
@@ -68,6 +69,12 @@ public final class ContainerTestUtils {
       } catch (final IOException e) {
         throw new RuntimeException(e);
       }
+    } finally {
+      /* Clean up static stuff buried deep below TopologyBuilderConfig.
+       * I don't like this "hack", but I didn't immediately see
+       * how to do it correctly. */
+      System.clearProperty("config.file");
+      ConfigFactory.invalidateCaches();
     }
   }
 
