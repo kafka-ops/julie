@@ -8,6 +8,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
+import com.purbon.kafka.topology.exceptions.TopologyParsingException;
 import com.purbon.kafka.topology.model.Impl.ProjectImpl;
 import com.purbon.kafka.topology.model.Impl.TopicImpl;
 import com.purbon.kafka.topology.model.Impl.TopologyImpl;
@@ -40,7 +41,7 @@ public class TopologySerdesTest {
   }
 
   @Test
-  public void testDynamicFirstLevelAttributes() throws IOException {
+  public void testDynamicFirstLevelAttributes() {
     Topology topology =
         parser.deserialise(TestUtils.getResourceFile("/descriptor-with-others.yml"));
     Project project = topology.getProjects().get(0);
@@ -154,18 +155,18 @@ public class TopologySerdesTest {
     assertEquals(topic2.getDataType(), serdesTopic2.getDataType());
   }
 
-  @Test(expected = IOException.class)
-  public void testTopologyWithNoTeam() throws IOException {
+  @Test(expected = TopologyParsingException.class)
+  public void testTopologyWithNoTeam() {
     parser.deserialise(TestUtils.getResourceFile("/descriptor-with-no-context.yaml"));
   }
 
-  @Test(expected = IOException.class)
-  public void testTopologyWithNoProject() throws IOException {
+  @Test(expected = TopologyParsingException.class)
+  public void testTopologyWithNoProject() {
     parser.deserialise(TestUtils.getResourceFile("/descriptor-with-no-project.yaml"));
   }
 
   @Test
-  public void testCoreElementsProcessing() throws IOException {
+  public void testCoreElementsProcessing() {
     Topology topology = parser.deserialise(TestUtils.getResourceFile("/descriptor.yaml"));
 
     Project project = topology.getProjects().get(0);
@@ -180,7 +181,7 @@ public class TopologySerdesTest {
   }
 
   @Test
-  public void testStreamsApps() throws IOException {
+  public void testStreamsApps() {
     Topology topology = parser.deserialise(TestUtils.getResourceFile("/descriptor.yaml"));
 
     Project project1 = topology.getProjects().get(0);
@@ -194,12 +195,12 @@ public class TopologySerdesTest {
   }
 
   @Test(expected = IllegalArgumentException.class)
-  public void testSchemaSerdes() throws IOException {
+  public void testSchemaSerdes() {
     parser.deserialise(TestUtils.getResourceFile("/descriptor-wrong-schemas.yaml"));
   }
 
   @Test
-  public void testPlaformProcessing() throws IOException {
+  public void testPlaformProcessing() {
     Topology topology = parser.deserialise(TestUtils.getResourceFile("/descriptor.yaml"));
 
     assertEquals("contextOrg", topology.getContext());
@@ -220,7 +221,7 @@ public class TopologySerdesTest {
   }
 
   @Test
-  public void testOnlyTopics() throws IOException {
+  public void testOnlyTopics() {
     Topology topology =
         parser.deserialise(TestUtils.getResourceFile("/descriptor-only-topics.yaml"));
 
@@ -232,7 +233,7 @@ public class TopologySerdesTest {
   }
 
   @Test
-  public void testRBACTopics() throws IOException {
+  public void testRBACTopics() {
     Topology topology =
         parser.deserialise(TestUtils.getResourceFile("/descriptor-with-rbac-topics.yaml"));
 
@@ -255,7 +256,7 @@ public class TopologySerdesTest {
   }
 
   @Test
-  public void testWithRBACDescriptor() throws IOException {
+  public void testWithRBACDescriptor() {
     Topology topology = parser.deserialise(TestUtils.getResourceFile("/descriptor-with-rbac.yaml"));
     Project myProject = topology.getProjects().get(0);
 
@@ -288,7 +289,7 @@ public class TopologySerdesTest {
   }
 
   @Test
-  public void testTopicNameWithCustomSeparator() throws IOException {
+  public void testTopicNameWithCustomSeparator() {
     Map<String, String> cliOps = new HashMap<>();
     cliOps.put(BROKERS_OPTION, "");
     cliOps.put(ADMIN_CLIENT_CONFIG_OPTION, "/fooBar");
@@ -312,7 +313,7 @@ public class TopologySerdesTest {
   }
 
   @Test
-  public void testTopicNameWithCustomPattern() throws IOException {
+  public void testTopicNameWithCustomPattern() {
     Map<String, String> cliOps = new HashMap<>();
     cliOps.put(BROKERS_OPTION, "");
     cliOps.put(ADMIN_CLIENT_CONFIG_OPTION, "/fooBar");
@@ -336,7 +337,7 @@ public class TopologySerdesTest {
   }
 
   @Test
-  public void testJsonDescriptorFileSerdes() throws IOException {
+  public void testJsonDescriptorFileSerdes() {
     TopologySerdes parser = new TopologySerdes(new TopologyBuilderConfig(), FileType.JSON);
     Topology topology = parser.deserialise(TestUtils.getResourceFile("/descriptor.json"));
 

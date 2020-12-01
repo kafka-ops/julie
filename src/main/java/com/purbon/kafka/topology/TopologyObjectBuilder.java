@@ -1,6 +1,5 @@
 package com.purbon.kafka.topology;
 
-import com.purbon.kafka.topology.model.Impl.TopologyImpl;
 import com.purbon.kafka.topology.model.PlanMap;
 import com.purbon.kafka.topology.model.Topology;
 import com.purbon.kafka.topology.serdes.PlanMapSerdes;
@@ -11,12 +10,8 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 
 public class TopologyObjectBuilder {
-
-  private static final Logger LOGGER = LogManager.getLogger(TopologyObjectBuilder.class);
 
   public static Topology build(String fileOrDir) throws IOException {
     return build(fileOrDir, "", new TopologyBuilderConfig());
@@ -60,15 +55,7 @@ public class TopologyObjectBuilder {
     if (isDir) {
       Files.list(Paths.get(fileOrDir))
           .sorted()
-          .map(
-              path -> {
-                try {
-                  return parser.deserialise(path.toFile());
-                } catch (IOException e) {
-                  LOGGER.error(e);
-                  return new TopologyImpl();
-                }
-              })
+          .map(path -> parser.deserialise(path.toFile()))
           .forEach(subTopology -> topologies.add(subTopology));
     } else {
       Topology firstTopology = parser.deserialise(new File(fileOrDir));
