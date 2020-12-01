@@ -51,6 +51,10 @@ public final class SaslPlaintextKafkaContainer extends AlternativeKafkaContainer
     return this;
   }
 
+  public SaslPlaintextKafkaContainer withUser(final String usernameAndPassword) {
+    return withUser(usernameAndPassword, usernameAndPassword);
+  }
+
   public SaslPlaintextKafkaContainer withUser(final String username, final String password) {
     usernamesAndPasswords.put(
         assertValidUsernameAndPassword(username), assertValidUsernameAndPassword(password));
@@ -115,5 +119,4 @@ public final class SaslPlaintextKafkaContainer extends AlternativeKafkaContainer
     }
     return s;
   }
-
 }

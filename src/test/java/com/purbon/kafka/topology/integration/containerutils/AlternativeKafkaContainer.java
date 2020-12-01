@@ -167,5 +167,4 @@ public class AlternativeKafkaContainer extends GenericContainer<AlternativeKafka
     }
     return "127.0.0.1:" + ZOOKEEPER_PORT;
   }
-
 }
