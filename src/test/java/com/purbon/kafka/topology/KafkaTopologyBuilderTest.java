@@ -8,6 +8,7 @@ import static org.mockito.Mockito.*;
 import com.purbon.kafka.topology.BackendController.Mode;
 import com.purbon.kafka.topology.api.adminclient.TopologyBuilderAdminClient;
 import com.purbon.kafka.topology.backend.RedisBackend;
+import com.purbon.kafka.topology.exceptions.TopologyParsingException;
 import com.purbon.kafka.topology.utils.TestUtils;
 import java.io.IOException;
 import java.util.HashMap;
@@ -69,7 +70,7 @@ public class KafkaTopologyBuilderTest {
     verify(topologyAdminClient, times(1)).close();
   }
 
-  @Test(expected = IOException.class)
+  @Test(expected = TopologyParsingException.class)
   public void verifyProblematicParametersTest() throws Exception {
     String file = "fileThatDoesNotExist.yaml";
     TopologyBuilderConfig builderConfig = new TopologyBuilderConfig(cliOps, props);

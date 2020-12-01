@@ -1,0 +1,22 @@
+---
+context: "contextOrg"
+source: "source"
+projects:
+  - name: "foo"
+    streams:
+      - principal: "User:streams"
+        unknownProperty: "catchMe"
+        topics:
+          read:
+            - foo
+          write:
+            - bar
+    topics:
+      - name: "foo"
+        config:
+          replication.factor: "1"
+          num.partitions: "1"
+      - name: "bar"
+        config:
+          replication.factor: "1"
+          num.partitions: "1"

@@ -1,0 +1,11 @@
+---
+context: "contextOrg"
+source: "source"
+projects:
+  - name: "bar"
+    topics:
+      - dataType: "avro"
+        name: "bar"
+        config:
+          replication.factor: "1"
+          num.partitions: "1"
