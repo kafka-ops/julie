@@ -5,6 +5,7 @@ import com.purbon.kafka.topology.integration.containerutils.SaslPlaintextKafkaCo
 import com.purbon.kafka.topology.integration.containerutils.TestConsumer;
 import com.purbon.kafka.topology.integration.containerutils.TestProducer;
 import java.util.Set;
+import org.apache.kafka.common.errors.GroupAuthorizationException;
 import org.apache.kafka.common.errors.SaslAuthenticationException;
 import org.apache.kafka.common.errors.TopicAuthorizationException;
 import org.junit.AfterClass;
@@ -87,6 +88,21 @@ public final class AclProducerAndConsumerIT {
   public void shouldNotConsumeWithoutPermissionEvenIfPermittedElsewhere() {
     try (final TestConsumer consumer =
         TestConsumer.create(container, OTHER_CONSUMER_USERNAME, CONSUMER_GROUP)) {
+      consumer.consumeForAWhile(TOPIC, null);
+    }
+  }
+
+  @Test(expected = TopicAuthorizationException.class)
+  public void shouldNotProduceWhenConsumer() {
+    try (final TestProducer producer = TestProducer.create(container, CONSUMER_USERNAME)) {
+      producer.produce(TOPIC, "foo");
+    }
+  }
+
+  @Test(expected = GroupAuthorizationException.class)
+  public void shouldNotConsumeWhenProducer() {
+    try (final TestConsumer consumer =
+        TestConsumer.create(container, PRODUCER_USERNAME, CONSUMER_GROUP)) {
       consumer.consumeForAWhile(TOPIC, null);
     }
   }

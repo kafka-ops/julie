@@ -4,6 +4,7 @@ import java.io.Closeable;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ExecutionException;
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.clients.producer.ProducerRecord;
@@ -44,15 +45,24 @@ public final class TestProducer implements Closeable {
 
   public void produce(final String topicName, final String key, final String recordValue) {
     final ProducerRecord<String, String> record = new ProducerRecord<>(topicName, key, recordValue);
-    producer.send(
-        record,
-        (metadata, exception) -> {
-          if (exception != null) {
-            throw (exception instanceof RuntimeException)
-                ? (RuntimeException) exception
-                : new RuntimeException(exception);
-          }
-        });
+    try {
+      producer
+          .send(
+              record,
+              (metadata, exception) -> {
+                if (exception != null) {
+                  throw (exception instanceof RuntimeException)
+                      ? (RuntimeException) exception
+                      : new RuntimeException(exception);
+                }
+              })
+          .get(); // Make call synchronous, to be able to get exceptions in time.
+    } catch (final InterruptedException | ExecutionException e) {
+      final Throwable cause = e.getCause();
+      throw (cause instanceof RuntimeException)
+          ? (RuntimeException) cause
+          : new RuntimeException(e);
+    }
     producer.flush();
   }
 
