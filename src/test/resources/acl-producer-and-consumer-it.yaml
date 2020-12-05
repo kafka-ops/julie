@@ -1,0 +1,23 @@
+---
+context: "context"
+projects:
+  - name: "project"
+    producers:
+      - principal: "User:producer"
+    consumers:
+      - principal: "User:consumer"
+    topics:
+      - name: "producer-and-consumer-test-topic"
+        config:
+          replication.factor: "1"
+          num.partitions: "1"
+  - name: "other-project"
+    producers:
+      - principal: "User:other-producer"
+    consumers:
+      - principal: "User:other-consumer"
+    topics:
+      - name: "other-producer-and-consumer-test-topic"
+        config:
+          replication.factor: "1"
+          num.partitions: "1"
