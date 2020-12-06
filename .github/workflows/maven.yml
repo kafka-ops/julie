@@ -30,5 +30,5 @@ jobs:
           path: ~/.m2
           key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
           restore-keys: ${{ runner.os }}-m2
-      - name: Run integration test for acls
-        run:  mvn  integration-test -Pacls --file pom.xml
+      - name: Build with Maven
+        run: mvn -B package --file pom.xml
