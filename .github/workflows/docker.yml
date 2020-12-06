@@ -1,4 +1,4 @@
-name: Publish latest to docker hub
+name: Docker publish latest
 on:
   schedule:
     - cron: '* 0 * * *'
@@ -26,12 +26,14 @@ jobs:
   docker_build:
     name: Docker latest image build
     runs-on: ubuntu-latest
+    needs: [ktb_build]
     steps:
       - name: Copy Jar and Build docker image
-        run: cd release/docker; ./build.sh
+        run: cd ./release/docker; ./build.sh
   push_to_registry:
     name: Push Docker image to Docker Hub
     runs-on: ubuntu-latest
+    needs: [ktb_build, docker_build]
     steps:
       - name: Check out the repo
         uses: actions/checkout@v2
