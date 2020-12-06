@@ -54,4 +54,3 @@ jobs:
         with:
           file: release/docker/Dockerfile
           tags: purbon/kafka-topology-builder:latest
-          push: true
