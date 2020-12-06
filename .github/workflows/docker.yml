@@ -1,0 +1,48 @@
+name: Publish latest to docker hub
+on:
+  schedule:
+    - cron: '* 0 * * *'
+  push:
+    branches:
+      - master
+jobs:
+  ktb_build:
+    name: Build the KTB package
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Set up the JDK
+        uses: actions/setup-java@v1
+        with:
+          java-version: 1.8
+      - name: Cache dependencies
+        uses: actions/cache@v2
+        with:
+          path: ~/.m2
+          key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
+          restore-keys: ${{ runner.os }}-m2
+      - name: Build with Maven
+        run: mvn -B package --file pom.xml
+  docker_build:
+    name: Docker latest image build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Copy Jar and Build docker image
+        run: cd release/docker; ./build.sh
+  push_to_registry:
+    name: Push Docker image to Docker Hub
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out the repo
+        uses: actions/checkout@v2
+      - name: Login to DockerHub
+        uses: docker/login-action@v1
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+      - name: Push to Docker Hub
+        uses: docker/build-push-action@v2
+        with:
+          file: release/docker/Dockerfile
+          tags: purbon/kafka-topology-builder:latest
+          push: true
