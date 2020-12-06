@@ -31,6 +31,8 @@ jobs:
       run:
         working-directory: release/docker
     steps:
+      - name: Check out the repo
+        uses: actions/checkout@v2
       - name: list files
         run: ls -l
       - name: Copy Jar and Build docker image
