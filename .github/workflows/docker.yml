@@ -31,8 +31,10 @@ jobs:
       run:
         working-directory: release/docker
     steps:
+      - name: list files
+        run: ls -l
       - name: Copy Jar and Build docker image
-        run: ./build.sh
+        run: sh build.sh
   push_to_registry:
     name: Push Docker image to Docker Hub
     runs-on: ubuntu-latest
