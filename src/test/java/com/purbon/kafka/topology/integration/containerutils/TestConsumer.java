@@ -15,7 +15,7 @@ public final class TestConsumer implements Closeable {
   /* This timeout includes the time spent fetching meta data, which may actually be several hundred ms.
    * If the timeout is too short, the poll function will return after fetching meta data, but before
    * actually trying to access the topic, thus not throwing the exception we are looking for. */
-  private static final long MAX_MS_TO_CONSUME = 20 * 1000L;
+  private static final long MAX_MS_TO_CONSUME = 60 * 1000L;
   private final KafkaConsumer<String, String> consumer;
 
   public interface RecordHandler {
@@ -54,11 +54,12 @@ public final class TestConsumer implements Closeable {
   public void consumeForAWhile(final String topicName, final RecordHandler handler) {
     consumer.subscribe(Collections.singleton(topicName));
     final long endTime = System.currentTimeMillis() + MAX_MS_TO_CONSUME;
-    while (System.currentTimeMillis() < endTime) {
+    boolean continueConsuming = true;
+    while (continueConsuming && System.currentTimeMillis() < endTime) {
       final ConsumerRecords<String, String> records = consumer.poll(Duration.ofMillis(1000));
       for (final ConsumerRecord<String, String> record : records) {
-        if (handler != null && !handler.handle(record.key(), record.value())) {
-          break;
+        if (handler != null) {
+          continueConsuming = handler.handle(record.key(), record.value());
         }
         consumer.commitAsync();
       }
