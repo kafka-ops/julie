@@ -86,17 +86,28 @@ public class TopicCustomDeserializer extends StdDeserializer<TopicImpl> {
     TopicImpl topic =
         new TopicImpl(name, producers, consumers, optionalDataType, config, this.config);
 
+    // Amends from issue 155
+    List<TopicSchemas> schemas = new ArrayList<>();
     Optional.ofNullable(rootNode.get("schemas"))
         .ifPresent(
-            node -> {
-              topic.setSchemas(
-                  Optional.of(
-                      new TopicSchemas(
-                          Optional.ofNullable(node.get("key.schema.file")),
-                          Optional.ofNullable(node.get("value.schema.file")))));
-            });
+            node ->
+                node.elements()
+                    .forEachRemaining(
+                        node1 -> {
+                          TopicSchemas schema =
+                              new TopicSchemas(
+                                  Optional.ofNullable(node1.get("key.schema.file")),
+                                  Optional.ofNullable(node1.get("value.schema.file")));
+                          schemas.add(schema);
+                        }));
+    topic.setSchemas(Optional.of(schemas));
+
     if (topic.getSchemas().isPresent()
-        && !topic.getSchemas().get().getValueSchemaFile().isPresent()) {
+        && !topic
+            .getSchemas()
+            .get()
+            .isEmpty() // now that we know list is present, does it have mandatory elements
+        && !topic.isValueSchemaFilesPresent()) {
       throw new IOException(
           String.format(
               "Missing required value.schema.file on schemas for topic %s", topic.getName()));

@@ -7,6 +7,7 @@ import com.purbon.kafka.topology.model.TopicSchemas;
 import com.purbon.kafka.topology.schemas.SchemaRegistryManager;
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import org.apache.logging.log4j.LogManager;
@@ -55,19 +56,21 @@ public class SyncTopicAction extends BaseAction {
     }
 
     if (topic.getSchemas().isPresent()) {
-      final TopicSchemas schemas = topic.getSchemas().get();
+      // changes to support multiple schemas: Issue 155
+      final List<TopicSchemas> schemas = topic.getSchemas().get();
+      for (TopicSchemas schema : schemas) {
+        schema
+            .getKeySchemaFile()
+            .ifPresent(
+                keySchemaFile ->
+                    schemaRegistryManager.register(fullTopicName + "-key", keySchemaFile));
 
-      schemas
-          .getKeySchemaFile()
-          .ifPresent(
-              keySchemaFile ->
-                  schemaRegistryManager.register(fullTopicName + "-key", keySchemaFile));
-
-      schemas
-          .getValueSchemaFile()
-          .ifPresent(
-              valueSchemaFile ->
-                  schemaRegistryManager.register(fullTopicName + "-value", valueSchemaFile));
+        schema
+            .getValueSchemaFile()
+            .ifPresent(
+                valueSchemaFile ->
+                    schemaRegistryManager.register(fullTopicName + "-value", valueSchemaFile));
+      }
     }
   }
 

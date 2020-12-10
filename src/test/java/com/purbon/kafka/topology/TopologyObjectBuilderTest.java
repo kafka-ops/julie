@@ -62,7 +62,8 @@ public class TopologyObjectBuilderTest {
 
   @Test(expected = TopologyParsingException.class)
   public void testInvalidTopology() throws IOException {
-    String descriptorFile = TestUtils.getResourceFilename("/errors_dir/descriptor-with-errors.yaml");
+    String descriptorFile =
+        TestUtils.getResourceFilename("/errors_dir/descriptor-with-errors.yaml");
     TopologyObjectBuilder.build(descriptorFile);
   }
 

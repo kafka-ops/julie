@@ -43,8 +43,15 @@ projects:
       - name: "bar"
         dataType: "avro"
         schemas:
-          key.schema.file: "schemas/bar-key.avsc"
-          value.schema.file: "schemas/bar-value.avsc"
+          - name: foo
+            key.schema.file: "schemas/bar-key.avsc"
+            value.schema.file: "schemas/bar-value.avsc"
+          - name: bar
+            key.schema.file: "schemas/bar-key.avsc"
+            value.schema.file: "schemas/bar-value.avsc"
+          - name: test
+            key.schema.file: "schemas/bar-key.avsc"
+            value.schema.file: "schemas/bar-value.avsc"
         config:
           replication.factor: "1"
           num.partitions: "1"

@@ -24,7 +24,7 @@ public class TopicImpl implements Topic, Cloneable {
   private Optional<String> dataType;
 
   @JsonInclude(Include.NON_EMPTY)
-  private Optional<TopicSchemas> schemas;
+  private Optional<List<TopicSchemas>> schemas;
 
   private String name;
 
@@ -108,11 +108,11 @@ public class TopicImpl implements Topic, Cloneable {
     return plan;
   }
 
-  public Optional<TopicSchemas> getSchemas() {
+  public Optional<List<TopicSchemas>> getSchemas() {
     return schemas;
   }
 
-  public void setSchemas(Optional<TopicSchemas> schemas) {
+  public void setSchemas(Optional<List<TopicSchemas>> schemas) {
     this.schemas = schemas;
   }
 
@@ -123,6 +123,20 @@ public class TopicImpl implements Topic, Cloneable {
       default:
         return patternBasedTopicNameStructureString();
     }
+  }
+
+  /**
+   * Validate if the list of optional schema's contain all the required elements
+   *
+   * @return
+   */
+  public boolean isValueSchemaFilesPresent() {
+    if (getSchemas().isPresent() && !getSchemas().get().isEmpty()) {
+      for (TopicSchemas schema : getSchemas().get()) {
+        if (!schema.getValueSchemaFile().isPresent()) return false;
+      }
+    }
+    return true;
   }
 
   private String patternBasedTopicNameStructureString() {
