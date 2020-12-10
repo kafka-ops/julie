@@ -25,7 +25,7 @@ import com.purbon.kafka.topology.model.users.platform.SchemaRegistryInstance;
 import com.purbon.kafka.topology.roles.TopologyAclBinding;
 import java.io.PrintStream;
 import java.util.ArrayList;
-import java.util.LinkedHashSet;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -136,7 +136,7 @@ public class AccessControlManager {
         .forEach(
             topic -> {
               final String fullTopicName = topic.toString();
-              Set<Consumer> consumers = new LinkedHashSet<>(topic.getConsumers());
+              Set<Consumer> consumers = new HashSet(topic.getConsumers());
               if (includeProjectLevel) {
                 consumers.addAll(project.getConsumers());
               }
@@ -146,7 +146,7 @@ public class AccessControlManager {
                         bindingsBuilder, new ArrayList<>(consumers), fullTopicName, false);
                 actions.add(action);
               }
-              Set<Producer> producers = new LinkedHashSet<>(topic.getProducers());
+              Set<Producer> producers = new HashSet(topic.getProducers());
               if (includeProjectLevel) {
                 producers.addAll(project.getProducers());
               }
@@ -173,13 +173,13 @@ public class AccessControlManager {
     List<Action> updateActions = new ArrayList<>();
 
     Set<TopologyAclBinding> allFinalBindings =
-        actions.stream().flatMap(actionApplyFunction()).collect(Collectors.toCollection(LinkedHashSet::new));
+        actions.stream().flatMap(actionApplyFunction()).collect(Collectors.toSet());
 
     // Diff of bindings, so we only create what is not already created in the cluster.
     Set<TopologyAclBinding> bindingsToBeCreated =
         allFinalBindings.stream()
             .filter(binding -> !bindings.contains(binding))
-            .collect(Collectors.toCollection(LinkedHashSet::new));
+            .collect(Collectors.toSet());
 
     if (!bindingsToBeCreated.isEmpty()) {
       CreateBindings createBindings = new CreateBindings(controlProvider, bindingsToBeCreated);
