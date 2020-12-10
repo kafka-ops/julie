@@ -4,7 +4,7 @@ import com.purbon.kafka.topology.backend.Backend;
 import com.purbon.kafka.topology.backend.FileBackend;
 import com.purbon.kafka.topology.roles.TopologyAclBinding;
 import java.io.IOException;
-import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 import org.apache.logging.log4j.LogManager;
@@ -30,7 +30,7 @@ public class BackendController {
 
   public BackendController(Backend backend) {
     this.backend = backend;
-    this.bindings = new HashSet<>();
+    this.bindings = new LinkedHashSet<>();
   }
 
   public void add(List<TopologyAclBinding> bindings) {
@@ -44,7 +44,7 @@ public class BackendController {
   }
 
   public Set<TopologyAclBinding> getBindings() {
-    return new HashSet<>(bindings);
+    return new LinkedHashSet<>(bindings);
   }
 
   public void flushAndClose() {
