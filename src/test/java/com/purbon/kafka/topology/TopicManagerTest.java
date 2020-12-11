@@ -3,6 +3,7 @@ package com.purbon.kafka.topology;
 import static com.purbon.kafka.topology.BuilderCLI.ALLOW_DELETE_OPTION;
 import static com.purbon.kafka.topology.BuilderCLI.BROKERS_OPTION;
 import static com.purbon.kafka.topology.TopicManager.NUM_PARTITIONS;
+import static com.purbon.kafka.topology.TopologyBuilderConfig.ALLOW_DELETE_TOPICS;
 import static com.purbon.kafka.topology.TopologyBuilderConfig.KAFKA_INTERNAL_TOPIC_PREFIXES;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.*;
@@ -97,6 +98,17 @@ public class TopicManagerTest {
   @Test
   public void topicDeleteTest() throws IOException {
 
+    cliOps = new HashMap<>();
+    cliOps.put(BROKERS_OPTION, "");
+    cliOps.put(ALLOW_DELETE_OPTION, "true");
+
+    Properties props = new Properties();
+
+    TopologyBuilderConfig config = new TopologyBuilderConfig(cliOps, props);
+
+    plan = ExecutionPlan.init(backendController, System.out);
+    topicManager = new TopicManager(adminClient, schemaRegistryManager, config);
+
     // Original Topology
     Topology topology0 = new TopologyImpl();
     Project project0 = new ProjectImpl("project");
@@ -132,6 +144,10 @@ public class TopicManagerTest {
 
   @Test
   public void topicDeleteWithConfiguredInternalTopicsTest() throws IOException {
+
+    cliOps = new HashMap<>();
+    cliOps.put(BROKERS_OPTION, "");
+    cliOps.put(ALLOW_DELETE_OPTION, "true");
 
     Properties props = new Properties();
     props.put(KAFKA_INTERNAL_TOPIC_PREFIXES, Arrays.asList("foo.", "_"));
@@ -193,6 +209,76 @@ public class TopicManagerTest {
     String topicC = "team.project.topicC";
 
     Set<String> appTopics = Arrays.asList(topicC).stream().collect(Collectors.toSet());
+    when(adminClient.listApplicationTopics()).thenReturn(appTopics);
+
+    topicManager.apply(topology, plan);
+    plan.run();
+
+    verify(adminClient, times(0)).deleteTopics(Collections.singletonList(topicC));
+  }
+
+  @Test
+  public void topicDeleteWithConfiguredNoDeleteOnlyForTopics() throws IOException {
+
+    Properties props = new Properties();
+    props.put(ALLOW_DELETE_TOPICS, "true");
+
+    HashMap<String, String> cliOps = new HashMap<>();
+    cliOps.put(BROKERS_OPTION, "");
+    cliOps.put(ALLOW_DELETE_OPTION, "false");
+
+    TopologyBuilderConfig config = new TopologyBuilderConfig(cliOps, props);
+
+    TopicManager topicManager = new TopicManager(adminClient, schemaRegistryManager, config);
+
+    // Topology after delete action
+    Topology topology = new TopologyImpl();
+    Project project = new ProjectImpl("project");
+    topology.addProject(project);
+
+    Topic topicA = new TopicImpl("topicA");
+    project.addTopic(topicA);
+    Topic topicB = new TopicImpl("topicB");
+    project.addTopic(topicB);
+
+    String topicC = "team.project.topicC";
+
+    Set<String> appTopics = Collections.singleton(topicC);
+    when(adminClient.listApplicationTopics()).thenReturn(appTopics);
+
+    topicManager.apply(topology, plan);
+    plan.run();
+
+    verify(adminClient, times(1)).deleteTopics(Collections.singletonList(topicC));
+  }
+
+  @Test
+  public void topicDeleteWithConfiguredNoDeleteOnlyForTopicsAllDisabled() throws IOException {
+
+    Properties props = new Properties();
+    props.put(ALLOW_DELETE_TOPICS, "false");
+
+    HashMap<String, String> cliOps = new HashMap<>();
+    cliOps.put(BROKERS_OPTION, "");
+    cliOps.put(ALLOW_DELETE_OPTION, "false");
+
+    TopologyBuilderConfig config = new TopologyBuilderConfig(cliOps, props);
+
+    TopicManager topicManager = new TopicManager(adminClient, schemaRegistryManager, config);
+
+    // Topology after delete action
+    Topology topology = new TopologyImpl();
+    Project project = new ProjectImpl("project");
+    topology.addProject(project);
+
+    Topic topicA = new TopicImpl("topicA");
+    project.addTopic(topicA);
+    Topic topicB = new TopicImpl("topicB");
+    project.addTopic(topicB);
+
+    String topicC = "team.project.topicC";
+
+    Set<String> appTopics = Collections.singleton(topicC);
     when(adminClient.listApplicationTopics()).thenReturn(appTopics);
 
     topicManager.apply(topology, plan);

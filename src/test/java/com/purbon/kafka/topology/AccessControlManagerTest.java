@@ -1,8 +1,13 @@
 package com.purbon.kafka.topology;
 
+import static com.purbon.kafka.topology.BuilderCLI.ALLOW_DELETE_OPTION;
 import static com.purbon.kafka.topology.BuilderCLI.BROKERS_OPTION;
+import static com.purbon.kafka.topology.TopologyBuilderConfig.ALLOW_DELETE_BINDINGS;
+import static com.purbon.kafka.topology.TopologyBuilderConfig.ALLOW_DELETE_TOPICS;
+import static com.purbon.kafka.topology.TopologyBuilderConfig.KAFKA_INTERNAL_TOPIC_PREFIXES;
 import static com.purbon.kafka.topology.TopologyBuilderConfig.OPTIMIZED_ACLS_CONFIG;
 import static java.util.Arrays.asList;
+import static java.util.Collections.singletonList;
 import static org.hamcrest.CoreMatchers.hasItem;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.collection.IsCollectionWithSize.hasSize;
@@ -131,7 +136,7 @@ public class AccessControlManagerTest {
     Consumer projectConsumer = new Consumer("project-consumer");
     Consumer topicConsumer = new Consumer("topic-consumer");
 
-    List<Consumer> projectConsumers = Collections.singletonList(projectConsumer);
+    List<Consumer> projectConsumers = singletonList(projectConsumer);
 
     Topology topology = new TopologyImpl();
     topology.setContext("testConsumerAclsAtTopicLevel");
@@ -221,7 +226,7 @@ public class AccessControlManagerTest {
     Producer projectProducer = new Producer("project-producer");
     Producer topicProducer = new Producer("topic-producer");
 
-    List<Producer> projectProducers = Collections.singletonList(projectProducer);
+    List<Producer> projectProducers = singletonList(projectProducer);
 
     Topology topology = new TopologyImpl();
     topology.setContext("testProducerAclsAtTopicLevel");
@@ -264,7 +269,7 @@ public class AccessControlManagerTest {
     topics.put(KStream.READ_TOPICS, asList("topicA", "topicB"));
     topics.put(KStream.WRITE_TOPICS, asList("topicC", "topicD"));
     app.setTopics(topics);
-    project.setStreams(Collections.singletonList(app));
+    project.setStreams(singletonList(app));
 
     Topology topology = new TopologyImpl();
     topology.addProject(project);
@@ -298,11 +303,11 @@ public class AccessControlManagerTest {
 
     SchemaRegistryInstance instance = new SchemaRegistryInstance();
     instance.setPrincipal("User:foo");
-    sr.setInstances(Collections.singletonList(instance));
+    sr.setInstances(singletonList(instance));
 
     Map<String, List<User>> rbac = new HashMap<>();
-    rbac.put("SecurityAdmin", Collections.singletonList(new User("User:foo")));
-    rbac.put("ClusterAdmin", Collections.singletonList(new User("User:bar")));
+    rbac.put("SecurityAdmin", singletonList(new User("User:foo")));
+    rbac.put("ClusterAdmin", singletonList(new User("User:bar")));
     sr.setRbac(Optional.of(rbac));
 
     platform.setSchemaRegistry(sr);
@@ -337,7 +342,7 @@ public class AccessControlManagerTest {
     ControlCenterInstance instance = new ControlCenterInstance();
     instance.setPrincipal("User:foo");
     instance.setAppId("appid");
-    c3.setInstances(Collections.singletonList(instance));
+    c3.setInstances(singletonList(instance));
     platform.setControlCenter(c3);
     topology.setPlatform(platform);
 
@@ -359,8 +364,8 @@ public class AccessControlManagerTest {
     Platform platform = new Platform();
     Kafka kafka = new Kafka();
     Map<String, List<User>> rbac = new HashMap<>();
-    rbac.put("Operator", Collections.singletonList(new User("User:foo")));
-    rbac.put("ClusterAdmin", Collections.singletonList(new User("User:bar")));
+    rbac.put("Operator", singletonList(new User("User:foo")));
+    rbac.put("ClusterAdmin", singletonList(new User("User:bar")));
     kafka.setRbac(Optional.of(rbac));
     platform.setKafka(kafka);
     topology.setPlatform(platform);
@@ -384,8 +389,8 @@ public class AccessControlManagerTest {
     Platform platform = new Platform();
     KafkaConnect connect = new KafkaConnect();
     Map<String, List<User>> rbac = new HashMap<>();
-    rbac.put("Operator", Collections.singletonList(new User("User:foo")));
-    rbac.put("ClusterAdmin", Collections.singletonList(new User("User:bar")));
+    rbac.put("Operator", singletonList(new User("User:foo")));
+    rbac.put("ClusterAdmin", singletonList(new User("User:bar")));
     connect.setRbac(Optional.of(rbac));
     platform.setKafkaConnect(connect);
     topology.setPlatform(platform);
@@ -445,7 +450,7 @@ public class AccessControlManagerTest {
 
     List<Consumer> users = asList(new Consumer("User:app1"));
 
-    doReturn(Collections.singletonList(new TopologyAclBinding()))
+    doReturn(singletonList(new TopologyAclBinding()))
         .when(aclsBuilder)
         .buildBindingsForConsumers(users, topicA.toString(), false);
 
@@ -462,8 +467,18 @@ public class AccessControlManagerTest {
     BackendController backendController = new BackendController();
     backendController.load();
     backendController.reset();
+
+    Properties props = new Properties();
+    props.put(KAFKA_INTERNAL_TOPIC_PREFIXES, Arrays.asList("foo.", "_"));
+
+    HashMap<String, String> cliOps = new HashMap<>();
+    cliOps.put(BROKERS_OPTION, "");
+    cliOps.put(ALLOW_DELETE_OPTION, "true");
+
+    TopologyBuilderConfig config = new TopologyBuilderConfig(cliOps, props);
+
     plan = ExecutionPlan.init(backendController, mockPrintStream);
-    accessControlManager = new AccessControlManager(aclsProvider, aclsBuilder);
+    accessControlManager = new AccessControlManager(aclsProvider, aclsBuilder, config);
 
     List<Consumer> consumers = new ArrayList<>();
     consumers.add(new Consumer("User:app1"));
@@ -499,6 +514,122 @@ public class AccessControlManagerTest {
 
     List<TopologyAclBinding> bindingsToDelete =
         returnAclsForConsumers(asList(new Consumer("User:app2")), topicA.getName());
+
+    verify(aclsProvider, times(1)).clearBindings(new HashSet<>(bindingsToDelete));
+  }
+
+  @Test
+  public void testBindingsDeleteWithAllOptionsDisabled() throws IOException {
+
+    BackendController backendController = new BackendController();
+    backendController.load();
+    backendController.reset();
+    plan = ExecutionPlan.init(backendController, mockPrintStream);
+
+    Properties props = new Properties();
+    props.put(KAFKA_INTERNAL_TOPIC_PREFIXES, Arrays.asList("foo.", "_"));
+    props.put(ALLOW_DELETE_TOPICS, "false");
+
+    HashMap<String, String> cliOps = new HashMap<>();
+    cliOps.put(BROKERS_OPTION, "");
+    cliOps.put(ALLOW_DELETE_OPTION, "false");
+
+    TopologyBuilderConfig config = new TopologyBuilderConfig(cliOps, props);
+
+    accessControlManager = new AccessControlManager(aclsProvider, aclsBuilder, config);
+
+    List<Consumer> consumers = new ArrayList<>();
+    consumers.add(new Consumer("User:app1"));
+    consumers.add(new Consumer("User:app2"));
+
+    Topic topicA = new TopicImpl("topicA");
+
+    Topology topology = buildTopology(consumers, singletonList(topicA));
+
+    List<TopologyAclBinding> bindings = returnAclsForConsumers(consumers, topicA.getName());
+    doReturn(bindings)
+        .when(aclsBuilder)
+        .buildBindingsForConsumers(any(), eq(topicA.toString()), eq(false));
+
+    accessControlManager.apply(topology, plan);
+    plan.run();
+
+    verify(aclsBuilder, times(1))
+        .buildBindingsForConsumers(refEq(consumers), eq(topicA.toString()), eq(false));
+
+    consumers = new ArrayList<>();
+    consumers.add(new Consumer("User:app1"));
+
+    bindings = returnAclsForConsumers(consumers, topicA.getName());
+    doReturn(bindings)
+        .when(aclsBuilder)
+        .buildBindingsForConsumers(any(), eq(topicA.toString()), eq(false));
+
+    Topology newTopology = buildTopology(consumers, singletonList(topicA));
+
+    accessControlManager.apply(newTopology, plan);
+    plan.run();
+
+    List<TopologyAclBinding> bindingsToDelete =
+        returnAclsForConsumers(singletonList(new Consumer("User:app2")), topicA.getName());
+
+    verify(aclsProvider, times(0)).clearBindings(new HashSet<>(bindingsToDelete));
+  }
+
+  @Test
+  public void testBindingsDeleteWithSpecificConfigEnabled() throws IOException {
+
+    BackendController backendController = new BackendController();
+    backendController.load();
+    backendController.reset();
+    plan = ExecutionPlan.init(backendController, mockPrintStream);
+
+    Properties props = new Properties();
+    props.put(KAFKA_INTERNAL_TOPIC_PREFIXES, Arrays.asList("foo.", "_"));
+    props.put(ALLOW_DELETE_BINDINGS, "true");
+
+    HashMap<String, String> cliOps = new HashMap<>();
+    cliOps.put(BROKERS_OPTION, "");
+    cliOps.put(ALLOW_DELETE_OPTION, "false");
+
+    TopologyBuilderConfig config = new TopologyBuilderConfig(cliOps, props);
+
+    accessControlManager = new AccessControlManager(aclsProvider, aclsBuilder, config);
+
+    List<Consumer> consumers = new ArrayList<>();
+    consumers.add(new Consumer("User:app1"));
+    consumers.add(new Consumer("User:app2"));
+
+    Topic topicA = new TopicImpl("topicA");
+
+    Topology topology = buildTopology(consumers, singletonList(topicA));
+
+    List<TopologyAclBinding> bindings = returnAclsForConsumers(consumers, topicA.getName());
+    doReturn(bindings)
+        .when(aclsBuilder)
+        .buildBindingsForConsumers(any(), eq(topicA.toString()), eq(false));
+
+    accessControlManager.apply(topology, plan);
+    plan.run();
+
+    verify(aclsBuilder, times(1))
+        .buildBindingsForConsumers(refEq(consumers), eq(topicA.toString()), eq(false));
+
+    consumers = new ArrayList<>();
+    consumers.add(new Consumer("User:app1"));
+
+    bindings = returnAclsForConsumers(consumers, topicA.getName());
+    doReturn(bindings)
+        .when(aclsBuilder)
+        .buildBindingsForConsumers(any(), eq(topicA.toString()), eq(false));
+
+    Topology newTopology = buildTopology(consumers, singletonList(topicA));
+
+    accessControlManager.apply(newTopology, plan);
+    plan.run();
+
+    List<TopologyAclBinding> bindingsToDelete =
+        returnAclsForConsumers(singletonList(new Consumer("User:app2")), topicA.getName());
 
     verify(aclsProvider, times(1)).clearBindings(new HashSet<>(bindingsToDelete));
   }
