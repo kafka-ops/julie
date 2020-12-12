@@ -7,10 +7,11 @@ on:
       - fix-docker-publish-branch
 jobs:
   ktb_build:
-    name: Build the KTB package
+    name: Build docker image
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
+      - uses: docker/setup-buildx-action@v1
       - name: Set up the JDK
         uses: actions/setup-java@v1
         with:
