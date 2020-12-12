@@ -8,7 +8,7 @@ import org.apache.kafka.common.acl.AclBinding;
 import org.apache.kafka.common.resource.ResourcePattern;
 import org.apache.kafka.common.resource.ResourceType;
 
-public class TopologyAclBinding {
+public class TopologyAclBinding implements Comparable<TopologyAclBinding> {
 
   private Optional<AclBinding> aclBindingOptional;
 
@@ -197,5 +197,10 @@ public class TopologyAclBinding {
 
   public RequestScope getScope() {
     return scope;
+  }
+
+  @Override
+  public int compareTo(TopologyAclBinding o) {
+    return toString().compareTo(o.toString());
   }
 }
