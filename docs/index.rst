@@ -61,6 +61,7 @@ Contents
    what-can-you-do
    the-descriptor-files
    how-to-run-it
+   handling-delete-in-ktb
    workflow-setup
    powered-with
    config-values
