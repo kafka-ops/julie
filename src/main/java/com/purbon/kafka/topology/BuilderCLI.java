@@ -7,8 +7,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import org.apache.commons.cli.*;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 public class BuilderCLI {
+
+  private static final Logger LOGGER = LogManager.getLogger(BuilderCLI.class);
 
   public static final String TOPOLOGY_OPTION = "topology";
   public static final String TOPOLOGY_DESC = "Topology config file.";
@@ -24,7 +28,7 @@ public class BuilderCLI {
 
   public static final String ALLOW_DELETE_OPTION = "allowDelete";
   public static final String ALLOW_DELETE_DESC =
-      "Permits delete operations for topics and configs.";
+      "Permits delete operations for topics and configs. (deprecated, to be removed)";
 
   public static final String DRY_RUN_OPTION = "dryRun";
   public static final String DRY_RUN_DESC = "Print the execution plan without altering anything.";
@@ -148,6 +152,13 @@ public class BuilderCLI {
       config.put(BROKERS_OPTION, cmd.getOptionValue(BROKERS_OPTION));
     }
     config.put(ALLOW_DELETE_OPTION, String.valueOf(cmd.hasOption(ALLOW_DELETE_OPTION)));
+    // Add deprecation note for using allow delete CLI option
+    if (cmd.hasOption(ALLOW_DELETE_OPTION)) {
+      LOGGER.info(
+          String.format(
+              "CLI option %s is currently deprecated. Expected to be removed in next major version.",
+              ALLOW_DELETE_OPTION));
+    }
     config.put(DRY_RUN_OPTION, String.valueOf(cmd.hasOption(DRY_RUN_OPTION)));
     config.put(QUIET_OPTION, String.valueOf(cmd.hasOption(QUIET_OPTION)));
     config.put(ADMIN_CLIENT_CONFIG_OPTION, cmd.getOptionValue(ADMIN_CLIENT_CONFIG_OPTION));

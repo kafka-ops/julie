@@ -63,6 +63,9 @@ public class TopologyBuilderConfig {
 
   static final String OPTIMIZED_ACLS_CONFIG = "topology.acls.optimized";
 
+  static final String ALLOW_DELETE_TOPICS = "allow.delete.topics";
+  static final String ALLOW_DELETE_BINDINGS = "allow.delete.bindings";
+
   private final Map<String, String> cliParams;
   private Config config;
 
@@ -266,7 +269,7 @@ public class TopologyBuilderConfig {
   }
 
   public boolean allowDelete() {
-    return Boolean.parseBoolean(cliParams.getOrDefault(BuilderCLI.ALLOW_DELETE_OPTION, "true"));
+    return Boolean.parseBoolean(cliParams.getOrDefault(BuilderCLI.ALLOW_DELETE_OPTION, "false"));
   }
 
   public boolean isQuiet() {
@@ -279,5 +282,13 @@ public class TopologyBuilderConfig {
 
   public FileType getTopologyFileType() {
     return config.getEnum(FileType.class, TOPOLOGY_FILE_TYPE);
+  }
+
+  public boolean isAllowDeleteTopics() {
+    return config.getBoolean(ALLOW_DELETE_TOPICS);
+  }
+
+  public boolean isAllowDeleteBindings() {
+    return config.getBoolean(ALLOW_DELETE_BINDINGS);
   }
 }
