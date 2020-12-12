@@ -4,7 +4,7 @@ on:
     - cron: '* 0 * * *'
   push:
     branches:
-      - fix-docker-publish-branch
+      - master
 jobs:
   ktb_build:
     name: Build docker image
@@ -24,8 +24,6 @@ jobs:
           restore-keys: ${{ runner.os }}-m2
       - name: Build with Maven
         run: mvn -B package --file pom.xml
-      - name: list files
-        run: ls -l target/
       - name: copy fat jar
         run: cp ./target/kafka-topology-builder.jar release/docker
       - name: copy runner file
