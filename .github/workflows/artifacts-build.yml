@@ -28,3 +28,7 @@ jobs:
         with:
           name: DEB package
           path: target/*.deb
+      - uses: actions/upload-artifact@v2
+        with:
+          name: FAT jar
+          path: target/kafka-topology-builder.jar
