@@ -1,7 +1,0 @@
-jdk:
-  - oraclejdk11
-  - openjdk8
-  - openjdk11
-language: java
-script:
-- mvn test
