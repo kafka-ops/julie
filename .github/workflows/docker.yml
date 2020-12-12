@@ -29,6 +29,8 @@ jobs:
     needs: [ktb_build]
     steps:
       - uses: actions/checkout@v2
+      - name: list files
+        run: ls -l target/
       - name: copy fat jar
         run: cp ./target/kafka-topology-builder.jar release/docker
       - name: copy runner file
