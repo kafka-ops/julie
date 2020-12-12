@@ -40,5 +40,6 @@ jobs:
       - name: Push to Docker Hub
         uses: docker/build-push-action@v2
         with:
+          context: release/docker
           file: release/docker/Dockerfile
           tags: purbon/kafka-topology-builder:latest
