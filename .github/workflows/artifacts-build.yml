@@ -48,13 +48,9 @@ jobs:
           restore-keys: ${{ runner.os }}-m2
       - name: Build with Maven
         run: mvn -B package --file pom.xml
-      - name: build RPM package
-        id: rpm
-        uses: naveenrajm7/rpmbuild@master
+      - name: Build the rpm
+        run: mvn rpm:rpm --file pom.xml
+      - uses: actions/upload-artifact@v2
         with:
-          spec_file: "kafka-topology-builder.spec"
-      - name: Upload artifact
-        uses: actions/upload-artifact@v1.0.0
-        with:
-          name: Binary RPM
-          path: ${{ steps.rpm.outputs.rpm_dir_path }}
+          name: RPM package
+          path: target/*.rpm
