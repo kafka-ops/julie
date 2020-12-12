@@ -6,7 +6,7 @@ import com.purbon.kafka.topology.roles.TopologyAclBinding;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.util.ArrayList;
-import java.util.LinkedHashSet;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -26,7 +26,7 @@ public class ExecutionPlan {
       List<Action> plan, PrintStream outputStream, BackendController backendController) {
     this.plan = plan;
     this.outputStream = outputStream;
-    this.bindings = new LinkedHashSet<>();
+    this.bindings = new HashSet<>();
     this.backendController = backendController;
     if (backendController.size() > 0) {
       this.bindings.addAll(backendController.getBindings());
@@ -40,8 +40,7 @@ public class ExecutionPlan {
   public static ExecutionPlan init(BackendController backendController, PrintStream outputStream)
       throws IOException {
     backendController.load();
-    ExecutionPlan plan = new ExecutionPlan(new ArrayList<>(), outputStream, backendController);
-    return plan;
+    return new ExecutionPlan(new ArrayList<>(), outputStream, backendController);
   }
 
   public void run() throws IOException {
@@ -74,7 +73,7 @@ public class ExecutionPlan {
           bindings =
               bindings.stream()
                   .filter(binding -> !action.getBindings().contains(binding))
-                  .collect(Collectors.toCollection(LinkedHashSet::new));
+                  .collect(Collectors.toSet());
         } else {
           bindings.addAll(action.getBindings());
         }

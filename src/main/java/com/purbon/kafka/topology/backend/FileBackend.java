@@ -110,15 +110,17 @@ public class FileBackend implements Backend {
 
   @Override
   public void saveBindings(Set<TopologyAclBinding> bindings) {
-    bindings.forEach(
-        binding -> {
-          try {
-            writer.writeBytes(binding.toString());
-            writer.writeBytes("\n");
-          } catch (IOException e) {
-            LOGGER.error(e);
-          }
-        });
+    bindings.stream()
+        .sorted()
+        .forEach(
+            binding -> {
+              try {
+                writer.writeBytes(binding.toString());
+                writer.writeBytes("\n");
+              } catch (IOException e) {
+                LOGGER.error(e);
+              }
+            });
   }
 
   @Override

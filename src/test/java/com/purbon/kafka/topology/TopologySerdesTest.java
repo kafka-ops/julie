@@ -169,6 +169,8 @@ public class TopologySerdesTest {
   public void testCoreElementsProcessing() {
     Topology topology = parser.deserialise(TestUtils.getResourceFile("/descriptor.yaml"));
 
+    assertThat(topology.getProjects()).hasSize(3);
+
     Project project = topology.getProjects().get(0);
     assertThat(project.getProducers()).hasSize(3);
     assertThat(project.getConsumers()).hasSize(2);
@@ -178,6 +180,10 @@ public class TopologySerdesTest {
     assertThat(project.getProducers().get(0).getIdempotence()).isEmpty();
     assertThat(project.getProducers().get(1).getTransactionId()).isEqualTo(Optional.of("1234"));
     assertThat(project.getProducers().get(2).getIdempotence()).isNotEmpty();
+
+    List<Topic> topics = topology.getProjects().get(2).getTopics();
+    assertThat(topics).hasSize(2);
+    assertThat(topics.get(0).toString()).isEqualTo("contextOrg.source.baz.topicE");
   }
 
   @Test
