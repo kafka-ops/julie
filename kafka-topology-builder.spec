@@ -23,12 +23,12 @@ A helper project for Kafka Platform teams to build an automated Topic, Configura
 
 %install
 
-if [ -d $RPM_BUILD_ROOT ];
-then
-  mv /tmp/kafka-topology-builder/target/rpm/kafka-topology-builder/tmp-buildroot/* $RPM_BUILD_ROOT
-else
-  mv /tmp/kafka-topology-builder/target/rpm/kafka-topology-builder/tmp-buildroot $RPM_BUILD_ROOT
-fi
+#if [ -d $RPM_BUILD_ROOT ];
+#then
+#  mv /tmp/kafka-topology-builder/target/rpm/kafka-topology-builder/tmp-buildroot/* $RPM_BUILD_ROOT
+#else
+#  mv /tmp/kafka-topology-builder/target/rpm/kafka-topology-builder/tmp-buildroot $RPM_BUILD_ROOT
+#fi
 
 %files
 
