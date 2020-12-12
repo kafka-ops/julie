@@ -32,7 +32,7 @@ jobs:
   docker_build:
     name: Docker latest image build
     runs-on: ubuntu-latest
-    needs: [copy_resources, ktb_build]
+    needs: [ktb_build]
     defaults:
       run:
         working-directory: release/docker
