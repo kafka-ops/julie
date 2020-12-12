@@ -4,7 +4,7 @@ on:
     - cron: '* 0 * * *'
   push:
     branches:
-      - master
+      - fix-docker-publish-branch
 jobs:
   ktb_build:
     name: Build the KTB package
