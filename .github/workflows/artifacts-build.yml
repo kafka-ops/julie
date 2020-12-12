@@ -4,7 +4,7 @@ on:
     - cron: '* 0 * * *'
   push:
     branches:
-      - artifact-release-workflow-improve
+      - master
 jobs:
   package_build:
     name: Build rpm/deb packages (using maven)
