@@ -33,7 +33,7 @@ public class RedisBackendIT {
             ResourceType.TOPIC.name(), "foo", "*", "Write", "User:foo", "LITERAL");
     rsp.saveBindings(new HashSet<>(Arrays.asList(binding)));
 
-    Set<TopologyAclBinding> bindings = rsp.load();
+    Set<TopologyAclBinding> bindings = rsp.loadBindings();
 
     Assert.assertEquals(1, bindings.size());
     Assert.assertEquals(binding.getPrincipal(), bindings.iterator().next().getPrincipal());

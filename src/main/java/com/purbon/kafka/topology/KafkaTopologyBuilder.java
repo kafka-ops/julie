@@ -13,6 +13,7 @@ import com.purbon.kafka.topology.backend.RedisBackend;
 import com.purbon.kafka.topology.exceptions.ValidationException;
 import com.purbon.kafka.topology.model.Topology;
 import com.purbon.kafka.topology.schemas.SchemaRegistryManager;
+import com.purbon.kafka.topology.serviceAccounts.VoidPrincipalProvider;
 import io.confluent.kafka.schemaregistry.client.CachedSchemaRegistryClient;
 import io.confluent.kafka.schemaregistry.client.SchemaRegistryClient;
 import io.confluent.kafka.schemaregistry.client.rest.RestService;
@@ -32,6 +33,7 @@ public class KafkaTopologyBuilder implements AutoCloseable {
   private static final Logger LOGGER = LogManager.getLogger(KafkaTopologyBuilder.class);
 
   private TopicManager topicManager;
+  private PrincipalManager principalManager;
   private AccessControlManager accessControlManager;
   private Topology topology;
   private TopologyBuilderConfig config;
@@ -41,11 +43,13 @@ public class KafkaTopologyBuilder implements AutoCloseable {
       Topology topology,
       TopologyBuilderConfig config,
       TopicManager topicManager,
-      AccessControlManager accessControlManager) {
+      AccessControlManager accessControlManager,
+      PrincipalManager principalManager) {
     this.topology = topology;
     this.config = config;
     this.topicManager = topicManager;
     this.accessControlManager = accessControlManager;
+    this.principalManager = principalManager;
     this.outputStream = System.out;
   }
 
@@ -64,9 +68,17 @@ public class KafkaTopologyBuilder implements AutoCloseable {
         new AccessControlProviderFactory(
             builderConfig, adminClient, new MDSApiClientBuilder(builderConfig));
 
+    PrincipalProviderFactory principalProviderFactory = new PrincipalProviderFactory(builderConfig);
+
     KafkaTopologyBuilder builder =
         build(
-            topologyFile, plansFile, builderConfig, adminClient, factory.get(), factory.builder());
+            topologyFile,
+            plansFile,
+            builderConfig,
+            adminClient,
+            factory.get(),
+            factory.builder(),
+            principalProviderFactory.get());
     builder.verifyRequiredParameters(topologyFile, config);
 
     return builder;
@@ -85,7 +97,8 @@ public class KafkaTopologyBuilder implements AutoCloseable {
         config,
         adminClient,
         accessControlProvider,
-        bindingsBuilderProvider);
+        bindingsBuilderProvider,
+        new VoidPrincipalProvider());
   }
 
   public static KafkaTopologyBuilder build(
@@ -94,7 +107,8 @@ public class KafkaTopologyBuilder implements AutoCloseable {
       TopologyBuilderConfig config,
       TopologyBuilderAdminClient adminClient,
       AccessControlProvider accessControlProvider,
-      BindingsBuilderProvider bindingsBuilderProvider)
+      BindingsBuilderProvider bindingsBuilderProvider,
+      PrincipalProvider principalProvider)
       throws Exception {
 
     Topology topology;
@@ -125,7 +139,10 @@ public class KafkaTopologyBuilder implements AutoCloseable {
 
     TopicManager topicManager = new TopicManager(adminClient, schemaRegistryManager, config);
 
-    return new KafkaTopologyBuilder(topology, config, topicManager, accessControlManager);
+    PrincipalManager principalManager = new PrincipalManager(principalProvider, config);
+
+    return new KafkaTopologyBuilder(
+        topology, config, topicManager, accessControlManager, principalManager);
   }
 
   void verifyRequiredParameters(String topologyFile, Map<String, String> config)
@@ -148,6 +165,7 @@ public class KafkaTopologyBuilder implements AutoCloseable {
             topicManager, accessControlManager, config.isDryRun(), config.isQuiet()));
 
     topicManager.apply(topology, plan);
+    principalManager.apply(topology, plan);
     accessControlManager.apply(topology, plan);
 
     plan.run(config.isDryRun());
