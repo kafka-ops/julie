@@ -1,4 +1,22 @@
 
+v1.3.0 / 2020-12-14
+===================
+
+  * Fix RPM/DEB packaging update   (#172)
+  * Managed principals using topology Builder, include support for ccloud CLI (#135)
+  * Add an action to build and push artifacts for KTB (#166)
+  * Introduced to detailed allow delete options to be used from the config files. 
+  One for now dedicated to topics and one for the bindings (#163)
+  * Keep order in file backend for generated items (#161)
+  * Nightly docker image build, regular push to docker hub (#153)
+  * Add workflows with github actions (#152)
+  * Integration test verifying that producers can produce and consumers can consume (#150)
+  * Fail on parsing of invalid topologies (#149)
+  * ACL integration tests using testcontainers (#131)
+  * Test cleanup (#145)
+  * Add streams acls for consumer group and support for applicationId (#144)
+  * Fix bug with a topology/config not using schemas (#143)
+
 1.2.2 / 2020-11-24
 ==================
 
