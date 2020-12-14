@@ -1,5 +1,11 @@
 #!/usr/bin/env bash
 
 mkdir -p /usr/local/kafka-topology-builder/bin
-addgroup --system ktb-kafka
-adduser --system --no-create-home  --ingroup ktb-kafka ktb-kafka
+
+if id "ktb-kafka" &>/dev/null;
+then
+  echo "User ktb-kafka already exist"
+else
+   addgroup --system ktb-kafka
+   adduser --system --no-create-home  --ingroup ktb-kafka ktb-kafka
+fi
