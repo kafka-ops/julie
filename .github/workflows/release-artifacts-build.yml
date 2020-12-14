@@ -1,10 +1,8 @@
-name: Artifacts Builder
+name: Release Builds
 on:
-  schedule:
-    - cron: '0 0 * * *'
   push:
-    branches:
-      - master
+    tags:
+      - v*
 jobs:
   package_build:
     name: Build rpm/deb packages (using maven)
