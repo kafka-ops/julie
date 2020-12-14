@@ -136,7 +136,7 @@ public class AccessControlManager {
         .forEach(
             topic -> {
               final String fullTopicName = topic.toString();
-              Set<Consumer> consumers = new HashSet<>(topic.getConsumers());
+              Set<Consumer> consumers = new HashSet(topic.getConsumers());
               if (includeProjectLevel) {
                 consumers.addAll(project.getConsumers());
               }
@@ -146,7 +146,7 @@ public class AccessControlManager {
                         bindingsBuilder, new ArrayList<>(consumers), fullTopicName, false);
                 actions.add(action);
               }
-              Set<Producer> producers = new HashSet<>(topic.getProducers());
+              Set<Producer> producers = new HashSet(topic.getProducers());
               if (includeProjectLevel) {
                 producers.addAll(project.getProducers());
               }
@@ -186,7 +186,7 @@ public class AccessControlManager {
       updateActions.add(createBindings);
     }
 
-    if (config.allowDelete()) {
+    if (config.allowDelete() || config.isAllowDeleteBindings()) {
       // clear acls that does not appear anymore in the new generated list,
       // but where previously created
       Set<TopologyAclBinding> bindingsToDelete =

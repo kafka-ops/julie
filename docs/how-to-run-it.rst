@@ -18,7 +18,7 @@ If you are using the CLI tool, you an use the *--help* command to list the diffe
     $> kafka-topology-builder.sh  --help
         usage: cli
           --allowDelete          Permits delete operations for topics and
-                                 configs.
+                                 configs. (deprecated, to be removed)
           --brokers <arg>        The Apache Kafka server(s) to connect to.
           --clientConfig <arg>   The AdminClient configuration file.
           --dryRun               Print the execution plan without altering

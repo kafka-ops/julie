@@ -1,0 +1,39 @@
+name: Artifacts Builder
+on:
+  schedule:
+    - cron: '0 0 * * *'
+  push:
+    branches:
+      - master
+jobs:
+  package_build:
+    name: Build rpm/deb packages (using maven)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Set up the JDK
+        uses: actions/setup-java@v1
+        with:
+          java-version: 1.8
+      - name: Cache dependencies
+        uses: actions/cache@v2
+        with:
+          path: ~/.m2
+          key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
+          restore-keys: ${{ runner.os }}-m2
+      - name: Build with Maven
+        run: mvn -B package --file pom.xml
+      - name: Build the rpm
+        run: mvn rpm:rpm
+      - uses: actions/upload-artifact@v2
+        with:
+          name: RPM package
+          path: target/rpm/kafka-topology-builder/RPMS/noarch/*.rpm
+      - uses: actions/upload-artifact@v2
+        with:
+          name: DEB package
+          path: target/*.deb
+      - uses: actions/upload-artifact@v2
+        with:
+          name: FAT jar
+          path: target/kafka-topology-builder.jar
