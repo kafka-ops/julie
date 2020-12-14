@@ -59,7 +59,7 @@ public class RedisBackendTest {
         .thenReturn("'TOPIC', 'topicA', '*', 'READ', 'User:Connect1', 'LITERAL'")
         .thenReturn("'TOPIC', 'topicB', '*', 'READ', 'User:Connect1', 'LITERAL'");
 
-    Set<TopologyAclBinding> bindings = stateProcessor.load();
+    Set<TopologyAclBinding> bindings = stateProcessor.loadBindings();
 
     assertEquals(2, bindings.size());
   }

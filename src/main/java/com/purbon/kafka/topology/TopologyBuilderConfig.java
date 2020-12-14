@@ -65,6 +65,13 @@ public class TopologyBuilderConfig {
 
   static final String ALLOW_DELETE_TOPICS = "allow.delete.topics";
   static final String ALLOW_DELETE_BINDINGS = "allow.delete.bindings";
+  static final String ALLOW_DELETE_PRINCIPALS = "allow.delete.principals";
+
+  public static final String CCLOUD_ENV_CONFIG = "ccloud.environment";
+
+  static final String TOPOLOGY_EXPERIMENTAL_ENABLED_CONFIG = "topology.features.experimental";
+  static final String TOPOLOGY_PRINCIPAL_TRANSLATION_ENABLED_CONFIG =
+      "topology.translation.principal.enabled";
 
   private final Map<String, String> cliParams;
   private Config config;
@@ -263,6 +270,22 @@ public class TopologyBuilderConfig {
     return config.getBoolean(OPTIMIZED_ACLS_CONFIG);
   }
 
+  public String getConfluentCloudEnv() {
+    return config.getString(CCLOUD_ENV_CONFIG);
+  }
+
+  public boolean enabledExperimental() {
+    return config.getBoolean(TOPOLOGY_EXPERIMENTAL_ENABLED_CONFIG);
+  }
+
+  public boolean useConfuentCloud() {
+    return config.hasPath(CCLOUD_ENV_CONFIG);
+  }
+
+  public boolean hasProperty(String property) {
+    return config.hasPath(property);
+  }
+
   public List<String> getTopologyValidations() {
     List<String> classes = config.getStringList(TOPOLOGY_VALIDATIONS_CONFIG);
     return classes.stream().map(String::trim).collect(Collectors.toList());
@@ -290,5 +313,13 @@ public class TopologyBuilderConfig {
 
   public boolean isAllowDeleteBindings() {
     return config.getBoolean(ALLOW_DELETE_BINDINGS);
+  }
+
+  public boolean isAllowDeletePrincipals() {
+    return config.getBoolean(ALLOW_DELETE_PRINCIPALS);
+  }
+
+  public boolean enabledPrincipalTranslation() {
+    return config.getBoolean(TOPOLOGY_PRINCIPAL_TRANSLATION_ENABLED_CONFIG);
   }
 }
