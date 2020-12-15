@@ -416,7 +416,7 @@
     <maven-failsafe-plugin.version>2.22.2</maven-failsafe-plugin.version>
     <!-- dependencies -->
     <jackson.version>2.10.3</jackson.version>
-    <kafka.version>2.4.1</kafka.version>
+    <kafka.version>2.5.0</kafka.version>
     <log4j.version>2.13.3</log4j.version>
     <httpclient.version>4.5.11</httpclient.version>
     <zookeeper.version>3.5.7</zookeeper.version>
