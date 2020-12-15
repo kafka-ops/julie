@@ -416,7 +416,7 @@
     <maven-failsafe-plugin.version>2.22.2</maven-failsafe-plugin.version>
     <!-- dependencies -->
     <jackson.version>2.10.3</jackson.version>
-    <kafka.version>2.4.1</kafka.version>
+    <kafka.version>2.5.0</kafka.version>
     <log4j.version>2.13.3</log4j.version>
     <httpclient.version>4.5.11</httpclient.version>
     <zookeeper.version>3.5.7</zookeeper.version>
@@ -480,6 +480,17 @@
       <groupId>org.apache.zookeeper</groupId>
       <artifactId>zookeeper</artifactId>
       <version>${zookeeper.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.kafka</groupId>
+      <artifactId>kafka-clients</artifactId>
+      <version>${kafka.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.kafka</groupId>
+      <artifactId>kafka-streams</artifactId>
+      <version>${kafka.version}</version>
+      <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>io.confluent</groupId>
@@ -565,6 +576,12 @@
       <groupId>org.assertj</groupId>
       <artifactId>assertj-core</artifactId>
       <version>${assertj.version}</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.awaitility</groupId>
+      <artifactId>awaitility</artifactId>
+      <version>4.0.3</version>
       <scope>test</scope>
     </dependency>
   </dependencies>
