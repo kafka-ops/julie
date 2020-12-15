@@ -1,5 +1,6 @@
 package com.purbon.kafka.topology;
 
+import static com.google.common.collect.Lists.newArrayList;
 import static com.purbon.kafka.topology.BuilderCLI.BROKERS_OPTION;
 import static com.purbon.kafka.topology.TopologyBuilderConfig.OPTIMIZED_ACLS_CONFIG;
 import static java.util.Arrays.asList;
@@ -76,7 +77,7 @@ public class AccessControlManagerTest {
     Topic topicA = new TopicImpl("topicA");
     TestTopologyBuilder builder =
         TestTopologyBuilder.createProject().addTopic(topicA).addConsumer("User:app1");
-    List<Consumer> users = new ArrayList<>(builder.getConsumers());
+    List<Consumer> users = newArrayList(builder.getConsumers());
 
     doReturn(new ArrayList<TopologyAclBinding>())
         .when(aclsBuilder)
@@ -99,7 +100,7 @@ public class AccessControlManagerTest {
 
     TestTopologyBuilder builder =
         TestTopologyBuilder.createProject().addTopic("topicA").addConsumer("User:app1");
-    List<Consumer> users = new ArrayList<>(builder.getConsumers());
+    List<Consumer> users = newArrayList(builder.getConsumers());
 
     doReturn(new ArrayList<TopologyAclBinding>())
         .when(aclsBuilder)
@@ -152,7 +153,7 @@ public class AccessControlManagerTest {
     Topic topicA = new TopicImpl("topicA");
     TestTopologyBuilder builder =
         TestTopologyBuilder.createProject().addTopic(topicA).addProducer("User:app1");
-    List<Producer> producers = new ArrayList<>(builder.getProducers());
+    List<Producer> producers = newArrayList(builder.getProducers());
 
     doReturn(new ArrayList<TopologyAclBinding>())
         .when(aclsBuilder)
@@ -175,7 +176,7 @@ public class AccessControlManagerTest {
 
     TestTopologyBuilder builder =
         TestTopologyBuilder.createProject().addTopic("topicA").addProducer("User:app1");
-    List<Producer> producers = new ArrayList<>(builder.getProducers());
+    List<Producer> producers = newArrayList(builder.getProducers());
 
     doReturn(new ArrayList<TopologyAclBinding>())
         .when(aclsBuilder)
@@ -407,7 +408,7 @@ public class AccessControlManagerTest {
         TestTopologyBuilder.createProject("foo", "project")
             .addTopic(topicA)
             .addConsumer("User:app1");
-    List<Consumer> users = new ArrayList<>(builder.getConsumers());
+    List<Consumer> users = newArrayList(builder.getConsumers());
 
     doReturn(singletonList(new TopologyAclBinding()))
         .when(aclsBuilder)
@@ -424,33 +425,33 @@ public class AccessControlManagerTest {
   public void testAclDeleteWithDeleteAllEnabled() throws IOException {
     doReturn(true).when(config).allowDelete();
 
-    verifyAclsDelete();
+    testAclsDelete();
   }
 
   @Test
-  public void testAclDeleteWithDeleteDisabled() throws IOException {
+  public void testAclDeleteWithDeleteAllDisabled() throws IOException {
     doReturn(false).when(config).allowDelete();
 
-    verifyNoAclsDeleted();
+    testNoAclsDeleted();
   }
 
   @Test
-  public void testAclDeleteWithDetailedOptionsDisabled() throws IOException {
-    doReturn(false).when(config).isAllowDeleteBindings();
-    doReturn(false).when(config).isAllowDeleteTopics();
-
-    verifyNoAclsDeleted();
-  }
-
-  @Test
-  public void testBindingsDeleteWithSpecificConfigEnabled() throws IOException {
+  public void testAclDeleteWithDetailedOptionEnabled() throws IOException {
     doReturn(true).when(config).isAllowDeleteBindings();
     doReturn(false).when(config).isAllowDeleteTopics();
 
-    verifyAclsDelete();
+    testAclsDelete();
   }
 
-  private void verifyNoAclsDeleted() throws IOException {
+  @Test
+  public void testAclDeleteWithDetailedOptionDisabled() throws IOException {
+    doReturn(false).when(config).isAllowDeleteBindings();
+    doReturn(false).when(config).isAllowDeleteTopics();
+
+    testNoAclsDeleted();
+  }
+
+  private void testNoAclsDeleted() throws IOException {
     BackendController backendController = initializeFileBackendController();
     plan = ExecutionPlan.init(backendController, mockPrintStream);
     accessControlManager =
@@ -477,7 +478,7 @@ public class AccessControlManagerTest {
     verify(aclsProvider, times(0)).clearBindings(any());
   }
 
-  private void verifyAclsDelete() throws IOException {
+  private void testAclsDelete() throws IOException {
     BackendController backendController = initializeFileBackendController();
     plan = ExecutionPlan.init(backendController, mockPrintStream);
     accessControlManager =
@@ -511,7 +512,7 @@ public class AccessControlManagerTest {
 
   private List<TopologyAclBinding> returnAclsForConsumers(List<Consumer> consumers, String topic) {
 
-    List<AclBinding> acls = new ArrayList<>();
+    List<AclBinding> acls = newArrayList();
 
     for (Consumer consumer : consumers) {
       acls.add(
