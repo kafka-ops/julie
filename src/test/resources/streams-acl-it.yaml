@@ -1,0 +1,29 @@
+---
+context: "context"
+projects:
+  - name: "streamsproject"
+    streams:
+      - principal: "User:streamsapp"
+        applicationId: "streams-appid"
+        topics:
+          read:
+            - topic-A
+          write:
+            - topic-B
+    producers:
+      - principal: "User:producer"
+    consumers:
+      - principal: "User:consumer"
+    topics:
+      - name: topic-A
+        config:
+          replication.factor: "1"
+          num.partitions: "1"
+      - name: topic-B
+        config:
+          replication.factor: "1"
+          num.partitions: "1"
+      - name: topic-C
+        config:
+          replication.factor: "1"
+          num.partitions: "1"
