@@ -1,19 +1,15 @@
 package com.purbon.kafka.topology;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
 import com.purbon.kafka.topology.api.adminclient.AclBuilder;
+import com.purbon.kafka.topology.model.DynamicUser;
 import com.purbon.kafka.topology.model.users.Connector;
 import com.purbon.kafka.topology.model.users.Consumer;
 import com.purbon.kafka.topology.model.users.KStream;
 import com.purbon.kafka.topology.model.users.Producer;
 import com.purbon.kafka.topology.roles.TopologyAclBinding;
 import com.purbon.kafka.topology.roles.acls.AclsBindingsBuilder;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Optional;
+import com.typesafe.config.Config;
+import com.typesafe.config.ConfigFactory;
 import org.apache.kafka.common.acl.AccessControlEntry;
 import org.apache.kafka.common.acl.AclBinding;
 import org.apache.kafka.common.acl.AclOperation;
@@ -23,6 +19,16 @@ import org.apache.kafka.common.resource.ResourcePattern;
 import org.apache.kafka.common.resource.ResourceType;
 import org.junit.Before;
 import org.junit.Test;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Optional;
+
+import static com.purbon.kafka.topology.TopologyBuilderConfig.CONNECTOR_ACL_TOPIC_CREATE;
+import static java.util.Collections.*;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class AclsBindingsBuilderTest {
 
@@ -118,12 +124,71 @@ public class AclsBindingsBuilderTest {
   }
 
   @Test
-  public void testConnectorAclsBuilder() {
+  public void testSourceConnectorAcls() {
     Connector connector = new Connector("User:foo");
+    HashMap<String, List<String>> topicsMap = new HashMap<>();
+    String connectorWriteTopic = "topicA";
+    topicsMap.put(DynamicUser.WRITE_TOPICS, singletonList(connectorWriteTopic));
+    connector.setTopics(topicsMap);
 
-    List<TopologyAclBinding> bindings = builder.buildBindingsForConnect(connector, "prefix");
-    assertThat(bindings.size()).isEqualTo(8);
+    List<TopologyAclBinding> bindings = builder.buildBindingsForConnect(connector, "-");
 
+    List<TopologyAclBinding> shouldContainBindings = createConnectorDefaultAclBindings(connector);
+    shouldContainBindings.add(buildClusterLevelAcl(connector.getPrincipal(), AclOperation.CREATE));
+    shouldContainBindings.add(
+        buildTopicLevelAcl(
+            connector.getPrincipal(),
+            connectorWriteTopic,
+            PatternType.LITERAL,
+            AclOperation.WRITE));
+
+    assertThat(bindings).containsExactlyInAnyOrderElementsOf(shouldContainBindings);
+  }
+
+  @Test
+  public void testSinkConnectorAcls() {
+    Connector connector = new Connector("User:foo");
+    String connectorReadTopic = "topicA";
+    connector.setTopics(singletonMap(DynamicUser.READ_TOPICS, singletonList(connectorReadTopic)));
+
+    List<TopologyAclBinding> bindings = builder.buildBindingsForConnect(connector, "-");
+
+    List<TopologyAclBinding> shouldContainBindings = createConnectorDefaultAclBindings(connector);
+    shouldContainBindings.add(buildClusterLevelAcl(connector.getPrincipal(), AclOperation.CREATE));
+    shouldContainBindings.add(
+        buildTopicLevelAcl(
+            connector.getPrincipal(), connectorReadTopic, PatternType.LITERAL, AclOperation.READ));
+
+    assertThat(bindings).containsExactlyInAnyOrderElementsOf(shouldContainBindings);
+  }
+
+  @Test
+  public void testConnectorAclsWithNoClusterCreate() {
+    Config override = ConfigFactory.parseMap(singletonMap(CONNECTOR_ACL_TOPIC_CREATE, false));
+    Config conf = override.withFallback(ConfigFactory.load());
+    config = new TopologyBuilderConfig(emptyMap(), conf);
+    builder = new AclsBindingsBuilder(config);
+
+    Connector connector = new Connector("User:foo");
+    HashMap<String, List<String>> topicsMap = new HashMap<>();
+    String connectorWriteTopic = "topicA";
+    topicsMap.put(DynamicUser.WRITE_TOPICS, singletonList(connectorWriteTopic));
+    connector.setTopics(topicsMap);
+
+    List<TopologyAclBinding> bindings = builder.buildBindingsForConnect(connector, "-");
+
+    List<TopologyAclBinding> shouldContainBindings = createConnectorDefaultAclBindings(connector);
+    shouldContainBindings.add(
+        buildTopicLevelAcl(
+            connector.getPrincipal(),
+            connectorWriteTopic,
+            PatternType.LITERAL,
+            AclOperation.WRITE));
+
+    assertThat(bindings).containsExactlyInAnyOrderElementsOf(shouldContainBindings);
+  }
+
+  private List<TopologyAclBinding> createConnectorDefaultAclBindings(Connector connector) {
     List<TopologyAclBinding> shouldContainBindings = new ArrayList<>();
     shouldContainBindings.add(
         buildTopicLevelAcl(
@@ -167,18 +232,15 @@ public class AclsBindingsBuilderTest {
             connector.groupString(),
             PatternType.LITERAL,
             AclOperation.READ));
-    shouldContainBindings.add(buildClusterLevelAcl(connector.getPrincipal(), AclOperation.CREATE));
-
-    assertThat(shouldContainBindings.size()).isEqualTo(8);
-    assertThat(bindings).containsAll(shouldContainBindings);
+    return shouldContainBindings;
   }
 
   @Test
   public void testStreamsAclsBuilder() {
     KStream stream = new KStream("User:foo", new HashMap<>());
 
-    List<String> readTopics = Collections.singletonList("foo");
-    List<String> writeTopics = Collections.singletonList("bar");
+    List<String> readTopics = singletonList("foo");
+    List<String> writeTopics = singletonList("bar");
 
     List<TopologyAclBinding> bindings =
         builder.buildBindingsForStreamsApp(
@@ -213,7 +275,10 @@ public class AclsBindingsBuilderTest {
   }
 
   private TopologyAclBinding buildTransactionIdLevelAcl(
-      String principal, String transactionId, PatternType patternType, AclOperation op) {
+      String principal,
+      String transactionId,
+      @SuppressWarnings("SameParameterValue") PatternType patternType,
+      AclOperation op) {
     return new TopologyAclBinding(
         new AclBuilder(principal)
             .addResource(ResourceType.TRANSACTIONAL_ID, transactionId, patternType)
@@ -229,7 +294,10 @@ public class AclsBindingsBuilderTest {
   }
 
   private TopologyAclBinding buildGroupLevelAcl(
-      String principal, String group, PatternType patternType, AclOperation op) {
+      String principal,
+      String group,
+      PatternType patternType,
+      @SuppressWarnings("SameParameterValue") AclOperation op) {
     return new TopologyAclBinding(
         new AclBuilder(principal)
             .addResource(ResourceType.GROUP, group, patternType)

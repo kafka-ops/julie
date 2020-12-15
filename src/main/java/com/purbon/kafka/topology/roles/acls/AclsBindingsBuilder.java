@@ -1,7 +1,5 @@
 package com.purbon.kafka.topology.roles.acls;
 
-import static java.util.Arrays.asList;
-
 import com.purbon.kafka.topology.BindingsBuilderProvider;
 import com.purbon.kafka.topology.TopologyBuilderConfig;
 import com.purbon.kafka.topology.api.adminclient.AclBuilder;
@@ -12,13 +10,6 @@ import com.purbon.kafka.topology.model.users.Producer;
 import com.purbon.kafka.topology.model.users.platform.SchemaRegistryInstance;
 import com.purbon.kafka.topology.roles.TopologyAclBinding;
 import com.purbon.kafka.topology.utils.CCloudUtils;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.List;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 import org.apache.kafka.common.acl.AccessControlEntry;
 import org.apache.kafka.common.acl.AclBinding;
 import org.apache.kafka.common.acl.AclOperation;
@@ -28,6 +19,16 @@ import org.apache.kafka.common.resource.ResourcePattern;
 import org.apache.kafka.common.resource.ResourceType;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
+import static java.util.Arrays.asList;
 
 public class AclsBindingsBuilder implements BindingsBuilderProvider {
 
@@ -46,7 +47,8 @@ public class AclsBindingsBuilder implements BindingsBuilderProvider {
   }
 
   @Override
-  public List<TopologyAclBinding> buildBindingsForConnect(Connector connector, String topicPrefix) {
+  public List<TopologyAclBinding> buildBindingsForConnect(
+      Connector connector, String topicPrefixNotInUse) {
 
     String principal = translate(connector.getPrincipal());
     List<String> readTopics = connector.getTopics().get("read");
@@ -65,15 +67,18 @@ public class AclsBindingsBuilder implements BindingsBuilderProvider {
       acls.add(buildTopicLevelAcl(principal, topic, PatternType.LITERAL, AclOperation.WRITE));
     }
 
-    ResourcePattern resourcePattern =
-        new ResourcePattern(ResourceType.CLUSTER, "kafka-cluster", PatternType.LITERAL);
-    AccessControlEntry entry =
-        new AccessControlEntry(principal, "*", AclOperation.CREATE, AclPermissionType.ALLOW);
-    acls.add(new AclBinding(resourcePattern, entry));
+    if (config.enabledConnectorTopicCreateAcl()) {
+      ResourcePattern resourcePattern =
+          new ResourcePattern(ResourceType.CLUSTER, "kafka-cluster", PatternType.LITERAL);
+      AccessControlEntry entry =
+          new AccessControlEntry(principal, "*", AclOperation.CREATE, AclPermissionType.ALLOW);
+      acls.add(new AclBinding(resourcePattern, entry));
+    }
 
-    resourcePattern =
+    ResourcePattern resourcePattern =
         new ResourcePattern(ResourceType.GROUP, connector.groupString(), PatternType.LITERAL);
-    entry = new AccessControlEntry(principal, "*", AclOperation.READ, AclPermissionType.ALLOW);
+    AccessControlEntry entry =
+        new AccessControlEntry(principal, "*", AclOperation.READ, AclPermissionType.ALLOW);
     acls.add(new AclBinding(resourcePattern, entry));
 
     if (readTopics != null) {
