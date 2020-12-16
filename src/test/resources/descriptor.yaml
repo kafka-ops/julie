@@ -48,6 +48,15 @@ projects:
         schemas:
           key.schema.file: "schemas/bar-key.avsc"
           value.schema.file: "schemas/bar-value.avsc"
+      - name: "cat"
+        dataType: "avro"
+        schemas:
+          - schemaId: "test"
+            key.schema.file: "schemas/bar-key.avsc"
+            value.schema.file: "schemas/bar-value.avsc"
+          - schemaId: "foo"
+            key.schema.file: "schemas/bar-key.avsc"
+            value.schema.file: "schemas/bar-value.avsc"
   - name: "bar"
     topics:
       - dataType: "avro"

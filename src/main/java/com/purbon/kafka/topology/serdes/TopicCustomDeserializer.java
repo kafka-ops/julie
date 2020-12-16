@@ -6,6 +6,7 @@ import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
+import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.purbon.kafka.topology.TopologyBuilderConfig;
 import com.purbon.kafka.topology.model.Impl.TopicImpl;
 import com.purbon.kafka.topology.model.PlanMap;
@@ -14,12 +15,7 @@ import com.purbon.kafka.topology.model.User;
 import com.purbon.kafka.topology.model.users.Consumer;
 import com.purbon.kafka.topology.model.users.Producer;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -90,16 +86,19 @@ public class TopicCustomDeserializer extends StdDeserializer<TopicImpl> {
     List<TopicSchemas> schemas = new ArrayList<>();
     Optional.ofNullable(rootNode.get("schemas"))
         .ifPresent(
-            node ->
-                node.elements()
-                    .forEachRemaining(
-                        node1 -> {
-                          TopicSchemas schema =
-                              new TopicSchemas(
-                                  Optional.ofNullable(node1.get("key.schema.file")),
-                                  Optional.ofNullable(node1.get("value.schema.file")));
-                          schemas.add(schema);
-                        }));
+            node -> {
+              Iterator<JsonNode> elements =
+                  node instanceof ArrayNode ? node.elements() : Arrays.asList(node).iterator();
+              elements.forEachRemaining(
+                  node1 -> {
+                    TopicSchemas schema =
+                        new TopicSchemas(
+                            Optional.ofNullable(node1.get("key.schema.file")),
+                            Optional.ofNullable(node1.get("value.schema.file")));
+                    // validate elements are present before adding to list
+                    schemas.add(schema);
+                  });
+            });
     topic.setSchemas(Optional.of(schemas));
 
     if (topic.getSchemas().isPresent()

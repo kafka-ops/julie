@@ -43,13 +43,13 @@ projects:
       - name: "bar"
         dataType: "avro"
         schemas:
-          - name: foo
+          - schemaId: "foo"
             key.schema.file: "schemas/bar-key.avsc"
             value.schema.file: "schemas/bar-value.avsc"
-          - name: bar
+          - schemaId: "bar"
             key.schema.file: "schemas/bar-key.avsc"
             value.schema.file: "schemas/bar-value.avsc"
-          - name: test
+          - schemaId: "test"
             key.schema.file: "schemas/bar-key.avsc"
             value.schema.file: "schemas/bar-value.avsc"
         config:
