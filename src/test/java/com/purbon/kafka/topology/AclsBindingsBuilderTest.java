@@ -8,8 +8,6 @@ import com.purbon.kafka.topology.model.users.KStream;
 import com.purbon.kafka.topology.model.users.Producer;
 import com.purbon.kafka.topology.roles.TopologyAclBinding;
 import com.purbon.kafka.topology.roles.acls.AclsBindingsBuilder;
-import com.typesafe.config.Config;
-import com.typesafe.config.ConfigFactory;
 import org.apache.kafka.common.acl.AccessControlEntry;
 import org.apache.kafka.common.acl.AclBinding;
 import org.apache.kafka.common.acl.AclOperation;
@@ -25,6 +23,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
+import java.util.Properties;
 
 import static com.purbon.kafka.topology.TopologyBuilderConfig.CONNECTOR_ACL_TOPIC_CREATE;
 import static java.util.Collections.*;
@@ -164,10 +163,9 @@ public class AclsBindingsBuilderTest {
 
   @Test
   public void testConnectorAclsWithNoClusterCreate() {
-    Config override = ConfigFactory.parseMap(singletonMap(CONNECTOR_ACL_TOPIC_CREATE, false));
-    Config conf = override.withFallback(ConfigFactory.load());
-    config = new TopologyBuilderConfig(emptyMap(), conf);
-    builder = new AclsBindingsBuilder(config);
+    Properties configMap = config.asProperties();
+    configMap.put(CONNECTOR_ACL_TOPIC_CREATE, false);
+    builder = new AclsBindingsBuilder(new TopologyBuilderConfig(emptyMap(), configMap));
 
     Connector connector = new Connector("User:foo");
     HashMap<String, List<String>> topicsMap = new HashMap<>();
