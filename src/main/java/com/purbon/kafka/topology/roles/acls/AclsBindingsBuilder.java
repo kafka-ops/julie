@@ -46,7 +46,8 @@ public class AclsBindingsBuilder implements BindingsBuilderProvider {
   }
 
   @Override
-  public List<TopologyAclBinding> buildBindingsForConnect(Connector connector, String topicPrefix) {
+  public List<TopologyAclBinding> buildBindingsForConnect(
+      Connector connector, String topicPrefixNotInUse) {
 
     String principal = translate(connector.getPrincipal());
     List<String> readTopics = connector.getTopics().get("read");
@@ -65,15 +66,18 @@ public class AclsBindingsBuilder implements BindingsBuilderProvider {
       acls.add(buildTopicLevelAcl(principal, topic, PatternType.LITERAL, AclOperation.WRITE));
     }
 
-    ResourcePattern resourcePattern =
-        new ResourcePattern(ResourceType.CLUSTER, "kafka-cluster", PatternType.LITERAL);
-    AccessControlEntry entry =
-        new AccessControlEntry(principal, "*", AclOperation.CREATE, AclPermissionType.ALLOW);
-    acls.add(new AclBinding(resourcePattern, entry));
+    if (config.enabledConnectorTopicCreateAcl()) {
+      ResourcePattern resourcePattern =
+          new ResourcePattern(ResourceType.CLUSTER, "kafka-cluster", PatternType.LITERAL);
+      AccessControlEntry entry =
+          new AccessControlEntry(principal, "*", AclOperation.CREATE, AclPermissionType.ALLOW);
+      acls.add(new AclBinding(resourcePattern, entry));
+    }
 
-    resourcePattern =
+    ResourcePattern resourcePattern =
         new ResourcePattern(ResourceType.GROUP, connector.groupString(), PatternType.LITERAL);
-    entry = new AccessControlEntry(principal, "*", AclOperation.READ, AclPermissionType.ALLOW);
+    AccessControlEntry entry =
+        new AccessControlEntry(principal, "*", AclOperation.READ, AclPermissionType.ALLOW);
     acls.add(new AclBinding(resourcePattern, entry));
 
     if (readTopics != null) {
