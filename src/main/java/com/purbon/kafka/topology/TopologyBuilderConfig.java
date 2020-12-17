@@ -58,6 +58,7 @@ public class TopologyBuilderConfig {
   static final String PROJECT_PREFIX_FORMAT_CONFIG = "topology.project.prefix.format";
   static final String TOPIC_PREFIX_SEPARATOR_CONFIG = "topology.topic.prefix.separator";
   static final String TOPOLOGY_VALIDATIONS_CONFIG = "topology.validations";
+  static final String CONNECTOR_ALLOW_TOPIC_CREATE = "topology.connector.allow.topic.create";
 
   static final String TOPOLOGY_FILE_TYPE = "topology.file.type";
 
@@ -289,6 +290,10 @@ public class TopologyBuilderConfig {
   public List<String> getTopologyValidations() {
     List<String> classes = config.getStringList(TOPOLOGY_VALIDATIONS_CONFIG);
     return classes.stream().map(String::trim).collect(Collectors.toList());
+  }
+
+  public boolean enabledConnectorTopicCreateAcl() {
+    return config.getBoolean(CONNECTOR_ALLOW_TOPIC_CREATE);
   }
 
   public boolean allowDelete() {
