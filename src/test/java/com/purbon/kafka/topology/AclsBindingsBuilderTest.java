@@ -25,7 +25,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Properties;
 
-import static com.purbon.kafka.topology.TopologyBuilderConfig.CONNECTOR_ACL_TOPIC_CREATE;
+import static com.purbon.kafka.topology.TopologyBuilderConfig.CONNECTOR_ALLOW_TOPIC_CREATE;
 import static java.util.Collections.*;
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -164,7 +164,7 @@ public class AclsBindingsBuilderTest {
   @Test
   public void testConnectorAclsWithNoClusterCreate() {
     Properties configMap = config.asProperties();
-    configMap.put(CONNECTOR_ACL_TOPIC_CREATE, false);
+    configMap.put(CONNECTOR_ALLOW_TOPIC_CREATE, false);
     builder = new AclsBindingsBuilder(new TopologyBuilderConfig(emptyMap(), configMap));
 
     Connector connector = new Connector("User:foo");

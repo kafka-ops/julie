@@ -127,9 +127,9 @@ Prevent ACL for topic creation for connector principal
 By default KTB will create the ACLs needed for connectors to create their own topics (with CREATE ACL operation on the CLUSTER resource).
 You can override this behaviour by setting the config below to `false`. And instead create the needed topics with KTB.
 
-**Property**: *topology.connector.acl.topic.create*
+**Property**: *topology.connector.allow.topic.create*
 **Default value**: true
 
 An example configuration will look like this:
 ::
-    topology.connector.acl.topic.create=false
+    topology.connector.allow.topic.create=false
