@@ -15,8 +15,10 @@ import com.purbon.kafka.topology.actions.Action;
 import com.purbon.kafka.topology.actions.accounts.ClearAccounts;
 import com.purbon.kafka.topology.actions.accounts.CreateAccounts;
 import com.purbon.kafka.topology.model.Impl.ProjectImpl;
+import com.purbon.kafka.topology.model.Impl.TopicImpl;
 import com.purbon.kafka.topology.model.Impl.TopologyImpl;
 import com.purbon.kafka.topology.model.Project;
+import com.purbon.kafka.topology.model.Topic;
 import com.purbon.kafka.topology.model.Topology;
 import com.purbon.kafka.topology.model.cluster.ServiceAccount;
 import com.purbon.kafka.topology.model.users.Consumer;
@@ -98,6 +100,33 @@ public class PrincipalManagerTest {
     assertThat(plan.getActions()).hasSize(1);
     assertThat(plan.getActions()).containsAnyOf(new CreateAccounts(provider, accounts));
   }
+
+  @Test
+  public void testFreshTopicLevelGeneration() throws IOException {
+
+    Topology topology = new TopologyImpl();
+    topology.setContext("context");
+    Project project = new ProjectImpl("foo");
+    Topic topic = new TopicImpl("baa");
+    topic.setConsumers(Collections.singletonList(new Consumer("topicConsumer")));
+    topic.setProducers(Collections.singletonList(new Producer("topicProducer")));
+
+    project.addTopic(topic);
+    topology.addProject(project);
+
+    doNothing().when(provider).configure();
+
+    principalManager.apply(topology, plan);
+
+    Collection<ServiceAccount> accounts =
+            Arrays.asList(
+                    new ServiceAccount(-1, "topicConsumer", "Managed by KTB"),
+                    new ServiceAccount(-1, "topicProducer", "Managed by KTB"));
+
+    assertThat(plan.getActions()).hasSize(1);
+    assertThat(plan.getActions()).containsAnyOf(new CreateAccounts(provider, accounts));
+  }
+
 
   @Test
   public void testDeleteAccountsRequired() throws IOException {
