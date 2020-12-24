@@ -2,6 +2,7 @@ package com.purbon.kafka.topology;
 
 import com.purbon.kafka.topology.actions.accounts.ClearAccounts;
 import com.purbon.kafka.topology.actions.accounts.CreateAccounts;
+import com.purbon.kafka.topology.model.Topic;
 import com.purbon.kafka.topology.model.Topology;
 import com.purbon.kafka.topology.model.User;
 import com.purbon.kafka.topology.model.cluster.ServiceAccount;
@@ -80,6 +81,10 @@ public class PrincipalManager {
               users.addAll(project.getStreams());
               users.addAll(project.getConnectors());
               users.addAll(project.getSchemas());
+              for(Topic topic : project.getTopics()) {
+                users.addAll(topic.getConsumers());
+                users.addAll(topic.getProducers());
+              }
               return users.stream();
             })
         .map(User::getPrincipal)
