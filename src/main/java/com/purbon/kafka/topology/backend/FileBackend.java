@@ -1,5 +1,6 @@
 package com.purbon.kafka.topology.backend;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.purbon.kafka.topology.BackendController.Mode;
 import com.purbon.kafka.topology.model.cluster.ServiceAccount;
 import com.purbon.kafka.topology.roles.TopologyAclBinding;
@@ -24,10 +25,13 @@ public class FileBackend implements Backend {
 
   private static final Logger LOGGER = LogManager.getLogger(FileBackend.class);
   public static final String STATE_FILE_NAME = ".cluster-state";
+  public static final String SERVICE_ACCOUNTS_TAG = "ServiceAccounts";
+  public static final String TOPICS_TAG = "Topics";
+  public static final String ACLS_TAG = "acls";
 
   private RandomAccessFile writer;
   private String expression =
-      "^\\'(\\S+)\\',\\s*\\'(\\S+)\\',\\s*\\'(\\S+)\\',\\s*\\'(\\S+)\\',\\s*\\'(\\S+)\\',\\s*\\'(\\S+)\\'";
+      "^\"?\\'(\\S+)\\',\\s*\\'(\\S+)\\',\\s*\\'(\\S+)\\',\\s*\\'(\\S+)\\',\\s*\\'(\\S+)\\',\\s*\\'(\\S+)\\'\"?";
   private Pattern regexp;
 
   public FileBackend() {
@@ -76,7 +80,7 @@ public class FileBackend implements Backend {
         // process service accounts, should break from here.
         break;
       }
-      if (type.equalsIgnoreCase("acls")) {
+      if (type.equalsIgnoreCase(ACLS_TAG)) {
         binding = buildAclBinding(line);
       } else {
         throw new IOException("Binding type ( " + type + " )not supported.");
@@ -95,13 +99,13 @@ public class FileBackend implements Backend {
     BufferedReader in = new BufferedReader(new FileReader(filePath.toFile()));
     String line = null;
     while ((line = in.readLine()) != null) {
-      if (line.equalsIgnoreCase("ServiceAccounts")) {
-        // process service accounts, should break from here.
+      if (line.equalsIgnoreCase(SERVICE_ACCOUNTS_TAG)) {
+        // process service accounts, should start from here.
         break;
       }
     }
-    if (line != null && line.equalsIgnoreCase("ServiceAccounts")) {
-      while ((line = in.readLine()) != null) {
+    if (line != null && line.equalsIgnoreCase(SERVICE_ACCOUNTS_TAG)) {
+      while ((line = in.readLine()) != null && !foundAControlTag(line)) {
         ServiceAccount account = (ServiceAccount) JSON.toObject(line, ServiceAccount.class);
         accounts.add(account);
       }
@@ -109,8 +113,33 @@ public class FileBackend implements Backend {
     return accounts;
   }
 
-  private TopologyAclBinding buildRBACBinding(String line) {
-    return null;
+  private boolean foundAControlTag(String line) {
+    return line.equalsIgnoreCase(SERVICE_ACCOUNTS_TAG)
+        || line.equalsIgnoreCase(TOPICS_TAG)
+        || line.equalsIgnoreCase(ACLS_TAG);
+  }
+
+  @Override
+  public Set<String> loadTopics() throws IOException {
+    if (writer == null) {
+      throw new IOException("state file does not exist");
+    }
+    Path filePath = Paths.get(STATE_FILE_NAME);
+    Set<String> topics = new HashSet<>();
+    BufferedReader in = new BufferedReader(new FileReader(filePath.toFile()));
+    String line = null;
+    while ((line = in.readLine()) != null) {
+      if (line.equalsIgnoreCase(TOPICS_TAG)) {
+        // process topics, should start from here.
+        break;
+      }
+    }
+    if (line != null && line.equalsIgnoreCase(TOPICS_TAG)) {
+      while ((line = in.readLine()) != null && !foundAControlTag(line)) {
+        topics.add(line.trim());
+      }
+    }
+    return topics;
   }
 
   private TopologyAclBinding buildAclBinding(String line) throws IOException {
@@ -142,30 +171,33 @@ public class FileBackend implements Backend {
 
   @Override
   public void saveBindings(Set<TopologyAclBinding> bindings) {
-    bindings.stream()
-        .sorted()
-        .forEach(
-            binding -> {
-              try {
-                writer.writeBytes(binding.toString());
-                writer.writeBytes("\n");
-              } catch (IOException e) {
-                LOGGER.error(e);
-              }
-            });
+    bindings.stream().sorted().forEach(b -> writeLine(b.toString()));
   }
 
   @Override
   public void saveAccounts(Set<ServiceAccount> accounts) {
     accounts.forEach(
-        account -> {
+        a -> {
           try {
-            writer.writeBytes(JSON.asString(account));
-            writer.writeBytes("\n");
-          } catch (IOException e) {
+            writeLine(JSON.asString(a));
+          } catch (JsonProcessingException e) {
             LOGGER.error(e);
           }
         });
+  }
+
+  @Override
+  public void saveTopics(Set<String> topics) {
+    topics.forEach(this::writeLine);
+  }
+
+  private void writeLine(String line) {
+    try {
+      writer.writeBytes(line);
+      writer.writeBytes("\n");
+    } catch (IOException e) {
+      LOGGER.error(e);
+    }
   }
 
   @Override

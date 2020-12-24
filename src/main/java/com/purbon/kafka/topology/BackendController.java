@@ -23,6 +23,7 @@ public class BackendController {
   private static final String STORE_TYPE = "acls";
 
   private final Backend backend;
+  private Set<String> topics;
   private Set<TopologyAclBinding> bindings;
   private Set<ServiceAccount> serviceAccounts;
 
@@ -34,11 +35,17 @@ public class BackendController {
     this.backend = backend;
     this.bindings = new HashSet<>();
     this.serviceAccounts = new HashSet<>();
+    this.topics = new HashSet<>();
   }
 
   public void add(List<TopologyAclBinding> bindings) {
     LOGGER.debug(String.format("Adding bindings %s to the backend", bindings));
     this.bindings.addAll(bindings);
+  }
+
+  public void addTopics(Set<String> topics) {
+    LOGGER.debug(String.format("Adding topics %s to the backend", topics));
+    this.topics.addAll(topics);
   }
 
   public void addServiceAccounts(Set<ServiceAccount> serviceAccounts) {
@@ -59,6 +66,10 @@ public class BackendController {
     return bindings;
   }
 
+  public Set<String> getTopics() {
+    return topics;
+  }
+
   public void flushAndClose() {
     LOGGER.debug(String.format("Flushing the current state of %s, %s", STORE_TYPE, bindings));
     backend.createOrOpen(Mode.TRUNCATE);
@@ -66,6 +77,8 @@ public class BackendController {
     backend.saveBindings(bindings);
     backend.saveType("ServiceAccounts");
     backend.saveAccounts(serviceAccounts);
+    backend.saveType("Topics");
+    backend.saveTopics(topics);
     backend.close();
   }
 
@@ -74,15 +87,17 @@ public class BackendController {
     backend.createOrOpen();
     bindings.addAll(backend.loadBindings());
     serviceAccounts.addAll(backend.loadServiceAccounts());
+    topics.addAll(backend.loadTopics());
   }
 
   public void reset() {
     LOGGER.debug("Reset the bindings cache");
     bindings.clear();
     serviceAccounts.clear();
+    topics.clear();
   }
 
   public int size() {
-    return bindings.size() + serviceAccounts.size();
+    return bindings.size() + serviceAccounts.size() + topics.size();
   }
 }
