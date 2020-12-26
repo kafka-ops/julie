@@ -15,9 +15,12 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
+import java.util.Objects;
 import java.util.Set;
+import java.util.function.Function;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -91,26 +94,33 @@ public class FileBackend implements Backend {
   }
 
   public Set<ServiceAccount> loadServiceAccounts() throws IOException {
-    if (writer == null) {
-      throw new IOException("state file does not exist");
-    }
-    Path filePath = Paths.get(STATE_FILE_NAME);
-    Set<ServiceAccount> accounts = new HashSet<>();
-    BufferedReader in = new BufferedReader(new FileReader(filePath.toFile()));
-    String line = null;
-    while ((line = in.readLine()) != null) {
-      if (line.equalsIgnoreCase(SERVICE_ACCOUNTS_TAG)) {
-        // process service accounts, should start from here.
-        break;
-      }
-    }
-    if (line != null && line.equalsIgnoreCase(SERVICE_ACCOUNTS_TAG)) {
-      while ((line = in.readLine()) != null && !foundAControlTag(line)) {
-        ServiceAccount account = (ServiceAccount) JSON.toObject(line, ServiceAccount.class);
-        accounts.add(account);
-      }
-    }
-    return accounts;
+    /* if (writer == null) {
+          throw new IOException("state file does not exist");
+        }
+        Set<ServiceAccount> accounts = new HashSet<>();
+        BufferedReader in = openLocalStateFile();
+        String line = moveFileToTag(SERVICE_ACCOUNTS_TAG, in);
+        if (line != null && line.equalsIgnoreCase(SERVICE_ACCOUNTS_TAG)) {
+          while ((line = in.readLine()) != null && !foundAControlTag(line)) {
+            ServiceAccount account = (ServiceAccount) JSON.toObject(line, ServiceAccount.class);
+            accounts.add(account);
+          }
+        }
+    */
+    return loadItemsFromFile(
+            SERVICE_ACCOUNTS_TAG,
+            line -> {
+              try {
+                return JSON.toObject(line, ServiceAccount.class);
+              } catch (JsonProcessingException e) {
+                LOGGER.error(e);
+                return null;
+              }
+            })
+        .stream()
+        .filter(Objects::nonNull)
+        .map(o -> (ServiceAccount) o)
+        .collect(Collectors.toSet());
   }
 
   private boolean foundAControlTag(String line) {
@@ -121,25 +131,40 @@ public class FileBackend implements Backend {
 
   @Override
   public Set<String> loadTopics() throws IOException {
+    return loadItemsFromFile(TOPICS_TAG, String::trim).stream()
+        .map(String::valueOf)
+        .collect(Collectors.toSet());
+  }
+
+  private Set<Object> loadItemsFromFile(String tag, Function<String, Object> buildFunction)
+      throws IOException {
     if (writer == null) {
       throw new IOException("state file does not exist");
     }
+    Set<Object> elements = new HashSet<>();
+    BufferedReader in = openLocalStateFile();
+    String line = moveFileToTag(tag, in);
+    if (line != null && line.equalsIgnoreCase(tag)) {
+      while ((line = in.readLine()) != null && !foundAControlTag(line)) {
+        elements.add(buildFunction.apply(line.trim()));
+      }
+    }
+    return elements;
+  }
+
+  private BufferedReader openLocalStateFile() throws IOException {
     Path filePath = Paths.get(STATE_FILE_NAME);
-    Set<String> topics = new HashSet<>();
-    BufferedReader in = new BufferedReader(new FileReader(filePath.toFile()));
+    return new BufferedReader(new FileReader(filePath.toFile()));
+  }
+
+  private String moveFileToTag(String tag, BufferedReader in) throws IOException {
     String line = null;
     while ((line = in.readLine()) != null) {
-      if (line.equalsIgnoreCase(TOPICS_TAG)) {
-        // process topics, should start from here.
-        break;
+      if (line.equalsIgnoreCase(tag)) {
+        break; // process elements, should start from here.
       }
     }
-    if (line != null && line.equalsIgnoreCase(TOPICS_TAG)) {
-      while ((line = in.readLine()) != null && !foundAControlTag(line)) {
-        topics.add(line.trim());
-      }
-    }
-    return topics;
+    return line;
   }
 
   private TopologyAclBinding buildAclBinding(String line) throws IOException {
@@ -161,12 +186,7 @@ public class FileBackend implements Backend {
   }
 
   public void saveType(String type) {
-    try {
-      writer.writeBytes(type);
-      writer.writeBytes("\n");
-    } catch (IOException e) {
-      LOGGER.error(e);
-    }
+    writeLine(type);
   }
 
   @Override

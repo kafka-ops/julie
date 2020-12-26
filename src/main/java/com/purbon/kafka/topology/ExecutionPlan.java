@@ -5,6 +5,8 @@ import com.purbon.kafka.topology.actions.BaseAccountsAction;
 import com.purbon.kafka.topology.actions.access.ClearBindings;
 import com.purbon.kafka.topology.actions.accounts.ClearAccounts;
 import com.purbon.kafka.topology.actions.accounts.CreateAccounts;
+import com.purbon.kafka.topology.actions.topics.DeleteTopics;
+import com.purbon.kafka.topology.actions.topics.SyncTopicAction;
 import com.purbon.kafka.topology.model.cluster.ServiceAccount;
 import com.purbon.kafka.topology.roles.TopologyAclBinding;
 import java.io.IOException;
@@ -26,6 +28,7 @@ public class ExecutionPlan {
   private BackendController backendController;
   private Set<TopologyAclBinding> bindings;
   private Set<ServiceAccount> serviceAccounts;
+  private Set<String> topics;
 
   private ExecutionPlan(
       List<Action> plan, PrintStream outputStream, BackendController backendController) {
@@ -33,10 +36,12 @@ public class ExecutionPlan {
     this.outputStream = outputStream;
     this.bindings = new HashSet<>();
     this.serviceAccounts = new HashSet<>();
+    this.topics = new HashSet<>();
     this.backendController = backendController;
     if (backendController.size() > 0) {
       this.bindings.addAll(backendController.getBindings());
       this.serviceAccounts.addAll(backendController.getServiceAccounts());
+      this.topics.addAll(backendController.getTopics());
     }
   }
 
@@ -67,6 +72,7 @@ public class ExecutionPlan {
     backendController.reset();
     backendController.add(new ArrayList<>(bindings));
     backendController.addServiceAccounts(serviceAccounts);
+    backendController.addTopics(topics);
     backendController.flushAndClose();
   }
 
@@ -76,6 +82,15 @@ public class ExecutionPlan {
       outputStream.println(action);
     } else {
       action.run();
+      if (action instanceof SyncTopicAction) {
+        topics.add(((SyncTopicAction) action).getTopic());
+      } else if (action instanceof DeleteTopics) {
+        DeleteTopics deleteTopicsAction = (DeleteTopics) action;
+        topics =
+            topics.stream()
+                .filter(topic -> !deleteTopicsAction.getTopicsToBeDeleted().contains(topic))
+                .collect(Collectors.toSet());
+      }
       if (!action.getBindings().isEmpty()) {
         if (action instanceof ClearBindings) {
           bindings =
@@ -109,6 +124,10 @@ public class ExecutionPlan {
 
   public Set<TopologyAclBinding> getBindings() {
     return bindings;
+  }
+
+  public Set<String> getTopics() {
+    return topics;
   }
 
   public List<Action> getActions() {
