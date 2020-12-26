@@ -9,13 +9,14 @@ import com.purbon.kafka.topology.actions.topics.DeleteTopics;
 import com.purbon.kafka.topology.actions.topics.SyncTopicAction;
 import com.purbon.kafka.topology.model.cluster.ServiceAccount;
 import com.purbon.kafka.topology.roles.TopologyAclBinding;
+import com.purbon.kafka.topology.utils.StreamUtils;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -85,31 +86,26 @@ public class ExecutionPlan {
       if (action instanceof SyncTopicAction) {
         topics.add(((SyncTopicAction) action).getTopic());
       } else if (action instanceof DeleteTopics) {
-        DeleteTopics deleteTopicsAction = (DeleteTopics) action;
+        List<String> topicsToBeDeleted = ((DeleteTopics) action).getTopicsToBeDeleted();
         topics =
-            topics.stream()
-                .filter(topic -> !deleteTopicsAction.getTopicsToBeDeleted().contains(topic))
-                .collect(Collectors.toSet());
+            new StreamUtils<>(topics.stream())
+                .filterAsSet(topic -> !topicsToBeDeleted.contains(topic));
       }
       if (!action.getBindings().isEmpty()) {
         if (action instanceof ClearBindings) {
           bindings =
-              bindings.stream()
-                  .filter(binding -> !action.getBindings().contains(binding))
-                  .collect(Collectors.toSet());
+              new StreamUtils<>(bindings.stream())
+                  .filterAsSet(binding -> !action.getBindings().contains(binding));
         } else {
           bindings.addAll(action.getBindings());
         }
       }
       if (action instanceof BaseAccountsAction) {
         if (action instanceof ClearAccounts) {
-          ClearAccounts clearAccountsAction = (ClearAccounts) action;
+          Collection<ServiceAccount> toDeletePrincipals = ((ClearAccounts) action).getPrincipals();
           serviceAccounts =
-              serviceAccounts.stream()
-                  .filter(
-                      serviceAccount ->
-                          !clearAccountsAction.getPrincipals().contains(serviceAccount))
-                  .collect(Collectors.toSet());
+              new StreamUtils<>(serviceAccounts.stream())
+                  .filterAsSet(sa -> !toDeletePrincipals.contains(sa));
         } else {
           CreateAccounts createAction = (CreateAccounts) action;
           serviceAccounts.addAll(createAction.getPrincipals());
