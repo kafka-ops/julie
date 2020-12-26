@@ -44,11 +44,9 @@ public class ExecutionPlanTest {
 
   @Rule public MockitoRule mockitoRule = MockitoJUnit.rule();
 
-  @Mock
-  TopologyBuilderAdminClient adminClient;
+  @Mock TopologyBuilderAdminClient adminClient;
 
-  @Mock
-  SchemaRegistryManager schemaRegistryManager;
+  @Mock SchemaRegistryManager schemaRegistryManager;
 
   @Before
   public void before() throws IOException {
@@ -115,11 +113,13 @@ public class ExecutionPlanTest {
     Topic topicBar = topology.getProjects().get(0).getTopics().get(1);
     Set<String> listOfTopics = new HashSet<>();
 
-    SyncTopicAction addTopicAction1 = new SyncTopicAction(adminClient,
-        schemaRegistryManager, topicFoo, topicFoo.toString(), listOfTopics);
+    SyncTopicAction addTopicAction1 =
+        new SyncTopicAction(
+            adminClient, schemaRegistryManager, topicFoo, topicFoo.toString(), listOfTopics);
 
-    SyncTopicAction addTopicAction2 = new SyncTopicAction(adminClient,
-        schemaRegistryManager, topicBar, topicBar.toString(), listOfTopics);
+    SyncTopicAction addTopicAction2 =
+        new SyncTopicAction(
+            adminClient, schemaRegistryManager, topicBar, topicBar.toString(), listOfTopics);
 
     plan.add(addTopicAction1);
     plan.add(addTopicAction2);
@@ -138,11 +138,13 @@ public class ExecutionPlanTest {
     Topic topicBar = topology.getProjects().get(0).getTopics().get(1);
     Set<String> listOfTopics = new HashSet<>();
 
-    SyncTopicAction addTopicAction1 = new SyncTopicAction(adminClient,
-        schemaRegistryManager, topicFoo, topicFoo.toString(), listOfTopics);
+    SyncTopicAction addTopicAction1 =
+        new SyncTopicAction(
+            adminClient, schemaRegistryManager, topicFoo, topicFoo.toString(), listOfTopics);
 
-    SyncTopicAction addTopicAction2 = new SyncTopicAction(adminClient,
-        schemaRegistryManager, topicBar, topicBar.toString(), listOfTopics);
+    SyncTopicAction addTopicAction2 =
+        new SyncTopicAction(
+            adminClient, schemaRegistryManager, topicBar, topicBar.toString(), listOfTopics);
 
     plan.add(addTopicAction1);
     plan.add(addTopicAction2);
@@ -156,7 +158,8 @@ public class ExecutionPlanTest {
     BackendController backendController = new BackendController();
     ExecutionPlan plan = ExecutionPlan.init(backendController, mockPrintStream);
 
-    DeleteTopics deleteTopicsAction = new DeleteTopics(adminClient, singletonList(topicFoo.toString()));
+    DeleteTopics deleteTopicsAction =
+        new DeleteTopics(adminClient, singletonList(topicFoo.toString()));
     plan.add(deleteTopicsAction);
 
     plan.run();
