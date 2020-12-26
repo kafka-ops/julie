@@ -74,6 +74,8 @@ public class TopologyBuilderConfig {
   static final String TOPOLOGY_PRINCIPAL_TRANSLATION_ENABLED_CONFIG =
       "topology.translation.principal.enabled";
 
+  static final String TOPOLOGY_TOPIC_STATE_FROM_CLUSTER = "topology.state.topics.cluster.enabled";
+
   private final Map<String, String> cliParams;
   private Config config;
 
@@ -326,5 +328,9 @@ public class TopologyBuilderConfig {
 
   public boolean enabledPrincipalTranslation() {
     return config.getBoolean(TOPOLOGY_PRINCIPAL_TRANSLATION_ENABLED_CONFIG);
+  }
+
+  public boolean fetchStateFromTheCluster() {
+    return config.getBoolean(TOPOLOGY_TOPIC_STATE_FROM_CLUSTER);
   }
 }
