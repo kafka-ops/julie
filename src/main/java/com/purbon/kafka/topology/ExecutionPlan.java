@@ -71,7 +71,7 @@ public class ExecutionPlan {
     }
 
     backendController.reset();
-    backendController.add(new ArrayList<>(bindings));
+    backendController.addBindings(new ArrayList<>(bindings));
     backendController.addServiceAccounts(serviceAccounts);
     backendController.addTopics(topics);
     backendController.flushAndClose();

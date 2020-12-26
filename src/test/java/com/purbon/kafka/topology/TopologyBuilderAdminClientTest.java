@@ -73,7 +73,7 @@ public class TopologyBuilderAdminClientTest {
 
     plan = ExecutionPlan.init(backendController, System.out);
 
-    doNothing().when(backendController).add(Matchers.anyList());
+    doNothing().when(backendController).addBindings(Matchers.anyList());
     doNothing().when(backendController).flushAndClose();
 
     doReturn("foo").when(config).getConfluentCommandTopic();

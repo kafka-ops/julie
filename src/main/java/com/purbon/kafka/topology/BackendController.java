@@ -38,7 +38,7 @@ public class BackendController {
     this.topics = new HashSet<>();
   }
 
-  public void add(List<TopologyAclBinding> bindings) {
+  public void addBindings(List<TopologyAclBinding> bindings) {
     LOGGER.debug(String.format("Adding bindings %s to the backend", bindings));
     this.bindings.addAll(bindings);
   }
@@ -51,11 +51,6 @@ public class BackendController {
   public void addServiceAccounts(Set<ServiceAccount> serviceAccounts) {
     LOGGER.debug(String.format("Adding Service Accounts %s to the backend", serviceAccounts));
     this.serviceAccounts.addAll(serviceAccounts);
-  }
-
-  public void add(TopologyAclBinding binding) {
-    LOGGER.debug(String.format("Adding binding %s to the backend", binding));
-    this.bindings.add(binding);
   }
 
   public Set<ServiceAccount> getServiceAccounts() {

@@ -50,7 +50,7 @@ public class BackendControllerTest {
         TopologyAclBinding.build(
             ResourceType.CLUSTER.name(), "Topic", "host", "op", "principal", "LITERAL");
 
-    backend.add(binding);
+    backend.addBindings(Collections.singletonList(binding));
 
     assertEquals(1, backend.size());
   }
@@ -66,7 +66,7 @@ public class BackendControllerTest {
 
     ServiceAccount serviceAccount = new ServiceAccount(1, "name", "description");
 
-    backend.add(Collections.singletonList(binding));
+    backend.addBindings(Collections.singletonList(binding));
     backend.addServiceAccounts(Collections.singleton(serviceAccount));
 
     backend.flushAndClose();
@@ -90,7 +90,7 @@ public class BackendControllerTest {
         TopologyAclBinding.build(
             ResourceType.CLUSTER.name(), "Topic", "host", "op", "principal", "LITERAL");
 
-    backend.add(Collections.singletonList(binding));
+    backend.addBindings(Collections.singletonList(binding));
     backend.addTopics(Collections.singleton(topic.getName()));
 
     backend.flushAndClose();
