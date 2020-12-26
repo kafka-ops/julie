@@ -21,21 +21,19 @@ import org.apache.kafka.clients.admin.AdminClientConfig;
 
 public class TopologyBuilderConfig {
 
-  public static final String KAFKA_INTERNAL_TOPIC_PREFIXES = "kafka.internal.topic.prefixes";
-  public static final String ACCESS_CONTROL_IMPLEMENTATION_CLASS =
-      "topology.builder.access.control.class";
+  static final String KAFKA_INTERNAL_TOPIC_PREFIXES = "kafka.internal.topic.prefixes";
+  static final String ACCESS_CONTROL_IMPLEMENTATION_CLASS = "topology.builder.access.control.class";
 
-  public static final String ACCESS_CONTROL_DEFAULT_CLASS =
+  static final String ACCESS_CONTROL_DEFAULT_CLASS =
       "com.purbon.kafka.topology.roles.SimpleAclsProvider";
-  public static final String RBAC_ACCESS_CONTROL_CLASS =
-      "com.purbon.kafka.topology.roles.RBACProvider";
+  static final String RBAC_ACCESS_CONTROL_CLASS = "com.purbon.kafka.topology.roles.RBACProvider";
 
-  public static final String STATE_PROCESSOR_IMPLEMENTATION_CLASS =
+  private static final String STATE_PROCESSOR_IMPLEMENTATION_CLASS =
       "topology.builder.state.processor.class";
 
-  public static final String STATE_PROCESSOR_DEFAULT_CLASS =
+  static final String STATE_PROCESSOR_DEFAULT_CLASS =
       "com.purbon.kafka.topology.backend.FileBackend";
-  public static final String REDIS_STATE_PROCESSOR_CLASS =
+  static final String REDIS_STATE_PROCESSOR_CLASS =
       "com.purbon.kafka.topology.backend.RedisBackend";
 
   static final String REDIS_HOST_CONFIG = "topology.builder.redis.host";
@@ -65,16 +63,17 @@ public class TopologyBuilderConfig {
   static final String OPTIMIZED_ACLS_CONFIG = "topology.acls.optimized";
 
   static final String ALLOW_DELETE_TOPICS = "allow.delete.topics";
-  static final String ALLOW_DELETE_BINDINGS = "allow.delete.bindings";
-  static final String ALLOW_DELETE_PRINCIPALS = "allow.delete.principals";
+  private static final String ALLOW_DELETE_BINDINGS = "allow.delete.bindings";
+  private static final String ALLOW_DELETE_PRINCIPALS = "allow.delete.principals";
 
-  public static final String CCLOUD_ENV_CONFIG = "ccloud.environment";
+  static final String CCLOUD_ENV_CONFIG = "ccloud.environment";
 
   static final String TOPOLOGY_EXPERIMENTAL_ENABLED_CONFIG = "topology.features.experimental";
   static final String TOPOLOGY_PRINCIPAL_TRANSLATION_ENABLED_CONFIG =
       "topology.translation.principal.enabled";
 
-  static final String TOPOLOGY_TOPIC_STATE_FROM_CLUSTER = "topology.state.topics.cluster.enabled";
+  public static final String TOPOLOGY_TOPIC_STATE_FROM_CLUSTER =
+      "topology.state.topics.cluster.enabled";
 
   private final Map<String, String> cliParams;
   private Config config;
