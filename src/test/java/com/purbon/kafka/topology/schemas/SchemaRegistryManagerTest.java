@@ -3,6 +3,7 @@ package com.purbon.kafka.topology.schemas;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.purbon.kafka.topology.schemas.SchemaRegistryManager.SchemaRegistryManagerException;
+import io.confluent.kafka.schemaregistry.avro.AvroSchema;
 import io.confluent.kafka.schemaregistry.client.MockSchemaRegistryClient;
 import io.confluent.kafka.schemaregistry.client.SchemaRegistryClient;
 import java.nio.file.Path;
@@ -29,7 +30,7 @@ public class SchemaRegistryManagerTest {
   @Test
   public void shouldRegisterTheSchema() throws Exception {
 
-    final int subjectId = manager.register(subjectName, schemaType, simpleSchema);
+    final int subjectId = manager.save(subjectName, schemaType, simpleSchema);
     assertThat(subjectId).isEqualTo(1);
 
     assertThat(client.getAllSubjects()).hasSize(1).containsExactly(subjectName);
@@ -42,7 +43,7 @@ public class SchemaRegistryManagerTest {
     Path schemaFilePath =
         Paths.get(getClass().getClassLoader().getResource("schemas/bar-value.avsc").toURI());
 
-    final int subjectId = manager.register(subjectName, schemaFilePath);
+    final int subjectId = manager.register(subjectName, schemaFilePath, AvroSchema.TYPE);
     assertThat(subjectId).isEqualTo(1);
 
     assertThat(client.getAllSubjects()).hasSize(1).containsExactly(subjectName);
@@ -51,12 +52,12 @@ public class SchemaRegistryManagerTest {
 
   @Test(expected = SchemaRegistryManagerException.class)
   public void shouldThrowAnExceptionWithFailedFilePath() {
-    manager.register(subjectName, "schemas/wrong-file-value.avsc");
+    manager.register(subjectName, "schemas/wrong-file-value.avsc", AvroSchema.TYPE);
   }
 
   @Test
   public void shouldThrowAnExceptionWithValidRelativeFilePath() {
-    manager.register(subjectName, "schemas/bar-value.avsc");
+    manager.register(subjectName, "schemas/bar-value.avsc", AvroSchema.TYPE);
   }
 
   @Test
@@ -65,12 +66,12 @@ public class SchemaRegistryManagerTest {
     final String userSchema =
         "{\"type\":\"record\", \"name\":\"test\", "
             + "\"fields\":[{\"name\":\"f1\",\"type\":\"string\"}]}";
-    assertThat(manager.register(subjectName, schemaType, userSchema)).isEqualTo(1);
+    assertThat(manager.save(subjectName, schemaType, userSchema)).isEqualTo(1);
 
     final String updatedUserSchema =
         "{\"type\":\"record\", \"name\":\"test\", "
             + "\"fields\":[{\"name\":\"f1\",\"type\":\"string\"},{\"name\":\"f2\",\"type\":\"int\"}]}";
-    assertThat(manager.register(subjectName, schemaType, updatedUserSchema)).isEqualTo(2);
+    assertThat(manager.save(subjectName, schemaType, updatedUserSchema)).isEqualTo(2);
 
     assertThat(client.getAllSubjects()).hasSize(1).containsExactly(subjectName);
     assertThat(client.getAllVersions(subjectName)).hasSize(2).containsExactly(1, 2);

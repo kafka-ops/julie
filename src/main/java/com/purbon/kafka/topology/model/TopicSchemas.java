@@ -16,10 +16,26 @@ public class TopicSchemas {
   public TopicSchemas(
       Optional<JsonNode> keyJsonNode,
       Optional<JsonNode> keyRecordJsonNode,
+      Optional<JsonNode> keyFormatJsonNode,
+      Optional<JsonNode> keyCompatibilityJsonNode,
       Optional<JsonNode> valueJsonNode,
-      Optional<JsonNode> valueRecordJsonNode) {
-    this.keySubject = new Subject(keyJsonNode, keyRecordJsonNode, SubjectKind.KEY);
-    this.valueSubject = new Subject(valueJsonNode, valueRecordJsonNode, SubjectKind.VALUE);
+      Optional<JsonNode> valueRecordJsonNode,
+      Optional<JsonNode> valueFormatJsonNode,
+      Optional<JsonNode> valueCompatibilityJsonNode) {
+    this.keySubject =
+        new Subject(
+            keyJsonNode,
+            keyRecordJsonNode,
+            keyFormatJsonNode,
+            keyCompatibilityJsonNode,
+            SubjectKind.KEY);
+    this.valueSubject =
+        new Subject(
+            valueJsonNode,
+            valueRecordJsonNode,
+            valueFormatJsonNode,
+            valueCompatibilityJsonNode,
+            SubjectKind.VALUE);
   }
 
   public TopicSchemas(String keySchemaFile, String valueSchemaFile) {
