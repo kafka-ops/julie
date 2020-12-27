@@ -68,7 +68,7 @@ public class AccessControlManagerTest {
     TestUtils.deleteStateFile();
     plan = ExecutionPlan.init(backendController, mockPrintStream);
     accessControlManager = new AccessControlManager(aclsProvider, aclsBuilder);
-    doNothing().when(backendController).add(Matchers.anyList());
+    doNothing().when(backendController).addBindings(Matchers.anyList());
     doNothing().when(backendController).flushAndClose();
   }
 

@@ -39,7 +39,7 @@ public class DefaultBackendIT {
 
     Set<ServiceAccount> accounts = new HashSet<>(Arrays.asList(serviceAccount, serviceAccount2));
 
-    backend.add(Collections.singletonList(binding));
+    backend.addBindings(Collections.singletonList(binding));
     backend.addServiceAccounts(accounts);
     backend.flushAndClose();
 
@@ -60,7 +60,7 @@ public class DefaultBackendIT {
         TopologyAclBinding.build(
             ResourceType.CLUSTER.name(), "Topic", "host", "op", "principal", "LITERAL");
 
-    backend.add(Collections.singletonList(binding));
+    backend.addBindings(Collections.singletonList(binding));
     backend.flushAndClose();
 
     // reopen a new connection

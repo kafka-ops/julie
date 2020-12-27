@@ -16,11 +16,15 @@ public interface Backend {
 
   Set<TopologyAclBinding> loadBindings() throws IOException;
 
+  Set<String> loadTopics() throws IOException;
+
   void saveType(String type);
 
   void saveBindings(Set<TopologyAclBinding> bindings);
 
   void saveAccounts(Set<ServiceAccount> accounts);
+
+  void saveTopics(Set<String> topics);
 
   void close();
 }

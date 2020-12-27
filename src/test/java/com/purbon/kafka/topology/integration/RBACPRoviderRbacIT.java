@@ -110,7 +110,7 @@ public class RBACPRoviderRbacIT extends MDSBaseTest {
     plan.run();
 
     // this method is call twice, once for consumers and one for producers
-    verify(cs, times(1)).add(anyList());
+    verify(cs, times(1)).addBindings(anyList());
     verify(cs, times(1)).flushAndClose();
     verifyConsumerAcls(consumers, topicA.toString());
   }
@@ -134,7 +134,7 @@ public class RBACPRoviderRbacIT extends MDSBaseTest {
     plan.run();
 
     // this method is call twice, once for consumers and one for consumers
-    verify(cs, times(1)).add(anyList());
+    verify(cs, times(1)).addBindings(anyList());
     verify(cs, times(1)).flushAndClose();
     verifyProducerAcls(producers, topicA.toString());
   }
@@ -158,7 +158,7 @@ public class RBACPRoviderRbacIT extends MDSBaseTest {
     accessControlManager.apply(topology, plan);
     plan.run();
 
-    verify(cs, times(1)).add(anyList());
+    verify(cs, times(1)).addBindings(anyList());
     verify(cs, times(1)).flushAndClose();
     verifyKStreamsAcls(app);
   }
@@ -181,7 +181,7 @@ public class RBACPRoviderRbacIT extends MDSBaseTest {
     accessControlManager.apply(topology, plan);
     plan.run();
 
-    verify(cs, times(1)).add(anyList());
+    verify(cs, times(1)).addBindings(anyList());
     verify(cs, times(1)).flushAndClose();
     verifyConnectAcls(connector);
   }
@@ -215,7 +215,7 @@ public class RBACPRoviderRbacIT extends MDSBaseTest {
     accessControlManager.apply(topology, plan);
     plan.run();
 
-    verify(cs, times(1)).add(anyList());
+    verify(cs, times(1)).addBindings(anyList());
     verify(cs, times(1)).flushAndClose();
     verifySchemaRegistryAcls(platform);
   }
@@ -241,7 +241,7 @@ public class RBACPRoviderRbacIT extends MDSBaseTest {
     accessControlManager.apply(topology, plan);
     plan.run();
 
-    verify(cs, times(1)).add(anyList());
+    verify(cs, times(1)).addBindings(anyList());
     verify(cs, times(1)).flushAndClose();
     verifyControlCenterAcls(platform);
   }
@@ -266,7 +266,7 @@ public class RBACPRoviderRbacIT extends MDSBaseTest {
     accessControlManager.apply(topology, plan);
     plan.run();
 
-    verify(cs, times(1)).add(anyList());
+    verify(cs, times(1)).addBindings(anyList());
     verify(cs, times(1)).flushAndClose();
 
     verifyKafkaClusterACLs(platform);
@@ -292,7 +292,7 @@ public class RBACPRoviderRbacIT extends MDSBaseTest {
     accessControlManager.apply(topology, plan);
     plan.run();
 
-    verify(cs, times(1)).add(anyList());
+    verify(cs, times(1)).addBindings(anyList());
     verify(cs, times(1)).flushAndClose();
 
     verifyConnectClusterACLs(platform);

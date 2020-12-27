@@ -46,13 +46,8 @@ public class TopicManager {
   }
 
   public void apply(Topology topology, ExecutionPlan plan) throws IOException {
-    // List all topics existing in the cluster, excluding internal topics
-    Set<String> listOfTopics = adminClient.listApplicationTopics();
-    if (listOfTopics.size() > 0)
-      LOGGER.debug(
-          "Full list of topics in the cluster: "
-              + StringUtils.join(new ArrayList<>(listOfTopics), ","));
 
+    Set<String> listOfTopics = loadActualClusterStateIfAvailable(plan);
     Set<String> updatedListOfTopics = new HashSet<>();
     // Foreach topic in the topology, sync it's content
     // if topics does not exist already it's created
@@ -84,6 +79,16 @@ public class TopicManager {
 
   private boolean isAnInternalTopics(String topic) {
     return internalTopicPrefixes.stream().anyMatch(topic::startsWith);
+  }
+
+  private Set<String> loadActualClusterStateIfAvailable(ExecutionPlan plan) throws IOException {
+    Set<String> listOfTopics =
+        config.fetchStateFromTheCluster() ? adminClient.listApplicationTopics() : plan.getTopics();
+    if (listOfTopics.size() > 0)
+      LOGGER.debug(
+          "Full list of managed topics in the cluster: "
+              + StringUtils.join(new ArrayList<>(listOfTopics), ","));
+    return listOfTopics;
   }
 
   void printCurrentState(PrintStream os) throws IOException {
