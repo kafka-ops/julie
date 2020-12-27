@@ -35,6 +35,10 @@ public class SyncTopicAction extends BaseAction {
     this.schemaRegistryManager = schemaRegistryManager;
   }
 
+  public String getTopic() {
+    return fullTopicName;
+  }
+
   @Override
   public void run() throws IOException {
     syncTopic(topic, fullTopicName, listOfTopics);

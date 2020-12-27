@@ -34,4 +34,8 @@ public class DeleteTopics extends BaseAction {
     map.put("topics", topicsToBeDeleted);
     return map;
   }
+
+  public List<String> getTopicsToBeDeleted() {
+    return topicsToBeDeleted;
+  }
 }

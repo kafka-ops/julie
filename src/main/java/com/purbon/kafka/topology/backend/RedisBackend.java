@@ -48,15 +48,8 @@ public class RedisBackend implements Backend {
   }
 
   @Override
-  public Set<ServiceAccount> loadServiceAccounts() throws IOException {
-    return new HashSet<>();
-  }
-
-  @Override
   public Set<TopologyAclBinding> loadBindings() throws IOException {
-    if (!jedis.isConnected()) {
-      createOrOpen();
-    }
+    connectIfNeed();
 
     Set<TopologyAclBinding> bindings = new HashSet<>();
     String type = jedis.get(KAFKA_TOPOLOGY_BUILDER_TYPE);
@@ -69,6 +62,22 @@ public class RedisBackend implements Backend {
     }
 
     return bindings;
+  }
+
+  private void connectIfNeed() {
+    if (!jedis.isConnected()) {
+      createOrOpen();
+    }
+  }
+
+  @Override
+  public Set<ServiceAccount> loadServiceAccounts() throws IOException {
+    return new HashSet<>();
+  }
+
+  @Override
+  public Set<String> loadTopics() throws IOException {
+    return new HashSet<>();
   }
 
   @Override
@@ -87,6 +96,9 @@ public class RedisBackend implements Backend {
 
   @Override
   public void saveAccounts(Set<ServiceAccount> accounts) {}
+
+  @Override
+  public void saveTopics(Set<String> topics) {}
 
   @Override
   public void close() {
