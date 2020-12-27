@@ -28,9 +28,9 @@ public class FileBackend implements Backend {
 
   private static final Logger LOGGER = LogManager.getLogger(FileBackend.class);
   public static final String STATE_FILE_NAME = ".cluster-state";
-  public static final String SERVICE_ACCOUNTS_TAG = "ServiceAccounts";
-  public static final String TOPICS_TAG = "Topics";
-  public static final String ACLS_TAG = "acls";
+  static final String SERVICE_ACCOUNTS_TAG = "ServiceAccounts";
+  static final String TOPICS_TAG = "Topics";
+  static final String ACLS_TAG = "acls";
 
   private RandomAccessFile writer;
   private String expression =
@@ -94,19 +94,6 @@ public class FileBackend implements Backend {
   }
 
   public Set<ServiceAccount> loadServiceAccounts() throws IOException {
-    /* if (writer == null) {
-          throw new IOException("state file does not exist");
-        }
-        Set<ServiceAccount> accounts = new HashSet<>();
-        BufferedReader in = openLocalStateFile();
-        String line = moveFileToTag(SERVICE_ACCOUNTS_TAG, in);
-        if (line != null && line.equalsIgnoreCase(SERVICE_ACCOUNTS_TAG)) {
-          while ((line = in.readLine()) != null && !foundAControlTag(line)) {
-            ServiceAccount account = (ServiceAccount) JSON.toObject(line, ServiceAccount.class);
-            accounts.add(account);
-          }
-        }
-    */
     return loadItemsFromFile(
             SERVICE_ACCOUNTS_TAG,
             line -> {
