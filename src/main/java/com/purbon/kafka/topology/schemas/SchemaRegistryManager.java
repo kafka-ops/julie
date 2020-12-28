@@ -57,6 +57,18 @@ public class SchemaRegistryManager {
     }
   }
 
+  public String setCompatibility(String subject, String compatibility) {
+    try {
+      return schemaRegistryClient.updateCompatibility(subject, compatibility);
+    } catch (Exception e) {
+      final String msg =
+          String.format(
+              "Failed to register the schema compatibility mode '%s' for subject '%s'",
+              compatibility, subject);
+      throw new SchemaRegistryManagerException(msg, e);
+    }
+  }
+
   private Path schemaFilePath(String schemaFile) {
     Path p = Paths.get(rootPath, schemaFile);
     LOGGER.debug(p);

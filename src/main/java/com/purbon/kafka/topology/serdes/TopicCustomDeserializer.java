@@ -47,7 +47,9 @@ public class TopicCustomDeserializer extends StdDeserializer<TopicImpl> {
           "key.format",
           "value.format",
           "key.record.type",
-          "value.record.type");
+          "value.record.type",
+          "key.compatibility",
+          "value.compatibility");
 
   TopicCustomDeserializer(TopologyBuilderConfig config, PlanMap plans) {
     this(null, config, plans);

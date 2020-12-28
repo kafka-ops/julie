@@ -13,6 +13,18 @@ public class TopicSchemas {
   private Subject keySubject;
   private Subject valueSubject;
 
+  /**
+   * Topic schemas constructor
+   *
+   * @param keyJsonNode
+   * @param keyRecordJsonNode
+   * @param keyFormatJsonNode
+   * @param keyCompatibilityJsonNode
+   * @param valueJsonNode
+   * @param valueRecordJsonNode
+   * @param valueFormatJsonNode
+   * @param valueCompatibilityJsonNode
+   */
   public TopicSchemas(
       Optional<JsonNode> keyJsonNode,
       Optional<JsonNode> keyRecordJsonNode,

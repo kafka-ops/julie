@@ -64,6 +64,7 @@ projects:
           key.schema.file: "schemas/bar-key.avsc"
           value.schema.file: "schemas/bar-value.avsc"
           value.format: "JSON"
+          value.compatibility: "BACKWARD"
         name: "bar"
         config:
           replication.factor: "1"
