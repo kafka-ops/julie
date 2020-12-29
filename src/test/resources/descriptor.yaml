@@ -46,7 +46,6 @@ projects:
       - name: "bar"
         dataType: "avro"
         schemas:
-          key.schema.file: "schemas/bar-key.avsc"
           value.schema.file: "schemas/bar-value.avsc"
       - name: "cat"
         dataType: "avro"
@@ -59,6 +58,7 @@ projects:
     topics:
       - dataType: "avro"
         schemas:
+          key.schema.file: "schemas/bar-key.avsc"
           value.schema.file: "schemas/bar-value.avsc"
         name: "bar"
         config:

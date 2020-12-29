@@ -195,8 +195,26 @@ public class TopologySerdesTest {
   }
 
   @Test(expected = IllegalArgumentException.class)
-  public void testSchemaSerdes() {
+  public void testInvalidSchemaSerdes() {
     parser.deserialise(TestUtils.getResourceFile("/descriptor-wrong-schemas.yaml"));
+  }
+
+  @Test
+  public void testSchemaSerdes() {
+    Topology topology = parser.deserialise(TestUtils.getResourceFile("/descriptor.yaml"));
+    Project project = topology.getProjects().get(0);
+    List<Topic> topics = project.getTopics();
+    Optional<Topic> topicBar = topics.stream().filter(t -> t.getName().equals("bar")).findFirst();
+    Optional<Topic> topicCat = topics.stream().filter(t -> t.getName().equals("cat")).findFirst();
+
+    assertThat(topicBar).isPresent();
+    assertThat(topicBar.get().getSchemas()).hasSize(1);
+    assertThat(topicBar.get().getSchemas().get(0).getValueSchemaFile()).isPresent();
+
+    assertThat(topicCat).isPresent();
+    assertThat(topicCat.get().getSchemas()).hasSize(2);
+    assertThat(topicCat.get().getSchemas().get(0).getValueSchemaFile()).isPresent();
+    assertThat(topicCat.get().getSchemas().get(1).getValueSchemaFile()).isPresent();
   }
 
   @Test

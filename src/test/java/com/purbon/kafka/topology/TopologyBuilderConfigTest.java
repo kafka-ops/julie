@@ -50,9 +50,7 @@ public class TopologyBuilderConfigTest {
     Project project = new ProjectImpl();
     Topic topic = new TopicImpl();
     TopicSchemas schema = new TopicSchemas("foo", "bar");
-    List<TopicSchemas> schemas = new ArrayList<>();
-    schemas.add(schema);
-    topic.setSchemas(schemas);
+    topic.setSchemas(Collections.singletonList(schema));
     project.addTopic(topic);
     topology.addProject(project);
     props.put(CONFLUENT_SCHEMA_REGISTRY_URL_CONFIG, "mock://");
@@ -67,29 +65,7 @@ public class TopologyBuilderConfigTest {
     Project project = new ProjectImpl();
     Topic topic = new TopicImpl();
     TopicSchemas schema = new TopicSchemas("foo", "bar");
-    List<TopicSchemas> schemas = new ArrayList<>();
-    schemas.add(schema);
-    topic.setSchemas(schemas);
-    project.addTopic(topic);
-    topology.addProject(project);
-
-    props.put(CONFLUENT_SCHEMA_REGISTRY_URL_CONFIG, "http://foo:8082");
-
-    TopologyBuilderConfig config = new TopologyBuilderConfig(cliOps, props);
-    config.validateWith(topology);
-  }
-
-  @Test
-  public void testSchemaRegistryMultiValidConfigFields() throws ConfigurationException {
-    Topology topology = new TopologyImpl();
-    Project project = new ProjectImpl();
-    Topic topic = new TopicImpl();
-    TopicSchemas schemaA = new TopicSchemas("foo", "bar");
-    TopicSchemas schemaB = new TopicSchemas("bill", "gates");
-    List<TopicSchemas> schemas = new ArrayList<>();
-    schemas.add(schemaA);
-    schemas.add(schemaB);
-    topic.setSchemas(schemas);
+    topic.setSchemas(Collections.singletonList(schema));
     project.addTopic(topic);
     topology.addProject(project);
 
