@@ -43,14 +43,11 @@ projects:
       - name: "bar"
         dataType: "avro"
         schemas:
-          - schemaId: "foo"
-            key.schema.file: "schemas/bar-key.avsc"
+          - key.schema.file: "schemas/bar-key.avsc"
             value.schema.file: "schemas/bar-value.avsc"
-          - schemaId: "bar"
-            key.schema.file: "schemas/bar-key.avsc"
+          - key.schema.file: "schemas/bar-key.avsc"
             value.schema.file: "schemas/bar-value.avsc"
-          - schemaId: "test"
-            key.schema.file: "schemas/bar-key.avsc"
+          - key.schema.file: "schemas/bar-key.avsc"
             value.schema.file: "schemas/bar-value.avsc"
         config:
           replication.factor: "1"
