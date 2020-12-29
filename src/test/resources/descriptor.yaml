@@ -45,6 +45,7 @@ projects:
           num.partitions: "1"
       - name: "bar"
         dataType: "avro"
+        subject.name.strategy: "TopicRecordNameStrategy"
         schemas:
           value.schema.file: "schemas/bar-value.avsc"
       - name: "cat"

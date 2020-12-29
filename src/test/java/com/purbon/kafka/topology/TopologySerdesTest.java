@@ -210,11 +210,13 @@ public class TopologySerdesTest {
     assertThat(topicBar).isPresent();
     assertThat(topicBar.get().getSchemas()).hasSize(1);
     assertThat(topicBar.get().getSchemas().get(0).getValueSchemaFile()).isPresent();
+    assertThat(topicBar.get().getSubjectNameStrategyString()).isEqualTo("TopicRecordNameStrategy");
 
     assertThat(topicCat).isPresent();
     assertThat(topicCat.get().getSchemas()).hasSize(2);
     assertThat(topicCat.get().getSchemas().get(0).getValueSchemaFile()).isPresent();
     assertThat(topicCat.get().getSchemas().get(1).getValueSchemaFile()).isPresent();
+    assertThat(topicCat.get().getSubjectNameStrategyString()).isEqualTo("TopicNameStrategy");
   }
 
   @Test

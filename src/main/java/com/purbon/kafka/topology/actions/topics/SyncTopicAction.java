@@ -59,13 +59,34 @@ public class SyncTopicAction extends BaseAction {
           .getKeySchemaFile()
           .ifPresent(
               keySchemaFile ->
-                  schemaRegistryManager.register(fullTopicName + "-key", keySchemaFile));
+                  schemaRegistryManager.register(composeKeySubjectName(topic), keySchemaFile));
 
       schema
           .getValueSchemaFile()
           .ifPresent(
               valueSchemaFile ->
-                  schemaRegistryManager.register(fullTopicName + "-value", valueSchemaFile));
+                  schemaRegistryManager.register(composeValueSubjectName(topic), valueSchemaFile));
+    }
+  }
+
+  private String composeKeySubjectName(Topic topic) {
+    return composeSubjectName(topic, "key");
+  }
+
+  private String composeValueSubjectName(Topic topic) {
+    return composeSubjectName(topic, "value");
+  }
+
+  private String composeSubjectName(Topic topic, String type) {
+    switch (topic.getSubjectNameStrategyString()) {
+      case "TopicNameStrategy":
+        return fullTopicName + "-" + type;
+      case "RecordNameStrategy":
+        return "record-type";
+      case "TopicRecordNameStrategy":
+        return fullTopicName + "record-type";
+      default:
+        return "";
     }
   }
 

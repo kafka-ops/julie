@@ -130,6 +130,11 @@ public class TopicCustomDeserializer extends StdDeserializer<TopicImpl> {
           String.format(
               "Missing required value.schema.file on schemas for topic %s", topic.getName()));
     }
+
+    Optional<String> subjectNameStrategy =
+        Optional.ofNullable(rootNode.get("subject.name.strategy")).map(JsonNode::asText);
+    topic.setSubjectNameStrategy(subjectNameStrategy);
+
     LOGGER.debug(
         String.format("Topic %s with config %s has been created", topic.getName(), config));
     return topic;

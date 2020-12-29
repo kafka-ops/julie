@@ -45,6 +45,9 @@ public class TopicImpl implements Topic, Cloneable {
   private static String DEFAULT_PARTITION_COUNT = "3";
   private static String DEFAULT_REPLICATION_FACTOR = "2";
 
+  @JsonInclude(Include.NON_EMPTY)
+  private Optional<String> subjectNameStrategy;
+
   public TopicImpl() {
     this(DEFAULT_TOPIC_NAME, Optional.empty(), new HashMap<>(), new TopologyBuilderConfig());
   }
@@ -97,6 +100,7 @@ public class TopicImpl implements Topic, Cloneable {
     partitionCount = Integer.parseInt(value);
     value = config.getOrDefault(TopicManager.REPLICATION_FACTOR, DEFAULT_REPLICATION_FACTOR);
     replicationFactor = Short.parseShort(value);
+    subjectNameStrategy = Optional.empty();
   }
 
   public String getName() {
@@ -114,6 +118,18 @@ public class TopicImpl implements Topic, Cloneable {
 
   public void setSchemas(List<TopicSchemas> schemas) {
     this.schemas = schemas;
+  }
+
+  public void setSubjectNameStrategy(Optional<String> subjectNameStrategy) {
+    this.subjectNameStrategy = subjectNameStrategy;
+  }
+
+  public Optional<String> getSubjectNameStrategy() {
+    return subjectNameStrategy;
+  }
+
+  public String getSubjectNameStrategyString() {
+    return subjectNameStrategy.orElse("TopicNameStrategy");
   }
 
   private String toString(String projectPrefix) {
