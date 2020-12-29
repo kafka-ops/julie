@@ -9,20 +9,27 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.purbon.kafka.topology.TopologyBuilderConfig;
+import com.purbon.kafka.topology.exceptions.ValidationException;
 import com.purbon.kafka.topology.model.Impl.TopicImpl;
 import com.purbon.kafka.topology.model.PlanMap;
 import com.purbon.kafka.topology.model.TopicSchemas;
 import com.purbon.kafka.topology.model.User;
 import com.purbon.kafka.topology.model.users.Consumer;
 import com.purbon.kafka.topology.model.users.Producer;
+import com.purbon.kafka.topology.utils.Either;
 import java.io.IOException;
 import java.util.*;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 public class TopicCustomDeserializer extends StdDeserializer<TopicImpl> {
 
   private static final Logger LOGGER = LogManager.getLogger(TopicCustomDeserializer.class);
+
+  private List<String> validSchemaKeys = Arrays.asList("key.schema.file", "value.schema.file");
 
   private final TopologyBuilderConfig config;
   private PlanMap plans;
@@ -84,21 +91,38 @@ public class TopicCustomDeserializer extends StdDeserializer<TopicImpl> {
         new TopicImpl(name, producers, consumers, optionalDataType, config, this.config);
 
     List<TopicSchemas> schemas = new ArrayList<>();
-    Optional.ofNullable(rootNode.get("schemas"))
-        .ifPresent(
-            node -> {
-              Iterator<JsonNode> elements =
-                  node instanceof ArrayNode ? node.elements() : singletonList(node).iterator();
-              elements.forEachRemaining(
-                  element -> {
-                    TopicSchemas schema =
-                        new TopicSchemas(
-                            Optional.ofNullable(element.get("key.schema.file")),
-                            Optional.ofNullable(element.get("value.schema.file")));
-                    // validate elements are present before adding to list
-                    schemas.add(schema);
-                  });
-            });
+
+    if (rootNode.get("schemas") != null) {
+      JsonNode schemasNode = rootNode.get("schemas");
+      Iterator<JsonNode> it =
+          schemasNode instanceof ArrayNode
+              ? schemasNode.elements()
+              : singletonList(schemasNode).iterator();
+      Iterable<JsonNode> iterable = () -> it;
+
+      List<Either<ValidationException, TopicSchemas>> listOfResultsOrErrors =
+          StreamSupport.stream(iterable.spliterator(), true)
+              .map(validateAndBuildSchemas())
+              .collect(Collectors.toList());
+
+      List<ValidationException> errors =
+          listOfResultsOrErrors.stream()
+              .filter(Either::isLeft)
+              .map(Either::getLeft)
+              .map(Optional::get)
+              .collect(Collectors.toList());
+      if (errors.size() > 0) {
+        throw new IOException(errors.get(0));
+      }
+
+      schemas =
+          listOfResultsOrErrors.stream()
+              .filter(Either::isRight)
+              .map(Either::getRight)
+              .map(Optional::get)
+              .collect(Collectors.toList());
+    }
+
     topic.setSchemas(schemas);
 
     if (!topic.allSchemasHaveAtLeastValueSchemaFileOrAreEmpty()) {
@@ -109,6 +133,32 @@ public class TopicCustomDeserializer extends StdDeserializer<TopicImpl> {
     LOGGER.debug(
         String.format("Topic %s with config %s has been created", topic.getName(), config));
     return topic;
+  }
+
+  private Function<JsonNode, Either<ValidationException, TopicSchemas>> validateAndBuildSchemas() {
+    return node -> {
+      List<String> elements = new ArrayList<>();
+      node.fieldNames().forEachRemaining(elements::add);
+      try {
+        validateSchemaKeys(elements);
+        TopicSchemas schema =
+            new TopicSchemas(
+                Optional.ofNullable(node.get("key.schema.file")),
+                Optional.ofNullable(node.get("value.schema.file")));
+        return Either.Right(schema);
+      } catch (ValidationException ex) {
+        return Either.Left(ex);
+      }
+    };
+  }
+
+  private void validateSchemaKeys(List<String> elements) throws ValidationException {
+    for (String element : elements) {
+      if (!validSchemaKeys.contains(element)) {
+        throw new ValidationException(
+            String.format("Key %s is not a valid Topic Schema property", element));
+      }
+    }
   }
 
   private <T extends User> List<T> getUsers(
