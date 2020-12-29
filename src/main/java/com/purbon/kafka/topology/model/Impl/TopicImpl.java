@@ -24,7 +24,7 @@ public class TopicImpl implements Topic, Cloneable {
   private Optional<String> dataType;
 
   @JsonInclude(Include.NON_EMPTY)
-  private Optional<List<TopicSchemas>> schemas;
+  private List<TopicSchemas> schemas;
 
   private String name;
 
@@ -89,7 +89,7 @@ public class TopicImpl implements Topic, Cloneable {
     this.consumers = consumers;
     this.dataType = dataType;
     this.config = config;
-    this.schemas = Optional.empty();
+    this.schemas = new ArrayList<>();
     this.replicationFactor = 0;
     this.partitionCount = 0;
     this.appConfig = appConfig;
@@ -108,11 +108,11 @@ public class TopicImpl implements Topic, Cloneable {
     return plan;
   }
 
-  public Optional<List<TopicSchemas>> getSchemas() {
+  public List<TopicSchemas> getSchemas() {
     return schemas;
   }
 
-  public void setSchemas(Optional<List<TopicSchemas>> schemas) {
+  public void setSchemas(List<TopicSchemas> schemas) {
     this.schemas = schemas;
   }
 
@@ -126,15 +126,14 @@ public class TopicImpl implements Topic, Cloneable {
   }
 
   /**
-   * Validate if the list of optional schema's contain all the required elements
+   * Validate if the list of schema's contain all the required elements
    *
-   * @return
+   * @return boolean (true if value schema files are present, false otherwise)
    */
-  public boolean isValueSchemaFilesPresent() {
-    if (getSchemas().isPresent() && !getSchemas().get().isEmpty()) {
-      for (TopicSchemas schema : getSchemas().get()) {
-        if (!schema.getValueSchemaFile().isPresent()) return false;
-      }
+  public boolean allSchemasHaveAtLeastValueSchemaFileOrAreEmpty() {
+    if (getSchemas().isEmpty()) return true;
+    for (TopicSchemas schema : getSchemas()) {
+      if (!schema.getValueSchemaFile().isPresent()) return false;
     }
     return true;
   }

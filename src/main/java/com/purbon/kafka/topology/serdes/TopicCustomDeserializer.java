@@ -1,6 +1,7 @@
 package com.purbon.kafka.topology.serdes;
 
 import static com.purbon.kafka.topology.serdes.JsonSerdesUtils.validateRequiresKeys;
+import static java.util.Collections.singletonList;
 
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.DeserializationContext;
@@ -82,31 +83,25 @@ public class TopicCustomDeserializer extends StdDeserializer<TopicImpl> {
     TopicImpl topic =
         new TopicImpl(name, producers, consumers, optionalDataType, config, this.config);
 
-    // Amends from issue 155
     List<TopicSchemas> schemas = new ArrayList<>();
     Optional.ofNullable(rootNode.get("schemas"))
         .ifPresent(
             node -> {
               Iterator<JsonNode> elements =
-                  node instanceof ArrayNode ? node.elements() : Arrays.asList(node).iterator();
+                  node instanceof ArrayNode ? node.elements() : singletonList(node).iterator();
               elements.forEachRemaining(
-                  node1 -> {
+                  element -> {
                     TopicSchemas schema =
                         new TopicSchemas(
-                            Optional.ofNullable(node1.get("key.schema.file")),
-                            Optional.ofNullable(node1.get("value.schema.file")));
+                            Optional.ofNullable(element.get("key.schema.file")),
+                            Optional.ofNullable(element.get("value.schema.file")));
                     // validate elements are present before adding to list
                     schemas.add(schema);
                   });
             });
-    topic.setSchemas(Optional.of(schemas));
+    topic.setSchemas(schemas);
 
-    if (topic.getSchemas().isPresent()
-        && !topic
-            .getSchemas()
-            .get()
-            .isEmpty() // now that we know list is present, does it have mandatory elements
-        && !topic.isValueSchemaFilesPresent()) {
+    if (!topic.allSchemasHaveAtLeastValueSchemaFileOrAreEmpty()) {
       throw new IOException(
           String.format(
               "Missing required value.schema.file on schemas for topic %s", topic.getName()));
