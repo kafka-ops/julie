@@ -13,10 +13,6 @@ public class TopicSchemas {
   private Optional<String> valueSchemaFile;
   private Optional<String> valueRecordType;
 
-  public TopicSchemas() {
-    this(Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty());
-  }
-
   public TopicSchemas(
       Optional<JsonNode> keyJsonNode,
       Optional<JsonNode> keyRecordJsonNode,
