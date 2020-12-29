@@ -37,6 +37,9 @@ projects:
             - "topicD"
     topics:
       - name: "foo"
+        schemas:
+          key.schema.file: "schemas/foo-key.avsc"
+          value.schema.file: "schemas/foo-value.avsc"
         config:
           replication.factor: "1"
           num.partitions: "1"
