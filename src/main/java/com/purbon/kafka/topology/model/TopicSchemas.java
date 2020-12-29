@@ -9,22 +9,30 @@ import java.util.Optional;
 public class TopicSchemas {
 
   private Optional<String> keySchemaFile;
+  private Optional<String> keyRecordType;
   private Optional<String> valueSchemaFile;
+  private Optional<String> valueRecordType;
 
   public TopicSchemas() {
-    this(Optional.empty(), Optional.empty());
+    this(Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty());
   }
 
-  public TopicSchemas(Optional<JsonNode> keyJsonNode, Optional<JsonNode> valueJsonNode) {
-    this.keySchemaFile = Optional.empty();
-    this.valueSchemaFile = Optional.empty();
-    keyJsonNode.ifPresent(node -> keySchemaFile = Optional.of(node.asText()));
-    valueJsonNode.ifPresent(node -> valueSchemaFile = Optional.of(node.asText()));
+  public TopicSchemas(
+      Optional<JsonNode> keyJsonNode,
+      Optional<JsonNode> keyRecordJsonNode,
+      Optional<JsonNode> valueJsonNode,
+      Optional<JsonNode> valueRecordJsonNode) {
+    this.keySchemaFile = keyJsonNode.map(JsonNode::asText);
+    this.keyRecordType = keyRecordJsonNode.map(JsonNode::asText);
+    this.valueSchemaFile = valueJsonNode.map(JsonNode::asText);
+    this.valueRecordType = valueRecordJsonNode.map(JsonNode::asText);
   }
 
   public TopicSchemas(String keySchemaFile, String valueSchemaFile) {
     this.keySchemaFile = Optional.of(keySchemaFile);
     this.valueSchemaFile = Optional.of(valueSchemaFile);
+    this.keyRecordType = Optional.empty();
+    this.valueRecordType = Optional.empty();
   }
 
   public Optional<String> getKeySchemaFile() {
@@ -33,5 +41,13 @@ public class TopicSchemas {
 
   public Optional<String> getValueSchemaFile() {
     return valueSchemaFile;
+  }
+
+  public Optional<String> getKeyRecordType() {
+    return keyRecordType;
+  }
+
+  public Optional<String> getValueRecordType() {
+    return valueRecordType;
   }
 }

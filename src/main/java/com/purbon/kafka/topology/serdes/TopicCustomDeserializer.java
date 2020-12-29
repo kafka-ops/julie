@@ -29,7 +29,8 @@ public class TopicCustomDeserializer extends StdDeserializer<TopicImpl> {
 
   private static final Logger LOGGER = LogManager.getLogger(TopicCustomDeserializer.class);
 
-  private List<String> validSchemaKeys = Arrays.asList("key.schema.file", "value.schema.file");
+  private List<String> validSchemaKeys =
+      Arrays.asList("key.schema.file", "key.record.type", "value.schema.file", "value.record.type");
 
   private final TopologyBuilderConfig config;
   private PlanMap plans;
@@ -149,7 +150,9 @@ public class TopicCustomDeserializer extends StdDeserializer<TopicImpl> {
         TopicSchemas schema =
             new TopicSchemas(
                 Optional.ofNullable(node.get("key.schema.file")),
-                Optional.ofNullable(node.get("value.schema.file")));
+                Optional.ofNullable(node.get("key.record.type")),
+                Optional.ofNullable(node.get("value.schema.file")),
+                Optional.ofNullable(node.get("value.record.type")));
         return Either.Right(schema);
       } catch (ValidationException ex) {
         return Either.Left(ex);

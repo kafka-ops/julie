@@ -47,6 +47,7 @@ projects:
         dataType: "avro"
         subject.name.strategy: "TopicRecordNameStrategy"
         schemas:
+          value.record.type: "foo"
           value.schema.file: "schemas/bar-value.avsc"
       - name: "cat"
         dataType: "avro"

@@ -55,36 +55,41 @@ public class SyncTopicAction extends BaseAction {
     }
 
     for (TopicSchemas schema : topic.getSchemas()) {
-      schema
-          .getKeySchemaFile()
-          .ifPresent(
-              keySchemaFile ->
-                  schemaRegistryManager.register(composeKeySubjectName(topic), keySchemaFile));
-
-      schema
-          .getValueSchemaFile()
-          .ifPresent(
-              valueSchemaFile ->
-                  schemaRegistryManager.register(composeValueSubjectName(topic), valueSchemaFile));
+      if (schema.getKeySchemaFile().isPresent()) {
+        String keySchemaFile = schema.getKeySchemaFile().get();
+        schemaRegistryManager.register(composeKeySubjectName(topic, schema), keySchemaFile);
+      }
+      if (schema.getValueSchemaFile().isPresent()) {
+        String valueSchemaFile = schema.getValueSchemaFile().get();
+        schemaRegistryManager.register(composeValueSubjectName(topic, schema), valueSchemaFile);
+      }
     }
   }
 
-  private String composeKeySubjectName(Topic topic) {
-    return composeSubjectName(topic, "key");
+  private String composeKeySubjectName(Topic topic, TopicSchemas schema) throws IOException {
+    String recordType =
+        schema
+            .getKeyRecordType()
+            .orElseThrow(() -> new IOException("Missing record type for " + topic));
+    return composeSubjectName(topic, "key", recordType);
   }
 
-  private String composeValueSubjectName(Topic topic) {
-    return composeSubjectName(topic, "value");
+  private String composeValueSubjectName(Topic topic, TopicSchemas schema) throws IOException {
+    String recordType =
+        schema
+            .getValueRecordType()
+            .orElseThrow(() -> new IOException("Missing record type for " + topic));
+    return composeSubjectName(topic, "value", recordType);
   }
 
-  private String composeSubjectName(Topic topic, String type) {
+  private String composeSubjectName(Topic topic, String type, String recordType) {
     switch (topic.getSubjectNameStrategyString()) {
       case "TopicNameStrategy":
         return fullTopicName + "-" + type;
       case "RecordNameStrategy":
-        return "record-type";
+        return recordType;
       case "TopicRecordNameStrategy":
-        return fullTopicName + "record-type";
+        return fullTopicName + "-" + recordType;
       default:
         return "";
     }
