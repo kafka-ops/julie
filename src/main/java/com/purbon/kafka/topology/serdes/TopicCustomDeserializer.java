@@ -1,5 +1,6 @@
 package com.purbon.kafka.topology.serdes;
 
+import static com.purbon.kafka.topology.model.SubjectNameStrategy.TOPIC_NAME_STRATEGY;
 import static com.purbon.kafka.topology.serdes.JsonSerdesUtils.validateRequiresKeys;
 import static java.util.Collections.singletonList;
 
@@ -13,6 +14,7 @@ import com.purbon.kafka.topology.exceptions.ValidationException;
 import com.purbon.kafka.topology.model.Impl.TopicImpl;
 import com.purbon.kafka.topology.model.PlanMap;
 import com.purbon.kafka.topology.model.SubjectNameStrategy;
+import com.purbon.kafka.topology.model.Topic;
 import com.purbon.kafka.topology.model.TopicSchemas;
 import com.purbon.kafka.topology.model.User;
 import com.purbon.kafka.topology.model.users.Consumer;
@@ -104,7 +106,7 @@ public class TopicCustomDeserializer extends StdDeserializer<TopicImpl> {
 
       List<Either<ValidationException, TopicSchemas>> listOfResultsOrErrors =
           StreamSupport.stream(iterable.spliterator(), true)
-              .map(validateAndBuildSchemas())
+              .map(validateAndBuildSchemas(topic))
               .collect(Collectors.toList());
 
       List<ValidationException> errors =
@@ -127,12 +129,6 @@ public class TopicCustomDeserializer extends StdDeserializer<TopicImpl> {
 
     topic.setSchemas(schemas);
 
-    if (!topic.allSchemasHaveAtLeastValueSchemaFileOrAreEmpty()) {
-      throw new IOException(
-          String.format(
-              "Missing required value.schema.file on schemas for topic %s", topic.getName()));
-    }
-
     Optional<SubjectNameStrategy> subjectNameStrategy =
         Optional.ofNullable(rootNode.get("subject.name.strategy"))
             .map(JsonNode::asText)
@@ -144,12 +140,13 @@ public class TopicCustomDeserializer extends StdDeserializer<TopicImpl> {
     return topic;
   }
 
-  private Function<JsonNode, Either<ValidationException, TopicSchemas>> validateAndBuildSchemas() {
+  private Function<JsonNode, Either<ValidationException, TopicSchemas>> validateAndBuildSchemas(
+      Topic topic) {
     return node -> {
       List<String> elements = new ArrayList<>();
       node.fieldNames().forEachRemaining(elements::add);
       try {
-        validateSchemaKeys(elements);
+        validateSchemaKeys(elements, topic);
         TopicSchemas schema =
             new TopicSchemas(
                 Optional.ofNullable(node.get("key.schema.file")),
@@ -163,12 +160,25 @@ public class TopicCustomDeserializer extends StdDeserializer<TopicImpl> {
     };
   }
 
-  private void validateSchemaKeys(List<String> elements) throws ValidationException {
+  private void validateSchemaKeys(List<String> elements, Topic topic) throws ValidationException {
     for (String element : elements) {
       if (!validSchemaKeys.contains(element)) {
         throw new ValidationException(
             String.format("Key %s is not a valid Topic Schema property", element));
       }
+    }
+    if (!topic.getSubjectNameStrategy().equals(TOPIC_NAME_STRATEGY)) {
+      if (!elements.contains("key.record.type") && !elements.contains("value.record.type")) {
+        throw new ValidationException(
+            String.format(
+                "For a subject name strategy %s record.type is required!",
+                topic.getSubjectNameStrategy()));
+      }
+    }
+    if (!elements.contains("value.schema.file")) {
+      throw new ValidationException(
+          String.format(
+              "Missing required value.schema.file on schemas for topic %s", topic.getName()));
     }
   }
 

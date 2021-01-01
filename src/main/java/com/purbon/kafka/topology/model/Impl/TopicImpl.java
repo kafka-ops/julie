@@ -138,19 +138,6 @@ public class TopicImpl implements Topic, Cloneable {
     }
   }
 
-  /**
-   * Validate if the list of schema's contain all the required elements
-   *
-   * @return boolean (true if value schema files are present, false otherwise)
-   */
-  public boolean allSchemasHaveAtLeastValueSchemaFileOrAreEmpty() {
-    if (getSchemas().isEmpty()) return true;
-    for (TopicSchemas schema : getSchemas()) {
-      if (!schema.getValueSubject().hasSchemaFile()) return false;
-    }
-    return true;
-  }
-
   private String patternBasedTopicNameStructureString() {
     context.put("topic", name);
     dataType.ifPresent(s -> context.put("dataType", s));
