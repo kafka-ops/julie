@@ -3,47 +3,34 @@ package com.purbon.kafka.topology.model;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.PropertyNamingStrategy;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
+import com.purbon.kafka.topology.model.schema.Subject;
 import java.util.Optional;
 
 @JsonNaming(PropertyNamingStrategy.LowerDotCaseStrategy.class)
 public class TopicSchemas {
 
-  private Optional<String> keySchemaFile;
-  private Optional<String> keyRecordType;
-  private Optional<String> valueSchemaFile;
-  private Optional<String> valueRecordType;
+  private Subject keySubject;
+  private Subject valueSubject;
 
   public TopicSchemas(
       Optional<JsonNode> keyJsonNode,
       Optional<JsonNode> keyRecordJsonNode,
       Optional<JsonNode> valueJsonNode,
       Optional<JsonNode> valueRecordJsonNode) {
-    this.keySchemaFile = keyJsonNode.map(JsonNode::asText);
-    this.keyRecordType = keyRecordJsonNode.map(JsonNode::asText);
-    this.valueSchemaFile = valueJsonNode.map(JsonNode::asText);
-    this.valueRecordType = valueRecordJsonNode.map(JsonNode::asText);
+    this.keySubject = new Subject(keyJsonNode, keyRecordJsonNode);
+    this.valueSubject = new Subject(valueJsonNode, valueRecordJsonNode);
   }
 
   public TopicSchemas(String keySchemaFile, String valueSchemaFile) {
-    this.keySchemaFile = Optional.of(keySchemaFile);
-    this.valueSchemaFile = Optional.of(valueSchemaFile);
-    this.keyRecordType = Optional.empty();
-    this.valueRecordType = Optional.empty();
+    this.keySubject = new Subject(keySchemaFile, null);
+    this.valueSubject = new Subject(valueSchemaFile, null);
   }
 
-  public Optional<String> getKeySchemaFile() {
-    return keySchemaFile;
+  public Subject getKeySubject() {
+    return keySubject;
   }
 
-  public Optional<String> getValueSchemaFile() {
-    return valueSchemaFile;
-  }
-
-  public Optional<String> getKeyRecordType() {
-    return keyRecordType;
-  }
-
-  public Optional<String> getValueRecordType() {
-    return valueRecordType;
+  public Subject getValueSubject() {
+    return valueSubject;
   }
 }

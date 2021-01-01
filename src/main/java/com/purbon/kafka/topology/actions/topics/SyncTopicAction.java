@@ -55,12 +55,12 @@ public class SyncTopicAction extends BaseAction {
     }
 
     for (TopicSchemas schema : topic.getSchemas()) {
-      if (schema.getKeySchemaFile().isPresent()) {
-        String keySchemaFile = schema.getKeySchemaFile().get();
+      if (schema.getKeySubject().getSchemaFile().isPresent()) {
+        String keySchemaFile = schema.getKeySubject().getSchemaFile().get();
         schemaRegistryManager.register(composeKeySubjectName(topic, schema), keySchemaFile);
       }
-      if (schema.getValueSchemaFile().isPresent()) {
-        String valueSchemaFile = schema.getValueSchemaFile().get();
+      if (schema.getValueSubject().getSchemaFile().isPresent()) {
+        String valueSchemaFile = schema.getValueSubject().getSchemaFile().get();
         schemaRegistryManager.register(composeValueSubjectName(topic, schema), valueSchemaFile);
       }
     }
@@ -69,7 +69,8 @@ public class SyncTopicAction extends BaseAction {
   private String composeKeySubjectName(Topic topic, TopicSchemas schema) throws IOException {
     String recordType =
         schema
-            .getKeyRecordType()
+            .getKeySubject()
+            .getRecordType()
             .orElseThrow(() -> new IOException("Missing record type for " + topic));
     return composeSubjectName(topic, "key", recordType);
   }
@@ -77,7 +78,8 @@ public class SyncTopicAction extends BaseAction {
   private String composeValueSubjectName(Topic topic, TopicSchemas schema) throws IOException {
     String recordType =
         schema
-            .getValueRecordType()
+            .getValueSubject()
+            .getRecordType()
             .orElseThrow(() -> new IOException("Missing record type for " + topic));
     return composeSubjectName(topic, "value", recordType);
   }
