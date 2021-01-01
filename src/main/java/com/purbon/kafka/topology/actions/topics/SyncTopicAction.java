@@ -4,6 +4,7 @@ import com.purbon.kafka.topology.actions.BaseAction;
 import com.purbon.kafka.topology.api.adminclient.TopologyBuilderAdminClient;
 import com.purbon.kafka.topology.model.Topic;
 import com.purbon.kafka.topology.model.TopicSchemas;
+import com.purbon.kafka.topology.model.schema.Subject;
 import com.purbon.kafka.topology.schemas.SchemaRegistryManager;
 import java.io.IOException;
 import java.util.HashMap;
@@ -58,20 +59,17 @@ public class SyncTopicAction extends BaseAction {
       adminClient.createTopic(topic, fullTopicName);
     }
 
-    if (topic.getSchemas().isPresent()) {
-      final TopicSchemas schemas = topic.getSchemas().get();
-
-      schemas
-          .getKeySchemaFile()
-          .ifPresent(
-              keySchemaFile ->
-                  schemaRegistryManager.register(fullTopicName + "-key", keySchemaFile));
-
-      schemas
-          .getValueSchemaFile()
-          .ifPresent(
-              valueSchemaFile ->
-                  schemaRegistryManager.register(fullTopicName + "-value", valueSchemaFile));
+    for (TopicSchemas schema : topic.getSchemas()) {
+      Subject keySubject = schema.getKeySubject();
+      Subject valueSubject = schema.getValueSubject();
+      if (keySubject.hasSchemaFile()) {
+        String keySchemaFile = keySubject.getSchemaFile();
+        schemaRegistryManager.register(keySubject.buildSubjectName(topic), keySchemaFile);
+      }
+      if (valueSubject.hasSchemaFile()) {
+        String valueSchemaFile = valueSubject.getSchemaFile();
+        schemaRegistryManager.register(valueSubject.buildSubjectName(topic), valueSchemaFile);
+      }
     }
   }
 

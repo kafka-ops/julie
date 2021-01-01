@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.purbon.kafka.topology.TopicManager;
 import com.purbon.kafka.topology.TopologyBuilderConfig;
+import com.purbon.kafka.topology.model.SubjectNameStrategy;
 import com.purbon.kafka.topology.model.Topic;
 import com.purbon.kafka.topology.model.TopicSchemas;
 import com.purbon.kafka.topology.model.users.Consumer;
@@ -24,7 +25,7 @@ public class TopicImpl implements Topic, Cloneable {
   private Optional<String> dataType;
 
   @JsonInclude(Include.NON_EMPTY)
-  private Optional<TopicSchemas> schemas;
+  private List<TopicSchemas> schemas;
 
   private String name;
 
@@ -44,6 +45,9 @@ public class TopicImpl implements Topic, Cloneable {
   @JsonIgnore private String projectPrefix;
   private static String DEFAULT_PARTITION_COUNT = "3";
   private static String DEFAULT_REPLICATION_FACTOR = "2";
+
+  @JsonInclude(Include.NON_EMPTY)
+  private Optional<SubjectNameStrategy> subjectNameStrategy;
 
   public TopicImpl() {
     this(DEFAULT_TOPIC_NAME, Optional.empty(), new HashMap<>(), new TopologyBuilderConfig());
@@ -89,7 +93,7 @@ public class TopicImpl implements Topic, Cloneable {
     this.consumers = consumers;
     this.dataType = dataType;
     this.config = config;
-    this.schemas = Optional.empty();
+    this.schemas = new ArrayList<>();
     this.replicationFactor = 0;
     this.partitionCount = 0;
     this.appConfig = appConfig;
@@ -97,6 +101,7 @@ public class TopicImpl implements Topic, Cloneable {
     partitionCount = Integer.parseInt(value);
     value = config.getOrDefault(TopicManager.REPLICATION_FACTOR, DEFAULT_REPLICATION_FACTOR);
     replicationFactor = Short.parseShort(value);
+    subjectNameStrategy = Optional.empty();
   }
 
   public String getName() {
@@ -108,12 +113,20 @@ public class TopicImpl implements Topic, Cloneable {
     return plan;
   }
 
-  public Optional<TopicSchemas> getSchemas() {
+  public List<TopicSchemas> getSchemas() {
     return schemas;
   }
 
-  public void setSchemas(Optional<TopicSchemas> schemas) {
+  public void setSchemas(List<TopicSchemas> schemas) {
     this.schemas = schemas;
+  }
+
+  public void setSubjectNameStrategy(Optional<SubjectNameStrategy> subjectNameStrategy) {
+    this.subjectNameStrategy = subjectNameStrategy;
+  }
+
+  public SubjectNameStrategy getSubjectNameStrategy() {
+    return subjectNameStrategy.orElse(SubjectNameStrategy.TOPIC_NAME_STRATEGY);
   }
 
   private String toString(String projectPrefix) {

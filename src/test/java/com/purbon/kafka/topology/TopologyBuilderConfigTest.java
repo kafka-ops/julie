@@ -50,7 +50,7 @@ public class TopologyBuilderConfigTest {
     Project project = new ProjectImpl();
     Topic topic = new TopicImpl();
     TopicSchemas schema = new TopicSchemas("foo", "bar");
-    topic.setSchemas(Optional.of(schema));
+    topic.setSchemas(Collections.singletonList(schema));
     project.addTopic(topic);
     topology.addProject(project);
     props.put(CONFLUENT_SCHEMA_REGISTRY_URL_CONFIG, "mock://");
@@ -65,7 +65,7 @@ public class TopologyBuilderConfigTest {
     Project project = new ProjectImpl();
     Topic topic = new TopicImpl();
     TopicSchemas schema = new TopicSchemas("foo", "bar");
-    topic.setSchemas(Optional.of(schema));
+    topic.setSchemas(Collections.singletonList(schema));
     project.addTopic(topic);
     topology.addProject(project);
 
@@ -152,7 +152,6 @@ public class TopologyBuilderConfigTest {
     project.addTopic(topic);
     topology.addProject(project);
 
-    props.put(PROJECT_PREFIX_FORMAT_CONFIG, "{{foo}}{{topic}}");
     props.put(PROJECT_PREFIX_FORMAT_CONFIG, "{{banana}}");
 
     TopologyBuilderConfig config = new TopologyBuilderConfig(cliOps, props);
@@ -166,7 +165,7 @@ public class TopologyBuilderConfigTest {
     cliOps.put(ADMIN_CLIENT_CONFIG_OPTION, clientConfigFile);
 
     TopologyBuilderConfig config = TopologyBuilderConfig.build(cliOps);
-    assertThat(config.getKafkaInternalTopicPrefixes()).isEqualTo(Arrays.asList("_"));
+    assertThat(config.getKafkaInternalTopicPrefixes()).isEqualTo(Collections.singletonList("_"));
   }
 
   @Test
