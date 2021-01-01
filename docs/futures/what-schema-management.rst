@@ -17,14 +17,24 @@ An example topology for managing schemas would look like this (*only the topics 
       - name: "projectA"
         topics:
           - name: "foo"
+            schemas:
+              value.schema.file: "schemas/foo-value.avsc"
             config:
               replication.factor: "1"
               num.partitions: "1"
           - name: "bar"
             dataType: "avro"
+            subject.name.strategy: "TopicRecordNameStrategy"
             schemas:
-              key.schema.file: "schemas/bar-key.avsc"
-              value.schema.file: "schemas/bar-value.avsc"
+              - key.schema.file: "schemas/foo-key.avsc"
+                value.schema.file: "schemas/foo-value.avsc"
+                value.record.type: "foo"
+              - key.schema.file: "schemas/bar-key.avsc"
+                value.schema.file: "schemas/bar-value.avsc"
+                value.record.type: "bar"
+              - key.schema.file: "schemas/zet-key.avsc"
+                value.schema.file: "schemas/zet-value.avsc"
+                value.record.type: "zet"
             config:
               replication.factor: "1"
               num.partitions: "1"
@@ -34,8 +44,17 @@ Currently the schemas are managed as files and need to be accessible for the KTB
 
 *NOTE*: The path for the files is relative to the location of the of the topology.
 
-*NOTE*: Keep in mind that for a usecase like in the example above you have to define the value for `schema.registry.url` in your properties file.
+*NOTE*: Keep in mind that for a use case like in the example above you have to define the value for `schema.registry.url` in your properties file.
 
+Multiple schemas support per topic
+-----------
+
+It is possible to setup multiple schemas per topic, this is a common use case when using a subject name strategy different than *TopicNameStrategy*.
+
+If using multiple schemas, as it can be seen in the earlier example, the user must set the subject naming strategy for the topic to be one of the
+other options.
+
+The user should as well set the *record.type* for each of the keys as this is a value required when configuring the final subject.
 
 Supported Schema Registry
 -----------

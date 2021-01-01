@@ -1,31 +1,39 @@
 package com.purbon.kafka.topology.serdes;
 
+import static com.purbon.kafka.topology.model.SubjectNameStrategy.TOPIC_NAME_STRATEGY;
 import static com.purbon.kafka.topology.serdes.JsonSerdesUtils.validateRequiresKeys;
+import static java.util.Collections.singletonList;
 
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
+import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.purbon.kafka.topology.TopologyBuilderConfig;
+import com.purbon.kafka.topology.exceptions.ValidationException;
 import com.purbon.kafka.topology.model.Impl.TopicImpl;
 import com.purbon.kafka.topology.model.PlanMap;
+import com.purbon.kafka.topology.model.SubjectNameStrategy;
+import com.purbon.kafka.topology.model.Topic;
 import com.purbon.kafka.topology.model.TopicSchemas;
 import com.purbon.kafka.topology.model.User;
 import com.purbon.kafka.topology.model.users.Consumer;
 import com.purbon.kafka.topology.model.users.Producer;
+import com.purbon.kafka.topology.utils.Either;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 public class TopicCustomDeserializer extends StdDeserializer<TopicImpl> {
 
   private static final Logger LOGGER = LogManager.getLogger(TopicCustomDeserializer.class);
+
+  private List<String> validSchemaKeys =
+      Arrays.asList("key.schema.file", "key.record.type", "value.schema.file", "value.record.type");
 
   private final TopologyBuilderConfig config;
   private PlanMap plans;
@@ -86,24 +94,98 @@ public class TopicCustomDeserializer extends StdDeserializer<TopicImpl> {
     TopicImpl topic =
         new TopicImpl(name, producers, consumers, optionalDataType, config, this.config);
 
-    Optional.ofNullable(rootNode.get("schemas"))
-        .ifPresent(
-            node -> {
-              topic.setSchemas(
-                  Optional.of(
-                      new TopicSchemas(
-                          Optional.ofNullable(node.get("key.schema.file")),
-                          Optional.ofNullable(node.get("value.schema.file")))));
-            });
-    if (topic.getSchemas().isPresent()
-        && !topic.getSchemas().get().getValueSchemaFile().isPresent()) {
+    Optional<SubjectNameStrategy> subjectNameStrategy =
+        Optional.ofNullable(rootNode.get("subject.name.strategy"))
+            .map(JsonNode::asText)
+            .map(SubjectNameStrategy::valueOfLabel);
+    topic.setSubjectNameStrategy(subjectNameStrategy);
+
+    List<TopicSchemas> schemas = new ArrayList<>();
+
+    if (rootNode.get("schemas") != null) {
+      JsonNode schemasNode = rootNode.get("schemas");
+      Iterator<JsonNode> it =
+          schemasNode instanceof ArrayNode
+              ? schemasNode.elements()
+              : singletonList(schemasNode).iterator();
+      Iterable<JsonNode> iterable = () -> it;
+
+      List<Either<ValidationException, TopicSchemas>> listOfResultsOrErrors =
+          StreamSupport.stream(iterable.spliterator(), true)
+              .map(validateAndBuildSchemas(topic))
+              .collect(Collectors.toList());
+
+      List<ValidationException> errors =
+          listOfResultsOrErrors.stream()
+              .filter(Either::isLeft)
+              .map(Either::getLeft)
+              .map(Optional::get)
+              .collect(Collectors.toList());
+      if (errors.size() > 0) {
+        throw new IOException(errors.get(0));
+      }
+
+      schemas =
+          listOfResultsOrErrors.stream()
+              .filter(Either::isRight)
+              .map(Either::getRight)
+              .map(Optional::get)
+              .collect(Collectors.toList());
+    }
+
+    if (schemas.size() > 1 && topic.getSubjectNameStrategy().equals(TOPIC_NAME_STRATEGY)) {
       throw new IOException(
           String.format(
-              "Missing required value.schema.file on schemas for topic %s", topic.getName()));
+              "%s is not a valid strategy when registering multiple schemas", TOPIC_NAME_STRATEGY));
     }
+
+    topic.setSchemas(schemas);
+
     LOGGER.debug(
         String.format("Topic %s with config %s has been created", topic.getName(), config));
     return topic;
+  }
+
+  private Function<JsonNode, Either<ValidationException, TopicSchemas>> validateAndBuildSchemas(
+      Topic topic) {
+    return node -> {
+      List<String> elements = new ArrayList<>();
+      node.fieldNames().forEachRemaining(elements::add);
+      try {
+        validateSchemaKeys(elements, topic);
+        TopicSchemas schema =
+            new TopicSchemas(
+                Optional.ofNullable(node.get("key.schema.file")),
+                Optional.ofNullable(node.get("key.record.type")),
+                Optional.ofNullable(node.get("value.schema.file")),
+                Optional.ofNullable(node.get("value.record.type")));
+        return Either.Right(schema);
+      } catch (ValidationException ex) {
+        return Either.Left(ex);
+      }
+    };
+  }
+
+  private void validateSchemaKeys(List<String> elements, Topic topic) throws ValidationException {
+    for (String element : elements) {
+      if (!validSchemaKeys.contains(element)) {
+        throw new ValidationException(
+            String.format("Key %s is not a valid Topic Schema property", element));
+      }
+    }
+    if (!topic.getSubjectNameStrategy().equals(TOPIC_NAME_STRATEGY)) {
+      if (!elements.contains("key.record.type") && !elements.contains("value.record.type")) {
+        throw new ValidationException(
+            String.format(
+                "For a subject name strategy %s record.type is required!",
+                topic.getSubjectNameStrategy()));
+      }
+    }
+    if (!elements.contains("value.schema.file")) {
+      throw new ValidationException(
+          String.format(
+              "Missing required value.schema.file on schemas for topic %s", topic.getName()));
+    }
   }
 
   private <T extends User> List<T> getUsers(

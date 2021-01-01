@@ -4,6 +4,8 @@ import static com.purbon.kafka.topology.BuilderCLI.ADMIN_CLIENT_CONFIG_OPTION;
 import static com.purbon.kafka.topology.BuilderCLI.BROKERS_OPTION;
 import static com.purbon.kafka.topology.TopologyBuilderConfig.TOPIC_PREFIX_FORMAT_CONFIG;
 import static com.purbon.kafka.topology.TopologyBuilderConfig.TOPIC_PREFIX_SEPARATOR_CONFIG;
+import static com.purbon.kafka.topology.model.SubjectNameStrategy.TOPIC_NAME_STRATEGY;
+import static com.purbon.kafka.topology.model.SubjectNameStrategy.TOPIC_RECORD_NAME_STRATEGY;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -201,8 +203,28 @@ public class TopologySerdesTest {
   }
 
   @Test(expected = IllegalArgumentException.class)
-  public void testSchemaSerdes() {
+  public void testInvalidSchemaSerdes() {
     parser.deserialise(TestUtils.getResourceFile("/descriptor-wrong-schemas.yaml"));
+  }
+
+  @Test
+  public void testSchemaSerdes() {
+    Topology topology = parser.deserialise(TestUtils.getResourceFile("/descriptor.yaml"));
+    Project project = topology.getProjects().get(0);
+    List<Topic> topics = project.getTopics();
+    Optional<Topic> topicBar = topics.stream().filter(t -> t.getName().equals("bar")).findFirst();
+    Optional<Topic> topicCat = topics.stream().filter(t -> t.getName().equals("cat")).findFirst();
+
+    assertThat(topicBar).isPresent();
+    assertThat(topicBar.get().getSchemas()).hasSize(1);
+    assertThat(topicBar.get().getSchemas().get(0).getValueSubject().hasSchemaFile()).isTrue();
+    assertThat(topicBar.get().getSubjectNameStrategy()).isEqualTo(TOPIC_NAME_STRATEGY);
+
+    assertThat(topicCat).isPresent();
+    assertThat(topicCat.get().getSchemas()).hasSize(2);
+    assertThat(topicCat.get().getSchemas().get(0).getValueSubject().hasSchemaFile()).isTrue();
+    assertThat(topicCat.get().getSchemas().get(1).getValueSubject().hasSchemaFile()).isTrue();
+    assertThat(topicCat.get().getSubjectNameStrategy()).isEqualTo(TOPIC_RECORD_NAME_STRATEGY);
   }
 
   @Test

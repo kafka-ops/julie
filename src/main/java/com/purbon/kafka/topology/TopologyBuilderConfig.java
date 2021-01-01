@@ -202,7 +202,7 @@ public class TopologyBuilderConfig {
   private static boolean hasSchemas(Topology topology) {
     return topology.getProjects().stream()
         .flatMap((Function<Project, Stream<Topic>>) project -> project.getTopics().stream())
-        .anyMatch(topic -> topic.getSchemas().isPresent());
+        .anyMatch(topic -> !topic.getSchemas().isEmpty());
   }
 
   private void raiseIfDefault(String key, String _default) throws ConfigurationException {

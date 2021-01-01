@@ -15,11 +15,11 @@ public interface Topic {
 
   String getName();
 
-  Optional<TopicSchemas> getSchemas();
+  List<TopicSchemas> getSchemas();
 
   String getPlan();
 
-  void setSchemas(Optional<TopicSchemas> schemas);
+  void setSchemas(List<TopicSchemas> schemas);
 
   Map<String, String> getConfig();
 
@@ -44,4 +44,6 @@ public interface Topic {
   void setConsumers(List<Consumer> consumers);
 
   void setProducers(List<Producer> producers);
+
+  SubjectNameStrategy getSubjectNameStrategy();
 }
