@@ -58,12 +58,12 @@ public class SyncTopicAction extends BaseAction {
     for (TopicSchemas schema : topic.getSchemas()) {
       Subject keySubject = schema.getKeySubject();
       Subject valueSubject = schema.getValueSubject();
-      if (keySubject.getSchemaFile().isPresent()) {
-        String keySchemaFile = keySubject.getSchemaFile().get();
+      if (keySubject.hasSchemaFile()) {
+        String keySchemaFile = keySubject.getSchemaFile();
         schemaRegistryManager.register(keySubject.buildSubjectName(topic), keySchemaFile);
       }
-      if (valueSubject.getSchemaFile().isPresent()) {
-        String valueSchemaFile = valueSubject.getSchemaFile().get();
+      if (valueSubject.hasSchemaFile()) {
+        String valueSchemaFile = valueSubject.getSchemaFile();
         schemaRegistryManager.register(valueSubject.buildSubjectName(topic), valueSchemaFile);
       }
     }

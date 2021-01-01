@@ -146,7 +146,7 @@ public class TopicImpl implements Topic, Cloneable {
   public boolean allSchemasHaveAtLeastValueSchemaFileOrAreEmpty() {
     if (getSchemas().isEmpty()) return true;
     for (TopicSchemas schema : getSchemas()) {
-      if (!schema.getValueSubject().getSchemaFile().isPresent()) return false;
+      if (!schema.getValueSubject().hasSchemaFile()) return false;
     }
     return true;
   }

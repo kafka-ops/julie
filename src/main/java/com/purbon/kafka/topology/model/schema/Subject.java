@@ -37,8 +37,12 @@ public class Subject {
     this.kind = kind;
   }
 
-  public Optional<String> getSchemaFile() {
-    return schemaFile;
+  public String getSchemaFile() throws IOException {
+    return schemaFile.orElseThrow(() -> new IOException("SchemaFile not present"));
+  }
+
+  public boolean hasSchemaFile() {
+    return schemaFile.isPresent();
   }
 
   private String recordTypeAsString() throws IOException {
