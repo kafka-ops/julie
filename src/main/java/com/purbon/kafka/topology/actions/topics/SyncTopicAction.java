@@ -4,6 +4,7 @@ import com.purbon.kafka.topology.actions.BaseAction;
 import com.purbon.kafka.topology.api.adminclient.TopologyBuilderAdminClient;
 import com.purbon.kafka.topology.model.Topic;
 import com.purbon.kafka.topology.model.TopicSchemas;
+import com.purbon.kafka.topology.model.schema.Subject;
 import com.purbon.kafka.topology.schemas.SchemaRegistryManager;
 import java.io.IOException;
 import java.util.HashMap;
@@ -55,45 +56,16 @@ public class SyncTopicAction extends BaseAction {
     }
 
     for (TopicSchemas schema : topic.getSchemas()) {
-      if (schema.getKeySubject().getSchemaFile().isPresent()) {
-        String keySchemaFile = schema.getKeySubject().getSchemaFile().get();
-        schemaRegistryManager.register(composeKeySubjectName(topic, schema), keySchemaFile);
+      Subject keySubject = schema.getKeySubject();
+      Subject valueSubject = schema.getValueSubject();
+      if (keySubject.getSchemaFile().isPresent()) {
+        String keySchemaFile = keySubject.getSchemaFile().get();
+        schemaRegistryManager.register(keySubject.buildSubjectName(topic), keySchemaFile);
       }
-      if (schema.getValueSubject().getSchemaFile().isPresent()) {
-        String valueSchemaFile = schema.getValueSubject().getSchemaFile().get();
-        schemaRegistryManager.register(composeValueSubjectName(topic, schema), valueSchemaFile);
+      if (valueSubject.getSchemaFile().isPresent()) {
+        String valueSchemaFile = valueSubject.getSchemaFile().get();
+        schemaRegistryManager.register(valueSubject.buildSubjectName(topic), valueSchemaFile);
       }
-    }
-  }
-
-  private String composeKeySubjectName(Topic topic, TopicSchemas schema) throws IOException {
-    String recordType =
-        schema
-            .getKeySubject()
-            .getRecordType()
-            .orElseThrow(() -> new IOException("Missing record type for " + topic));
-    return composeSubjectName(topic, "key", recordType);
-  }
-
-  private String composeValueSubjectName(Topic topic, TopicSchemas schema) throws IOException {
-    String recordType =
-        schema
-            .getValueSubject()
-            .getRecordType()
-            .orElseThrow(() -> new IOException("Missing record type for " + topic));
-    return composeSubjectName(topic, "value", recordType);
-  }
-
-  private String composeSubjectName(Topic topic, String type, String recordType) {
-    switch (topic.getSubjectNameStrategyString()) {
-      case "TopicNameStrategy":
-        return fullTopicName + "-" + type;
-      case "RecordNameStrategy":
-        return recordType;
-      case "TopicRecordNameStrategy":
-        return fullTopicName + "-" + recordType;
-      default:
-        return "";
     }
   }
 

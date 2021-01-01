@@ -12,6 +12,7 @@ import com.purbon.kafka.topology.TopologyBuilderConfig;
 import com.purbon.kafka.topology.exceptions.ValidationException;
 import com.purbon.kafka.topology.model.Impl.TopicImpl;
 import com.purbon.kafka.topology.model.PlanMap;
+import com.purbon.kafka.topology.model.SubjectNameStrategy;
 import com.purbon.kafka.topology.model.TopicSchemas;
 import com.purbon.kafka.topology.model.User;
 import com.purbon.kafka.topology.model.users.Consumer;
@@ -132,8 +133,10 @@ public class TopicCustomDeserializer extends StdDeserializer<TopicImpl> {
               "Missing required value.schema.file on schemas for topic %s", topic.getName()));
     }
 
-    Optional<String> subjectNameStrategy =
-        Optional.ofNullable(rootNode.get("subject.name.strategy")).map(JsonNode::asText);
+    Optional<SubjectNameStrategy> subjectNameStrategy =
+        Optional.ofNullable(rootNode.get("subject.name.strategy"))
+            .map(JsonNode::asText)
+            .map(SubjectNameStrategy::valueOfLabel);
     topic.setSubjectNameStrategy(subjectNameStrategy);
 
     LOGGER.debug(

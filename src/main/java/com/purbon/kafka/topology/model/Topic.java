@@ -45,5 +45,5 @@ public interface Topic {
 
   void setProducers(List<Producer> producers);
 
-  String getSubjectNameStrategyString();
+  SubjectNameStrategy getSubjectNameStrategy();
 }

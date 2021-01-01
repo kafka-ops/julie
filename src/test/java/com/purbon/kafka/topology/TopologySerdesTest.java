@@ -4,6 +4,8 @@ import static com.purbon.kafka.topology.BuilderCLI.ADMIN_CLIENT_CONFIG_OPTION;
 import static com.purbon.kafka.topology.BuilderCLI.BROKERS_OPTION;
 import static com.purbon.kafka.topology.TopologyBuilderConfig.TOPIC_PREFIX_FORMAT_CONFIG;
 import static com.purbon.kafka.topology.TopologyBuilderConfig.TOPIC_PREFIX_SEPARATOR_CONFIG;
+import static com.purbon.kafka.topology.model.SubjectNameStrategy.TOPIC_NAME_STRATEGY;
+import static com.purbon.kafka.topology.model.SubjectNameStrategy.TOPIC_RECORD_NAME_STRATEGY;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -210,13 +212,13 @@ public class TopologySerdesTest {
     assertThat(topicBar).isPresent();
     assertThat(topicBar.get().getSchemas()).hasSize(1);
     assertThat(topicBar.get().getSchemas().get(0).getValueSubject().getSchemaFile()).isPresent();
-    assertThat(topicBar.get().getSubjectNameStrategyString()).isEqualTo("TopicRecordNameStrategy");
+    assertThat(topicBar.get().getSubjectNameStrategy()).isEqualTo(TOPIC_RECORD_NAME_STRATEGY);
 
     assertThat(topicCat).isPresent();
     assertThat(topicCat.get().getSchemas()).hasSize(2);
     assertThat(topicCat.get().getSchemas().get(0).getValueSubject().getSchemaFile()).isPresent();
     assertThat(topicCat.get().getSchemas().get(1).getValueSubject().getSchemaFile()).isPresent();
-    assertThat(topicCat.get().getSubjectNameStrategyString()).isEqualTo("TopicNameStrategy");
+    assertThat(topicCat.get().getSubjectNameStrategy()).isEqualTo(TOPIC_NAME_STRATEGY);
   }
 
   @Test

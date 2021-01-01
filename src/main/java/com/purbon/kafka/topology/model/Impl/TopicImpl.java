@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.purbon.kafka.topology.TopicManager;
 import com.purbon.kafka.topology.TopologyBuilderConfig;
+import com.purbon.kafka.topology.model.SubjectNameStrategy;
 import com.purbon.kafka.topology.model.Topic;
 import com.purbon.kafka.topology.model.TopicSchemas;
 import com.purbon.kafka.topology.model.users.Consumer;
@@ -46,7 +47,7 @@ public class TopicImpl implements Topic, Cloneable {
   private static String DEFAULT_REPLICATION_FACTOR = "2";
 
   @JsonInclude(Include.NON_EMPTY)
-  private Optional<String> subjectNameStrategy;
+  private Optional<SubjectNameStrategy> subjectNameStrategy;
 
   public TopicImpl() {
     this(DEFAULT_TOPIC_NAME, Optional.empty(), new HashMap<>(), new TopologyBuilderConfig());
@@ -120,16 +121,12 @@ public class TopicImpl implements Topic, Cloneable {
     this.schemas = schemas;
   }
 
-  public void setSubjectNameStrategy(Optional<String> subjectNameStrategy) {
+  public void setSubjectNameStrategy(Optional<SubjectNameStrategy> subjectNameStrategy) {
     this.subjectNameStrategy = subjectNameStrategy;
   }
 
-  public Optional<String> getSubjectNameStrategy() {
-    return subjectNameStrategy;
-  }
-
-  public String getSubjectNameStrategyString() {
-    return subjectNameStrategy.orElse("TopicNameStrategy");
+  public SubjectNameStrategy getSubjectNameStrategy() {
+    return subjectNameStrategy.orElse(SubjectNameStrategy.TOPIC_NAME_STRATEGY);
   }
 
   private String toString(String projectPrefix) {
