@@ -94,6 +94,12 @@ public class TopicCustomDeserializer extends StdDeserializer<TopicImpl> {
     TopicImpl topic =
         new TopicImpl(name, producers, consumers, optionalDataType, config, this.config);
 
+    Optional<SubjectNameStrategy> subjectNameStrategy =
+        Optional.ofNullable(rootNode.get("subject.name.strategy"))
+            .map(JsonNode::asText)
+            .map(SubjectNameStrategy::valueOfLabel);
+    topic.setSubjectNameStrategy(subjectNameStrategy);
+
     List<TopicSchemas> schemas = new ArrayList<>();
 
     if (rootNode.get("schemas") != null) {
@@ -127,13 +133,13 @@ public class TopicCustomDeserializer extends StdDeserializer<TopicImpl> {
               .collect(Collectors.toList());
     }
 
-    topic.setSchemas(schemas);
+    if (schemas.size() > 1 && topic.getSubjectNameStrategy().equals(TOPIC_NAME_STRATEGY)) {
+      throw new IOException(
+          String.format(
+              "%s is not a valid strategy when registering multiple schemas", TOPIC_NAME_STRATEGY));
+    }
 
-    Optional<SubjectNameStrategy> subjectNameStrategy =
-        Optional.ofNullable(rootNode.get("subject.name.strategy"))
-            .map(JsonNode::asText)
-            .map(SubjectNameStrategy::valueOfLabel);
-    topic.setSubjectNameStrategy(subjectNameStrategy);
+    topic.setSchemas(schemas);
 
     LOGGER.debug(
         String.format("Topic %s with config %s has been created", topic.getName(), config));

@@ -45,17 +45,18 @@ projects:
           num.partitions: "1"
       - name: "bar"
         dataType: "avro"
-        subject.name.strategy: "TopicRecordNameStrategy"
         schemas:
-          value.record.type: "foo"
           value.schema.file: "schemas/bar-value.avsc"
       - name: "cat"
         dataType: "avro"
+        subject.name.strategy: "TopicRecordNameStrategy"
         schemas:
           - key.schema.file: "schemas/bar-key.avsc"
             value.schema.file: "schemas/bar-value.avsc"
-          - key.schema.file: "schemas/bar-key.avsc"
-            value.schema.file: "schemas/bar-value.avsc"
+            key.record.type: "foo"
+            value.record.type: "bar"
+          - value.schema.file: "schemas/bar-value.avsc"
+            value.record.type: "value"
   - name: "bar"
     topics:
       - dataType: "avro"
