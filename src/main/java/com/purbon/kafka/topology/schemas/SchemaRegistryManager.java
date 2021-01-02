@@ -1,7 +1,6 @@
 package com.purbon.kafka.topology.schemas;
 
 import io.confluent.kafka.schemaregistry.ParsedSchema;
-import io.confluent.kafka.schemaregistry.avro.AvroSchema;
 import io.confluent.kafka.schemaregistry.client.SchemaRegistryClient;
 import java.io.File;
 import java.nio.file.Files;
@@ -38,23 +37,35 @@ public class SchemaRegistryManager {
             : new File(topologyFileOrDir).getParent();
   }
 
-  public int register(String subjectName, String schemaFile) {
+  public int register(String subjectName, String schemaFile, String format) {
     try {
-      return register(subjectName, schemaFilePath(schemaFile));
+      return register(subjectName, schemaFilePath(schemaFile), format);
     } catch (Exception e) {
       throw new SchemaRegistryManagerException("Failed to parse the schema file " + schemaFile, e);
     }
   }
 
-  public int register(String subjectName, Path schemaFilePath) {
+  public int register(String subjectName, Path schemaFilePath, String format) {
     LOGGER.debug(
         String.format("Registering subject %s with source %s", subjectName, schemaFilePath));
     try {
       final String schema = new String(Files.readAllBytes(schemaFilePath));
-      return register(subjectName, AvroSchema.TYPE, schema);
+      return save(subjectName, format, schema);
     } catch (Exception e) {
       throw new SchemaRegistryManagerException(
           "Failed to parse the schema file " + schemaFilePath, e);
+    }
+  }
+
+  public String setCompatibility(String subject, String compatibility) {
+    try {
+      return schemaRegistryClient.updateCompatibility(subject, compatibility);
+    } catch (Exception e) {
+      final String msg =
+          String.format(
+              "Failed to register the schema compatibility mode '%s' for subject '%s'",
+              compatibility, subject);
+      throw new SchemaRegistryManagerException(msg, e);
     }
   }
 
@@ -64,7 +75,7 @@ public class SchemaRegistryManager {
     return p;
   }
 
-  int register(String subjectName, String schemaType, String schemaString) {
+  protected int save(String subjectName, String schemaType, String schemaString) {
     final Optional<ParsedSchema> maybeSchema =
         schemaRegistryClient.parseSchema(schemaType, schemaString, Collections.emptyList());
 

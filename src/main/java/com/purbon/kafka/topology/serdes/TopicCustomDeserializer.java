@@ -21,7 +21,13 @@ import com.purbon.kafka.topology.model.users.Consumer;
 import com.purbon.kafka.topology.model.users.Producer;
 import com.purbon.kafka.topology.utils.Either;
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
@@ -31,12 +37,19 @@ import org.apache.logging.log4j.Logger;
 public class TopicCustomDeserializer extends StdDeserializer<TopicImpl> {
 
   private static final Logger LOGGER = LogManager.getLogger(TopicCustomDeserializer.class);
-
-  private List<String> validSchemaKeys =
-      Arrays.asList("key.schema.file", "key.record.type", "value.schema.file", "value.record.type");
-
   private final TopologyBuilderConfig config;
   private PlanMap plans;
+
+  private List<String> validSchemaKeys =
+      Arrays.asList(
+          "key.schema.file",
+          "value.schema.file",
+          "key.format",
+          "value.format",
+          "key.record.type",
+          "value.record.type",
+          "key.compatibility",
+          "value.compatibility");
 
   TopicCustomDeserializer(TopologyBuilderConfig config, PlanMap plans) {
     this(null, config, plans);
@@ -157,8 +170,12 @@ public class TopicCustomDeserializer extends StdDeserializer<TopicImpl> {
             new TopicSchemas(
                 Optional.ofNullable(node.get("key.schema.file")),
                 Optional.ofNullable(node.get("key.record.type")),
+                Optional.ofNullable(node.get("key.format")),
+                Optional.ofNullable(node.get("key.compatibility")),
                 Optional.ofNullable(node.get("value.schema.file")),
-                Optional.ofNullable(node.get("value.record.type")));
+                Optional.ofNullable(node.get("value.record.type")),
+                Optional.ofNullable(node.get("value.format")),
+                Optional.ofNullable(node.get("value.compatibility")));
         return Either.Right(schema);
       } catch (ValidationException ex) {
         return Either.Left(ex);

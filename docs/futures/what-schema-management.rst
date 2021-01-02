@@ -10,9 +10,6 @@ An example topology for managing schemas would look like this (*only the topics 
 
   ---
     context: "context"
-    company: "company"
-    env: "env"
-    source: "source"
     projects:
       - name: "projectA"
         topics:
@@ -60,3 +57,62 @@ Supported Schema Registry
 -----------
 
 There are multiple options when using an Schema Registry with Kafka, currently only the Confluent Schema Registry is supported.
+
+Support multiple formats
+-----------
+
+It is currently possible to support schema files with all formats currently available in the Confluent Schema Registry.
+As a user, you can set the format for each of the components in the schema section like this:
+
+.. code-block:: YAML
+
+  ---
+    context: "context"
+    projects:
+      - name: "projectA"
+        topics:
+          - name: "foo"
+            config:
+              replication.factor: "1"
+              num.partitions: "1"
+          - name: "bar"
+            dataType: "avro"
+            schemas:
+              key.schema.file: "schemas/bar-key.avsc"
+              key.format: "AVRO"
+              value.schema.file: "schemas/bar-value.json"
+              value.format: "JSON"
+            config:
+              replication.factor: "1"
+              num.partitions: "1"
+
+
+if the **format** keyword is not specified, the default value is *AVRO*.
+
+Set the Schema Compatibility
+-----------
+
+In the Schema management section is possible to set the schema compatibility level like this:
+
+
+.. code-block:: YAML
+
+  ---
+    context: "context"
+    projects:
+      - name: "projectA"
+        topics:
+          - name: "foo"
+            config:
+              replication.factor: "1"
+              num.partitions: "1"
+          - name: "bar"
+            dataType: "avro"
+            schemas:
+              value.schema.file: "schemas/bar-value.avsc"
+              value.compatibility: "BACKWARD"
+            config:
+              replication.factor: "1"
+              num.partitions: "1"
+
+**NOTE**: The compatibility level will be set before summit the registered schema file, this is done like this to easy transitions and migrations.

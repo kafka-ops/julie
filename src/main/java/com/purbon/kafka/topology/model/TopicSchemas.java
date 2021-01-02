@@ -13,13 +13,41 @@ public class TopicSchemas {
   private Subject keySubject;
   private Subject valueSubject;
 
+  /**
+   * Topic schemas constructor
+   *
+   * @param keyJsonNode
+   * @param keyRecordJsonNode
+   * @param keyFormatJsonNode
+   * @param keyCompatibilityJsonNode
+   * @param valueJsonNode
+   * @param valueRecordJsonNode
+   * @param valueFormatJsonNode
+   * @param valueCompatibilityJsonNode
+   */
   public TopicSchemas(
       Optional<JsonNode> keyJsonNode,
       Optional<JsonNode> keyRecordJsonNode,
+      Optional<JsonNode> keyFormatJsonNode,
+      Optional<JsonNode> keyCompatibilityJsonNode,
       Optional<JsonNode> valueJsonNode,
-      Optional<JsonNode> valueRecordJsonNode) {
-    this.keySubject = new Subject(keyJsonNode, keyRecordJsonNode, SubjectKind.KEY);
-    this.valueSubject = new Subject(valueJsonNode, valueRecordJsonNode, SubjectKind.VALUE);
+      Optional<JsonNode> valueRecordJsonNode,
+      Optional<JsonNode> valueFormatJsonNode,
+      Optional<JsonNode> valueCompatibilityJsonNode) {
+    this.keySubject =
+        new Subject(
+            keyJsonNode,
+            keyRecordJsonNode,
+            keyFormatJsonNode,
+            keyCompatibilityJsonNode,
+            SubjectKind.KEY);
+    this.valueSubject =
+        new Subject(
+            valueJsonNode,
+            valueRecordJsonNode,
+            valueFormatJsonNode,
+            valueCompatibilityJsonNode,
+            SubjectKind.VALUE);
   }
 
   public TopicSchemas(String keySchemaFile, String valueSchemaFile) {
