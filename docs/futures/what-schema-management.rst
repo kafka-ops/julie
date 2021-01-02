@@ -39,9 +39,35 @@ An example topology for managing schemas would look like this (*only the topics 
 If using an example like this, for the topic _bar_ there is going to be an schema registered for key and value.
 Currently the schemas are managed as files and need to be accessible for the KTB tool, for example inside the git repository.
 
+A topology with absolute schema path would look like this:
+
+.. code-block:: YAML
+
+  ---
+    context: "context"
+    projects:
+      - name: "projectA"
+        topics:
+          - name: "foo"
+            schemas:
+              value.schema.file: "/kafka/schemas/foo-value.avsc"
+            config:
+              replication.factor: "1"
+              num.partitions: "1"
+
 *NOTE*: The path for the files is relative to the location of the of the topology.
 
 *NOTE*: Keep in mind that for a use case like in the example above you have to define the value for `schema.registry.url` in your properties file.
+
+Where should you put your schema files
+-----------
+
+We recommend keeping your schemas relative to the location of your topologies files as it is easier to map all things bundler near by than in
+distant locations.
+
+However, if preferred for organisational purposes the reader can specify any absolute path in the topology and the tool will prefer it as an schema location.
+
+*NOTE*: There is no way as of now to set a preferred location by configuration, so the user should write an absolute path where necessary in the topology file.
 
 Multiple schemas support per topic
 -----------
@@ -52,11 +78,6 @@ If using multiple schemas, as it can be seen in the earlier example, the user mu
 other options.
 
 The user should as well set the *record.type* for each of the keys as this is a value required when configuring the final subject.
-
-Supported Schema Registry
------------
-
-There are multiple options when using an Schema Registry with Kafka, currently only the Confluent Schema Registry is supported.
 
 Support multiple formats
 -----------
@@ -116,3 +137,8 @@ In the Schema management section is possible to set the schema compatibility lev
               num.partitions: "1"
 
 **NOTE**: The compatibility level will be set before summit the registered schema file, this is done like this to easy transitions and migrations.
+
+Supported Schema Registry
+-----------
+
+There are multiple options when using an Schema Registry with Kafka, currently only the Confluent Schema Registry is supported.
