@@ -1,7 +1,10 @@
 package com.purbon.kafka.topology.schemas;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 
+import com.purbon.kafka.topology.model.users.platform.SchemaRegistry;
 import com.purbon.kafka.topology.schemas.SchemaRegistryManager.SchemaRegistryManagerException;
 import io.confluent.kafka.schemaregistry.avro.AvroSchema;
 import io.confluent.kafka.schemaregistry.client.MockSchemaRegistryClient;
@@ -12,7 +15,12 @@ import java.net.URISyntaxException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.mockito.Mock;
+import org.mockito.Mockito;
+import org.mockito.junit.MockitoJUnit;
+import org.mockito.junit.MockitoRule;
 
 public class SchemaRegistryManagerTest {
 
@@ -23,10 +31,18 @@ public class SchemaRegistryManagerTest {
   private SchemaRegistryClient client;
   private SchemaRegistryManager manager;
 
+  private Path rootDir;
+
+  @Rule
+  public MockitoRule mockitoRule = MockitoJUnit.rule();
+
+  @Mock
+  SchemaRegistryClient mockClient;
+
   @Before
   public void before() {
     client = new MockSchemaRegistryClient();
-    Path rootDir = Paths.get(System.getProperty("user.dir"), "target", "test-classes");
+    rootDir = Paths.get(System.getProperty("user.dir"), "target", "test-classes");
     manager = new SchemaRegistryManager(client, rootDir.toString());
   }
 
@@ -73,8 +89,19 @@ public class SchemaRegistryManagerTest {
   }
 
   @Test
-  public void shouldThrowAnExceptionWithValidRelativeFilePath() {
-    manager.register(subjectName, "schemas/bar-value.avsc", AvroSchema.TYPE);
+  public void shouldRegisterSchemasWithARelativePath() {
+    SchemaRegistryManager managerSpy = Mockito.spy(manager);
+    managerSpy.register(subjectName, "schemas/bar-value.avsc", AvroSchema.TYPE);
+    Path mayBeAbsolutePath = Paths.get(rootDir.toString(), "schemas/bar-value.avsc");
+    verify(managerSpy, times(1)).register(subjectName, mayBeAbsolutePath, AvroSchema.TYPE);
+  }
+
+  @Test
+  public void shouldRegisterSchemasWithAnAbsolutePath() {
+    SchemaRegistryManager managerSpy = Mockito.spy(manager);
+    Path mayBeAbsolutePath = Paths.get(rootDir.toString(), "schemas/bar-value.avsc");
+    managerSpy.register(subjectName, mayBeAbsolutePath.toString(), AvroSchema.TYPE);
+    verify(managerSpy, times(1)).register(subjectName, mayBeAbsolutePath, AvroSchema.TYPE);
   }
 
   @Test

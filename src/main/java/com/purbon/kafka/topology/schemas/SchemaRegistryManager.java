@@ -70,9 +70,11 @@ public class SchemaRegistryManager {
   }
 
   private Path schemaFilePath(String schemaFile) {
-    Path p = Paths.get(rootPath, schemaFile);
-    LOGGER.debug(p);
-    return p;
+    Path mayBeAbsolutePath = Paths.get(schemaFile);
+    Path path =
+        mayBeAbsolutePath.isAbsolute() ? mayBeAbsolutePath : Paths.get(rootPath, schemaFile);
+    LOGGER.debug(String.format("SchemaFile %s loaded from %s", schemaFile, path));
+    return path;
   }
 
   protected int save(String subjectName, String schemaType, String schemaString) {
