@@ -75,6 +75,9 @@ public class TopologyBuilderConfig {
   public static final String TOPOLOGY_TOPIC_STATE_FROM_CLUSTER =
       "topology.state.topics.cluster.enabled";
 
+  static final String SERVICE_ACCOUNT_MANAGED_PREFIXES =
+      "topology.service.accounts.managed.prefixes";
+
   private final Map<String, String> cliParams;
   private Config config;
 
@@ -228,6 +231,12 @@ public class TopologyBuilderConfig {
 
   public List<String> getKafkaInternalTopicPrefixes() {
     return config.getStringList(KAFKA_INTERNAL_TOPIC_PREFIXES).stream()
+        .map(String::trim)
+        .collect(Collectors.toList());
+  }
+
+  public List<String> getServiceAccountManagedPrefixes() {
+    return config.getStringList(SERVICE_ACCOUNT_MANAGED_PREFIXES).stream()
         .map(String::trim)
         .collect(Collectors.toList());
   }

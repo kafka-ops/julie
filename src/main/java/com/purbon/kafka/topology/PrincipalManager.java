@@ -19,6 +19,7 @@ import org.apache.logging.log4j.Logger;
 public class PrincipalManager {
 
   private static final Logger LOGGER = LogManager.getLogger(PrincipalManager.class);
+  private final List<String> managedPrefixes;
 
   private PrincipalProvider provider;
 
@@ -27,6 +28,7 @@ public class PrincipalManager {
   public PrincipalManager(PrincipalProvider provider, TopologyBuilderConfig config) {
     this.provider = provider;
     this.config = config;
+    this.managedPrefixes = config.getServiceAccountManagedPrefixes();
   }
 
   public void apply(Topology topology, ExecutionPlan plan) throws IOException {
@@ -97,6 +99,10 @@ public class PrincipalManager {
               return users.stream();
             })
         .map(User::getPrincipal)
+        .filter(
+            principal ->
+                managedPrefixes.size() == 0
+                    || managedPrefixes.stream().anyMatch(principal::startsWith))
         .collect(Collectors.toList());
   }
 }
