@@ -56,10 +56,6 @@ public class Subject {
     return recordType.orElseThrow(() -> new IOException("Missing record type for " + schemaFile));
   }
 
-  public Optional<String> getOptionalFormat() {
-    return optionalFormat;
-  }
-
   public String getFormat() {
     return optionalFormat.orElse(AvroSchema.TYPE);
   }
