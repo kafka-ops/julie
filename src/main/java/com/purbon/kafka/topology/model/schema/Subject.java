@@ -2,6 +2,7 @@ package com.purbon.kafka.topology.model.schema;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.purbon.kafka.topology.model.Topic;
+import io.confluent.kafka.schemaregistry.avro.AvroSchema;
 import java.io.IOException;
 import java.util.Optional;
 
@@ -9,6 +10,8 @@ public class Subject {
 
   private Optional<String> schemaFile;
   private Optional<String> recordType;
+  private Optional<String> optionalCompatibility;
+  private Optional<String> optionalFormat;
   private SubjectKind kind;
 
   public enum SubjectKind {
@@ -25,9 +28,13 @@ public class Subject {
   public Subject(
       Optional<JsonNode> schemaFileJsonNode,
       Optional<JsonNode> recordTypeJsonNode,
+      Optional<JsonNode> optionalFormat,
+      Optional<JsonNode> optionalCompatibility,
       SubjectKind kind) {
     this.schemaFile = schemaFileJsonNode.map(JsonNode::asText);
     this.recordType = recordTypeJsonNode.map(JsonNode::asText);
+    this.optionalCompatibility = optionalCompatibility.map(JsonNode::asText);
+    this.optionalFormat = optionalFormat.map(JsonNode::asText);
     this.kind = kind;
   }
 
@@ -47,6 +54,14 @@ public class Subject {
 
   private String recordTypeAsString() throws IOException {
     return recordType.orElseThrow(() -> new IOException("Missing record type for " + schemaFile));
+  }
+
+  public String getFormat() {
+    return optionalFormat.orElse(AvroSchema.TYPE);
+  }
+
+  public Optional<String> getOptionalCompatibility() {
+    return optionalCompatibility;
   }
 
   public String buildSubjectName(Topic topic) throws IOException {

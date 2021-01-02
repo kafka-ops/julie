@@ -81,7 +81,7 @@ public class PrincipalManager {
               users.addAll(project.getStreams());
               users.addAll(project.getConnectors());
               users.addAll(project.getSchemas());
-              for(Topic topic : project.getTopics()) {
+              for (Topic topic : project.getTopics()) {
                 users.addAll(topic.getConsumers());
                 users.addAll(topic.getProducers());
               }

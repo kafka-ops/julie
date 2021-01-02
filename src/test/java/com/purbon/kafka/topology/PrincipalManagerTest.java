@@ -119,14 +119,13 @@ public class PrincipalManagerTest {
     principalManager.apply(topology, plan);
 
     Collection<ServiceAccount> accounts =
-            Arrays.asList(
-                    new ServiceAccount(-1, "topicConsumer", "Managed by KTB"),
-                    new ServiceAccount(-1, "topicProducer", "Managed by KTB"));
+        Arrays.asList(
+            new ServiceAccount(-1, "topicConsumer", "Managed by KTB"),
+            new ServiceAccount(-1, "topicProducer", "Managed by KTB"));
 
     assertThat(plan.getActions()).hasSize(1);
     assertThat(plan.getActions()).containsAnyOf(new CreateAccounts(provider, accounts));
   }
-
 
   @Test
   public void testDeleteAccountsRequired() throws IOException {
