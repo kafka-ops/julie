@@ -11,6 +11,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -42,11 +43,9 @@ public class PrincipalManager {
     }
   }
 
-  private void managePrincipals(List<String> principals, ExecutionPlan plan) {
+  private void managePrincipals(List<String> principals, ExecutionPlan plan) throws IOException {
 
-    Map<String, ServiceAccount> accounts =
-        plan.getServiceAccounts().stream()
-            .collect(Collectors.toMap(ServiceAccount::getName, serviceAccount -> serviceAccount));
+    Map<String, ServiceAccount> accounts = loadActualClusterStateIfAvailable(plan);
 
     // build list of principals to be created.
     List<ServiceAccount> principalsToBeCreated =
@@ -69,6 +68,16 @@ public class PrincipalManager {
         plan.add(new ClearAccounts(provider, principalsToBeDeleted));
       }
     }
+  }
+
+  private Map<String, ServiceAccount> loadActualClusterStateIfAvailable(ExecutionPlan plan)
+      throws IOException {
+    Set<ServiceAccount> accounts =
+        config.fetchStateFromTheCluster()
+            ? provider.listServiceAccounts()
+            : plan.getServiceAccounts();
+    return accounts.stream()
+        .collect(Collectors.toMap(ServiceAccount::getName, serviceAccount -> serviceAccount));
   }
 
   private List<String> parseListOfPrincipals(Topology topology) {

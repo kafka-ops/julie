@@ -3,7 +3,7 @@ package com.purbon.kafka.topology.serviceAccounts;
 import com.purbon.kafka.topology.PrincipalProvider;
 import com.purbon.kafka.topology.model.cluster.ServiceAccount;
 import java.io.IOException;
-import java.util.List;
+import java.util.Set;
 
 public class VoidPrincipalProvider implements PrincipalProvider {
 
@@ -13,7 +13,7 @@ public class VoidPrincipalProvider implements PrincipalProvider {
   }
 
   @Override
-  public List<ServiceAccount> listServiceAccounts() throws IOException {
+  public Set<ServiceAccount> listServiceAccounts() throws IOException {
     throw new IOException("Not implemented!!");
   }
 
