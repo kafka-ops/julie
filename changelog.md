@@ -1,4 +1,20 @@
 
+v1.4.0 / 2021-01-03
+===================
+
+  * [PrincipalManager] Improved error handling when using Confluent Cloud  (#186)
+  * Add support for a prefix list to filter which principals are allowed to be managed (#185)
+  * Enable remote state fetching from the cluster for the principals (#187)
+  * Add support for absolute paths when fetching schemas from disk (#184)
+  * Add support for custom SchemaTypes and Compatibility level when managing schemas (#182)
+  * Support multiple schema per topic (#183)
+  * Adding ability to pass KTB options for the jvm or the KTB itself via an environment variable (#177)
+  * Allow topic state bookkeeping from the cluster backend state system   (#180)
+  * Fix that principle manager was not adding principles defined within consumers/producers at topic levels (#179)
+  * Improve AccessControlManagerTest (#168)
+  * Option to disable creation of the CLUSTER CREATE ACL for connectors (#173)
+  * Add Kafka Streams integration test bed (#169)
+
 v1.3.0 / 2020-12-14
 ===================
 
