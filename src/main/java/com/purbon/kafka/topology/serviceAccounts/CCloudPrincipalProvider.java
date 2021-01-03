@@ -5,9 +5,9 @@ import com.purbon.kafka.topology.TopologyBuilderConfig;
 import com.purbon.kafka.topology.api.ccloud.CCloudCLI;
 import com.purbon.kafka.topology.model.cluster.ServiceAccount;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 public class CCloudPrincipalProvider implements PrincipalProvider {
 
@@ -25,8 +25,8 @@ public class CCloudPrincipalProvider implements PrincipalProvider {
   }
 
   @Override
-  public List<ServiceAccount> listServiceAccounts() throws IOException {
-    return new ArrayList<>(cCloudCLI.serviceAccounts().values());
+  public Set<ServiceAccount> listServiceAccounts() throws IOException {
+    return new HashSet<>(cCloudCLI.serviceAccounts().values());
   }
 
   @Override
