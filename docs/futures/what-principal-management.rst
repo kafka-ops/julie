@@ -23,6 +23,9 @@ principals are present in the cluster.
 This process is done by parsing the topology description and extracting the principals, once done the tool will calculate which principals are
 required to be create and which ones are no longer necessary and can be disabled. For sure always if the related delete option is enabled.
 
+If desired by organisational purposes a user can decide to filter witch Service Account principals can be managed, this is done using the
+*topology.service.accounts.managed.prefixes* configuration setting. Check :ref:`config` for details.
+
 Principals Manager Providers
 -----------
 

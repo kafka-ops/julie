@@ -1,3 +1,4 @@
+.. _config:
 Important configuration values
 *******************************
 
@@ -151,3 +152,18 @@ default in 2.0 and in 3.0 the management using the target cluster will be comple
 An example to use local topic management state will look like this:
 ::
     topology.state.topics.cluster.enabled=false
+
+Control allowed Service accounts to be managed by KTB
+-----------
+
+This property is used to control which Service Accounts are allowed to be managed by the KTB, this variable contains a list of allowed prefixes.
+
+**Property**: *topology.service.accounts.managed.prefixes*
+**Default value**: "[]"
+
+An example configuration might look like this:
+::
+    topology.service.accounts.managed.prefixes.0=User:AService
+    topology.service.accounts.managed.prefixes.1=User:BService
+
+If this prefix list is used, only service accounts that match the prefix will be ever processed, anything else will be ignored.
