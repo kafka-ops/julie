@@ -85,11 +85,9 @@ public class PrincipalManager {
 
   private boolean matchesPrefixList(String principal) {
     boolean matches =
-        managedPrefixes.size() == 0
-            || managedPrefixes.stream().anyMatch(principal::startsWith);
+        managedPrefixes.size() == 0 || managedPrefixes.stream().anyMatch(principal::startsWith);
     LOGGER.debug(
-        String.format(
-            "Principal %s matches %s with $s", principal, matches, managedPrefixes));
+        String.format("Principal %s matches %s with $s", principal, matches, managedPrefixes));
     return matches;
   }
 
