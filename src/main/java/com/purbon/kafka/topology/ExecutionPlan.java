@@ -14,7 +14,9 @@ import java.io.IOException;
 import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 import org.apache.logging.log4j.LogManager;
@@ -53,7 +55,8 @@ public class ExecutionPlan {
   public static ExecutionPlan init(BackendController backendController, PrintStream outputStream)
       throws IOException {
     backendController.load();
-    return new ExecutionPlan(new ArrayList<>(), outputStream, backendController);
+    List<Action> listOfActions = Collections.synchronizedList(new LinkedList<>());
+    return new ExecutionPlan(listOfActions, outputStream, backendController);
   }
 
   public void run() throws IOException {
