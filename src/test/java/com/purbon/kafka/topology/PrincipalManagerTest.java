@@ -2,6 +2,7 @@ package com.purbon.kafka.topology;
 
 import static com.purbon.kafka.topology.BuilderCLI.ALLOW_DELETE_OPTION;
 import static com.purbon.kafka.topology.BuilderCLI.BROKERS_OPTION;
+import static com.purbon.kafka.topology.TopologyBuilderConfig.SERVICE_ACCOUNT_MANAGED_PREFIXES;
 import static com.purbon.kafka.topology.TopologyBuilderConfig.TOPOLOGY_EXPERIMENTAL_ENABLED_CONFIG;
 import static com.purbon.kafka.topology.TopologyBuilderConfig.TOPOLOGY_TOPIC_STATE_FROM_CLUSTER;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -188,5 +189,36 @@ public class PrincipalManagerTest {
     principalManager.apply(topology, mockPlan);
 
     verify(mockPlan, times(0)).add(any(Action.class));
+  }
+
+  @Test
+  public void testToProcessOnlySelectedPrincipals() throws IOException {
+
+    props.put(SERVICE_ACCOUNT_MANAGED_PREFIXES, Collections.singletonList("pro"));
+
+    config = new TopologyBuilderConfig(cliOps, props);
+    principalManager = new PrincipalManager(provider, config);
+
+    Topology topology = new TopologyImpl();
+    topology.setContext("context");
+    Project project = new ProjectImpl("foo");
+    project.setConsumers(Collections.singletonList(new Consumer("consumer")));
+    project.setProducers(Collections.singletonList(new Producer("producer")));
+    topology.addProject(project);
+
+    doNothing().when(provider).configure();
+
+    doReturn(new ServiceAccount(123, "consumer", "Managed by KTB"))
+        .when(provider)
+        .createServiceAccount(eq("consumer"), eq("Managed by KTB"));
+
+    doReturn(new ServiceAccount(124, "producer", "Managed by KTB"))
+        .when(provider)
+        .createServiceAccount(eq("producer"), eq("Managed by KTB"));
+
+    principalManager.apply(topology, plan);
+    plan.run();
+
+    assertThat(plan.getServiceAccounts()).hasSize(1);
   }
 }
