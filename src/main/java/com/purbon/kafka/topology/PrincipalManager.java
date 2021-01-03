@@ -79,18 +79,18 @@ public class PrincipalManager {
             ? provider.listServiceAccounts()
             : plan.getServiceAccounts();
     return accounts.stream()
-        .filter(
-            serviceAccount -> {
-              boolean matches =
-                  managedPrefixes.size() == 0
-                      || managedPrefixes.stream().anyMatch(serviceAccount.getName()::startsWith);
-              LOGGER.debug(
-                  String.format(
-                      "ServiceAccount %s matches %s with $s",
-                      serviceAccount.getName(), matches, managedPrefixes));
-              return matches;
-            })
+        .filter(serviceAccount -> matchesPrefixList(serviceAccount.getName()))
         .collect(Collectors.toMap(ServiceAccount::getName, serviceAccount -> serviceAccount));
+  }
+
+  private boolean matchesPrefixList(String principal) {
+    boolean matches =
+        managedPrefixes.size() == 0
+            || managedPrefixes.stream().anyMatch(principal::startsWith);
+    LOGGER.debug(
+        String.format(
+            "Principal %s matches %s with $s", principal, matches, managedPrefixes));
+    return matches;
   }
 
   private List<String> parseListOfPrincipals(Topology topology) {
@@ -110,16 +110,7 @@ public class PrincipalManager {
               return users.stream();
             })
         .map(User::getPrincipal)
-        .filter(
-            principal -> {
-              boolean matches =
-                  managedPrefixes.size() == 0
-                      || managedPrefixes.stream().anyMatch(principal::startsWith);
-              LOGGER.debug(
-                  String.format(
-                      "Principal %s matches %s with $s", principal, matches, managedPrefixes));
-              return matches;
-            })
+        .filter(this::matchesPrefixList)
         .collect(Collectors.toList());
   }
 }
