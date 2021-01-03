@@ -79,6 +79,17 @@ public class PrincipalManager {
             ? provider.listServiceAccounts()
             : plan.getServiceAccounts();
     return accounts.stream()
+        .filter(
+            serviceAccount -> {
+              boolean matches =
+                  managedPrefixes.size() == 0
+                      || managedPrefixes.stream().anyMatch(serviceAccount.getName()::startsWith);
+              LOGGER.debug(
+                  String.format(
+                      "ServiceAccount %s matches %s with $s",
+                      serviceAccount.getName(), matches, managedPrefixes));
+              return matches;
+            })
         .collect(Collectors.toMap(ServiceAccount::getName, serviceAccount -> serviceAccount));
   }
 
@@ -100,9 +111,15 @@ public class PrincipalManager {
             })
         .map(User::getPrincipal)
         .filter(
-            principal ->
-                managedPrefixes.size() == 0
-                    || managedPrefixes.stream().anyMatch(principal::startsWith))
+            principal -> {
+              boolean matches =
+                  managedPrefixes.size() == 0
+                      || managedPrefixes.stream().anyMatch(principal::startsWith);
+              LOGGER.debug(
+                  String.format(
+                      "Principal %s matches %s with $s", principal, matches, managedPrefixes));
+              return matches;
+            })
         .collect(Collectors.toList());
   }
 }
