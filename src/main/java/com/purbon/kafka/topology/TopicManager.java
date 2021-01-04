@@ -29,6 +29,7 @@ public class TopicManager {
   private final TopologyBuilderAdminClient adminClient;
   private final TopologyBuilderConfig config;
   private final List<String> internalTopicPrefixes;
+  private final List<String> managedPrefixes;
 
   public TopicManager(
       TopologyBuilderAdminClient adminClient, SchemaRegistryManager schemaRegistryManager) {
@@ -43,6 +44,7 @@ public class TopicManager {
     this.schemaRegistryManager = schemaRegistryManager;
     this.config = config;
     this.internalTopicPrefixes = config.getKafkaInternalTopicPrefixes();
+    this.managedPrefixes = config.getTopicsManagedPrefixes();
   }
 
   public void apply(Topology topology, ExecutionPlan plan) throws IOException {
@@ -67,7 +69,7 @@ public class TopicManager {
       // full topic sync should be deleted
       List<String> topicsToBeDeleted =
           listOfTopics.stream()
-              .filter(topic -> !updatedListOfTopics.contains(topic) && !isAnInternalTopics(topic))
+              .filter(topic -> !updatedListOfTopics.contains(topic) && !isAnInternalTopics(topic) )
               .collect(Collectors.toList());
 
       if (topicsToBeDeleted.size() > 0) {
@@ -84,11 +86,23 @@ public class TopicManager {
   private Set<String> loadActualClusterStateIfAvailable(ExecutionPlan plan) throws IOException {
     Set<String> listOfTopics =
         config.fetchStateFromTheCluster() ? adminClient.listApplicationTopics() : plan.getTopics();
+
+    listOfTopics = listOfTopics.stream()
+            .filter(this::matchesPrefixList)
+            .collect(Collectors.toSet());
     if (listOfTopics.size() > 0)
       LOGGER.debug(
           "Full list of managed topics in the cluster: "
               + StringUtils.join(new ArrayList<>(listOfTopics), ","));
     return listOfTopics;
+  }
+
+  private boolean matchesPrefixList(String topic) {
+    boolean matches =
+            managedPrefixes.size() == 0 || managedPrefixes.stream().anyMatch(topic::startsWith);
+    LOGGER.debug(
+            String.format("Topic %s matches %s with $s", topic, matches, managedPrefixes));
+    return matches;
   }
 
   void printCurrentState(PrintStream os) throws IOException {

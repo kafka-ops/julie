@@ -173,6 +173,7 @@ public class KafkaTopologyBuilder implements AutoCloseable {
     if (!config.isQuiet() && !config.isDryRun()) {
       topicManager.printCurrentState(System.out);
       accessControlManager.printCurrentState(System.out);
+      principalManager.printCurrentState(System.out);
     }
   }
 

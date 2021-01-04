@@ -23,6 +23,7 @@ import com.purbon.kafka.topology.model.users.Schemas;
 import com.purbon.kafka.topology.model.users.platform.ControlCenterInstance;
 import com.purbon.kafka.topology.model.users.platform.SchemaRegistryInstance;
 import com.purbon.kafka.topology.roles.TopologyAclBinding;
+
 import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -33,6 +34,7 @@ import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -43,6 +45,8 @@ public class AccessControlManager {
   private final TopologyBuilderConfig config;
   private AccessControlProvider controlProvider;
   private BindingsBuilderProvider bindingsBuilder;
+  private final List<String> managedServiceAccountPrefixes;
+  private final List<String> managedTopicPrefixes;
 
   public AccessControlManager(
       AccessControlProvider controlProvider, BindingsBuilderProvider builderProvider) {
@@ -56,6 +60,9 @@ public class AccessControlManager {
     this.controlProvider = controlProvider;
     this.bindingsBuilder = builderProvider;
     this.config = config;
+    this.managedServiceAccountPrefixes = config.getServiceAccountManagedPrefixes();
+    this.managedTopicPrefixes = config.getTopicsManagedPrefixes();
+
   }
 
   /**
@@ -68,7 +75,21 @@ public class AccessControlManager {
   public void apply(final Topology topology, ExecutionPlan plan) {
     List<Action> actions = buildProjectActions(topology);
     actions.addAll(buildPlatformLevelActions(topology));
-    buildUpdateBindingsActions(actions, plan.getBindings()).forEach(plan::add);
+    buildUpdateBindingsActions(actions, loadActualClusterStateIfAvailable(plan)).forEach(plan::add);
+  }
+
+  private Set<TopologyAclBinding> loadActualClusterStateIfAvailable(ExecutionPlan plan) {
+    Set<TopologyAclBinding> bindings =
+            config.fetchStateFromTheCluster()
+                    ? providerBindings()
+                    : plan.getBindings();
+    return bindings.stream().filter(this::matchesManagedPrefixList).collect(Collectors.toSet());
+  }
+
+  private Set<TopologyAclBinding> providerBindings() {
+    Set<TopologyAclBinding> bindings = new HashSet<>();
+    controlProvider.listAcls().values().forEach(bindings::addAll);
+    return bindings;
   }
 
   /**
@@ -201,6 +222,32 @@ public class AccessControlManager {
     return updateActions;
   }
 
+
+  private boolean matchesManagedPrefixList(TopologyAclBinding topologyAclBinding) {
+     switch (topologyAclBinding.getResourceType()) {
+       case TOPIC:
+         return matchesTopicPrefixList(topologyAclBinding.getResourceName());
+       default:
+         return matchesServiceAccountPrefixList(topologyAclBinding.getPrincipal());
+     }
+  }
+
+  private boolean matchesTopicPrefixList(String topic) {
+    boolean matches =
+            managedTopicPrefixes.size() == 0 || managedTopicPrefixes.stream().anyMatch(topic::startsWith);
+    LOGGER.debug(
+            String.format("Topic %s matches %s with $s", topic, matches, managedTopicPrefixes));
+    return matches;
+  }
+
+  private boolean matchesServiceAccountPrefixList(String principal) {
+    boolean matches =
+            managedServiceAccountPrefixes.size() == 0 || managedServiceAccountPrefixes.stream().anyMatch(principal::startsWith);
+    LOGGER.debug(
+            String.format("Principal %s matches %s with $s", principal, matches, managedServiceAccountPrefixes));
+    return matches;
+  }
+
   private Function<Action, Stream<TopologyAclBinding>> actionApplyFunction() {
     return action -> {
       try {
@@ -234,7 +281,7 @@ public class AccessControlManager {
   }
 
   private void syncClusterLevelRbac(
-      Optional<Map<String, List<User>>> rbac, Component cmp, List<Action> actions) {
+    Optional<Map<String, List<User>>> rbac, Component cmp, List<Action> actions) {
     if (rbac.isPresent()) {
       Map<String, List<User>> roles = rbac.get();
       for (String role : roles.keySet()) {

@@ -78,6 +78,10 @@ public class TopologyBuilderConfig {
   static final String SERVICE_ACCOUNT_MANAGED_PREFIXES =
       "topology.service.accounts.managed.prefixes";
 
+  static final String TOPICS_MANAGED_PREFIXES =
+      "topology.state.topics.managed.prefixes";
+
+
   private final Map<String, String> cliParams;
   private Config config;
 
@@ -239,6 +243,12 @@ public class TopologyBuilderConfig {
     return config.getStringList(SERVICE_ACCOUNT_MANAGED_PREFIXES).stream()
         .map(String::trim)
         .collect(Collectors.toList());
+  }
+
+  public List<String> getTopicsManagedPrefixes() {
+    return config.getStringList(TOPICS_MANAGED_PREFIXES).stream()
+            .map(String::trim)
+            .collect(Collectors.toList());
   }
 
   public String getConfluentSchemaRegistryUrl() {

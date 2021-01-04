@@ -8,6 +8,7 @@ import com.purbon.kafka.topology.model.User;
 import com.purbon.kafka.topology.model.cluster.ServiceAccount;
 import com.purbon.kafka.topology.serviceAccounts.VoidPrincipalProvider;
 import java.io.IOException;
+import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -110,5 +111,10 @@ public class PrincipalManager {
         .map(User::getPrincipal)
         .filter(this::matchesPrefixList)
         .collect(Collectors.toList());
+  }
+
+  public void printCurrentState(PrintStream out) throws IOException {
+    out.println("List of Principles: ");
+    provider.listServiceAccounts().forEach(out::println);
   }
 }
