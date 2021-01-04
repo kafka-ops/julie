@@ -146,8 +146,7 @@ If you want to manage the current view of topics from the own KTB  cluster state
 **Property**: *topology.state.topics.cluster.enabled*
 **Default value**: true
 
-This property is fow the time being true as default (backwards compatible), however the local management system for topics will become the
-default in 2.0 and in 3.0 the management using the target cluster will be completely removed.
+This property is for the time being true as default (backwards compatible).
 
 An example to use local topic management state will look like this:
 ::
