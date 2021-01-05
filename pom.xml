@@ -60,6 +60,13 @@
                   <goal>test</goal>
                 </goals>
                 <configuration>
+                  <systemProperties>
+                    <property>
+                      <name>cp.version</name>
+                      <!--suppress UnresolvedMavenProperty -->
+                      <value>${cp.version}</value>
+                    </property>
+                  </systemProperties>
                   <trimStackTrace>false</trimStackTrace>
                   <excludes>
                     <exclude>**/*RbacIT</exclude>

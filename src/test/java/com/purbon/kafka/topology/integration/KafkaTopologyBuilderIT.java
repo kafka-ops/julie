@@ -3,6 +3,7 @@ package com.purbon.kafka.topology.integration;
 import static com.purbon.kafka.topology.BuilderCLI.*;
 
 import com.purbon.kafka.topology.KafkaTopologyBuilder;
+import com.purbon.kafka.topology.integration.containerutils.ContainerFactory;
 import com.purbon.kafka.topology.integration.containerutils.SaslPlaintextKafkaContainer;
 import com.purbon.kafka.topology.utils.TestUtils;
 import java.io.IOException;
@@ -18,7 +19,7 @@ public class KafkaTopologyBuilderIT {
 
   @BeforeClass
   public static void setup() {
-    container = new SaslPlaintextKafkaContainer();
+    container = ContainerFactory.fetchSaslKafkaContainer(System.getProperty("cp.version"));
     container.start();
   }
 
