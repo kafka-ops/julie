@@ -11,6 +11,7 @@ import com.purbon.kafka.topology.ExecutionPlan;
 import com.purbon.kafka.topology.TopicManager;
 import com.purbon.kafka.topology.TopologyBuilderConfig;
 import com.purbon.kafka.topology.api.adminclient.TopologyBuilderAdminClient;
+import com.purbon.kafka.topology.integration.containerutils.ContainerFactory;
 import com.purbon.kafka.topology.integration.containerutils.ContainerTestUtils;
 import com.purbon.kafka.topology.integration.containerutils.SaslPlaintextKafkaContainer;
 import com.purbon.kafka.topology.model.Impl.ProjectImpl;
@@ -62,7 +63,7 @@ public class TopicManagerIT {
 
   @BeforeClass
   public static void setup() {
-    container = new SaslPlaintextKafkaContainer();
+    container = ContainerFactory.fetchSaslKafkaContainer(System.getProperty("cp.version"));
     container.start();
   }
 
