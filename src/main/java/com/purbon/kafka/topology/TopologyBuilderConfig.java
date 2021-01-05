@@ -75,11 +75,14 @@ public class TopologyBuilderConfig {
   public static final String TOPOLOGY_TOPIC_STATE_FROM_CLUSTER =
       "topology.state.topics.cluster.enabled";
 
+  static final String TOPOLOGY_STATE_FROM_CLUSTER =
+      "topology.state.cluster.enabled";
+
   static final String SERVICE_ACCOUNT_MANAGED_PREFIXES =
       "topology.service.accounts.managed.prefixes";
 
-  static final String TOPICS_MANAGED_PREFIXES =
-      "topology.state.topics.managed.prefixes";
+  static final String TOPIC_MANAGED_PREFIXES =
+      "topology.topic.managed.prefixes";
 
 
   private final Map<String, String> cliParams;
@@ -245,8 +248,8 @@ public class TopologyBuilderConfig {
         .collect(Collectors.toList());
   }
 
-  public List<String> getTopicsManagedPrefixes() {
-    return config.getStringList(TOPICS_MANAGED_PREFIXES).stream()
+  public List<String> getTopicManagedPrefixes() {
+    return config.getStringList(TOPIC_MANAGED_PREFIXES).stream()
             .map(String::trim)
             .collect(Collectors.toList());
   }
@@ -349,6 +352,10 @@ public class TopologyBuilderConfig {
   }
 
   public boolean fetchStateFromTheCluster() {
-    return config.getBoolean(TOPOLOGY_TOPIC_STATE_FROM_CLUSTER);
+    return config.getBoolean(TOPOLOGY_STATE_FROM_CLUSTER);
+  }
+
+  public boolean fetchTopicStateFromTheCluster() {
+    return fetchStateFromTheCluster() || config.getBoolean(TOPOLOGY_TOPIC_STATE_FROM_CLUSTER);
   }
 }

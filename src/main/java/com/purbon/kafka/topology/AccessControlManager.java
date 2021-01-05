@@ -61,7 +61,7 @@ public class AccessControlManager {
     this.bindingsBuilder = builderProvider;
     this.config = config;
     this.managedServiceAccountPrefixes = config.getServiceAccountManagedPrefixes();
-    this.managedTopicPrefixes = config.getTopicsManagedPrefixes();
+    this.managedTopicPrefixes = config.getTopicManagedPrefixes();
 
   }
 
