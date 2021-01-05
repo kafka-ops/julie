@@ -15,7 +15,7 @@ jobs:
       matrix:
         os: [ubuntu-16.04, ubuntu-latest]
         java: [8.0.192, 11.0.x, 13]
-        cp.version: [5.5.3, 6.0.1]
+        cpversion: [5.5.3, 6.0.1]
 
     runs-on: ${{ matrix.os }}
 
@@ -32,4 +32,4 @@ jobs:
           key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
           restore-keys: ${{ runner.os }}-m2
       - name: Build with Maven
-        run: mvn -B clean integration-test -Pacls -Dcp.version=${{cp.version}} --file pom.xml
+        run: mvn -B clean integration-test -Pacls -Dcp.version=${{cpversion}} --file pom.xml
