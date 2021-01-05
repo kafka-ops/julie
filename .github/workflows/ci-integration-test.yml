@@ -5,9 +5,9 @@ name: CI integration tests
 
 on:
   push:
-    branches: [ test-with-different-version ]
+    branches: [ master ]
   pull_request:
-    branches: [ test-with-different-version ]
+    branches: [ master ]
 
 jobs:
   build:
