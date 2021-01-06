@@ -32,22 +32,20 @@ public class PrincipalManager {
     this.managedPrefixes = config.getServiceAccountManagedPrefixes();
   }
 
-  public void apply(Topology topology, ExecutionPlan plan) throws IOException {
+  public void applyCreate(Topology topology, ExecutionPlan plan) throws IOException {
     if (!config.enabledExperimental()) {
       LOGGER.debug("Not running the PrincipalsManager as this is an experimental feature.");
       return;
     }
-    // Do Nothing if the provider is the void one.
-    // This means the management of principals is either not possible or has not been configured
-    List<String> principals = parseListOfPrincipals(topology);
-    if (!(provider instanceof VoidPrincipalProvider)) {
-      provider.configure();
-      managePrincipals(principals, plan);
+    if (provider instanceof VoidPrincipalProvider) {
+      // Do Nothing if the provider is the void one.
+      // This means the management of principals is either not possible or has not been configured
+      return;
     }
-  }
 
-  private void managePrincipals(List<String> principals, ExecutionPlan plan) throws IOException {
+    provider.configure();
 
+    List<String> principals = parseListOfPrincipals(topology);
     Map<String, ServiceAccount> accounts = loadActualClusterStateIfAvailable(plan);
 
     // build list of principals to be created.
@@ -60,9 +58,26 @@ public class PrincipalManager {
     if (!principalsToBeCreated.isEmpty()) {
       plan.add(new CreateAccounts(provider, principalsToBeCreated));
     }
+  }
 
-    // build list of principals to be deleted.
+  public void applyDelete(Topology topology, ExecutionPlan plan) throws IOException {
+    if (!config.enabledExperimental()) {
+      LOGGER.debug("Not running the PrincipalsManager as this is an experimental feature.");
+      return;
+    }
+    if (provider instanceof VoidPrincipalProvider) {
+      // Do Nothing if the provider is the void one.
+      // This means the management of principals is either not possible or has not been configured
+      return;
+    }
+
     if (config.allowDelete() || config.isAllowDeletePrincipals()) {
+      provider.configure();
+
+      List<String> principals = parseListOfPrincipals(topology);
+      Map<String, ServiceAccount> accounts = loadActualClusterStateIfAvailable(plan);
+
+      // build list of principals to be deleted.
       List<ServiceAccount> principalsToBeDeleted =
           accounts.values().stream()
               .filter(currentPrincipal -> !principals.contains(currentPrincipal.getName()))

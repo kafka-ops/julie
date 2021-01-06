@@ -93,7 +93,8 @@ public class PrincipalManagerTest {
 
     doNothing().when(provider).configure();
 
-    principalManager.apply(topology, plan);
+    principalManager.applyCreate(topology, plan);
+    principalManager.applyDelete(topology, plan);
 
     Collection<ServiceAccount> accounts =
         Arrays.asList(
@@ -119,7 +120,8 @@ public class PrincipalManagerTest {
 
     doNothing().when(provider).configure();
 
-    principalManager.apply(topology, plan);
+    principalManager.applyCreate(topology, plan);
+    principalManager.applyDelete(topology, plan);
 
     Collection<ServiceAccount> accounts =
         Arrays.asList(
@@ -150,7 +152,8 @@ public class PrincipalManagerTest {
         .when(provider)
         .createServiceAccount(eq("producer"), eq("Managed by KTB"));
 
-    principalManager.apply(topology, plan);
+    principalManager.applyCreate(topology, plan);
+    principalManager.applyDelete(topology, plan);
     plan.run();
     assertThat(plan.getServiceAccounts()).hasSize(2);
 
@@ -162,7 +165,9 @@ public class PrincipalManagerTest {
 
     backendController = new BackendController();
     plan = ExecutionPlan.init(backendController, mockPrintStream);
-    principalManager.apply(topology, plan);
+    principalManager.applyCreate(topology, plan);
+    principalManager.applyDelete(topology, plan);
+    ;
 
     Collection<ServiceAccount> accounts =
         Arrays.asList(new ServiceAccount(124, "producer", "Managed by KTB"));
@@ -186,7 +191,8 @@ public class PrincipalManagerTest {
 
     Topology topology = new TopologyImpl();
 
-    principalManager.apply(topology, mockPlan);
+    principalManager.applyCreate(topology, plan);
+    principalManager.applyDelete(topology, plan);
 
     verify(mockPlan, times(0)).add(any(Action.class));
   }
@@ -216,7 +222,8 @@ public class PrincipalManagerTest {
         .when(provider)
         .createServiceAccount(eq("producer"), eq("Managed by KTB"));
 
-    principalManager.apply(topology, plan);
+    principalManager.applyCreate(topology, plan);
+    principalManager.applyDelete(topology, plan);
     plan.run();
 
     assertThat(plan.getServiceAccounts()).hasSize(1);
