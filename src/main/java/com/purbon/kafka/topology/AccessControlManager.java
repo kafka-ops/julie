@@ -25,12 +25,7 @@ import com.purbon.kafka.topology.model.users.platform.SchemaRegistryInstance;
 import com.purbon.kafka.topology.roles.TopologyAclBinding;
 
 import java.io.PrintStream;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -47,6 +42,7 @@ public class AccessControlManager {
   private BindingsBuilderProvider bindingsBuilder;
   private final List<String> managedServiceAccountPrefixes;
   private final List<String> managedTopicPrefixes;
+  private final List<String> managedGroupPrefixes;
 
   public AccessControlManager(
       AccessControlProvider controlProvider, BindingsBuilderProvider builderProvider) {
@@ -62,6 +58,7 @@ public class AccessControlManager {
     this.config = config;
     this.managedServiceAccountPrefixes = config.getServiceAccountManagedPrefixes();
     this.managedTopicPrefixes = config.getTopicManagedPrefixes();
+    this.managedGroupPrefixes = config.getGroupManagedPrefixes();
 
   }
 
@@ -196,9 +193,12 @@ public class AccessControlManager {
     Set<TopologyAclBinding> allFinalBindings =
         actions.stream().flatMap(actionApplyFunction()).collect(Collectors.toSet());
 
-    // Diff of bindings, so we only create what is not already created in the cluster.
     Set<TopologyAclBinding> bindingsToBeCreated =
         allFinalBindings.stream()
+            .filter(Objects::nonNull)
+            // Only create what we manage
+            .filter(this::matchesManagedPrefixList)
+            // Diff of bindings, so we only create what is not already created in the cluster.
             .filter(binding -> !bindings.contains(binding))
             .collect(Collectors.toSet());
 
@@ -224,12 +224,21 @@ public class AccessControlManager {
 
 
   private boolean matchesManagedPrefixList(TopologyAclBinding topologyAclBinding) {
-     switch (topologyAclBinding.getResourceType()) {
-       case TOPIC:
-         return matchesTopicPrefixList(topologyAclBinding.getResourceName());
-       default:
-         return matchesServiceAccountPrefixList(topologyAclBinding.getPrincipal());
-     }
+    String resourceName = topologyAclBinding.getResourceName();
+    String principle = topologyAclBinding.getPrincipal();
+    //For global wild cards ACL's we manage only if we manage the service account/principle, regardless.
+    if (resourceName.equals("*")) {
+      return matchesServiceAccountPrefixList(principle);
+    }
+
+    switch (topologyAclBinding.getResourceType()) {
+      case TOPIC:
+        return matchesTopicPrefixList(resourceName);
+      case GROUP:
+        return matchesGroupPrefixList(resourceName);
+      default:
+        return matchesServiceAccountPrefixList(principle);
+    }
   }
 
   private boolean matchesTopicPrefixList(String topic) {
@@ -237,6 +246,14 @@ public class AccessControlManager {
             managedTopicPrefixes.size() == 0 || managedTopicPrefixes.stream().anyMatch(topic::startsWith);
     LOGGER.debug(
             String.format("Topic %s matches %s with $s", topic, matches, managedTopicPrefixes));
+    return matches;
+  }
+
+  private boolean matchesGroupPrefixList(String group) {
+    boolean matches =
+            managedGroupPrefixes.size() == 0 || managedGroupPrefixes.stream().anyMatch(group::startsWith);
+    LOGGER.debug(
+            String.format("Group %s matches %s with $s", group, matches, managedGroupPrefixes));
     return matches;
   }
 

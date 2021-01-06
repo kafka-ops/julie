@@ -11,6 +11,7 @@ import com.purbon.kafka.topology.model.TopicSchemas;
 import com.purbon.kafka.topology.model.users.Consumer;
 import com.purbon.kafka.topology.model.users.Producer;
 import com.purbon.kafka.topology.utils.JinjaUtils;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -94,6 +95,7 @@ public class TopicImpl implements Topic, Cloneable {
     this.dataType = dataType;
     this.config = config;
     this.schemas = new ArrayList<>();
+    this.context = new HashMap<>();
     this.replicationFactor = 0;
     this.partitionCount = 0;
     this.appConfig = appConfig;

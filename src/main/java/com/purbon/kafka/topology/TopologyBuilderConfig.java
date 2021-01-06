@@ -84,6 +84,8 @@ public class TopologyBuilderConfig {
   static final String TOPIC_MANAGED_PREFIXES =
       "topology.topic.managed.prefixes";
 
+  static final String GROUP_MANAGED_PREFIXES =
+          "topology.group.managed.prefixes";
 
   private final Map<String, String> cliParams;
   private Config config;
@@ -250,6 +252,12 @@ public class TopologyBuilderConfig {
 
   public List<String> getTopicManagedPrefixes() {
     return config.getStringList(TOPIC_MANAGED_PREFIXES).stream()
+            .map(String::trim)
+            .collect(Collectors.toList());
+  }
+
+  public List<String> getGroupManagedPrefixes() {
+    return config.getStringList(GROUP_MANAGED_PREFIXES).stream()
             .map(String::trim)
             .collect(Collectors.toList());
   }

@@ -7,6 +7,18 @@ ACLs
 In the topology descriptor files users can create permissions for different types of applications, Consumers, Producers, Kafka streams apps or Kafka Connectors.
 With this roles, users can easily create the permissions that map directly to their needs.
 
+If desired by organisational purposes e.g. shared cluster a user can decide to filter which ACLS will be managed by prefix, this is done using the managed prefixes config.
+
+Topic acls will be managed if the topic matches
+*topology.topic.managed.prefixes* configuration setting. Check :ref:`config` for details.
+
+Group acls will be managed if the group matches
+*topology.group.managed.prefixes* configuration setting. Check :ref:`config` for details.
+
+All others currently and for the above if a global wildcard, will be managed if principle matches
+*topology.service.accounts.managed.prefixes* configuration setting. Check :ref:`config` for details.
+
+
 Consumers
 ^^^^^^^^^^^
 
