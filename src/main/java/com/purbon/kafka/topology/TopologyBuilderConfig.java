@@ -26,6 +26,10 @@ public class TopologyBuilderConfig {
 
   static final String ACCESS_CONTROL_DEFAULT_CLASS =
       "com.purbon.kafka.topology.roles.SimpleAclsProvider";
+
+  static final String CONFLUENT_CLOUD_CONTROL_CLASS =
+          "com.purbon.kafka.topology.roles.CCloudAclsProvider";
+
   static final String RBAC_ACCESS_CONTROL_CLASS = "com.purbon.kafka.topology.roles.RBACProvider";
 
   private static final String STATE_PROCESSOR_IMPLEMENTATION_CLASS =
@@ -85,7 +89,7 @@ public class TopologyBuilderConfig {
       "topology.topic.managed.prefixes";
 
   static final String GROUP_MANAGED_PREFIXES =
-          "topology.group.managed.prefixes";
+      "topology.group.managed.prefixes";
 
   private final Map<String, String> cliParams;
   private Config config;
