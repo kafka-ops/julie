@@ -26,7 +26,8 @@ public class TestTopologyBuilder {
     this(new TopologyBuilderConfig(), "ctx", "project");
   }
 
-  public TestTopologyBuilder(TopologyBuilderConfig topologyBuilderConfig, String context, String projectName) {
+  public TestTopologyBuilder(
+      TopologyBuilderConfig topologyBuilderConfig, String context, String projectName) {
     this.topologyBuilderConfig = topologyBuilderConfig;
     topology = new TopologyImpl(topologyBuilderConfig);
     topology.setContext(context);

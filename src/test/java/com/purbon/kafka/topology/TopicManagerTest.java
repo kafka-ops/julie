@@ -4,7 +4,6 @@ import static com.purbon.kafka.topology.BuilderCLI.ALLOW_DELETE_OPTION;
 import static com.purbon.kafka.topology.BuilderCLI.BROKERS_OPTION;
 import static com.purbon.kafka.topology.TopicManager.NUM_PARTITIONS;
 import static com.purbon.kafka.topology.TopologyBuilderConfig.*;
-import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.*;
 
@@ -16,9 +15,6 @@ import com.purbon.kafka.topology.model.Impl.TopologyImpl;
 import com.purbon.kafka.topology.model.Project;
 import com.purbon.kafka.topology.model.Topic;
 import com.purbon.kafka.topology.model.Topology;
-import com.purbon.kafka.topology.model.cluster.ServiceAccount;
-import com.purbon.kafka.topology.model.users.Consumer;
-import com.purbon.kafka.topology.model.users.Producer;
 import com.purbon.kafka.topology.schemas.SchemaRegistryManager;
 import java.io.IOException;
 import java.io.PrintStream;

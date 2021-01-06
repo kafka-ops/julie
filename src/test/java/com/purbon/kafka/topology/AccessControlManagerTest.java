@@ -3,7 +3,6 @@ package com.purbon.kafka.topology;
 import static com.google.common.collect.Lists.newArrayList;
 import static com.purbon.kafka.topology.BuilderCLI.BROKERS_OPTION;
 import static com.purbon.kafka.topology.TopologyBuilderConfig.*;
-import static com.purbon.kafka.topology.TopologyBuilderConfig.TOPOLOGY_TOPIC_STATE_FROM_CLUSTER;
 import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
 import static org.hamcrest.CoreMatchers.hasItem;
@@ -569,29 +568,36 @@ public class AccessControlManagerTest {
     props.put(TOPIC_PREFIX_FORMAT_CONFIG, "{{topic}}");
 
     TopologyBuilderConfig config = new TopologyBuilderConfig(cliOps, props);
-    accessControlManager = new AccessControlManager(aclsProvider, new AclsBindingsBuilder(config), config);
+    accessControlManager =
+        new AccessControlManager(aclsProvider, new AclsBindingsBuilder(config), config);
 
-    TestTopologyBuilder builder = TestTopologyBuilder
-            .createProject(config)
+    TestTopologyBuilder builder =
+        TestTopologyBuilder.createProject(config)
             .addTopic("topicA")
             .addTopic("NamespaceA_topicA")
             .addConsumer("User:app1");
 
     accessControlManager.apply(builder.buildTopology(), plan);
 
-    //Check that we only have one action not 2
+    // Check that we only have one action not 2
     assertEquals(1, plan.getActions().size());
 
-    //Check that the action bindings are for the managed prefix topic, not the non-managed prefix.
-    assertEquals(2, plan.getActions().get(0)
-            .getBindings().stream().filter(
-                    b -> b.getResourceType().equals(ResourceType.TOPIC) &&
-                    b.getResourceName().equals("NamespaceA_topicA"))
+    // Check that the action bindings are for the managed prefix topic, not the non-managed prefix.
+    assertEquals(
+        2,
+        plan.getActions().get(0).getBindings().stream()
+            .filter(
+                b ->
+                    b.getResourceType().equals(ResourceType.TOPIC)
+                        && b.getResourceName().equals("NamespaceA_topicA"))
             .count());
-    assertEquals(0, plan.getActions().get(0)
-            .getBindings().stream().filter(
-                    b -> b.getResourceType().equals(ResourceType.TOPIC) &&
-                            b.getResourceName().equals("topicA"))
+    assertEquals(
+        0,
+        plan.getActions().get(0).getBindings().stream()
+            .filter(
+                b ->
+                    b.getResourceType().equals(ResourceType.TOPIC)
+                        && b.getResourceName().equals("topicA"))
             .count());
   }
 
@@ -604,10 +610,11 @@ public class AccessControlManagerTest {
     props.put(GROUP_MANAGED_PREFIXES, Collections.singletonList("NamespaceA"));
 
     TopologyBuilderConfig config = new TopologyBuilderConfig(cliOps, props);
-    accessControlManager = new AccessControlManager(aclsProvider, new AclsBindingsBuilder(config), config);
+    accessControlManager =
+        new AccessControlManager(aclsProvider, new AclsBindingsBuilder(config), config);
 
-    TestTopologyBuilder builder = TestTopologyBuilder
-            .createProject(config)
+    TestTopologyBuilder builder =
+        TestTopologyBuilder.createProject(config)
             .addTopic("topicA")
             .addConsumer("User:app1", "NamespaceA_ConsumerGroupA")
             .addConsumer("User:app2", "NamespaceB_ConsumerGroupB")
@@ -615,24 +622,33 @@ public class AccessControlManagerTest {
 
     accessControlManager.apply(builder.buildTopology(), plan);
 
-    //Check that we only have one action
+    // Check that we only have one action
     assertEquals(1, plan.getActions().size());
 
-    //Check that the action bindings are for the managed prefix group, not the non-managed prefix.
-    assertEquals(1, plan.getActions().get(0)
-            .getBindings().stream().filter(
-                    b -> b.getResourceType().equals(ResourceType.GROUP) &&
-                            b.getResourceName().equals("NamespaceA_ConsumerGroupA"))
+    // Check that the action bindings are for the managed prefix group, not the non-managed prefix.
+    assertEquals(
+        1,
+        plan.getActions().get(0).getBindings().stream()
+            .filter(
+                b ->
+                    b.getResourceType().equals(ResourceType.GROUP)
+                        && b.getResourceName().equals("NamespaceA_ConsumerGroupA"))
             .count());
-    assertEquals(0, plan.getActions().get(0)
-            .getBindings().stream().filter(
-                    b -> b.getResourceType().equals(ResourceType.GROUP) &&
-                            b.getResourceName().equals("NamespaceB_ConsumerGroupB"))
+    assertEquals(
+        0,
+        plan.getActions().get(0).getBindings().stream()
+            .filter(
+                b ->
+                    b.getResourceType().equals(ResourceType.GROUP)
+                        && b.getResourceName().equals("NamespaceB_ConsumerGroupB"))
             .count());
-    assertEquals(1, plan.getActions().get(0)
-            .getBindings().stream().filter(
-                    b -> b.getResourceType().equals(ResourceType.GROUP) &&
-                            b.getResourceName().equals("*"))
+    assertEquals(
+        1,
+        plan.getActions().get(0).getBindings().stream()
+            .filter(
+                b ->
+                    b.getResourceType().equals(ResourceType.GROUP)
+                        && b.getResourceName().equals("*"))
             .count());
   }
 
@@ -645,34 +661,38 @@ public class AccessControlManagerTest {
     props.put(SERVICE_ACCOUNT_MANAGED_PREFIXES, Collections.singletonList("User:NamespaceA"));
 
     TopologyBuilderConfig config = new TopologyBuilderConfig(cliOps, props);
-    accessControlManager = new AccessControlManager(aclsProvider, new AclsBindingsBuilder(config), config);
+    accessControlManager =
+        new AccessControlManager(aclsProvider, new AclsBindingsBuilder(config), config);
 
-    TestTopologyBuilder builder = TestTopologyBuilder
-            .createProject(config)
+    TestTopologyBuilder builder =
+        TestTopologyBuilder.createProject(config)
             .addTopic("topicA")
             .addConsumer("User:NamespaceA_app1", "*")
             .addConsumer("User:NamespaceB_app2", "*");
 
     accessControlManager.apply(builder.buildTopology(), plan);
 
-    //Check that we only have one action
+    // Check that we only have one action
     assertEquals(1, plan.getActions().size());
 
-    //Check that the action bindings are for the managed service group, not the non-managed prefix.
-    assertEquals(1, plan.getActions().get(0)
-            .getBindings().stream().filter(
-                    b -> b.getResourceType().equals(ResourceType.GROUP) &&
-                            b.getResourceName().equals("*") &&
-                            b.getPrincipal().equals("User:NamespaceA_app1"))
+    // Check that the action bindings are for the managed service group, not the non-managed prefix.
+    assertEquals(
+        1,
+        plan.getActions().get(0).getBindings().stream()
+            .filter(
+                b ->
+                    b.getResourceType().equals(ResourceType.GROUP)
+                        && b.getResourceName().equals("*")
+                        && b.getPrincipal().equals("User:NamespaceA_app1"))
             .count());
-    assertEquals(0, plan.getActions().get(0)
-            .getBindings().stream().filter(
-                    b -> b.getResourceType().equals(ResourceType.GROUP) &&
-                            b.getResourceName().equals("*") &&
-                            b.getPrincipal().equals("User:NamespaceB_app2"))
+    assertEquals(
+        0,
+        plan.getActions().get(0).getBindings().stream()
+            .filter(
+                b ->
+                    b.getResourceType().equals(ResourceType.GROUP)
+                        && b.getResourceName().equals("*")
+                        && b.getPrincipal().equals("User:NamespaceB_app2"))
             .count());
   }
-
-
-
 }

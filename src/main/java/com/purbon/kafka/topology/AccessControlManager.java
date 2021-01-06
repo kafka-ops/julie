@@ -23,13 +23,11 @@ import com.purbon.kafka.topology.model.users.Schemas;
 import com.purbon.kafka.topology.model.users.platform.ControlCenterInstance;
 import com.purbon.kafka.topology.model.users.platform.SchemaRegistryInstance;
 import com.purbon.kafka.topology.roles.TopologyAclBinding;
-
 import java.io.PrintStream;
 import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -59,7 +57,6 @@ public class AccessControlManager {
     this.managedServiceAccountPrefixes = config.getServiceAccountManagedPrefixes();
     this.managedTopicPrefixes = config.getTopicManagedPrefixes();
     this.managedGroupPrefixes = config.getGroupManagedPrefixes();
-
   }
 
   /**
@@ -77,9 +74,7 @@ public class AccessControlManager {
 
   private Set<TopologyAclBinding> loadActualClusterStateIfAvailable(ExecutionPlan plan) {
     Set<TopologyAclBinding> bindings =
-            config.fetchStateFromTheCluster()
-                    ? providerBindings()
-                    : plan.getBindings();
+        config.fetchStateFromTheCluster() ? providerBindings() : plan.getBindings();
     return bindings.stream().filter(this::matchesManagedPrefixList).collect(Collectors.toSet());
   }
 
@@ -222,11 +217,11 @@ public class AccessControlManager {
     return updateActions;
   }
 
-
   private boolean matchesManagedPrefixList(TopologyAclBinding topologyAclBinding) {
     String resourceName = topologyAclBinding.getResourceName();
     String principle = topologyAclBinding.getPrincipal();
-    //For global wild cards ACL's we manage only if we manage the service account/principle, regardless.
+    // For global wild cards ACL's we manage only if we manage the service account/principle,
+    // regardless.
     if (resourceName.equals("*")) {
       return matchesServiceAccountPrefixList(principle);
     }
@@ -243,25 +238,29 @@ public class AccessControlManager {
 
   private boolean matchesTopicPrefixList(String topic) {
     boolean matches =
-            managedTopicPrefixes.size() == 0 || managedTopicPrefixes.stream().anyMatch(topic::startsWith);
+        managedTopicPrefixes.size() == 0
+            || managedTopicPrefixes.stream().anyMatch(topic::startsWith);
     LOGGER.debug(
-            String.format("Topic %s matches %s with $s", topic, matches, managedTopicPrefixes));
+        String.format("Topic %s matches %s with $s", topic, matches, managedTopicPrefixes));
     return matches;
   }
 
   private boolean matchesGroupPrefixList(String group) {
     boolean matches =
-            managedGroupPrefixes.size() == 0 || managedGroupPrefixes.stream().anyMatch(group::startsWith);
+        managedGroupPrefixes.size() == 0
+            || managedGroupPrefixes.stream().anyMatch(group::startsWith);
     LOGGER.debug(
-            String.format("Group %s matches %s with $s", group, matches, managedGroupPrefixes));
+        String.format("Group %s matches %s with $s", group, matches, managedGroupPrefixes));
     return matches;
   }
 
   private boolean matchesServiceAccountPrefixList(String principal) {
     boolean matches =
-            managedServiceAccountPrefixes.size() == 0 || managedServiceAccountPrefixes.stream().anyMatch(principal::startsWith);
+        managedServiceAccountPrefixes.size() == 0
+            || managedServiceAccountPrefixes.stream().anyMatch(principal::startsWith);
     LOGGER.debug(
-            String.format("Principal %s matches %s with $s", principal, matches, managedServiceAccountPrefixes));
+        String.format(
+            "Principal %s matches %s with $s", principal, matches, managedServiceAccountPrefixes));
     return matches;
   }
 
@@ -298,7 +297,7 @@ public class AccessControlManager {
   }
 
   private void syncClusterLevelRbac(
-    Optional<Map<String, List<User>>> rbac, Component cmp, List<Action> actions) {
+      Optional<Map<String, List<User>>> rbac, Component cmp, List<Action> actions) {
     if (rbac.isPresent()) {
       Map<String, List<User>> roles = rbac.get();
       for (String role : roles.keySet()) {

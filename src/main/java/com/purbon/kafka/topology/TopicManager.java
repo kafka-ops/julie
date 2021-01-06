@@ -50,16 +50,19 @@ public class TopicManager {
     // if topics does not exist already it's created
 
     Map<String, Topic> topics = parseMapOfTopics(topology);
-    topics.forEach((topicName, topic) -> {
-      plan.add(new SyncTopicAction(adminClient, schemaRegistryManager, topic, topicName, listOfTopics));
-    });
+    topics.forEach(
+        (topicName, topic) -> {
+          plan.add(
+              new SyncTopicAction(
+                  adminClient, schemaRegistryManager, topic, topicName, listOfTopics));
+        });
 
     if (config.allowDelete() || config.isAllowDeleteTopics()) {
       // Handle topic delete: Topics in the initial list, but not present anymore after a
       // full topic sync should be deleted
       List<String> topicsToBeDeleted =
           listOfTopics.stream()
-              .filter(topic -> !topics.containsKey(topic) && !isAnInternalTopics(topic) )
+              .filter(topic -> !topics.containsKey(topic) && !isAnInternalTopics(topic))
               .collect(Collectors.toList());
 
       if (topicsToBeDeleted.size() > 0) {
@@ -71,9 +74,9 @@ public class TopicManager {
 
   private Map<String, Topic> parseMapOfTopics(Topology topology) {
     return topology.getProjects().stream()
-            .flatMap(project -> project.getTopics().stream())
-            .filter(this::matchesPrefixList)
-            .collect(Collectors.toMap(Topic::toString, topic -> topic));
+        .flatMap(project -> project.getTopics().stream())
+        .filter(this::matchesPrefixList)
+        .collect(Collectors.toMap(Topic::toString, topic -> topic));
   }
 
   private boolean isAnInternalTopics(String topic) {
@@ -82,11 +85,12 @@ public class TopicManager {
 
   private Set<String> loadActualClusterStateIfAvailable(ExecutionPlan plan) throws IOException {
     Set<String> listOfTopics =
-        config.fetchTopicStateFromTheCluster() ? adminClient.listApplicationTopics() : plan.getTopics();
+        config.fetchTopicStateFromTheCluster()
+            ? adminClient.listApplicationTopics()
+            : plan.getTopics();
 
-    listOfTopics = listOfTopics.stream()
-            .filter(this::matchesPrefixList)
-            .collect(Collectors.toSet());
+    listOfTopics =
+        listOfTopics.stream().filter(this::matchesPrefixList).collect(Collectors.toSet());
     if (listOfTopics.size() > 0)
       LOGGER.debug(
           "Full list of managed topics in the cluster: "
@@ -100,9 +104,8 @@ public class TopicManager {
 
   private boolean matchesPrefixList(String topic) {
     boolean matches =
-            managedPrefixes.size() == 0 || managedPrefixes.stream().anyMatch(topic::startsWith);
-    LOGGER.debug(
-            String.format("Topic %s matches %s with $s", topic, matches, managedPrefixes));
+        managedPrefixes.size() == 0 || managedPrefixes.stream().anyMatch(topic::startsWith);
+    LOGGER.debug(String.format("Topic %s matches %s with $s", topic, matches, managedPrefixes));
     return matches;
   }
 

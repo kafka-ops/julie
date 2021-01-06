@@ -68,7 +68,7 @@ public class AccessControlProviderFactory {
     try {
       if (accessControlClass.equalsIgnoreCase(ACCESS_CONTROL_DEFAULT_CLASS)) {
         return new AclsBindingsBuilder(config, cCloudUtils);
-      } else if (accessControlClass.equalsIgnoreCase(CONFLUENT_CLOUD_CONTROL_CLASS)){
+      } else if (accessControlClass.equalsIgnoreCase(CONFLUENT_CLOUD_CONTROL_CLASS)) {
         return new AclsBindingsBuilder(config, cCloudUtils);
       } else if (accessControlClass.equalsIgnoreCase(RBAC_ACCESS_CONTROL_CLASS)) {
         MDSApiClient apiClient = apiClientLogIn();

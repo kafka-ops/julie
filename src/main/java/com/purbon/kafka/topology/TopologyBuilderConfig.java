@@ -28,7 +28,7 @@ public class TopologyBuilderConfig {
       "com.purbon.kafka.topology.roles.SimpleAclsProvider";
 
   static final String CONFLUENT_CLOUD_CONTROL_CLASS =
-          "com.purbon.kafka.topology.roles.CCloudAclsProvider";
+      "com.purbon.kafka.topology.roles.CCloudAclsProvider";
 
   static final String RBAC_ACCESS_CONTROL_CLASS = "com.purbon.kafka.topology.roles.RBACProvider";
 
@@ -37,6 +37,7 @@ public class TopologyBuilderConfig {
 
   static final String STATE_PROCESSOR_DEFAULT_CLASS =
       "com.purbon.kafka.topology.backend.FileBackend";
+
   static final String REDIS_STATE_PROCESSOR_CLASS =
       "com.purbon.kafka.topology.backend.RedisBackend";
 
@@ -79,17 +80,14 @@ public class TopologyBuilderConfig {
   public static final String TOPOLOGY_TOPIC_STATE_FROM_CLUSTER =
       "topology.state.topics.cluster.enabled";
 
-  static final String TOPOLOGY_STATE_FROM_CLUSTER =
-      "topology.state.cluster.enabled";
+  static final String TOPOLOGY_STATE_FROM_CLUSTER = "topology.state.cluster.enabled";
 
   static final String SERVICE_ACCOUNT_MANAGED_PREFIXES =
       "topology.service.accounts.managed.prefixes";
 
-  static final String TOPIC_MANAGED_PREFIXES =
-      "topology.topic.managed.prefixes";
+  static final String TOPIC_MANAGED_PREFIXES = "topology.topic.managed.prefixes";
 
-  static final String GROUP_MANAGED_PREFIXES =
-      "topology.group.managed.prefixes";
+  static final String GROUP_MANAGED_PREFIXES = "topology.group.managed.prefixes";
 
   private final Map<String, String> cliParams;
   private Config config;
@@ -256,14 +254,14 @@ public class TopologyBuilderConfig {
 
   public List<String> getTopicManagedPrefixes() {
     return config.getStringList(TOPIC_MANAGED_PREFIXES).stream()
-            .map(String::trim)
-            .collect(Collectors.toList());
+        .map(String::trim)
+        .collect(Collectors.toList());
   }
 
   public List<String> getGroupManagedPrefixes() {
     return config.getStringList(GROUP_MANAGED_PREFIXES).stream()
-            .map(String::trim)
-            .collect(Collectors.toList());
+        .map(String::trim)
+        .collect(Collectors.toList());
   }
 
   public String getConfluentSchemaRegistryUrl() {
