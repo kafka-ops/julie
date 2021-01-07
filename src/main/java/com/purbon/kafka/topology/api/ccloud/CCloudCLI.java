@@ -11,7 +11,7 @@ import java.util.stream.Collectors;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-public class CCloudCLI {
+public class CCloudCLI implements CCloud {
 
   private static final Logger LOGGER = LogManager.getLogger(CCloudCLI.class);
 
@@ -21,6 +21,12 @@ public class CCloudCLI {
     mapper = new ObjectMapper();
   }
 
+  public CCloudCLI(String environment) throws IOException {
+    this();
+    setEnvironment(environment);
+  }
+
+  @Override
   public Map<String, ServiceAccount> serviceAccounts() throws IOException {
     List<String> cmd = Arrays.asList("ccloud", "service-account", "list", "--output", "json");
     String stdout = "";
@@ -44,6 +50,7 @@ public class CCloudCLI {
     }
   }
 
+  @Override
   public ServiceAccount newServiceAccount(String name, String description) throws IOException {
     List<String> cmd =
         Arrays.asList(
@@ -66,6 +73,7 @@ public class CCloudCLI {
     return sa;
   }
 
+  @Override
   public void deleteServiceAccount(int id) throws IOException {
     List<String> cmd = Arrays.asList("ccloud", "service-account", "delete", String.valueOf(id));
     String stdout = "";

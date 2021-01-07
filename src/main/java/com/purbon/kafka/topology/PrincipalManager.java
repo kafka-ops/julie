@@ -43,17 +43,15 @@ public class PrincipalManager {
       return;
     }
 
-    provider.configure();
-
-    List<String> principals = parseListOfPrincipals(topology);
+    Set<String> principals = parsePrincipals(topology);
     Map<String, ServiceAccount> accounts = loadActualClusterStateIfAvailable(plan);
 
     // build list of principals to be created.
-    List<ServiceAccount> principalsToBeCreated =
+    Set<ServiceAccount> principalsToBeCreated =
         principals.stream()
             .filter(wishPrincipal -> !accounts.containsKey(wishPrincipal))
             .map(principal -> new ServiceAccount(-1, principal, "Managed by KTB"))
-            .collect(Collectors.toList());
+            .collect(Collectors.toSet());
 
     if (!principalsToBeCreated.isEmpty()) {
       plan.add(new CreateAccounts(provider, principalsToBeCreated));
@@ -72,16 +70,15 @@ public class PrincipalManager {
     }
 
     if (config.allowDelete() || config.isAllowDeletePrincipals()) {
-      provider.configure();
 
-      List<String> principals = parseListOfPrincipals(topology);
+      Set<String> principals = parsePrincipals(topology);
       Map<String, ServiceAccount> accounts = loadActualClusterStateIfAvailable(plan);
 
       // build list of principals to be deleted.
-      List<ServiceAccount> principalsToBeDeleted =
+      Set<ServiceAccount> principalsToBeDeleted =
           accounts.values().stream()
               .filter(currentPrincipal -> !principals.contains(currentPrincipal.getName()))
-              .collect(Collectors.toList());
+              .collect(Collectors.toSet());
       if (!principalsToBeDeleted.isEmpty()) {
         plan.add(new ClearAccounts(provider, principalsToBeDeleted));
       }
@@ -107,7 +104,7 @@ public class PrincipalManager {
     return matches;
   }
 
-  private List<String> parseListOfPrincipals(Topology topology) {
+  private Set<String> parsePrincipals(Topology topology) {
     return topology.getProjects().stream()
         .flatMap(
             project -> {
@@ -125,7 +122,7 @@ public class PrincipalManager {
             })
         .map(User::getPrincipal)
         .filter(this::matchesPrefixList)
-        .collect(Collectors.toList());
+        .collect(Collectors.toSet());
   }
 
   public void printCurrentState(PrintStream out) throws IOException {

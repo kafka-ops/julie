@@ -8,6 +8,7 @@ import static com.purbon.kafka.topology.TopologyBuilderConfig.MDS_SERVER;
 import static com.purbon.kafka.topology.TopologyBuilderConfig.MDS_USER_CONFIG;
 import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.junit.Assert.assertThat;
+import static org.mockito.ArgumentMatchers.nullable;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.mockito.internal.verification.VerificationModeFactory.times;
@@ -62,7 +63,7 @@ public class AccessControlProviderFactoryTest {
     when(mdsApiClientBuilder.build()).thenReturn(mdsApiClient);
 
     AccessControlProviderFactory factory =
-        new AccessControlProviderFactory(config, adminClient, mdsApiClientBuilder);
+        new AccessControlProviderFactory(config, adminClient, null, mdsApiClientBuilder);
 
     AccessControlProvider provider = factory.get();
 
@@ -78,7 +79,7 @@ public class AccessControlProviderFactoryTest {
     TopologyBuilderConfig config = new TopologyBuilderConfig(cliOps, props);
 
     AccessControlProviderFactory factory =
-        new AccessControlProviderFactory(config, adminClient, mdsApiClientBuilder);
+        new AccessControlProviderFactory(config, adminClient, null, mdsApiClientBuilder);
 
     assertThat(factory.get(), instanceOf(SimpleAclsProvider.class));
   }
@@ -94,7 +95,7 @@ public class AccessControlProviderFactoryTest {
     when(mdsApiClientBuilder.build()).thenReturn(mdsApiClient);
 
     AccessControlProviderFactory factory =
-        new AccessControlProviderFactory(config, adminClient, mdsApiClientBuilder);
+        new AccessControlProviderFactory(config, adminClient, null, mdsApiClientBuilder);
     factory.get();
   }
 }

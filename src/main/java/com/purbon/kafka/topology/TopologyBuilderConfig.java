@@ -32,6 +32,12 @@ public class TopologyBuilderConfig {
 
   static final String RBAC_ACCESS_CONTROL_CLASS = "com.purbon.kafka.topology.roles.RBACProvider";
 
+  static final String PRINCIPLE_PROVIDER_IMPLEMENTATION_CLASS = "topology.builder.principle.provider.class";
+
+  static final String CONFLUENT_CLOUD_PRINCIPLE_PROVIDER_CLASS = "com.purbon.kafka.topology.serviceAccounts.CCloudPrincipalProvider";
+  static final String PRINCIPLE_PROVIDER_DEFAULT_CLASS = "com.purbon.kafka.topology.serviceAccounts.VoidPrincipleProvider";
+
+
   private static final String STATE_PROCESSOR_IMPLEMENTATION_CLASS =
       "topology.builder.state.processor.class";
 
@@ -71,11 +77,13 @@ public class TopologyBuilderConfig {
   private static final String ALLOW_DELETE_BINDINGS = "allow.delete.bindings";
   private static final String ALLOW_DELETE_PRINCIPALS = "allow.delete.principals";
 
-  static final String CCLOUD_ENV_CONFIG = "ccloud.environment";
+  static final String CCLOUD_ENV_CONFIG = "topology.builder.ccloud.environment";
+  static final String CCLOUD_REST_ENABLED = "topology.builder.ccloud.rest.enabled";
+  static final String CCLOUD_REST_URL = "topology.builder.ccloud.rest.url";
+  static final String CCLOUD_EMAIL = "topology.builder.ccloud.email";
+  static final String CCLOUD_PASSWORD = "topology.builder.ccloud.password";
 
   static final String TOPOLOGY_EXPERIMENTAL_ENABLED_CONFIG = "topology.features.experimental";
-  static final String TOPOLOGY_PRINCIPAL_TRANSLATION_ENABLED_CONFIG =
-      "topology.translation.principal.enabled";
 
   public static final String TOPOLOGY_TOPIC_STATE_FROM_CLUSTER =
       "topology.state.topics.cluster.enabled";
@@ -284,6 +292,10 @@ public class TopologyBuilderConfig {
     return config.getString(ACCESS_CONTROL_IMPLEMENTATION_CLASS);
   }
 
+  public String getPrincipleProviderImplementationClass() {
+    return config.getString(PRINCIPLE_PROVIDER_IMPLEMENTATION_CLASS);
+  }
+
   public String getStateProcessorImplementationClassName() {
     return config.getString(STATE_PROCESSOR_IMPLEMENTATION_CLASS);
   }
@@ -308,12 +320,28 @@ public class TopologyBuilderConfig {
     return config.getString(CCLOUD_ENV_CONFIG);
   }
 
-  public boolean enabledExperimental() {
-    return config.getBoolean(TOPOLOGY_EXPERIMENTAL_ENABLED_CONFIG);
+  public boolean enabledConfluentCloud() {
+    return !getConfluentCloudEnv().trim().isEmpty();
   }
 
-  public boolean useConfuentCloud() {
-    return config.hasPath(CCLOUD_ENV_CONFIG);
+  public boolean enabledConfluentCloudRest() {
+    return config.getBoolean(CCLOUD_REST_ENABLED);
+  }
+
+  public String getConfluentCloudEmail() {
+    return config.getString(CCLOUD_EMAIL);
+  }
+
+  public String getConfluentCloudPassword() {
+    return config.getString(CCLOUD_PASSWORD);
+  }
+
+  public String getConfluentCloudUrl() {
+    return config.getString(CCLOUD_REST_URL);
+  }
+
+  public boolean enabledExperimental() {
+    return config.getBoolean(TOPOLOGY_EXPERIMENTAL_ENABLED_CONFIG);
   }
 
   public boolean hasProperty(String property) {
@@ -355,10 +383,6 @@ public class TopologyBuilderConfig {
 
   public boolean isAllowDeletePrincipals() {
     return config.getBoolean(ALLOW_DELETE_PRINCIPALS);
-  }
-
-  public boolean enabledPrincipalTranslation() {
-    return config.getBoolean(TOPOLOGY_PRINCIPAL_TRANSLATION_ENABLED_CONFIG);
   }
 
   public boolean fetchStateFromTheCluster() {

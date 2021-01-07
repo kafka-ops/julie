@@ -3,7 +3,7 @@ package com.purbon.kafka.topology;
 import static com.purbon.kafka.topology.TopologyBuilderConfig.*;
 
 import com.purbon.kafka.topology.api.adminclient.TopologyBuilderAdminClient;
-import com.purbon.kafka.topology.api.ccloud.CCloudCLI;
+import com.purbon.kafka.topology.api.ccloud.CCloud;
 import com.purbon.kafka.topology.api.mds.MDSApiClient;
 import com.purbon.kafka.topology.api.mds.MDSApiClientBuilder;
 import com.purbon.kafka.topology.roles.CCloudAclsProvider;
@@ -11,7 +11,7 @@ import com.purbon.kafka.topology.roles.RBACProvider;
 import com.purbon.kafka.topology.roles.SimpleAclsProvider;
 import com.purbon.kafka.topology.roles.acls.AclsBindingsBuilder;
 import com.purbon.kafka.topology.roles.rbac.RBACBindingsBuilder;
-import com.purbon.kafka.topology.utils.CCloudUtils;
+
 import java.io.IOException;
 import java.lang.reflect.Constructor;
 
@@ -19,14 +19,17 @@ public class AccessControlProviderFactory {
 
   private final TopologyBuilderConfig config;
   private final TopologyBuilderAdminClient builderAdminClient;
+  private final CCloud cCloud;
   private final MDSApiClientBuilder mdsApiClientBuilder;
 
   public AccessControlProviderFactory(
       TopologyBuilderConfig config,
       TopologyBuilderAdminClient builderAdminClient,
+      CCloud cCloud,
       MDSApiClientBuilder mdsApiClientBuilder) {
     this.config = config;
     this.builderAdminClient = builderAdminClient;
+    this.cCloud = cCloud;
     this.mdsApiClientBuilder = mdsApiClientBuilder;
   }
 
@@ -43,9 +46,9 @@ public class AccessControlProviderFactory {
           return (SimpleAclsProvider) aclsProviderConstructor.newInstance(builderAdminClient);
         case CONFLUENT_CLOUD_CONTROL_CLASS:
           Constructor<?> ccloudProviderConstructor =
-              clazz.getConstructor(TopologyBuilderAdminClient.class, TopologyBuilderConfig.class);
+              clazz.getConstructor(TopologyBuilderAdminClient.class, CCloud.class);
           return (CCloudAclsProvider)
-              ccloudProviderConstructor.newInstance(builderAdminClient, config);
+              ccloudProviderConstructor.newInstance(builderAdminClient, cCloud);
         case RBAC_ACCESS_CONTROL_CLASS:
           Constructor<?> rbacProviderContructor = clazz.getConstructor(MDSApiClient.class);
           MDSApiClient apiClient = apiClientLogIn();
@@ -62,14 +65,11 @@ public class AccessControlProviderFactory {
   public BindingsBuilderProvider builder() throws IOException {
     String accessControlClass = config.getAccessControlClassName();
 
-    CCloudCLI cCloudApi = new CCloudCLI();
-    CCloudUtils cCloudUtils = new CCloudUtils(cCloudApi, config);
-
     try {
       if (accessControlClass.equalsIgnoreCase(ACCESS_CONTROL_DEFAULT_CLASS)) {
-        return new AclsBindingsBuilder(config, cCloudUtils);
+        return new AclsBindingsBuilder(config);
       } else if (accessControlClass.equalsIgnoreCase(CONFLUENT_CLOUD_CONTROL_CLASS)) {
-        return new AclsBindingsBuilder(config, cCloudUtils);
+        return new AclsBindingsBuilder(config);
       } else if (accessControlClass.equalsIgnoreCase(RBAC_ACCESS_CONTROL_CLASS)) {
         MDSApiClient apiClient = apiClientLogIn();
         apiClient.authenticate();

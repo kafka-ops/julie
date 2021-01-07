@@ -9,11 +9,6 @@ import java.util.Set;
 public class VoidPrincipalProvider implements PrincipalProvider {
 
   @Override
-  public void configure() throws IOException {
-    throw new IOException("Not implemented!!");
-  }
-
-  @Override
   public Set<ServiceAccount> listServiceAccounts() throws IOException {
     return Collections.emptySet();
   }

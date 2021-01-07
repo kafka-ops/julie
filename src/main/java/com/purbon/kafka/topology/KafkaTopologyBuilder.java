@@ -7,6 +7,8 @@ import static com.purbon.kafka.topology.TopologyBuilderConfig.STATE_PROCESSOR_DE
 
 import com.purbon.kafka.topology.api.adminclient.TopologyBuilderAdminClient;
 import com.purbon.kafka.topology.api.adminclient.TopologyBuilderAdminClientBuilder;
+import com.purbon.kafka.topology.api.ccloud.CCloud;
+import com.purbon.kafka.topology.api.ccloud.CCloudBuilder;
 import com.purbon.kafka.topology.api.mds.MDSApiClientBuilder;
 import com.purbon.kafka.topology.backend.FileBackend;
 import com.purbon.kafka.topology.backend.RedisBackend;
@@ -61,14 +63,19 @@ public class KafkaTopologyBuilder implements AutoCloseable {
   public static KafkaTopologyBuilder build(
       String topologyFile, String plansFile, Map<String, String> config) throws Exception {
 
+
     TopologyBuilderConfig builderConfig = TopologyBuilderConfig.build(config);
     TopologyBuilderAdminClient adminClient =
         new TopologyBuilderAdminClientBuilder(builderConfig).build();
+
+    CCloudBuilder cCloudFactory = new CCloudBuilder(builderConfig);
+    CCloud cCloud = cCloudFactory.build();
+
     AccessControlProviderFactory factory =
         new AccessControlProviderFactory(
-            builderConfig, adminClient, new MDSApiClientBuilder(builderConfig));
+            builderConfig, adminClient, cCloud, new MDSApiClientBuilder(builderConfig));
 
-    PrincipalProviderFactory principalProviderFactory = new PrincipalProviderFactory(builderConfig);
+    PrincipalProviderFactory principalProviderFactory = new PrincipalProviderFactory(builderConfig, cCloud);
 
     KafkaTopologyBuilder builder =
         build(

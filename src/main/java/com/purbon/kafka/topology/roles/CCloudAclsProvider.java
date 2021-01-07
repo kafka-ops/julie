@@ -3,6 +3,7 @@ package com.purbon.kafka.topology.roles;
 import com.purbon.kafka.topology.AccessControlProvider;
 import com.purbon.kafka.topology.TopologyBuilderConfig;
 import com.purbon.kafka.topology.api.adminclient.TopologyBuilderAdminClient;
+import com.purbon.kafka.topology.api.ccloud.CCloud;
 import com.purbon.kafka.topology.api.ccloud.CCloudCLI;
 import com.purbon.kafka.topology.model.cluster.ServiceAccount;
 import java.io.IOException;
@@ -17,20 +18,22 @@ public class CCloudAclsProvider extends SimpleAclsProvider implements AccessCont
 
   private static final Logger LOGGER = LogManager.getLogger(CCloudAclsProvider.class);
 
-  private final CCloudCLI cli;
+  private final CCloud cCloud;
 
   public CCloudAclsProvider(
-      final TopologyBuilderAdminClient adminClient, final TopologyBuilderConfig config)
+      final TopologyBuilderAdminClient adminClient, final CCloud cCloud)
       throws IOException {
     super(adminClient);
-    this.cli = new CCloudCLI();
-    this.cli.setEnvironment(config.getConfluentCloudEnv());
+    if (cCloud == null) {
+      throw new IllegalArgumentException("CCloud cannot be null for this provider. " + getClass().getName());
+    }
+    this.cCloud = cCloud;
   }
 
   @Override
   public void createBindings(Set<TopologyAclBinding> bindings) throws IOException {
     try {
-      Map<String, ServiceAccount> serviceAccounts = cli.serviceAccounts();
+      Map<String, ServiceAccount> serviceAccounts = cCloud.serviceAccounts();
       Set<TopologyAclBinding> ccloudBindings =
           bindings.stream()
               .map(b -> convertToConfluentCloudId(serviceAccounts, b))
@@ -46,7 +49,7 @@ public class CCloudAclsProvider extends SimpleAclsProvider implements AccessCont
   @Override
   public void clearBindings(Set<TopologyAclBinding> bindings) throws IOException {
     try {
-      Map<String, ServiceAccount> serviceAccounts = cli.serviceAccounts();
+      Map<String, ServiceAccount> serviceAccounts = cCloud.serviceAccounts();
       Set<TopologyAclBinding> ccloudBindings =
           bindings.stream()
               .map(b -> convertToConfluentCloudId(serviceAccounts, b))
@@ -63,7 +66,7 @@ public class CCloudAclsProvider extends SimpleAclsProvider implements AccessCont
   public Map<String, List<TopologyAclBinding>> listAcls() {
     try {
       Map<Integer, ServiceAccount> serviceAccountsById =
-          cli.serviceAccounts().values().stream()
+          cCloud.serviceAccounts().values().stream()
               .collect(Collectors.toMap(ServiceAccount::getId, s -> s));
       Map<String, List<TopologyAclBinding>> map = new HashMap<>();
       super.listAcls()

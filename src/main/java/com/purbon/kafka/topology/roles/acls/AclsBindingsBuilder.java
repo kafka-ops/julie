@@ -5,14 +5,12 @@ import static java.util.Arrays.asList;
 import com.purbon.kafka.topology.BindingsBuilderProvider;
 import com.purbon.kafka.topology.TopologyBuilderConfig;
 import com.purbon.kafka.topology.api.adminclient.AclBuilder;
-import com.purbon.kafka.topology.api.ccloud.CCloudCLI;
 import com.purbon.kafka.topology.model.users.Connector;
 import com.purbon.kafka.topology.model.users.Consumer;
 import com.purbon.kafka.topology.model.users.Producer;
 import com.purbon.kafka.topology.model.users.platform.SchemaRegistryInstance;
 import com.purbon.kafka.topology.roles.TopologyAclBinding;
-import com.purbon.kafka.topology.utils.CCloudUtils;
-import java.io.IOException;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -34,15 +32,9 @@ public class AclsBindingsBuilder implements BindingsBuilderProvider {
   private static final Logger LOGGER = LogManager.getLogger(AclsBindingsBuilder.class);
 
   private final TopologyBuilderConfig config;
-  private final CCloudUtils cCloudUtils;
 
   public AclsBindingsBuilder(TopologyBuilderConfig config) {
-    this(config, new CCloudUtils(new CCloudCLI(), config));
-  }
-
-  public AclsBindingsBuilder(TopologyBuilderConfig config, CCloudUtils cCloudUtils) {
     this.config = config;
-    this.cCloudUtils = cCloudUtils;
   }
 
   @Override
@@ -257,19 +249,7 @@ public class AclsBindingsBuilder implements BindingsBuilderProvider {
   }
 
   private String translate(String namedPrincipal) {
-    if (config.useConfuentCloud()
-        && config.enabledExperimental()
-        && config.enabledPrincipalTranslation()) {
-      try {
-        cCloudUtils.warmup();
-      } catch (IOException e) {
-        LOGGER.error("Something happen during a ccloud cli warmup", e);
-      }
-      int id = cCloudUtils.translate(namedPrincipal); // Check with the part after User:
-      return "User:" + id;
-    } else {
       return namedPrincipal;
-    }
   }
 
   private AclBinding buildTopicLevelAcl(

@@ -91,8 +91,6 @@ public class PrincipalManagerTest {
     project.setProducers(Collections.singletonList(new Producer("producer")));
     topology.addProject(project);
 
-    doNothing().when(provider).configure();
-
     principalManager.applyCreate(topology, plan);
     principalManager.applyDelete(topology, plan);
 
@@ -118,7 +116,6 @@ public class PrincipalManagerTest {
     project.addTopic(topic);
     topology.addProject(project);
 
-    doNothing().when(provider).configure();
 
     principalManager.applyCreate(topology, plan);
     principalManager.applyDelete(topology, plan);
@@ -141,8 +138,6 @@ public class PrincipalManagerTest {
     project.setConsumers(Collections.singletonList(new Consumer("consumer")));
     project.setProducers(Collections.singletonList(new Producer("producer")));
     topology.addProject(project);
-
-    doNothing().when(provider).configure();
 
     doReturn(new ServiceAccount(123, "consumer", "Managed by KTB"))
         .when(provider)
@@ -211,8 +206,6 @@ public class PrincipalManagerTest {
     project.setConsumers(Collections.singletonList(new Consumer("consumer")));
     project.setProducers(Collections.singletonList(new Producer("producer")));
     topology.addProject(project);
-
-    doNothing().when(provider).configure();
 
     doReturn(new ServiceAccount(123, "consumer", "Managed by KTB"))
         .when(provider)

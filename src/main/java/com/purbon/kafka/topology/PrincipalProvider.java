@@ -6,8 +6,6 @@ import java.util.Set;
 
 public interface PrincipalProvider {
 
-  void configure() throws IOException;
-
   Set<ServiceAccount> listServiceAccounts() throws IOException;
 
   ServiceAccount createServiceAccount(String principal, String description) throws IOException;
