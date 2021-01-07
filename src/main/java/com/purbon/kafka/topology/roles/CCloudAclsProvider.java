@@ -6,10 +6,7 @@ import com.purbon.kafka.topology.api.adminclient.TopologyBuilderAdminClient;
 import com.purbon.kafka.topology.api.ccloud.CCloudCLI;
 import com.purbon.kafka.topology.model.cluster.ServiceAccount;
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 import org.apache.kafka.common.acl.AccessControlEntry;
 import org.apache.kafka.common.acl.AclBinding;
@@ -37,6 +34,7 @@ public class CCloudAclsProvider extends SimpleAclsProvider implements AccessCont
       Set<TopologyAclBinding> ccloudBindings =
           bindings.stream()
               .map(b -> convertToConfluentCloudId(serviceAccounts, b))
+              .filter(Objects::nonNull)
               .collect(Collectors.toSet());
       super.createBindings(ccloudBindings);
     } catch (IOException ex) {
@@ -52,6 +50,7 @@ public class CCloudAclsProvider extends SimpleAclsProvider implements AccessCont
       Set<TopologyAclBinding> ccloudBindings =
           bindings.stream()
               .map(b -> convertToConfluentCloudId(serviceAccounts, b))
+              .filter(Objects::nonNull)
               .collect(Collectors.toSet());
       super.clearBindings(ccloudBindings);
     } catch (IOException ex) {
@@ -87,27 +86,18 @@ public class CCloudAclsProvider extends SimpleAclsProvider implements AccessCont
   private TopologyAclBinding convertToConfluentCloudId(
       Map<String, ServiceAccount> serviceAccounts, TopologyAclBinding binding) {
     if (binding.asAclBinding().isPresent()) {
-      return new TopologyAclBinding(
-          convertToConfluentCloudId(serviceAccounts, binding.asAclBinding().get()));
+      AclBinding aclBinding = convertToConfluentCloudId(serviceAccounts, binding.asAclBinding().get());
+      return aclBinding == null ? null : new TopologyAclBinding(aclBinding);
     } else {
-      String principle = getACLPrinciple(serviceAccounts, binding.getPrincipal());
-      return new TopologyAclBinding(
-          binding.getResourceType(),
-          binding.getResourceName(),
-          binding.getHost(),
-          binding.getOperation(),
-          principle,
-          binding.getPattern());
+      Integer id = getId(serviceAccounts, binding.getPrincipal());
+      return id == null ? null :  getTopologyAclBinding(binding, "User:" + id);
     }
   }
 
   private AclBinding convertToConfluentCloudId(
       Map<String, ServiceAccount> serviceAccounts, AclBinding aclBinding) {
-    AccessControlEntry entry = aclBinding.entry();
-    String principle = getACLPrinciple(serviceAccounts, entry.principal());
-    AccessControlEntry accessControlEntry =
-        new AccessControlEntry(principle, entry.host(), entry.operation(), entry.permissionType());
-    return new AclBinding(aclBinding.pattern(), accessControlEntry);
+    Integer id = getId(serviceAccounts, aclBinding.entry().principal());
+    return id == null ? null : getAclBinding(aclBinding, "User:" + id);
   }
 
   private TopologyAclBinding convertToServiceAccountName(
@@ -117,39 +107,40 @@ public class CCloudAclsProvider extends SimpleAclsProvider implements AccessCont
           convertToServiceAccountName(serviceAccounts, binding.asAclBinding().get()));
     } else {
       String serviceAccountName = getName(serviceAccounts, binding.getPrincipal());
-      return new TopologyAclBinding(
-          binding.getResourceType(),
-          binding.getResourceName(),
-          binding.getHost(),
-          binding.getOperation(),
-          serviceAccountName,
-          binding.getPattern());
+      return getTopologyAclBinding(binding, serviceAccountName);
     }
   }
 
   private AclBinding convertToServiceAccountName(
       Map<Integer, ServiceAccount> serviceAccounts, AclBinding aclBinding) {
+    String serviceAccountName = getName(serviceAccounts, aclBinding.entry().principal());
+    return getAclBinding(aclBinding, serviceAccountName);
+  }
+
+  private AclBinding getAclBinding(AclBinding aclBinding, String principle) {
     AccessControlEntry entry = aclBinding.entry();
-    String serviceAccountName = getName(serviceAccounts, entry.principal());
-    AccessControlEntry accessControlEntry =
-        new AccessControlEntry(
-            serviceAccountName, entry.host(), entry.operation(), entry.permissionType());
+    AccessControlEntry accessControlEntry = new AccessControlEntry(principle, entry.host(), entry.operation(), entry.permissionType());
     return new AclBinding(aclBinding.pattern(), accessControlEntry);
   }
 
-  private String getACLPrinciple(Map<String, ServiceAccount> serviceAccounts, String name) {
-    int id = getId(serviceAccounts, name);
-    return id == -1 ? name : "User:" + getId(serviceAccounts, name);
+  private TopologyAclBinding getTopologyAclBinding(TopologyAclBinding binding, String principle) {
+    return new TopologyAclBinding(
+            binding.getResourceType(),
+            binding.getResourceName(),
+            binding.getHost(),
+            binding.getOperation(),
+            principle,
+            binding.getPattern());
   }
 
-  private int getId(Map<String, ServiceAccount> serviceAccounts, String name) {
+  private Integer getId(Map<String, ServiceAccount> serviceAccounts, String name) {
     if (serviceAccounts.containsKey(name)) {
       return serviceAccounts.get(name).getId();
     } else {
       try {
         return Integer.parseInt(name);
       } catch (NumberFormatException e) {
-        return -1;
+        return null;
       }
     }
   }
