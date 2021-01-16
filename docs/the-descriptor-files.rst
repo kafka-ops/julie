@@ -1,7 +1,7 @@
 Understanding the descriptor files
 *******************************
 
-As a descriptive tool the KTB uses a file (or set of files) to record how the cluster should look like, this files are call descriptors.
+As a descriptive tool Julie Ops uses a file (or set of files) to record how the cluster should look like, this files are call descriptors.
 
 Because users might have complex deployments, the structure is flexible enough to accommodate them, we will cover them in this section.
 
@@ -56,7 +56,7 @@ will by default create topic names with the prefix *context.source.foo*, in deta
 * *context.source.foo.foo* with one partition and a replication factor of one.
 * *context.source.foo.bar.avro* with a single partition and a single replica.
 
-The separator and order of attribute can be personalised using the KTB configuration file.
+The separator and order of attribute can be personalised using Julie Ops configuration file.
 The relevant properties are:
 
 - **Property**: *topology.topic.prefix.format*, to set the full topic naming format.

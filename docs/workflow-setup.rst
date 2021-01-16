@@ -1,7 +1,7 @@
 How to setup a full workflow (by example)
 *******************************
 
-This section describe the configuration steps need to setup a flow with the Kafka Topology Builder.
+This section describe the configuration steps need to setup a flow with Julie Ops.
 For this example we're going to use:
 
 * Github as the git server.
@@ -92,7 +92,7 @@ The pipeline responsible of running the test for each change request should look
 
 In the previous pipeline definition, using the Jenkins Pipeline DSL, we can notice a few relevant steps:
 
-- Is using docker as an agent. We suggest this as a best practise, but it is possible as well to run this with any agent available that has access to a host where the Kafka Topology Builder is installed.
+- Is using docker as an agent. We suggest this as a best practise, but it is possible as well to run this with any agent available that has access to a host where Julie Ops is installed.
 - There are a few verification, or test, steps. This are checks that run automatically for every Pull Request.
 - In the pipeline the reader can see the topology files are passes as jenkins parameters, see *${TopologyFiles}*
 - An important post step is configured where the pipeline will inform back to the git server the result of the verification. This step needs access to each server token, for the case of this pipeline a previously configured github token.

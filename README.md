@@ -1,4 +1,5 @@
-# The Topology Builder for Apache Kafka (Automation, Gitops, SelfService)
+# An operational manager for Apache Kafka (Automation, Gitops, SelfService)
+=======
 
 <a href="https://codeclimate.com/github/purbon/kafka-topology-builder/maintainability"><img src="https://api.codeclimate.com/v1/badges/ef4bcda7d1b5fd0a4f1e/maintainability" /></a> ![CI tests](https://github.com/kafka-ops/kafka-topology-builder/workflows/CI%20tests/badge.svg?branch=master) [![Gitter](https://badges.gitter.im/kafka-topology-builder/community.svg)](https://gitter.im/kafka-topology-builder/community?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge) [![Documentation Status](https://readthedocs.org/projects/kafka-topology-builder/badge/?version=latest)](https://kafka-topology-builder.readthedocs.io/?badge=latest)
 
@@ -8,11 +9,11 @@ More items are plan, check [here](https://github.com/kafka-ops/kafka-topology-bu
 
 ## The motivation 
 
-A typical question many teams face when building, or growing, an Apache Kafka infrastructure is how to manage
-topics, configuration, metadata, ACLs, etc in a more automated way to provide their teams with the most autonomy 
-possible while reducing the time involved in this administrative tasks. 
+One of the typical questions while building an Apache Kafka infrastructure is how to handle topics, 
+configurations and the required permissions to use them (Access Control List).
 
-The Topology Builder for Apache Kafka, in close collaboration with Git and CI/CD, (Jenkins, etc) is here to help you build it.
+The Julie Ops cli, in close collaboration with git and Jenkins (CI/CD) is here to help you setup an organised and automated way of managing your Kafka Cluster.
+
  
 ## Where's the docs?
 
@@ -49,7 +50,7 @@ Changes only can happen with a pull request.
 
 ## Help??
 
-If you are using the Kafka Topology Builder, or plan to use it in your project? might be you have encounter a bug? or a challenge?
+If you are using the Julie Ops tool, or plan to use it in your project? might be you have encounter a bug? or a challenge?
 need a certain future? feel free to reach out into our [gitter community](https://gitter.im/kafka-topology-builder/community).
 
 [![Gitter](https://badges.gitter.im/kafka-topology-builder/community.svg)](https://gitter.im/kafka-topology-builder/community?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge)
@@ -174,12 +175,12 @@ examples on managing ACLs, RBAC, Principales, Schemas and many others.
 
 Interested on contributing back? might be have an idea for a great future? or wanna fix a bug? Check our [contributing](CONTRIBUTING.md) doc for guidance.
 
-## Building the Kafka Topology Builder from scratch (source code)
+## Building Julie Ops from scratch (source code)
 
 The project is build using Java and Maven, so both are required if you aim to build the tool from scratch.
 The minimum version of Java supported is Java 8, note it soon will be deprecated here, it is only keep as supported for very legacy environments.
 
-It is recommended to run the Topology Builder with Java 11 and an open JDK version.
+It is recommended to run Julie Ops with Java 11 and an open JDK version.
 
 ### Building a release
 
