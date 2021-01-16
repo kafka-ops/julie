@@ -5,10 +5,15 @@ name: CI tests
 
 on:
   push:
-    branches: [ master ]
+    branches:
+      - master
+      - 1.x
+      - 1.5.x
   pull_request:
-    branches: [ master ]
-
+    branches:
+      - master
+      - 1.x
+      - 1.5.x
 jobs:
   build:
     strategy:
