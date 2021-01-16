@@ -29,7 +29,7 @@ If desired by organisational purposes a user can decide to filter witch Service 
 Principals Manager Providers
 -----------
 
-As a user of KTB you can select witch providers to use, they could be for example Confluent Cloud or SASL/SCRAM (once `#2 <https://github.com/kafka-ops/kafka-topology-builder/issues/2>`_ is implemented),
+As a user of KTB you can select which providers to use, they could be for example Confluent Cloud or SASL/SCRAM (once `#2 <https://github.com/kafka-ops/kafka-topology-builder/issues/2>`_ is implemented),
 the tool will contact the server and manage the user creation.
 
 In the current version you can only use the Confluent Cloud provider.

@@ -1,14 +1,12 @@
 package com.purbon.kafka.topology;
 
-import static com.purbon.kafka.topology.TopologyBuilderConfig.ACCESS_CONTROL_DEFAULT_CLASS;
-import static com.purbon.kafka.topology.TopologyBuilderConfig.MDS_PASSWORD_CONFIG;
-import static com.purbon.kafka.topology.TopologyBuilderConfig.MDS_USER_CONFIG;
-import static com.purbon.kafka.topology.TopologyBuilderConfig.RBAC_ACCESS_CONTROL_CLASS;
+import static com.purbon.kafka.topology.TopologyBuilderConfig.*;
 
 import com.purbon.kafka.topology.api.adminclient.TopologyBuilderAdminClient;
 import com.purbon.kafka.topology.api.ccloud.CCloudCLI;
 import com.purbon.kafka.topology.api.mds.MDSApiClient;
 import com.purbon.kafka.topology.api.mds.MDSApiClientBuilder;
+import com.purbon.kafka.topology.roles.CCloudAclsProvider;
 import com.purbon.kafka.topology.roles.RBACProvider;
 import com.purbon.kafka.topology.roles.SimpleAclsProvider;
 import com.purbon.kafka.topology.roles.acls.AclsBindingsBuilder;
@@ -43,6 +41,11 @@ public class AccessControlProviderFactory {
           Constructor<?> aclsProviderConstructor =
               clazz.getConstructor(TopologyBuilderAdminClient.class);
           return (SimpleAclsProvider) aclsProviderConstructor.newInstance(builderAdminClient);
+        case CONFLUENT_CLOUD_CONTROL_CLASS:
+          Constructor<?> ccloudProviderConstructor =
+              clazz.getConstructor(TopologyBuilderAdminClient.class, TopologyBuilderConfig.class);
+          return (CCloudAclsProvider)
+              ccloudProviderConstructor.newInstance(builderAdminClient, config);
         case RBAC_ACCESS_CONTROL_CLASS:
           Constructor<?> rbacProviderContructor = clazz.getConstructor(MDSApiClient.class);
           MDSApiClient apiClient = apiClientLogIn();
@@ -64,6 +67,8 @@ public class AccessControlProviderFactory {
 
     try {
       if (accessControlClass.equalsIgnoreCase(ACCESS_CONTROL_DEFAULT_CLASS)) {
+        return new AclsBindingsBuilder(config, cCloudUtils);
+      } else if (accessControlClass.equalsIgnoreCase(CONFLUENT_CLOUD_CONTROL_CLASS)) {
         return new AclsBindingsBuilder(config, cCloudUtils);
       } else if (accessControlClass.equalsIgnoreCase(RBAC_ACCESS_CONTROL_CLASS)) {
         MDSApiClient apiClient = apiClientLogIn();

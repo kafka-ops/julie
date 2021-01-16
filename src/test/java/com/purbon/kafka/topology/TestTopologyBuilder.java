@@ -10,10 +10,12 @@ import com.purbon.kafka.topology.model.users.Consumer;
 import com.purbon.kafka.topology.model.users.Producer;
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
 public class TestTopologyBuilder {
+  private final TopologyBuilderConfig topologyBuilderConfig;
   private final Topology topology;
   private final Project project;
   private Set<Topic> topics = new HashSet<>();
@@ -21,13 +23,15 @@ public class TestTopologyBuilder {
   private final Set<Producer> producers = new HashSet<>();
 
   public TestTopologyBuilder() {
-    this("ctx", "project");
+    this(new TopologyBuilderConfig(), "ctx", "project");
   }
 
-  public TestTopologyBuilder(String context, String projectName) {
-    topology = new TopologyImpl();
+  public TestTopologyBuilder(
+      TopologyBuilderConfig topologyBuilderConfig, String context, String projectName) {
+    this.topologyBuilderConfig = topologyBuilderConfig;
+    topology = new TopologyImpl(topologyBuilderConfig);
     topology.setContext(context);
-    project = new ProjectImpl(projectName);
+    project = new ProjectImpl(projectName, topologyBuilderConfig);
     topology.addProject(project);
   }
 
@@ -36,7 +40,11 @@ public class TestTopologyBuilder {
   }
 
   public static TestTopologyBuilder createProject(String context, String projectName) {
-    return new TestTopologyBuilder(context, projectName);
+    return new TestTopologyBuilder(new TopologyBuilderConfig(), context, projectName);
+  }
+
+  public static TestTopologyBuilder createProject(TopologyBuilderConfig topologyBuilderConfig) {
+    return new TestTopologyBuilder(topologyBuilderConfig, "ctx", "project");
   }
 
   public Topology buildTopology() {
@@ -47,7 +55,7 @@ public class TestTopologyBuilder {
   }
 
   public TestTopologyBuilder addTopic(String topicName) {
-    addTopic(new TopicImpl(topicName));
+    addTopic(new TopicImpl(topicName, topologyBuilderConfig));
     return this;
   }
 
@@ -67,6 +75,13 @@ public class TestTopologyBuilder {
 
   public TestTopologyBuilder addConsumer(String user) {
     consumers.add(new Consumer(user));
+    return this;
+  }
+
+  public TestTopologyBuilder addConsumer(String user, String group) {
+    Consumer consumer = new Consumer(user);
+    consumer.setGroup(Optional.of(group));
+    consumers.add(consumer);
     return this;
   }
 

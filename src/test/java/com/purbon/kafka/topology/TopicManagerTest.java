@@ -3,9 +3,7 @@ package com.purbon.kafka.topology;
 import static com.purbon.kafka.topology.BuilderCLI.ALLOW_DELETE_OPTION;
 import static com.purbon.kafka.topology.BuilderCLI.BROKERS_OPTION;
 import static com.purbon.kafka.topology.TopicManager.NUM_PARTITIONS;
-import static com.purbon.kafka.topology.TopologyBuilderConfig.ALLOW_DELETE_TOPICS;
-import static com.purbon.kafka.topology.TopologyBuilderConfig.KAFKA_INTERNAL_TOPIC_PREFIXES;
-import static com.purbon.kafka.topology.TopologyBuilderConfig.TOPOLOGY_TOPIC_STATE_FROM_CLUSTER;
+import static com.purbon.kafka.topology.TopologyBuilderConfig.*;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.*;
 
@@ -340,5 +338,31 @@ public class TopicManagerTest {
     plan.run(true);
 
     verify(outputStream, times(2)).println(any(Action.class));
+  }
+
+  @Test
+  public void testToProcessOnlySelectedTopics() throws IOException {
+
+    props.put(TOPIC_MANAGED_PREFIXES, Collections.singletonList("NamespaceA"));
+    props.put(TOPIC_PREFIX_FORMAT_CONFIG, "{{topic}}");
+    props.put(TOPOLOGY_TOPIC_STATE_FROM_CLUSTER, "true");
+
+    TopologyBuilderConfig config = new TopologyBuilderConfig(cliOps, props);
+    TopicManager topicManager = new TopicManager(adminClient, schemaRegistryManager, config);
+
+    Project project = new ProjectImpl("project");
+    Topic topicA = new TopicImpl("NamespaceA_TopicA", config);
+    project.addTopic(topicA);
+    Topic topicB = new TopicImpl("NamespaceB_TopicB", config);
+    project.addTopic(topicB);
+    Topology topology = new TopologyImpl(config);
+    topology.addProject(project);
+
+    when(adminClient.listApplicationTopics()).thenReturn(new HashSet<>());
+    topicManager.apply(topology, plan);
+    plan.run();
+
+    verify(adminClient, times(1)).createTopic(topicA, topicA.toString());
+    verify(adminClient, times(0)).createTopic(topicB, topicB.toString());
   }
 }

@@ -3,6 +3,9 @@ Managing Topics and their Configuration
 
 The first and foremost important thing we aim to manage is topics, setup the partitions count and replication factor and as well configure their specific characteristics.
 
+If desired by organisational purposes a user can decide to filter which topics can be managed, this is done using the
+*topology.topics.managed.prefixes* configuration setting. Check :ref:`config` for details.
+
 Topic naming convention
 -----------
 

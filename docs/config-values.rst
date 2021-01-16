@@ -43,7 +43,8 @@ If you plan to manage and deploy schemas with KTB, you must define the url to yo
 Topology Builder backend usage and selection
 -----------
 
-It is necessary for the topology builder to keep some state, for example for situations when the tool needs to decide what ACLs to remove.
+It is necessary for the topology builder to keep some state, if it does not retrieve state from the cluster (see also "topology.state.cluster.enabled"),
+for example for situations when the tool needs to decide what ACLs to remove.
 As well this property is important when the tool does not manage all topics in the cluster, so it is important to know it context.
 
 The default implementation is a File, however is possible ot use other systems.
@@ -139,19 +140,54 @@ Retrieve topic management state from local controlled view
 -----------
 
 By default since it's creation KTB has been retrieving the state of topics from the target cluster, this means pulling the actual view directly
-from there (AK cluster) using AdminClient. However, this is not optimal when multiple teams use KTB as a multi tenant tool.
+from there (AK cluster) using AdminClient. To disable this it can be done below.
 
 If you want to manage the current view of topics from the own KTB  cluster state subsystem, you should use this property.
 
 **Property**: *topology.state.topics.cluster.enabled*
 **Default value**: true
 
-This property is fow the time being true as default (backwards compatible), however the local management system for topics will become the
-default in 2.0 and in 3.0 the management using the target cluster will be completely removed.
+This property is for the time being true as default (backwards compatible).
 
 An example to use local topic management state will look like this:
 ::
     topology.state.topics.cluster.enabled=false
+
+
+Retrieve management state from local controlled view
+-----------
+
+KTB for everything apart from topics uses a local state, so that KTB's uses the actual state not its internal state this means pulling the actual view directly,
+we can enable this for everything, topics, acls, service accounts etc. Note this flag supercedes the topology.state.topics.cluster.enabled.
+
+If you want to manage the current view of everything from the own KTB cluster state subsystem, you should use this property.
+
+**Property**: *topology.state.cluster.enabled*
+**Default value**: true
+
+This property is for the time being false as default (backwards compatible).
+
+An example to use actual view management state will look like this:
+::
+    topology.state.cluster.enabled=false
+
+
+Control allowed Topics to be managed by KTB
+-----------
+
+This property is used to control which Topics are allowed to be managed by the KTB, this variable contains a list of allowed prefixes.
+
+**Property**: *topology.topic.managed.prefixes*
+**Default value**: "[]"
+
+An example configuration might look like this:
+::
+    topology.topic.managed.prefixes.0=User:AService
+    topology.topic.managed.prefixes.1=User:BService
+
+If this prefix list is used, only topics that match the prefix will be ever processed, anything else will be ignored.
+This is useful in a shared cluster, to avoid KTB removing/accidentally managing topics managed by other teams with seperate pipelines.
+
 
 Control allowed Service accounts to be managed by KTB
 -----------
@@ -167,3 +203,22 @@ An example configuration might look like this:
     topology.service.accounts.managed.prefixes.1=User:BService
 
 If this prefix list is used, only service accounts that match the prefix will be ever processed, anything else will be ignored.
+This is useful in a shared cluster, to avoid KTB removing/accidentally managing service accounts managed by other teams with seperate pipelines.
+
+Control allowed Group to be managed by KTB
+-----------
+
+Note, currently KTB just manages Group ACLS.
+
+This property is used to control which Group prefixes are allowed to be managed by the KTB, this variable contains a list of allowed prefixes.
+
+**Property**: *topology.group.managed.prefixes*
+**Default value**: "[]"
+
+An example configuration might look like this:
+::
+    topology.group.managed.prefixes.0=NameSpaceA
+    topology.group.managed.prefixes.1=NameSpaceB
+
+If this prefix list is used, only groups that match the prefix will be ever processed, if wildcard it will be managed if the service account is managed by KTB, anything else will be ignored.
+This is useful in a shared cluster, to avoid KTB removing/accidentally managing group acls by other teams with seperate pipelines.
