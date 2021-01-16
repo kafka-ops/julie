@@ -1,4 +1,4 @@
 #!/usr/bin/env bash
 
-ln -s /usr/local/kafka-topology-builder/bin/kafka-topology-builder.sh /usr/bin/kafka-topology-builder
-chown -R ktb-kafka:ktb-kafka /usr/local/kafka-topology-builder
+ln -s /usr/local/julie-ops/bin/julie-ops-cli.sh /usr/bin/julie-ops
+chown -R julie-kafka:julie-kafka /usr/local/julie-ops

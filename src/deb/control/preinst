@@ -1,11 +1,11 @@
 #!/usr/bin/env bash
 
-mkdir -p /usr/local/kafka-topology-builder/bin
+mkdir -p /usr/local/julie-ops/bin
 
-if id "ktb-kafka" &>/dev/null;
+if id "julie-kafka" &>/dev/null;
 then
-  echo "User ktb-kafka already exist"
+  echo "User julie-kafka already exist"
 else
-   addgroup --system ktb-kafka
-   adduser --system --no-create-home  --ingroup ktb-kafka ktb-kafka
+   addgroup --system julie-kafka
+   adduser --system --no-create-home  --ingroup julie-kafka julie-kafka
 fi

@@ -22,7 +22,7 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnit;
 import org.mockito.junit.MockitoRule;
 
-public class KafkaTopologyBuilderTest {
+public class JulieOpsBuilderTest {
 
   @Mock TopologyBuilderAdminClient topologyAdminClient;
 
@@ -57,8 +57,8 @@ public class KafkaTopologyBuilderTest {
 
     TopologyBuilderConfig builderConfig = new TopologyBuilderConfig(cliOps, props);
 
-    KafkaTopologyBuilder builder =
-        KafkaTopologyBuilder.build(
+    JulieOpsBuilder builder =
+        JulieOpsBuilder.build(
             fileOrDirPath,
             builderConfig,
             topologyAdminClient,
@@ -75,8 +75,8 @@ public class KafkaTopologyBuilderTest {
     String file = "fileThatDoesNotExist.yaml";
     TopologyBuilderConfig builderConfig = new TopologyBuilderConfig(cliOps, props);
 
-    KafkaTopologyBuilder builder =
-        KafkaTopologyBuilder.build(
+    JulieOpsBuilder builder =
+        JulieOpsBuilder.build(
             file,
             builderConfig,
             topologyAdminClient,
@@ -91,8 +91,8 @@ public class KafkaTopologyBuilderTest {
     String fileOrDirPath = TestUtils.getResourceFilename("/descriptor.yaml");
 
     TopologyBuilderConfig builderConfig = new TopologyBuilderConfig(cliOps, props);
-    KafkaTopologyBuilder builder =
-        KafkaTopologyBuilder.build(
+    JulieOpsBuilder builder =
+        JulieOpsBuilder.build(
             fileOrDirPath,
             builderConfig,
             topologyAdminClient,
@@ -110,8 +110,8 @@ public class KafkaTopologyBuilderTest {
     cliOps.put(ADMIN_CLIENT_CONFIG_OPTION, clientConfigFile);
 
     TopologyBuilderConfig builderConfig = new TopologyBuilderConfig(cliOps, props);
-    KafkaTopologyBuilder builder =
-        KafkaTopologyBuilder.build(
+    JulieOpsBuilder builder =
+        JulieOpsBuilder.build(
             fileOrDirPath,
             builderConfig,
             topologyAdminClient,
@@ -133,7 +133,7 @@ public class KafkaTopologyBuilderTest {
     config.put(QUIET_OPTION, "false");
     config.put(ADMIN_CLIENT_CONFIG_OPTION, clientConfigFile);
 
-    KafkaTopologyBuilder builder = KafkaTopologyBuilder.build(fileOrDirPath, config);
+    JulieOpsBuilder builder = JulieOpsBuilder.build(fileOrDirPath, config);
 
     builder.setTopicManager(topicManager);
     builder.setAccessControlManager(accessControlManager);
@@ -163,7 +163,7 @@ public class KafkaTopologyBuilderTest {
     config.put(QUIET_OPTION, "false");
     config.put(ADMIN_CLIENT_CONFIG_OPTION, clientConfigFile);
 
-    KafkaTopologyBuilder builder = KafkaTopologyBuilder.build(fileOrDirPath, config);
+    JulieOpsBuilder builder = JulieOpsBuilder.build(fileOrDirPath, config);
 
     builder.setTopicManager(topicManager);
     builder.setAccessControlManager(accessControlManager);
@@ -190,8 +190,8 @@ public class KafkaTopologyBuilderTest {
 
     TopologyBuilderConfig builderConfig = new TopologyBuilderConfig(cliOps, props);
 
-    KafkaTopologyBuilder builder =
-        KafkaTopologyBuilder.build(
+    JulieOpsBuilder builder =
+        JulieOpsBuilder.build(
             fileOrDirPath,
             builderConfig,
             topologyAdminClient,

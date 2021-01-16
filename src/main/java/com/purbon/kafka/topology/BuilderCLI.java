@@ -42,7 +42,7 @@ public class BuilderCLI {
   public static final String VERSION_OPTION = "version";
   public static final String VERSION_DESC = "Prints useful version information.";
 
-  public static final String APP_NAME = "kafka-topology-builder";
+  public static final String APP_NAME = "julie-ops";
 
   private HelpFormatter formatter;
   private CommandLineParser parser;
@@ -173,7 +173,7 @@ public class BuilderCLI {
       formatter.printHelp(APP_NAME, options);
       exit(0);
     } else if (listOfArgs.contains("--" + VERSION_OPTION)) {
-      System.out.println(KafkaTopologyBuilder.getVersion());
+      System.out.println(JulieOpsBuilder.getVersion());
       exit(0);
     }
   }
@@ -192,8 +192,7 @@ public class BuilderCLI {
 
   void processTopology(String topologyFile, String plansFile, Map<String, String> config)
       throws Exception {
-    try (KafkaTopologyBuilder builder =
-        KafkaTopologyBuilder.build(topologyFile, plansFile, config)) {
+    try (JulieOpsBuilder builder = JulieOpsBuilder.build(topologyFile, plansFile, config)) {
       builder.run();
     }
   }

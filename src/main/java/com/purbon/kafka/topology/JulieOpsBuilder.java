@@ -28,9 +28,9 @@ import java.util.Properties;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-public class KafkaTopologyBuilder implements AutoCloseable {
+public class JulieOpsBuilder implements AutoCloseable {
 
-  private static final Logger LOGGER = LogManager.getLogger(KafkaTopologyBuilder.class);
+  private static final Logger LOGGER = LogManager.getLogger(JulieOpsBuilder.class);
 
   private TopicManager topicManager;
   private PrincipalManager principalManager;
@@ -39,7 +39,7 @@ public class KafkaTopologyBuilder implements AutoCloseable {
   private TopologyBuilderConfig config;
   private PrintStream outputStream;
 
-  private KafkaTopologyBuilder(
+  private JulieOpsBuilder(
       Topology topology,
       TopologyBuilderConfig config,
       TopicManager topicManager,
@@ -53,12 +53,12 @@ public class KafkaTopologyBuilder implements AutoCloseable {
     this.outputStream = System.out;
   }
 
-  public static KafkaTopologyBuilder build(String topologyFile, Map<String, String> config)
+  public static JulieOpsBuilder build(String topologyFile, Map<String, String> config)
       throws Exception {
     return build(topologyFile, "default", config);
   }
 
-  public static KafkaTopologyBuilder build(
+  public static JulieOpsBuilder build(
       String topologyFile, String plansFile, Map<String, String> config) throws Exception {
 
     TopologyBuilderConfig builderConfig = TopologyBuilderConfig.build(config);
@@ -70,7 +70,7 @@ public class KafkaTopologyBuilder implements AutoCloseable {
 
     PrincipalProviderFactory principalProviderFactory = new PrincipalProviderFactory(builderConfig);
 
-    KafkaTopologyBuilder builder =
+    JulieOpsBuilder builder =
         build(
             topologyFile,
             plansFile,
@@ -84,7 +84,7 @@ public class KafkaTopologyBuilder implements AutoCloseable {
     return builder;
   }
 
-  public static KafkaTopologyBuilder build(
+  public static JulieOpsBuilder build(
       String topologyFileOrDir,
       TopologyBuilderConfig config,
       TopologyBuilderAdminClient adminClient,
@@ -101,7 +101,7 @@ public class KafkaTopologyBuilder implements AutoCloseable {
         new VoidPrincipalProvider());
   }
 
-  public static KafkaTopologyBuilder build(
+  public static JulieOpsBuilder build(
       String topologyFileOrDir,
       String plansFile,
       TopologyBuilderConfig config,
@@ -141,7 +141,7 @@ public class KafkaTopologyBuilder implements AutoCloseable {
 
     PrincipalManager principalManager = new PrincipalManager(principalProvider, config);
 
-    return new KafkaTopologyBuilder(
+    return new JulieOpsBuilder(
         topology, config, topicManager, accessControlManager, principalManager);
   }
 
@@ -196,8 +196,8 @@ public class KafkaTopologyBuilder implements AutoCloseable {
 
   public static String getVersion() {
     InputStream resourceAsStream =
-        KafkaTopologyBuilder.class.getResourceAsStream(
-            "/META-INF/maven/com.purbon.kafka/kafka-topology-builder/pom.properties");
+        JulieOpsBuilder.class.getResourceAsStream(
+            "/META-INF/maven/com.purbon.kafka/julie-ops/pom.properties");
     Properties prop = new Properties();
     try {
       prop.load(resourceAsStream);

@@ -2,7 +2,7 @@ package com.purbon.kafka.topology.integration.containerutils;
 
 import com.purbon.kafka.topology.AccessControlProvider;
 import com.purbon.kafka.topology.BindingsBuilderProvider;
-import com.purbon.kafka.topology.KafkaTopologyBuilder;
+import com.purbon.kafka.topology.JulieOpsBuilder;
 import com.purbon.kafka.topology.TopologyBuilderConfig;
 import com.purbon.kafka.topology.api.adminclient.TopologyBuilderAdminClient;
 import com.purbon.kafka.topology.roles.SimpleAclsProvider;
@@ -62,10 +62,10 @@ public final class ContainerTestUtils {
       final String configResource) {
     TestUtils.deleteStateFile();
     try (final AdminClient kafkaAdminClient = getSaslAdminClient(container)) {
-      final KafkaTopologyBuilder kafkaTopologyBuilder =
+      final JulieOpsBuilder julieOpsBuilder =
           getKafkaTopologyBuilder(kafkaAdminClient, topologyResource, configResource);
       try {
-        kafkaTopologyBuilder.run();
+        julieOpsBuilder.run();
       } catch (final IOException e) {
         throw new RuntimeException(e);
       }
@@ -78,7 +78,7 @@ public final class ContainerTestUtils {
     }
   }
 
-  private static KafkaTopologyBuilder getKafkaTopologyBuilder(
+  private static JulieOpsBuilder getKafkaTopologyBuilder(
       final AdminClient kafkaAdminClient,
       final String topologyResource,
       final String configResource) {
@@ -91,7 +91,7 @@ public final class ContainerTestUtils {
     final AccessControlProvider accessControlProvider = new SimpleAclsProvider(topologyAdminClient);
     final BindingsBuilderProvider bindingsBuilderProvider = new AclsBindingsBuilder(builderConfig);
     try {
-      return KafkaTopologyBuilder.build(
+      return JulieOpsBuilder.build(
           fileOrDirPath,
           builderConfig,
           topologyAdminClient,

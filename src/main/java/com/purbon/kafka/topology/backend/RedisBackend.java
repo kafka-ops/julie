@@ -16,8 +16,8 @@ public class RedisBackend implements Backend {
 
   private static final Logger LOGGER = LogManager.getLogger(RedisBackend.class);
 
-  static final String KAFKA_TOPOLOGY_BUILDER_BINDINGS = "kafka.topology.builder.bindings";
-  static final String KAFKA_TOPOLOGY_BUILDER_TYPE = "kafka.topology.builder.type";
+  static final String JULIE_OPS_BUILDER_BINDINGS = "julie.ops.bindings";
+  static final String JULIE_OPS_BUILDER_TYPE = "julie.ops.type";
 
   private String expression =
       "^\\'(\\S+)\\',\\s*\\'(\\S+)\\',\\s*\\'(\\S+)\\',\\s*\\'(\\S+)\\',\\s*\\'(.+)\\',\\s*\\'(\\S+)\\'$";
@@ -42,8 +42,8 @@ public class RedisBackend implements Backend {
   public void createOrOpen(Mode mode) {
     jedis.connect();
     if (mode.equals(Mode.TRUNCATE)) {
-      jedis.del(KAFKA_TOPOLOGY_BUILDER_TYPE);
-      jedis.del(KAFKA_TOPOLOGY_BUILDER_BINDINGS);
+      jedis.del(JULIE_OPS_BUILDER_TYPE);
+      jedis.del(JULIE_OPS_BUILDER_BINDINGS);
     }
   }
 
@@ -52,11 +52,11 @@ public class RedisBackend implements Backend {
     connectIfNeed();
 
     Set<TopologyAclBinding> bindings = new HashSet<>();
-    String type = jedis.get(KAFKA_TOPOLOGY_BUILDER_TYPE);
+    String type = jedis.get(JULIE_OPS_BUILDER_TYPE);
 
-    long count = jedis.scard(KAFKA_TOPOLOGY_BUILDER_BINDINGS);
+    long count = jedis.scard(JULIE_OPS_BUILDER_BINDINGS);
     for (long i = 0; i < count; i++) {
-      String elem = jedis.spop(KAFKA_TOPOLOGY_BUILDER_BINDINGS);
+      String elem = jedis.spop(JULIE_OPS_BUILDER_BINDINGS);
       TopologyAclBinding binding = buildAclBinding(elem);
       bindings.add(binding);
     }
@@ -82,7 +82,7 @@ public class RedisBackend implements Backend {
 
   @Override
   public void saveType(String type) {
-    jedis.set(KAFKA_TOPOLOGY_BUILDER_TYPE, type);
+    jedis.set(JULIE_OPS_BUILDER_TYPE, type);
   }
 
   @Override
@@ -91,7 +91,7 @@ public class RedisBackend implements Backend {
     String[] members =
         bindings.stream().map(binding -> binding.toString()).toArray(size -> new String[size]);
 
-    jedis.sadd(KAFKA_TOPOLOGY_BUILDER_BINDINGS, members);
+    jedis.sadd(JULIE_OPS_BUILDER_BINDINGS, members);
   }
 
   @Override
