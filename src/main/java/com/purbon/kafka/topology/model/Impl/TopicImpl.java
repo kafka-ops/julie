@@ -134,6 +134,8 @@ public class TopicImpl implements Topic, Cloneable {
     switch (appConfig.getTopicPrefixFormat()) {
       case "default":
         return defaultTopicStructureString(projectPrefix);
+      case "name":
+        return name;
       default:
         return patternBasedTopicNameStructureString();
     }
