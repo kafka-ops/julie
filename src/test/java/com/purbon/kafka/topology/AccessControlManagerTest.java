@@ -2,12 +2,13 @@ package com.purbon.kafka.topology;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static com.purbon.kafka.topology.BuilderCLI.BROKERS_OPTION;
-import static com.purbon.kafka.topology.TopologyBuilderConfig.OPTIMIZED_ACLS_CONFIG;
+import static com.purbon.kafka.topology.TopologyBuilderConfig.*;
 import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
 import static org.hamcrest.CoreMatchers.hasItem;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.collection.IsCollectionWithSize.hasSize;
+import static org.junit.Assert.assertEquals;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
@@ -555,5 +556,143 @@ public class AccessControlManagerTest {
     backendController.load();
     backendController.reset();
     return backendController;
+  }
+
+  @Test
+  public void testToProcessOnlySelectedTopics() throws IOException {
+    Map<String, String> cliOps = new HashMap<>();
+    cliOps.put(BROKERS_OPTION, "");
+
+    Properties props = new Properties();
+    props.put(TOPIC_MANAGED_PREFIXES, Collections.singletonList("NamespaceA"));
+    props.put(TOPIC_PREFIX_FORMAT_CONFIG, "{{topic}}");
+
+    TopologyBuilderConfig config = new TopologyBuilderConfig(cliOps, props);
+    accessControlManager =
+        new AccessControlManager(aclsProvider, new AclsBindingsBuilder(config), config);
+
+    TestTopologyBuilder builder =
+        TestTopologyBuilder.createProject(config)
+            .addTopic("topicA")
+            .addTopic("NamespaceA_topicA")
+            .addConsumer("User:app1");
+
+    accessControlManager.apply(builder.buildTopology(), plan);
+
+    // Check that we only have one action not 2
+    assertEquals(1, plan.getActions().size());
+
+    // Check that the action bindings are for the managed prefix topic, not the non-managed prefix.
+    assertEquals(
+        2,
+        plan.getActions().get(0).getBindings().stream()
+            .filter(
+                b ->
+                    b.getResourceType().equals(ResourceType.TOPIC)
+                        && b.getResourceName().equals("NamespaceA_topicA"))
+            .count());
+    assertEquals(
+        0,
+        plan.getActions().get(0).getBindings().stream()
+            .filter(
+                b ->
+                    b.getResourceType().equals(ResourceType.TOPIC)
+                        && b.getResourceName().equals("topicA"))
+            .count());
+  }
+
+  @Test
+  public void testToProcessOnlySelectedGroupsOrWildcard() throws IOException {
+    Map<String, String> cliOps = new HashMap<>();
+    cliOps.put(BROKERS_OPTION, "");
+
+    Properties props = new Properties();
+    props.put(GROUP_MANAGED_PREFIXES, Collections.singletonList("NamespaceA"));
+
+    TopologyBuilderConfig config = new TopologyBuilderConfig(cliOps, props);
+    accessControlManager =
+        new AccessControlManager(aclsProvider, new AclsBindingsBuilder(config), config);
+
+    TestTopologyBuilder builder =
+        TestTopologyBuilder.createProject(config)
+            .addTopic("topicA")
+            .addConsumer("User:app1", "NamespaceA_ConsumerGroupA")
+            .addConsumer("User:app2", "NamespaceB_ConsumerGroupB")
+            .addConsumer("User:app3", "*");
+
+    accessControlManager.apply(builder.buildTopology(), plan);
+
+    // Check that we only have one action
+    assertEquals(1, plan.getActions().size());
+
+    // Check that the action bindings are for the managed prefix group, not the non-managed prefix.
+    assertEquals(
+        1,
+        plan.getActions().get(0).getBindings().stream()
+            .filter(
+                b ->
+                    b.getResourceType().equals(ResourceType.GROUP)
+                        && b.getResourceName().equals("NamespaceA_ConsumerGroupA"))
+            .count());
+    assertEquals(
+        0,
+        plan.getActions().get(0).getBindings().stream()
+            .filter(
+                b ->
+                    b.getResourceType().equals(ResourceType.GROUP)
+                        && b.getResourceName().equals("NamespaceB_ConsumerGroupB"))
+            .count());
+    assertEquals(
+        1,
+        plan.getActions().get(0).getBindings().stream()
+            .filter(
+                b ->
+                    b.getResourceType().equals(ResourceType.GROUP)
+                        && b.getResourceName().equals("*"))
+            .count());
+  }
+
+  @Test
+  public void testToProcessWildcardGroupOnlySelectedServiceAccounts() throws IOException {
+    Map<String, String> cliOps = new HashMap<>();
+    cliOps.put(BROKERS_OPTION, "");
+
+    Properties props = new Properties();
+    props.put(SERVICE_ACCOUNT_MANAGED_PREFIXES, Collections.singletonList("User:NamespaceA"));
+
+    TopologyBuilderConfig config = new TopologyBuilderConfig(cliOps, props);
+    accessControlManager =
+        new AccessControlManager(aclsProvider, new AclsBindingsBuilder(config), config);
+
+    TestTopologyBuilder builder =
+        TestTopologyBuilder.createProject(config)
+            .addTopic("topicA")
+            .addConsumer("User:NamespaceA_app1", "*")
+            .addConsumer("User:NamespaceB_app2", "*");
+
+    accessControlManager.apply(builder.buildTopology(), plan);
+
+    // Check that we only have one action
+    assertEquals(1, plan.getActions().size());
+
+    // Check that the action bindings are for the managed service group, not the non-managed prefix.
+    assertEquals(
+        1,
+        plan.getActions().get(0).getBindings().stream()
+            .filter(
+                b ->
+                    b.getResourceType().equals(ResourceType.GROUP)
+                        && b.getResourceName().equals("*")
+                        && b.getPrincipal().equals("User:NamespaceA_app1"))
+            .count());
+    assertEquals(
+        0,
+        plan.getActions().get(0).getBindings().stream()
+            .filter(
+                b ->
+                    b.getResourceType().equals(ResourceType.GROUP)
+                        && b.getResourceName().equals("*")
+                        && b.getPrincipal().equals("User:NamespaceB_app2"))
+            .count());
   }
 }

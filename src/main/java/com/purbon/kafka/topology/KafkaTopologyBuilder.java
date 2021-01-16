@@ -164,15 +164,23 @@ public class KafkaTopologyBuilder implements AutoCloseable {
             "Running topology builder with TopicManager=[%s], accessControlManager=[%s], dryRun=[%s], isQuite=[%s]",
             topicManager, accessControlManager, config.isDryRun(), config.isQuiet()));
 
+    // Create users should always be first, so user exists when making acl link
+    principalManager.applyCreate(topology, plan);
+
     topicManager.apply(topology, plan);
-    principalManager.apply(topology, plan);
     accessControlManager.apply(topology, plan);
+
+    // Delete users should always be last,
+    // avoids any unlinked acls, e.g. if acl delete or something errors then there is a link still
+    // from the account, and can be re-run or manually fixed more easily
+    principalManager.applyDelete(topology, plan);
 
     plan.run(config.isDryRun());
 
     if (!config.isQuiet() && !config.isDryRun()) {
       topicManager.printCurrentState(System.out);
       accessControlManager.printCurrentState(System.out);
+      principalManager.printCurrentState(System.out);
     }
   }
 

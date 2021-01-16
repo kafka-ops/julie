@@ -4,7 +4,7 @@ import static com.purbon.kafka.topology.BuilderCLI.ALLOW_DELETE_OPTION;
 import static com.purbon.kafka.topology.BuilderCLI.BROKERS_OPTION;
 import static com.purbon.kafka.topology.TopologyBuilderConfig.SERVICE_ACCOUNT_MANAGED_PREFIXES;
 import static com.purbon.kafka.topology.TopologyBuilderConfig.TOPOLOGY_EXPERIMENTAL_ENABLED_CONFIG;
-import static com.purbon.kafka.topology.TopologyBuilderConfig.TOPOLOGY_TOPIC_STATE_FROM_CLUSTER;
+import static com.purbon.kafka.topology.TopologyBuilderConfig.TOPOLOGY_STATE_FROM_CLUSTER;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
@@ -74,7 +74,7 @@ public class PrincipalManagerTest {
     props = new Properties();
 
     props.put(TOPOLOGY_EXPERIMENTAL_ENABLED_CONFIG, "true");
-    props.put(TOPOLOGY_TOPIC_STATE_FROM_CLUSTER, "false");
+    props.put(TOPOLOGY_STATE_FROM_CLUSTER, "false");
 
     plan = ExecutionPlan.init(backendController, mockPrintStream);
     config = new TopologyBuilderConfig(cliOps, props);
@@ -93,7 +93,8 @@ public class PrincipalManagerTest {
 
     doNothing().when(provider).configure();
 
-    principalManager.apply(topology, plan);
+    principalManager.applyCreate(topology, plan);
+    principalManager.applyDelete(topology, plan);
 
     Collection<ServiceAccount> accounts =
         Arrays.asList(
@@ -119,7 +120,8 @@ public class PrincipalManagerTest {
 
     doNothing().when(provider).configure();
 
-    principalManager.apply(topology, plan);
+    principalManager.applyCreate(topology, plan);
+    principalManager.applyDelete(topology, plan);
 
     Collection<ServiceAccount> accounts =
         Arrays.asList(
@@ -150,7 +152,8 @@ public class PrincipalManagerTest {
         .when(provider)
         .createServiceAccount(eq("producer"), eq("Managed by KTB"));
 
-    principalManager.apply(topology, plan);
+    principalManager.applyCreate(topology, plan);
+    principalManager.applyDelete(topology, plan);
     plan.run();
     assertThat(plan.getServiceAccounts()).hasSize(2);
 
@@ -162,7 +165,9 @@ public class PrincipalManagerTest {
 
     backendController = new BackendController();
     plan = ExecutionPlan.init(backendController, mockPrintStream);
-    principalManager.apply(topology, plan);
+    principalManager.applyCreate(topology, plan);
+    principalManager.applyDelete(topology, plan);
+    ;
 
     Collection<ServiceAccount> accounts =
         Arrays.asList(new ServiceAccount(124, "producer", "Managed by KTB"));
@@ -186,7 +191,8 @@ public class PrincipalManagerTest {
 
     Topology topology = new TopologyImpl();
 
-    principalManager.apply(topology, mockPlan);
+    principalManager.applyCreate(topology, plan);
+    principalManager.applyDelete(topology, plan);
 
     verify(mockPlan, times(0)).add(any(Action.class));
   }
@@ -216,7 +222,8 @@ public class PrincipalManagerTest {
         .when(provider)
         .createServiceAccount(eq("producer"), eq("Managed by KTB"));
 
-    principalManager.apply(topology, plan);
+    principalManager.applyCreate(topology, plan);
+    principalManager.applyDelete(topology, plan);
     plan.run();
 
     assertThat(plan.getServiceAccounts()).hasSize(1);

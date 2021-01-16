@@ -94,6 +94,7 @@ public class TopicImpl implements Topic, Cloneable {
     this.dataType = dataType;
     this.config = config;
     this.schemas = new ArrayList<>();
+    this.context = new HashMap<>();
     this.replicationFactor = 0;
     this.partitionCount = 0;
     this.appConfig = appConfig;
