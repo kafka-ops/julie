@@ -1,4 +1,11 @@
 
+v1.5.0 / 2021-01-16
+===================
+
+  * Add ability to use the name as the end topic name (#194)
+  * Support ACLs from Cluster (#188)
+  * Enable to run integration test parametrised vs multiple cp versions (#189)
+
 v1.4.0 / 2021-01-03
 ===================
 
