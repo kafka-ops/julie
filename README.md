@@ -17,7 +17,7 @@ organised and automated way of managing your Kafka Cluster.
  
 ## Where's the docs?
 
-We recommend taking time to [read the docs](https://julie-ops.readthedocs.io/).
+We recommend taking time to [read the docs](https://kafka-topology-builder.readthedocs.io/).
 There's quite a bit of detailed information about Gitops, Apache Kafka and how this project can help you automate 
 the common operational tasks.
 
