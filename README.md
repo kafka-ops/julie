@@ -1,22 +1,26 @@
-# The Kafka Topology builder tool
+# The Topology Builder for Apache Kafka (Automation, Gitops, SelfService)
 
 <a href="https://codeclimate.com/github/purbon/kafka-topology-builder/maintainability"><img src="https://api.codeclimate.com/v1/badges/ef4bcda7d1b5fd0a4f1e/maintainability" /></a> ![CI tests](https://github.com/kafka-ops/kafka-topology-builder/workflows/CI%20tests/badge.svg?branch=master) [![Gitter](https://badges.gitter.im/kafka-topology-builder/community.svg)](https://gitter.im/kafka-topology-builder/community?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge) [![Documentation Status](https://readthedocs.org/projects/kafka-topology-builder/badge/?version=latest)](https://kafka-topology-builder.readthedocs.io/?badge=latest)
 
-This tool helps you build proper ACLs for Apache Kafka. The Kafka ACL builder tool knows what do you
-need for each of the products/projects you are planning, either Kafka Connect, Kafka Streams or others.
+Topology Builder for Apache Kafka helps you automate the management of your things within Apache Kafka, from Topics, Configuration to Metadata but as well
+Access Control, Schemas. 
+More items are plan, check [here](https://github.com/kafka-ops/kafka-topology-builder/issues) for details. 
 
 ## The motivation 
 
-One of the typical questions while building an Apache Kafka infrastructure is how to handle topics, 
-configurations and the required permissions to use them (Access Control List).
-The Kafka Topology Builder, in close collaboration with GIT and Jenkins (CI/CD) is here to help you setup an organised and automated way of managing your Kafka Cluster.
+A typical question many teams face when building, or growing, an Apache Kafka infrastructure is how to manage
+topics, configuration, metadata, ACLs, etc in a more automated way to provide their teams with the most autonomy 
+possible while reducing the time involved in this administrative tasks. 
 
+The Topology Builder for Apache Kafka, in close collaboration with Git and CI/CD, (Jenkins, etc) is here to help you build it.
+ 
 ## Where's the docs?
 
 We recommend taking time to [read the docs](https://kafka-topology-builder.readthedocs.io/).
-There's quite a bit of detailed information about gitops, Apache Kafka and how this project can help you automate your basic operations tasks.
+There's quite a bit of detailed information about Gitops, Apache Kafka and how this project can help you automate 
+the common operational tasks.
 
-## Automating the Topic Management with CI/CD (Jenkins) and gitops
+## Automating Management with CI/CD and Gitops
 
 ![KafkaTopologyBuilder](imgs/kafka-topology-builder.png)
 
@@ -71,22 +75,23 @@ What can you achieve with this tool:
     * topics, following the topic naming convention
     * Topic configuration, variables like retention, segment size, etc
     * Acls, or RBAC rules
+    * Service Accounts (Experimental feature only available for now in Confluent Cloud)
 * Manage your cluster schemas.
     - Support for Confluent Schema Registry
 
-More details and examples of the functionality can be found in the wiki.  
+Out of the box support for Confluent Cloud and other clouds that enable you to use the AdminClient API. 
 
 ### How can I run the topology builder directly?
 
 This tool is available in multiple formats:
 
+- As a Docker image, available from [docker hub](https://hub.docker.com/r/purbon/kafka-topology-builder) 
 - As an RPM package, for the RedHat alike distributions
 - As a DEB package, for Debian based distros
 - Directly as a fat jar (zip/tar.gz)
+- As a fat jar.
 
 The latest version are available from the [releases](https://github.com/purbon/kafka-topology-builder/releases) page.
-
-The release is as well available in [docker hub](https://hub.docker.com/r/purbon/kafka-topology-builder).
 
 #### How to execute the tool
 
@@ -161,7 +166,9 @@ projects:
 ```
 
 more examples can be found at the [example/](example/) directory. 
-Also check the documentation on ACL and RBAC in [the docs](https://kafka-topology-builder.readthedocs.io/) for information on what ACLs are created.
+
+Also, please check, the documentation in [the docs](https://kafka-topology-builder.readthedocs.io/) for extra information and
+examples on managing ACLs, RBAC, Principales, Schemas and many others.
 
 ## Interested in contributing back?
 
@@ -172,8 +179,11 @@ Interested on contributing back? might be have an idea for a great future? or wa
 The project is build using Java and Maven, so both are required if you aim to build the tool from scratch.
 The minimum version of Java supported is Java 8, note it soon will be deprecated here, it is only keep as supported for very legacy environments.
 
-It is recommended to run the Kafka Topology Builder with Java 11 and an open JDK version.
+It is recommended to run the Topology Builder with Java 11 and an open JDK version.
 
 ### Building a release
 
 If you are interested on building a release artifact from the source code, check our [release](RELEASE.md) doc for guidance.
+
+Nightly builds as well as release builds are regularly available from the [Actions](https://github.com/kafka-ops/kafka-topology-builder/actions)
+in this project.
