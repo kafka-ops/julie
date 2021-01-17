@@ -9,7 +9,7 @@ Welcome to Julie Ops's documentation!
 Welcome to Julie Ops documentation, in this site we recollected notes and guides to provide the beginners, but as well reference for the most experienced on implementing a gitops
 approach for operations in Apache Kafka.
 
-.. image:: _static/images/kafka-topology-builder.png
+.. image:: _static/images/julie-ops.png
   :width: 400
   :align: center
   :alt: Webhook events
