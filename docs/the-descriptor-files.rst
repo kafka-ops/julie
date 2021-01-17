@@ -21,7 +21,7 @@ topology.file.type=JSON
 Getting started
 -----------
 
-The KTB files use a common structure for describing the cluster entities, this attributes are setup around:
+The Julie Ops files use a common structure for describing the cluster entities, this attributes are setup around:
 
 * **context** : It is commonly used to describe where a collection of entities are coming from. This value could be for example a team name, a line of business or simply the origin of the topics (the data center).
 This attribute is used as a primary key to group all the entities.

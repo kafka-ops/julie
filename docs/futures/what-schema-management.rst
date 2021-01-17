@@ -1,7 +1,7 @@
 Managing Schemas
 *******************************
 
-Because not only from Topics and Access live the Kafka team, with the Kafka Topology Builder you can manage as well your schemas.
+Because not only from Topics and Access live the Kafka team, with Julie Ops you can manage as well your schemas.
 This functionality can be very useful for administering your cross environment, but as well to register specific schemas per topic.
 
 An example topology for managing schemas would look like this (*only the topics section*).
@@ -37,7 +37,7 @@ An example topology for managing schemas would look like this (*only the topics 
               num.partitions: "1"
 
 If using an example like this, for the topic _bar_ there is going to be an schema registered for key and value.
-Currently the schemas are managed as files and need to be accessible for the KTB tool, for example inside the git repository.
+Currently the schemas are managed as files and need to be accessible for Julie Ops tool, for example inside the git repository.
 
 A topology with absolute schema path would look like this:
 

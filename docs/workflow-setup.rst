@@ -9,7 +9,7 @@ For this example we're going to use:
 
 Configuration is possible with other technologies such as Gitlab or Concourse for example.
 
-.. image:: _static/images/kafka-topology-builder.png
+.. image:: _static/images/julie-ops.png
   :width: 400
   :align: center
   :alt: Webhook events
@@ -125,7 +125,7 @@ The main pipeline should look like this:
         }
     }
 
-As the reader can see, the main responsibility of this pipeline is to apply the changes to the cluster by calling the kafka topology builder tool.
+As the reader can see, the main responsibility of this pipeline is to apply the changes to the cluster by calling Julie Ops tool.
 
 *NOTE*: The change request has been previously validated by an agent, and as well using the verifications pipeline.
 
@@ -152,7 +152,7 @@ As a user, when you require a new topic, configuration or user permission, you w
 
 Once the PR is merged, the peer jenkins job will pick up the files and apply the required changes directly to your shared infra.
 
-Taking advantage of the Kafka topology Builder across environments
+Taking advantage of Julie Ops across environments
 -----------
 
 As introduced in the previous section, in any software project, there are many environments. This environments could be:

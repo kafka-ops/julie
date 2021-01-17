@@ -52,14 +52,14 @@ Consumer definition with principal "User:App0" and without an specific consumer 
 
 Consumer definition with principal "User:App0" and consumer group name "foo".
 
-In the default mode the KTB will create dedicated ACL for each user and topic pair. For organisations that aim not to have dedicated pair of rules the KTB offer the option
+In the default mode Julie Ops will create dedicated ACL for each user and topic pair. For organisations that aim not to have dedicated pair of rules Julie Ops offer the option
 to optimise the number of ACLs using prefixed rules.
 
 The optimised ACLs/RBAC can be enabled using the *topology.acls.optimized* configuration property.
 
 Producers
 ^^^^^^^^^^^
-As a user of KTB you can configure the required set of producers for your application.
+As a user of Julie Ops you can configure the required set of producers for your application.
 
 Producers have a principal.
 
@@ -73,7 +73,7 @@ Producers have a principal.
         producers:
           - principal: "User:App0"
 
-In the default mode the KTB will create dedicated ACL for each user and topic pair. For organisations that aim not to have dedicated pair of rules the KTB offer the option
+In the default mode Julie Ops will create dedicated ACL for each user and topic pair. For organisations that aim not to have dedicated pair of rules Julie Ops offer the option
 to optimise the number of ACLs using prefixed rules.
 
 The optimised ACLs/RBAC can be enabled using the *topology.acls.optimized* configuration property.
@@ -100,7 +100,7 @@ The principal is the user used by the streams app to connect to Kafka. You can a
               write:
                 - "topicB"
 
-KTB will create the necessary ACLs for reading and writing topics, as well as ACLs needed by the app to create/manage internal topics.
+Julie Ops will create the necessary ACLs for reading and writing topics, as well as ACLs needed by the app to create/manage internal topics.
 The ACLs for the consumer group and for internal topic creation are prefixed.
 The resource name (prefix) is by default the topic name prefix in the project.
 For the example above the prefix will by default be "context.source.foo".
@@ -192,7 +192,7 @@ If you are using rbac, under the specific section users can attach their own clu
 
 What ACLs are created
 ^^^^^^^^^^^^^^^^^^^^^
-Kafka Topology Builder will assign the following ACLs:
+Julie Ops will assign the following ACLs:
 
 * each principal in the `consumers` list will get `READ` and `DESCRIBE` permissions on each topic. In addition `READ` access on every consumer group (by default) or the group specified in the topology.
 
@@ -225,10 +225,10 @@ Kafka Topology Builder will assign the following ACLs:
   * `CREATE`, `DESCRIBE`, `READ`, and `WRITE` access on each topic starting with the corresponding `appId` (`PREFIXED`)
   * `CREATE`, `DESCRIBE`, `READ`, and `WRITE` access on the `_confluent-metrics`, `_confluent-command`, and `_confluent-monitoring` topics
 
-Which ACLs does the user running Kafka Topology Builder need?
+Which ACLs does the user running Julie Ops need?
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-The principal which the Kafka Topology Builder uses to authenticate towards the Kafka cluster should have the following rights:
+The principal which Julie Ops uses to authenticate towards the Kafka cluster should have the following rights:
 
 * `ALTER` on the cluster resource to create and delete ACLs
 * `DESCRIBE` on the cluster resource
@@ -246,7 +246,7 @@ When using Confluent Cloud, a *service account* with the proper rights to run th
 
 .. code-block:: bash
 
-  ccloud service-account create sa-for-ktb --description 'A service account for the Kafka Topology Builder'
+  ccloud service-account create sa-for-julie --description 'A service account for Julie Ops'
   # note the Id for the service account, we will use 123456 below
 
   ccloud kafka acl create --allow --service-account 123456 --cluster-scope --operation ALTER
@@ -265,7 +265,7 @@ Having multiple Kafka Connect clusters
 ^^^^^^^^^^^
 
 A more than common scenario in many organisations is to have multiple Kafka Connect clusters.
-The Kafka Topology Builder will allow you to configure and manage them using a single Topology, using a descriptor yaml like this one:
+Julie Ops will allow you to configure and manage them using a single Topology, using a descriptor yaml like this one:
 
 .. code-block:: YAML
 
@@ -297,7 +297,7 @@ Access for specific Connectors
 ^^^^^^^^^^^
 
 It is possible in RBAC to assign permission for a given principal to access a given set of Connectors.
-This is possible with the Kafka Topology Builder with a topology like the one below, where *User:Connect1* will have access to connectors *jdbc-sync* and *jdbc-source*.
+This is possible, with Julie Ops using a topology like the one below, where *User:Connect1* will have access to connectors *jdbc-sync* and *jdbc-source*.
 
 .. code-block:: YAML
 
@@ -328,7 +328,7 @@ Access for specific Schemas
 ^^^^^^^^^^^
 
 It is possible in RBAC to assign permission for a given principal to access a given set of Schemas.
-This is possible with the Kafka Topology Builder with a topology like the one below, where *User:App0* will
+This is possible with Julie Ops with a topology like the one below, where *User:App0* will
 have access to schemas in subjects *transactions* and *User:App1* to subject *contracts*.
 
 .. code-block:: YAML

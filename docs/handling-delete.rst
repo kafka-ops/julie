@@ -1,7 +1,7 @@
-Handling delete in the Kafka Topology Builder
+Handling delete in Julie Ops
 *******************************
 
-As the reader might already be aware, the Kafka Topology Builder is capable of handling deletes for you.
+As the reader might already be aware, Julie Ops is capable of handling deletes for you.
 This way the project can ensure that the final state of the cluster is consistent with the declarative state in the topology descriptors.
 
 However in some situations having delete enabled might not be what you are looking for.
@@ -10,7 +10,7 @@ For this reason the tool allows you to control it in full granularity.
 Delete flag in the CLI
 -----------
 
-The CLI provide you currently with a global DELETE flag, this would allow deletion of all resources controlled by the Kafka Topology builder.
+The CLI provide you currently with a global DELETE flag, this would allow deletion of all resources controlled by Julie Ops.
 The user can set this flag (*--allowDelete*) from the CLI as described.
 
 .. code-block:: bash
@@ -30,7 +30,7 @@ The user can set this flag (*--allowDelete*) from the CLI as described.
 
 *NOTE*: This is a global flag, allowing/deny all delete operations.
 
-By default the value for this variable is false, so the Kafka Topology Builder will **not** delete any resource.
+By default the value for this variable is false, so Julie Ops will **not** delete any resource.
 
 Granular delete flags
 -----------
@@ -39,7 +39,7 @@ There could be situations when the reader aim to :
  * Control delete operations in a more granular way, for example allow delete of bindings (Acls/RBAC) but not topics.
  * Control the delete via ENV variables. This could be very handy when doing CI/CD integrations and setting variables over the pipeline executions.
 
-This can be done in KTB by using the capabilities provided by the configuration library in use.
+This can be done in Julie Ops by using the capabilities provided by the configuration library in use.
 The tool allows the user to set:
 
 * A configuration variable to allow/deny the delete operations.

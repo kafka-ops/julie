@@ -2,7 +2,7 @@ Managing Principals
 *******************************
 
 One of the common actions required when managing a cluster is the operation of principals (aka Users in kafka).
-The KTB can help you manage this principals by parsing the involved topologies.
+Julie Ops can help you manage this principals by parsing the involved topologies.
 
 *NOTE* This feature is currently experimental, please use it with care and let us know anything that is missing.
 
@@ -29,7 +29,7 @@ If desired by organisational purposes a user can decide to filter witch Service 
 Principals Manager Providers
 -----------
 
-As a user of KTB you can select which providers to use, they could be for example Confluent Cloud or SASL/SCRAM (once `#2 <https://github.com/kafka-ops/kafka-topology-builder/issues/2>`_ is implemented),
+As a user of Julie Ops you can select which providers to use, they could be for example Confluent Cloud or SASL/SCRAM (once `#2 <https://github.com/kafka-ops/kafka-topology-builder/issues/2>`_ is implemented),
 the tool will contact the server and manage the user creation.
 
 In the current version you can only use the Confluent Cloud provider.
@@ -41,13 +41,13 @@ If the reader is using the Confluent Cloud, you can manage the principals descri
 This operations are dependant on the *ccloud* CLI, as a user you should have this tool available in your system.
 
 Another requirement is you should be logged in more details `here <https://docs.confluent.io/ccloud-cli/current/command-reference/ccloud_login.html>`_.
-Once this is done, the KTB will rely on CLI to manage the principals.
+Once this is done, Julie Ops will rely on CLI to manage the principals.
 
 Enabling principal translation
 -----------
 
-As a user of KTB with Confluent Cloud, you can chose to use the Service Account ID or the Service Account Name as a label describing your user.
-If you want the users to be managed by Kafka Topology Builder you have to use the principals by your Service Account name, the Topology
+As a user of Julie Ops with Confluent Cloud, you can chose to use the Service Account ID or the Service Account Name as a label describing your user.
+If you want the users to be managed by Julie Ops you have to use the principals by your Service Account name, the Topology
 will look like this:
 
 .. code-block:: YAML
