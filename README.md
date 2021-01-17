@@ -12,18 +12,18 @@ More items are plan, check [here](https://github.com/kafka-ops/kafka-topology-bu
 One of the typical questions while building an Apache Kafka infrastructure is how to handle topics, 
 configurations and the required permissions to use them (Access Control List).
 
-The Julie Ops cli, in close collaboration with git and Jenkins (CI/CD) is here to help you setup an organised and automated way of managing your Kafka Cluster.
-
+The Julie Ops cli, in close collaboration with git and Jenkins (CI/CD) is here to help you setup an 
+organised and automated way of managing your Kafka Cluster.
  
 ## Where's the docs?
 
-We recommend taking time to [read the docs](https://kafka-topology-builder.readthedocs.io/).
+We recommend taking time to [read the docs](https://julie-ops.readthedocs.io/).
 There's quite a bit of detailed information about Gitops, Apache Kafka and how this project can help you automate 
 the common operational tasks.
 
-## Automating Management with CI/CD and Gitops
+## Automating Management with CI/CD and gitops
 
-![KafkaTopologyBuilder](imgs/kafka-topology-builder.png)
+![JulieOps](imgs/julie-ops.png)
 
 You might be wondering what is the usual workflow to implement this approach:
 
@@ -44,9 +44,10 @@ You might be wondering what is the usual workflow to implement this approach:
 
 Considerations:
 
-* Using webhooks, the git server (github, gitlab or bitbucket) will inform the CI/CD system changes had happened and they need to be applied to the cluster.
+* Using webhooks, the git server (github, gitlab or bitbucket) will inform the CI/CD system changes had happened 
+and the need to apply them to the cluster.
 * All changes (git push) to master branch are disabled directly. 
-Changes only can happen with a pull request.
+Changes only can happen with a pull request. Providing a Change Management mechanism to fit into your org procedures.
 
 ## Help??
 
@@ -82,7 +83,7 @@ What can you achieve with this tool:
 
 Out of the box support for Confluent Cloud and other clouds that enable you to use the AdminClient API. 
 
-### How can I run the topology builder directly?
+### How can I run Julie Ops directly?
 
 This tool is available in multiple formats:
 
@@ -99,7 +100,7 @@ The latest version are available from the [releases](https://github.com/purbon/k
 This is how you can run the tool directly as a docker image:
 
 ```bash 
-docker run purbon/kafka-topology-builder:latest kafka-topology-builder.sh  --help
+docker run purbon/julie-ops:latest julie-ops-cli.sh  --help
 Parsing failed cause of Missing required options: topology, brokers, clientConfig
 usage: cli
     --allowDelete          Permits delete operations for topics and
@@ -114,8 +115,9 @@ usage: cli
     --version              Prints useful version information.
 ```
 
-If you install the tool as rpm, you will have available in your $PATH the _kafka-topology-builder.sh_.
-You can run this script with the same options observed earlier.  
+If you install the tool as rpm, you will have available in your $PATH the _julie-ops-cli.sh_.
+You can run this script with the same options observed earlier, however you will need to be using, or be in the group,
+for the user julie-kafka. 
 
 #### An example topology
 
@@ -169,16 +171,18 @@ projects:
 more examples can be found at the [example/](example/) directory. 
 
 Also, please check, the documentation in [the docs](https://kafka-topology-builder.readthedocs.io/) for extra information and
-examples on managing ACLs, RBAC, Principales, Schemas and many others.
+examples on managing ACLs, RBAC, Principales, Schemas and many others.  
 
 ## Interested in contributing back?
 
-Interested on contributing back? might be have an idea for a great future? or wanna fix a bug? Check our [contributing](CONTRIBUTING.md) doc for guidance.
+Interested on contributing back? might be have an idea for a great future? or wanna fix a bug?
+Check our [contributing](CONTRIBUTING.md) doc for guidance.
 
 ## Building Julie Ops from scratch (source code)
 
 The project is build using Java and Maven, so both are required if you aim to build the tool from scratch.
-The minimum version of Java supported is Java 8, note it soon will be deprecated here, it is only keep as supported for very legacy environments.
+The minimum version of Java supported is Java 8, note it soon will be deprecated here, it is only keep as supported 
+for very legacy environments.
 
 It is recommended to run Julie Ops with Java 11 and an open JDK version.
 
