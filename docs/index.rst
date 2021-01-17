@@ -20,7 +20,7 @@ Getting started
 If you have landed in this page is because you aim to get started with Julie Ops.
 To get you started we recommend:
 
-* Want a quickstart ? checkout our demo in https://github.com/purbon/kafka-topology-builder-demo.
+* Want a quickstart ? checkout our demo in `[here] <https://github.com/purbon/kafka-topology-builder-demo>`_.
 * New to gitops and kafka, check the :doc:`core-concepts` page.
 * If you are ready to jump in, start with the :doc:`workflow-setup`.
 
