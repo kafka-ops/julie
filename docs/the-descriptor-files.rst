@@ -65,6 +65,59 @@ The relevant properties are:
 
 more details can be found in the :doc:`config-values` section where the most important configuration details are explained.
 
+What can you do in the descriptor files?
+-----------
+
+The `example` directory in the project contains a set of example topologies that you can use to get an idea of how to
+use the different features. For example:
+* RBAC roles with Confluent Platform
+* Administration of schemas for the topics
+* Using plans to create common topic configurations
+* Add metadata to different elements in the topology
+
+Add metadata to your topology
+-----------
+
+In addition to definitions needed for creating the required topics, acls, rbac bindings etc in your Kafka cluster KTB
+also supports annotating your topology through metadata. This can allow you to make the descriptor files easier to read,
+e.g. for someone not into the details of what a given topic is all about.
+
+But you can also utilise it to do the following:
+* Add validations that also use metadata. E.g. combine topic metadata and topic name to enforce more refined topic naming rules.
+* Generate documentation from the your descriptor files (with some tool) and include metadata create better documentation on topics and users.
+
+You can add metadata to the following elements in the topology:
+* topics
+* consumers
+* producers
+* streams
+* connectors
+
+A short example is given below, have a look in the `example` directory for a more complete example.
+
+.. code-block:: YAML
+
+    ---
+    context: "context"
+    projects:
+      - name: "foo with metadata"
+        consumers:
+          - principal: "User:App0"
+            metadata:
+              system: "System0"
+        producers:
+          - principal: "User:App1"
+            metadata:
+              system: "System1"
+        topics:
+          - name: "topicA"
+            metadata:
+              domain: "Sales"
+              owner: "DepartmentA"
+            config:
+              replication.factor: "3"
+              num.partitions: "3"
+
 Manage only topics, the optional files
 -----------
 

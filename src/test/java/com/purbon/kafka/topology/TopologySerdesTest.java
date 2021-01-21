@@ -43,6 +43,23 @@ public class TopologySerdesTest {
   }
 
   @Test
+  public void testMetadata() {
+    Topology topology =
+        parser.deserialise(TestUtils.getResourceFile("/descriptor-with-metadata.yaml"));
+    Project project = topology.getProjects().get(0);
+
+    assertThat(project.getConsumers().get(0).getMetadata()).containsKey("system");
+    assertThat(project.getProducers().get(0).getMetadata()).containsKey("contactInfo");
+    assertThat(project.getStreams().get(0).getMetadata()).containsKey("system");
+    assertThat(project.getConnectors().get(0).getMetadata()).containsKey("system");
+    assertThat(project.getTopics().get(0).getMetadata()).containsKey("domain");
+    assertThat(project.getTopics().get(1).getMetadata()).containsKey("domain");
+    assertThat(project.getTopics().get(1).getMetadata()).containsKey("owner");
+    assertThat(project.getTopics().get(0).getConsumers().get(0).getMetadata())
+        .containsKey("system");
+  }
+
+  @Test
   public void testDynamicFirstLevelAttributes() {
     Topology topology =
         parser.deserialise(TestUtils.getResourceFile("/descriptor-with-others.yml"));
