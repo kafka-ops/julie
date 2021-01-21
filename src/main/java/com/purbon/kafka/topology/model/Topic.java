@@ -45,5 +45,9 @@ public interface Topic {
 
   void setProducers(List<Producer> producers);
 
+  Map<String, String> getMetadata();
+
+  void setMetadata(Map<String, String> metadata);
+
   SubjectNameStrategy getSubjectNameStrategy();
 }

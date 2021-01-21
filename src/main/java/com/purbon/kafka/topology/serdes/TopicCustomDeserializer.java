@@ -74,20 +74,7 @@ public class TopicCustomDeserializer extends StdDeserializer<TopicImpl> {
     Optional<JsonNode> optionalDataTypeNode = Optional.ofNullable(rootNode.get("dataType"));
     Optional<String> optionalDataType = optionalDataTypeNode.map(JsonNode::asText);
 
-    Optional<JsonNode> optionalConfigNode = Optional.ofNullable(rootNode.get("config"));
-    Map<String, String> config =
-        optionalConfigNode
-            .map(
-                node -> {
-                  Map<String, String> map = new HashMap<>();
-                  Iterator<Map.Entry<String, JsonNode>> it = node.fields();
-                  while (it.hasNext()) {
-                    Map.Entry<String, JsonNode> entry = it.next();
-                    map.put(entry.getKey(), entry.getValue().asText());
-                  }
-                  return map;
-                })
-            .orElse(new HashMap<>());
+    Map<String, String> config = getMap(rootNode.get("config"));
 
     Optional<JsonNode> optionalPlanLabel = Optional.ofNullable(rootNode.get("plan"));
     if (optionalPlanLabel.isPresent() && plans.size() == 0) {
@@ -154,9 +141,28 @@ public class TopicCustomDeserializer extends StdDeserializer<TopicImpl> {
 
     topic.setSchemas(schemas);
 
+    Map<String, String> metadata = getMap(rootNode.get("metadata"));
+    topic.setMetadata(metadata);
+
     LOGGER.debug(
         String.format("Topic %s with config %s has been created", topic.getName(), config));
     return topic;
+  }
+
+  private Map<String, String> getMap(JsonNode jsonNode) {
+    Optional<JsonNode> optionalNode = Optional.ofNullable(jsonNode);
+    return optionalNode
+        .map(
+            node -> {
+              Map<String, String> map = new HashMap<>();
+              Iterator<Map.Entry<String, JsonNode>> it = node.fields();
+              while (it.hasNext()) {
+                Map.Entry<String, JsonNode> entry = it.next();
+                map.put(entry.getKey(), entry.getValue().asText());
+              }
+              return map;
+            })
+        .orElse(new HashMap<>());
   }
 
   private Function<JsonNode, Either<ValidationException, TopicSchemas>> validateAndBuildSchemas(

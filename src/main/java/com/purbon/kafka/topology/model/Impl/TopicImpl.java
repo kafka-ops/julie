@@ -35,6 +35,8 @@ public class TopicImpl implements Topic, Cloneable {
   @JsonInclude(Include.NON_EMPTY)
   private String plan;
 
+  private Map<String, String> metadata;
+
   private Map<String, String> config;
   @JsonIgnore private TopologyBuilderConfig appConfig;
   @JsonIgnore private Map<String, Object> context;
@@ -228,6 +230,14 @@ public class TopicImpl implements Topic, Cloneable {
 
   public void addAppConfig(TopologyBuilderConfig appConfig) {
     this.appConfig = appConfig;
+  }
+
+  public Map<String, String> getMetadata() {
+    return metadata;
+  }
+
+  public void setMetadata(Map<String, String> metadata) {
+    this.metadata = metadata;
   }
 
   @Override

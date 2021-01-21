@@ -1,0 +1,51 @@
+---
+context: "context"
+projects:
+  - name: "foo with metadata"
+    consumers:
+      - principal: "User:App0"
+        metadata:
+          system: "System0"
+    producers:
+      - principal: "User:App1"
+        metadata:
+          system: "System1"
+    streams:
+      - principal: "User:StreamsApp1"
+        metadata:
+          contactInfo: "app1@company.com"
+        topics:
+          read:
+            - "topicA"
+          write:
+            - "topicB"
+    connectors:
+      - principal: "User:Connect1"
+        metadata:
+          system: "System3"
+          contactInfo: "system3@company.com"
+        status_topic: "status"
+        offset_topic: "offset"
+        configs_topic: "configs"
+        topics:
+          read:
+            - "topicB"
+    topics:
+      - name: "topicA"
+        metadata:
+          domain: "Sales"
+          owner: "DepartmentA"
+        consumers:
+          - principal: "User:App4"
+            metadata:
+              system: "System4"
+        config:
+          replication.factor: "1"
+          num.partitions: "1"
+      - name: "topicB"
+        metadata:
+          domain: "ProductionStatistics"
+          owner: "DepartmentB"
+        dataType: "avro"
+        schemas:
+          value.schema.file: "schemas/bar-value.avsc"
