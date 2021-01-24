@@ -4,11 +4,15 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
+import java.io.IOException;
+import java.util.*;
+import java.util.stream.Collectors;
 import kafka.ops.topology.exceptions.TopologyParsingException;
 import kafka.ops.topology.model.Impl.ProjectImpl;
 import kafka.ops.topology.model.Impl.TopicImpl;
 import kafka.ops.topology.model.Impl.TopologyImpl;
 import kafka.ops.topology.model.Project;
+import kafka.ops.topology.model.SubjectNameStrategy;
 import kafka.ops.topology.model.Topic;
 import kafka.ops.topology.model.Topology;
 import kafka.ops.topology.model.User;
@@ -21,10 +25,6 @@ import kafka.ops.topology.model.users.platform.SchemaRegistryInstance;
 import kafka.ops.topology.serdes.TopologySerdes;
 import kafka.ops.topology.serdes.TopologySerdes.FileType;
 import kafka.ops.topology.utils.TestUtils;
-import java.io.IOException;
-import java.util.*;
-import java.util.stream.Collectors;
-import kafka.ops.topology.model.SubjectNameStrategy;
 import org.assertj.core.api.Assertions;
 import org.junit.Assert;
 import org.junit.Before;
@@ -194,7 +194,8 @@ public class TopologySerdesTest {
     Assertions.assertThat(project.getConnectors()).hasSize(2);
 
     Assertions.assertThat(project.getProducers().get(0).getIdempotence()).isEmpty();
-    Assertions.assertThat(project.getProducers().get(1).getTransactionId()).isEqualTo(Optional.of("1234"));
+    Assertions.assertThat(project.getProducers().get(1).getTransactionId())
+        .isEqualTo(Optional.of("1234"));
     Assertions.assertThat(project.getProducers().get(2).getIdempotence()).isNotEmpty();
 
     List<Topic> topics = topology.getProjects().get(2).getTopics();
@@ -232,15 +233,15 @@ public class TopologySerdesTest {
     assertThat(topicBar).isPresent();
     assertThat(topicBar.get().getSchemas()).hasSize(1);
     assertThat(topicBar.get().getSchemas().get(0).getValueSubject().hasSchemaFile()).isTrue();
-    assertThat(topicBar.get().getSubjectNameStrategy()).isEqualTo(
-        SubjectNameStrategy.TOPIC_NAME_STRATEGY);
+    assertThat(topicBar.get().getSubjectNameStrategy())
+        .isEqualTo(SubjectNameStrategy.TOPIC_NAME_STRATEGY);
 
     assertThat(topicCat).isPresent();
     assertThat(topicCat.get().getSchemas()).hasSize(2);
     assertThat(topicCat.get().getSchemas().get(0).getValueSubject().hasSchemaFile()).isTrue();
     assertThat(topicCat.get().getSchemas().get(1).getValueSubject().hasSchemaFile()).isTrue();
-    assertThat(topicCat.get().getSubjectNameStrategy()).isEqualTo(
-        SubjectNameStrategy.TOPIC_RECORD_NAME_STRATEGY);
+    assertThat(topicCat.get().getSubjectNameStrategy())
+        .isEqualTo(SubjectNameStrategy.TOPIC_RECORD_NAME_STRATEGY);
   }
 
   @Test
@@ -363,7 +364,9 @@ public class TopologySerdesTest {
     cliOps.put(BuilderCLI.ADMIN_CLIENT_CONFIG_OPTION, "/fooBar");
 
     Properties props = new Properties();
-    props.put(TopologyBuilderConfig.TOPIC_PREFIX_FORMAT_CONFIG, "{{source}}.{{context}}.{{project}}.{{topic}}");
+    props.put(
+        TopologyBuilderConfig.TOPIC_PREFIX_FORMAT_CONFIG,
+        "{{source}}.{{context}}.{{project}}.{{topic}}");
     TopologyBuilderConfig config = new TopologyBuilderConfig(cliOps, props);
 
     TopologySerdes parser = new TopologySerdes(config);

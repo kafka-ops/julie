@@ -7,9 +7,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
-import kafka.ops.topology.model.PlanMap;
 import java.io.File;
 import java.io.IOException;
+import kafka.ops.topology.model.PlanMap;
 
 public class PlanMapSerdes {
 

@@ -1,5 +1,9 @@
 package kafka.ops.topology.integration.containerutils;
 
+import com.typesafe.config.ConfigFactory;
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 import kafka.ops.topology.AccessControlProvider;
 import kafka.ops.topology.BindingsBuilderProvider;
 import kafka.ops.topology.KafkaTopologyBuilder;
@@ -8,10 +12,6 @@ import kafka.ops.topology.api.adminclient.TopologyBuilderAdminClient;
 import kafka.ops.topology.roles.SimpleAclsProvider;
 import kafka.ops.topology.roles.acls.AclsBindingsBuilder;
 import kafka.ops.topology.utils.TestUtils;
-import com.typesafe.config.ConfigFactory;
-import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
 import org.apache.kafka.clients.CommonClientConfigs;
 import org.apache.kafka.clients.admin.AdminClient;
 

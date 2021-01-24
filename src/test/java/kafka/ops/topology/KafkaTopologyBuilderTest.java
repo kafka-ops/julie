@@ -3,14 +3,14 @@ package kafka.ops.topology;
 import static org.mockito.Matchers.anyObject;
 import static org.mockito.Mockito.*;
 
-import kafka.ops.topology.api.adminclient.TopologyBuilderAdminClient;
-import kafka.ops.topology.backend.RedisBackend;
-import kafka.ops.topology.exceptions.TopologyParsingException;
-import kafka.ops.topology.utils.TestUtils;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
+import kafka.ops.topology.api.adminclient.TopologyBuilderAdminClient;
+import kafka.ops.topology.backend.RedisBackend;
+import kafka.ops.topology.exceptions.TopologyParsingException;
+import kafka.ops.topology.utils.TestUtils;
 import org.apache.kafka.clients.admin.AdminClientConfig;
 import org.junit.Before;
 import org.junit.Rule;

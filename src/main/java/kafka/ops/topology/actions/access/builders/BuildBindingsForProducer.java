@@ -1,11 +1,11 @@
 package kafka.ops.topology.actions.access.builders;
 
-import kafka.ops.topology.BindingsBuilderProvider;
-import kafka.ops.topology.actions.BaseAccessControlAction;
-import kafka.ops.topology.model.users.Producer;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import kafka.ops.topology.BindingsBuilderProvider;
+import kafka.ops.topology.actions.BaseAccessControlAction;
+import kafka.ops.topology.model.users.Producer;
 
 public class BuildBindingsForProducer extends BaseAccessControlAction {
 

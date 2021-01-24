@@ -1,11 +1,11 @@
 package kafka.ops.topology.integration.backend;
 
-import kafka.ops.topology.backend.RedisBackend;
-import kafka.ops.topology.roles.TopologyAclBinding;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
+import kafka.ops.topology.backend.RedisBackend;
+import kafka.ops.topology.roles.TopologyAclBinding;
 import org.apache.kafka.common.resource.ResourceType;
 import org.junit.Assert;
 import org.junit.Rule;

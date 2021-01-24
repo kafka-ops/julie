@@ -1,8 +1,8 @@
 package kafka.ops.topology.roles;
 
-import kafka.ops.topology.api.mds.RequestScope;
 import java.util.Objects;
 import java.util.Optional;
+import kafka.ops.topology.api.mds.RequestScope;
 import org.apache.kafka.common.acl.AccessControlEntry;
 import org.apache.kafka.common.acl.AclBinding;
 import org.apache.kafka.common.resource.ResourcePattern;

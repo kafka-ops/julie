@@ -4,7 +4,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
-import kafka.ops.topology.schemas.SchemaRegistryManager.SchemaRegistryManagerException;
 import io.confluent.kafka.schemaregistry.avro.AvroSchema;
 import io.confluent.kafka.schemaregistry.client.MockSchemaRegistryClient;
 import io.confluent.kafka.schemaregistry.client.SchemaRegistryClient;
@@ -13,6 +12,7 @@ import java.io.IOException;
 import java.net.URISyntaxException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import kafka.ops.topology.schemas.SchemaRegistryManager.SchemaRegistryManagerException;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;

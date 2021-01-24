@@ -1,8 +1,8 @@
 package kafka.ops.topology.model.users;
 
-import kafka.ops.topology.model.User;
 import java.util.Objects;
 import java.util.Optional;
+import kafka.ops.topology.model.User;
 
 public class Consumer extends User {
 

@@ -1,12 +1,12 @@
 package kafka.ops.topology.roles.rbac;
 
+import java.util.Map;
+import java.util.Optional;
+import kafka.ops.topology.api.mds.ClusterIDs;
 import kafka.ops.topology.api.mds.MDSApiClient;
 import kafka.ops.topology.api.mds.RequestScope;
 import kafka.ops.topology.model.users.Connector;
 import kafka.ops.topology.roles.TopologyAclBinding;
-import java.util.Map;
-import java.util.Optional;
-import kafka.ops.topology.api.mds.ClusterIDs;
 import org.apache.kafka.common.resource.PatternType;
 
 public class ClusterLevelRoleBuilder {

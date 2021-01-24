@@ -1,12 +1,5 @@
 package kafka.ops.topology;
 
-import kafka.ops.topology.actions.accounts.ClearAccounts;
-import kafka.ops.topology.actions.accounts.CreateAccounts;
-import kafka.ops.topology.model.Topic;
-import kafka.ops.topology.model.Topology;
-import kafka.ops.topology.model.User;
-import kafka.ops.topology.model.cluster.ServiceAccount;
-import kafka.ops.topology.serviceAccounts.VoidPrincipalProvider;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.util.ArrayList;
@@ -14,6 +7,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
+import kafka.ops.topology.actions.accounts.ClearAccounts;
+import kafka.ops.topology.actions.accounts.CreateAccounts;
+import kafka.ops.topology.model.Topic;
+import kafka.ops.topology.model.Topology;
+import kafka.ops.topology.model.User;
+import kafka.ops.topology.model.cluster.ServiceAccount;
+import kafka.ops.topology.serviceAccounts.VoidPrincipalProvider;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 

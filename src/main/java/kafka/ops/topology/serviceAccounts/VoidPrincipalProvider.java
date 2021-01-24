@@ -1,10 +1,10 @@
 package kafka.ops.topology.serviceAccounts;
 
-import kafka.ops.topology.PrincipalProvider;
-import kafka.ops.topology.model.cluster.ServiceAccount;
 import java.io.IOException;
 import java.util.Collections;
 import java.util.Set;
+import kafka.ops.topology.PrincipalProvider;
+import kafka.ops.topology.model.cluster.ServiceAccount;
 
 public class VoidPrincipalProvider implements PrincipalProvider {
 

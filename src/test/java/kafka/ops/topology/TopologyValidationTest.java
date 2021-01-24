@@ -2,11 +2,11 @@ package kafka.ops.topology;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import java.io.IOException;
+import java.util.*;
 import kafka.ops.topology.model.Topology;
 import kafka.ops.topology.serdes.TopologySerdes;
 import kafka.ops.topology.utils.TestUtils;
-import java.io.IOException;
-import java.util.*;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -30,7 +30,9 @@ public class TopologyValidationTest {
     cliOps.put(BuilderCLI.ADMIN_CLIENT_CONFIG_OPTION, "/fooBar");
 
     Properties props = new Properties();
-    props.put(TopologyBuilderConfig.TOPOLOGY_VALIDATIONS_CONFIG, Arrays.asList("topology.CamelCaseNameFormatValidation"));
+    props.put(
+        TopologyBuilderConfig.TOPOLOGY_VALIDATIONS_CONFIG,
+        Arrays.asList("topology.CamelCaseNameFormatValidation"));
     TopologyBuilderConfig config = new TopologyBuilderConfig(cliOps, props);
 
     TopologyValidator validator = new TopologyValidator(config);

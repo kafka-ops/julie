@@ -1,13 +1,13 @@
 package kafka.ops.topology;
 
-import kafka.ops.topology.backend.Backend;
-import kafka.ops.topology.backend.FileBackend;
-import kafka.ops.topology.model.cluster.ServiceAccount;
-import kafka.ops.topology.roles.TopologyAclBinding;
 import java.io.IOException;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import kafka.ops.topology.backend.Backend;
+import kafka.ops.topology.backend.FileBackend;
+import kafka.ops.topology.model.cluster.ServiceAccount;
+import kafka.ops.topology.roles.TopologyAclBinding;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 

@@ -1,14 +1,14 @@
 package kafka.ops.topology.model.Impl;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import kafka.ops.topology.TopologyBuilderConfig;
-import kafka.ops.topology.model.Platform;
-import kafka.ops.topology.model.Project;
-import kafka.ops.topology.model.Topology;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import kafka.ops.topology.TopologyBuilderConfig;
+import kafka.ops.topology.model.Platform;
+import kafka.ops.topology.model.Project;
+import kafka.ops.topology.model.Topology;
 
 public class TopologyImpl implements Topology, Cloneable {
 

@@ -1,11 +1,11 @@
 package kafka.ops.topology.actions;
 
-import kafka.ops.topology.PrincipalProvider;
-import kafka.ops.topology.model.cluster.ServiceAccount;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
+import kafka.ops.topology.PrincipalProvider;
+import kafka.ops.topology.model.cluster.ServiceAccount;
 
 public abstract class BaseAccountsAction extends BaseAction {
 

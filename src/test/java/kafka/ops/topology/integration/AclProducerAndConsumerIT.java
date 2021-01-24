@@ -1,11 +1,11 @@
 package kafka.ops.topology.integration;
 
+import java.util.Set;
 import kafka.ops.topology.integration.containerutils.ContainerFactory;
 import kafka.ops.topology.integration.containerutils.ContainerTestUtils;
 import kafka.ops.topology.integration.containerutils.SaslPlaintextKafkaContainer;
 import kafka.ops.topology.integration.containerutils.TestConsumer;
 import kafka.ops.topology.integration.containerutils.TestProducer;
-import java.util.Set;
 import org.apache.kafka.common.errors.GroupAuthorizationException;
 import org.apache.kafka.common.errors.SaslAuthenticationException;
 import org.apache.kafka.common.errors.TopicAuthorizationException;

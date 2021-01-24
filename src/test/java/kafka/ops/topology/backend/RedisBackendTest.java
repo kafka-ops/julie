@@ -9,11 +9,11 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import kafka.ops.topology.roles.TopologyAclBinding;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
+import kafka.ops.topology.roles.TopologyAclBinding;
 import org.apache.kafka.common.resource.ResourceType;
 import org.junit.Before;
 import org.junit.Rule;

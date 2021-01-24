@@ -1,13 +1,13 @@
 package kafka.ops.topology.api.ccloud;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import kafka.ops.topology.model.cluster.ServiceAccount;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
 import java.util.stream.Collectors;
+import kafka.ops.topology.model.cluster.ServiceAccount;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 

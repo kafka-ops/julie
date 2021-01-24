@@ -1,5 +1,9 @@
 package kafka.ops.topology;
 
+import java.io.IOException;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
 import kafka.ops.topology.exceptions.ConfigurationException;
 import kafka.ops.topology.model.Component;
 import kafka.ops.topology.model.users.Connector;
@@ -7,10 +11,6 @@ import kafka.ops.topology.model.users.Consumer;
 import kafka.ops.topology.model.users.Producer;
 import kafka.ops.topology.model.users.platform.SchemaRegistryInstance;
 import kafka.ops.topology.roles.TopologyAclBinding;
-import java.io.IOException;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
 
 public interface BindingsBuilderProvider {
 

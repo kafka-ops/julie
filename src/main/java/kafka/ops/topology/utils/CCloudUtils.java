@@ -1,11 +1,11 @@
 package kafka.ops.topology.utils;
 
-import kafka.ops.topology.TopologyBuilderConfig;
-import kafka.ops.topology.api.ccloud.CCloudCLI;
-import kafka.ops.topology.model.cluster.ServiceAccount;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
+import kafka.ops.topology.TopologyBuilderConfig;
+import kafka.ops.topology.api.ccloud.CCloudCLI;
+import kafka.ops.topology.model.cluster.ServiceAccount;
 
 public class CCloudUtils {
 

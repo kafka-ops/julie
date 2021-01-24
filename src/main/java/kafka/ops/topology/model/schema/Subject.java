@@ -1,10 +1,10 @@
 package kafka.ops.topology.model.schema;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import kafka.ops.topology.model.Topic;
 import io.confluent.kafka.schemaregistry.avro.AvroSchema;
 import java.io.IOException;
 import java.util.Optional;
+import kafka.ops.topology.model.Topic;
 
 public class Subject {
 

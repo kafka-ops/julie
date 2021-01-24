@@ -1,13 +1,13 @@
 package kafka.ops.topology.backend;
 
-import kafka.ops.topology.model.cluster.ServiceAccount;
-import kafka.ops.topology.roles.TopologyAclBinding;
 import java.io.IOException;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import kafka.ops.topology.BackendController;
+import kafka.ops.topology.model.cluster.ServiceAccount;
+import kafka.ops.topology.roles.TopologyAclBinding;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import redis.clients.jedis.Jedis;

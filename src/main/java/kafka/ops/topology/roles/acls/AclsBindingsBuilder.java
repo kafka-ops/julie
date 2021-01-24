@@ -2,6 +2,13 @@ package kafka.ops.topology.roles.acls;
 
 import static java.util.Arrays.asList;
 
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import kafka.ops.topology.BindingsBuilderProvider;
 import kafka.ops.topology.TopologyBuilderConfig;
 import kafka.ops.topology.api.adminclient.AclBuilder;
@@ -12,13 +19,6 @@ import kafka.ops.topology.model.users.Producer;
 import kafka.ops.topology.model.users.platform.SchemaRegistryInstance;
 import kafka.ops.topology.roles.TopologyAclBinding;
 import kafka.ops.topology.utils.CCloudUtils;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.List;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 import org.apache.kafka.common.acl.AccessControlEntry;
 import org.apache.kafka.common.acl.AclBinding;
 import org.apache.kafka.common.acl.AclOperation;

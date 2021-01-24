@@ -1,15 +1,15 @@
 package kafka.ops.topology;
 
+import java.io.IOException;
+import java.io.PrintStream;
+import java.util.*;
+import java.util.stream.Collectors;
 import kafka.ops.topology.actions.topics.DeleteTopics;
 import kafka.ops.topology.actions.topics.SyncTopicAction;
 import kafka.ops.topology.api.adminclient.TopologyBuilderAdminClient;
 import kafka.ops.topology.model.Topic;
 import kafka.ops.topology.model.Topology;
 import kafka.ops.topology.schemas.SchemaRegistryManager;
-import java.io.IOException;
-import java.io.PrintStream;
-import java.util.*;
-import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;

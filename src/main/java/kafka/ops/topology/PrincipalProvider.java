@@ -1,8 +1,8 @@
 package kafka.ops.topology;
 
-import kafka.ops.topology.model.cluster.ServiceAccount;
 import java.io.IOException;
 import java.util.Set;
+import kafka.ops.topology.model.cluster.ServiceAccount;
 
 public interface PrincipalProvider {
 

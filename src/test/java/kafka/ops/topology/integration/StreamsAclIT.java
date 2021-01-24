@@ -4,13 +4,13 @@ import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.awaitility.Awaitility.await;
 
+import java.util.Set;
 import kafka.ops.topology.integration.containerutils.ContainerFactory;
 import kafka.ops.topology.integration.containerutils.ContainerTestUtils;
 import kafka.ops.topology.integration.containerutils.SaslPlaintextKafkaContainer;
 import kafka.ops.topology.integration.containerutils.TestConsumer;
 import kafka.ops.topology.integration.containerutils.TestProducer;
 import kafka.ops.topology.integration.containerutils.TestStreams;
-import java.util.Set;
 import org.apache.kafka.streams.StreamsBuilder;
 import org.apache.kafka.streams.kstream.KStream;
 import org.junit.AfterClass;

@@ -2,6 +2,8 @@ package kafka.ops.topology;
 
 import static kafka.ops.topology.TopologyBuilderConfig.*;
 
+import java.io.IOException;
+import java.lang.reflect.Constructor;
 import kafka.ops.topology.api.adminclient.TopologyBuilderAdminClient;
 import kafka.ops.topology.api.ccloud.CCloudCLI;
 import kafka.ops.topology.api.mds.MDSApiClient;
@@ -12,8 +14,6 @@ import kafka.ops.topology.roles.SimpleAclsProvider;
 import kafka.ops.topology.roles.acls.AclsBindingsBuilder;
 import kafka.ops.topology.roles.rbac.RBACBindingsBuilder;
 import kafka.ops.topology.utils.CCloudUtils;
-import java.io.IOException;
-import java.lang.reflect.Constructor;
 
 public class AccessControlProviderFactory {
 

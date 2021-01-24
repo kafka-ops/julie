@@ -1,9 +1,6 @@
 package kafka.ops.topology.backend;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import kafka.ops.topology.model.cluster.ServiceAccount;
-import kafka.ops.topology.roles.TopologyAclBinding;
-import kafka.ops.topology.utils.JSON;
 import java.io.*;
 import java.io.BufferedReader;
 import java.io.FileReader;
@@ -21,6 +18,9 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import kafka.ops.topology.BackendController;
+import kafka.ops.topology.model.cluster.ServiceAccount;
+import kafka.ops.topology.roles.TopologyAclBinding;
+import kafka.ops.topology.utils.JSON;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 

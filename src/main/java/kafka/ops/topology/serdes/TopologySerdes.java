@@ -5,13 +5,13 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
+import java.io.File;
+import java.io.IOException;
 import kafka.ops.topology.TopologyBuilderConfig;
 import kafka.ops.topology.exceptions.TopologyParsingException;
 import kafka.ops.topology.model.Impl.TopicImpl;
 import kafka.ops.topology.model.PlanMap;
 import kafka.ops.topology.model.Topology;
-import java.io.File;
-import java.io.IOException;
 
 public class TopologySerdes {
 

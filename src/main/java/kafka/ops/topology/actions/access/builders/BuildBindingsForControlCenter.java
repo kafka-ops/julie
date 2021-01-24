@@ -1,11 +1,11 @@
 package kafka.ops.topology.actions.access.builders;
 
-import kafka.ops.topology.BindingsBuilderProvider;
-import kafka.ops.topology.actions.BaseAccessControlAction;
-import kafka.ops.topology.model.users.platform.ControlCenterInstance;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
+import kafka.ops.topology.BindingsBuilderProvider;
+import kafka.ops.topology.actions.BaseAccessControlAction;
+import kafka.ops.topology.model.users.platform.ControlCenterInstance;
 
 public class BuildBindingsForControlCenter extends BaseAccessControlAction {
 

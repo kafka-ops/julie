@@ -3,12 +3,12 @@ package kafka.ops.topology.actions.access.builders;
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 
-import kafka.ops.topology.TopologyBuilderConfig;
-import kafka.ops.topology.model.users.KStream;
-import kafka.ops.topology.roles.acls.AclsBindingsBuilder;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
+import kafka.ops.topology.TopologyBuilderConfig;
+import kafka.ops.topology.model.users.KStream;
+import kafka.ops.topology.roles.acls.AclsBindingsBuilder;
 import org.apache.kafka.common.resource.ResourceType;
 import org.junit.Before;
 import org.junit.Test;

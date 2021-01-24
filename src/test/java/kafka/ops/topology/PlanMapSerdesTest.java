@@ -3,13 +3,13 @@ package kafka.ops.topology;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 import kafka.ops.topology.model.Plan;
 import kafka.ops.topology.model.PlanMap;
 import kafka.ops.topology.serdes.PlanMapSerdes;
 import kafka.ops.topology.utils.TestUtils;
-import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
 import org.assertj.core.api.Condition;
 import org.junit.Before;
 import org.junit.Test;

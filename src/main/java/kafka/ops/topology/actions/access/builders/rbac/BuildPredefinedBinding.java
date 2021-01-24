@@ -1,12 +1,12 @@
 package kafka.ops.topology.actions.access.builders.rbac;
 
-import kafka.ops.topology.BindingsBuilderProvider;
-import kafka.ops.topology.actions.BaseAccessControlAction;
-import kafka.ops.topology.roles.TopologyAclBinding;
 import java.io.IOException;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import kafka.ops.topology.BindingsBuilderProvider;
+import kafka.ops.topology.actions.BaseAccessControlAction;
+import kafka.ops.topology.roles.TopologyAclBinding;
 
 public class BuildPredefinedBinding extends BaseAccessControlAction {
 

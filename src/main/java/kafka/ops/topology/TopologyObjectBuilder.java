@@ -1,15 +1,15 @@
 package kafka.ops.topology;
 
-import kafka.ops.topology.model.PlanMap;
-import kafka.ops.topology.model.Topology;
-import kafka.ops.topology.serdes.PlanMapSerdes;
-import kafka.ops.topology.serdes.TopologySerdes;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
+import kafka.ops.topology.model.PlanMap;
+import kafka.ops.topology.model.Topology;
+import kafka.ops.topology.serdes.PlanMapSerdes;
+import kafka.ops.topology.serdes.TopologySerdes;
 
 public class TopologyObjectBuilder {
 

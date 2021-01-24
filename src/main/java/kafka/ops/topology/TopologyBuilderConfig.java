@@ -1,10 +1,5 @@
 package kafka.ops.topology;
 
-import kafka.ops.topology.exceptions.ConfigurationException;
-import kafka.ops.topology.model.Project;
-import kafka.ops.topology.model.Topic;
-import kafka.ops.topology.model.Topology;
-import kafka.ops.topology.serdes.TopologySerdes.FileType;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
 import java.util.HashMap;
@@ -14,6 +9,11 @@ import java.util.Properties;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import kafka.ops.topology.exceptions.ConfigurationException;
+import kafka.ops.topology.model.Project;
+import kafka.ops.topology.model.Topic;
+import kafka.ops.topology.model.Topology;
+import kafka.ops.topology.serdes.TopologySerdes.FileType;
 import org.apache.kafka.clients.admin.AdminClientConfig;
 
 public class TopologyBuilderConfig {
@@ -21,22 +21,18 @@ public class TopologyBuilderConfig {
   static final String KAFKA_INTERNAL_TOPIC_PREFIXES = "kafka.internal.topic.prefixes";
   static final String ACCESS_CONTROL_IMPLEMENTATION_CLASS = "topology.builder.access.control.class";
 
-  static final String ACCESS_CONTROL_DEFAULT_CLASS =
-      "kafka.ops.topology.roles.SimpleAclsProvider";
+  static final String ACCESS_CONTROL_DEFAULT_CLASS = "kafka.ops.topology.roles.SimpleAclsProvider";
 
-  static final String CONFLUENT_CLOUD_CONTROL_CLASS =
-      "kafka.ops.topology.roles.CCloudAclsProvider";
+  static final String CONFLUENT_CLOUD_CONTROL_CLASS = "kafka.ops.topology.roles.CCloudAclsProvider";
 
   static final String RBAC_ACCESS_CONTROL_CLASS = "kafka.ops.topology.roles.RBACProvider";
 
   private static final String STATE_PROCESSOR_IMPLEMENTATION_CLASS =
       "topology.builder.state.processor.class";
 
-  static final String STATE_PROCESSOR_DEFAULT_CLASS =
-      "kafka.ops.topology.backend.FileBackend";
+  static final String STATE_PROCESSOR_DEFAULT_CLASS = "kafka.ops.topology.backend.FileBackend";
 
-  static final String REDIS_STATE_PROCESSOR_CLASS =
-      "kafka.ops.topology.backend.RedisBackend";
+  static final String REDIS_STATE_PROCESSOR_CLASS = "kafka.ops.topology.backend.RedisBackend";
 
   static final String REDIS_HOST_CONFIG = "topology.builder.redis.host";
   static final String REDIS_PORT_CONFIG = "topology.builder.redis.port";

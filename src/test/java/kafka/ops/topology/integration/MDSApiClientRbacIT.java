@@ -8,12 +8,12 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
-import kafka.ops.topology.api.mds.AuthenticationCredentials;
-import kafka.ops.topology.api.mds.MDSApiClient;
-import kafka.ops.topology.roles.TopologyAclBinding;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
+import kafka.ops.topology.api.mds.AuthenticationCredentials;
+import kafka.ops.topology.api.mds.MDSApiClient;
+import kafka.ops.topology.roles.TopologyAclBinding;
 import org.junit.Before;
 import org.junit.Test;
 

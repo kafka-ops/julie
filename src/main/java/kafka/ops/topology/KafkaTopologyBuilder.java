@@ -1,14 +1,5 @@
 package kafka.ops.topology;
 
-import kafka.ops.topology.api.adminclient.TopologyBuilderAdminClient;
-import kafka.ops.topology.api.adminclient.TopologyBuilderAdminClientBuilder;
-import kafka.ops.topology.api.mds.MDSApiClientBuilder;
-import kafka.ops.topology.backend.FileBackend;
-import kafka.ops.topology.backend.RedisBackend;
-import kafka.ops.topology.exceptions.ValidationException;
-import kafka.ops.topology.model.Topology;
-import kafka.ops.topology.schemas.SchemaRegistryManager;
-import kafka.ops.topology.serviceAccounts.VoidPrincipalProvider;
 import io.confluent.kafka.schemaregistry.client.CachedSchemaRegistryClient;
 import io.confluent.kafka.schemaregistry.client.SchemaRegistryClient;
 import io.confluent.kafka.schemaregistry.client.rest.RestService;
@@ -20,6 +11,15 @@ import java.nio.file.Paths;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import kafka.ops.topology.api.adminclient.TopologyBuilderAdminClient;
+import kafka.ops.topology.api.adminclient.TopologyBuilderAdminClientBuilder;
+import kafka.ops.topology.api.mds.MDSApiClientBuilder;
+import kafka.ops.topology.backend.FileBackend;
+import kafka.ops.topology.backend.RedisBackend;
+import kafka.ops.topology.exceptions.ValidationException;
+import kafka.ops.topology.model.Topology;
+import kafka.ops.topology.schemas.SchemaRegistryManager;
+import kafka.ops.topology.serviceAccounts.VoidPrincipalProvider;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -209,7 +209,8 @@ public class KafkaTopologyBuilder implements AutoCloseable {
     String stateProcessorClass = config.getStateProcessorImplementationClassName();
 
     try {
-      if (stateProcessorClass.equalsIgnoreCase(TopologyBuilderConfig.STATE_PROCESSOR_DEFAULT_CLASS)) {
+      if (stateProcessorClass.equalsIgnoreCase(
+          TopologyBuilderConfig.STATE_PROCESSOR_DEFAULT_CLASS)) {
         return new BackendController(new FileBackend());
       } else if (stateProcessorClass.equalsIgnoreCase(
           TopologyBuilderConfig.REDIS_STATE_PROCESSOR_CLASS)) {

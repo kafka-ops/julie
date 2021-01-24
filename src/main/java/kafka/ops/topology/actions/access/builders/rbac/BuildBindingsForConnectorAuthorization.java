@@ -1,11 +1,11 @@
 package kafka.ops.topology.actions.access.builders.rbac;
 
-import kafka.ops.topology.BindingsBuilderProvider;
-import kafka.ops.topology.actions.BaseAccessControlAction;
-import kafka.ops.topology.model.users.Connector;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+import kafka.ops.topology.BindingsBuilderProvider;
+import kafka.ops.topology.actions.BaseAccessControlAction;
+import kafka.ops.topology.model.users.Connector;
 
 public class BuildBindingsForConnectorAuthorization extends BaseAccessControlAction {
 

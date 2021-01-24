@@ -1,13 +1,13 @@
 package kafka.ops.topology.roles;
 
+import java.io.IOException;
+import java.util.*;
+import java.util.stream.Collectors;
 import kafka.ops.topology.AccessControlProvider;
 import kafka.ops.topology.TopologyBuilderConfig;
 import kafka.ops.topology.api.adminclient.TopologyBuilderAdminClient;
 import kafka.ops.topology.api.ccloud.CCloudCLI;
 import kafka.ops.topology.model.cluster.ServiceAccount;
-import java.io.IOException;
-import java.util.*;
-import java.util.stream.Collectors;
 import org.apache.kafka.common.acl.AccessControlEntry;
 import org.apache.kafka.common.acl.AclBinding;
 import org.apache.logging.log4j.LogManager;

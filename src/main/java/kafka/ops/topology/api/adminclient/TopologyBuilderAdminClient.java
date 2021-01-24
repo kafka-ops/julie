@@ -1,7 +1,5 @@
 package kafka.ops.topology.api.adminclient;
 
-import kafka.ops.topology.model.Topic;
-import kafka.ops.topology.roles.TopologyAclBinding;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -10,6 +8,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ExecutionException;
+import kafka.ops.topology.model.Topic;
+import kafka.ops.topology.roles.TopologyAclBinding;
 import org.apache.kafka.clients.admin.AdminClient;
 import org.apache.kafka.clients.admin.AlterConfigOp;
 import org.apache.kafka.clients.admin.AlterConfigOp.OpType;

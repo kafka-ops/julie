@@ -1,16 +1,21 @@
 package kafka.ops.topology;
 
+import java.io.PrintStream;
+import java.util.*;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import kafka.ops.topology.actions.Action;
 import kafka.ops.topology.actions.access.ClearBindings;
 import kafka.ops.topology.actions.access.CreateBindings;
 import kafka.ops.topology.actions.access.builders.*;
-import kafka.ops.topology.actions.access.builders.rbac.*;
 import kafka.ops.topology.actions.access.builders.BuildBindingsForConsumer;
 import kafka.ops.topology.actions.access.builders.BuildBindingsForControlCenter;
 import kafka.ops.topology.actions.access.builders.BuildBindingsForKConnect;
 import kafka.ops.topology.actions.access.builders.BuildBindingsForKStreams;
 import kafka.ops.topology.actions.access.builders.BuildBindingsForProducer;
 import kafka.ops.topology.actions.access.builders.BuildBindingsForSchemaRegistry;
+import kafka.ops.topology.actions.access.builders.rbac.*;
 import kafka.ops.topology.actions.access.builders.rbac.BuildBindingsForConnectorAuthorization;
 import kafka.ops.topology.actions.access.builders.rbac.BuildBindingsForSchemaAuthorization;
 import kafka.ops.topology.actions.access.builders.rbac.BuildClusterLevelBinding;
@@ -29,11 +34,6 @@ import kafka.ops.topology.model.users.Schemas;
 import kafka.ops.topology.model.users.platform.ControlCenterInstance;
 import kafka.ops.topology.model.users.platform.SchemaRegistryInstance;
 import kafka.ops.topology.roles.TopologyAclBinding;
-import java.io.PrintStream;
-import java.util.*;
-import java.util.function.Function;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -290,7 +290,8 @@ public class AccessControlManager {
     // Set cluster level ACLs
     syncClusterLevelRbac(platform.getKafka().getRbac(), Component.KAFKA, actions);
     syncClusterLevelRbac(platform.getKafkaConnect().getRbac(), Component.KAFKA_CONNECT, actions);
-    syncClusterLevelRbac(platform.getSchemaRegistry().getRbac(), Component.SCHEMA_REGISTRY, actions);
+    syncClusterLevelRbac(
+        platform.getSchemaRegistry().getRbac(), Component.SCHEMA_REGISTRY, actions);
 
     // Set component level ACLs
     for (SchemaRegistryInstance schemaRegistry : platform.getSchemaRegistry().getInstances()) {

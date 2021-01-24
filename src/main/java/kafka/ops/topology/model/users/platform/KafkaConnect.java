@@ -1,9 +1,9 @@
 package kafka.ops.topology.model.users.platform;
 
-import kafka.ops.topology.model.User;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import kafka.ops.topology.model.User;
 
 public class KafkaConnect {
 

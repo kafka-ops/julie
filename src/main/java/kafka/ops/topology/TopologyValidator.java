@@ -1,5 +1,11 @@
 package kafka.ops.topology;
 
+import java.io.IOException;
+import java.lang.reflect.Constructor;
+import java.util.List;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import kafka.ops.topology.exceptions.ValidationException;
 import kafka.ops.topology.model.Project;
 import kafka.ops.topology.model.Topic;
@@ -8,12 +14,6 @@ import kafka.ops.topology.utils.Either;
 import kafka.ops.topology.validation.TopicValidation;
 import kafka.ops.topology.validation.TopologyValidation;
 import kafka.ops.topology.validation.Validation;
-import java.io.IOException;
-import java.lang.reflect.Constructor;
-import java.util.List;
-import java.util.function.Function;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 

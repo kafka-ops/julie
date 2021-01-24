@@ -1,9 +1,9 @@
 package kafka.ops.topology.actions;
 
-import kafka.ops.topology.roles.TopologyAclBinding;
 import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
+import kafka.ops.topology.roles.TopologyAclBinding;
 
 public interface Action {
 

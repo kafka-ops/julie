@@ -1,6 +1,10 @@
 package kafka.ops.topology.model.Impl;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import kafka.ops.topology.TopologyBuilderConfig;
 import kafka.ops.topology.model.Project;
 import kafka.ops.topology.model.Topic;
@@ -10,10 +14,6 @@ import kafka.ops.topology.model.users.KStream;
 import kafka.ops.topology.model.users.Producer;
 import kafka.ops.topology.model.users.Schemas;
 import kafka.ops.topology.utils.JinjaUtils;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 public class ProjectImpl implements Project, Cloneable {
 

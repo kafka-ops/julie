@@ -2,6 +2,7 @@ package kafka.ops.topology;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import java.util.*;
 import kafka.ops.topology.exceptions.ConfigurationException;
 import kafka.ops.topology.model.Impl.ProjectImpl;
 import kafka.ops.topology.model.Impl.TopicImpl;
@@ -11,7 +12,6 @@ import kafka.ops.topology.model.Topic;
 import kafka.ops.topology.model.TopicSchemas;
 import kafka.ops.topology.model.Topology;
 import kafka.ops.topology.utils.TestUtils;
-import java.util.*;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -31,7 +31,9 @@ public class TopologyBuilderConfigTest {
   public void testWithAllRequiredFields() throws ConfigurationException {
     Topology topology = new TopologyImpl();
 
-    props.put(TopologyBuilderConfig.ACCESS_CONTROL_IMPLEMENTATION_CLASS, TopologyBuilderConfig.RBAC_ACCESS_CONTROL_CLASS);
+    props.put(
+        TopologyBuilderConfig.ACCESS_CONTROL_IMPLEMENTATION_CLASS,
+        TopologyBuilderConfig.RBAC_ACCESS_CONTROL_CLASS);
     props.put(TopologyBuilderConfig.MDS_SERVER, "example.com");
     props.put(TopologyBuilderConfig.MDS_USER_CONFIG, "foo");
     props.put(TopologyBuilderConfig.MDS_PASSWORD_CONFIG, "bar");

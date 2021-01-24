@@ -6,14 +6,6 @@ import static kafka.ops.topology.roles.rbac.RBACPredefinedRoles.RESOURCE_OWNER;
 import static kafka.ops.topology.roles.rbac.RBACPredefinedRoles.SECURITY_ADMIN;
 import static kafka.ops.topology.roles.rbac.RBACPredefinedRoles.SYSTEM_ADMIN;
 
-import kafka.ops.topology.BindingsBuilderProvider;
-import kafka.ops.topology.api.mds.MDSApiClient;
-import kafka.ops.topology.model.Component;
-import kafka.ops.topology.model.users.Connector;
-import kafka.ops.topology.model.users.Consumer;
-import kafka.ops.topology.model.users.Producer;
-import kafka.ops.topology.model.users.platform.SchemaRegistryInstance;
-import kafka.ops.topology.roles.TopologyAclBinding;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -22,6 +14,14 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
+import kafka.ops.topology.BindingsBuilderProvider;
+import kafka.ops.topology.api.mds.MDSApiClient;
+import kafka.ops.topology.model.Component;
+import kafka.ops.topology.model.users.Connector;
+import kafka.ops.topology.model.users.Consumer;
+import kafka.ops.topology.model.users.Producer;
+import kafka.ops.topology.model.users.platform.SchemaRegistryInstance;
+import kafka.ops.topology.roles.TopologyAclBinding;
 
 public class RBACBindingsBuilder implements BindingsBuilderProvider {
 

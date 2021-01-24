@@ -1,13 +1,13 @@
 package kafka.ops.topology.integration;
 
-import kafka.ops.topology.KafkaTopologyBuilder;
-import kafka.ops.topology.integration.containerutils.ContainerFactory;
-import kafka.ops.topology.integration.containerutils.SaslPlaintextKafkaContainer;
-import kafka.ops.topology.utils.TestUtils;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 import kafka.ops.topology.BuilderCLI;
+import kafka.ops.topology.KafkaTopologyBuilder;
+import kafka.ops.topology.integration.containerutils.ContainerFactory;
+import kafka.ops.topology.integration.containerutils.SaslPlaintextKafkaContainer;
+import kafka.ops.topology.utils.TestUtils;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;

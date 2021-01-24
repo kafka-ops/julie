@@ -1,10 +1,10 @@
 package kafka.ops.topology.api.mds;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import kafka.ops.topology.utils.JSON;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
+import kafka.ops.topology.utils.JSON;
 import org.apache.http.Header;
 import org.apache.http.HttpEntity;
 import org.apache.http.client.methods.CloseableHttpResponse;

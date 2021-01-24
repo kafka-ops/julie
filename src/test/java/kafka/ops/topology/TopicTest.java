@@ -1,16 +1,16 @@
 package kafka.ops.topology;
 
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Properties;
 import kafka.ops.topology.model.Impl.ProjectImpl;
 import kafka.ops.topology.model.Impl.TopicImpl;
 import kafka.ops.topology.model.Impl.TopologyImpl;
 import kafka.ops.topology.model.Project;
 import kafka.ops.topology.model.Topic;
 import kafka.ops.topology.model.Topology;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Properties;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -99,7 +99,9 @@ public class TopicTest {
     cliOps.put(BuilderCLI.ADMIN_CLIENT_CONFIG_OPTION, "/fooBar");
 
     Properties props = new Properties();
-    props.put(TopologyBuilderConfig.TOPIC_PREFIX_FORMAT_CONFIG, "{{otherf}}.{{context}}.{{project}}.{{topic}}");
+    props.put(
+        TopologyBuilderConfig.TOPIC_PREFIX_FORMAT_CONFIG,
+        "{{otherf}}.{{context}}.{{project}}.{{topic}}");
     TopologyBuilderConfig config = new TopologyBuilderConfig(cliOps, props);
 
     Topology topology = new TopologyImpl(config);

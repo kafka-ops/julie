@@ -1,19 +1,12 @@
 package kafka.ops.topology.backend;
 
+import static java.util.Collections.singletonList;
 import static kafka.ops.topology.backend.FileBackend.ACLS_TAG;
 import static kafka.ops.topology.backend.FileBackend.SERVICE_ACCOUNTS_TAG;
 import static kafka.ops.topology.backend.FileBackend.STATE_FILE_NAME;
 import static kafka.ops.topology.backend.FileBackend.TOPICS_TAG;
-import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 
-import kafka.ops.topology.model.Impl.ProjectImpl;
-import kafka.ops.topology.model.Impl.TopicImpl;
-import kafka.ops.topology.model.Impl.TopologyImpl;
-import kafka.ops.topology.model.Project;
-import kafka.ops.topology.model.Topic;
-import kafka.ops.topology.model.Topology;
-import kafka.ops.topology.roles.TopologyAclBinding;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -22,6 +15,13 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 import kafka.ops.topology.BackendController;
+import kafka.ops.topology.model.Impl.ProjectImpl;
+import kafka.ops.topology.model.Impl.TopicImpl;
+import kafka.ops.topology.model.Impl.TopologyImpl;
+import kafka.ops.topology.model.Project;
+import kafka.ops.topology.model.Topic;
+import kafka.ops.topology.model.Topology;
+import kafka.ops.topology.roles.TopologyAclBinding;
 import org.apache.kafka.common.resource.ResourceType;
 import org.junit.After;
 import org.junit.Before;

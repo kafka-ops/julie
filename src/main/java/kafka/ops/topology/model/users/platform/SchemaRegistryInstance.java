@@ -2,8 +2,8 @@ package kafka.ops.topology.model.users.platform;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
-import kafka.ops.topology.model.User;
 import java.util.Optional;
+import kafka.ops.topology.model.User;
 
 public class SchemaRegistryInstance extends User {
 

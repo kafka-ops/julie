@@ -2,10 +2,10 @@ package kafka.ops.topology.model.users;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
-import kafka.ops.topology.model.DynamicUser;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
+import kafka.ops.topology.model.DynamicUser;
 
 public class KStream extends DynamicUser {
 

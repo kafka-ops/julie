@@ -1,11 +1,11 @@
 package kafka.ops.topology.api.mds;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import kafka.ops.topology.utils.JSON;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import kafka.ops.topology.utils.JSON;
 
 public class RequestScope {
 

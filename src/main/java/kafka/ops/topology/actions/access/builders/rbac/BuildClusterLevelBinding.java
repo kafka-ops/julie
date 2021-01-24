@@ -1,12 +1,12 @@
 package kafka.ops.topology.actions.access.builders.rbac;
 
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 import kafka.ops.topology.BindingsBuilderProvider;
 import kafka.ops.topology.actions.BaseAccessControlAction;
 import kafka.ops.topology.model.Component;
 import kafka.ops.topology.model.User;
-import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
 
 public class BuildClusterLevelBinding extends BaseAccessControlAction {
 

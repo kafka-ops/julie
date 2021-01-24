@@ -1,10 +1,10 @@
 package kafka.ops.topology.roles;
 
+import java.io.IOException;
+import java.util.Set;
 import kafka.ops.topology.AccessControlProvider;
 import kafka.ops.topology.api.mds.MDSApiClient;
 import kafka.ops.topology.api.mds.RequestScope;
-import java.io.IOException;
-import java.util.Set;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 

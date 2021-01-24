@@ -1,12 +1,12 @@
 package kafka.ops.topology.actions.accounts;
 
-import kafka.ops.topology.PrincipalProvider;
-import kafka.ops.topology.actions.BaseAccountsAction;
-import kafka.ops.topology.model.cluster.ServiceAccount;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
+import kafka.ops.topology.PrincipalProvider;
+import kafka.ops.topology.actions.BaseAccountsAction;
+import kafka.ops.topology.model.cluster.ServiceAccount;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 

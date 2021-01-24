@@ -4,12 +4,12 @@ import static kafka.ops.topology.roles.rbac.RBACPredefinedRoles.SECURITY_ADMIN;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.when;
 
+import java.util.Map;
 import kafka.ops.topology.api.mds.ClusterIDs;
 import kafka.ops.topology.api.mds.MDSApiClient;
+import kafka.ops.topology.api.mds.RequestScope;
 import kafka.ops.topology.model.users.Connector;
 import kafka.ops.topology.roles.rbac.ClusterLevelRoleBuilder;
-import java.util.Map;
-import kafka.ops.topology.api.mds.RequestScope;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Rule;

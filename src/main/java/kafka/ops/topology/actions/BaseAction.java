@@ -1,8 +1,8 @@
 package kafka.ops.topology.actions;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import kafka.ops.topology.utils.JSON;
 import java.util.Map;
+import kafka.ops.topology.utils.JSON;
 
 public abstract class BaseAction implements Action {
 

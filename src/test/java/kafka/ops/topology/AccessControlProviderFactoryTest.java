@@ -6,15 +6,15 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.mockito.internal.verification.VerificationModeFactory.times;
 
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Properties;
 import kafka.ops.topology.api.adminclient.TopologyBuilderAdminClient;
 import kafka.ops.topology.api.mds.MDSApiClient;
 import kafka.ops.topology.api.mds.MDSApiClientBuilder;
 import kafka.ops.topology.roles.RBACProvider;
 import kafka.ops.topology.roles.SimpleAclsProvider;
-import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Properties;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -45,7 +45,9 @@ public class AccessControlProviderFactoryTest {
   @Test
   public void testRBACConfig() throws IOException {
 
-    props.put(TopologyBuilderConfig.ACCESS_CONTROL_IMPLEMENTATION_CLASS, "kafka.ops.topology.roles.RBACProvider");
+    props.put(
+        TopologyBuilderConfig.ACCESS_CONTROL_IMPLEMENTATION_CLASS,
+        "kafka.ops.topology.roles.RBACProvider");
     props.put(TopologyBuilderConfig.MDS_SERVER, "http://localhost:8090");
     props.put(TopologyBuilderConfig.MDS_USER_CONFIG, "alice");
     props.put(TopologyBuilderConfig.MDS_PASSWORD_CONFIG, "alice-secret");
@@ -81,7 +83,8 @@ public class AccessControlProviderFactoryTest {
   public void testWrongProviderConfig() throws IOException {
 
     props.put(
-        TopologyBuilderConfig.ACCESS_CONTROL_IMPLEMENTATION_CLASS, "kafka.ops.topology.roles.MyCustomProvider");
+        TopologyBuilderConfig.ACCESS_CONTROL_IMPLEMENTATION_CLASS,
+        "kafka.ops.topology.roles.MyCustomProvider");
 
     TopologyBuilderConfig config = new TopologyBuilderConfig(cliOps, props);
 

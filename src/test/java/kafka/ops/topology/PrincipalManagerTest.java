@@ -8,6 +8,16 @@ import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
+import java.io.IOException;
+import java.io.PrintStream;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Properties;
 import kafka.ops.topology.actions.Action;
 import kafka.ops.topology.actions.accounts.ClearAccounts;
 import kafka.ops.topology.actions.accounts.CreateAccounts;
@@ -20,16 +30,6 @@ import kafka.ops.topology.model.Topology;
 import kafka.ops.topology.model.cluster.ServiceAccount;
 import kafka.ops.topology.model.users.Consumer;
 import kafka.ops.topology.model.users.Producer;
-import java.io.IOException;
-import java.io.PrintStream;
-import java.nio.file.Files;
-import java.nio.file.Paths;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Properties;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -195,7 +195,8 @@ public class PrincipalManagerTest {
   @Test
   public void testToProcessOnlySelectedPrincipals() throws IOException {
 
-    props.put(TopologyBuilderConfig.SERVICE_ACCOUNT_MANAGED_PREFIXES, Collections.singletonList("pro"));
+    props.put(
+        TopologyBuilderConfig.SERVICE_ACCOUNT_MANAGED_PREFIXES, Collections.singletonList("pro"));
 
     config = new TopologyBuilderConfig(cliOps, props);
     principalManager = new PrincipalManager(provider, config);

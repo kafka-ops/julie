@@ -1,14 +1,14 @@
 package kafka.ops.topology.model;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import kafka.ops.topology.TopologyBuilderConfig;
-import kafka.ops.topology.model.Impl.TopicImpl;
-import kafka.ops.topology.model.users.Consumer;
-import kafka.ops.topology.model.users.Producer;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import kafka.ops.topology.TopologyBuilderConfig;
+import kafka.ops.topology.model.Impl.TopicImpl;
+import kafka.ops.topology.model.users.Consumer;
+import kafka.ops.topology.model.users.Producer;
 
 @JsonDeserialize(as = TopicImpl.class)
 public interface Topic {

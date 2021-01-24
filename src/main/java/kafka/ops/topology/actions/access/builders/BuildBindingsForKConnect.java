@@ -1,11 +1,11 @@
 package kafka.ops.topology.actions.access.builders;
 
-import kafka.ops.topology.BindingsBuilderProvider;
-import kafka.ops.topology.actions.BaseAccessControlAction;
-import kafka.ops.topology.model.users.Connector;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
+import kafka.ops.topology.BindingsBuilderProvider;
+import kafka.ops.topology.actions.BaseAccessControlAction;
+import kafka.ops.topology.model.users.Connector;
 
 public class BuildBindingsForKConnect extends BaseAccessControlAction {
 

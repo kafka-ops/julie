@@ -1,11 +1,11 @@
 package kafka.ops.topology.actions.access.builders;
 
-import kafka.ops.topology.BindingsBuilderProvider;
-import kafka.ops.topology.actions.BaseAccessControlAction;
-import kafka.ops.topology.model.users.Consumer;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import kafka.ops.topology.BindingsBuilderProvider;
+import kafka.ops.topology.actions.BaseAccessControlAction;
+import kafka.ops.topology.model.users.Consumer;
 
 public class BuildBindingsForConsumer extends BaseAccessControlAction {
 

@@ -1,5 +1,10 @@
 package kafka.ops.topology;
 
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
 import kafka.ops.topology.model.Impl.ProjectImpl;
 import kafka.ops.topology.model.Impl.TopicImpl;
 import kafka.ops.topology.model.Impl.TopologyImpl;
@@ -8,11 +13,6 @@ import kafka.ops.topology.model.Topic;
 import kafka.ops.topology.model.Topology;
 import kafka.ops.topology.model.users.Consumer;
 import kafka.ops.topology.model.users.Producer;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.Optional;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 public class TestTopologyBuilder {
   private final TopologyBuilderConfig topologyBuilderConfig;

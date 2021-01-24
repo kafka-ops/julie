@@ -3,15 +3,15 @@ package kafka.ops.topology;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertEquals;
 
-import kafka.ops.topology.exceptions.TopologyParsingException;
-import kafka.ops.topology.model.Topic;
-import kafka.ops.topology.model.Topology;
-import kafka.ops.topology.utils.TestUtils;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+import kafka.ops.topology.exceptions.TopologyParsingException;
+import kafka.ops.topology.model.Topic;
+import kafka.ops.topology.model.Topology;
+import kafka.ops.topology.utils.TestUtils;
 import org.junit.Test;
 
 public class TopologyObjectBuilderTest {

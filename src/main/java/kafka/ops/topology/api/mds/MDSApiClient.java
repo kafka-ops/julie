@@ -1,14 +1,14 @@
 package kafka.ops.topology.api.mds;
 
-import kafka.ops.topology.api.mds.http.HttpDeleteWithBody;
-import kafka.ops.topology.roles.TopologyAclBinding;
-import kafka.ops.topology.roles.rbac.ClusterLevelRoleBuilder;
-import kafka.ops.topology.utils.JSON;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.List;
 import java.util.Map;
+import kafka.ops.topology.api.mds.http.HttpDeleteWithBody;
+import kafka.ops.topology.roles.TopologyAclBinding;
+import kafka.ops.topology.roles.rbac.ClusterLevelRoleBuilder;
+import kafka.ops.topology.utils.JSON;
 import org.apache.http.HttpEntity;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
@@ -78,8 +78,8 @@ public class MDSApiClient {
 
   public TopologyAclBinding bind(String principal, String role, RequestScope scope) {
 
-    ResourceType resourceType = ResourceType.fromString(scope.getResource(0).get(
-        RequestScope.RESOURCE_TYPE));
+    ResourceType resourceType =
+        ResourceType.fromString(scope.getResource(0).get(RequestScope.RESOURCE_TYPE));
     String resourceName = scope.getResource(0).get(RequestScope.RESOURCE_NAME);
     String patternType = scope.getResource(0).get(RequestScope.RESOURCE_PATTERN_TYPE);
 

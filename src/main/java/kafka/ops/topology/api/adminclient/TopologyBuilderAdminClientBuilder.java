@@ -1,8 +1,8 @@
 package kafka.ops.topology.api.adminclient;
 
-import kafka.ops.topology.TopologyBuilderConfig;
 import java.io.IOException;
 import java.util.Properties;
+import kafka.ops.topology.TopologyBuilderConfig;
 import org.apache.kafka.clients.admin.AdminClient;
 import org.apache.kafka.clients.admin.AdminClientConfig;
 import org.apache.logging.log4j.LogManager;

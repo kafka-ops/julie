@@ -1,8 +1,8 @@
 package kafka.ops.topology.integration;
 
+import java.io.IOException;
 import kafka.ops.topology.utils.JSON;
 import kafka.ops.topology.utils.ZKClient;
-import java.io.IOException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 

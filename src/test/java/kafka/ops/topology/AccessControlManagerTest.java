@@ -12,35 +12,35 @@ import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.*;
 
-import kafka.ops.topology.actions.Action;
-import kafka.ops.topology.api.adminclient.AclBuilder;
-import kafka.ops.topology.model.Impl.ProjectImpl;
-import kafka.ops.topology.model.Impl.TopicImpl;
-import kafka.ops.topology.model.Impl.TopologyImpl;
-import kafka.ops.topology.model.users.Connector;
-import kafka.ops.topology.model.users.Consumer;
-import kafka.ops.topology.model.users.KStream;
-import kafka.ops.topology.model.users.Producer;
-import kafka.ops.topology.roles.SimpleAclsProvider;
-import kafka.ops.topology.roles.TopologyAclBinding;
-import kafka.ops.topology.roles.acls.AclsBindingsBuilder;
-import kafka.ops.topology.utils.TestUtils;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.util.*;
 import java.util.stream.Collectors;
+import kafka.ops.topology.actions.Action;
+import kafka.ops.topology.api.adminclient.AclBuilder;
 import kafka.ops.topology.model.Component;
+import kafka.ops.topology.model.Impl.ProjectImpl;
+import kafka.ops.topology.model.Impl.TopicImpl;
+import kafka.ops.topology.model.Impl.TopologyImpl;
 import kafka.ops.topology.model.Platform;
 import kafka.ops.topology.model.Project;
 import kafka.ops.topology.model.Topic;
 import kafka.ops.topology.model.Topology;
 import kafka.ops.topology.model.User;
+import kafka.ops.topology.model.users.Connector;
+import kafka.ops.topology.model.users.Consumer;
+import kafka.ops.topology.model.users.KStream;
+import kafka.ops.topology.model.users.Producer;
 import kafka.ops.topology.model.users.platform.ControlCenter;
 import kafka.ops.topology.model.users.platform.ControlCenterInstance;
 import kafka.ops.topology.model.users.platform.Kafka;
 import kafka.ops.topology.model.users.platform.KafkaConnect;
 import kafka.ops.topology.model.users.platform.SchemaRegistry;
 import kafka.ops.topology.model.users.platform.SchemaRegistryInstance;
+import kafka.ops.topology.roles.SimpleAclsProvider;
+import kafka.ops.topology.roles.TopologyAclBinding;
+import kafka.ops.topology.roles.acls.AclsBindingsBuilder;
+import kafka.ops.topology.utils.TestUtils;
 import org.apache.kafka.common.acl.AclBinding;
 import org.apache.kafka.common.acl.AclOperation;
 import org.apache.kafka.common.acl.AclPermissionType;
@@ -572,7 +572,8 @@ public class AccessControlManagerTest {
     cliOps.put(BuilderCLI.BROKERS_OPTION, "");
 
     Properties props = new Properties();
-    props.put(TopologyBuilderConfig.TOPIC_MANAGED_PREFIXES, Collections.singletonList("NamespaceA"));
+    props.put(
+        TopologyBuilderConfig.TOPIC_MANAGED_PREFIXES, Collections.singletonList("NamespaceA"));
     props.put(TopologyBuilderConfig.TOPIC_PREFIX_FORMAT_CONFIG, "{{topic}}");
 
     TopologyBuilderConfig config = new TopologyBuilderConfig(cliOps, props);
@@ -615,7 +616,8 @@ public class AccessControlManagerTest {
     cliOps.put(BuilderCLI.BROKERS_OPTION, "");
 
     Properties props = new Properties();
-    props.put(TopologyBuilderConfig.GROUP_MANAGED_PREFIXES, Collections.singletonList("NamespaceA"));
+    props.put(
+        TopologyBuilderConfig.GROUP_MANAGED_PREFIXES, Collections.singletonList("NamespaceA"));
 
     TopologyBuilderConfig config = new TopologyBuilderConfig(cliOps, props);
     accessControlManager =
@@ -666,7 +668,9 @@ public class AccessControlManagerTest {
     cliOps.put(BuilderCLI.BROKERS_OPTION, "");
 
     Properties props = new Properties();
-    props.put(TopologyBuilderConfig.SERVICE_ACCOUNT_MANAGED_PREFIXES, Collections.singletonList("User:NamespaceA"));
+    props.put(
+        TopologyBuilderConfig.SERVICE_ACCOUNT_MANAGED_PREFIXES,
+        Collections.singletonList("User:NamespaceA"));
 
     TopologyBuilderConfig config = new TopologyBuilderConfig(cliOps, props);
     accessControlManager =

@@ -1,24 +1,13 @@
 package kafka.ops.topology.serdes;
 
-import static kafka.ops.topology.serdes.JsonSerdesUtils.validateRequiresKeys;
 import static java.util.Collections.singletonList;
+import static kafka.ops.topology.serdes.JsonSerdesUtils.validateRequiresKeys;
 
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.fasterxml.jackson.databind.node.ArrayNode;
-import kafka.ops.topology.TopologyBuilderConfig;
-import kafka.ops.topology.exceptions.ValidationException;
-import kafka.ops.topology.model.Impl.TopicImpl;
-import kafka.ops.topology.model.PlanMap;
-import kafka.ops.topology.model.SubjectNameStrategy;
-import kafka.ops.topology.model.Topic;
-import kafka.ops.topology.model.TopicSchemas;
-import kafka.ops.topology.model.User;
-import kafka.ops.topology.model.users.Consumer;
-import kafka.ops.topology.model.users.Producer;
-import kafka.ops.topology.utils.Either;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -30,6 +19,17 @@ import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
+import kafka.ops.topology.TopologyBuilderConfig;
+import kafka.ops.topology.exceptions.ValidationException;
+import kafka.ops.topology.model.Impl.TopicImpl;
+import kafka.ops.topology.model.PlanMap;
+import kafka.ops.topology.model.SubjectNameStrategy;
+import kafka.ops.topology.model.Topic;
+import kafka.ops.topology.model.TopicSchemas;
+import kafka.ops.topology.model.User;
+import kafka.ops.topology.model.users.Consumer;
+import kafka.ops.topology.model.users.Producer;
+import kafka.ops.topology.utils.Either;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -132,11 +132,12 @@ public class TopicCustomDeserializer extends StdDeserializer<TopicImpl> {
               .collect(Collectors.toList());
     }
 
-    if (schemas.size() > 1 && topic.getSubjectNameStrategy().equals(
-        SubjectNameStrategy.TOPIC_NAME_STRATEGY)) {
+    if (schemas.size() > 1
+        && topic.getSubjectNameStrategy().equals(SubjectNameStrategy.TOPIC_NAME_STRATEGY)) {
       throw new IOException(
           String.format(
-              "%s is not a valid strategy when registering multiple schemas", SubjectNameStrategy.TOPIC_NAME_STRATEGY));
+              "%s is not a valid strategy when registering multiple schemas",
+              SubjectNameStrategy.TOPIC_NAME_STRATEGY));
     }
 
     topic.setSchemas(schemas);

@@ -1,9 +1,9 @@
 package kafka.ops.topology.serdes;
 
-import static kafka.ops.topology.serdes.JsonSerdesUtils.validateRequiresKeys;
 import static java.util.stream.Collectors.groupingBy;
 import static java.util.stream.Collectors.mapping;
 import static java.util.stream.Collectors.toList;
+import static kafka.ops.topology.serdes.JsonSerdesUtils.validateRequiresKeys;
 
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -11,6 +11,18 @@ import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.google.common.collect.Maps;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.function.Function;
+import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
 import kafka.ops.topology.TopologyBuilderConfig;
 import kafka.ops.topology.model.Impl.ProjectImpl;
 import kafka.ops.topology.model.Impl.TopologyImpl;
@@ -29,18 +41,6 @@ import kafka.ops.topology.model.users.platform.Kafka;
 import kafka.ops.topology.model.users.platform.KafkaConnect;
 import kafka.ops.topology.model.users.platform.SchemaRegistry;
 import kafka.ops.topology.utils.Pair;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.function.Function;
-import java.util.stream.Stream;
-import java.util.stream.StreamSupport;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 

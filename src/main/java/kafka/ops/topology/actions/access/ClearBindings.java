@@ -1,13 +1,13 @@
 package kafka.ops.topology.actions.access;
 
-import kafka.ops.topology.AccessControlProvider;
-import kafka.ops.topology.actions.BaseAccessControlAction;
-import kafka.ops.topology.roles.TopologyAclBinding;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
+import kafka.ops.topology.AccessControlProvider;
+import kafka.ops.topology.actions.BaseAccessControlAction;
+import kafka.ops.topology.roles.TopologyAclBinding;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 

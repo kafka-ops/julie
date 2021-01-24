@@ -1,10 +1,10 @@
 package kafka.ops.topology.backend;
 
+import java.io.IOException;
+import java.util.Set;
 import kafka.ops.topology.BackendController;
 import kafka.ops.topology.model.cluster.ServiceAccount;
 import kafka.ops.topology.roles.TopologyAclBinding;
-import java.io.IOException;
-import java.util.Set;
 
 public interface Backend {
 

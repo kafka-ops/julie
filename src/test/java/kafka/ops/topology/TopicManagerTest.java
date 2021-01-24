@@ -3,6 +3,12 @@ package kafka.ops.topology;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.*;
 
+import java.io.IOException;
+import java.io.PrintStream;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.util.*;
+import java.util.stream.Collectors;
 import kafka.ops.topology.actions.Action;
 import kafka.ops.topology.api.adminclient.TopologyBuilderAdminClient;
 import kafka.ops.topology.model.Impl.ProjectImpl;
@@ -12,12 +18,6 @@ import kafka.ops.topology.model.Project;
 import kafka.ops.topology.model.Topic;
 import kafka.ops.topology.model.Topology;
 import kafka.ops.topology.schemas.SchemaRegistryManager;
-import java.io.IOException;
-import java.io.PrintStream;
-import java.nio.file.Files;
-import java.nio.file.Paths;
-import java.util.*;
-import java.util.stream.Collectors;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -339,7 +339,8 @@ public class TopicManagerTest {
   @Test
   public void testToProcessOnlySelectedTopics() throws IOException {
 
-    props.put(TopologyBuilderConfig.TOPIC_MANAGED_PREFIXES, Collections.singletonList("NamespaceA"));
+    props.put(
+        TopologyBuilderConfig.TOPIC_MANAGED_PREFIXES, Collections.singletonList("NamespaceA"));
     props.put(TopologyBuilderConfig.TOPIC_PREFIX_FORMAT_CONFIG, "{{topic}}");
     props.put(TopologyBuilderConfig.TOPOLOGY_TOPIC_STATE_FROM_CLUSTER, "true");
 

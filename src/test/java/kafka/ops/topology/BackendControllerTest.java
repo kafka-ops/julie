@@ -5,6 +5,8 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import java.io.IOException;
+import java.util.Collections;
 import kafka.ops.topology.backend.FileBackend;
 import kafka.ops.topology.model.Impl.ProjectImpl;
 import kafka.ops.topology.model.Impl.TopicImpl;
@@ -14,8 +16,6 @@ import kafka.ops.topology.model.Topic;
 import kafka.ops.topology.model.Topology;
 import kafka.ops.topology.model.cluster.ServiceAccount;
 import kafka.ops.topology.roles.TopologyAclBinding;
-import java.io.IOException;
-import java.util.Collections;
 import org.apache.kafka.common.resource.ResourceType;
 import org.junit.Rule;
 import org.junit.Test;

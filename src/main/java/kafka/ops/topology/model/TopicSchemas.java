@@ -3,8 +3,8 @@ package kafka.ops.topology.model;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.PropertyNamingStrategy;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
-import kafka.ops.topology.model.schema.Subject;
 import java.util.Optional;
+import kafka.ops.topology.model.schema.Subject;
 
 @JsonNaming(PropertyNamingStrategy.LowerDotCaseStrategy.class)
 public class TopicSchemas {

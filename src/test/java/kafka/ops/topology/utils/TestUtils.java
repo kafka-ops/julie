@@ -1,12 +1,12 @@
 package kafka.ops.topology.utils;
 
-import kafka.ops.topology.backend.FileBackend;
 import java.io.File;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import kafka.ops.topology.backend.FileBackend;
 
 public final class TestUtils {
 

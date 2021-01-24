@@ -1,14 +1,14 @@
 package kafka.ops.topology.model;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import java.util.List;
+import java.util.Map;
 import kafka.ops.topology.model.Impl.ProjectImpl;
 import kafka.ops.topology.model.users.Connector;
 import kafka.ops.topology.model.users.Consumer;
 import kafka.ops.topology.model.users.KStream;
 import kafka.ops.topology.model.users.Producer;
 import kafka.ops.topology.model.users.Schemas;
-import java.util.List;
-import java.util.Map;
 
 @JsonDeserialize(as = ProjectImpl.class)
 public interface Project {
