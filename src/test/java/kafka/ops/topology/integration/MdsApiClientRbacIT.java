@@ -12,23 +12,23 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 import kafka.ops.topology.api.mds.AuthenticationCredentials;
-import kafka.ops.topology.api.mds.MDSApiClient;
+import kafka.ops.topology.api.mds.MdsApiClient;
 import kafka.ops.topology.roles.TopologyAclBinding;
 import org.junit.Before;
 import org.junit.Test;
 
-public class MDSApiClientRbacIT extends MDSBaseTest {
+public class MdsApiClientRbacIT extends MDSBaseTest {
 
   private String mdsUser = "professor";
   private String mdsPassword = "professor";
 
-  private MDSApiClient apiClient;
+  private MdsApiClient apiClient;
 
   @Before
   public void before() throws IOException, InterruptedException {
     super.beforeEach();
     String mdsServer = "http://localhost:8090";
-    apiClient = new MDSApiClient(mdsServer);
+    apiClient = new MdsApiClient(mdsServer);
   }
 
   @Test

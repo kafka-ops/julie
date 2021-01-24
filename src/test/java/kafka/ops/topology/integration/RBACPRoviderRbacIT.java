@@ -22,10 +22,10 @@ import java.util.Optional;
 import java.util.Properties;
 import kafka.ops.topology.AccessControlManager;
 import kafka.ops.topology.BackendController;
-import kafka.ops.topology.BuilderCLI;
+import kafka.ops.topology.BuilderCli;
 import kafka.ops.topology.ExecutionPlan;
 import kafka.ops.topology.TopologyBuilderConfig;
-import kafka.ops.topology.api.mds.MDSApiClient;
+import kafka.ops.topology.api.mds.MdsApiClient;
 import kafka.ops.topology.model.Impl.ProjectImpl;
 import kafka.ops.topology.model.Impl.TopicImpl;
 import kafka.ops.topology.model.Impl.TopologyImpl;
@@ -44,7 +44,7 @@ import kafka.ops.topology.model.users.platform.Kafka;
 import kafka.ops.topology.model.users.platform.KafkaConnect;
 import kafka.ops.topology.model.users.platform.SchemaRegistry;
 import kafka.ops.topology.model.users.platform.SchemaRegistryInstance;
-import kafka.ops.topology.roles.RBACProvider;
+import kafka.ops.topology.roles.RbacProvider;
 import kafka.ops.topology.roles.rbac.RBACBindingsBuilder;
 import org.junit.Before;
 import org.junit.Test;
@@ -59,7 +59,7 @@ public class RBACPRoviderRbacIT extends MDSBaseTest {
   private String mdsUser = "professor";
   private String mdsPassword = "professor";
 
-  private MDSApiClient apiClient;
+  private MdsApiClient apiClient;
   @Mock private BackendController cs;
   private ExecutionPlan plan;
 
@@ -68,7 +68,7 @@ public class RBACPRoviderRbacIT extends MDSBaseTest {
   @Before
   public void before() throws IOException, InterruptedException {
     super.beforeEach();
-    apiClient = new MDSApiClient(mdsServer);
+    apiClient = new MdsApiClient(mdsServer);
     apiClient.login(mdsUser, mdsPassword);
     apiClient.authenticate();
     apiClient.setKafkaClusterId(getKafkaClusterID());
@@ -76,14 +76,14 @@ public class RBACPRoviderRbacIT extends MDSBaseTest {
     apiClient.setConnectClusterID(getKafkaConnectClusterID());
 
     plan = ExecutionPlan.init(cs, System.out);
-    RBACProvider rbacProvider = new RBACProvider(apiClient);
+    RbacProvider rbacProvider = new RbacProvider(apiClient);
     RBACBindingsBuilder bindingsBuilder = new RBACBindingsBuilder(apiClient);
 
     Properties props = new Properties();
 
     HashMap<String, String> cliOps = new HashMap<>();
-    cliOps.put(BuilderCLI.BROKERS_OPTION, "");
-    cliOps.put(BuilderCLI.ALLOW_DELETE_OPTION, "true");
+    cliOps.put(BuilderCli.BROKERS_OPTION, "");
+    cliOps.put(BuilderCli.ALLOW_DELETE_OPTION, "true");
 
     TopologyBuilderConfig config = new TopologyBuilderConfig(cliOps, props);
 

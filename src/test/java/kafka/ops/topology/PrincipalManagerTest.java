@@ -64,8 +64,8 @@ public class PrincipalManagerTest {
     backendController = new BackendController();
 
     cliOps = new HashMap<>();
-    cliOps.put(BuilderCLI.BROKERS_OPTION, "");
-    cliOps.put(BuilderCLI.ALLOW_DELETE_OPTION, "true");
+    cliOps.put(BuilderCli.BROKERS_OPTION, "");
+    cliOps.put(BuilderCli.ALLOW_DELETE_OPTION, "true");
     props = new Properties();
 
     props.put(TopologyBuilderConfig.TOPOLOGY_EXPERIMENTAL_ENABLED_CONFIG, "true");

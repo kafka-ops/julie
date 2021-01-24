@@ -11,13 +11,13 @@ import kafka.ops.topology.model.cluster.ServiceAccount;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-public class CCloudCLI {
+public class CCloudCli {
 
-  private static final Logger LOGGER = LogManager.getLogger(CCloudCLI.class);
+  private static final Logger LOGGER = LogManager.getLogger(CCloudCli.class);
 
   private ObjectMapper mapper;
 
-  public CCloudCLI() {
+  public CCloudCli() {
     mapper = new ObjectMapper();
   }
 

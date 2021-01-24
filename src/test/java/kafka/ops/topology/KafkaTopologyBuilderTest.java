@@ -39,8 +39,8 @@ public class KafkaTopologyBuilderTest {
   @Before
   public void before() {
     cliOps = new HashMap<>();
-    cliOps.put(BuilderCLI.BROKERS_OPTION, "");
-    cliOps.put(BuilderCLI.ADMIN_CLIENT_CONFIG_OPTION, "/fooBar");
+    cliOps.put(BuilderCli.BROKERS_OPTION, "");
+    cliOps.put(BuilderCli.ADMIN_CLIENT_CONFIG_OPTION, "/fooBar");
 
     props = new Properties();
     props.put(TopologyBuilderConfig.CONFLUENT_SCHEMA_REGISTRY_URL_CONFIG, "http://foo:8082");
@@ -104,7 +104,7 @@ public class KafkaTopologyBuilderTest {
     String fileOrDirPath = TestUtils.getResourceFilename("/descriptor.yaml");
     String clientConfigFile = TestUtils.getResourceFilename("/client-config.properties");
 
-    cliOps.put(BuilderCLI.ADMIN_CLIENT_CONFIG_OPTION, clientConfigFile);
+    cliOps.put(BuilderCli.ADMIN_CLIENT_CONFIG_OPTION, clientConfigFile);
 
     TopologyBuilderConfig builderConfig = new TopologyBuilderConfig(cliOps, props);
     KafkaTopologyBuilder builder =
@@ -124,11 +124,11 @@ public class KafkaTopologyBuilderTest {
     String clientConfigFile = TestUtils.getResourceFilename("/client-config.properties");
 
     Map<String, String> config = new HashMap<>();
-    config.put(BuilderCLI.BROKERS_OPTION, "localhost:9092");
-    config.put(BuilderCLI.ALLOW_DELETE_OPTION, "false");
-    config.put(BuilderCLI.DRY_RUN_OPTION, "true");
-    config.put(BuilderCLI.QUIET_OPTION, "false");
-    config.put(BuilderCLI.ADMIN_CLIENT_CONFIG_OPTION, clientConfigFile);
+    config.put(BuilderCli.BROKERS_OPTION, "localhost:9092");
+    config.put(BuilderCli.ALLOW_DELETE_OPTION, "false");
+    config.put(BuilderCli.DRY_RUN_OPTION, "true");
+    config.put(BuilderCli.QUIET_OPTION, "false");
+    config.put(BuilderCli.ADMIN_CLIENT_CONFIG_OPTION, clientConfigFile);
 
     KafkaTopologyBuilder builder = KafkaTopologyBuilder.build(fileOrDirPath, config);
 
@@ -154,11 +154,11 @@ public class KafkaTopologyBuilderTest {
     String clientConfigFile = TestUtils.getResourceFilename("/client-config-redis.properties");
 
     Map<String, String> config = new HashMap<>();
-    config.put(BuilderCLI.BROKERS_OPTION, "localhost:9092");
-    config.put(BuilderCLI.ALLOW_DELETE_OPTION, "false");
-    config.put(BuilderCLI.DRY_RUN_OPTION, "true");
-    config.put(BuilderCLI.QUIET_OPTION, "false");
-    config.put(BuilderCLI.ADMIN_CLIENT_CONFIG_OPTION, clientConfigFile);
+    config.put(BuilderCli.BROKERS_OPTION, "localhost:9092");
+    config.put(BuilderCli.ALLOW_DELETE_OPTION, "false");
+    config.put(BuilderCli.DRY_RUN_OPTION, "true");
+    config.put(BuilderCli.QUIET_OPTION, "false");
+    config.put(BuilderCli.ADMIN_CLIENT_CONFIG_OPTION, clientConfigFile);
 
     KafkaTopologyBuilder builder = KafkaTopologyBuilder.build(fileOrDirPath, config);
 

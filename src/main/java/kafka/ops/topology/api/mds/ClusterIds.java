@@ -3,7 +3,7 @@ package kafka.ops.topology.api.mds;
 import java.util.HashMap;
 import java.util.Map;
 
-public class ClusterIDs implements Cloneable {
+public class ClusterIds implements Cloneable {
 
   private String kafkaClusterID;
   private String schemaRegistryClusterID;
@@ -15,7 +15,7 @@ public class ClusterIDs implements Cloneable {
 
   private Map<String, String> clusterIds;
 
-  public ClusterIDs() {
+  public ClusterIds() {
     this.connectClusterID = "";
     this.kafkaClusterID = "";
     this.schemaRegistryClusterID = "";
@@ -31,22 +31,22 @@ public class ClusterIDs implements Cloneable {
     return clusters;
   }
 
-  public ClusterIDs clear() {
+  public ClusterIds clear() {
     this.clusterIds.clear();
     return this;
   }
 
-  public ClusterIDs forKafka() {
+  public ClusterIds forKafka() {
     clusterIds.put(KAFKA_CLUSTER_ID_LABEL, kafkaClusterID);
     return this;
   }
 
-  public ClusterIDs forKafkaConnect() {
+  public ClusterIds forKafkaConnect() {
     clusterIds.put(CONNECT_CLUSTER_ID_LABEL, connectClusterID);
     return this;
   }
 
-  public ClusterIDs forSchemaRegistry() {
+  public ClusterIds forSchemaRegistry() {
     clusterIds.put(SCHEMA_REGISTRY_CLUSTER_ID_LABEL, schemaRegistryClusterID);
     return this;
   }
@@ -69,7 +69,7 @@ public class ClusterIDs implements Cloneable {
     this.connectClusterID = connectClusterID;
   }
 
-  public ClusterIDs clone() throws CloneNotSupportedException {
-    return (ClusterIDs) super.clone();
+  public ClusterIds clone() throws CloneNotSupportedException {
+    return (ClusterIds) super.clone();
   }
 }

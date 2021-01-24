@@ -6,7 +6,7 @@ import java.util.stream.Collectors;
 import kafka.ops.topology.AccessControlProvider;
 import kafka.ops.topology.TopologyBuilderConfig;
 import kafka.ops.topology.api.adminclient.TopologyBuilderAdminClient;
-import kafka.ops.topology.api.ccloud.CCloudCLI;
+import kafka.ops.topology.api.ccloud.CCloudCli;
 import kafka.ops.topology.model.cluster.ServiceAccount;
 import org.apache.kafka.common.acl.AccessControlEntry;
 import org.apache.kafka.common.acl.AclBinding;
@@ -17,13 +17,13 @@ public class CCloudAclsProvider extends SimpleAclsProvider implements AccessCont
 
   private static final Logger LOGGER = LogManager.getLogger(CCloudAclsProvider.class);
 
-  private final CCloudCLI cli;
+  private final CCloudCli cli;
 
   public CCloudAclsProvider(
       final TopologyBuilderAdminClient adminClient, final TopologyBuilderConfig config)
       throws IOException {
     super(adminClient);
-    this.cli = new CCloudCLI();
+    this.cli = new CCloudCli();
     this.cli.setEnvironment(config.getConfluentCloudEnv());
   }
 

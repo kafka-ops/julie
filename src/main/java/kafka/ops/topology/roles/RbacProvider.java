@@ -3,17 +3,17 @@ package kafka.ops.topology.roles;
 import java.io.IOException;
 import java.util.Set;
 import kafka.ops.topology.AccessControlProvider;
-import kafka.ops.topology.api.mds.MDSApiClient;
+import kafka.ops.topology.api.mds.MdsApiClient;
 import kafka.ops.topology.api.mds.RequestScope;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-public class RBACProvider implements AccessControlProvider {
+public class RbacProvider implements AccessControlProvider {
 
-  private static final Logger LOGGER = LogManager.getLogger(RBACProvider.class);
-  private final MDSApiClient apiClient;
+  private static final Logger LOGGER = LogManager.getLogger(RbacProvider.class);
+  private final MdsApiClient apiClient;
 
-  public RBACProvider(MDSApiClient apiClient) {
+  public RbacProvider(MdsApiClient apiClient) {
     this.apiClient = apiClient;
   }
 

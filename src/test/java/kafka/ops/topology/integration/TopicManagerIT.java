@@ -20,7 +20,7 @@ import java.util.Set;
 import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 import kafka.ops.topology.BackendController;
-import kafka.ops.topology.BuilderCLI;
+import kafka.ops.topology.BuilderCli;
 import kafka.ops.topology.ExecutionPlan;
 import kafka.ops.topology.TopicManager;
 import kafka.ops.topology.TopologyBuilderConfig;
@@ -86,8 +86,8 @@ public class TopicManagerIT {
     props.put(TopologyBuilderConfig.TOPOLOGY_TOPIC_STATE_FROM_CLUSTER, "false");
 
     HashMap<String, String> cliOps = new HashMap<>();
-    cliOps.put(BuilderCLI.BROKERS_OPTION, "");
-    cliOps.put(BuilderCLI.ALLOW_DELETE_OPTION, "true");
+    cliOps.put(BuilderCli.BROKERS_OPTION, "");
+    cliOps.put(BuilderCli.ALLOW_DELETE_OPTION, "true");
 
     TopologyBuilderConfig config = new TopologyBuilderConfig(cliOps, props);
 

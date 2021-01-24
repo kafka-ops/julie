@@ -9,20 +9,20 @@ import kafka.ops.topology.TopologyBuilderConfig;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-public class MDSApiClientBuilder {
+public class MdsApiClientBuilder {
 
-  private static final Logger LOGGER = LogManager.getLogger(MDSApiClientBuilder.class);
+  private static final Logger LOGGER = LogManager.getLogger(MdsApiClientBuilder.class);
 
   private TopologyBuilderConfig config;
 
-  public MDSApiClientBuilder(TopologyBuilderConfig config) {
+  public MdsApiClientBuilder(TopologyBuilderConfig config) {
     this.config = config;
   }
 
-  public MDSApiClient build() {
+  public MdsApiClient build() {
     String mdsServer = config.getProperty(MDS_SERVER);
 
-    MDSApiClient apiClient = new MDSApiClient(mdsServer);
+    MdsApiClient apiClient = new MdsApiClient(mdsServer);
     // Pass Cluster IDS
     String kafkaClusterID = config.getProperty(MDS_KAFKA_CLUSTER_ID_CONFIG);
     apiClient.setKafkaClusterId(kafkaClusterID);

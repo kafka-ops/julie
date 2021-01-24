@@ -13,7 +13,7 @@ import java.util.Map;
 import java.util.Properties;
 import kafka.ops.topology.api.adminclient.TopologyBuilderAdminClient;
 import kafka.ops.topology.api.adminclient.TopologyBuilderAdminClientBuilder;
-import kafka.ops.topology.api.mds.MDSApiClientBuilder;
+import kafka.ops.topology.api.mds.MdsApiClientBuilder;
 import kafka.ops.topology.backend.FileBackend;
 import kafka.ops.topology.backend.RedisBackend;
 import kafka.ops.topology.exceptions.ValidationException;
@@ -61,7 +61,7 @@ public class KafkaTopologyBuilder implements AutoCloseable {
         new TopologyBuilderAdminClientBuilder(builderConfig).build();
     AccessControlProviderFactory factory =
         new AccessControlProviderFactory(
-            builderConfig, adminClient, new MDSApiClientBuilder(builderConfig));
+            builderConfig, adminClient, new MdsApiClientBuilder(builderConfig));
 
     PrincipalProviderFactory principalProviderFactory = new PrincipalProviderFactory(builderConfig);
 
@@ -146,7 +146,7 @@ public class KafkaTopologyBuilder implements AutoCloseable {
       throw new IOException("Topology file does not exist");
     }
 
-    String configFilePath = config.get(BuilderCLI.ADMIN_CLIENT_CONFIG_OPTION);
+    String configFilePath = config.get(BuilderCli.ADMIN_CLIENT_CONFIG_OPTION);
 
     if (!Files.exists(Paths.get(configFilePath))) {
       throw new IOException("AdminClient config file does not exist");

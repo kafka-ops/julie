@@ -12,7 +12,7 @@ import java.util.stream.Stream;
 import kafka.ops.topology.BindingsBuilderProvider;
 import kafka.ops.topology.TopologyBuilderConfig;
 import kafka.ops.topology.api.adminclient.AclBuilder;
-import kafka.ops.topology.api.ccloud.CCloudCLI;
+import kafka.ops.topology.api.ccloud.CCloudCli;
 import kafka.ops.topology.model.users.Connector;
 import kafka.ops.topology.model.users.Consumer;
 import kafka.ops.topology.model.users.Producer;
@@ -37,7 +37,7 @@ public class AclsBindingsBuilder implements BindingsBuilderProvider {
   private final CCloudUtils cCloudUtils;
 
   public AclsBindingsBuilder(TopologyBuilderConfig config) {
-    this(config, new CCloudUtils(new CCloudCLI(), config));
+    this(config, new CCloudUtils(new CCloudCli(), config));
   }
 
   public AclsBindingsBuilder(TopologyBuilderConfig config, CCloudUtils cCloudUtils) {

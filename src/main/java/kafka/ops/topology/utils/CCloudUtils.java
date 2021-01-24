@@ -4,17 +4,17 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 import kafka.ops.topology.TopologyBuilderConfig;
-import kafka.ops.topology.api.ccloud.CCloudCLI;
+import kafka.ops.topology.api.ccloud.CCloudCli;
 import kafka.ops.topology.model.cluster.ServiceAccount;
 
 public class CCloudUtils {
 
-  private final CCloudCLI cli;
+  private final CCloudCli cli;
   private String env;
   private Map<String, ServiceAccount> serviceAccounts;
   private boolean warmed;
 
-  public CCloudUtils(CCloudCLI cli, TopologyBuilderConfig config) {
+  public CCloudUtils(CCloudCli cli, TopologyBuilderConfig config) {
     this.cli = cli;
     this.env = config.useConfuentCloud() ? config.getConfluentCloudEnv() : "";
     this.serviceAccounts = new HashMap<>();

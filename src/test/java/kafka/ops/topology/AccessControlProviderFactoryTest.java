@@ -11,9 +11,9 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
 import kafka.ops.topology.api.adminclient.TopologyBuilderAdminClient;
-import kafka.ops.topology.api.mds.MDSApiClient;
-import kafka.ops.topology.api.mds.MDSApiClientBuilder;
-import kafka.ops.topology.roles.RBACProvider;
+import kafka.ops.topology.api.mds.MdsApiClient;
+import kafka.ops.topology.api.mds.MdsApiClientBuilder;
+import kafka.ops.topology.roles.RbacProvider;
 import kafka.ops.topology.roles.SimpleAclsProvider;
 import org.junit.Before;
 import org.junit.Rule;
@@ -26,9 +26,9 @@ public class AccessControlProviderFactoryTest {
 
   @Mock TopologyBuilderAdminClient adminClient;
 
-  @Mock MDSApiClientBuilder mdsApiClientBuilder;
+  @Mock MdsApiClientBuilder mdsApiClientBuilder;
 
-  @Mock MDSApiClient mdsApiClient;
+  @Mock MdsApiClient mdsApiClient;
 
   @Rule public MockitoRule mockitoRule = MockitoJUnit.rule();
 
@@ -38,7 +38,7 @@ public class AccessControlProviderFactoryTest {
   @Before
   public void before() {
     cliOps = new HashMap<>();
-    cliOps.put(BuilderCLI.BROKERS_OPTION, "");
+    cliOps.put(BuilderCli.BROKERS_OPTION, "");
     props = new Properties();
   }
 
@@ -65,7 +65,7 @@ public class AccessControlProviderFactoryTest {
     verify(mdsApiClient, times(1)).login("alice", "alice-secret");
     verify(mdsApiClient, times(1)).authenticate();
 
-    assertThat(provider, instanceOf(RBACProvider.class));
+    assertThat(provider, instanceOf(RbacProvider.class));
   }
 
   @Test

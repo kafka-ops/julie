@@ -23,7 +23,7 @@ public class TopologyBuilderConfigTest {
   @Before
   public void before() {
     cliOps = new HashMap<>();
-    cliOps.put(BuilderCLI.BROKERS_OPTION, "");
+    cliOps.put(BuilderCli.BROKERS_OPTION, "");
     props = new Properties();
   }
 
@@ -161,7 +161,7 @@ public class TopologyBuilderConfigTest {
   public void testKafkaInternalTopicDefaultPrefix() {
     String clientConfigFile = TestUtils.getResourceFilename("/client-config.properties");
 
-    cliOps.put(BuilderCLI.ADMIN_CLIENT_CONFIG_OPTION, clientConfigFile);
+    cliOps.put(BuilderCli.ADMIN_CLIENT_CONFIG_OPTION, clientConfigFile);
 
     TopologyBuilderConfig config = TopologyBuilderConfig.build(cliOps);
     assertThat(config.getKafkaInternalTopicPrefixes()).isEqualTo(Collections.singletonList("_"));
@@ -172,7 +172,7 @@ public class TopologyBuilderConfigTest {
     String clientConfigFile =
         TestUtils.getResourceFilename("/config-internals-extended.properties");
 
-    cliOps.put(BuilderCLI.ADMIN_CLIENT_CONFIG_OPTION, clientConfigFile);
+    cliOps.put(BuilderCli.ADMIN_CLIENT_CONFIG_OPTION, clientConfigFile);
 
     TopologyBuilderConfig config = TopologyBuilderConfig.build(cliOps);
     assertThat(config.getKafkaInternalTopicPrefixes())

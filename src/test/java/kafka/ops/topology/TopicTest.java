@@ -68,8 +68,8 @@ public class TopicTest {
   public void buildTopicNameFormatWithCustomSeparator() {
 
     Map<String, String> cliOps = new HashMap<>();
-    cliOps.put(BuilderCLI.BROKERS_OPTION, "");
-    cliOps.put(BuilderCLI.ADMIN_CLIENT_CONFIG_OPTION, "/fooBar");
+    cliOps.put(BuilderCli.BROKERS_OPTION, "");
+    cliOps.put(BuilderCli.ADMIN_CLIENT_CONFIG_OPTION, "/fooBar");
 
     Properties props = new Properties();
     props.put(TopologyBuilderConfig.TOPIC_PREFIX_SEPARATOR_CONFIG, "_");
@@ -95,8 +95,8 @@ public class TopicTest {
   public void buildTopicNameFormatWithCustomPattern() {
 
     Map<String, String> cliOps = new HashMap<>();
-    cliOps.put(BuilderCLI.BROKERS_OPTION, "");
-    cliOps.put(BuilderCLI.ADMIN_CLIENT_CONFIG_OPTION, "/fooBar");
+    cliOps.put(BuilderCli.BROKERS_OPTION, "");
+    cliOps.put(BuilderCli.ADMIN_CLIENT_CONFIG_OPTION, "/fooBar");
 
     Properties props = new Properties();
     props.put(

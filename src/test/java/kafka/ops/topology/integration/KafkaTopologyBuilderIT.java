@@ -3,7 +3,7 @@ package kafka.ops.topology.integration;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
-import kafka.ops.topology.BuilderCLI;
+import kafka.ops.topology.BuilderCli;
 import kafka.ops.topology.KafkaTopologyBuilder;
 import kafka.ops.topology.integration.containerutils.ContainerFactory;
 import kafka.ops.topology.integration.containerutils.SaslPlaintextKafkaContainer;
@@ -34,11 +34,11 @@ public class KafkaTopologyBuilderIT {
     String clientConfigFile = TestUtils.getResourceFilename("/wrong-client-config.properties");
 
     Map<String, String> config = new HashMap<>();
-    config.put(BuilderCLI.BROKERS_OPTION, container.getBootstrapServers());
-    config.put(BuilderCLI.ALLOW_DELETE_OPTION, "false");
-    config.put(BuilderCLI.DRY_RUN_OPTION, "false");
-    config.put(BuilderCLI.QUIET_OPTION, "true");
-    config.put(BuilderCLI.ADMIN_CLIENT_CONFIG_OPTION, clientConfigFile);
+    config.put(BuilderCli.BROKERS_OPTION, container.getBootstrapServers());
+    config.put(BuilderCli.ALLOW_DELETE_OPTION, "false");
+    config.put(BuilderCli.DRY_RUN_OPTION, "false");
+    config.put(BuilderCli.QUIET_OPTION, "true");
+    config.put(BuilderCli.ADMIN_CLIENT_CONFIG_OPTION, clientConfigFile);
 
     KafkaTopologyBuilder.build(fileOrDirPath, config);
   }
@@ -50,11 +50,11 @@ public class KafkaTopologyBuilderIT {
     String clientConfigFile = TestUtils.getResourceFilename("/client-config.properties");
 
     Map<String, String> config = new HashMap<>();
-    config.put(BuilderCLI.BROKERS_OPTION, container.getBootstrapServers());
-    config.put(BuilderCLI.ALLOW_DELETE_OPTION, "false");
-    config.put(BuilderCLI.DRY_RUN_OPTION, "false");
-    config.put(BuilderCLI.QUIET_OPTION, "true");
-    config.put(BuilderCLI.ADMIN_CLIENT_CONFIG_OPTION, clientConfigFile);
+    config.put(BuilderCli.BROKERS_OPTION, container.getBootstrapServers());
+    config.put(BuilderCli.ALLOW_DELETE_OPTION, "false");
+    config.put(BuilderCli.DRY_RUN_OPTION, "false");
+    config.put(BuilderCli.QUIET_OPTION, "true");
+    config.put(BuilderCli.ADMIN_CLIENT_CONFIG_OPTION, clientConfigFile);
 
     KafkaTopologyBuilder.build(fileOrDirPath, config);
   }

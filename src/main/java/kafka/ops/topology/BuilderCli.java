@@ -10,9 +10,9 @@ import org.apache.commons.cli.*;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-public class BuilderCLI {
+public class BuilderCli {
 
-  private static final Logger LOGGER = LogManager.getLogger(BuilderCLI.class);
+  private static final Logger LOGGER = LogManager.getLogger(BuilderCli.class);
 
   public static final String TOPOLOGY_OPTION = "topology";
   public static final String TOPOLOGY_DESC = "Topology config file.";
@@ -48,7 +48,7 @@ public class BuilderCLI {
   private CommandLineParser parser;
   private Options options;
 
-  public BuilderCLI() {
+  public BuilderCli() {
     formatter = new HelpFormatter();
     parser = new DefaultParser();
     options = buildOptions();
@@ -130,7 +130,7 @@ public class BuilderCLI {
   }
 
   public static void main(String[] args) throws Exception {
-    BuilderCLI cli = new BuilderCLI();
+    BuilderCli cli = new BuilderCli();
     cli.run(args);
     exit(0);
   }

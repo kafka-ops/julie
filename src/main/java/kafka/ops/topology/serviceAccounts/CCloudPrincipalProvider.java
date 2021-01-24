@@ -6,16 +6,16 @@ import java.util.Map;
 import java.util.Set;
 import kafka.ops.topology.PrincipalProvider;
 import kafka.ops.topology.TopologyBuilderConfig;
-import kafka.ops.topology.api.ccloud.CCloudCLI;
+import kafka.ops.topology.api.ccloud.CCloudCli;
 import kafka.ops.topology.model.cluster.ServiceAccount;
 
 public class CCloudPrincipalProvider implements PrincipalProvider {
 
-  private CCloudCLI cCloudCLI;
+  private CCloudCli cCloudCLI;
   private String env;
 
   public CCloudPrincipalProvider(TopologyBuilderConfig config) {
-    this.cCloudCLI = new CCloudCLI();
+    this.cCloudCLI = new CCloudCli();
     this.env = config.getConfluentCloudEnv();
   }
 

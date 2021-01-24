@@ -15,7 +15,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 import kafka.ops.topology.BindingsBuilderProvider;
-import kafka.ops.topology.api.mds.MDSApiClient;
+import kafka.ops.topology.api.mds.MdsApiClient;
 import kafka.ops.topology.model.Component;
 import kafka.ops.topology.model.users.Connector;
 import kafka.ops.topology.model.users.Consumer;
@@ -28,9 +28,9 @@ public class RBACBindingsBuilder implements BindingsBuilderProvider {
   public static final String LITERAL = "LITERAL";
   public static final String PREFIX = "PREFIXED";
 
-  private final MDSApiClient apiClient;
+  private final MdsApiClient apiClient;
 
-  public RBACBindingsBuilder(MDSApiClient apiClient) {
+  public RBACBindingsBuilder(MdsApiClient apiClient) {
     this.apiClient = apiClient;
   }
 

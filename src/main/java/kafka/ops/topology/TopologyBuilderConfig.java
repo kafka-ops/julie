@@ -90,7 +90,7 @@ public class TopologyBuilderConfig {
   }
 
   public static TopologyBuilderConfig build(Map<String, String> cliParams) {
-    return build(cliParams, cliParams.get(BuilderCLI.ADMIN_CLIENT_CONFIG_OPTION));
+    return build(cliParams, cliParams.get(BuilderCli.ADMIN_CLIENT_CONFIG_OPTION));
   }
 
   public static TopologyBuilderConfig build(Map<String, String> cliParams, String configFile) {
@@ -130,9 +130,9 @@ public class TopologyBuilderConfig {
   public Properties asProperties() {
     Properties props = new Properties();
     config.entrySet().forEach(entry -> props.put(entry.getKey(), entry.getValue().unwrapped()));
-    if (cliParams.get(BuilderCLI.BROKERS_OPTION) != null) {
+    if (cliParams.get(BuilderCli.BROKERS_OPTION) != null) {
       props.put(
-          AdminClientConfig.BOOTSTRAP_SERVERS_CONFIG, cliParams.get(BuilderCLI.BROKERS_OPTION));
+          AdminClientConfig.BOOTSTRAP_SERVERS_CONFIG, cliParams.get(BuilderCli.BROKERS_OPTION));
     }
     props.put(AdminClientConfig.RETRIES_CONFIG, Integer.MAX_VALUE);
     return props;
@@ -197,11 +197,11 @@ public class TopologyBuilderConfig {
       existServersAsConfig = false;
     }
 
-    if (cliParams.get(BuilderCLI.BROKERS_OPTION) == null && !existServersAsConfig) {
+    if (cliParams.get(BuilderCli.BROKERS_OPTION) == null && !existServersAsConfig) {
       String msg =
           String.format(
               "Either the CLI option %s or the configuration %s should be specified",
-              BuilderCLI.BROKERS_OPTION, AdminClientConfig.BOOTSTRAP_SERVERS_CONFIG);
+              BuilderCli.BROKERS_OPTION, AdminClientConfig.BOOTSTRAP_SERVERS_CONFIG);
       throw new ConfigurationException(msg);
     }
   }
@@ -323,15 +323,15 @@ public class TopologyBuilderConfig {
   }
 
   public boolean allowDelete() {
-    return Boolean.parseBoolean(cliParams.getOrDefault(BuilderCLI.ALLOW_DELETE_OPTION, "false"));
+    return Boolean.parseBoolean(cliParams.getOrDefault(BuilderCli.ALLOW_DELETE_OPTION, "false"));
   }
 
   public boolean isQuiet() {
-    return Boolean.parseBoolean(cliParams.getOrDefault(BuilderCLI.QUIET_OPTION, "false"));
+    return Boolean.parseBoolean(cliParams.getOrDefault(BuilderCli.QUIET_OPTION, "false"));
   }
 
   public boolean isDryRun() {
-    return Boolean.parseBoolean(cliParams.getOrDefault(BuilderCLI.DRY_RUN_OPTION, "false"));
+    return Boolean.parseBoolean(cliParams.getOrDefault(BuilderCli.DRY_RUN_OPTION, "false"));
   }
 
   public FileType getTopologyFileType() {

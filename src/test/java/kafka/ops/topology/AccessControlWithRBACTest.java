@@ -16,7 +16,7 @@ import kafka.ops.topology.model.Impl.TopologyImpl;
 import kafka.ops.topology.model.Project;
 import kafka.ops.topology.model.Topic;
 import kafka.ops.topology.model.Topology;
-import kafka.ops.topology.roles.RBACProvider;
+import kafka.ops.topology.roles.RbacProvider;
 import kafka.ops.topology.roles.TopologyAclBinding;
 import kafka.ops.topology.roles.rbac.RBACBindingsBuilder;
 import org.apache.kafka.common.acl.AclOperation;
@@ -31,7 +31,7 @@ import org.mockito.junit.MockitoRule;
 
 public class AccessControlWithRBACTest {
 
-  @Mock RBACProvider aclsProvider;
+  @Mock RbacProvider aclsProvider;
   @Mock RBACBindingsBuilder bindingsBuilder;
 
   @Mock ExecutionPlan plan;

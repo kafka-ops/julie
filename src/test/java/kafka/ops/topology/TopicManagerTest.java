@@ -50,7 +50,7 @@ public class TopicManagerTest {
     backendController = new BackendController();
 
     cliOps = new HashMap<>();
-    cliOps.put(BuilderCLI.BROKERS_OPTION, "");
+    cliOps.put(BuilderCli.BROKERS_OPTION, "");
     props = new Properties();
     props.put(TopologyBuilderConfig.TOPOLOGY_TOPIC_STATE_FROM_CLUSTER, "false");
 
@@ -125,8 +125,8 @@ public class TopicManagerTest {
   public void topicDeleteTest() throws IOException {
 
     cliOps = new HashMap<>();
-    cliOps.put(BuilderCLI.BROKERS_OPTION, "");
-    cliOps.put(BuilderCLI.ALLOW_DELETE_OPTION, "true");
+    cliOps.put(BuilderCli.BROKERS_OPTION, "");
+    cliOps.put(BuilderCli.ALLOW_DELETE_OPTION, "true");
 
     Properties props = new Properties();
 
@@ -172,8 +172,8 @@ public class TopicManagerTest {
   public void topicDeleteWithConfiguredInternalTopicsTest() throws IOException {
 
     cliOps = new HashMap<>();
-    cliOps.put(BuilderCLI.BROKERS_OPTION, "");
-    cliOps.put(BuilderCLI.ALLOW_DELETE_OPTION, "true");
+    cliOps.put(BuilderCli.BROKERS_OPTION, "");
+    cliOps.put(BuilderCli.ALLOW_DELETE_OPTION, "true");
 
     Properties props = new Properties();
     props.put(TopologyBuilderConfig.KAFKA_INTERNAL_TOPIC_PREFIXES, Arrays.asList("foo.", "_"));
@@ -215,8 +215,8 @@ public class TopicManagerTest {
     props.put(TopologyBuilderConfig.KAFKA_INTERNAL_TOPIC_PREFIXES, Arrays.asList("foo.", "_"));
 
     HashMap<String, String> cliOps = new HashMap<>();
-    cliOps.put(BuilderCLI.BROKERS_OPTION, "");
-    cliOps.put(BuilderCLI.ALLOW_DELETE_OPTION, "false");
+    cliOps.put(BuilderCli.BROKERS_OPTION, "");
+    cliOps.put(BuilderCli.ALLOW_DELETE_OPTION, "false");
 
     TopologyBuilderConfig config = new TopologyBuilderConfig(cliOps, props);
 
@@ -250,8 +250,8 @@ public class TopicManagerTest {
     props.put(TopologyBuilderConfig.ALLOW_DELETE_TOPICS, "true");
 
     HashMap<String, String> cliOps = new HashMap<>();
-    cliOps.put(BuilderCLI.BROKERS_OPTION, "");
-    cliOps.put(BuilderCLI.ALLOW_DELETE_OPTION, "false");
+    cliOps.put(BuilderCli.BROKERS_OPTION, "");
+    cliOps.put(BuilderCli.ALLOW_DELETE_OPTION, "false");
 
     TopologyBuilderConfig config = new TopologyBuilderConfig(cliOps, props);
 
@@ -285,8 +285,8 @@ public class TopicManagerTest {
     props.put(TopologyBuilderConfig.ALLOW_DELETE_TOPICS, "false");
 
     HashMap<String, String> cliOps = new HashMap<>();
-    cliOps.put(BuilderCLI.BROKERS_OPTION, "");
-    cliOps.put(BuilderCLI.ALLOW_DELETE_OPTION, "false");
+    cliOps.put(BuilderCli.BROKERS_OPTION, "");
+    cliOps.put(BuilderCli.ALLOW_DELETE_OPTION, "false");
 
     TopologyBuilderConfig config = new TopologyBuilderConfig(cliOps, props);
 

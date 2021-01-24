@@ -19,11 +19,11 @@ public class CLITest {
 
   @Rule public MockitoRule mockitoRule = MockitoJUnit.rule();
 
-  private BuilderCLI cli;
+  private BuilderCli cli;
 
   @Before
   public void setup() {
-    cli = Mockito.spy(new BuilderCLI());
+    cli = Mockito.spy(new BuilderCli());
   }
 
   @Test
@@ -38,11 +38,11 @@ public class CLITest {
     doNothing().when(cli).processTopology(eq("descriptor.yaml"), eq("default"), anyMap());
 
     Map<String, String> config = new HashMap<>();
-    config.put(BuilderCLI.BROKERS_OPTION, "localhost:9092");
-    config.put(BuilderCLI.ALLOW_DELETE_OPTION, "false");
-    config.put(BuilderCLI.DRY_RUN_OPTION, "false");
-    config.put(BuilderCLI.QUIET_OPTION, "false");
-    config.put(BuilderCLI.ADMIN_CLIENT_CONFIG_OPTION, "topology-builder-sasl-plain.properties");
+    config.put(BuilderCli.BROKERS_OPTION, "localhost:9092");
+    config.put(BuilderCli.ALLOW_DELETE_OPTION, "false");
+    config.put(BuilderCli.DRY_RUN_OPTION, "false");
+    config.put(BuilderCli.QUIET_OPTION, "false");
+    config.put(BuilderCli.ADMIN_CLIENT_CONFIG_OPTION, "topology-builder-sasl-plain.properties");
     cli.run(args);
 
     verify(cli, times(1)).processTopology(eq("descriptor.yaml"), eq("default"), eq(config));
@@ -61,11 +61,11 @@ public class CLITest {
     doNothing().when(cli).processTopology(eq("descriptor.yaml"), eq("default"), anyMap());
 
     Map<String, String> config = new HashMap<>();
-    config.put(BuilderCLI.BROKERS_OPTION, "localhost:9092");
-    config.put(BuilderCLI.ALLOW_DELETE_OPTION, "false");
-    config.put(BuilderCLI.DRY_RUN_OPTION, "true");
-    config.put(BuilderCLI.QUIET_OPTION, "false");
-    config.put(BuilderCLI.ADMIN_CLIENT_CONFIG_OPTION, "topology-builder-sasl-plain.properties");
+    config.put(BuilderCli.BROKERS_OPTION, "localhost:9092");
+    config.put(BuilderCli.ALLOW_DELETE_OPTION, "false");
+    config.put(BuilderCli.DRY_RUN_OPTION, "true");
+    config.put(BuilderCli.QUIET_OPTION, "false");
+    config.put(BuilderCli.ADMIN_CLIENT_CONFIG_OPTION, "topology-builder-sasl-plain.properties");
     cli.run(args);
 
     verify(cli, times(1)).processTopology(eq("descriptor.yaml"), eq("default"), eq(config));

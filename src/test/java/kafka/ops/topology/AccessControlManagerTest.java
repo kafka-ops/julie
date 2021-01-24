@@ -100,7 +100,7 @@ public class AccessControlManagerTest {
   public void newConsumerOptimisedACLsCreation() {
 
     HashMap<String, String> cliOps = new HashMap<>();
-    cliOps.put(BuilderCLI.BROKERS_OPTION, "");
+    cliOps.put(BuilderCli.BROKERS_OPTION, "");
     Properties props = new Properties();
     props.put(TopologyBuilderConfig.OPTIMIZED_ACLS_CONFIG, true);
 
@@ -176,7 +176,7 @@ public class AccessControlManagerTest {
   @Test
   public void newProducerOptimizedACLsCreation() {
     HashMap<String, String> cliOps = new HashMap<>();
-    cliOps.put(BuilderCLI.BROKERS_OPTION, "");
+    cliOps.put(BuilderCli.BROKERS_OPTION, "");
     Properties props = new Properties();
     props.put(TopologyBuilderConfig.OPTIMIZED_ACLS_CONFIG, true);
 
@@ -569,7 +569,7 @@ public class AccessControlManagerTest {
   @Test
   public void testToProcessOnlySelectedTopics() throws IOException {
     Map<String, String> cliOps = new HashMap<>();
-    cliOps.put(BuilderCLI.BROKERS_OPTION, "");
+    cliOps.put(BuilderCli.BROKERS_OPTION, "");
 
     Properties props = new Properties();
     props.put(
@@ -613,7 +613,7 @@ public class AccessControlManagerTest {
   @Test
   public void testToProcessOnlySelectedGroupsOrWildcard() throws IOException {
     Map<String, String> cliOps = new HashMap<>();
-    cliOps.put(BuilderCLI.BROKERS_OPTION, "");
+    cliOps.put(BuilderCli.BROKERS_OPTION, "");
 
     Properties props = new Properties();
     props.put(
@@ -665,7 +665,7 @@ public class AccessControlManagerTest {
   @Test
   public void testToProcessWildcardGroupOnlySelectedServiceAccounts() throws IOException {
     Map<String, String> cliOps = new HashMap<>();
-    cliOps.put(BuilderCLI.BROKERS_OPTION, "");
+    cliOps.put(BuilderCli.BROKERS_OPTION, "");
 
     Properties props = new Properties();
     props.put(

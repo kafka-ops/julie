@@ -19,7 +19,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Properties;
-import kafka.ops.topology.api.mds.MDSApiClient;
+import kafka.ops.topology.api.mds.MdsApiClient;
 import kafka.ops.topology.api.mds.RequestScope;
 import kafka.ops.topology.model.Impl.ProjectImpl;
 import kafka.ops.topology.model.Impl.TopicImpl;
@@ -37,7 +37,7 @@ import kafka.ops.topology.model.users.platform.ControlCenter;
 import kafka.ops.topology.model.users.platform.ControlCenterInstance;
 import kafka.ops.topology.model.users.platform.SchemaRegistry;
 import kafka.ops.topology.model.users.platform.SchemaRegistryInstance;
-import kafka.ops.topology.roles.RBACProvider;
+import kafka.ops.topology.roles.RbacProvider;
 import kafka.ops.topology.roles.TopologyAclBinding;
 import kafka.ops.topology.roles.rbac.ClusterLevelRoleBuilder;
 import kafka.ops.topology.roles.rbac.RBACBindingsBuilder;
@@ -50,7 +50,7 @@ import org.mockito.junit.MockitoRule;
 
 public class RbacProviderTest {
 
-  @Mock MDSApiClient apiClient;
+  @Mock MdsApiClient apiClient;
 
   @Mock ExecutionPlan plan;
 
@@ -59,7 +59,7 @@ public class RbacProviderTest {
   @Rule public MockitoRule mockitoRule = MockitoJUnit.rule();
 
   private AccessControlManager accessControlManager;
-  private RBACProvider aclsProvider;
+  private RbacProvider aclsProvider;
   private RBACBindingsBuilder bindingsBuilder;
 
   @Before
@@ -68,7 +68,7 @@ public class RbacProviderTest {
     apiClient.setSchemaRegistryClusterID("sr");
     apiClient.setKafkaClusterId("ak");
 
-    aclsProvider = new RBACProvider(apiClient);
+    aclsProvider = new RbacProvider(apiClient);
     bindingsBuilder = new RBACBindingsBuilder(apiClient);
     accessControlManager = new AccessControlManager(aclsProvider, bindingsBuilder);
   }
@@ -101,7 +101,7 @@ public class RbacProviderTest {
   public void newConsumerOptimisedACLsCreation() {
 
     HashMap<String, String> cliOps = new HashMap<>();
-    cliOps.put(BuilderCLI.BROKERS_OPTION, "");
+    cliOps.put(BuilderCli.BROKERS_OPTION, "");
     Properties props = new Properties();
     props.put(TopologyBuilderConfig.OPTIMIZED_ACLS_CONFIG, true);
 
@@ -157,7 +157,7 @@ public class RbacProviderTest {
   public void newProducerOptimizedACLsCreation() {
 
     HashMap<String, String> cliOps = new HashMap<>();
-    cliOps.put(BuilderCLI.BROKERS_OPTION, "");
+    cliOps.put(BuilderCli.BROKERS_OPTION, "");
     Properties props = new Properties();
     props.put(TopologyBuilderConfig.OPTIMIZED_ACLS_CONFIG, true);
 
