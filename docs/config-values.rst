@@ -10,10 +10,10 @@ Access control configuration
 Configure the access control methodology.
 
 **Property**: *topology.builder.access.control.class*
-**Default value**: "com.purbon.kafka.topology.roles.SimpleAclsProvider"
+**Default value**: "kafka.ops.topology.roles.SimpleAclsProvider"
 **values**:
  - RBAC: "com.purbon.topology.roles.RBACProvider"
- - ACLs: "com.purbon.kafka.topology.roles.SimpleAclsProvider"
+ - ACLs: "kafka.ops.topology.roles.SimpleAclsProvider"
 
 RBAC configuration
 -----------
@@ -52,10 +52,10 @@ To configure it you can use:
 
 Configure the state management system.
 **Property**: *topology.builder.state.processor.class*
-**Default value**: "com.purbon.kafka.topology.backend.FileBackend"
+**Default value**: "kafka.ops.topology.backend.FileBackend"
 **values**:
- - File: "com.purbon.kafka.topology.backend.FileBackend"
- - Redis: "com.purbon.kafka.topology.backend.RedisBackend"
+ - File: "kafka.ops.topology.backend.FileBackend"
+ - Redis: "kafka.ops.topology.backend.RedisBackend"
 
 If you are using redis, you need to extend two other properties to setup the server location:
 ::

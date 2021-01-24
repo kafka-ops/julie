@@ -4,7 +4,7 @@ BRANCH=${1:-"master"}
 DIR="/tmp/kafka-topology-builder"
 RPM_DIR="/tmp/kafka-topology-builder/target/rpm/kafka-topology-builder/RPMS/noarch/"
 
-git clone https://github.com/purbon/kafka-topology-builder.git $DIR
+git clone https://github.com/kafka-ops/kafka-topology-builder.git $DIR
 cd $DIR
 git checkout $BRANCH
 mvn assembly:assembly

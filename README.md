@@ -187,3 +187,11 @@ If you are interested on building a release artifact from the source code, check
 
 Nightly builds as well as release builds are regularly available from the [Actions](https://github.com/kafka-ops/kafka-topology-builder/actions)
 in this project.
+
+## Disclaimer
+
+```
+KAFKA is a registered trademark of The Apache Software Foundation and
+has been licensed for use by [3rd party name]. [3rd party name] has no
+affiliation with and is not endorsed by The Apache Software Foundation.
+```

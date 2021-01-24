@@ -21,19 +21,19 @@ Configuration:
 
   Loggers:
     logger:
-      - name: com.purbon.kafka
+      - name: kafka.ops
         level: info
         additivity: false
         AppenderRef:
           - ref: LogToConsole
           - ref: LogToRollingFile
-      - name: com.purbon.kafka.topology
+      - name: kafka.ops.topology
         level: info
         additivity: true
         AppenderRef:
           - ref: LogToConsole
           - ref: LogToRollingFile
-      - name: com.purbon.kafka.topology.api.mds
+      - name: kafka.ops.topology.api.mds
         level: info
         additivity: true
         AppenderRef:

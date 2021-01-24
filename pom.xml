@@ -4,7 +4,7 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
 
-  <groupId>com.purbon.kafka</groupId>
+  <groupId>kafka.ops</groupId>
   <artifactId>kafka-topology-builder</artifactId>
   <version>2.0.0-b.0</version>
 
@@ -13,11 +13,11 @@
     A helper project for Kafka Platform teams to build an automated Topic, Configuration (and Schemas in the future)
     Management solution.
   </description>
-  <url>https://github.com/purbon/</url>
+  <url>https://github.com/kafka-ops/kafka-topology-builder</url>
 
   <organization>
-    <name>Pere Urbon</name>
-    <url>https://github.com/purbon/</url>
+    <name>Kafka Ops</name>
+    <url>https://github.com/kafka-ops</url>
   </organization>
 
   <profiles>
@@ -132,7 +132,7 @@
         <executions>
           <execution>
             <goals>
-              <goal>format</goal>
+              <goal>check</goal>
             </goals>
           </execution>
         </executions>
@@ -163,7 +163,7 @@
             <configuration>
               <transformers>
                 <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
-                  <mainClass>com.purbon.kafka.topology.BuilderCLI</mainClass>
+                  <mainClass>kafka.ops.topology.BuilderCLI</mainClass>
                 </transformer>
               </transformers>
             </configuration>
@@ -189,7 +189,7 @@
           </descriptors>
           <archive>
             <manifest>
-              <mainClass>com.purbon.kafka.topology.BuilderCLI</mainClass>
+              <mainClass>kafka.ops.topology.BuilderCLI</mainClass>
             </manifest>
           </archive>
         </configuration>
@@ -549,6 +549,7 @@
       <artifactId>commons-cli</artifactId>
       <version>${commons.version}</version>
     </dependency>
+
     <dependency>
       <groupId>org.hamcrest</groupId>
       <artifactId>hamcrest-core</artifactId>
