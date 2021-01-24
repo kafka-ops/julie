@@ -119,13 +119,51 @@
     </repository>
   </repositories>
 
+  <properties>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <!-- runtime dependencies -->
+    <jackson.version>2.10.3</jackson.version>
+    <kafka.version>2.5.0</kafka.version>
+    <log4j.version>2.13.3</log4j.version>
+    <httpclient.version>4.5.11</httpclient.version>
+    <zookeeper.version>3.5.7</zookeeper.version>
+    <commons.version>1.4</commons.version>
+    <mockito.version>3.6.0</mockito.version>
+    <jedis.version>3.2.0</jedis.version>
+    <confluent.version>5.5.0</confluent.version>
+    <confluent-ce.version>5.5.1-ce</confluent-ce.version>
+    <avro.version>1.9.2</avro.version>
+    <jersey.version>2.22.2</jersey.version>
+    <jinjava.version>2.5.4</jinjava.version>
+    <typesafe-config.version>1.4.0</typesafe-config.version>
+    <!-- test dependencies -->
+    <junit.version>4.13.1</junit.version>
+    <testcontainers.version>1.15.0</testcontainers.version>
+    <hamcrest.version>2.2</hamcrest.version>
+    <assertj.version>3.15.0</assertj.version>
+    <awaitility.version>4.0.3</awaitility.version>
+    <!-- plugins -->
+    <maven-compiler-plugin.version>3.1</maven-compiler-plugin.version>
+    <maven-surefire-plugin.version>2.22.2</maven-surefire-plugin.version>
+    <maven-failsafe-plugin.version>2.22.2</maven-failsafe-plugin.version>
+    <maven-shade-plugin.version>3.2.4</maven-shade-plugin.version>
+    <maven-pmd-plugin.version>3.12.0</maven-pmd-plugin.version>
+    <spotbugs-maven-plugin.version>3.1.12.2</spotbugs-maven-plugin.version>
+    <fmt-maven-plugin.version>2.9</fmt-maven-plugin.version>
+    <maven-site-plugin.version>3.9.0</maven-site-plugin.version>
+    <maven-project-info-reports-plugin.version>3.0.0</maven-project-info-reports-plugin.version>
+    <jacoco-maven-plugin.version>0.8.5</jacoco-maven-plugin.version>
+    <rpm-maven-plugin.version>2.2.0</rpm-maven-plugin.version>
+    <jdeb-plugin.version>1.8</jdeb-plugin.version>
+  </properties>
+
   <build>
     <finalName>${project.artifactId}</finalName>
     <plugins>
       <plugin>
         <groupId>com.coveo</groupId>
         <artifactId>fmt-maven-plugin</artifactId>
-        <version>2.9</version>
+        <version>${fmt-maven-plugin.version}</version>
         <configuration>
           <style>google</style>
         </configuration>
@@ -141,7 +179,7 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-shade-plugin</artifactId>
-        <version>3.2.4</version>
+        <version>${maven-shade-plugin.version}</version>
         <configuration>
           <filters>
             <filter>
@@ -319,7 +357,7 @@
       <plugin>
         <groupId>org.vafer</groupId>
         <artifactId>jdeb</artifactId>
-        <version>1.8</version>
+        <version>${jdeb-plugin.version}</version>
         <executions>
           <execution>
             <phase>package</phase>
@@ -409,43 +447,11 @@
     </plugins>
   </reporting>
 
-  <properties>
-    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <!-- plugins -->
-    <maven-pmd-plugin.version>3.12.0</maven-pmd-plugin.version>
-    <spotbugs-maven-plugin.version>3.1.12.2</spotbugs-maven-plugin.version>
-    <maven-site-plugin.version>3.9.0</maven-site-plugin.version>
-    <maven-project-info-reports-plugin.version>3.0.0</maven-project-info-reports-plugin.version>
-    <jacoco-maven-plugin.version>0.8.5</jacoco-maven-plugin.version>
-    <rpm-maven-plugin.version>2.2.0</rpm-maven-plugin.version>
-    <maven-compiler-plugin.version>3.1</maven-compiler-plugin.version>
-    <maven-surefire-plugin.version>2.22.2</maven-surefire-plugin.version>
-    <maven-failsafe-plugin.version>2.22.2</maven-failsafe-plugin.version>
-    <!-- dependencies -->
-    <jackson.version>2.10.3</jackson.version>
-    <kafka.version>2.5.0</kafka.version>
-    <log4j.version>2.13.3</log4j.version>
-    <httpclient.version>4.5.11</httpclient.version>
-    <zookeeper.version>3.5.7</zookeeper.version>
-    <commons.version>1.4</commons.version>
-    <mockito.version>3.6.0</mockito.version>
-    <junit.version>4.13.1</junit.version>
-    <testcontainers.version>1.15.0</testcontainers.version>
-    <jedis.version>3.2.0</jedis.version>
-    <confluent.version>5.5.0</confluent.version>
-    <confluent-ce.version>5.5.1-ce</confluent-ce.version>
-    <avro.version>1.9.2</avro.version>
-    <jersey.version>2.22.2</jersey.version>
-    <hamcrest.version>2.2</hamcrest.version>
-    <assertj.version>3.15.0</assertj.version>
-    <jinjava.version>2.5.4</jinjava.version>
-  </properties>
-
   <dependencies>
     <dependency>
       <groupId>com.typesafe</groupId>
       <artifactId>config</artifactId>
-      <version>1.4.0</version>
+      <version>${typesafe-config.version}</version>
     </dependency>
     <dependency>
       <groupId>com.hubspot.jinjava</groupId>
@@ -492,12 +498,6 @@
       <groupId>org.apache.kafka</groupId>
       <artifactId>kafka-clients</artifactId>
       <version>${kafka.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.kafka</groupId>
-      <artifactId>kafka-streams</artifactId>
-      <version>${kafka.version}</version>
-      <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>io.confluent</groupId>
@@ -575,6 +575,12 @@
       <scope>test</scope>
     </dependency>
     <dependency>
+      <groupId>org.apache.kafka</groupId>
+      <artifactId>kafka-streams</artifactId>
+      <version>${kafka.version}</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
       <groupId>org.testcontainers</groupId>
       <artifactId>testcontainers</artifactId>
       <version>${testcontainers.version}</version>
@@ -589,7 +595,7 @@
     <dependency>
       <groupId>org.awaitility</groupId>
       <artifactId>awaitility</artifactId>
-      <version>4.0.3</version>
+      <version>${awaitility.version}</version>
       <scope>test</scope>
     </dependency>
   </dependencies>
