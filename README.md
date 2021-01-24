@@ -1,6 +1,6 @@
 # The Topology Builder for Apache Kafka (Automation, Gitops, SelfService)
 
-<a href="https://codeclimate.com/github/purbon/kafka-topology-builder/maintainability"><img src="https://api.codeclimate.com/v1/badges/ef4bcda7d1b5fd0a4f1e/maintainability" /></a> ![CI tests](https://github.com/kafka-ops/kafka-topology-builder/workflows/CI%20tests/badge.svg?branch=master) [![Gitter](https://badges.gitter.im/kafka-topology-builder/community.svg)](https://gitter.im/kafka-topology-builder/community?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge) [![Documentation Status](https://readthedocs.org/projects/kafka-topology-builder/badge/?version=latest)](https://kafka-topology-builder.readthedocs.io/?badge=latest)
+<a href="https://codeclimate.com/github/kafka-ops/kafka-topology-builder/maintainability"><img src="https://api.codeclimate.com/v1/badges/ef4bcda7d1b5fd0a4f1e/maintainability" /></a> ![CI tests](https://github.com/kafka-ops/kafka-topology-builder/workflows/CI%20tests/badge.svg?branch=master) [![Gitter](https://badges.gitter.im/kafka-topology-builder/community.svg)](https://gitter.im/kafka-topology-builder/community?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge) [![Documentation Status](https://readthedocs.org/projects/kafka-topology-builder/badge/?version=latest)](https://kafka-topology-builder.readthedocs.io/?badge=latest)
 
 Topology Builder for Apache Kafka helps you automate the management of your things within Apache Kafka, from Topics, Configuration to Metadata but as well
 Access Control, Schemas. 
@@ -91,7 +91,7 @@ This tool is available in multiple formats:
 - Directly as a fat jar (zip/tar.gz)
 - As a fat jar.
 
-The latest version are available from the [releases](https://github.com/purbon/kafka-topology-builder/releases) page.
+The latest version are available from the [releases](https://github.com/kafka-ops/kafka-topology-builder/releases) page.
 
 #### How to execute the tool
 
