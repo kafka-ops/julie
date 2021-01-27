@@ -1,17 +1,17 @@
 package com.purbon.kafka.topology;
 
+import com.purbon.kafka.topology.model.Topology;
+import com.purbon.kafka.topology.serdes.TopologySerdes;
+import com.purbon.kafka.topology.utils.TestUtils;
+import org.junit.Before;
+import org.junit.Test;
+
+import java.util.*;
+
 import static com.purbon.kafka.topology.BuilderCLI.ADMIN_CLIENT_CONFIG_OPTION;
 import static com.purbon.kafka.topology.BuilderCLI.BROKERS_OPTION;
 import static com.purbon.kafka.topology.TopologyBuilderConfig.TOPOLOGY_VALIDATIONS_CONFIG;
 import static org.assertj.core.api.Assertions.assertThat;
-
-import com.purbon.kafka.topology.model.Topology;
-import com.purbon.kafka.topology.serdes.TopologySerdes;
-import com.purbon.kafka.topology.utils.TestUtils;
-import java.io.IOException;
-import java.util.*;
-import org.junit.Before;
-import org.junit.Test;
 
 public class TopologyValidationTest {
 
@@ -23,18 +23,14 @@ public class TopologyValidationTest {
   }
 
   @Test
-  public void testPositiveExecutionOnCamelCaseNames() throws IOException {
+  public void testPositiveExecutionOnCamelCaseNames() {
 
     Topology topology =
-        parser.deserialise(TestUtils.getResourceFile("/descriptor-with-camelCaseNames.yml"));
+            parser.deserialise(TestUtils.getResourceFile("/descriptor-with-camelCaseNames.yml"));
 
-    Map<String, String> cliOps = new HashMap<>();
-    cliOps.put(BROKERS_OPTION, "");
-    cliOps.put(ADMIN_CLIENT_CONFIG_OPTION, "/fooBar");
-
-    Properties props = new Properties();
-    props.put(TOPOLOGY_VALIDATIONS_CONFIG, Arrays.asList("topology.CamelCaseNameFormatValidation"));
-    TopologyBuilderConfig config = new TopologyBuilderConfig(cliOps, props);
+    TopologyBuilderConfig config =
+            createTopologyBuilderConfig(
+                    "com.purbon.kafka.topology.validation.topology.CamelCaseNameFormatValidation");
 
     TopologyValidator validator = new TopologyValidator(config);
     List<String> results = validator.validate(topology);
@@ -42,20 +38,15 @@ public class TopologyValidationTest {
   }
 
   @Test
-  public void testInvalidExecutionBecuaseofNumberOfPartitions() throws IOException {
+  public void testInvalidExecutionBecuaseofNumberOfPartitions() {
 
     Topology topology =
         parser.deserialise(TestUtils.getResourceFile("/descriptor-with-camelCaseNames.yml"));
 
-    Map<String, String> cliOps = new HashMap<>();
-    cliOps.put(BROKERS_OPTION, "");
-    cliOps.put(ADMIN_CLIENT_CONFIG_OPTION, "/fooBar");
-
-    Properties props = new Properties();
-    props.put(
-        TOPOLOGY_VALIDATIONS_CONFIG,
-        Arrays.asList("topology.CamelCaseNameFormatValidation", "topic.PartitionNumberValidation"));
-    TopologyBuilderConfig config = new TopologyBuilderConfig(cliOps, props);
+    TopologyBuilderConfig config =
+        createTopologyBuilderConfig(
+                "com.purbon.kafka.topology.validation.topology.CamelCaseNameFormatValidation",
+                "com.purbon.kafka.topology.validation.topic.PartitionNumberValidation");
 
     TopologyValidator validator = new TopologyValidator(config);
     List<String> results = validator.validate(topology);
@@ -63,19 +54,14 @@ public class TopologyValidationTest {
   }
 
   @Test
-  public void testInvalidExecutionWithFailedValidation() throws IOException {
+  public void testInvalidExecutionWithFailedValidation() {
 
     Topology topology = parser.deserialise(TestUtils.getResourceFile("/descriptor.yaml"));
 
-    Map<String, String> cliOps = new HashMap<>();
-    cliOps.put(BROKERS_OPTION, "");
-    cliOps.put(ADMIN_CLIENT_CONFIG_OPTION, "/fooBar");
-
-    Properties props = new Properties();
-    props.put(
-        TOPOLOGY_VALIDATIONS_CONFIG,
-        Arrays.asList("topology.CamelCaseNameFormatValidation", "topic.PartitionNumberValidation"));
-    TopologyBuilderConfig config = new TopologyBuilderConfig(cliOps, props);
+    TopologyBuilderConfig config =
+        createTopologyBuilderConfig(
+                "com.purbon.kafka.topology.validation.topology.CamelCaseNameFormatValidation",
+                "com.purbon.kafka.topology.validation.topic.PartitionNumberValidation");
 
     TopologyValidator validator = new TopologyValidator(config);
     List<String> results = validator.validate(topology);
@@ -89,5 +75,41 @@ public class TopologyValidationTest {
         .isEqualTo("Topic contextOrg.source.baz.topicE has an invalid number of partitions: 1");
     assertThat(results.get(4))
         .isEqualTo("Topic contextOrg.source.baz.topicF has an invalid number of partitions: 1");
+  }
+
+  @Test
+  public void testUsingDeprecatedValidationsConfig() {
+
+    Topology topology = parser.deserialise(TestUtils.getResourceFile("/descriptor.yaml"));
+
+    TopologyBuilderConfig config =
+            createTopologyBuilderConfig(
+                    "topology.CamelCaseNameFormatValidation");
+
+    TopologyValidator validator = new TopologyValidator(config);
+    List<String> results = validator.validate(topology);
+    assertThat(results).hasSize(1);
+    assertThat(results.get(0)).isEqualTo("Project name does not follow the camelCase format: foo");
+  }
+
+  @Test(expected = IllegalStateException.class)
+  public void testUsingUnknwownClassName() {
+
+    Topology topology = parser.deserialise(TestUtils.getResourceFile("/descriptor.yaml"));
+
+    TopologyBuilderConfig config = createTopologyBuilderConfig("not.available.Validation");
+
+    TopologyValidator validator = new TopologyValidator(config);
+    validator.validate(topology);
+  }
+
+  private TopologyBuilderConfig createTopologyBuilderConfig(String... validations) {
+    Map<String, String> cliOps = new HashMap<>();
+    cliOps.put(BROKERS_OPTION, "");
+    cliOps.put(ADMIN_CLIENT_CONFIG_OPTION, "/fooBar");
+
+    Properties props = new Properties();
+    props.put(TOPOLOGY_VALIDATIONS_CONFIG, Arrays.asList(validations));
+    return new TopologyBuilderConfig(cliOps, props);
   }
 }

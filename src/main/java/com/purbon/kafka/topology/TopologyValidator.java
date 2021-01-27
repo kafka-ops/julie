@@ -76,18 +76,31 @@ public class TopologyValidator {
         .collect(Collectors.toList());
   }
 
-  class VoidValidation implements TopologyValidation {
-    @Override
-    public void valid(Topology topology) {}
-  }
-
   private List<Validation> validations() {
     return config.getTopologyValidations().stream()
         .map(
             validationClass -> {
               try {
-                String fullValidationClass = classPrefix + validationClass;
-                Class<?> clazz = Class.forName(fullValidationClass);
+                Class<?> clazz;
+                clazz = getValidationClazz(validationClass);
+                if (clazz == null) {
+                  String deprecatedValidationClassConfig = classPrefix + validationClass;
+                  clazz = getValidationClazz(deprecatedValidationClassConfig);
+                  if (clazz != null) {
+                    LOGGER.warn(
+                        "Deprecation warning: Specifying validations in the config without using the "
+                            + "fully qualified class name is deprecated. Support will be removed in next major release. "
+                            + "Please switch to using fully qualified class name");
+                  }
+                }
+                if (clazz == null) {
+                  throw new IOException(
+                      String.format(
+                          "Could not find validation class '%s' in class path. "
+                              + "Please use the fully qualified class name and check your config.",
+                          validationClass));
+                }
+
                 Constructor<?> constructor = clazz.getConstructor();
                 Object instance = constructor.newInstance();
                 if (instance instanceof TopologyValidation) {
@@ -95,14 +108,21 @@ public class TopologyValidator {
                 } else if (instance instanceof TopicValidation) {
                   return (TopicValidation) instance;
                 } else {
-                  throw new IOException("invalid validation type " + fullValidationClass);
+                  throw new IOException("invalid validation type specified " + validationClass);
                 }
               } catch (Exception ex) {
-                LOGGER.debug(ex);
-                return new VoidValidation();
+                throw new IllegalStateException(
+                    "Failed to load topology validations from class path", ex);
               }
             })
-        .filter(validation -> !(validation instanceof VoidValidation))
         .collect(Collectors.toList());
+  }
+
+  private Class<?> getValidationClazz(String validationClass) {
+    try {
+      return Class.forName(validationClass);
+    } catch (ClassNotFoundException e) {
+      return null;
+    }
   }
 }
