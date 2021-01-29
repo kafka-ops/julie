@@ -86,11 +86,12 @@ public class CCloudAclsProvider extends SimpleAclsProvider implements AccessCont
   private TopologyAclBinding convertToConfluentCloudId(
       Map<String, ServiceAccount> serviceAccounts, TopologyAclBinding binding) {
     if (binding.asAclBinding().isPresent()) {
-      AclBinding aclBinding = convertToConfluentCloudId(serviceAccounts, binding.asAclBinding().get());
+      AclBinding aclBinding =
+          convertToConfluentCloudId(serviceAccounts, binding.asAclBinding().get());
       return aclBinding == null ? null : new TopologyAclBinding(aclBinding);
     } else {
       Integer id = getId(serviceAccounts, binding.getPrincipal());
-      return id == null ? null :  getTopologyAclBinding(binding, "User:" + id);
+      return id == null ? null : getTopologyAclBinding(binding, "User:" + id);
     }
   }
 
@@ -119,18 +120,19 @@ public class CCloudAclsProvider extends SimpleAclsProvider implements AccessCont
 
   private AclBinding getAclBinding(AclBinding aclBinding, String principle) {
     AccessControlEntry entry = aclBinding.entry();
-    AccessControlEntry accessControlEntry = new AccessControlEntry(principle, entry.host(), entry.operation(), entry.permissionType());
+    AccessControlEntry accessControlEntry =
+        new AccessControlEntry(principle, entry.host(), entry.operation(), entry.permissionType());
     return new AclBinding(aclBinding.pattern(), accessControlEntry);
   }
 
   private TopologyAclBinding getTopologyAclBinding(TopologyAclBinding binding, String principle) {
     return new TopologyAclBinding(
-            binding.getResourceType(),
-            binding.getResourceName(),
-            binding.getHost(),
-            binding.getOperation(),
-            principle,
-            binding.getPattern());
+        binding.getResourceType(),
+        binding.getResourceName(),
+        binding.getHost(),
+        binding.getOperation(),
+        principle,
+        binding.getPattern());
   }
 
   private Integer getId(Map<String, ServiceAccount> serviceAccounts, String name) {

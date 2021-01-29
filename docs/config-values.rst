@@ -104,24 +104,27 @@ An example configuration might look like this:
     kafka.internal.topic.prefixes.1=topicPrefixA
     kafka.internal.topic.prefixes.2=topicPrefixB
 
-Topology level validations
+Topology validations
 -----------
 
-It is now possible to define a list of validations to be applied to the desired Topology file.
+It is possible to define a list of validations to be applied to the topology files.
 
-As a user you can list the validations to be applied using the configuration property:
+As a user you can list the validation classes to be applied using the configuration property:
 
 - **Property**: *topology.validations*
 
-This property accepts the list of validations available in the class path.
+This property accepts a list of validation classes available in the class path. Use the fully qualified class name.
 They will be applied in sequence as defined.
+You will find included KTB validations in the package 'com.purbon.kafka.topology.validation'.
 
 An example configuration might look like this:
 ::
-    topology.validations.0=topology.CamelCaseNameFormatValidation
-    topology.validations.1=topic.PartitionNumberValidation
+    topology.validations.0=com.purbon.kafka.topology.validation.topology.CamelCaseNameFormatValidation
+    topology.validations.1=com.purbon.kafka.topology.validation.topic.PartitionNumberValidation
 
-Users can pull custom validation available from the class path.
+You can also create your own custom validations. The validations must implement one of these interfaces:
+- com.purbon.kafka.topology.validation.TopologyValidation
+- com.purbon.kafka.topology.validation.TopicValidation
 
 Prevent ACL for topic creation for connector principal
 -----------
