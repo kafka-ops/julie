@@ -81,11 +81,10 @@ public class TopologyValidator {
         .map(
             validationClass -> {
               try {
-                Class<?> clazz;
-                clazz = getValidationClazz(validationClass);
+                Class<?> clazz = getValidationClazz(validationClass);
                 if (clazz == null) {
-                  String deprecatedValidationClassConfig = classPrefix + validationClass;
-                  clazz = getValidationClazz(deprecatedValidationClassConfig);
+                  String deprecatedClassNameFromPrefix = classPrefix + validationClass;
+                  clazz = getValidationClazz(deprecatedClassNameFromPrefix);
                   if (clazz != null) {
                     LOGGER.warn(
                         "Deprecation warning: Specifying validations in the config without using the "
