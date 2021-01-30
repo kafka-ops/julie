@@ -5,10 +5,15 @@ import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.purbon.kafka.topology.model.User;
 import java.util.Optional;
 
+/**
+ * Confluent Schema Registry cluster definition.
+ *
+ * Used to register proper permissions for Schema Registry cluster to work properly in a secured
+ * Kafka Cluster.
+ */
 public class SchemaRegistryInstance extends User {
 
   private static final String DEFAULT_SCHEMA_TOPIC = "_schemas";
-
   private static final String DEFAULT_SCHEMA_REGISTRY_GROUP = "schema-registry";
 
   @JsonInclude(Include.NON_EMPTY)

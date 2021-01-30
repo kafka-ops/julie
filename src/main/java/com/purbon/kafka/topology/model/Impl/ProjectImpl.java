@@ -1,4 +1,4 @@
-package com.purbon.kafka.topology.model.Impl;
+package com.purbon.kafka.topology.model.impl;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.purbon.kafka.topology.Configuration;

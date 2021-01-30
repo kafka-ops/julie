@@ -7,6 +7,7 @@ import com.purbon.kafka.topology.serdes.TopologySerdes;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
@@ -55,10 +56,11 @@ public class TopologyObjectBuilder {
     if (isDir) {
       Files.list(Paths.get(fileOrDir))
           .sorted()
-          .map(path -> parser.deserialise(path.toFile()))
-          .forEach(subTopology -> topologies.add(subTopology));
+          .map(Path::toFile)
+          .map(parser::deserialize)
+          .forEach(topologies::add);
     } else {
-      Topology firstTopology = parser.deserialise(new File(fileOrDir));
+      Topology firstTopology = parser.deserialize(new File(fileOrDir));
       topologies.add(firstTopology);
     }
     return topologies;

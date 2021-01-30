@@ -8,10 +8,34 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+/**
+ * Confluent Schema Registry clusters definition.
+ *
+ * List of Schema Registry clusters to configure their access to a secure Kafka cluster.
+ *
+ * YAML:
+ * <pre>
+ * {@code
+ *   schema_registry:
+ *     instances:
+ *       - principal: "User:SchemaRegistry01"
+ *         topic: "foo"
+ *         group: "bar"
+ *       - principal: "User:SchemaRegistry02"
+ *         topic: "zet"
+ * }
+ * </pre>
+ */
 public class SchemaRegistry {
 
+  /**
+   * Schema Registry clusters definition.
+   */
   private List<SchemaRegistryInstance> instances;
 
+  /**
+   *
+   */
   @JsonInclude(Include.NON_EMPTY)
   private Optional<Map<String, List<User>>> rbac;
 

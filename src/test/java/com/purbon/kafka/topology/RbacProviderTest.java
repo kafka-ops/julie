@@ -13,14 +13,14 @@ import static org.mockito.Mockito.verify;
 
 import com.purbon.kafka.topology.api.mds.MDSApiClient;
 import com.purbon.kafka.topology.api.mds.RequestScope;
-import com.purbon.kafka.topology.model.Impl.ProjectImpl;
-import com.purbon.kafka.topology.model.Impl.TopicImpl;
-import com.purbon.kafka.topology.model.Impl.TopologyImpl;
 import com.purbon.kafka.topology.model.Platform;
 import com.purbon.kafka.topology.model.Project;
 import com.purbon.kafka.topology.model.Topic;
 import com.purbon.kafka.topology.model.Topology;
 import com.purbon.kafka.topology.model.User;
+import com.purbon.kafka.topology.model.impl.ProjectImpl;
+import com.purbon.kafka.topology.model.impl.TopicImpl;
+import com.purbon.kafka.topology.model.impl.TopologyImpl;
 import com.purbon.kafka.topology.model.users.Connector;
 import com.purbon.kafka.topology.model.users.Consumer;
 import com.purbon.kafka.topology.model.users.KStream;
@@ -51,13 +51,17 @@ import org.mockito.junit.MockitoRule;
 
 public class RbacProviderTest {
 
-  @Mock MDSApiClient apiClient;
+  @Mock
+  MDSApiClient apiClient;
 
-  @Mock ExecutionPlan plan;
+  @Mock
+  ExecutionPlan plan;
 
-  @Mock ClusterLevelRoleBuilder runner;
+  @Mock
+  ClusterLevelRoleBuilder runner;
 
-  @Rule public MockitoRule mockitoRule = MockitoJUnit.rule();
+  @Rule
+  public MockitoRule mockitoRule = MockitoJUnit.rule();
 
   private AccessControlManager accessControlManager;
   private RBACProvider aclsProvider;

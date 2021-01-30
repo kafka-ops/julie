@@ -20,6 +20,7 @@ public class TopicSchemas {
    * @param keyRecordJsonNode
    * @param keyFormatJsonNode
    * @param keyCompatibilityJsonNode
+   *
    * @param valueJsonNode
    * @param valueRecordJsonNode
    * @param valueFormatJsonNode

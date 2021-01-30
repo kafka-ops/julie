@@ -7,7 +7,7 @@ public class JinjaUtils {
 
   private static Jinjava jinjava = new Jinjava();
 
-  public static String serialise(String format, Map<String, Object> context) {
+  public static String serialize(String format, Map<String, Object> context) {
     return jinjava.render(format, context);
   }
 }

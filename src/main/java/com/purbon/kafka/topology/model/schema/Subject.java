@@ -6,6 +6,9 @@ import io.confluent.kafka.schemaregistry.avro.AvroSchema;
 import java.io.IOException;
 import java.util.Optional;
 
+/**
+ * Confluent Schema Registry Subject representation.
+ */
 public class Subject {
 
   private Optional<String> schemaFile;
@@ -13,17 +16,6 @@ public class Subject {
   private Optional<String> optionalCompatibility;
   private Optional<String> optionalFormat;
   private SubjectKind kind;
-
-  public enum SubjectKind {
-    KEY("key"),
-    VALUE("value");
-
-    private final String label;
-
-    SubjectKind(String label) {
-      this.label = label;
-    }
-  }
 
   public Subject(
       Optional<JsonNode> schemaFileJsonNode,
@@ -76,4 +68,19 @@ public class Subject {
         return "";
     }
   }
+
+  /**
+   * Subject's target: Record's Key and Value.
+   */
+  public enum SubjectKind {
+    KEY("key"),
+    VALUE("value");
+
+    private final String label;
+
+    SubjectKind(String label) {
+      this.label = label;
+    }
+  }
+
 }
