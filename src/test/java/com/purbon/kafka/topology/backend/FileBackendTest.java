@@ -43,9 +43,16 @@ public class FileBackendTest {
 
   @Test
   public void testStoreAndLoadBindingsAndTopics() throws IOException {
-    TopologyAclBinding binding =
-        TopologyAclBinding.build(
-            ResourceType.CLUSTER.name(), "Topic", "host", "op", "principal", "LITERAL");
+    testStoreAndLoadWithPrincipal("principal");
+  }
+
+  @Test
+  public void shouldHandlePrincipalWithSpace() throws IOException {
+    testStoreAndLoadWithPrincipal("User:C=NO,CN=John Doe,emailAddress=john.doe@example.com");
+  }
+
+  private void testStoreAndLoadWithPrincipal(final String principal) throws IOException {
+    TopologyAclBinding binding = TopologyAclBinding.build(ResourceType.CLUSTER.name(), "Topic", "host", "op", principal, "LITERAL");
 
     Topology topology = new TopologyImpl();
     topology.setContext("context");
@@ -76,4 +83,5 @@ public class FileBackendTest {
     assertThat(topics).contains(topic.toString());
     assertThat(topics).contains(topicBar.toString());
   }
+
 }
