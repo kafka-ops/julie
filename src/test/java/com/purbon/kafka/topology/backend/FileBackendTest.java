@@ -4,15 +4,11 @@ import static com.purbon.kafka.topology.backend.FileBackend.ACLS_TAG;
 import static com.purbon.kafka.topology.backend.FileBackend.SERVICE_ACCOUNTS_TAG;
 import static com.purbon.kafka.topology.backend.FileBackend.STATE_FILE_NAME;
 import static com.purbon.kafka.topology.backend.FileBackend.TOPICS_TAG;
-import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.purbon.kafka.topology.BackendController.Mode;
 import com.purbon.kafka.topology.TestTopologyBuilder;
-import com.purbon.kafka.topology.model.Impl.ProjectImpl;
-import com.purbon.kafka.topology.model.Project;
 import com.purbon.kafka.topology.model.Topic;
-import com.purbon.kafka.topology.model.Topology;
 import com.purbon.kafka.topology.roles.TopologyAclBinding;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -57,13 +53,9 @@ public class FileBackendTest {
 
     TestTopologyBuilder builder =
         TestTopologyBuilder.createProject().addTopic("foo").addTopic("bar");
-    Topology topology = builder.buildTopology();
-    Project project = new ProjectImpl("project");
-    topology.setProjects(singletonList(project));
 
     Topic fooTopic = builder.getTopic("foo");
     Topic barTopic = builder.getTopic("bar");
-    project.setTopics(Arrays.asList(fooTopic, barTopic));
 
     backend.createOrOpen(Mode.TRUNCATE);
     backend.saveType(ACLS_TAG);
