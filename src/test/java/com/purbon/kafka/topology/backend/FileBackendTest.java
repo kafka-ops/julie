@@ -8,9 +8,8 @@ import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.purbon.kafka.topology.BackendController.Mode;
+import com.purbon.kafka.topology.TestTopologyBuilder;
 import com.purbon.kafka.topology.model.Impl.ProjectImpl;
-import com.purbon.kafka.topology.model.Impl.TopicImpl;
-import com.purbon.kafka.topology.model.Impl.TopologyImpl;
 import com.purbon.kafka.topology.model.Project;
 import com.purbon.kafka.topology.model.Topic;
 import com.purbon.kafka.topology.model.Topology;
@@ -43,32 +42,35 @@ public class FileBackendTest {
 
   @Test
   public void testStoreAndLoadBindingsAndTopics() throws IOException {
-    testStoreAndLoadWithPrincipal("principal");
+    verifyStoreAndLoadWithPrincipal("principal");
   }
 
   @Test
   public void shouldHandlePrincipalWithSpace() throws IOException {
-    testStoreAndLoadWithPrincipal("User:C=NO,CN=John Doe,emailAddress=john.doe@example.com");
+    verifyStoreAndLoadWithPrincipal("User:C=NO,CN=John Doe,emailAddress=john.doe@example.com");
   }
 
-  private void testStoreAndLoadWithPrincipal(final String principal) throws IOException {
-    TopologyAclBinding binding = TopologyAclBinding.build(ResourceType.CLUSTER.name(), "Topic", "host", "op", principal, "LITERAL");
+  private void verifyStoreAndLoadWithPrincipal(final String principal) throws IOException {
+    TopologyAclBinding binding =
+        TopologyAclBinding.build(
+            ResourceType.CLUSTER.name(), "Topic", "host", "op", principal, "LITERAL");
 
-    Topology topology = new TopologyImpl();
-    topology.setContext("context");
+    TestTopologyBuilder builder =
+        TestTopologyBuilder.createProject().addTopic("foo").addTopic("bar");
+    Topology topology = builder.buildTopology();
     Project project = new ProjectImpl("project");
     topology.setProjects(singletonList(project));
 
-    Topic topic = new TopicImpl("foo");
-    Topic topicBar = new TopicImpl("bar");
-    project.setTopics(Arrays.asList(topic, topicBar));
+    Topic fooTopic = builder.getTopic("foo");
+    Topic barTopic = builder.getTopic("bar");
+    project.setTopics(Arrays.asList(fooTopic, barTopic));
 
     backend.createOrOpen(Mode.TRUNCATE);
     backend.saveType(ACLS_TAG);
     backend.saveBindings(Collections.singleton(binding));
     backend.saveType(SERVICE_ACCOUNTS_TAG);
     backend.saveType(TOPICS_TAG);
-    backend.saveTopics(new HashSet<>(Arrays.asList(topic.toString(), topicBar.toString())));
+    backend.saveTopics(new HashSet<>(Arrays.asList(fooTopic.toString(), barTopic.toString())));
     backend.close();
 
     backend = new FileBackend();
@@ -80,8 +82,7 @@ public class FileBackendTest {
     assertThat(bindings).hasSize(1);
     assertThat(bindings).contains(binding);
     assertThat(topics).hasSize(2);
-    assertThat(topics).contains(topic.toString());
-    assertThat(topics).contains(topicBar.toString());
+    assertThat(topics).contains(fooTopic.toString());
+    assertThat(topics).contains(barTopic.toString());
   }
-
 }
