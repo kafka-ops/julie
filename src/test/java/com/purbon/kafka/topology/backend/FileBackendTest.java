@@ -46,6 +46,11 @@ public class FileBackendTest {
     verifyStoreAndLoadWithPrincipal("User:C=NO,CN=John Doe,emailAddress=john.doe@example.com");
   }
 
+  @Test
+  public void shouldHandlePrincipalWithUri() throws IOException {
+    verifyStoreAndLoadWithPrincipal("SPIFFE:spiffe://example.com/foo/bar");
+  }
+
   private void verifyStoreAndLoadWithPrincipal(final String principal) throws IOException {
     TopologyAclBinding binding =
         TopologyAclBinding.build(
