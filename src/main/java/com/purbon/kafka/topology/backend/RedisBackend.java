@@ -20,7 +20,7 @@ public class RedisBackend implements Backend {
   static final String KAFKA_TOPOLOGY_BUILDER_TYPE = "kafka.topology.builder.type";
 
   private String expression =
-      "^\\'(\\S+)\\',\\s*\\'(\\S+)\\',\\s*\\'(\\S+)\\',\\s*\\'(\\S+)\\',\\s*\\'(\\S+)\\',\\s*\\'(\\S+)\\'";
+      "^\\'(\\S+)\\',\\s*\\'(\\S+)\\',\\s*\\'(\\S+)\\',\\s*\\'(\\S+)\\',\\s*\\'(.+)\\',\\s*\\'(\\S+)\\'$";
   private Pattern regexp;
   private Jedis jedis;
 
