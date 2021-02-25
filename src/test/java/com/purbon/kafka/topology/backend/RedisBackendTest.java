@@ -56,7 +56,8 @@ public class RedisBackendTest {
     when(jedis.get(eq(JULIE_OPS_BUILDER_TYPE))).thenReturn("acls");
     when(jedis.scard(eq(JULIE_OPS_BUILDER_BINDINGS))).thenReturn(10l);
     when(jedis.spop(eq(JULIE_OPS_BUILDER_BINDINGS)))
-        .thenReturn("'TOPIC', 'topicA', '*', 'READ', 'User:C=NO,CN=John Doe,emailAddress=john.doe@example.com', 'LITERAL'")
+        .thenReturn(
+            "'TOPIC', 'topicA', '*', 'READ', 'User:C=NO,CN=John Doe,emailAddress=john.doe@example.com', 'LITERAL'")
         .thenReturn("'TOPIC', 'topicB', '*', 'READ', 'User:Connect1', 'LITERAL'");
 
     Set<TopologyAclBinding> bindings = stateProcessor.loadBindings();
