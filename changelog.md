@@ -1,4 +1,14 @@
 
+v1.5.1 / 2021-02-25
+===================
+
+  * Bump jackson.version from 2.10.3 to 2.12.1 (#211)
+  * File backend fix (#210)
+  * Support topology validations with fully qualified class names as configuration values (backwards compatible) (#204)
+  * Add topology metadata support for topics and users (#200)
+  * README update
+  * updated github action to take into account the new version branches
+
 v1.5.0 / 2021-01-16
 ===================
 
