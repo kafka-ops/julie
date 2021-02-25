@@ -423,7 +423,7 @@
     <maven-failsafe-plugin.version>2.22.2</maven-failsafe-plugin.version>
     <!-- dependencies -->
     <java.version>8</java.version>
-    <jackson.version>2.10.3</jackson.version>
+    <jackson.version>2.12.1</jackson.version>
     <kafka.version>2.7.0</kafka.version>
     <log4j.version>2.13.3</log4j.version>
     <httpclient.version>4.5.11</httpclient.version>
@@ -431,7 +431,7 @@
     <commons.version>1.4</commons.version>
     <mockito.version>3.6.0</mockito.version>
     <junit.version>4.13.1</junit.version>
-    <testcontainers.version>1.15.0</testcontainers.version>
+    <testcontainers.version>1.15.2</testcontainers.version>
     <jedis.version>3.2.0</jedis.version>
     <confluent.version>6.1.0</confluent.version>
     <confluent-ce.version>5.5.1-ce</confluent-ce.version>
