@@ -1,7 +1,7 @@
 package com.purbon.kafka.topology;
 
 import static com.purbon.kafka.topology.CommandLineInterface.BROKERS_OPTION;
-import static com.purbon.kafka.topology.TopologyBuilderConfig.OPTIMIZED_ACLS_CONFIG;
+import static com.purbon.kafka.topology.Configuration.OPTIMIZED_ACLS_CONFIG;
 import static com.purbon.kafka.topology.roles.rbac.RBACBindingsBuilder.LITERAL;
 import static com.purbon.kafka.topology.roles.rbac.RBACBindingsBuilder.PREFIX;
 import static com.purbon.kafka.topology.roles.rbac.RBACPredefinedRoles.DEVELOPER_READ;
@@ -107,7 +107,7 @@ public class RbacProviderTest {
     Properties props = new Properties();
     props.put(OPTIMIZED_ACLS_CONFIG, true);
 
-    TopologyBuilderConfig config = new TopologyBuilderConfig(cliOps, props);
+    Configuration config = new Configuration(cliOps, props);
     accessControlManager = new AccessControlManager(aclsProvider, bindingsBuilder, config);
 
     List<Consumer> consumers = new ArrayList<>();
@@ -163,7 +163,7 @@ public class RbacProviderTest {
     Properties props = new Properties();
     props.put(OPTIMIZED_ACLS_CONFIG, true);
 
-    TopologyBuilderConfig config = new TopologyBuilderConfig(cliOps, props);
+    Configuration config = new Configuration(cliOps, props);
     accessControlManager = new AccessControlManager(aclsProvider, bindingsBuilder, config);
     List<Producer> producers = new ArrayList<>();
     producers.add(new Producer("User:app1"));

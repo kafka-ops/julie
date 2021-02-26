@@ -1,7 +1,7 @@
 package com.purbon.kafka.topology.model;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.purbon.kafka.topology.TopologyBuilderConfig;
+import com.purbon.kafka.topology.Configuration;
 import com.purbon.kafka.topology.model.Impl.TopicImpl;
 import com.purbon.kafka.topology.model.users.Consumer;
 import com.purbon.kafka.topology.model.users.Producer;
@@ -27,7 +27,7 @@ public interface Topic {
 
   Optional<String> getDataType();
 
-  void addAppConfig(TopologyBuilderConfig appConfig);
+  void addAppConfig(Configuration appConfig);
 
   int partitionsCount();
 

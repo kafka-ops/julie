@@ -2,8 +2,8 @@ package com.purbon.kafka.topology.integration.containerutils;
 
 import com.purbon.kafka.topology.AccessControlProvider;
 import com.purbon.kafka.topology.BindingsBuilderProvider;
+import com.purbon.kafka.topology.Configuration;
 import com.purbon.kafka.topology.JulieOps;
-import com.purbon.kafka.topology.TopologyBuilderConfig;
 import com.purbon.kafka.topology.api.adminclient.TopologyBuilderAdminClient;
 import com.purbon.kafka.topology.roles.SimpleAclsProvider;
 import com.purbon.kafka.topology.roles.acls.AclsBindingsBuilder;
@@ -84,8 +84,8 @@ public final class ContainerTestUtils {
       final String configResource) {
     final String fileOrDirPath = TestUtils.getResourceFilename(topologyResource);
     final Map<String, String> cliParams = new HashMap<>();
-    final TopologyBuilderConfig builderConfig =
-        TopologyBuilderConfig.build(cliParams, TestUtils.getResourceFilename(configResource));
+    final Configuration builderConfig =
+        Configuration.build(cliParams, TestUtils.getResourceFilename(configResource));
     final TopologyBuilderAdminClient topologyAdminClient =
         new TopologyBuilderAdminClient(kafkaAdminClient);
     final AccessControlProvider accessControlProvider = new SimpleAclsProvider(topologyAdminClient);

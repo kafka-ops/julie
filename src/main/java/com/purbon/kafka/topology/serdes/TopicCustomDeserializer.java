@@ -9,7 +9,7 @@ import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.fasterxml.jackson.databind.node.ArrayNode;
-import com.purbon.kafka.topology.TopologyBuilderConfig;
+import com.purbon.kafka.topology.Configuration;
 import com.purbon.kafka.topology.exceptions.ValidationException;
 import com.purbon.kafka.topology.model.Impl.TopicImpl;
 import com.purbon.kafka.topology.model.PlanMap;
@@ -37,7 +37,7 @@ import org.apache.logging.log4j.Logger;
 public class TopicCustomDeserializer extends StdDeserializer<TopicImpl> {
 
   private static final Logger LOGGER = LogManager.getLogger(TopicCustomDeserializer.class);
-  private final TopologyBuilderConfig config;
+  private final Configuration config;
   private PlanMap plans;
 
   private List<String> validSchemaKeys =
@@ -51,11 +51,11 @@ public class TopicCustomDeserializer extends StdDeserializer<TopicImpl> {
           "key.compatibility",
           "value.compatibility");
 
-  TopicCustomDeserializer(TopologyBuilderConfig config, PlanMap plans) {
+  TopicCustomDeserializer(Configuration config, PlanMap plans) {
     this(null, config, plans);
   }
 
-  private TopicCustomDeserializer(Class<?> clazz, TopologyBuilderConfig config, PlanMap plans) {
+  private TopicCustomDeserializer(Class<?> clazz, Configuration config, PlanMap plans) {
     super(clazz);
     this.config = config;
     this.plans = plans;

@@ -1,11 +1,11 @@
 package com.purbon.kafka.topology;
 
 import static com.purbon.kafka.topology.CommandLineInterface.BROKERS_OPTION;
-import static com.purbon.kafka.topology.TopologyBuilderConfig.ACCESS_CONTROL_IMPLEMENTATION_CLASS;
-import static com.purbon.kafka.topology.TopologyBuilderConfig.MDS_KAFKA_CLUSTER_ID_CONFIG;
-import static com.purbon.kafka.topology.TopologyBuilderConfig.MDS_PASSWORD_CONFIG;
-import static com.purbon.kafka.topology.TopologyBuilderConfig.MDS_SERVER;
-import static com.purbon.kafka.topology.TopologyBuilderConfig.MDS_USER_CONFIG;
+import static com.purbon.kafka.topology.Configuration.ACCESS_CONTROL_IMPLEMENTATION_CLASS;
+import static com.purbon.kafka.topology.Configuration.MDS_KAFKA_CLUSTER_ID_CONFIG;
+import static com.purbon.kafka.topology.Configuration.MDS_PASSWORD_CONFIG;
+import static com.purbon.kafka.topology.Configuration.MDS_SERVER;
+import static com.purbon.kafka.topology.Configuration.MDS_USER_CONFIG;
 import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.verify;
@@ -57,7 +57,7 @@ public class AccessControlProviderFactoryTest {
     props.put(MDS_PASSWORD_CONFIG, "alice-secret");
     props.put(MDS_KAFKA_CLUSTER_ID_CONFIG, "UtBZ3rTSRtypmmkAL1HbHw");
 
-    TopologyBuilderConfig config = new TopologyBuilderConfig(cliOps, props);
+    Configuration config = new Configuration(cliOps, props);
 
     when(mdsApiClientBuilder.build()).thenReturn(mdsApiClient);
 
@@ -75,7 +75,7 @@ public class AccessControlProviderFactoryTest {
   @Test
   public void testACLsConfig() throws IOException {
 
-    TopologyBuilderConfig config = new TopologyBuilderConfig(cliOps, props);
+    Configuration config = new Configuration(cliOps, props);
 
     AccessControlProviderFactory factory =
         new AccessControlProviderFactory(config, adminClient, mdsApiClientBuilder);
@@ -89,7 +89,7 @@ public class AccessControlProviderFactoryTest {
     props.put(
         ACCESS_CONTROL_IMPLEMENTATION_CLASS, "com.purbon.kafka.topology.roles.MyCustomProvider");
 
-    TopologyBuilderConfig config = new TopologyBuilderConfig(cliOps, props);
+    Configuration config = new Configuration(cliOps, props);
 
     when(mdsApiClientBuilder.build()).thenReturn(mdsApiClient);
 

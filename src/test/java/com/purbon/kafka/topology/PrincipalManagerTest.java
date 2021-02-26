@@ -2,9 +2,9 @@ package com.purbon.kafka.topology;
 
 import static com.purbon.kafka.topology.CommandLineInterface.ALLOW_DELETE_OPTION;
 import static com.purbon.kafka.topology.CommandLineInterface.BROKERS_OPTION;
-import static com.purbon.kafka.topology.TopologyBuilderConfig.SERVICE_ACCOUNT_MANAGED_PREFIXES;
-import static com.purbon.kafka.topology.TopologyBuilderConfig.TOPOLOGY_EXPERIMENTAL_ENABLED_CONFIG;
-import static com.purbon.kafka.topology.TopologyBuilderConfig.TOPOLOGY_STATE_FROM_CLUSTER;
+import static com.purbon.kafka.topology.Configuration.SERVICE_ACCOUNT_MANAGED_PREFIXES;
+import static com.purbon.kafka.topology.Configuration.TOPOLOGY_EXPERIMENTAL_ENABLED_CONFIG;
+import static com.purbon.kafka.topology.Configuration.TOPOLOGY_STATE_FROM_CLUSTER;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
@@ -54,7 +54,7 @@ public class PrincipalManagerTest {
   @Rule public MockitoRule mockitoRule = MockitoJUnit.rule();
 
   PrincipalManager principalManager;
-  TopologyBuilderConfig config;
+  Configuration config;
 
   BackendController backendController;
 
@@ -77,7 +77,7 @@ public class PrincipalManagerTest {
     props.put(TOPOLOGY_STATE_FROM_CLUSTER, "false");
 
     plan = ExecutionPlan.init(backendController, mockPrintStream);
-    config = new TopologyBuilderConfig(cliOps, props);
+    config = new Configuration(cliOps, props);
     principalManager = new PrincipalManager(provider, config);
   }
 
@@ -186,7 +186,7 @@ public class PrincipalManagerTest {
   public void testNotRunIfConfigNotExperimental() throws IOException {
     props.put(TOPOLOGY_EXPERIMENTAL_ENABLED_CONFIG, "false");
 
-    config = new TopologyBuilderConfig(cliOps, props);
+    config = new Configuration(cliOps, props);
     principalManager = new PrincipalManager(provider, config);
 
     Topology topology = new TopologyImpl();
@@ -202,7 +202,7 @@ public class PrincipalManagerTest {
 
     props.put(SERVICE_ACCOUNT_MANAGED_PREFIXES, Collections.singletonList("pro"));
 
-    config = new TopologyBuilderConfig(cliOps, props);
+    config = new Configuration(cliOps, props);
     principalManager = new PrincipalManager(provider, config);
 
     Topology topology = new TopologyImpl();

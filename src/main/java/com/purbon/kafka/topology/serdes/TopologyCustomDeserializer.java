@@ -11,7 +11,7 @@ import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.google.common.collect.Maps;
-import com.purbon.kafka.topology.TopologyBuilderConfig;
+import com.purbon.kafka.topology.Configuration;
 import com.purbon.kafka.topology.model.Impl.ProjectImpl;
 import com.purbon.kafka.topology.model.Impl.TopologyImpl;
 import com.purbon.kafka.topology.model.Platform;
@@ -67,13 +67,13 @@ public class TopologyCustomDeserializer extends StdDeserializer<Topology> {
   private static final String TOPICS_KEY = "topics";
   private static final String PRINCIPAL_KEY = "principal";
 
-  private final TopologyBuilderConfig config;
+  private final Configuration config;
 
-  TopologyCustomDeserializer(TopologyBuilderConfig config) {
+  TopologyCustomDeserializer(Configuration config) {
     this(null, config);
   }
 
-  private TopologyCustomDeserializer(Class<?> clazz, TopologyBuilderConfig config) {
+  private TopologyCustomDeserializer(Class<?> clazz, Configuration config) {
     super(clazz);
     this.config = config;
   }
@@ -132,7 +132,7 @@ public class TopologyCustomDeserializer extends StdDeserializer<Topology> {
   }
 
   private List<Project> parseProjects(
-      JsonParser parser, JsonNode projectsNode, Topology topology, TopologyBuilderConfig config)
+      JsonParser parser, JsonNode projectsNode, Topology topology, Configuration config)
       throws IOException {
     List<Project> projects = new ArrayList<>();
     for (int i = 0; i < projectsNode.size(); i++) {
@@ -146,7 +146,7 @@ public class TopologyCustomDeserializer extends StdDeserializer<Topology> {
   }
 
   private Project parseProject(
-      JsonParser parser, JsonNode rootNode, Topology topology, TopologyBuilderConfig config)
+      JsonParser parser, JsonNode rootNode, Topology topology, Configuration config)
       throws IOException {
 
     List<String> keys =

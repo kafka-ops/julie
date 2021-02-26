@@ -1,6 +1,6 @@
 package com.purbon.kafka.topology.utils;
 
-import com.purbon.kafka.topology.TopologyBuilderConfig;
+import com.purbon.kafka.topology.Configuration;
 import com.purbon.kafka.topology.api.ccloud.CCloudCLI;
 import com.purbon.kafka.topology.model.cluster.ServiceAccount;
 import java.io.IOException;
@@ -14,7 +14,7 @@ public class CCloudUtils {
   private Map<String, ServiceAccount> serviceAccounts;
   private boolean warmed;
 
-  public CCloudUtils(CCloudCLI cli, TopologyBuilderConfig config) {
+  public CCloudUtils(CCloudCLI cli, Configuration config) {
     this.cli = cli;
     this.env = config.useConfuentCloud() ? config.getConfluentCloudEnv() : "";
     this.serviceAccounts = new HashMap<>();

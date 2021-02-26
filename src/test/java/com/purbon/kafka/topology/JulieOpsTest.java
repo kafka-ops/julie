@@ -1,7 +1,7 @@
 package com.purbon.kafka.topology;
 
 import static com.purbon.kafka.topology.CommandLineInterface.*;
-import static com.purbon.kafka.topology.TopologyBuilderConfig.CONFLUENT_SCHEMA_REGISTRY_URL_CONFIG;
+import static com.purbon.kafka.topology.Configuration.CONFLUENT_SCHEMA_REGISTRY_URL_CONFIG;
 import static org.mockito.Matchers.anyObject;
 import static org.mockito.Mockito.*;
 
@@ -55,7 +55,7 @@ public class JulieOpsTest {
   public void closeAdminClientTest() throws Exception {
     String fileOrDirPath = TestUtils.getResourceFilename("/descriptor.yaml");
 
-    TopologyBuilderConfig builderConfig = new TopologyBuilderConfig(cliOps, props);
+    Configuration builderConfig = new Configuration(cliOps, props);
 
     JulieOps builder =
         JulieOps.build(
@@ -73,7 +73,7 @@ public class JulieOpsTest {
   @Test(expected = TopologyParsingException.class)
   public void verifyProblematicParametersTest() throws Exception {
     String file = "fileThatDoesNotExist.yaml";
-    TopologyBuilderConfig builderConfig = new TopologyBuilderConfig(cliOps, props);
+    Configuration builderConfig = new Configuration(cliOps, props);
 
     JulieOps builder =
         JulieOps.build(
@@ -90,7 +90,7 @@ public class JulieOpsTest {
   public void verifyProblematicParametersTest2() throws Exception {
     String fileOrDirPath = TestUtils.getResourceFilename("/descriptor.yaml");
 
-    TopologyBuilderConfig builderConfig = new TopologyBuilderConfig(cliOps, props);
+    Configuration builderConfig = new Configuration(cliOps, props);
     JulieOps builder =
         JulieOps.build(
             fileOrDirPath,
@@ -109,7 +109,7 @@ public class JulieOpsTest {
 
     cliOps.put(ADMIN_CLIENT_CONFIG_OPTION, clientConfigFile);
 
-    TopologyBuilderConfig builderConfig = new TopologyBuilderConfig(cliOps, props);
+    Configuration builderConfig = new Configuration(cliOps, props);
     JulieOps builder =
         JulieOps.build(
             fileOrDirPath,
@@ -188,7 +188,7 @@ public class JulieOpsTest {
   public void buiderRunTest() throws Exception {
     String fileOrDirPath = TestUtils.getResourceFilename("/descriptor.yaml");
 
-    TopologyBuilderConfig builderConfig = new TopologyBuilderConfig(cliOps, props);
+    Configuration builderConfig = new Configuration(cliOps, props);
 
     JulieOps builder =
         JulieOps.build(

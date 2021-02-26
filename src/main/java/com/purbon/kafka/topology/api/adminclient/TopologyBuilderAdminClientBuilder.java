@@ -1,6 +1,6 @@
 package com.purbon.kafka.topology.api.adminclient;
 
-import com.purbon.kafka.topology.TopologyBuilderConfig;
+import com.purbon.kafka.topology.Configuration;
 import java.io.IOException;
 import java.util.Properties;
 import org.apache.kafka.clients.admin.AdminClient;
@@ -13,9 +13,9 @@ public class TopologyBuilderAdminClientBuilder {
   private static final Logger LOGGER =
       LogManager.getLogger(TopologyBuilderAdminClientBuilder.class);
 
-  private final TopologyBuilderConfig config;
+  private final Configuration config;
 
-  public TopologyBuilderAdminClientBuilder(TopologyBuilderConfig config) {
+  public TopologyBuilderAdminClientBuilder(Configuration config) {
     this.config = config;
   }
 

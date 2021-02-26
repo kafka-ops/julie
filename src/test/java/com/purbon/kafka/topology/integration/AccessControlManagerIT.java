@@ -7,8 +7,8 @@ import static org.mockito.Mockito.when;
 
 import com.purbon.kafka.topology.AccessControlManager;
 import com.purbon.kafka.topology.BackendController;
+import com.purbon.kafka.topology.Configuration;
 import com.purbon.kafka.topology.ExecutionPlan;
-import com.purbon.kafka.topology.TopologyBuilderConfig;
 import com.purbon.kafka.topology.api.adminclient.TopologyBuilderAdminClient;
 import com.purbon.kafka.topology.integration.containerutils.ContainerFactory;
 import com.purbon.kafka.topology.integration.containerutils.ContainerTestUtils;
@@ -58,7 +58,7 @@ public class AccessControlManagerIT {
   private BackendController cs;
   @Rule public MockitoRule mockitoRule = MockitoJUnit.rule();
 
-  @Mock private TopologyBuilderConfig config;
+  @Mock private Configuration config;
 
   @BeforeClass
   public static void setup() {
@@ -95,7 +95,7 @@ public class AccessControlManagerIT {
     cliOps.put(BROKERS_OPTION, "");
     cliOps.put(ALLOW_DELETE_OPTION, "true");
 
-    TopologyBuilderConfig config = new TopologyBuilderConfig(cliOps, props);
+    Configuration config = new Configuration(cliOps, props);
 
     accessControlManager = new AccessControlManager(aclsProvider, bindingsBuilder, config);
 
@@ -145,7 +145,7 @@ public class AccessControlManagerIT {
     cliOps.put(BROKERS_OPTION, "");
     cliOps.put(ALLOW_DELETE_OPTION, "true");
 
-    TopologyBuilderConfig config = new TopologyBuilderConfig(cliOps, props);
+    Configuration config = new Configuration(cliOps, props);
 
     accessControlManager = new AccessControlManager(aclsProvider, bindingsBuilder, config);
 

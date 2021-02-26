@@ -5,7 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
-import com.purbon.kafka.topology.TopologyBuilderConfig;
+import com.purbon.kafka.topology.Configuration;
 import com.purbon.kafka.topology.exceptions.TopologyParsingException;
 import com.purbon.kafka.topology.model.Impl.TopicImpl;
 import com.purbon.kafka.topology.model.PlanMap;
@@ -23,22 +23,22 @@ public class TopologySerdes {
   }
 
   public TopologySerdes() {
-    this(new TopologyBuilderConfig(), FileType.YAML, new PlanMap());
+    this(new Configuration(), FileType.YAML, new PlanMap());
   }
 
-  public TopologySerdes(TopologyBuilderConfig config) {
+  public TopologySerdes(Configuration config) {
     this(config, config.getTopologyFileType(), new PlanMap());
   }
 
-  public TopologySerdes(TopologyBuilderConfig config, PlanMap plans) {
+  public TopologySerdes(Configuration config, PlanMap plans) {
     this(config, config.getTopologyFileType(), plans);
   }
 
-  public TopologySerdes(TopologyBuilderConfig config, FileType type) {
+  public TopologySerdes(Configuration config, FileType type) {
     mapper = ObjectMapperFactory.build(type, config, new PlanMap());
   }
 
-  public TopologySerdes(TopologyBuilderConfig config, FileType type, PlanMap plans) {
+  public TopologySerdes(Configuration config, FileType type, PlanMap plans) {
     mapper = ObjectMapperFactory.build(type, config, plans);
   }
 
@@ -65,7 +65,7 @@ public class TopologySerdes {
 
   private static class ObjectMapperFactory {
 
-    public static ObjectMapper build(FileType type, TopologyBuilderConfig config, PlanMap plans) {
+    public static ObjectMapper build(FileType type, Configuration config, PlanMap plans) {
       ObjectMapper mapper;
       if (type.equals(FileType.JSON)) {
         mapper = new ObjectMapper();

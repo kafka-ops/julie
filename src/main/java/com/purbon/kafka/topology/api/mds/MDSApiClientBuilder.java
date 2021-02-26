@@ -1,11 +1,11 @@
 package com.purbon.kafka.topology.api.mds;
 
-import static com.purbon.kafka.topology.TopologyBuilderConfig.MDS_KAFKA_CLUSTER_ID_CONFIG;
-import static com.purbon.kafka.topology.TopologyBuilderConfig.MDS_KC_CLUSTER_ID_CONFIG;
-import static com.purbon.kafka.topology.TopologyBuilderConfig.MDS_SERVER;
-import static com.purbon.kafka.topology.TopologyBuilderConfig.MDS_SR_CLUSTER_ID_CONFIG;
+import static com.purbon.kafka.topology.Configuration.MDS_KAFKA_CLUSTER_ID_CONFIG;
+import static com.purbon.kafka.topology.Configuration.MDS_KC_CLUSTER_ID_CONFIG;
+import static com.purbon.kafka.topology.Configuration.MDS_SERVER;
+import static com.purbon.kafka.topology.Configuration.MDS_SR_CLUSTER_ID_CONFIG;
 
-import com.purbon.kafka.topology.TopologyBuilderConfig;
+import com.purbon.kafka.topology.Configuration;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -13,9 +13,9 @@ public class MDSApiClientBuilder {
 
   private static final Logger LOGGER = LogManager.getLogger(MDSApiClientBuilder.class);
 
-  private TopologyBuilderConfig config;
+  private Configuration config;
 
-  public MDSApiClientBuilder(TopologyBuilderConfig config) {
+  public MDSApiClientBuilder(Configuration config) {
     this.config = config;
   }
 
@@ -35,7 +35,7 @@ public class MDSApiClientBuilder {
     return apiClient;
   }
 
-  public void configure(TopologyBuilderConfig config) {
+  public void configure(Configuration config) {
     this.config = config;
   }
 }

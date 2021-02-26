@@ -23,19 +23,19 @@ public class TopicManager {
 
   private final SchemaRegistryManager schemaRegistryManager;
   private final TopologyBuilderAdminClient adminClient;
-  private final TopologyBuilderConfig config;
+  private final Configuration config;
   private final List<String> internalTopicPrefixes;
   private final List<String> managedPrefixes;
 
   public TopicManager(
       TopologyBuilderAdminClient adminClient, SchemaRegistryManager schemaRegistryManager) {
-    this(adminClient, schemaRegistryManager, new TopologyBuilderConfig());
+    this(adminClient, schemaRegistryManager, new Configuration());
   }
 
   public TopicManager(
       TopologyBuilderAdminClient adminClient,
       SchemaRegistryManager schemaRegistryManager,
-      TopologyBuilderConfig config) {
+      Configuration config) {
     this.adminClient = adminClient;
     this.schemaRegistryManager = schemaRegistryManager;
     this.config = config;

@@ -1,15 +1,15 @@
 package com.purbon.kafka.topology;
 
-import static com.purbon.kafka.topology.TopologyBuilderConfig.CCLOUD_ENV_CONFIG;
+import static com.purbon.kafka.topology.Configuration.CCLOUD_ENV_CONFIG;
 
 import com.purbon.kafka.topology.serviceAccounts.CCloudPrincipalProvider;
 import com.purbon.kafka.topology.serviceAccounts.VoidPrincipalProvider;
 
 public class PrincipalProviderFactory {
 
-  private TopologyBuilderConfig config;
+  private Configuration config;
 
-  public PrincipalProviderFactory(TopologyBuilderConfig config) {
+  public PrincipalProviderFactory(Configuration config) {
     this.config = config;
   }
 

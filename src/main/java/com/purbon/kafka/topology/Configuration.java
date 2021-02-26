@@ -19,7 +19,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.apache.kafka.clients.admin.AdminClientConfig;
 
-public class TopologyBuilderConfig {
+public class Configuration {
 
   static final String KAFKA_INTERNAL_TOPIC_PREFIXES = "kafka.internal.topic.prefixes";
   static final String ACCESS_CONTROL_IMPLEMENTATION_CLASS = "topology.builder.access.control.class";
@@ -92,32 +92,32 @@ public class TopologyBuilderConfig {
   private final Map<String, String> cliParams;
   private Config config;
 
-  public TopologyBuilderConfig() {
+  public Configuration() {
     this(new HashMap<>(), ConfigFactory.load());
   }
 
-  public static TopologyBuilderConfig build(Map<String, String> cliParams) {
+  public static Configuration build(Map<String, String> cliParams) {
     return build(cliParams, cliParams.get(ADMIN_CLIENT_CONFIG_OPTION));
   }
 
-  public static TopologyBuilderConfig build(Map<String, String> cliParams, String configFile) {
+  public static Configuration build(Map<String, String> cliParams, String configFile) {
     if (!configFile.isEmpty()) {
       System.setProperty("config.file", configFile);
     }
     ConfigFactory.invalidateCaches();
     Config config = ConfigFactory.load();
-    return new TopologyBuilderConfig(cliParams, config);
+    return new Configuration(cliParams, config);
   }
 
-  public TopologyBuilderConfig(Map<String, String> cliParams, Properties props) {
+  public Configuration(Map<String, String> cliParams, Properties props) {
     this(cliParams, (Map) props);
   }
 
-  public TopologyBuilderConfig(Map<String, String> cliParams, Map<String, Object> props) {
+  public Configuration(Map<String, String> cliParams, Map<String, Object> props) {
     this(cliParams, ConfigFactory.parseMap(props).withFallback(ConfigFactory.load()));
   }
 
-  public TopologyBuilderConfig(Map<String, String> cliParams, Config config) {
+  public Configuration(Map<String, String> cliParams, Config config) {
     this.cliParams = cliParams;
     this.config = config;
   }

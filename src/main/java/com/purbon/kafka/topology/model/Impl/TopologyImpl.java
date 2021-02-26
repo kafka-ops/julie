@@ -1,7 +1,7 @@
 package com.purbon.kafka.topology.model.Impl;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.purbon.kafka.topology.TopologyBuilderConfig;
+import com.purbon.kafka.topology.Configuration;
 import com.purbon.kafka.topology.model.Platform;
 import com.purbon.kafka.topology.model.Project;
 import com.purbon.kafka.topology.model.Topology;
@@ -12,7 +12,7 @@ import java.util.Map;
 
 public class TopologyImpl implements Topology, Cloneable {
 
-  @JsonIgnore private final TopologyBuilderConfig config;
+  @JsonIgnore private final Configuration config;
 
   private String context;
   @JsonIgnore private Map<String, String> others;
@@ -22,10 +22,10 @@ public class TopologyImpl implements Topology, Cloneable {
   private Platform platform;
 
   public TopologyImpl() {
-    this(new TopologyBuilderConfig());
+    this(new Configuration());
   }
 
-  public TopologyImpl(TopologyBuilderConfig config) {
+  public TopologyImpl(Configuration config) {
     this.context = "default";
     this.others = new HashMap<>();
     this.order = new ArrayList<>();

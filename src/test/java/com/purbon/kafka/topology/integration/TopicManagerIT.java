@@ -2,14 +2,14 @@ package com.purbon.kafka.topology.integration;
 
 import static com.purbon.kafka.topology.CommandLineInterface.ALLOW_DELETE_OPTION;
 import static com.purbon.kafka.topology.CommandLineInterface.BROKERS_OPTION;
-import static com.purbon.kafka.topology.TopologyBuilderConfig.TOPOLOGY_TOPIC_STATE_FROM_CLUSTER;
+import static com.purbon.kafka.topology.Configuration.TOPOLOGY_TOPIC_STATE_FROM_CLUSTER;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertTrue;
 
 import com.purbon.kafka.topology.BackendController;
+import com.purbon.kafka.topology.Configuration;
 import com.purbon.kafka.topology.ExecutionPlan;
 import com.purbon.kafka.topology.TopicManager;
-import com.purbon.kafka.topology.TopologyBuilderConfig;
 import com.purbon.kafka.topology.api.adminclient.TopologyBuilderAdminClient;
 import com.purbon.kafka.topology.integration.containerutils.ContainerFactory;
 import com.purbon.kafka.topology.integration.containerutils.ContainerTestUtils;
@@ -91,7 +91,7 @@ public class TopicManagerIT {
     cliOps.put(BROKERS_OPTION, "");
     cliOps.put(ALLOW_DELETE_OPTION, "true");
 
-    TopologyBuilderConfig config = new TopologyBuilderConfig(cliOps, props);
+    Configuration config = new Configuration(cliOps, props);
 
     this.topicManager = new TopicManager(adminClient, schemaRegistryManager, config);
   }

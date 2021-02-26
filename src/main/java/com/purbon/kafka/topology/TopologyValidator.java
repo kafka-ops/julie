@@ -21,10 +21,10 @@ public class TopologyValidator {
 
   private static final Logger LOGGER = LogManager.getLogger(TopologyValidator.class);
 
-  private final TopologyBuilderConfig config;
+  private final Configuration config;
   private final String classPrefix;
 
-  public TopologyValidator(TopologyBuilderConfig config) {
+  public TopologyValidator(Configuration config) {
     this.config = config;
     this.classPrefix = "com.purbon.kafka.topology.validation.";
   }

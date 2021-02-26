@@ -1,9 +1,9 @@
 package com.purbon.kafka.topology;
 
-import static com.purbon.kafka.topology.TopologyBuilderConfig.REDIS_HOST_CONFIG;
-import static com.purbon.kafka.topology.TopologyBuilderConfig.REDIS_PORT_CONFIG;
-import static com.purbon.kafka.topology.TopologyBuilderConfig.REDIS_STATE_PROCESSOR_CLASS;
-import static com.purbon.kafka.topology.TopologyBuilderConfig.STATE_PROCESSOR_DEFAULT_CLASS;
+import static com.purbon.kafka.topology.Configuration.REDIS_HOST_CONFIG;
+import static com.purbon.kafka.topology.Configuration.REDIS_PORT_CONFIG;
+import static com.purbon.kafka.topology.Configuration.REDIS_STATE_PROCESSOR_CLASS;
+import static com.purbon.kafka.topology.Configuration.STATE_PROCESSOR_DEFAULT_CLASS;
 
 import com.purbon.kafka.topology.api.adminclient.TopologyBuilderAdminClient;
 import com.purbon.kafka.topology.api.adminclient.TopologyBuilderAdminClientBuilder;
@@ -36,12 +36,12 @@ public class JulieOps implements AutoCloseable {
   private PrincipalManager principalManager;
   private AccessControlManager accessControlManager;
   private Topology topology;
-  private TopologyBuilderConfig config;
+  private Configuration config;
   private PrintStream outputStream;
 
   private JulieOps(
       Topology topology,
-      TopologyBuilderConfig config,
+      Configuration config,
       TopicManager topicManager,
       AccessControlManager accessControlManager,
       PrincipalManager principalManager) {
@@ -60,7 +60,7 @@ public class JulieOps implements AutoCloseable {
   public static JulieOps build(String topologyFile, String plansFile, Map<String, String> config)
       throws Exception {
 
-    TopologyBuilderConfig builderConfig = TopologyBuilderConfig.build(config);
+    Configuration builderConfig = Configuration.build(config);
     TopologyBuilderAdminClient adminClient =
         new TopologyBuilderAdminClientBuilder(builderConfig).build();
     AccessControlProviderFactory factory =
@@ -85,7 +85,7 @@ public class JulieOps implements AutoCloseable {
 
   public static JulieOps build(
       String topologyFileOrDir,
-      TopologyBuilderConfig config,
+      Configuration config,
       TopologyBuilderAdminClient adminClient,
       AccessControlProvider accessControlProvider,
       BindingsBuilderProvider bindingsBuilderProvider)
@@ -103,7 +103,7 @@ public class JulieOps implements AutoCloseable {
   public static JulieOps build(
       String topologyFileOrDir,
       String plansFile,
-      TopologyBuilderConfig config,
+      Configuration config,
       TopologyBuilderAdminClient adminClient,
       AccessControlProvider accessControlProvider,
       BindingsBuilderProvider bindingsBuilderProvider,
@@ -206,8 +206,7 @@ public class JulieOps implements AutoCloseable {
     }
   }
 
-  private static BackendController buildStateProcessor(TopologyBuilderConfig config)
-      throws IOException {
+  private static BackendController buildStateProcessor(Configuration config) throws IOException {
 
     String stateProcessorClass = config.getStateProcessorImplementationClassName();
 

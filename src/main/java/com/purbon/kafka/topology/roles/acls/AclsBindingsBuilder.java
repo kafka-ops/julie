@@ -3,7 +3,7 @@ package com.purbon.kafka.topology.roles.acls;
 import static java.util.Arrays.asList;
 
 import com.purbon.kafka.topology.BindingsBuilderProvider;
-import com.purbon.kafka.topology.TopologyBuilderConfig;
+import com.purbon.kafka.topology.Configuration;
 import com.purbon.kafka.topology.api.adminclient.AclBuilder;
 import com.purbon.kafka.topology.api.ccloud.CCloudCLI;
 import com.purbon.kafka.topology.model.users.Connector;
@@ -33,14 +33,14 @@ public class AclsBindingsBuilder implements BindingsBuilderProvider {
 
   private static final Logger LOGGER = LogManager.getLogger(AclsBindingsBuilder.class);
 
-  private final TopologyBuilderConfig config;
+  private final Configuration config;
   private final CCloudUtils cCloudUtils;
 
-  public AclsBindingsBuilder(TopologyBuilderConfig config) {
+  public AclsBindingsBuilder(Configuration config) {
     this(config, new CCloudUtils(new CCloudCLI(), config));
   }
 
-  public AclsBindingsBuilder(TopologyBuilderConfig config, CCloudUtils cCloudUtils) {
+  public AclsBindingsBuilder(Configuration config, CCloudUtils cCloudUtils) {
     this.config = config;
     this.cCloudUtils = cCloudUtils;
   }
