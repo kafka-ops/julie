@@ -3,8 +3,8 @@ package com.purbon.kafka.topology.model.Impl;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
+import com.purbon.kafka.topology.Configuration;
 import com.purbon.kafka.topology.TopicManager;
-import com.purbon.kafka.topology.TopologyBuilderConfig;
 import com.purbon.kafka.topology.model.SubjectNameStrategy;
 import com.purbon.kafka.topology.model.Topic;
 import com.purbon.kafka.topology.model.TopicSchemas;
@@ -38,7 +38,7 @@ public class TopicImpl implements Topic, Cloneable {
   private Map<String, String> metadata;
 
   private Map<String, String> config;
-  @JsonIgnore private TopologyBuilderConfig appConfig;
+  @JsonIgnore private Configuration appConfig;
   @JsonIgnore private Map<String, Object> context;
 
   private int partitionCount;
@@ -52,34 +52,31 @@ public class TopicImpl implements Topic, Cloneable {
   private Optional<SubjectNameStrategy> subjectNameStrategy;
 
   public TopicImpl() {
-    this(DEFAULT_TOPIC_NAME, Optional.empty(), new HashMap<>(), new TopologyBuilderConfig());
+    this(DEFAULT_TOPIC_NAME, Optional.empty(), new HashMap<>(), new Configuration());
   }
 
   public TopicImpl(String name) {
-    this(name, Optional.empty(), new HashMap<>(), new TopologyBuilderConfig());
+    this(name, Optional.empty(), new HashMap<>(), new Configuration());
   }
 
-  public TopicImpl(String name, TopologyBuilderConfig config) {
+  public TopicImpl(String name, Configuration config) {
     this(name, Optional.empty(), new HashMap<>(), config);
   }
 
   public TopicImpl(String name, String dataType) {
-    this(name, Optional.of(dataType), new HashMap<>(), new TopologyBuilderConfig());
+    this(name, Optional.of(dataType), new HashMap<>(), new Configuration());
   }
 
   public TopicImpl(String name, String dataType, HashMap<String, String> config) {
-    this(name, Optional.of(dataType), config, new TopologyBuilderConfig());
+    this(name, Optional.of(dataType), config, new Configuration());
   }
 
   public TopicImpl(String name, HashMap<String, String> config) {
-    this(name, Optional.empty(), config, new TopologyBuilderConfig());
+    this(name, Optional.empty(), config, new Configuration());
   }
 
   public TopicImpl(
-      String name,
-      Optional<String> dataType,
-      Map<String, String> config,
-      TopologyBuilderConfig appConfig) {
+      String name, Optional<String> dataType, Map<String, String> config, Configuration appConfig) {
     this(name, new ArrayList<>(), new ArrayList<>(), dataType, config, appConfig);
   }
 
@@ -89,7 +86,7 @@ public class TopicImpl implements Topic, Cloneable {
       List<Consumer> consumers,
       Optional<String> dataType,
       Map<String, String> config,
-      TopologyBuilderConfig appConfig) {
+      Configuration appConfig) {
     this.name = name;
     this.producers = producers;
     this.consumers = consumers;
@@ -224,11 +221,11 @@ public class TopicImpl implements Topic, Cloneable {
     return partitionCount;
   }
 
-  public TopologyBuilderConfig getAppConfig() {
+  public Configuration getAppConfig() {
     return appConfig;
   }
 
-  public void addAppConfig(TopologyBuilderConfig appConfig) {
+  public void addAppConfig(Configuration appConfig) {
     this.appConfig = appConfig;
   }
 

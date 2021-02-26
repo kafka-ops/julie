@@ -2,7 +2,7 @@
 Important configuration values
 *******************************
 
-This page describe the most common configuration values for the Kafka Topology Builder, this values can be set within the topology-builder properties file.
+This page describe the most common configuration values for Julie Ops, this values can be set within the topology-builder properties file.
 
 Access control configuration
 -----------
@@ -34,7 +34,7 @@ A part from that, you need to setup the UUID for each of your clusters. This is 
 
 Schema Management
 -----------
-If you plan to manage and deploy schemas with KTB, you must define the url to your Confluent Schema Registry as follows
+If you plan to manage and deploy schemas with Julie Ops, you must define the url to your Confluent Schema Registry as follows
 ::
     schema.registry.url = "http://localhost:8081"
 
@@ -66,7 +66,7 @@ Customize the topic naming convention
 -----------
 
 A request, not either common, but necessary in some situations is to customize the topic naming convention.
-For this the Kafka Topology Builder offers the user the option to set it up using the configuration file.
+For this Julie Ops offers the user the option to set it up using the configuration file.
 
 This future accepts patterns using the `jinja template <https://jinja.palletsprojects.com/en/2.11.x/>`_ formatting.
 *NOTE*: The properties used in the template need to exist in the topology as attributes.
@@ -80,7 +80,7 @@ As a user you can customize:
 Optimised number of ACLs and RBAC bindings
 -----------
 
-This property is used to reduce the number of ACLs, or RBAC bindings, created. In the normal operational mode, the KTB, will create direct pair of bindings for each user and topic.
+This property is used to reduce the number of ACLs, or RBAC bindings, created. In the normal operational mode, Julie Ops, will create direct pair of bindings for each user and topic.
 However for some organisations, it might be enough, to create an optimised list by using prefixed bindings.
 
 **Property**: *topology.acls.optimized*
@@ -129,8 +129,8 @@ You can also create your own custom validations. The validations must implement 
 Prevent ACL for topic creation for connector principal
 -----------
 
-By default KTB will create the ACLs needed for connectors to create their own topics (with CREATE ACL operation on the CLUSTER resource).
-You can override this behaviour by setting the config below to `false`. And instead create the needed topics with KTB.
+By default Julie Ops will create the ACLs needed for connectors to create their own topics (with CREATE ACL operation on the CLUSTER resource).
+You can override this behaviour by setting the config below to `false`. And instead create the needed topics with Julie Ops.
 
 **Property**: *topology.connector.allow.topic.create*
 **Default value**: true
@@ -142,10 +142,10 @@ An example configuration will look like this:
 Retrieve topic management state from local controlled view
 -----------
 
-By default since it's creation KTB has been retrieving the state of topics from the target cluster, this means pulling the actual view directly
+By default since it's creation Julie Ops has been retrieving the state of topics from the target cluster, this means pulling the actual view directly
 from there (AK cluster) using AdminClient. To disable this it can be done below.
 
-If you want to manage the current view of topics from the own KTB  cluster state subsystem, you should use this property.
+If you want to manage the current view of topics from the own Julie Ops  cluster state subsystem, you should use this property.
 
 **Property**: *topology.state.topics.cluster.enabled*
 **Default value**: true
@@ -160,10 +160,10 @@ An example to use local topic management state will look like this:
 Retrieve management state from local controlled view
 -----------
 
-KTB for everything apart from topics uses a local state, so that KTB's uses the actual state not its internal state this means pulling the actual view directly,
+Julie Ops for everything apart from topics uses a local state, so that Julie Ops's uses the actual state not its internal state this means pulling the actual view directly,
 we can enable this for everything, topics, acls, service accounts etc. Note this flag supercedes the topology.state.topics.cluster.enabled.
 
-If you want to manage the current view of everything from the own KTB cluster state subsystem, you should use this property.
+If you want to manage the current view of everything from the own Julie Ops cluster state subsystem, you should use this property.
 
 **Property**: *topology.state.cluster.enabled*
 **Default value**: true
@@ -175,10 +175,10 @@ An example to use actual view management state will look like this:
     topology.state.cluster.enabled=false
 
 
-Control allowed Topics to be managed by KTB
+Control allowed Topics to be managed by Julie Ops
 -----------
 
-This property is used to control which Topics are allowed to be managed by the KTB, this variable contains a list of allowed prefixes.
+This property is used to control which Topics are allowed to be managed by Julie Ops, this variable contains a list of allowed prefixes.
 
 **Property**: *topology.topic.managed.prefixes*
 **Default value**: "[]"
@@ -189,13 +189,13 @@ An example configuration might look like this:
     topology.topic.managed.prefixes.1=User:BService
 
 If this prefix list is used, only topics that match the prefix will be ever processed, anything else will be ignored.
-This is useful in a shared cluster, to avoid KTB removing/accidentally managing topics managed by other teams with seperate pipelines.
+This is useful in a shared cluster, to avoid Julie Ops removing/accidentally managing topics managed by other teams with seperate pipelines.
 
 
-Control allowed Service accounts to be managed by KTB
+Control allowed Service accounts to be managed by Julie Ops
 -----------
 
-This property is used to control which Service Accounts are allowed to be managed by the KTB, this variable contains a list of allowed prefixes.
+This property is used to control which Service Accounts are allowed to be managed by Julie Ops, this variable contains a list of allowed prefixes.
 
 **Property**: *topology.service.accounts.managed.prefixes*
 **Default value**: "[]"
@@ -206,14 +206,14 @@ An example configuration might look like this:
     topology.service.accounts.managed.prefixes.1=User:BService
 
 If this prefix list is used, only service accounts that match the prefix will be ever processed, anything else will be ignored.
-This is useful in a shared cluster, to avoid KTB removing/accidentally managing service accounts managed by other teams with seperate pipelines.
+This is useful in a shared cluster, to avoid Julie Ops removing/accidentally managing service accounts managed by other teams with seperate pipelines.
 
-Control allowed Group to be managed by KTB
+Control allowed Group to be managed by Julie Ops
 -----------
 
-Note, currently KTB just manages Group ACLS.
+Note, currently Julie Ops just manages Group ACLS.
 
-This property is used to control which Group prefixes are allowed to be managed by the KTB, this variable contains a list of allowed prefixes.
+This property is used to control which Group prefixes are allowed to be managed by Julie Ops, this variable contains a list of allowed prefixes.
 
 **Property**: *topology.group.managed.prefixes*
 **Default value**: "[]"
@@ -223,5 +223,5 @@ An example configuration might look like this:
     topology.group.managed.prefixes.0=NameSpaceA
     topology.group.managed.prefixes.1=NameSpaceB
 
-If this prefix list is used, only groups that match the prefix will be ever processed, if wildcard it will be managed if the service account is managed by KTB, anything else will be ignored.
-This is useful in a shared cluster, to avoid KTB removing/accidentally managing group acls by other teams with seperate pipelines.
+If this prefix list is used, only groups that match the prefix will be ever processed, if wildcard it will be managed if the service account is managed by Julie Ops, anything else will be ignored.
+This is useful in a shared cluster, to avoid Julie Ops removing/accidentally managing group acls by other teams with seperate pipelines.

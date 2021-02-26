@@ -2,8 +2,8 @@ package com.purbon.kafka.topology.integration.containerutils;
 
 import com.purbon.kafka.topology.AccessControlProvider;
 import com.purbon.kafka.topology.BindingsBuilderProvider;
-import com.purbon.kafka.topology.KafkaTopologyBuilder;
-import com.purbon.kafka.topology.TopologyBuilderConfig;
+import com.purbon.kafka.topology.Configuration;
+import com.purbon.kafka.topology.JulieOps;
 import com.purbon.kafka.topology.api.adminclient.TopologyBuilderAdminClient;
 import com.purbon.kafka.topology.roles.SimpleAclsProvider;
 import com.purbon.kafka.topology.roles.acls.AclsBindingsBuilder;
@@ -62,10 +62,10 @@ public final class ContainerTestUtils {
       final String configResource) {
     TestUtils.deleteStateFile();
     try (final AdminClient kafkaAdminClient = getSaslAdminClient(container)) {
-      final KafkaTopologyBuilder kafkaTopologyBuilder =
+      final JulieOps julieOps =
           getKafkaTopologyBuilder(kafkaAdminClient, topologyResource, configResource);
       try {
-        kafkaTopologyBuilder.run();
+        julieOps.run();
       } catch (final IOException e) {
         throw new RuntimeException(e);
       }
@@ -78,20 +78,20 @@ public final class ContainerTestUtils {
     }
   }
 
-  private static KafkaTopologyBuilder getKafkaTopologyBuilder(
+  private static JulieOps getKafkaTopologyBuilder(
       final AdminClient kafkaAdminClient,
       final String topologyResource,
       final String configResource) {
     final String fileOrDirPath = TestUtils.getResourceFilename(topologyResource);
     final Map<String, String> cliParams = new HashMap<>();
-    final TopologyBuilderConfig builderConfig =
-        TopologyBuilderConfig.build(cliParams, TestUtils.getResourceFilename(configResource));
+    final Configuration builderConfig =
+        Configuration.build(cliParams, TestUtils.getResourceFilename(configResource));
     final TopologyBuilderAdminClient topologyAdminClient =
         new TopologyBuilderAdminClient(kafkaAdminClient);
     final AccessControlProvider accessControlProvider = new SimpleAclsProvider(topologyAdminClient);
     final BindingsBuilderProvider bindingsBuilderProvider = new AclsBindingsBuilder(builderConfig);
     try {
-      return KafkaTopologyBuilder.build(
+      return JulieOps.build(
           fileOrDirPath,
           builderConfig,
           topologyAdminClient,

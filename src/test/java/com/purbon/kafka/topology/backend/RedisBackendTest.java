@@ -1,7 +1,7 @@
 package com.purbon.kafka.topology.backend;
 
-import static com.purbon.kafka.topology.backend.RedisBackend.KAFKA_TOPOLOGY_BUILDER_BINDINGS;
-import static com.purbon.kafka.topology.backend.RedisBackend.KAFKA_TOPOLOGY_BUILDER_TYPE;
+import static com.purbon.kafka.topology.backend.RedisBackend.JULIE_OPS_BINDINGS;
+import static com.purbon.kafka.topology.backend.RedisBackend.JULIE_OPS_TYPE;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
@@ -43,20 +43,21 @@ public class RedisBackendTest {
         TopologyAclBinding.build(
             ResourceType.CLUSTER.name(), "Topic", "host", "op", "principal", "LITERAL");
 
-    when(jedis.sadd(eq(KAFKA_TOPOLOGY_BUILDER_BINDINGS), any())).thenReturn(1l);
+    when(jedis.sadd(eq(JULIE_OPS_BINDINGS), any())).thenReturn(1l);
 
     stateProcessor.saveBindings(new HashSet<>(Arrays.asList(binding)));
 
-    verify(jedis, times(1)).sadd(eq(KAFKA_TOPOLOGY_BUILDER_BINDINGS), any());
+    verify(jedis, times(1)).sadd(eq(JULIE_OPS_BINDINGS), any());
   }
 
   @Test
   public void testDataLoading() throws IOException {
 
-    when(jedis.get(eq(KAFKA_TOPOLOGY_BUILDER_TYPE))).thenReturn("acls");
-    when(jedis.scard(eq(KAFKA_TOPOLOGY_BUILDER_BINDINGS))).thenReturn(10l);
-    when(jedis.spop(eq(KAFKA_TOPOLOGY_BUILDER_BINDINGS)))
-        .thenReturn("'TOPIC', 'topicA', '*', 'READ', 'User:C=NO,CN=John Doe,emailAddress=john.doe@example.com', 'LITERAL'")
+    when(jedis.get(eq(JULIE_OPS_TYPE))).thenReturn("acls");
+    when(jedis.scard(eq(JULIE_OPS_BINDINGS))).thenReturn(10l);
+    when(jedis.spop(eq(JULIE_OPS_BINDINGS)))
+        .thenReturn(
+            "'TOPIC', 'topicA', '*', 'READ', 'User:C=NO,CN=John Doe,emailAddress=john.doe@example.com', 'LITERAL'")
         .thenReturn("'TOPIC', 'topicB', '*', 'READ', 'User:Connect1', 'LITERAL'");
 
     Set<TopologyAclBinding> bindings = stateProcessor.loadBindings();

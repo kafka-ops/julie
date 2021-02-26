@@ -50,7 +50,7 @@ public class TopologyBuilderAdminClientTest {
   @Mock CreateAclsResult createAclsResult;
   @Mock KafkaFuture<Void> kafkaFuture;
   @Mock AdminClient kafkaAdminClient;
-  @Mock TopologyBuilderConfig config;
+  @Mock Configuration config;
 
   TopologyBuilderAdminClient adminClient;
 

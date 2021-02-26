@@ -1,7 +1,7 @@
 package com.purbon.kafka.topology;
 
-import static com.purbon.kafka.topology.BuilderCLI.ADMIN_CLIENT_CONFIG_OPTION;
-import static com.purbon.kafka.topology.BuilderCLI.DRY_RUN_OPTION;
+import static com.purbon.kafka.topology.CommandLineInterface.ADMIN_CLIENT_CONFIG_OPTION;
+import static com.purbon.kafka.topology.CommandLineInterface.DRY_RUN_OPTION;
 
 import com.purbon.kafka.topology.exceptions.ConfigurationException;
 import com.purbon.kafka.topology.model.Project;
@@ -19,7 +19,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.apache.kafka.clients.admin.AdminClientConfig;
 
-public class TopologyBuilderConfig {
+public class Configuration {
 
   static final String KAFKA_INTERNAL_TOPIC_PREFIXES = "kafka.internal.topic.prefixes";
   static final String ACCESS_CONTROL_IMPLEMENTATION_CLASS = "topology.builder.access.control.class";
@@ -92,32 +92,32 @@ public class TopologyBuilderConfig {
   private final Map<String, String> cliParams;
   private Config config;
 
-  public TopologyBuilderConfig() {
+  public Configuration() {
     this(new HashMap<>(), ConfigFactory.load());
   }
 
-  public static TopologyBuilderConfig build(Map<String, String> cliParams) {
+  public static Configuration build(Map<String, String> cliParams) {
     return build(cliParams, cliParams.get(ADMIN_CLIENT_CONFIG_OPTION));
   }
 
-  public static TopologyBuilderConfig build(Map<String, String> cliParams, String configFile) {
+  public static Configuration build(Map<String, String> cliParams, String configFile) {
     if (!configFile.isEmpty()) {
       System.setProperty("config.file", configFile);
     }
     ConfigFactory.invalidateCaches();
     Config config = ConfigFactory.load();
-    return new TopologyBuilderConfig(cliParams, config);
+    return new Configuration(cliParams, config);
   }
 
-  public TopologyBuilderConfig(Map<String, String> cliParams, Properties props) {
+  public Configuration(Map<String, String> cliParams, Properties props) {
     this(cliParams, (Map) props);
   }
 
-  public TopologyBuilderConfig(Map<String, String> cliParams, Map<String, Object> props) {
+  public Configuration(Map<String, String> cliParams, Map<String, Object> props) {
     this(cliParams, ConfigFactory.parseMap(props).withFallback(ConfigFactory.load()));
   }
 
-  public TopologyBuilderConfig(Map<String, String> cliParams, Config config) {
+  public Configuration(Map<String, String> cliParams, Config config) {
     this.cliParams = cliParams;
     this.config = config;
   }
@@ -137,9 +137,10 @@ public class TopologyBuilderConfig {
   public Properties asProperties() {
     Properties props = new Properties();
     config.entrySet().forEach(entry -> props.put(entry.getKey(), entry.getValue().unwrapped()));
-    if (cliParams.get(BuilderCLI.BROKERS_OPTION) != null) {
+    if (cliParams.get(CommandLineInterface.BROKERS_OPTION) != null) {
       props.put(
-          AdminClientConfig.BOOTSTRAP_SERVERS_CONFIG, cliParams.get(BuilderCLI.BROKERS_OPTION));
+          AdminClientConfig.BOOTSTRAP_SERVERS_CONFIG,
+          cliParams.get(CommandLineInterface.BROKERS_OPTION));
     }
     props.put(AdminClientConfig.RETRIES_CONFIG, Integer.MAX_VALUE);
     return props;
@@ -204,11 +205,11 @@ public class TopologyBuilderConfig {
       existServersAsConfig = false;
     }
 
-    if (cliParams.get(BuilderCLI.BROKERS_OPTION) == null && !existServersAsConfig) {
+    if (cliParams.get(CommandLineInterface.BROKERS_OPTION) == null && !existServersAsConfig) {
       String msg =
           String.format(
               "Either the CLI option %s or the configuration %s should be specified",
-              BuilderCLI.BROKERS_OPTION, AdminClientConfig.BOOTSTRAP_SERVERS_CONFIG);
+              CommandLineInterface.BROKERS_OPTION, AdminClientConfig.BOOTSTRAP_SERVERS_CONFIG);
       throw new ConfigurationException(msg);
     }
   }
@@ -330,11 +331,12 @@ public class TopologyBuilderConfig {
   }
 
   public boolean allowDelete() {
-    return Boolean.parseBoolean(cliParams.getOrDefault(BuilderCLI.ALLOW_DELETE_OPTION, "false"));
+    return Boolean.parseBoolean(
+        cliParams.getOrDefault(CommandLineInterface.ALLOW_DELETE_OPTION, "false"));
   }
 
   public boolean isQuiet() {
-    return Boolean.parseBoolean(cliParams.getOrDefault(BuilderCLI.QUIET_OPTION, "false"));
+    return Boolean.parseBoolean(cliParams.getOrDefault(CommandLineInterface.QUIET_OPTION, "false"));
   }
 
   public boolean isDryRun() {

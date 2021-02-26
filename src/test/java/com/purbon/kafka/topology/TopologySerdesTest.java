@@ -1,9 +1,9 @@
 package com.purbon.kafka.topology;
 
-import static com.purbon.kafka.topology.BuilderCLI.ADMIN_CLIENT_CONFIG_OPTION;
-import static com.purbon.kafka.topology.BuilderCLI.BROKERS_OPTION;
-import static com.purbon.kafka.topology.TopologyBuilderConfig.TOPIC_PREFIX_FORMAT_CONFIG;
-import static com.purbon.kafka.topology.TopologyBuilderConfig.TOPIC_PREFIX_SEPARATOR_CONFIG;
+import static com.purbon.kafka.topology.CommandLineInterface.ADMIN_CLIENT_CONFIG_OPTION;
+import static com.purbon.kafka.topology.CommandLineInterface.BROKERS_OPTION;
+import static com.purbon.kafka.topology.Configuration.TOPIC_PREFIX_FORMAT_CONFIG;
+import static com.purbon.kafka.topology.Configuration.TOPIC_PREFIX_SEPARATOR_CONFIG;
 import static com.purbon.kafka.topology.model.SubjectNameStrategy.TOPIC_NAME_STRATEGY;
 import static com.purbon.kafka.topology.model.SubjectNameStrategy.TOPIC_RECORD_NAME_STRATEGY;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -341,7 +341,7 @@ public class TopologySerdesTest {
 
     Properties props = new Properties();
     props.put(TOPIC_PREFIX_SEPARATOR_CONFIG, "_");
-    TopologyBuilderConfig config = new TopologyBuilderConfig(cliOps, props);
+    Configuration config = new Configuration(cliOps, props);
 
     TopologySerdes parser = new TopologySerdes(config);
 
@@ -365,7 +365,7 @@ public class TopologySerdesTest {
 
     Properties props = new Properties();
     props.put(TOPIC_PREFIX_FORMAT_CONFIG, "{{source}}.{{context}}.{{project}}.{{topic}}");
-    TopologyBuilderConfig config = new TopologyBuilderConfig(cliOps, props);
+    Configuration config = new Configuration(cliOps, props);
 
     TopologySerdes parser = new TopologySerdes(config);
 
@@ -383,7 +383,7 @@ public class TopologySerdesTest {
 
   @Test
   public void testJsonDescriptorFileSerdes() {
-    TopologySerdes parser = new TopologySerdes(new TopologyBuilderConfig(), FileType.JSON);
+    TopologySerdes parser = new TopologySerdes(new Configuration(), FileType.JSON);
     Topology topology = parser.deserialise(TestUtils.getResourceFile("/descriptor.json"));
 
     assertEquals(1, topology.getProjects().size());

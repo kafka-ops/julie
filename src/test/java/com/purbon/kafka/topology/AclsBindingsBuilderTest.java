@@ -1,6 +1,6 @@
 package com.purbon.kafka.topology;
 
-import static com.purbon.kafka.topology.TopologyBuilderConfig.CONNECTOR_ALLOW_TOPIC_CREATE;
+import static com.purbon.kafka.topology.Configuration.CONNECTOR_ALLOW_TOPIC_CREATE;
 import static java.util.Collections.*;
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -30,12 +30,12 @@ import org.junit.Test;
 
 public class AclsBindingsBuilderTest {
 
-  TopologyBuilderConfig config;
+  Configuration config;
   AclsBindingsBuilder builder;
 
   @Before
   public void before() {
-    config = new TopologyBuilderConfig();
+    config = new Configuration();
     builder = new AclsBindingsBuilder(config);
   }
 
@@ -164,7 +164,7 @@ public class AclsBindingsBuilderTest {
   public void testConnectorAclsWithNoClusterCreate() {
     Properties configMap = config.asProperties();
     configMap.put(CONNECTOR_ALLOW_TOPIC_CREATE, false);
-    builder = new AclsBindingsBuilder(new TopologyBuilderConfig(emptyMap(), configMap));
+    builder = new AclsBindingsBuilder(new Configuration(emptyMap(), configMap));
 
     Connector connector = new Connector("User:foo");
     HashMap<String, List<String>> topicsMap = new HashMap<>();

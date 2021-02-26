@@ -19,7 +19,7 @@
 
 # -- Project information -----------------------------------------------------
 
-project = u'Kafka Topology Builder'
+project = u'Julie Ops'
 copyright = u'2020, Pere Urbon-Bayes'
 author = u'Pere Urbon-Bayes'
 

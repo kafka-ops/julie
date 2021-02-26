@@ -35,7 +35,7 @@ public class AccessControlManager {
 
   private static final Logger LOGGER = LogManager.getLogger(AccessControlManager.class);
 
-  private final TopologyBuilderConfig config;
+  private final Configuration config;
   private AccessControlProvider controlProvider;
   private BindingsBuilderProvider bindingsBuilder;
   private final List<String> managedServiceAccountPrefixes;
@@ -44,13 +44,13 @@ public class AccessControlManager {
 
   public AccessControlManager(
       AccessControlProvider controlProvider, BindingsBuilderProvider builderProvider) {
-    this(controlProvider, builderProvider, new TopologyBuilderConfig());
+    this(controlProvider, builderProvider, new Configuration());
   }
 
   public AccessControlManager(
       AccessControlProvider controlProvider,
       BindingsBuilderProvider builderProvider,
-      TopologyBuilderConfig config) {
+      Configuration config) {
     this.controlProvider = controlProvider;
     this.bindingsBuilder = builderProvider;
     this.config = config;

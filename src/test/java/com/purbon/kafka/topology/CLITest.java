@@ -1,10 +1,10 @@
 package com.purbon.kafka.topology;
 
-import static com.purbon.kafka.topology.BuilderCLI.ADMIN_CLIENT_CONFIG_OPTION;
-import static com.purbon.kafka.topology.BuilderCLI.ALLOW_DELETE_OPTION;
-import static com.purbon.kafka.topology.BuilderCLI.BROKERS_OPTION;
-import static com.purbon.kafka.topology.BuilderCLI.DRY_RUN_OPTION;
-import static com.purbon.kafka.topology.BuilderCLI.QUIET_OPTION;
+import static com.purbon.kafka.topology.CommandLineInterface.ADMIN_CLIENT_CONFIG_OPTION;
+import static com.purbon.kafka.topology.CommandLineInterface.ALLOW_DELETE_OPTION;
+import static com.purbon.kafka.topology.CommandLineInterface.BROKERS_OPTION;
+import static com.purbon.kafka.topology.CommandLineInterface.DRY_RUN_OPTION;
+import static com.purbon.kafka.topology.CommandLineInterface.QUIET_OPTION;
 import static org.mockito.Matchers.anyMap;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.doNothing;
@@ -24,11 +24,11 @@ public class CLITest {
 
   @Rule public MockitoRule mockitoRule = MockitoJUnit.rule();
 
-  private BuilderCLI cli;
+  private CommandLineInterface cli;
 
   @Before
   public void setup() {
-    cli = Mockito.spy(new BuilderCLI());
+    cli = Mockito.spy(new CommandLineInterface());
   }
 
   @Test

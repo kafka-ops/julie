@@ -1,7 +1,7 @@
 package com.purbon.kafka.topology.integration;
 
-import static com.purbon.kafka.topology.BuilderCLI.ALLOW_DELETE_OPTION;
-import static com.purbon.kafka.topology.BuilderCLI.BROKERS_OPTION;
+import static com.purbon.kafka.topology.CommandLineInterface.ALLOW_DELETE_OPTION;
+import static com.purbon.kafka.topology.CommandLineInterface.BROKERS_OPTION;
 import static com.purbon.kafka.topology.roles.rbac.RBACPredefinedRoles.DEVELOPER_READ;
 import static com.purbon.kafka.topology.roles.rbac.RBACPredefinedRoles.DEVELOPER_WRITE;
 import static com.purbon.kafka.topology.roles.rbac.RBACPredefinedRoles.RESOURCE_OWNER;
@@ -15,8 +15,8 @@ import static org.mockito.Mockito.verify;
 
 import com.purbon.kafka.topology.AccessControlManager;
 import com.purbon.kafka.topology.BackendController;
+import com.purbon.kafka.topology.Configuration;
 import com.purbon.kafka.topology.ExecutionPlan;
-import com.purbon.kafka.topology.TopologyBuilderConfig;
 import com.purbon.kafka.topology.api.mds.MDSApiClient;
 import com.purbon.kafka.topology.model.Impl.ProjectImpl;
 import com.purbon.kafka.topology.model.Impl.TopicImpl;
@@ -86,7 +86,7 @@ public class RBACPRoviderRbacIT extends MDSBaseTest {
     cliOps.put(BROKERS_OPTION, "");
     cliOps.put(ALLOW_DELETE_OPTION, "true");
 
-    TopologyBuilderConfig config = new TopologyBuilderConfig(cliOps, props);
+    Configuration config = new Configuration(cliOps, props);
 
     accessControlManager = new AccessControlManager(rbacProvider, bindingsBuilder, config);
   }

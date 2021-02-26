@@ -90,4 +90,4 @@ Handling Configuration
 
 For each topic, under the configuration attribute, it is possible to define the map of custom broker side configurations for the topic.
 
-KTB is going to take care to apply the necessary changes and remove the ones that are not necessary anymore.
+Julie Ops is going to take care to apply the necessary changes and remove the ones that are not necessary anymore.

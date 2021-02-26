@@ -1,10 +1,10 @@
 #!/usr/bin/env bash
 
-rm -rf /usr/local/kafka-topology-builder/
-unlink /usr/bin/kafka-topology-builder
-userdel -f ktb-kafka
+rm -rf /usr/local/julie-ops/
+unlink /usr/bin/julie-ops
+userdel -f julie-kafka
 
-if grep -q -E "^ktb-kafka:" /etc/group;
+if grep -q -E "^julie-kafka:" /etc/group;
 then
-  groupdel ktb-kafka
+  groupdel julie-kafka
 fi

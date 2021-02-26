@@ -1,8 +1,8 @@
 package com.purbon.kafka.topology;
 
 import static com.google.common.collect.Lists.newArrayList;
-import static com.purbon.kafka.topology.BuilderCLI.BROKERS_OPTION;
-import static com.purbon.kafka.topology.TopologyBuilderConfig.*;
+import static com.purbon.kafka.topology.CommandLineInterface.BROKERS_OPTION;
+import static com.purbon.kafka.topology.Configuration.*;
 import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
 import static org.hamcrest.CoreMatchers.hasItem;
@@ -56,7 +56,7 @@ public class AccessControlManagerTest {
   @Mock BackendController backendController;
 
   @Mock PrintStream mockPrintStream;
-  @Mock TopologyBuilderConfig config;
+  @Mock Configuration config;
 
   ExecutionPlan plan;
 
@@ -96,7 +96,7 @@ public class AccessControlManagerTest {
     Properties props = new Properties();
     props.put(OPTIMIZED_ACLS_CONFIG, true);
 
-    TopologyBuilderConfig config = new TopologyBuilderConfig(cliOps, props);
+    Configuration config = new Configuration(cliOps, props);
     accessControlManager = new AccessControlManager(aclsProvider, aclsBuilder, config);
 
     TestTopologyBuilder builder =
@@ -172,7 +172,7 @@ public class AccessControlManagerTest {
     Properties props = new Properties();
     props.put(OPTIMIZED_ACLS_CONFIG, true);
 
-    TopologyBuilderConfig config = new TopologyBuilderConfig(cliOps, props);
+    Configuration config = new Configuration(cliOps, props);
     accessControlManager = new AccessControlManager(aclsProvider, aclsBuilder, config);
 
     TestTopologyBuilder builder =
@@ -567,7 +567,7 @@ public class AccessControlManagerTest {
     props.put(TOPIC_MANAGED_PREFIXES, Collections.singletonList("NamespaceA"));
     props.put(TOPIC_PREFIX_FORMAT_CONFIG, "{{topic}}");
 
-    TopologyBuilderConfig config = new TopologyBuilderConfig(cliOps, props);
+    Configuration config = new Configuration(cliOps, props);
     accessControlManager =
         new AccessControlManager(aclsProvider, new AclsBindingsBuilder(config), config);
 
@@ -609,7 +609,7 @@ public class AccessControlManagerTest {
     Properties props = new Properties();
     props.put(GROUP_MANAGED_PREFIXES, Collections.singletonList("NamespaceA"));
 
-    TopologyBuilderConfig config = new TopologyBuilderConfig(cliOps, props);
+    Configuration config = new Configuration(cliOps, props);
     accessControlManager =
         new AccessControlManager(aclsProvider, new AclsBindingsBuilder(config), config);
 
@@ -660,7 +660,7 @@ public class AccessControlManagerTest {
     Properties props = new Properties();
     props.put(SERVICE_ACCOUNT_MANAGED_PREFIXES, Collections.singletonList("User:NamespaceA"));
 
-    TopologyBuilderConfig config = new TopologyBuilderConfig(cliOps, props);
+    Configuration config = new Configuration(cliOps, props);
     accessControlManager =
         new AccessControlManager(aclsProvider, new AclsBindingsBuilder(config), config);
 

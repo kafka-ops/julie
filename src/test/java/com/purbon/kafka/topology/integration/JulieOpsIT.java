@@ -1,8 +1,8 @@
 package com.purbon.kafka.topology.integration;
 
-import static com.purbon.kafka.topology.BuilderCLI.*;
+import static com.purbon.kafka.topology.CommandLineInterface.*;
 
-import com.purbon.kafka.topology.KafkaTopologyBuilder;
+import com.purbon.kafka.topology.JulieOps;
 import com.purbon.kafka.topology.integration.containerutils.ContainerFactory;
 import com.purbon.kafka.topology.integration.containerutils.SaslPlaintextKafkaContainer;
 import com.purbon.kafka.topology.utils.TestUtils;
@@ -13,7 +13,7 @@ import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-public class KafkaTopologyBuilderIT {
+public class JulieOpsIT {
 
   private static SaslPlaintextKafkaContainer container;
 
@@ -41,7 +41,7 @@ public class KafkaTopologyBuilderIT {
     config.put(QUIET_OPTION, "true");
     config.put(ADMIN_CLIENT_CONFIG_OPTION, clientConfigFile);
 
-    KafkaTopologyBuilder.build(fileOrDirPath, config);
+    JulieOps.build(fileOrDirPath, config);
   }
 
   @Test
@@ -57,6 +57,6 @@ public class KafkaTopologyBuilderIT {
     config.put(QUIET_OPTION, "true");
     config.put(ADMIN_CLIENT_CONFIG_OPTION, clientConfigFile);
 
-    KafkaTopologyBuilder.build(fileOrDirPath, config);
+    JulieOps.build(fileOrDirPath, config);
   }
 }

@@ -1,7 +1,7 @@
 package com.purbon.kafka.topology.model.Impl;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.purbon.kafka.topology.TopologyBuilderConfig;
+import com.purbon.kafka.topology.Configuration;
 import com.purbon.kafka.topology.model.Project;
 import com.purbon.kafka.topology.model.Topic;
 import com.purbon.kafka.topology.model.users.Connector;
@@ -17,7 +17,7 @@ import java.util.Map;
 
 public class ProjectImpl implements Project, Cloneable {
 
-  @JsonIgnore private TopologyBuilderConfig config;
+  @JsonIgnore private Configuration config;
 
   private String name;
   private List<String> zookeepers;
@@ -39,10 +39,10 @@ public class ProjectImpl implements Project, Cloneable {
   }
 
   public ProjectImpl(String name) {
-    this(name, new TopologyBuilderConfig());
+    this(name, new Configuration());
   }
 
-  public ProjectImpl(String name, TopologyBuilderConfig config) {
+  public ProjectImpl(String name, Configuration config) {
     this(
         name,
         new ArrayList<>(),
@@ -64,7 +64,7 @@ public class ProjectImpl implements Project, Cloneable {
       List<Connector> connectors,
       List<Schemas> schemas,
       Map<String, List<String>> rbacRawRoles,
-      TopologyBuilderConfig config) {
+      Configuration config) {
     this(
         name,
         new ArrayList<>(),
@@ -88,7 +88,7 @@ public class ProjectImpl implements Project, Cloneable {
       List<Connector> connectors,
       List<Schemas> schemas,
       Map<String, List<String>> rbacRawRoles,
-      TopologyBuilderConfig config) {
+      Configuration config) {
     this.name = name;
     this.topics = topics;
     this.consumers = consumers;

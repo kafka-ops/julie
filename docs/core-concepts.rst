@@ -25,14 +25,14 @@ To setup a gitops flow you need three basic components:
 
 - A git server, anything will work from Github, Gitlab or Bitbucket
 - A CI/CD pipeline, for example the master Jenkins!
-- And the Kafka Topology Builder project
+- And the Julie Ops project
 
 This building blocks will build up necessary integration steps:
 
 * In the git server, ex. Gitlab, we're going to store the topology definition, so how we want the cluster to look like in terms of topics, acls, etc.
 * The git server will manage as well the change management flow using Change Requests (or pull request :-P)
 * Jenkins will be the muscle of the operation, in charge of retrieving the git content, do an initial verification and run the topology builder to apply the changes in Apache Kafka.
-* And The Kafka Topology Builder project, the responsible of interpreting the configuration files (topologies) and apply the changes directly into Apache Kafka and related components.
+* And The Julie Ops project, the responsible of interpreting the configuration files (topologies) and apply the changes directly into Apache Kafka and related components.
 
 How are the users / dev teams leveraging gitops?
 -----------

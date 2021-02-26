@@ -3,7 +3,7 @@ package com.purbon.kafka.topology.actions.access.builders;
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 
-import com.purbon.kafka.topology.TopologyBuilderConfig;
+import com.purbon.kafka.topology.Configuration;
 import com.purbon.kafka.topology.model.users.KStream;
 import com.purbon.kafka.topology.roles.acls.AclsBindingsBuilder;
 import java.util.HashMap;
@@ -20,7 +20,7 @@ public class BuildBindingsForKStreamsTest {
 
   @Before
   public void setUp() {
-    aclsBindingsBuilder = new AclsBindingsBuilder(new TopologyBuilderConfig());
+    aclsBindingsBuilder = new AclsBindingsBuilder(new Configuration());
   }
 
   @Test

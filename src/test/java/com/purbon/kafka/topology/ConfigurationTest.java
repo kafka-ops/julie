@@ -1,8 +1,8 @@
 package com.purbon.kafka.topology;
 
-import static com.purbon.kafka.topology.BuilderCLI.ADMIN_CLIENT_CONFIG_OPTION;
-import static com.purbon.kafka.topology.BuilderCLI.BROKERS_OPTION;
-import static com.purbon.kafka.topology.TopologyBuilderConfig.*;
+import static com.purbon.kafka.topology.CommandLineInterface.ADMIN_CLIENT_CONFIG_OPTION;
+import static com.purbon.kafka.topology.CommandLineInterface.BROKERS_OPTION;
+import static com.purbon.kafka.topology.Configuration.*;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.purbon.kafka.topology.exceptions.ConfigurationException;
@@ -18,7 +18,7 @@ import java.util.*;
 import org.junit.Before;
 import org.junit.Test;
 
-public class TopologyBuilderConfigTest {
+public class ConfigurationTest {
 
   private Map<String, String> cliOps;
   private Properties props;
@@ -34,13 +34,13 @@ public class TopologyBuilderConfigTest {
   public void testWithAllRequiredFields() throws ConfigurationException {
     Topology topology = new TopologyImpl();
 
-    props.put(ACCESS_CONTROL_IMPLEMENTATION_CLASS, TopologyBuilderConfig.RBAC_ACCESS_CONTROL_CLASS);
+    props.put(ACCESS_CONTROL_IMPLEMENTATION_CLASS, Configuration.RBAC_ACCESS_CONTROL_CLASS);
     props.put(MDS_SERVER, "example.com");
     props.put(MDS_USER_CONFIG, "foo");
     props.put(MDS_PASSWORD_CONFIG, "bar");
     props.put(MDS_KAFKA_CLUSTER_ID_CONFIG, "1234");
 
-    TopologyBuilderConfig config = new TopologyBuilderConfig(cliOps, props);
+    Configuration config = new Configuration(cliOps, props);
     config.validateWith(topology);
   }
 
@@ -55,7 +55,7 @@ public class TopologyBuilderConfigTest {
     topology.addProject(project);
     props.put(CONFLUENT_SCHEMA_REGISTRY_URL_CONFIG, "mock://");
 
-    TopologyBuilderConfig config = new TopologyBuilderConfig(cliOps, props);
+    Configuration config = new Configuration(cliOps, props);
     config.validateWith(topology);
   }
 
@@ -71,7 +71,7 @@ public class TopologyBuilderConfigTest {
 
     props.put(CONFLUENT_SCHEMA_REGISTRY_URL_CONFIG, "http://foo:8082");
 
-    TopologyBuilderConfig config = new TopologyBuilderConfig(cliOps, props);
+    Configuration config = new Configuration(cliOps, props);
     config.validateWith(topology);
   }
 
@@ -85,7 +85,7 @@ public class TopologyBuilderConfigTest {
 
     props.put(CONFLUENT_SCHEMA_REGISTRY_URL_CONFIG, "http://foo:8082");
 
-    TopologyBuilderConfig config = new TopologyBuilderConfig(cliOps, props);
+    Configuration config = new Configuration(cliOps, props);
     config.validateWith(topology);
   }
 
@@ -97,7 +97,7 @@ public class TopologyBuilderConfigTest {
     project.addTopic(topic);
     topology.addProject(project);
 
-    TopologyBuilderConfig config = new TopologyBuilderConfig(cliOps, props);
+    Configuration config = new Configuration(cliOps, props);
     config.validateWith(topology);
   }
 
@@ -112,7 +112,7 @@ public class TopologyBuilderConfigTest {
     props.put(TOPIC_PREFIX_FORMAT_CONFIG, "{{foo}}{{topic}}");
     props.put(PROJECT_PREFIX_FORMAT_CONFIG, "{{foo}}");
 
-    TopologyBuilderConfig config = new TopologyBuilderConfig(cliOps, props);
+    Configuration config = new Configuration(cliOps, props);
     config.validateWith(topology);
   }
 
@@ -126,7 +126,7 @@ public class TopologyBuilderConfigTest {
 
     props.put(TOPIC_PREFIX_FORMAT_CONFIG, "{{foo}}{{topic}}");
 
-    TopologyBuilderConfig config = new TopologyBuilderConfig(cliOps, props);
+    Configuration config = new Configuration(cliOps, props);
     config.validateWith(topology);
   }
 
@@ -140,7 +140,7 @@ public class TopologyBuilderConfigTest {
 
     props.put(PROJECT_PREFIX_FORMAT_CONFIG, "{{foo}}{{topic}}");
 
-    TopologyBuilderConfig config = new TopologyBuilderConfig(cliOps, props);
+    Configuration config = new Configuration(cliOps, props);
     config.validateWith(topology);
   }
 
@@ -154,7 +154,7 @@ public class TopologyBuilderConfigTest {
 
     props.put(PROJECT_PREFIX_FORMAT_CONFIG, "{{banana}}");
 
-    TopologyBuilderConfig config = new TopologyBuilderConfig(cliOps, props);
+    Configuration config = new Configuration(cliOps, props);
     config.validateWith(topology);
   }
 
@@ -164,7 +164,7 @@ public class TopologyBuilderConfigTest {
 
     cliOps.put(ADMIN_CLIENT_CONFIG_OPTION, clientConfigFile);
 
-    TopologyBuilderConfig config = TopologyBuilderConfig.build(cliOps);
+    Configuration config = Configuration.build(cliOps);
     assertThat(config.getKafkaInternalTopicPrefixes()).isEqualTo(Collections.singletonList("_"));
   }
 
@@ -175,7 +175,7 @@ public class TopologyBuilderConfigTest {
 
     cliOps.put(ADMIN_CLIENT_CONFIG_OPTION, clientConfigFile);
 
-    TopologyBuilderConfig config = TopologyBuilderConfig.build(cliOps);
+    Configuration config = Configuration.build(cliOps);
     assertThat(config.getKafkaInternalTopicPrefixes())
         .isEqualTo(Arrays.asList("_", "topicA", "topicB"));
   }

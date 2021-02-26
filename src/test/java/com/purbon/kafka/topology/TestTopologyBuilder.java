@@ -15,7 +15,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 public class TestTopologyBuilder {
-  private final TopologyBuilderConfig topologyBuilderConfig;
+  private final Configuration configuration;
   private final Topology topology;
   private final Project project;
   private Set<Topic> topics = new HashSet<>();
@@ -23,15 +23,14 @@ public class TestTopologyBuilder {
   private final Set<Producer> producers = new HashSet<>();
 
   public TestTopologyBuilder() {
-    this(new TopologyBuilderConfig(), "ctx", "project");
+    this(new Configuration(), "ctx", "project");
   }
 
-  public TestTopologyBuilder(
-      TopologyBuilderConfig topologyBuilderConfig, String context, String projectName) {
-    this.topologyBuilderConfig = topologyBuilderConfig;
-    topology = new TopologyImpl(topologyBuilderConfig);
+  public TestTopologyBuilder(Configuration configuration, String context, String projectName) {
+    this.configuration = configuration;
+    topology = new TopologyImpl(configuration);
     topology.setContext(context);
-    project = new ProjectImpl(projectName, topologyBuilderConfig);
+    project = new ProjectImpl(projectName, configuration);
     topology.addProject(project);
   }
 
@@ -40,11 +39,11 @@ public class TestTopologyBuilder {
   }
 
   public static TestTopologyBuilder createProject(String context, String projectName) {
-    return new TestTopologyBuilder(new TopologyBuilderConfig(), context, projectName);
+    return new TestTopologyBuilder(new Configuration(), context, projectName);
   }
 
-  public static TestTopologyBuilder createProject(TopologyBuilderConfig topologyBuilderConfig) {
-    return new TestTopologyBuilder(topologyBuilderConfig, "ctx", "project");
+  public static TestTopologyBuilder createProject(Configuration configuration) {
+    return new TestTopologyBuilder(configuration, "ctx", "project");
   }
 
   public Topology buildTopology() {
@@ -55,7 +54,7 @@ public class TestTopologyBuilder {
   }
 
   public TestTopologyBuilder addTopic(String topicName) {
-    addTopic(new TopicImpl(topicName, topologyBuilderConfig));
+    addTopic(new TopicImpl(topicName, configuration));
     return this;
   }
 

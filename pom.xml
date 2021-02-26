@@ -5,12 +5,12 @@
   <modelVersion>4.0.0</modelVersion>
 
   <groupId>com.purbon.kafka</groupId>
-  <artifactId>kafka-topology-builder</artifactId>
+  <artifactId>julie-ops</artifactId>
   <version>2.0.0-b.0</version>
 
-  <name>A Kafka topology builder tool</name>
+  <name>A Kafka operations manager, julie ops</name>
   <description>
-    A helper project for Kafka Platform teams to build an automated Topic, Configuration (and Schemas in the future)
+    A helper project for Kafka Platform teams to build an automated Topic, Configuration, Schemas, and more,
     Management solution.
   </description>
   <url>https://github.com/purbon/</url>
@@ -163,7 +163,7 @@
             <configuration>
               <transformers>
                 <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
-                  <mainClass>com.purbon.kafka.topology.BuilderCLI</mainClass>
+                  <mainClass>com.purbon.kafka.topology.CommandLineInterface</mainClass>
                 </transformer>
               </transformers>
             </configuration>
@@ -189,7 +189,7 @@
           </descriptors>
           <archive>
             <manifest>
-              <mainClass>com.purbon.kafka.topology.BuilderCLI</mainClass>
+              <mainClass>com.purbon.kafka.topology.CommandLineInterface</mainClass>
             </manifest>
           </archive>
         </configuration>
@@ -264,33 +264,33 @@
           </defineStatements>
           <mappings>
             <mapping>
-              <directory>/usr/local/kafka-topology-builder/bin</directory>
+              <directory>/usr/local/julie-ops/bin</directory>
               <filemode>440</filemode>
-              <username>ktb-kafka</username>
-              <groupname>ktb-kafka</groupname>
+              <username>julie-kafka</username>
+              <groupname>julie-kafka</groupname>
               <sources>
                 <source>
-                  <location>target/kafka-topology-builder.jar</location>
+                  <location>target/julie-ops.jar</location>
                 </source>
               </sources>
             </mapping>
             <mapping>
-              <directory>/usr/local/kafka-topology-builder/bin</directory>
+              <directory>/usr/local/julie-ops/bin</directory>
               <filemode>775</filemode>
-              <username>ktb-kafka</username>
-              <groupname>ktb-kafka</groupname>
+              <username>julie-kafka</username>
+              <groupname>julie-kafka</groupname>
               <sources>
                 <source>
-                  <location>src/main/scripts/kafka-topology-builder.sh</location>
+                  <location>src/main/scripts/julie-ops-cli.sh</location>
                 </source>
               </sources>
             </mapping>
             <mapping>
-              <directory>/usr/local/kafka-topology-builder/conf</directory>
+              <directory>/usr/local/julie-ops/conf</directory>
               <configuration>true</configuration>
               <filemode>640</filemode>
-              <username>ktb-kafka</username>
-              <groupname>ktb-kafka</groupname>
+              <username>julie-kafka</username>
+              <groupname>julie-kafka</groupname>
               <sources>
                 <source>
                   <location>src/main/conf</location>
@@ -331,25 +331,25 @@
               <controlDir>${basedir}/src/deb/control</controlDir>
               <dataSet>
                 <data>
-                  <src>${project.basedir}/target/kafka-topology-builder.jar</src>
+                  <src>${project.basedir}/target/julie-ops.jar</src>
                   <type>file</type>
                   <mapper>
                     <type>perm</type>
-                    <prefix>/usr/local/kafka-topology-builder/bin</prefix>
-                    <user>ktb-kafka</user>
-                    <group>ktb-kafka</group>
+                    <prefix>/usr/local/julie-ops/bin</prefix>
+                    <user>julie-kafka</user>
+                    <group>julie-kafka</group>
                     <filemode>440</filemode>
                   </mapper>
                 </data>
 
                 <data>
-                  <src>${basedir}/src/main/scripts/kafka-topology-builder.sh</src>
+                  <src>${basedir}/src/main/scripts/julie-ops-cli.sh</src>
                   <type>file</type>
                   <mapper>
                     <type>perm</type>
-                    <prefix>/usr/local/kafka-topology-builder/bin</prefix>
-                    <user>ktb-kafka</user>
-                    <group>ktb-kafka</group>
+                    <prefix>/usr/local/julie-ops/bin</prefix>
+                    <user>julie-kafka</user>
+                    <group>julie-kafka</group>
                     <filemode>755</filemode>
                   </mapper>
                 </data>
@@ -359,10 +359,10 @@
                   <type>directory</type>
                   <mapper>
                     <type>perm</type>
-                    <prefix>/usr/local/kafka-topology-builder/conf</prefix>
+                    <prefix>/usr/local/julie-ops/conf</prefix>
                     <filemode>755</filemode>
-                    <user>ktb-kafka</user>
-                    <group>ktb-kafka</group>
+                    <user>julie-kafka</user>
+                    <group>julie-kafka</group>
                   </mapper>
                 </data>
               </dataSet>

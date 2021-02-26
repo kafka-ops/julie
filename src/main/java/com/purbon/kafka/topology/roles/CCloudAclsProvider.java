@@ -1,7 +1,7 @@
 package com.purbon.kafka.topology.roles;
 
 import com.purbon.kafka.topology.AccessControlProvider;
-import com.purbon.kafka.topology.TopologyBuilderConfig;
+import com.purbon.kafka.topology.Configuration;
 import com.purbon.kafka.topology.api.adminclient.TopologyBuilderAdminClient;
 import com.purbon.kafka.topology.api.ccloud.CCloudCLI;
 import com.purbon.kafka.topology.model.cluster.ServiceAccount;
@@ -20,8 +20,7 @@ public class CCloudAclsProvider extends SimpleAclsProvider implements AccessCont
   private final CCloudCLI cli;
 
   public CCloudAclsProvider(
-      final TopologyBuilderAdminClient adminClient, final TopologyBuilderConfig config)
-      throws IOException {
+      final TopologyBuilderAdminClient adminClient, final Configuration config) throws IOException {
     super(adminClient);
     this.cli = new CCloudCLI();
     this.cli.setEnvironment(config.getConfluentCloudEnv());

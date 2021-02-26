@@ -24,9 +24,9 @@ public class PrincipalManager {
 
   private PrincipalProvider provider;
 
-  private TopologyBuilderConfig config;
+  private Configuration config;
 
-  public PrincipalManager(PrincipalProvider provider, TopologyBuilderConfig config) {
+  public PrincipalManager(PrincipalProvider provider, Configuration config) {
     this.provider = provider;
     this.config = config;
     this.managedPrefixes = config.getServiceAccountManagedPrefixes();

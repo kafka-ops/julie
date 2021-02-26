@@ -1,13 +1,13 @@
 Use of custom configuration plans
 *******************************
 
-It is possible with Kafka Topology Builder to utilise custom configuration plans.
+It is possible, with Julie Ops, to use custom configuration plans.
 These plans will allow you to summarize a set of default configuration properties in a reusable label, making easier for users and as well operators to configure each topic.
 
 You might wonder, why are Plans an interesting thing, this are a few ideas where you can use it:
 
 * To define custom service levels, where you have topics with different retentions or that accept different message sizes.
-* To group default configuration, allowing you as Kafka Topology user and operator to have an smaller file size.
+* To group default configuration, allowing you as Julie Ops user and operator to have an smaller file size.
 
 And I am sure there is going to be more.
 
@@ -16,7 +16,7 @@ How can you take advantage of Plans?
 Defining the your plans
 -----------
 
-As an operator of the Kafka Topology Builder you can define a set of custom plans, this would be a file that look like this:
+As an operator of Julie Ops you can define a set of custom plans, this would be a file that look like this:
 
 .. code-block:: YAML
 
@@ -76,7 +76,7 @@ In this Topology the topics *fooBar*, *barFoo* and *barFooBar* will be using cus
 What about from the CLI
 -----------
 
-As a user of the Kafka Topology Builder CLI, if interested to use Plans you can pass a file using the dedicated parameter.
+As a user of Julie Ops CLI, if interested to use Plans you can pass a file using the dedicated parameter.
 An example call will look like:
 
 .. code-block:: BASH

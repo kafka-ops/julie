@@ -1,9 +1,9 @@
 package com.purbon.kafka.topology;
 
-import static com.purbon.kafka.topology.BuilderCLI.ALLOW_DELETE_OPTION;
-import static com.purbon.kafka.topology.BuilderCLI.BROKERS_OPTION;
+import static com.purbon.kafka.topology.CommandLineInterface.ALLOW_DELETE_OPTION;
+import static com.purbon.kafka.topology.CommandLineInterface.BROKERS_OPTION;
+import static com.purbon.kafka.topology.Configuration.*;
 import static com.purbon.kafka.topology.TopicManager.NUM_PARTITIONS;
-import static com.purbon.kafka.topology.TopologyBuilderConfig.*;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.*;
 
@@ -45,7 +45,7 @@ public class TopicManagerTest {
   private TopicManager topicManager;
   private HashMap<String, String> cliOps;
   private Properties props;
-  private TopologyBuilderConfig config;
+  private Configuration config;
 
   @Before
   public void setup() throws IOException {
@@ -60,7 +60,7 @@ public class TopicManagerTest {
 
     plan = ExecutionPlan.init(backendController, System.out);
 
-    config = new TopologyBuilderConfig(cliOps, props);
+    config = new Configuration(cliOps, props);
     topicManager = new TopicManager(adminClient, schemaRegistryManager, config);
   }
 
@@ -102,7 +102,7 @@ public class TopicManagerTest {
     verify(adminClient, times(1)).createTopic(topicB, topicB.toString());
 
     ExecutionPlan plan = ExecutionPlan.init(backendController, System.out);
-    TopologyBuilderConfig config = new TopologyBuilderConfig(cliOps, props);
+    Configuration config = new Configuration(cliOps, props);
     TopicManager topicManager = new TopicManager(adminClient, schemaRegistryManager, config);
 
     topology = new TopologyImpl();
@@ -134,7 +134,7 @@ public class TopicManagerTest {
 
     Properties props = new Properties();
 
-    TopologyBuilderConfig config = new TopologyBuilderConfig(cliOps, props);
+    Configuration config = new Configuration(cliOps, props);
 
     plan = ExecutionPlan.init(backendController, System.out);
     topicManager = new TopicManager(adminClient, schemaRegistryManager, config);
@@ -182,7 +182,7 @@ public class TopicManagerTest {
     Properties props = new Properties();
     props.put(KAFKA_INTERNAL_TOPIC_PREFIXES, Arrays.asList("foo.", "_"));
 
-    TopologyBuilderConfig config = new TopologyBuilderConfig(cliOps, props);
+    Configuration config = new Configuration(cliOps, props);
 
     TopicManager topicManager = new TopicManager(adminClient, schemaRegistryManager, config);
 
@@ -222,7 +222,7 @@ public class TopicManagerTest {
     cliOps.put(BROKERS_OPTION, "");
     cliOps.put(ALLOW_DELETE_OPTION, "false");
 
-    TopologyBuilderConfig config = new TopologyBuilderConfig(cliOps, props);
+    Configuration config = new Configuration(cliOps, props);
 
     TopicManager topicManager = new TopicManager(adminClient, schemaRegistryManager, config);
 
@@ -257,7 +257,7 @@ public class TopicManagerTest {
     cliOps.put(BROKERS_OPTION, "");
     cliOps.put(ALLOW_DELETE_OPTION, "false");
 
-    TopologyBuilderConfig config = new TopologyBuilderConfig(cliOps, props);
+    Configuration config = new Configuration(cliOps, props);
 
     TopicManager topicManager = new TopicManager(adminClient, schemaRegistryManager, config);
 
@@ -292,7 +292,7 @@ public class TopicManagerTest {
     cliOps.put(BROKERS_OPTION, "");
     cliOps.put(ALLOW_DELETE_OPTION, "false");
 
-    TopologyBuilderConfig config = new TopologyBuilderConfig(cliOps, props);
+    Configuration config = new Configuration(cliOps, props);
 
     TopicManager topicManager = new TopicManager(adminClient, schemaRegistryManager, config);
 
@@ -347,7 +347,7 @@ public class TopicManagerTest {
     props.put(TOPIC_PREFIX_FORMAT_CONFIG, "{{topic}}");
     props.put(TOPOLOGY_TOPIC_STATE_FROM_CLUSTER, "true");
 
-    TopologyBuilderConfig config = new TopologyBuilderConfig(cliOps, props);
+    Configuration config = new Configuration(cliOps, props);
     TopicManager topicManager = new TopicManager(adminClient, schemaRegistryManager, config);
 
     Project project = new ProjectImpl("project");

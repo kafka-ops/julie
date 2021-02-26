@@ -14,18 +14,18 @@ import java.util.List;
 public class TopologyObjectBuilder {
 
   public static Topology build(String fileOrDir) throws IOException {
-    return build(fileOrDir, "", new TopologyBuilderConfig());
+    return build(fileOrDir, "", new Configuration());
   }
 
   public static Topology build(String fileOrDir, String plansFile) throws IOException {
-    return build(fileOrDir, plansFile, new TopologyBuilderConfig());
+    return build(fileOrDir, plansFile, new Configuration());
   }
 
-  public static Topology build(String fileOrDir, TopologyBuilderConfig config) throws IOException {
+  public static Topology build(String fileOrDir, Configuration config) throws IOException {
     return build(fileOrDir, "", config);
   }
 
-  public static Topology build(String fileOrDir, String plansFile, TopologyBuilderConfig config)
+  public static Topology build(String fileOrDir, String plansFile, Configuration config)
       throws IOException {
     PlanMap plans = buildPlans(plansFile);
     List<Topology> topologies = parseListOfTopologies(fileOrDir, config, plans);
@@ -48,7 +48,7 @@ public class TopologyObjectBuilder {
   }
 
   private static List<Topology> parseListOfTopologies(
-      String fileOrDir, TopologyBuilderConfig config, PlanMap plans) throws IOException {
+      String fileOrDir, Configuration config, PlanMap plans) throws IOException {
     TopologySerdes parser = new TopologySerdes(config, plans);
     List<Topology> topologies = new ArrayList<>();
     boolean isDir = Files.isDirectory(Paths.get(fileOrDir));

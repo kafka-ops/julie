@@ -1,6 +1,6 @@
 package com.purbon.kafka.topology;
 
-import static com.purbon.kafka.topology.TopologyBuilderConfig.*;
+import static com.purbon.kafka.topology.Configuration.*;
 
 import com.purbon.kafka.topology.api.adminclient.TopologyBuilderAdminClient;
 import com.purbon.kafka.topology.api.ccloud.CCloudCLI;
@@ -17,12 +17,12 @@ import java.lang.reflect.Constructor;
 
 public class AccessControlProviderFactory {
 
-  private final TopologyBuilderConfig config;
+  private final Configuration config;
   private final TopologyBuilderAdminClient builderAdminClient;
   private final MDSApiClientBuilder mdsApiClientBuilder;
 
   public AccessControlProviderFactory(
-      TopologyBuilderConfig config,
+      Configuration config,
       TopologyBuilderAdminClient builderAdminClient,
       MDSApiClientBuilder mdsApiClientBuilder) {
     this.config = config;
@@ -43,7 +43,7 @@ public class AccessControlProviderFactory {
           return (SimpleAclsProvider) aclsProviderConstructor.newInstance(builderAdminClient);
         case CONFLUENT_CLOUD_CONTROL_CLASS:
           Constructor<?> ccloudProviderConstructor =
-              clazz.getConstructor(TopologyBuilderAdminClient.class, TopologyBuilderConfig.class);
+              clazz.getConstructor(TopologyBuilderAdminClient.class, Configuration.class);
           return (CCloudAclsProvider)
               ccloudProviderConstructor.newInstance(builderAdminClient, config);
         case RBAC_ACCESS_CONTROL_CLASS:

@@ -1,9 +1,9 @@
 package com.purbon.kafka.topology;
 
-import static com.purbon.kafka.topology.BuilderCLI.ADMIN_CLIENT_CONFIG_OPTION;
-import static com.purbon.kafka.topology.BuilderCLI.BROKERS_OPTION;
-import static com.purbon.kafka.topology.TopologyBuilderConfig.TOPIC_PREFIX_FORMAT_CONFIG;
-import static com.purbon.kafka.topology.TopologyBuilderConfig.TOPIC_PREFIX_SEPARATOR_CONFIG;
+import static com.purbon.kafka.topology.CommandLineInterface.ADMIN_CLIENT_CONFIG_OPTION;
+import static com.purbon.kafka.topology.CommandLineInterface.BROKERS_OPTION;
+import static com.purbon.kafka.topology.Configuration.TOPIC_PREFIX_FORMAT_CONFIG;
+import static com.purbon.kafka.topology.Configuration.TOPIC_PREFIX_SEPARATOR_CONFIG;
 
 import com.purbon.kafka.topology.model.Impl.ProjectImpl;
 import com.purbon.kafka.topology.model.Impl.TopicImpl;
@@ -78,7 +78,7 @@ public class TopicTest {
 
     Properties props = new Properties();
     props.put(TOPIC_PREFIX_SEPARATOR_CONFIG, "_");
-    TopologyBuilderConfig config = new TopologyBuilderConfig(cliOps, props);
+    Configuration config = new Configuration(cliOps, props);
 
     Topology topology = new TopologyImpl(config);
     topology.setContext("team");
@@ -105,7 +105,7 @@ public class TopicTest {
 
     Properties props = new Properties();
     props.put(TOPIC_PREFIX_FORMAT_CONFIG, "{{otherf}}.{{context}}.{{project}}.{{topic}}");
-    TopologyBuilderConfig config = new TopologyBuilderConfig(cliOps, props);
+    Configuration config = new Configuration(cliOps, props);
 
     Topology topology = new TopologyImpl(config);
     topology.setContext("team");

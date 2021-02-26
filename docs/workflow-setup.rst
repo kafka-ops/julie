@@ -1,7 +1,7 @@
 How to setup a full workflow (by example)
 *******************************
 
-This section describe the configuration steps need to setup a flow with the Kafka Topology Builder.
+This section describe the configuration steps need to setup a flow with Julie Ops.
 For this example we're going to use:
 
 * Github as the git server.
@@ -9,7 +9,7 @@ For this example we're going to use:
 
 Configuration is possible with other technologies such as Gitlab or Concourse for example.
 
-.. image:: _static/images/kafka-topology-builder.png
+.. image:: _static/images/julie-ops.png
   :width: 400
   :align: center
   :alt: Webhook events
@@ -92,7 +92,7 @@ The pipeline responsible of running the test for each change request should look
 
 In the previous pipeline definition, using the Jenkins Pipeline DSL, we can notice a few relevant steps:
 
-- Is using docker as an agent. We suggest this as a best practise, but it is possible as well to run this with any agent available that has access to a host where the Kafka Topology Builder is installed.
+- Is using docker as an agent. We suggest this as a best practise, but it is possible as well to run this with any agent available that has access to a host where Julie Ops is installed.
 - There are a few verification, or test, steps. This are checks that run automatically for every Pull Request.
 - In the pipeline the reader can see the topology files are passes as jenkins parameters, see *${TopologyFiles}*
 - An important post step is configured where the pipeline will inform back to the git server the result of the verification. This step needs access to each server token, for the case of this pipeline a previously configured github token.
@@ -125,7 +125,7 @@ The main pipeline should look like this:
         }
     }
 
-As the reader can see, the main responsibility of this pipeline is to apply the changes to the cluster by calling the kafka topology builder tool.
+As the reader can see, the main responsibility of this pipeline is to apply the changes to the cluster by calling Julie Ops tool.
 
 *NOTE*: The change request has been previously validated by an agent, and as well using the verifications pipeline.
 
@@ -152,7 +152,7 @@ As a user, when you require a new topic, configuration or user permission, you w
 
 Once the PR is merged, the peer jenkins job will pick up the files and apply the required changes directly to your shared infra.
 
-Taking advantage of the Kafka topology Builder across environments
+Taking advantage of Julie Ops across environments
 -----------
 
 As introduced in the previous section, in any software project, there are many environments. This environments could be:
