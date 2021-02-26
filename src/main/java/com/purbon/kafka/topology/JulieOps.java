@@ -28,9 +28,9 @@ import java.util.Properties;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-public class JulieOpsBuilder implements AutoCloseable {
+public class JulieOps implements AutoCloseable {
 
-  private static final Logger LOGGER = LogManager.getLogger(JulieOpsBuilder.class);
+  private static final Logger LOGGER = LogManager.getLogger(JulieOps.class);
 
   private TopicManager topicManager;
   private PrincipalManager principalManager;
@@ -39,7 +39,7 @@ public class JulieOpsBuilder implements AutoCloseable {
   private TopologyBuilderConfig config;
   private PrintStream outputStream;
 
-  private JulieOpsBuilder(
+  private JulieOps(
       Topology topology,
       TopologyBuilderConfig config,
       TopicManager topicManager,
@@ -53,13 +53,12 @@ public class JulieOpsBuilder implements AutoCloseable {
     this.outputStream = System.out;
   }
 
-  public static JulieOpsBuilder build(String topologyFile, Map<String, String> config)
-      throws Exception {
+  public static JulieOps build(String topologyFile, Map<String, String> config) throws Exception {
     return build(topologyFile, "default", config);
   }
 
-  public static JulieOpsBuilder build(
-      String topologyFile, String plansFile, Map<String, String> config) throws Exception {
+  public static JulieOps build(String topologyFile, String plansFile, Map<String, String> config)
+      throws Exception {
 
     TopologyBuilderConfig builderConfig = TopologyBuilderConfig.build(config);
     TopologyBuilderAdminClient adminClient =
@@ -70,7 +69,7 @@ public class JulieOpsBuilder implements AutoCloseable {
 
     PrincipalProviderFactory principalProviderFactory = new PrincipalProviderFactory(builderConfig);
 
-    JulieOpsBuilder builder =
+    JulieOps builder =
         build(
             topologyFile,
             plansFile,
@@ -84,7 +83,7 @@ public class JulieOpsBuilder implements AutoCloseable {
     return builder;
   }
 
-  public static JulieOpsBuilder build(
+  public static JulieOps build(
       String topologyFileOrDir,
       TopologyBuilderConfig config,
       TopologyBuilderAdminClient adminClient,
@@ -101,7 +100,7 @@ public class JulieOpsBuilder implements AutoCloseable {
         new VoidPrincipalProvider());
   }
 
-  public static JulieOpsBuilder build(
+  public static JulieOps build(
       String topologyFileOrDir,
       String plansFile,
       TopologyBuilderConfig config,
@@ -141,8 +140,7 @@ public class JulieOpsBuilder implements AutoCloseable {
 
     PrincipalManager principalManager = new PrincipalManager(principalProvider, config);
 
-    return new JulieOpsBuilder(
-        topology, config, topicManager, accessControlManager, principalManager);
+    return new JulieOps(topology, config, topicManager, accessControlManager, principalManager);
   }
 
   void verifyRequiredParameters(String topologyFile, Map<String, String> config)
@@ -151,7 +149,7 @@ public class JulieOpsBuilder implements AutoCloseable {
       throw new IOException("Topology file does not exist");
     }
 
-    String configFilePath = config.get(BuilderCLI.ADMIN_CLIENT_CONFIG_OPTION);
+    String configFilePath = config.get(CommandLineInterface.ADMIN_CLIENT_CONFIG_OPTION);
 
     if (!Files.exists(Paths.get(configFilePath))) {
       throw new IOException("AdminClient config file does not exist");
@@ -196,7 +194,7 @@ public class JulieOpsBuilder implements AutoCloseable {
 
   public static String getVersion() {
     InputStream resourceAsStream =
-        JulieOpsBuilder.class.getResourceAsStream(
+        JulieOps.class.getResourceAsStream(
             "/META-INF/maven/com.purbon.kafka/julie-ops/pom.properties");
     Properties prop = new Properties();
     try {

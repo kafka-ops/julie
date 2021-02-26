@@ -1,7 +1,7 @@
 package com.purbon.kafka.topology;
 
 import static com.google.common.collect.Lists.newArrayList;
-import static com.purbon.kafka.topology.BuilderCLI.BROKERS_OPTION;
+import static com.purbon.kafka.topology.CommandLineInterface.BROKERS_OPTION;
 import static com.purbon.kafka.topology.TopologyBuilderConfig.*;
 import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;

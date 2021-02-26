@@ -1,6 +1,6 @@
 package com.purbon.kafka.topology;
 
-import static com.purbon.kafka.topology.BuilderCLI.*;
+import static com.purbon.kafka.topology.CommandLineInterface.*;
 import static com.purbon.kafka.topology.TopologyBuilderConfig.CONFLUENT_SCHEMA_REGISTRY_URL_CONFIG;
 import static org.mockito.Matchers.anyObject;
 import static org.mockito.Mockito.*;
@@ -22,7 +22,7 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnit;
 import org.mockito.junit.MockitoRule;
 
-public class JulieOpsBuilderTest {
+public class JulieOpsTest {
 
   @Mock TopologyBuilderAdminClient topologyAdminClient;
 
@@ -57,8 +57,8 @@ public class JulieOpsBuilderTest {
 
     TopologyBuilderConfig builderConfig = new TopologyBuilderConfig(cliOps, props);
 
-    JulieOpsBuilder builder =
-        JulieOpsBuilder.build(
+    JulieOps builder =
+        JulieOps.build(
             fileOrDirPath,
             builderConfig,
             topologyAdminClient,
@@ -75,8 +75,8 @@ public class JulieOpsBuilderTest {
     String file = "fileThatDoesNotExist.yaml";
     TopologyBuilderConfig builderConfig = new TopologyBuilderConfig(cliOps, props);
 
-    JulieOpsBuilder builder =
-        JulieOpsBuilder.build(
+    JulieOps builder =
+        JulieOps.build(
             file,
             builderConfig,
             topologyAdminClient,
@@ -91,8 +91,8 @@ public class JulieOpsBuilderTest {
     String fileOrDirPath = TestUtils.getResourceFilename("/descriptor.yaml");
 
     TopologyBuilderConfig builderConfig = new TopologyBuilderConfig(cliOps, props);
-    JulieOpsBuilder builder =
-        JulieOpsBuilder.build(
+    JulieOps builder =
+        JulieOps.build(
             fileOrDirPath,
             builderConfig,
             topologyAdminClient,
@@ -110,8 +110,8 @@ public class JulieOpsBuilderTest {
     cliOps.put(ADMIN_CLIENT_CONFIG_OPTION, clientConfigFile);
 
     TopologyBuilderConfig builderConfig = new TopologyBuilderConfig(cliOps, props);
-    JulieOpsBuilder builder =
-        JulieOpsBuilder.build(
+    JulieOps builder =
+        JulieOps.build(
             fileOrDirPath,
             builderConfig,
             topologyAdminClient,
@@ -133,7 +133,7 @@ public class JulieOpsBuilderTest {
     config.put(QUIET_OPTION, "false");
     config.put(ADMIN_CLIENT_CONFIG_OPTION, clientConfigFile);
 
-    JulieOpsBuilder builder = JulieOpsBuilder.build(fileOrDirPath, config);
+    JulieOps builder = JulieOps.build(fileOrDirPath, config);
 
     builder.setTopicManager(topicManager);
     builder.setAccessControlManager(accessControlManager);
@@ -163,7 +163,7 @@ public class JulieOpsBuilderTest {
     config.put(QUIET_OPTION, "false");
     config.put(ADMIN_CLIENT_CONFIG_OPTION, clientConfigFile);
 
-    JulieOpsBuilder builder = JulieOpsBuilder.build(fileOrDirPath, config);
+    JulieOps builder = JulieOps.build(fileOrDirPath, config);
 
     builder.setTopicManager(topicManager);
     builder.setAccessControlManager(accessControlManager);
@@ -190,8 +190,8 @@ public class JulieOpsBuilderTest {
 
     TopologyBuilderConfig builderConfig = new TopologyBuilderConfig(cliOps, props);
 
-    JulieOpsBuilder builder =
-        JulieOpsBuilder.build(
+    JulieOps builder =
+        JulieOps.build(
             fileOrDirPath,
             builderConfig,
             topologyAdminClient,

@@ -10,9 +10,9 @@ import org.apache.commons.cli.*;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-public class BuilderCLI {
+public class CommandLineInterface {
 
-  private static final Logger LOGGER = LogManager.getLogger(BuilderCLI.class);
+  private static final Logger LOGGER = LogManager.getLogger(CommandLineInterface.class);
 
   public static final String TOPOLOGY_OPTION = "topology";
   public static final String TOPOLOGY_DESC = "Topology config file.";
@@ -48,7 +48,7 @@ public class BuilderCLI {
   private CommandLineParser parser;
   private Options options;
 
-  public BuilderCLI() {
+  public CommandLineInterface() {
     formatter = new HelpFormatter();
     parser = new DefaultParser();
     options = buildOptions();
@@ -130,7 +130,7 @@ public class BuilderCLI {
   }
 
   public static void main(String[] args) throws Exception {
-    BuilderCLI cli = new BuilderCLI();
+    CommandLineInterface cli = new CommandLineInterface();
     cli.run(args);
     exit(0);
   }
@@ -173,7 +173,7 @@ public class BuilderCLI {
       formatter.printHelp(APP_NAME, options);
       exit(0);
     } else if (listOfArgs.contains("--" + VERSION_OPTION)) {
-      System.out.println(JulieOpsBuilder.getVersion());
+      System.out.println(JulieOps.getVersion());
       exit(0);
     }
   }
@@ -192,7 +192,7 @@ public class BuilderCLI {
 
   void processTopology(String topologyFile, String plansFile, Map<String, String> config)
       throws Exception {
-    try (JulieOpsBuilder builder = JulieOpsBuilder.build(topologyFile, plansFile, config)) {
+    try (JulieOps builder = JulieOps.build(topologyFile, plansFile, config)) {
       builder.run();
     }
   }

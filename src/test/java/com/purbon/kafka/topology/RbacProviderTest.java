@@ -1,6 +1,6 @@
 package com.purbon.kafka.topology;
 
-import static com.purbon.kafka.topology.BuilderCLI.BROKERS_OPTION;
+import static com.purbon.kafka.topology.CommandLineInterface.BROKERS_OPTION;
 import static com.purbon.kafka.topology.TopologyBuilderConfig.OPTIMIZED_ACLS_CONFIG;
 import static com.purbon.kafka.topology.roles.rbac.RBACBindingsBuilder.LITERAL;
 import static com.purbon.kafka.topology.roles.rbac.RBACBindingsBuilder.PREFIX;
