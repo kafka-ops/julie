@@ -2,11 +2,11 @@
 
 *NOTE*: This project was formally known as Kafka Topology Builder, old versions of this project can still be found under that name.
 
-<a href="https://codeclimate.com/github/purbon/kafka-topology-builder/maintainability"><img src="https://api.codeclimate.com/v1/badges/ef4bcda7d1b5fd0a4f1e/maintainability" /></a> ![CI tests](https://github.com/kafka-ops/kafka-topology-builder/workflows/CI%20tests/badge.svg?branch=master) [![Gitter](https://badges.gitter.im/kafka-topology-builder/community.svg)](https://gitter.im/kafka-topology-builder/community?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge) [![Documentation Status](https://readthedocs.org/projects/kafka-topology-builder/badge/?version=latest)](https://kafka-topology-builder.readthedocs.io/?badge=latest)
+<a href="https://codeclimate.com/github/purbon/kafka-topology-builder/maintainability"><img src="https://api.codeclimate.com/v1/badges/ef4bcda7d1b5fd0a4f1e/maintainability" /></a> ![CI tests](https://github.com/kafka-ops/kafka-topology-builder/workflows/CI%20tests/badge.svg?branch=master) [![Gitter](https://badges.gitter.im/kafka-topology-builder/community.svg)](https://gitter.im/kafka-topology-builder/community?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge) [![Documentation Status](https://readthedocs.org/projects/julieops/badge/?version=latest)](https://julieops.readthedocs.io/?badge=latest)
 
 JulieOps helps you automate the management of your things within Apache Kafka, from Topics,
 Configuration to Metadata but as well Access Control, Schemas. 
-More items are plan, check [here](https://github.com/kafka-ops/kafka-topology-builder/issues) for details. 
+More items are plan, check [here](https://github.com/kafka-ops/julie/issues) for details. 
 
 ## The motivation 
 
@@ -18,7 +18,7 @@ organised and automated way of managing your Kafka Cluster.
  
 ## Where's the docs?
 
-We recommend taking time to [read the docs](https://kafka-topology-builder.readthedocs.io/).
+We recommend taking time to [read the docs](https://julieops.readthedocs.io/en/latest/).
 There's quite a bit of detailed information about GitOps, Apache Kafka and how this project can help you automate 
 the common operational tasks.
 
@@ -94,7 +94,7 @@ This tool is available in multiple formats:
 - Directly as a fat jar (zip/tar.gz)
 - As a fat jar.
 
-The latest version are available from the [releases](https://github.com/purbon/kafka-topology-builder/releases) page.
+The latest version are available from the [releases](https://github.com/kafka-ops/julie/releases) page.
 
 #### How to execute the tool
 
@@ -171,7 +171,7 @@ projects:
 
 more examples can be found at the [example/](example/) directory. 
 
-Also, please check, the documentation in [the docs](https://kafka-topology-builder.readthedocs.io/) for extra information and
+Also, please check, the documentation in [the docs](https://julieops.readthedocs.io/) for extra information and
 examples on managing ACLs, RBAC, Principales, Schemas and many others.  
 
 ## Interested in contributing back?
@@ -191,5 +191,5 @@ It is recommended to run JulieOps with Java 11 and an open JDK version.
 
 If you are interested on building a release artifact from the source code, check our [release](RELEASE.md) doc for guidance.
 
-Nightly builds as well as release builds are regularly available from the [Actions](https://github.com/kafka-ops/kafka-topology-builder/actions)
+Nightly builds as well as release builds are regularly available from the [Actions](https://github.com/kafka-ops/julie/actions)
 in this project.
