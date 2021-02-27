@@ -2,8 +2,8 @@
 v2.0.0 / 2021-02-27
 ===================
 
-  * Entity rename to JulieOps as a new project name (#213)
-  * [Sonar 2095] Fix, resources should be closed (#207)
+* Entity rename to JulieOps as a new project name (#213)
+* [Sonar 2095] Fix, resources should be closed (#207)
 
 v1.5.1 / 2021-02-25
 ===================
