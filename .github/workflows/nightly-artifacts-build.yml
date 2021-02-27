@@ -25,9 +25,9 @@ jobs:
       - name: Build with Maven
         run: mvn -B package --file pom.xml
       - name: copy fat jar
-        run: cp ./target/kafka-topology-builder.jar release/docker
+        run: cp ./target/julie-ops.jar release/docker
       - name: copy runner file
-        run: cp ./src/main/scripts/kafka-topology-builder.sh release/docker
+        run: cp ./src/main/scripts/julie-ops-cli.sh release/docker
       - name: list files (release dir)
         run: ls -l
         working-directory: release/docker
@@ -65,7 +65,7 @@ jobs:
       - uses: actions/upload-artifact@v2
         with:
           name: RPM package
-          path: target/rpm/kafka-topology-builder/RPMS/noarch/*.rpm
+          path: target/rpm/julie-ops/RPMS/noarch/*.rpm
       - uses: actions/upload-artifact@v2
         with:
           name: DEB package
@@ -73,4 +73,4 @@ jobs:
       - uses: actions/upload-artifact@v2
         with:
           name: FAT jar
-          path: target/kafka-topology-builder.jar
+          path: target/julie-ops.jar
