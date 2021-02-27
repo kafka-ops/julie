@@ -49,7 +49,7 @@ An example command for this function will look like this:
     $> docker run -t -i \
           -v /Users/pere/work/kafka-topology-builder/example:/example \
           purbon/kafka-topology-builder:latest \
-          kafka-topology-builder.sh \
+          julie-ops-cli.sh \
           --brokers pkc-4ygn6.europe-west3.gcp.confluent.cloud:9092 \
           --clientConfig /example/topology-builder-with-schema-cloud.properties \
           --topology /example/descriptor.yaml -quiet

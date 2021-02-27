@@ -101,7 +101,7 @@ The latest version are available from the [releases](https://github.com/kafka-op
 This is how you can run the tool directly as a docker image:
 
 ```bash 
-docker run purbon/julie-ops:latest julie-ops-cli.sh  --help
+docker run purbon/kafka-topology-builder:latest julie-ops-cli.sh  --help
 Parsing failed cause of Missing required options: topology, brokers, clientConfig
 usage: cli
     --allowDelete          Permits delete operations for topics and
