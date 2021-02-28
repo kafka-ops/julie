@@ -75,22 +75,22 @@ public class FileBackend implements Backend {
     Path filePath = Paths.get(uri);
     Set<TopologyAclBinding> bindings = new LinkedHashSet<>();
     try (BufferedReader in = new BufferedReader(new FileReader(filePath.toFile()))) {
-	String type = in.readLine();
-	String line = null;
-	while ((line = in.readLine()) != null) {
-	  TopologyAclBinding binding = null;
-	  if (line.equalsIgnoreCase("ServiceAccounts")) {
-		// process service accounts, should break from here.
-		break;
-	  }
-	  if (type.equalsIgnoreCase(ACLS_TAG)) {
-		binding = buildAclBinding(line);
-	  } else {
-		throw new IOException("Binding type ( " + type + " )not supported.");
-	  }
-	  bindings.add(binding);
-	}
-	return bindings;
+      String type = in.readLine();
+      String line = null;
+      while ((line = in.readLine()) != null) {
+        TopologyAclBinding binding = null;
+        if (line.equalsIgnoreCase("ServiceAccounts")) {
+          // process service accounts, should break from here.
+          break;
+        }
+        if (type.equalsIgnoreCase(ACLS_TAG)) {
+          binding = buildAclBinding(line);
+        } else {
+          throw new IOException("Binding type ( " + type + " )not supported.");
+        }
+        bindings.add(binding);
+      }
+      return bindings;
     }
   }
 
