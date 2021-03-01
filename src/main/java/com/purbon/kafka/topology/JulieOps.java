@@ -14,14 +14,19 @@ import com.purbon.kafka.topology.exceptions.ValidationException;
 import com.purbon.kafka.topology.model.Topology;
 import com.purbon.kafka.topology.schemas.SchemaRegistryManager;
 import com.purbon.kafka.topology.serviceAccounts.VoidPrincipalProvider;
+import io.confluent.kafka.schemaregistry.SchemaProvider;
+import io.confluent.kafka.schemaregistry.avro.AvroSchemaProvider;
 import io.confluent.kafka.schemaregistry.client.CachedSchemaRegistryClient;
 import io.confluent.kafka.schemaregistry.client.SchemaRegistryClient;
 import io.confluent.kafka.schemaregistry.client.rest.RestService;
+import io.confluent.kafka.schemaregistry.json.JsonSchemaProvider;
+import io.confluent.kafka.schemaregistry.protobuf.ProtobufSchemaProvider;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintStream;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
@@ -130,9 +135,17 @@ public class JulieOps implements AutoCloseable {
 
     RestService restService = new RestService(config.getConfluentSchemaRegistryUrl());
     Map<String, ?> schemaRegistryConfig = config.asMap();
+
+    List<SchemaProvider> providers =
+        Arrays.asList(
+            new AvroSchemaProvider(), new JsonSchemaProvider(), new ProtobufSchemaProvider());
     SchemaRegistryClient schemaRegistryClient =
         new CachedSchemaRegistryClient(
-            restService, 10, schemaRegistryConfig.isEmpty() ? null : schemaRegistryConfig);
+            restService,
+            10,
+            providers,
+            schemaRegistryConfig.isEmpty() ? null : schemaRegistryConfig,
+            null);
     SchemaRegistryManager schemaRegistryManager =
         new SchemaRegistryManager(schemaRegistryClient, topologyFileOrDir);
 
