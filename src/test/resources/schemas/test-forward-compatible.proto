@@ -1,0 +1,8 @@
+syntax = "proto3";
+
+package com.mycorp.mynamespace;
+
+message SampleRecord {
+    int32  my_field1 = 1;
+    string  my_field2 = 2;
+}

@@ -1,0 +1,22 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "http://example.com/myURI.schema.json",
+  "title": "SampleRecord",
+  "description": "Sample schema to help you get started.",
+  "type": "object",
+  "additionalProperties": {"type": "string"},
+  "properties": {
+    "myField1": {
+      "type": "integer",
+      "description": "The integer type is used for integral numbers."
+    },
+    "myField2": {
+      "type": "number",
+      "description": "The number type is used for any numeric type, either integers or floating point numbers."
+    },
+    "myField3": {
+      "type": "string",
+      "description": "The string type is used for strings of text."
+    }
+  }
+}
