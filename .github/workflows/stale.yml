@@ -6,6 +6,7 @@ name: stale
 
 jobs:
   stale:
+    if: github.repository == 'kafka-ops/julie'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/stale@v1

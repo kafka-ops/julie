@@ -5,6 +5,7 @@ on:
       - v*
 jobs:
   package_build:
+    if: github.repository == 'kafka-ops/julie'
     name: Build rpm/deb packages (using maven)
     runs-on: ubuntu-latest
     steps:
