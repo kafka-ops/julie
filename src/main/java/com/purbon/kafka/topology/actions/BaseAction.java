@@ -11,7 +11,11 @@ public abstract class BaseAction implements Action {
   @Override
   public String toString() {
     try {
-      return JSON.asPrettyString(props());
+      Map<String, Object> props = props();
+      if (props != null) {
+        return JSON.asPrettyString(props);
+      }
+      return "";
     } catch (JsonProcessingException e) {
       return "";
     }

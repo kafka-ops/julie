@@ -143,7 +143,7 @@ public class CommandLineInterface {
 
     processTopology(
         cmd.getOptionValue(TOPOLOGY_OPTION), cmd.getOptionValue(PLANS_OPTION, "default"), config);
-    System.out.println("Kafka Topology updated");
+    System.out.println("Kafka Topology finished successfully");
   }
 
   private Map<String, String> parseConfig(CommandLine cmd) {

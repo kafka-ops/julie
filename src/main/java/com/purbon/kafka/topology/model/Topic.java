@@ -23,6 +23,12 @@ public interface Topic {
 
   Map<String, String> getConfig();
 
+  /**
+   * Gets the "raw" config with all configuration keys except <i>replication.factor</i> and
+   * <i>num.partitions</i>.
+   *
+   * @return the raw config.
+   */
   HashMap<String, String> getRawConfig();
 
   Optional<String> getDataType();

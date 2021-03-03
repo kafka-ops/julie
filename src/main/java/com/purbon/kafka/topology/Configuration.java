@@ -58,6 +58,8 @@ public class Configuration {
   private static final String CONFLUENT_COMMAND_TOPIC_CONFIG = "confluent.command.topic";
   private static final String CONFLUENT_METRICS_TOPIC_CONFIG = "confluent.metrics.topic";
   static final String TOPIC_PREFIX_FORMAT_CONFIG = "topology.topic.prefix.format";
+  static final String TOPIC_SYNC_OVERWRITE_CONFIG = "topology.topic.sync.overwrite";
+
   static final String PROJECT_PREFIX_FORMAT_CONFIG = "topology.project.prefix.format";
   static final String TOPIC_PREFIX_SEPARATOR_CONFIG = "topology.topic.prefix.separator";
   static final String TOPOLOGY_VALIDATIONS_CONFIG = "topology.validations";
@@ -303,6 +305,10 @@ public class Configuration {
 
   public Boolean shouldOptimizeAcls() {
     return config.getBoolean(OPTIMIZED_ACLS_CONFIG);
+  }
+
+  public Boolean shouldOverwriteTopicsInSync() {
+    return config.getBoolean(TOPIC_SYNC_OVERWRITE_CONFIG);
   }
 
   public String getConfluentCloudEnv() {

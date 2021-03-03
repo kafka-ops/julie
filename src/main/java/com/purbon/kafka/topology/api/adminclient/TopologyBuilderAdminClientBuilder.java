@@ -25,7 +25,8 @@ public class TopologyBuilderAdminClientBuilder {
         String.format(
             "Connecting AdminClient to %s",
             props.getProperty(AdminClientConfig.BOOTSTRAP_SERVERS_CONFIG)));
-    TopologyBuilderAdminClient client = new TopologyBuilderAdminClient(AdminClient.create(props));
+    TopologyBuilderAdminClient client =
+        new TopologyBuilderAdminClient(AdminClient.create(props), config);
     if (!config.isDryRun()) {
       client.healthCheck();
     }

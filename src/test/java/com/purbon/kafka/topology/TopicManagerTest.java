@@ -7,7 +7,6 @@ import static com.purbon.kafka.topology.TopicManager.NUM_PARTITIONS;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.*;
 
-import com.purbon.kafka.topology.actions.Action;
 import com.purbon.kafka.topology.api.adminclient.TopologyBuilderAdminClient;
 import com.purbon.kafka.topology.model.Impl.ProjectImpl;
 import com.purbon.kafka.topology.model.Impl.TopicImpl;
@@ -22,6 +21,7 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -120,7 +120,7 @@ public class TopicManagerTest {
 
     verify(adminClient, times(0)).createTopic(topicA, topicA.toString());
     verify(adminClient, times(0)).createTopic(topicB, topicB.toString());
-    verify(adminClient, times(1)).updateTopicConfig(topicB, topicB.toString());
+    verify(adminClient, times(1)).updateTopicConfig(topicB, topicB.toString(), false);
     verify(adminClient, times(1)).getPartitionCount(topicB.toString());
     verify(adminClient, times(1)).updatePartitionCount(topicB, topicB.toString());
   }
@@ -200,8 +200,7 @@ public class TopicManagerTest {
     String topicI1 = "foo.my-internal.topic";
     String topicI2 = "_my-internal.topic";
 
-    Set<String> appTopics =
-        Arrays.asList(topicC, topicI1, topicI2).stream().collect(Collectors.toSet());
+    Set<String> appTopics = new HashSet<>(Arrays.asList(topicC, topicI1, topicI2));
     when(adminClient.listApplicationTopics()).thenReturn(appTopics);
 
     topicManager.apply(topology, plan);
@@ -238,7 +237,7 @@ public class TopicManagerTest {
 
     String topicC = "team.project.topicC";
 
-    Set<String> appTopics = Arrays.asList(topicC).stream().collect(Collectors.toSet());
+    Set<String> appTopics = Stream.of(topicC).collect(Collectors.toSet());
     when(adminClient.listApplicationTopics()).thenReturn(appTopics);
 
     topicManager.apply(topology, plan);
@@ -337,7 +336,7 @@ public class TopicManagerTest {
     topicManager.apply(topology, plan);
     plan.run(true);
 
-    verify(outputStream, times(2)).println(any(Action.class));
+    verify(outputStream, times(2)).println(any(String.class));
   }
 
   @Test

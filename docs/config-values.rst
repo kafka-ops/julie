@@ -126,6 +126,44 @@ You can also create your own custom validations. The validations must implement 
 - com.purbon.kafka.topology.validation.TopologyValidation
 - com.purbon.kafka.topology.validation.TopicValidation
 
+Topic overwrite / Update Option and dryrun output
+-----------
+Regularly when julie applies changes to existing topics it will always overwrite all* the configuration keys with the existing ones. Also, the output of the dryrun will print all (un)changed properties.
+With this option, this can be configured. Only the changed topics and values will be shown in the -dryrun log with the following format. Apart from that, it will also only change the keys which were updated via the KafkaAdminClient.
+
+::
+{
+  "Operation" : "com.purbon.kafka.topology.actions.topics.SyncTopicAction",
+  "Topic" : "project.test-new-topic.a0",
+  "Action" : "create",
+  "Changes" : {
+    "cleanup.policy" : "[Set] delete",
+    "min.insync.replicas" : "[Set] 3"
+  }
+}
+{
+  "Operation" : "com.purbon.kafka.topology.actions.topics.SyncTopicAction",
+  "Topic" : "project.test-existing-topic.a0",
+  "Action" : "update",
+  "Changes" : {
+    "cleanup.policy" : "[Update] delete -> cleanup",
+    "min.insync.replicas" : "[Update] 2 -> 3",
+    "retention.ms" : "[Unset] 2592000000 ->  "
+  }
+}
+
+Legend
+[Set] config entry is new
+[Unset] config entry is removed
+[Update] config entry is updated
+
+Note: num.partitions, replication.factor will never be part of the update as this needs to be applied differently.
+
+An example configuration to only update changed configuration and output it in the dryrun.
+::
+    topology.topic.sync.overwrite: false
+**Default value**: true
+
 Prevent ACL for topic creation for connector principal
 -----------
 

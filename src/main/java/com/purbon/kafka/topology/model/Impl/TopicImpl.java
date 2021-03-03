@@ -67,11 +67,11 @@ public class TopicImpl implements Topic, Cloneable {
     this(name, Optional.of(dataType), new HashMap<>(), new Configuration());
   }
 
-  public TopicImpl(String name, String dataType, HashMap<String, String> config) {
+  public TopicImpl(String name, String dataType, Map<String, String> config) {
     this(name, Optional.of(dataType), config, new Configuration());
   }
 
-  public TopicImpl(String name, HashMap<String, String> config) {
+  public TopicImpl(String name, Map<String, String> config) {
     this(name, Optional.empty(), config, new Configuration());
   }
 

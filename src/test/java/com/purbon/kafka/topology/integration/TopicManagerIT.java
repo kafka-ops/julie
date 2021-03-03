@@ -48,6 +48,7 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Rule;
 import org.junit.Test;
+import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnit;
 import org.mockito.junit.MockitoRule;
 
@@ -58,6 +59,7 @@ public class TopicManagerIT {
   private AdminClient kafkaAdminClient;
 
   private ExecutionPlan plan;
+  @Mock private Configuration configuration;
 
   @Rule public MockitoRule mockitoRule = MockitoJUnit.rule();
 
@@ -77,7 +79,8 @@ public class TopicManagerIT {
     Files.deleteIfExists(Paths.get(".cluster-state"));
 
     kafkaAdminClient = ContainerTestUtils.getSaslAdminClient(container);
-    TopologyBuilderAdminClient adminClient = new TopologyBuilderAdminClient(kafkaAdminClient);
+    TopologyBuilderAdminClient adminClient =
+        new TopologyBuilderAdminClient(kafkaAdminClient, configuration);
 
     final SchemaRegistryClient schemaRegistryClient = new MockSchemaRegistryClient();
     final SchemaRegistryManager schemaRegistryManager =

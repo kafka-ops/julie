@@ -1,5 +1,6 @@
 package com.purbon.kafka.topology.actions.topics;
 
+import com.purbon.kafka.topology.Configuration;
 import com.purbon.kafka.topology.actions.BaseAction;
 import com.purbon.kafka.topology.api.adminclient.TopologyBuilderAdminClient;
 import com.purbon.kafka.topology.model.Topic;
@@ -7,10 +8,9 @@ import com.purbon.kafka.topology.model.TopicSchemas;
 import com.purbon.kafka.topology.model.schema.Subject;
 import com.purbon.kafka.topology.schemas.SchemaRegistryManager;
 import java.io.IOException;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Optional;
-import java.util.Set;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -20,21 +20,24 @@ public class SyncTopicAction extends BaseAction {
 
   private final Topic topic;
   private final String fullTopicName;
-  private final Set<String> listOfTopics;
   private final TopologyBuilderAdminClient adminClient;
   private final SchemaRegistryManager schemaRegistryManager;
+  private final Configuration config;
+  private final boolean topicExists;
 
   public SyncTopicAction(
       TopologyBuilderAdminClient adminClient,
       SchemaRegistryManager schemaRegistryManager,
+      Configuration config,
       Topic topic,
       String fullTopicName,
-      Set<String> listOfTopics) {
+      boolean topicExists) {
     this.topic = topic;
     this.fullTopicName = fullTopicName;
-    this.listOfTopics = listOfTopics;
     this.adminClient = adminClient;
     this.schemaRegistryManager = schemaRegistryManager;
+    this.topicExists = topicExists;
+    this.config = config;
   }
 
   public String getTopic() {
@@ -43,20 +46,27 @@ public class SyncTopicAction extends BaseAction {
 
   @Override
   public void run() throws IOException {
-    syncTopic(topic, fullTopicName, listOfTopics);
+    syncTopic(topic, fullTopicName);
   }
 
-  private void syncTopic(Topic topic, String fullTopicName, Set<String> listOfTopics)
-      throws IOException {
-    LOGGER.debug(String.format("Sync topic %s", fullTopicName));
-    if (existTopic(fullTopicName, listOfTopics)) {
+  private boolean topicExists() {
+    return topicExists;
+  }
+
+  private void syncTopic(Topic topic, String fullTopicName) throws IOException {
+    LOGGER.debug("Sync topic {}", fullTopicName);
+    if (topicExists()) {
       if (topic.partitionsCount() > adminClient.getPartitionCount(fullTopicName)) {
-        LOGGER.debug(String.format("Update partition count of topic %s", fullTopicName));
+        LOGGER.debug("Update partition count of topic {}", fullTopicName);
         adminClient.updatePartitionCount(topic, fullTopicName);
+      } else {
+        LOGGER.warn(
+            "Skipping topic sync for topic {} due to limitation to decrease partition count of existing topic configuration",
+            fullTopicName);
       }
-      adminClient.updateTopicConfig(topic, fullTopicName);
+      adminClient.updateTopicConfig(topic, fullTopicName, false);
     } else {
-      LOGGER.debug(String.format("Create new topic with name %s", fullTopicName));
+      LOGGER.debug("Create new topic with name {}", fullTopicName);
       adminClient.createTopic(topic, fullTopicName);
     }
 
@@ -83,17 +93,29 @@ public class SyncTopicAction extends BaseAction {
         compatibility -> schemaRegistryManager.setCompatibility(subjectName, compatibility));
   }
 
-  private boolean existTopic(String topic, Set<String> listOfTopics) {
-    return listOfTopics.contains(topic);
-  }
-
   @Override
   protected Map<String, Object> props() {
-    Map<String, Object> map = new HashMap<>();
+    Map<String, Object> map = new LinkedHashMap<>();
     map.put("Operation", getClass().getName());
     map.put("Topic", fullTopicName);
-    String actionName = existTopic(fullTopicName, listOfTopics) ? "update" : "create";
-    map.put("Action", actionName);
+    String actionName = topicExists() ? "update" : "create";
+    Map<String, String> changes = resolveChanges();
+    if (!changes.isEmpty()) {
+      map.put("Action", actionName);
+      map.put("Changes", changes);
+      return map;
+    } else if (!config.shouldOverwriteTopicsInSync()) {
+      return null;
+    }
     return map;
+  }
+
+  private Map<String, String> resolveChanges() {
+    try {
+      return this.adminClient.updateTopicConfig(this.topic, this.fullTopicName, true);
+    } catch (IOException e) {
+      LOGGER.error(e);
+      throw new RuntimeException(e);
+    }
   }
 }

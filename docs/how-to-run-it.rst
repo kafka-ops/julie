@@ -26,6 +26,7 @@ If you are using the CLI tool, you an use the *--help* command to list the diffe
           --help                 Prints usage information.
           --quiet                Print minimum status update
           --topology <arg>       Topology config file.
+          --plan <arg>           Plan config file.
           --version              Prints useful version information.
 
 The most important ones are:

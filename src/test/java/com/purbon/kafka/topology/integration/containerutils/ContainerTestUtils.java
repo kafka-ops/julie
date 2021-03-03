@@ -87,7 +87,7 @@ public final class ContainerTestUtils {
     final Configuration builderConfig =
         Configuration.build(cliParams, TestUtils.getResourceFilename(configResource));
     final TopologyBuilderAdminClient topologyAdminClient =
-        new TopologyBuilderAdminClient(kafkaAdminClient);
+        new TopologyBuilderAdminClient(kafkaAdminClient, builderConfig);
     final AccessControlProvider accessControlProvider = new SimpleAclsProvider(topologyAdminClient);
     final BindingsBuilderProvider bindingsBuilderProvider = new AclsBindingsBuilder(builderConfig);
     try {

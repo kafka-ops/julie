@@ -54,7 +54,12 @@ public class TopicManager {
         (topicName, topic) -> {
           plan.add(
               new SyncTopicAction(
-                  adminClient, schemaRegistryManager, topic, topicName, listOfTopics));
+                  adminClient,
+                  schemaRegistryManager,
+                  config,
+                  topic,
+                  topicName,
+                  listOfTopics.contains(topicName)));
         });
 
     if (config.allowDelete() || config.isAllowDeleteTopics()) {

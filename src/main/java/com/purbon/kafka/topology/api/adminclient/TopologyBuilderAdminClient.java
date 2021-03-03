@@ -1,5 +1,6 @@
 package com.purbon.kafka.topology.api.adminclient;
 
+import com.purbon.kafka.topology.Configuration;
 import com.purbon.kafka.topology.model.Topic;
 import com.purbon.kafka.topology.roles.TopologyAclBinding;
 import java.io.IOException;
@@ -7,9 +8,11 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ExecutionException;
+import java.util.stream.Collectors;
 import org.apache.kafka.clients.admin.AdminClient;
 import org.apache.kafka.clients.admin.AlterConfigOp;
 import org.apache.kafka.clients.admin.AlterConfigOp.OpType;
@@ -28,6 +31,7 @@ import org.apache.kafka.common.config.ConfigResource;
 import org.apache.kafka.common.config.ConfigResource.Type;
 import org.apache.kafka.common.errors.InvalidConfigurationException;
 import org.apache.kafka.common.errors.TopicExistsException;
+import org.apache.kafka.common.errors.UnknownTopicOrPartitionException;
 import org.apache.kafka.common.resource.PatternType;
 import org.apache.kafka.common.resource.ResourcePatternFilter;
 import org.apache.logging.log4j.LogManager;
@@ -38,9 +42,11 @@ public class TopologyBuilderAdminClient {
   private static final Logger LOGGER = LogManager.getLogger(TopologyBuilderAdminClient.class);
 
   private final AdminClient adminClient;
+  private final Configuration config;
 
-  public TopologyBuilderAdminClient(AdminClient adminClient) {
+  public TopologyBuilderAdminClient(AdminClient adminClient, Configuration config) {
     this.adminClient = adminClient;
+    this.config = config;
   }
 
   public Set<String> listTopics(ListTopicsOptions options) throws IOException {
@@ -73,9 +79,10 @@ public class TopologyBuilderAdminClient {
     return listTopics(options);
   }
 
-  public void updateTopicConfig(Topic topic, String fullTopicName) throws IOException {
+  public Map<String, String> updateTopicConfig(Topic topic, String fullTopicName, boolean dryRun)
+      throws IOException {
     try {
-      updateTopicConfigPostAK23(topic, fullTopicName);
+      return updateTopicConfigPostAK23(topic, fullTopicName, dryRun);
     } catch (InterruptedException | ExecutionException ex) {
       LOGGER.error(ex);
       throw new IOException(ex);
@@ -141,45 +148,143 @@ public class TopologyBuilderAdminClient {
     }
   }
 
-  private void updateTopicConfigPostAK23(Topic topic, String fullTopicName)
+  private Map<String, String> updateTopicConfigPostAK23(
+      Topic topic, String fullTopicName, boolean dryRun)
       throws ExecutionException, InterruptedException {
 
-    Config currentConfigs = getActualTopicConfig(fullTopicName);
+    Config actualTopicConfig = getActualTopicConfig(fullTopicName);
+    List<AlterConfigOp> toBeSetConfigs =
+        topic.getRawConfig().entrySet().stream()
+            .map(
+                entry ->
+                    new AlterConfigOp(
+                        new ConfigEntry(entry.getKey(), entry.getValue()), OpType.SET))
+            .collect(Collectors.toList());
+
+    Set<String> newEntryKeys = topic.getRawConfig().keySet();
+    Map<String, String> entryToOldValueMap = new HashMap<>();
+
+    List<AlterConfigOp> deleteConfigOps =
+        resolveDeleteEntries(fullTopicName, actualTopicConfig, newEntryKeys, entryToOldValueMap);
+
+    if (!config.shouldOverwriteTopicsInSync() && !actualTopicConfig.entries().isEmpty()) {
+      LOGGER.debug(
+          "Existing topics with exact same configuration will not be overwritten/set again");
+
+      List<AlterConfigOp> syncConfigOps = new ArrayList<>(toBeSetConfigs);
+      // removing all same values again
+      toBeSetConfigs.forEach(
+          entry -> {
+            String configEntryName = entry.configEntry().name();
+            ConfigEntry configEntry = actualTopicConfig.get(configEntryName);
+            if (configEntry != null) {
+              String currentValue = configEntry.value();
+              String newValue = entry.configEntry().value();
+              if (newEntryKeys.contains(configEntryName) && currentValue.equals(newValue)) {
+                LOGGER.debug(
+                    "Topic {} and config key {} has the same value, removing config pair.",
+                    fullTopicName,
+                    configEntryName);
+                syncConfigOps.remove(entry);
+
+              } else {
+                entryToOldValueMap.put(configEntryName, currentValue);
+                LOGGER.debug(
+                    "Topic {} and config key {} updating value: {} -> {}",
+                    fullTopicName,
+                    configEntryName,
+                    currentValue,
+                    newValue);
+              }
+            }
+          });
+
+      if (syncConfigOps.isEmpty() && deleteConfigOps.isEmpty()) {
+        LOGGER.debug("Topic {} will not be updated, because it has no changes", fullTopicName);
+
+        return Collections.emptyMap();
+      }
+    }
+
+    // merge lists
+    toBeSetConfigs.addAll(deleteConfigOps);
 
     Map<ConfigResource, Collection<AlterConfigOp>> configs = new HashMap<>();
-    ArrayList<AlterConfigOp> listOfValues = new ArrayList<>();
+    configs.put(new ConfigResource(Type.TOPIC, fullTopicName), toBeSetConfigs);
 
-    topic
-        .getRawConfig()
-        .forEach(
-            (configKey, configValue) -> {
-              listOfValues.add(
-                  new AlterConfigOp(new ConfigEntry(configKey, configValue), OpType.SET));
-            });
-    Set<String> newEntryKeys = topic.getRawConfig().keySet();
-
-    currentConfigs
-        .entries()
-        .forEach(
-            entry -> {
-              if (!entry.isDefault() && !newEntryKeys.contains(entry.name())) {
-                listOfValues.add(new AlterConfigOp(entry, OpType.DELETE));
-              }
-            });
-
-    configs.put(new ConfigResource(Type.TOPIC, fullTopicName), listOfValues);
-
-    adminClient.incrementalAlterConfigs(configs).all().get();
+    if (!dryRun) {
+      adminClient.incrementalAlterConfigs(configs).all().get();
+    }
+    return parseChangesBasedOnConfigs(toBeSetConfigs, entryToOldValueMap);
   }
 
-  private Config getActualTopicConfig(String topic)
-      throws ExecutionException, InterruptedException {
+  private List<AlterConfigOp> resolveDeleteEntries(
+      String fullTopicName,
+      Config currentConfigs,
+      Set<String> newEntryKeys,
+      Map<String, String> entryToOldValueMap) {
+    return currentConfigs.entries().stream()
+        // filter default values and static broker configs as they don't need to be defined in the
+        // julie
+        // config
+        .filter(
+            (entry ->
+                !entry.isDefault()
+                    && !entry.source().equals((ConfigEntry.ConfigSource.STATIC_BROKER_CONFIG))
+                    && !newEntryKeys.contains(entry.name())))
+        .map(
+            entry -> {
+              LOGGER.debug(
+                  "Topic {} and config key {} deleting value", fullTopicName, entry.name());
+              entryToOldValueMap.put(entry.name(), entry.value());
+              return new AlterConfigOp(entry, OpType.DELETE);
+            })
+        .collect(Collectors.toList());
+  }
+
+  private Map<String, String> parseChangesBasedOnConfigs(
+      List<AlterConfigOp> alterConfigOps, Map<String, String> entryToOldValueMap) {
+    return alterConfigOps.stream()
+        .filter(
+            // (option to overwrite on and is changed value or the config is new) OR option to
+            // overwrite is off
+            c ->
+                (!config.shouldOverwriteTopicsInSync()
+                            && entryToOldValueMap.containsKey(c.configEntry().name())
+                        || entryToOldValueMap.isEmpty())
+                    || config.shouldOverwriteTopicsInSync())
+        .collect(
+            Collectors.toMap(
+                entry -> entry.configEntry().name(),
+                config -> {
+                  String previousValue = entryToOldValueMap.get(config.configEntry().name());
+                  if (config.opType().equals(OpType.SET)) {
+                    return previousValue != null
+                        ? "[Update] " + previousValue + " -> " + config.configEntry().value()
+                        : "[Set] " + config.configEntry().value();
+                  } else if (config.opType().equals(OpType.DELETE)) {
+                    return "[Unset] " + previousValue + " ->  ";
+                  }
+                  // fallback case for other OPs
+                  LOGGER.warn("Unsupported Operation used {}", config.opType());
+                  return "[Unsupported Op] - " + config.opType();
+                }));
+  }
+
+  private Config getActualTopicConfig(String topic) throws InterruptedException {
     ConfigResource resource = new ConfigResource(Type.TOPIC, topic);
     Collection<ConfigResource> resources = Collections.singletonList(resource);
 
-    Map<ConfigResource, Config> configs = adminClient.describeConfigs(resources).all().get();
+    try {
+      Map<ConfigResource, Config> configs = adminClient.describeConfigs(resources).all().get();
 
-    return configs.get(resource);
+      return configs.get(resource);
+
+    } catch (ExecutionException | UnknownTopicOrPartitionException e) {
+      LOGGER.debug("Topic {} not found on the cluster - might be a new topic - continuing", topic);
+
+      return new Config(Collections.emptyList());
+    }
   }
 
   public void createTopic(Topic topic, String fullTopicName) throws IOException {

@@ -1,10 +1,16 @@
 package com.purbon.kafka.topology;
 
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.*;
+import static org.junit.Assert.assertFalse;
 import static org.mockito.Matchers.anyCollection;
+import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import com.purbon.kafka.topology.api.adminclient.TopologyBuilderAdminClient;
 import com.purbon.kafka.topology.model.Impl.ProjectImpl;
@@ -28,18 +34,25 @@ import com.purbon.kafka.topology.roles.acls.AclsBindingsBuilder;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.ExecutionException;
-import org.apache.kafka.clients.admin.AdminClient;
-import org.apache.kafka.clients.admin.CreateAclsResult;
+import org.apache.kafka.clients.admin.*;
 import org.apache.kafka.common.KafkaFuture;
+import org.apache.kafka.common.config.ConfigResource;
+import org.apache.kafka.common.errors.UnknownTopicOrPartitionException;
+import org.apache.kafka.common.internals.KafkaFutureImpl;
+import org.jetbrains.annotations.NotNull;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Matchers;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnit;
@@ -66,7 +79,7 @@ public class TopologyBuilderAdminClientTest {
 
   @Before
   public void setup() throws ExecutionException, InterruptedException, IOException {
-    adminClient = new TopologyBuilderAdminClient(kafkaAdminClient);
+    adminClient = new TopologyBuilderAdminClient(kafkaAdminClient, config);
     aclsProvider = new SimpleAclsProvider(adminClient);
     bindingsBuilder = new AclsBindingsBuilder(config);
     accessControlManager = new AccessControlManager(aclsProvider, bindingsBuilder);
@@ -217,5 +230,111 @@ public class TopologyBuilderAdminClientTest {
     plan.run();
 
     verify(kafkaAdminClient, times(1)).createAcls(anyCollection());
+  }
+
+  @Test
+  public void listApplicationTopicsForDefaultOption() throws IOException {
+    String topicName = "TopicA";
+
+    ArgumentCaptor<ListTopicsOptions> captor = ArgumentCaptor.forClass(ListTopicsOptions.class);
+    ListTopicsResult listTopicsResults = mock(ListTopicsResult.class);
+
+    when(listTopicsResults.names()).thenReturn(getTopicsKafkaFuture(topicName));
+    when(kafkaAdminClient.listTopics(captor.capture())).thenReturn(listTopicsResults);
+    adminClient.listTopics();
+
+    assertFalse(captor.getValue().shouldListInternal());
+  }
+
+  @Test
+  public void resolveConfigForNonExistingTopic() throws IOException {
+    // new config
+    String topicNameA = "topicA";
+    Map<String, String> configTopicA = new HashMap<>();
+    configTopicA.put("config.key1", "value1");
+    Topic topicA = new TopicImpl(topicNameA, "json", configTopicA);
+
+    // which does not exist on the cluster
+    when(kafkaAdminClient.describeConfigs(any())).thenThrow(new UnknownTopicOrPartitionException());
+    AlterConfigsResult altersConfigResult = getAltersConfigResult();
+    when(kafkaAdminClient.incrementalAlterConfigs(any())).thenReturn(altersConfigResult);
+    adminClient.updateTopicConfig(topicA, topicNameA, false);
+  }
+
+  @Test
+  public void resolveConfigForAllTopicsForOverwrite() throws IOException {
+    // new config
+    String topicNameA = "topicA";
+    Map<String, String> configTopicA = new HashMap<>();
+    configTopicA.put("config.key1", "value1");
+    configTopicA.put("config.key2", "value2-changed");
+    Topic topicA = new TopicImpl(topicNameA, "json", configTopicA);
+
+    // existing config from kafka server
+    DescribeConfigsResult describeConfigResultMock = mock(DescribeConfigsResult.class);
+    ArrayList<ConfigEntry> configEntries = new ArrayList<>();
+    configEntries.add(new ConfigEntry("config.key1", "value1"));
+    configEntries.add(new ConfigEntry("config.key2", "value2"));
+    configEntries.add(new ConfigEntry("config.key3", "willbeunset"));
+    when(describeConfigResultMock.all())
+        .thenReturn(getConfigResultFuture(configEntries, topicNameA));
+    when(kafkaAdminClient.describeConfigs(any())).thenReturn(describeConfigResultMock);
+    ArgumentCaptor<Map<ConfigResource, Collection<AlterConfigOp>>> incrementalArgumentCaptor =
+        ArgumentCaptor.forClass(Map.class);
+
+    AlterConfigsResult altersConfigResult = getAltersConfigResult();
+    when(kafkaAdminClient.incrementalAlterConfigs(incrementalArgumentCaptor.capture()))
+        .thenReturn(altersConfigResult);
+
+    Map<String, String> changedConfig = adminClient.updateTopicConfig(topicA, topicNameA, false);
+
+    assertThat(
+        "expecting config key to be changed",
+        changedConfig.keySet(),
+        hasItems("config.key3", "config.key2"));
+    assertThat(changedConfig.get("config.key3").trim(), is("[Unset] willbeunset -> ".trim()));
+    assertThat(
+        changedConfig.get("config.key2").trim(), is("[Update] value2 -> value2-changed".trim()));
+  }
+
+  private AlterConfigsResult getAltersConfigResult() {
+    AlterConfigsResult alterConfigsResult = mock(AlterConfigsResult.class);
+    KafkaFutureImpl<Void> voidKafkaFuture = new KafkaFutureImpl<>();
+    voidKafkaFuture.complete(null);
+    when(alterConfigsResult.all()).thenReturn(voidKafkaFuture);
+    return alterConfigsResult;
+  }
+
+  @NotNull
+  private KafkaFutureImpl<Set<String>> getTopicsKafkaFuture(String... topicNames) {
+    KafkaFutureImpl<Set<String>> kafkaFuture = new KafkaFutureImpl<>();
+    kafkaFuture.complete(new HashSet<>(Arrays.asList(topicNames)));
+    return kafkaFuture;
+  }
+
+  private KafkaFuture<Map<ConfigResource, Config>> getConfigResultFuture(
+      List<ConfigEntry> configEntries, String... topicNames) {
+    KafkaFutureImpl<Map<ConfigResource, Config>> completedFuture = new KafkaFutureImpl<>();
+
+    Map<ConfigResource, Config> configResourceMap = new HashMap<>();
+    Arrays.stream(topicNames)
+        .forEach(
+            t ->
+                configResourceMap.put(
+                    new ConfigResource(ConfigResource.Type.TOPIC, t), new Config(configEntries)));
+    completedFuture.complete(configResourceMap);
+
+    return completedFuture;
+  }
+
+  private KafkaFuture<Map<String, TopicDescription>> getTopicsResultFuture(String topicName) {
+
+    KafkaFutureImpl<Map<String, TopicDescription>> completedFuture = new KafkaFutureImpl<>();
+    Map<String, TopicDescription> topicsMap = new HashMap<>();
+    topicsMap.put(topicName, new TopicDescription(topicName, false, new ArrayList<>()));
+
+    completedFuture.complete(topicsMap);
+
+    return completedFuture;
   }
 }

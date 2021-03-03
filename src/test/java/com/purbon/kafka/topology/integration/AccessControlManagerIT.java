@@ -74,7 +74,8 @@ public class AccessControlManagerIT {
   @Before
   public void before() throws IOException {
     kafkaAdminClient = ContainerTestUtils.getSaslAdminClient(container);
-    TopologyBuilderAdminClient adminClient = new TopologyBuilderAdminClient(kafkaAdminClient);
+    TopologyBuilderAdminClient adminClient =
+        new TopologyBuilderAdminClient(kafkaAdminClient, config);
     adminClient.clearAcls();
     TestUtils.deleteStateFile();
 
