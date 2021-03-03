@@ -425,7 +425,6 @@
     <jackson.version>2.12.1</jackson.version>
     <kafka.version>2.5.0</kafka.version>
     <log4j.version>2.13.3</log4j.version>
-    <httpclient.version>4.5.11</httpclient.version>
     <zookeeper.version>3.5.7</zookeeper.version>
     <commons.version>1.4</commons.version>
     <mockito.version>3.6.0</mockito.version>
