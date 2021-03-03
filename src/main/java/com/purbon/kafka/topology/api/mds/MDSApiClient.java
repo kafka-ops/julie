@@ -4,23 +4,21 @@ import static com.purbon.kafka.topology.api.mds.RequestScope.RESOURCE_NAME;
 import static com.purbon.kafka.topology.api.mds.RequestScope.RESOURCE_PATTERN_TYPE;
 import static com.purbon.kafka.topology.api.mds.RequestScope.RESOURCE_TYPE;
 
-import com.purbon.kafka.topology.api.mds.http.HttpDeleteWithBody;
 import com.purbon.kafka.topology.roles.TopologyAclBinding;
 import com.purbon.kafka.topology.roles.rbac.ClusterLevelRoleBuilder;
 import com.purbon.kafka.topology.utils.JSON;
 import java.io.IOException;
+import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpRequest.BodyPublishers;
+import java.net.http.HttpResponse;
+import java.net.http.HttpResponse.BodyHandlers;
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.List;
 import java.util.Map;
-import org.apache.http.HttpEntity;
-import org.apache.http.client.methods.CloseableHttpResponse;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.entity.StringEntity;
-import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.HttpClients;
-import org.apache.http.util.EntityUtils;
 import org.apache.kafka.common.resource.ResourceType;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -50,9 +48,14 @@ public class MDSApiClient {
   }
 
   public void authenticate() throws IOException {
-    HttpGet request = new HttpGet(mdsServer + "/security/1.0/authenticate");
-    request.addHeader("accept", " application/json");
-    request.addHeader("Authorization", "Basic " + basicCredentials);
+    HttpRequest request =
+        HttpRequest.newBuilder()
+            .uri(URI.create(mdsServer + "/security/1.0/authenticate"))
+            .timeout(Duration.ofMinutes(1))
+            .header("accept", " application/json")
+            .header("Authorization", "Basic " + basicCredentials)
+            .GET()
+            .build();
 
     Response response;
 
@@ -80,7 +83,7 @@ public class MDSApiClient {
     return bind(principal, role, topic, "Topic", patternType);
   }
 
-  public TopologyAclBinding bind(String principal, String role, RequestScope scope) {
+  private TopologyAclBinding bind(String principal, String role, RequestScope scope) {
 
     ResourceType resourceType = ResourceType.fromString(scope.getResource(0).get(RESOURCE_TYPE));
     String resourceName = scope.getResource(0).get(RESOURCE_NAME);
@@ -108,8 +111,6 @@ public class MDSApiClient {
       url = url + "/bindings";
     }
 
-    HttpPost postRequest = buildPostRequest(url);
-
     try {
       String jsonEntity;
       if (binding.getResourceType().equals(ResourceType.CLUSTER)) {
@@ -117,8 +118,8 @@ public class MDSApiClient {
       } else {
         jsonEntity = binding.getScope().asJson();
       }
-      postRequest.setEntity(new StringEntity(jsonEntity));
       LOGGER.debug("bind.entity: " + jsonEntity);
+      HttpRequest postRequest = buildPostRequest(url, jsonEntity);
       post(postRequest);
     } catch (IOException e) {
       LOGGER.error(e);
@@ -126,24 +127,17 @@ public class MDSApiClient {
     }
   }
 
-  private HttpPost buildPostRequest(String url) {
-    HttpPost postRequest = new HttpPost(mdsServer + "/security/1.0/principals/" + url);
-    postRequest.addHeader("accept", " application/json");
-    postRequest.addHeader("Content-Type", "application/json");
-    postRequest.addHeader("Authorization", "Basic " + basicCredentials);
-    return postRequest;
+  private HttpRequest buildPostRequest(String url, String body) {
+    return HttpRequest.newBuilder()
+        .uri(URI.create(mdsServer + "/security/1.0/principals/" + url))
+        .timeout(Duration.ofMinutes(1))
+        .header("accept", " application/json")
+        .header("Content-Type", "application/json")
+        .header("Authorization", "Basic " + basicCredentials)
+        .POST(BodyPublishers.ofString(body))
+        .build();
   }
 
-  /**
-   * Bind a new RBAC role
-   *
-   * @param principal
-   * @param role
-   * @param resource
-   * @param resourceType
-   * @param patternType
-   * @return
-   */
   public TopologyAclBinding bind(
       String principal, String role, String resource, String resourceType, String patternType) {
 
@@ -164,15 +158,18 @@ public class MDSApiClient {
    * @param scope The request scope
    */
   public void deleteRole(String principal, String role, RequestScope scope) {
-    HttpDeleteWithBody request =
-        new HttpDeleteWithBody(
-            mdsServer + "/security/1.0/principals/" + principal + "/roles/" + role);
-    request.addHeader("accept", " application/json");
-    request.addHeader("Content-Type", "application/json");
-    request.addHeader("Authorization", "Basic " + basicCredentials);
-    LOGGER.debug("deleteRole: " + request.getURI());
+    HttpRequest request =
+        HttpRequest.newBuilder()
+            .uri(URI.create(mdsServer + "/security/1.0/principals/" + principal + "/roles/" + role))
+            .header("accept", " application/json")
+            .header("Content-Type", "application/json")
+            .header("Authorization", "Basic " + basicCredentials)
+            .method("DELETE", BodyPublishers.ofString(scope.asJson()))
+            .build();
+
+    LOGGER.debug("deleteRole: " + request.uri());
+
     try {
-      request.setEntity(new StringEntity(scope.asJson()));
       LOGGER.debug("bind.entity: " + scope.asJson());
       delete(request);
     } catch (IOException e) {
@@ -185,19 +182,24 @@ public class MDSApiClient {
   }
 
   public List<String> lookupRoles(String principal, Map<String, Map<String, String>> clusters) {
-    HttpPost postRequest =
-        new HttpPost(mdsServer + "/security/1.0/lookup/principals/" + principal + "/roleNames");
-    postRequest.addHeader("accept", " application/json");
-    postRequest.addHeader("Content-Type", "application/json");
-    postRequest.addHeader("Authorization", "Basic " + basicCredentials);
+
+    HttpRequest.Builder requestBuilder =
+        HttpRequest.newBuilder()
+            .uri(
+                URI.create(
+                    mdsServer + "/security/1.0/lookup/principals/" + principal + "/roleNames"))
+            .timeout(Duration.ofMinutes(1))
+            .header("accept", " application/json")
+            .header("Content-Type", "application/json")
+            .header("Authorization", "Basic " + basicCredentials);
 
     List<String> roles = new ArrayList<>();
 
     try {
-      postRequest.setEntity(new StringEntity(JSON.asString(clusters)));
-      String stringResponse = post(postRequest);
-      if (!stringResponse.isEmpty()) {
-        roles = JSON.toArray(stringResponse);
+      requestBuilder.POST(BodyPublishers.ofString(JSON.asString(clusters)));
+      String response = post(requestBuilder.build());
+      if (!response.isEmpty()) {
+        roles = JSON.toArray(response);
       }
     } catch (IOException e) {
       LOGGER.error(e);
@@ -206,23 +208,26 @@ public class MDSApiClient {
     return roles;
   }
 
-  private final CloseableHttpClient httpClient = HttpClients.createDefault();
+  private final HttpClient httpClient = HttpClient.newBuilder().build();
 
-  private Response get(HttpGet request) throws IOException {
+  private Response get(HttpRequest request) throws IOException {
     LOGGER.debug("GET.request: " + request);
-    try (CloseableHttpResponse response = httpClient.execute(request)) {
+    try {
+      HttpResponse<String> response = httpClient.send(request, BodyHandlers.ofString());
       LOGGER.debug("GET.response: " + response);
       return new Response(response);
+    } catch (Exception ex) {
+      throw new IOException(ex);
     }
   }
 
-  private String post(HttpPost request) throws IOException {
+  private String post(HttpRequest request) throws IOException {
     LOGGER.debug("POST.request: " + request);
-
-    try (CloseableHttpResponse response = httpClient.execute(request)) {
+    String result = "";
+    try {
+      HttpResponse<String> response = httpClient.send(request, BodyHandlers.ofString());
       LOGGER.debug("POST.response: " + response);
-      HttpEntity entity = response.getEntity();
-      int statusCode = response.getStatusLine().getStatusCode();
+      int statusCode = response.statusCode();
       if (statusCode < 200 || statusCode > 299) {
         throw new IOException(
             "Something happened with the connection, response status code: "
@@ -230,30 +235,27 @@ public class MDSApiClient {
                 + " "
                 + request);
       }
-      String result = "";
-      if (entity != null) {
-        result = EntityUtils.toString(entity);
+
+      if (response.body() != null) {
+        result = response.body();
       }
-      return result;
-    } catch (IOException ex) {
-      LOGGER.error(ex);
-      throw ex;
+    } catch (Exception ex) {
+      throw new IOException(ex);
     }
+    return result;
   }
 
-  private String delete(HttpDeleteWithBody request) throws IOException {
+  private void delete(HttpRequest request) throws IOException {
     LOGGER.debug("DELETE.request: " + request);
-
-    try (CloseableHttpResponse response = httpClient.execute(request)) {
-      LOGGER.debug("DELETE.response: " + response);
-      HttpEntity entity = response.getEntity();
-      // Header headers = entity.getContentType();
-      String result = "";
-      if (entity != null) {
-        result = EntityUtils.toString(entity);
+    String result = "";
+    try {
+      HttpResponse<String> response = httpClient.send(request, BodyHandlers.ofString());
+      if (response.body() != null) {
+        result = response.body();
       }
-
-      return result;
+      LOGGER.debug("DELETE.response: " + response + " result: " + result);
+    } catch (Exception ex) {
+      throw new IOException(ex);
     }
   }
 
