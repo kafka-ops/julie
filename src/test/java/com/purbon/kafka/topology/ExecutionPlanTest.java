@@ -104,6 +104,7 @@ public class ExecutionPlanTest {
     backendController = new BackendController();
     backendController.load();
     assertEquals(1, backendController.size());
+    backendController.flushAndClose();
   }
 
   @Test

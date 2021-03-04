@@ -81,5 +81,6 @@ public class FileBackendTest {
     assertThat(topics).hasSize(2);
     assertThat(topics).contains(fooTopic.toString());
     assertThat(topics).contains(barTopic.toString());
+    backend.close();
   }
 }

@@ -9,7 +9,6 @@ import java.io.*;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
-import java.io.RandomAccessFile;
 import java.net.URI;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -32,14 +31,15 @@ public class FileBackend implements Backend {
   static final String TOPICS_TAG = "Topics";
   static final String ACLS_TAG = "acls";
 
-  private RandomAccessFile writer;
+  // Use FileWriter instead of RandomAccessFile due to
+  // https://bugs.java.com/bugdatabase/view_bug.do?bug_id=4715154
+  private FileWriter writer;
   private String expression =
       "^\"?\\'(\\S+)\\',\\s*\\'(\\S+)\\',\\s*\\'(\\S+)\\',\\s*\\'(\\S+)\\',\\s*\\'(.+)\\',\\s*\\'(\\S+)\\'\"?$";
   private Pattern regexp;
 
   public FileBackend() {
     this.regexp = Pattern.compile(expression);
-    this.writer = null;
   }
 
   @Override
@@ -50,13 +50,11 @@ public class FileBackend implements Backend {
   @Override
   public void createOrOpen(Mode mode) {
     try {
-      writer = new RandomAccessFile(STATE_FILE_NAME, "rw");
-      Path path = Paths.get(STATE_FILE_NAME);
-      if (path.toFile().exists()) {
-        writer.seek(0);
-        if (mode.equals(Mode.TRUNCATE)) {
-          writer.getChannel().truncate(0);
-        }
+      if (this.writer != null) writer.close();
+      if (mode.equals(Mode.TRUNCATE)) {
+        this.writer = new FileWriter(STATE_FILE_NAME, false);
+      } else {
+        this.writer = new FileWriter(STATE_FILE_NAME, true);
       }
     } catch (IOException e) {
       LOGGER.error(e);
@@ -90,8 +88,8 @@ public class FileBackend implements Backend {
         }
         bindings.add(binding);
       }
-      return bindings;
     }
+    return bindings;
   }
 
   public Set<ServiceAccount> loadServiceAccounts() throws IOException {
@@ -130,11 +128,12 @@ public class FileBackend implements Backend {
       throw new IOException("state file does not exist");
     }
     Set<Object> elements = new HashSet<>();
-    BufferedReader in = openLocalStateFile();
-    String line = moveFileToTag(tag, in);
-    if (line != null && line.equalsIgnoreCase(tag)) {
-      while ((line = in.readLine()) != null && !foundAControlTag(line)) {
-        elements.add(buildFunction.apply(line.trim()));
+    try (BufferedReader in = openLocalStateFile()) {
+      String line = moveFileToTag(tag, in);
+      if (line != null && line.equalsIgnoreCase(tag)) {
+        while ((line = in.readLine()) != null && !foundAControlTag(line)) {
+          elements.add(buildFunction.apply(line.trim()));
+        }
       }
     }
     return elements;
@@ -201,8 +200,8 @@ public class FileBackend implements Backend {
 
   private void writeLine(String line) {
     try {
-      writer.writeBytes(line);
-      writer.writeBytes("\n");
+      writer.write(line);
+      writer.write("\n");
     } catch (IOException e) {
       LOGGER.error(e);
     }
