@@ -7,6 +7,7 @@ import static com.purbon.kafka.topology.TopicManager.NUM_PARTITIONS;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.*;
 
+import com.purbon.kafka.topology.actions.Action;
 import com.purbon.kafka.topology.api.adminclient.TopologyBuilderAdminClient;
 import com.purbon.kafka.topology.model.Impl.ProjectImpl;
 import com.purbon.kafka.topology.model.Impl.TopicImpl;
@@ -336,7 +337,7 @@ public class TopicManagerTest {
     topicManager.apply(topology, plan);
     plan.run(true);
 
-    verify(outputStream, times(2)).println(any(String.class));
+    verify(outputStream, times(2)).println(any(Action.class));
   }
 
   @Test

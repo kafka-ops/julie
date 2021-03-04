@@ -14,6 +14,7 @@ import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.*;
 
+import com.purbon.kafka.topology.actions.Action;
 import com.purbon.kafka.topology.api.adminclient.AclBuilder;
 import com.purbon.kafka.topology.model.*;
 import com.purbon.kafka.topology.model.Impl.ProjectImpl;
@@ -417,9 +418,8 @@ public class AccessControlManagerTest {
     accessControlManager.apply(builder.buildTopology(), plan);
 
     plan.run(true);
-    String expectedAction = plan.getActions().get(0).toString();
 
-    verify(mockPrintStream, times(1)).println(expectedAction);
+    verify(mockPrintStream, times(1)).println(any(Action.class));
   }
 
   @Test
