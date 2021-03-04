@@ -19,7 +19,6 @@ import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -84,10 +83,7 @@ public class ExecutionPlan {
   private void execute(Action action, boolean dryRun) throws IOException {
     LOGGER.debug("Execution action {} (dryRun={}})", action, dryRun);
     if (dryRun) {
-      String actions = action.toString();
-      if (StringUtils.isNotBlank(actions)) {
-        outputStream.println(actions);
-      }
+      outputStream.println(action);
     } else {
       action.run();
       if (action instanceof SyncTopicAction) {

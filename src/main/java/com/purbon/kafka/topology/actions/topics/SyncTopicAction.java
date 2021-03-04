@@ -60,11 +60,11 @@ public class SyncTopicAction extends BaseAction {
         LOGGER.debug("Update partition count of topic {}", fullTopicName);
         adminClient.updatePartitionCount(topic, fullTopicName);
       } else {
-        LOGGER.warn(
+        LOGGER.info(
             "Skipping topic sync for topic {} due to limitation to decrease partition count of existing topic configuration",
             fullTopicName);
       }
-      adminClient.updateTopicConfig(topic, fullTopicName, false);
+      adminClient.updateTopicConfig(topic, fullTopicName, config.isDryRun());
     } else {
       LOGGER.debug("Create new topic with name {}", fullTopicName);
       adminClient.createTopic(topic, fullTopicName);
