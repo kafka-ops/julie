@@ -103,6 +103,7 @@ public class PrincipalManagerTest {
 
     assertThat(plan.getActions()).hasSize(1);
     assertThat(plan.getActions()).containsAnyOf(new CreateAccounts(provider, accounts));
+    backendController.flushAndClose();
   }
 
   @Test
@@ -130,6 +131,7 @@ public class PrincipalManagerTest {
 
     assertThat(plan.getActions()).hasSize(1);
     assertThat(plan.getActions()).containsAnyOf(new CreateAccounts(provider, accounts));
+    backendController.flushAndClose();
   }
 
   @Test
@@ -167,7 +169,6 @@ public class PrincipalManagerTest {
     plan = ExecutionPlan.init(backendController, mockPrintStream);
     principalManager.applyCreate(topology, plan);
     principalManager.applyDelete(topology, plan);
-    ;
 
     Collection<ServiceAccount> accounts =
         Arrays.asList(new ServiceAccount(124, "producer", "Managed by KTB"));
@@ -195,6 +196,7 @@ public class PrincipalManagerTest {
     principalManager.applyDelete(topology, plan);
 
     verify(mockPlan, times(0)).add(any(Action.class));
+    backendController.flushAndClose();
   }
 
   @Test
