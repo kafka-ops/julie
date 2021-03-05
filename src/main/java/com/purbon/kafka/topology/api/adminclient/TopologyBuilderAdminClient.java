@@ -79,6 +79,18 @@ public class TopologyBuilderAdminClient {
     return listTopics(options);
   }
 
+  /**
+   * Syncs and updates Topic and returns the cluster changed configuration as map with
+   * (configuration)key and (configuration)value entries.
+   *
+   * @param topic the topic to be updated containing the full configuration
+   * @param fullTopicName fulltopic name
+   * @param dryRun dryrun options, if <code>true</code> no changes are applied to the cluster,
+   *     <code>false</code> otherwise.
+   * @return cluster changed configuration as map with (configuration)key and (configuration)value
+   *     entries
+   * @throws IOException thrown in case of any cluster execution error.
+   */
   public Map<String, String> updateTopicConfig(Topic topic, String fullTopicName, boolean dryRun)
       throws IOException {
     try {
@@ -167,7 +179,7 @@ public class TopologyBuilderAdminClient {
     List<AlterConfigOp> deleteConfigOps =
         resolveDeleteEntries(fullTopicName, actualTopicConfig, newEntryKeys, entryToOldValueMap);
 
-    if (!config.shouldOverwriteTopicsInSync() && !actualTopicConfig.entries().isEmpty()) {
+    if (!actualTopicConfig.entries().isEmpty()) {
       LOGGER.debug(
           "Existing topics with exact same configuration will not be overwritten/set again");
 
@@ -245,14 +257,6 @@ public class TopologyBuilderAdminClient {
   private Map<String, String> parseChangesBasedOnConfigs(
       List<AlterConfigOp> alterConfigOps, Map<String, String> entryToOldValueMap) {
     return alterConfigOps.stream()
-        .filter(
-            // (option to overwrite on and is changed value or the config is new) OR option to
-            // overwrite is off
-            c ->
-                (!config.shouldOverwriteTopicsInSync()
-                            && entryToOldValueMap.containsKey(c.configEntry().name())
-                        || entryToOldValueMap.isEmpty())
-                    || config.shouldOverwriteTopicsInSync())
         .collect(
             Collectors.toMap(
                 entry -> entry.configEntry().name(),

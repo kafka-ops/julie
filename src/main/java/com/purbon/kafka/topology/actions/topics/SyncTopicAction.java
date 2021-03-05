@@ -103,8 +103,7 @@ public class SyncTopicAction extends BaseAction {
     if (!changes.isEmpty()) {
       map.put("Action", actionName);
       map.put("Changes", changes);
-      return map;
-    } else if (!config.shouldOverwriteTopicsInSync()) {
+    } else {
       return null;
     }
     return map;

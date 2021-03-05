@@ -4,7 +4,6 @@ import static java.util.Collections.singletonList;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
 import com.purbon.kafka.topology.actions.access.ClearBindings;
 import com.purbon.kafka.topology.actions.access.CreateBindings;
@@ -56,8 +55,6 @@ public class ExecutionPlanTest {
     TestUtils.deleteStateFile();
     backendController = new BackendController();
     plan = ExecutionPlan.init(backendController, mockPrintStream);
-
-    when(configuration.shouldOverwriteTopicsInSync()).thenReturn(true);
   }
 
   @Test

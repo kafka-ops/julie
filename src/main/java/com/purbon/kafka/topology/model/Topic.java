@@ -5,7 +5,6 @@ import com.purbon.kafka.topology.Configuration;
 import com.purbon.kafka.topology.model.Impl.TopicImpl;
 import com.purbon.kafka.topology.model.users.Consumer;
 import com.purbon.kafka.topology.model.users.Producer;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -29,7 +28,7 @@ public interface Topic {
    *
    * @return the raw config.
    */
-  HashMap<String, String> getRawConfig();
+  Map<String, String> getRawConfig();
 
   Optional<String> getDataType();
 

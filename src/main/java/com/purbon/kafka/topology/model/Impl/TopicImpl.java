@@ -169,7 +169,7 @@ public class TopicImpl implements Topic, Cloneable {
 
   @JsonIgnore
   @Override
-  public HashMap<String, String> getRawConfig() {
+  public Map<String, String> getRawConfig() {
     HashMap<String, String> raw = new HashMap<>(config);
     raw.remove(TopicManager.REPLICATION_FACTOR);
     raw.remove(TopicManager.NUM_PARTITIONS);

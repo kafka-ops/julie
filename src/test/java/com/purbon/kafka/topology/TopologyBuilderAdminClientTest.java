@@ -262,7 +262,7 @@ public class TopologyBuilderAdminClientTest {
   }
 
   @Test
-  public void resolveConfigForAllTopicsForOverwrite() throws IOException {
+  public void resolveConfigForAllTopics() throws IOException {
     // new config
     String topicNameA = "topicA";
     Map<String, String> configTopicA = new HashMap<>();

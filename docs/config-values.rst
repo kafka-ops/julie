@@ -126,10 +126,9 @@ You can also create your own custom validations. The validations must implement 
 - com.purbon.kafka.topology.validation.TopologyValidation
 - com.purbon.kafka.topology.validation.TopicValidation
 
-Topic overwrite / Update Option and dryrun output
+Dryrun output for topics
 -----------
-Regularly when julie applies changes to existing topics it will always overwrite all* the configuration keys with the existing ones. Also, the output of the dryrun will print all (un)changed properties.
-With this option, this can be configured. Only the changed topics and values will be shown in the -dryrun log with the following format. Apart from that, it will also only change the keys which were updated via the KafkaAdminClient.
+When the --dryRun option is specified then only the changed topics and values will be shown in the log for the topics with the following format.
 
 ::
 {
@@ -159,10 +158,6 @@ Legend
 
 Note: num.partitions, replication.factor will never be part of the update as this needs to be applied differently.
 
-An example configuration to only update changed configuration and output it in the dryrun.
-::
-    topology.topic.sync.overwrite: false
-**Default value**: true
 
 Prevent ACL for topic creation for connector principal
 -----------
