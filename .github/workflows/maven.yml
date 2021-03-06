@@ -19,7 +19,7 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-latest]
-        java: [11.0.x, 15]
+        java: [11.0.x]
 
     runs-on: ${{ matrix.os }}
 

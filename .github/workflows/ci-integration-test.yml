@@ -20,8 +20,8 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-latest]
-        java: [11.0.x, 15]
-        cpversion: [5.5.3, 6.0.1]
+        java: [11.0.x]
+        cpversion: [5.5.3, 6.0.2, 6.1.0]
 
     runs-on: ${{ matrix.os }}
 
