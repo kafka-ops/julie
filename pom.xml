@@ -418,7 +418,7 @@
     <maven-project-info-reports-plugin.version>3.0.0</maven-project-info-reports-plugin.version>
     <jacoco-maven-plugin.version>0.8.5</jacoco-maven-plugin.version>
     <rpm-maven-plugin.version>2.2.0</rpm-maven-plugin.version>
-    <maven-compiler-plugin.version>3.1</maven-compiler-plugin.version>
+    <maven-compiler-plugin.version>3.7.0</maven-compiler-plugin.version>
     <maven-surefire-plugin.version>2.22.2</maven-surefire-plugin.version>
     <maven-failsafe-plugin.version>2.22.2</maven-failsafe-plugin.version>
     <!-- dependencies -->
