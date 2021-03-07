@@ -130,10 +130,9 @@ public class AclsBindingsBuilder implements BindingsBuilderProvider {
 
     List<AclBinding> bindings = new ArrayList<>();
     String principal = translate(producer.getPrincipal());
-    bindings.addAll(
-        Arrays.asList(
-            buildTopicLevelAcl(principal, topic, patternType, AclOperation.DESCRIBE),
-            buildTopicLevelAcl(principal, topic, patternType, AclOperation.WRITE)));
+    Stream.of(AclOperation.DESCRIBE, AclOperation.WRITE)
+        .map(aclOperation -> buildTopicLevelAcl(principal, topic, patternType, aclOperation))
+        .forEach(bindings::add);
 
     producer
         .getTransactionId()
