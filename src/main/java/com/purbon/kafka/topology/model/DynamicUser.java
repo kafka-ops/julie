@@ -1,6 +1,5 @@
 package com.purbon.kafka.topology.model;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -10,10 +9,6 @@ public class DynamicUser extends User {
 
   public static final String READ_TOPICS = "read";
   public static final String WRITE_TOPICS = "write";
-
-  public DynamicUser() {
-    this("", new HashMap<>());
-  }
 
   public DynamicUser(String principal, Map<String, List<String>> topics) {
     super(principal);

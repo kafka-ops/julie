@@ -12,11 +12,9 @@ import com.purbon.kafka.topology.model.users.Producer;
 import com.purbon.kafka.topology.model.users.platform.SchemaRegistryInstance;
 import com.purbon.kafka.topology.roles.TopologyAclBinding;
 import com.purbon.kafka.topology.utils.CCloudUtils;
+import com.purbon.kafka.topology.utils.Utils;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.apache.kafka.common.acl.AccessControlEntry;
@@ -32,6 +30,7 @@ import org.apache.logging.log4j.Logger;
 public class AclsBindingsBuilder implements BindingsBuilderProvider {
 
   private static final Logger LOGGER = LogManager.getLogger(AclsBindingsBuilder.class);
+  private static final String KAFKA_CLUSTER_NAME = "kafka-cluster";
 
   private final Configuration config;
   private final CCloudUtils cCloudUtils;
@@ -50,8 +49,8 @@ public class AclsBindingsBuilder implements BindingsBuilderProvider {
       Connector connector, String topicPrefixNotInUse) {
 
     String principal = translate(connector.getPrincipal());
-    List<String> readTopics = connector.getTopics().get("read");
-    List<String> writeTopics = connector.getTopics().get("write");
+    Stream<String> readTopics = Utils.asNullableStream(connector.getTopics().get("read"));
+    Stream<String> writeTopics = Utils.asNullableStream(connector.getTopics().get("write"));
 
     List<AclBinding> acls = new ArrayList<>();
 
@@ -68,7 +67,7 @@ public class AclsBindingsBuilder implements BindingsBuilderProvider {
 
     if (config.enabledConnectorTopicCreateAcl()) {
       ResourcePattern resourcePattern =
-          new ResourcePattern(ResourceType.CLUSTER, "kafka-cluster", PatternType.LITERAL);
+          new ResourcePattern(ResourceType.CLUSTER, KAFKA_CLUSTER_NAME, PatternType.LITERAL);
       AccessControlEntry entry =
           new AccessControlEntry(principal, "*", AclOperation.CREATE, AclPermissionType.ALLOW);
       acls.add(new AclBinding(resourcePattern, entry));
@@ -80,19 +79,13 @@ public class AclsBindingsBuilder implements BindingsBuilderProvider {
         new AccessControlEntry(principal, "*", AclOperation.READ, AclPermissionType.ALLOW);
     acls.add(new AclBinding(resourcePattern, entry));
 
-    if (readTopics != null) {
-      readTopics.forEach(
-          topic ->
-              acls.add(
-                  buildTopicLevelAcl(principal, topic, PatternType.LITERAL, AclOperation.READ)));
-    }
+    readTopics
+        .map(topic -> buildTopicLevelAcl(principal, topic, PatternType.LITERAL, AclOperation.READ))
+        .forEach(acls::add);
 
-    if (writeTopics != null) {
-      writeTopics.forEach(
-          topic ->
-              acls.add(
-                  buildTopicLevelAcl(principal, topic, PatternType.LITERAL, AclOperation.WRITE)));
-    }
+    writeTopics
+        .map(topic -> buildTopicLevelAcl(principal, topic, PatternType.LITERAL, AclOperation.WRITE))
+        .forEach(acls::add);
 
     return toList(acls.stream());
   }
