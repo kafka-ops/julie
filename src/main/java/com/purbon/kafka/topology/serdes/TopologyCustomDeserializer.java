@@ -202,6 +202,14 @@ public class TopologyCustomDeserializer extends StdDeserializer<Topology> {
 
     project.setPrefixContextAndOrder(topology.asFullContext(), topology.getOrder());
 
+    if (rootNode.get(TOPICS_KEY) == null) {
+      throw new IOException(
+          TOPICS_KEY
+              + "is missing for project: "
+              + project.getName()
+              + ", this is a required field.");
+    }
+
     new JsonSerdesUtils<Topic>()
         .parseApplicationUser(parser, rootNode.get(TOPICS_KEY), Topic.class)
         .forEach(project::addTopic);

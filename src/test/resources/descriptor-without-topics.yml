@@ -1,0 +1,21 @@
+context: "context"
+company: "company"
+env: "env"
+source: "source"
+projects:
+  - name: "connectA"
+    connectors:
+      - principal: "User:Connect1"
+        group: "group"
+        status_topic: "status"
+        offset_topic: "offset"
+        configs_topic: "configs"
+        topics:
+          read:
+            - "topicA"
+            - "topicB"
+      - principal: "User:Connect2"
+        topics:
+          write:
+            - "topicC"
+            - "topicD"

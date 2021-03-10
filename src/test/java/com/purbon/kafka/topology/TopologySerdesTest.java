@@ -72,6 +72,11 @@ public class TopologySerdesTest {
     assertEquals("contextOrg.source.foo", anotherProject.namePrefix());
   }
 
+  @Test(expected = TopologyParsingException.class)
+  public void testFileWithoutTopicsError() {
+    parser.deserialise(TestUtils.getResourceFile("/descriptor-without-topics.yml"));
+  }
+
   @Test
   public void testTopologySerialisation() throws IOException {
     Topology topology = new TopologyImpl();
