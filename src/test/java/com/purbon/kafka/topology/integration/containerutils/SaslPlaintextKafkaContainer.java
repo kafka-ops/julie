@@ -3,6 +3,7 @@ package com.purbon.kafka.topology.integration.containerutils;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
+import org.testcontainers.containers.Network;
 import org.testcontainers.images.builder.Transferable;
 import org.testcontainers.utility.DockerImageName;
 
@@ -24,17 +25,23 @@ public final class SaslPlaintextKafkaContainer extends AlternativeKafkaContainer
   public SaslPlaintextKafkaContainer(final DockerImageName dockerImageName) {
     super(dockerImageName);
     /* Note difference between 0.0.0.0 and localhost: The former will be replaced by the container IP. */
+    withExposedPorts(KAFKA_PORT - 1, KAFKA_PORT);
     withEnv(
         "KAFKA_LISTENERS",
         "SASL_PLAINTEXT://0.0.0.0:"
             + KAFKA_PORT
+            + ","
+            + "OTHER://0.0.0.0:"
+            + (KAFKA_PORT - 1)
             + ","
             + INTERNAL_LISTENER_NAME
             + "://127.0.0.1:"
             + KAFKA_INTERNAL_PORT);
     withEnv(
         "KAFKA_LISTENER_SECURITY_PROTOCOL_MAP",
-        "SASL_PLAINTEXT:SASL_PLAINTEXT," + INTERNAL_LISTENER_NAME + ":SASL_PLAINTEXT");
+        "OTHER:SASL_PLAINTEXT, SASL_PLAINTEXT:SASL_PLAINTEXT,"
+            + INTERNAL_LISTENER_NAME
+            + ":SASL_PLAINTEXT");
     withEnv("KAFKA_SASL_MECHANISM_INTER_BROKER_PROTOCOL", "PLAIN");
     withEnv("KAFKA_SASL_ENABLED_MECHANISMS", "PLAIN");
     withEnv("KAFKA_OPTS", "-Djava.security.auth.login.config=" + JAAS_CONFIG_FILE);
@@ -42,6 +49,9 @@ public final class SaslPlaintextKafkaContainer extends AlternativeKafkaContainer
     withUser("alice", "alice-secret");
     withUser("bob", "bob-secret");
     withAclAuthorizer();
+    withNetworkAliases("kafka");
+    Network network = Network.newNetwork();
+    withNetwork(network);
   }
 
   public SaslPlaintextKafkaContainer withSuperUser(final String username, final String password) {
