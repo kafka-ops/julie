@@ -34,7 +34,7 @@ public class MDSApiClient extends JulieHttpClient {
   }
 
   public void authenticate() throws IOException {
-    HttpRequest request = buildGetRequest("/security/1.0/authenticate");
+    HttpRequest request = getRequest("/security/1.0/authenticate");
 
     try {
       Response response = doGet(request);
@@ -96,7 +96,7 @@ public class MDSApiClient extends JulieHttpClient {
         jsonEntity = binding.getScope().asJson();
       }
       LOGGER.debug("bind.entity: " + jsonEntity);
-      HttpRequest postRequest = buildPostRequest("/security/1.0/principals/" + url, jsonEntity);
+      HttpRequest postRequest = postRequest("/security/1.0/principals/" + url, jsonEntity);
       doPost(postRequest);
     } catch (IOException e) {
       LOGGER.error(e);
@@ -125,7 +125,7 @@ public class MDSApiClient extends JulieHttpClient {
    */
   public void deleteRole(String principal, String role, RequestScope scope) {
     String url = "/security/1.0/principals/" + principal + "/roles/" + role;
-    HttpRequest request = buildDeleteRequest(url, scope.asJson());
+    HttpRequest request = deleteRequest(url, scope.asJson());
 
     try {
       LOGGER.debug("deleteRole: " + request.uri() + " bind.entity: " + scope.asJson());
@@ -143,7 +143,7 @@ public class MDSApiClient extends JulieHttpClient {
     List<String> roles = new ArrayList<>();
     try {
       String url = "/security/1.0/lookup/principals/" + principal + "/roleNames";
-      HttpRequest request = buildPostRequest(url, JSON.asString(clusters));
+      HttpRequest request = postRequest(url, JSON.asString(clusters));
       String response = doPost(request);
       if (!response.isEmpty()) {
         roles = JSON.toArray(response);

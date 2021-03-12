@@ -39,29 +39,29 @@ public abstract class JulieHttpClient {
     this.token = Base64.getEncoder().encodeToString(userAndPassword.getBytes());
   }
 
-  protected HttpRequest buildGetRequest(String url) {
-    return buildGetRequest(url, token, DEFAULT_TIMEOUT_MS);
+  protected HttpRequest getRequest(String url) {
+    return getRequest(url, token, DEFAULT_TIMEOUT_MS);
   }
 
-  protected HttpRequest buildGetRequest(String url, String token, long timeoutMs) {
+  protected HttpRequest getRequest(String url, String token, long timeoutMs) {
     return setupARequest(url, token, timeoutMs).GET().build();
   }
 
-  protected HttpRequest buildPostRequest(String url, String body) {
-    return buildPostRequest(url, body, token, DEFAULT_TIMEOUT_MS);
+  protected HttpRequest postRequest(String url, String body) {
+    return postRequest(url, body, token, DEFAULT_TIMEOUT_MS);
   }
 
-  protected HttpRequest buildPostRequest(String url, String body, String token, long timeoutMs) {
+  protected HttpRequest postRequest(String url, String body, String token, long timeoutMs) {
     return setupARequest(url, token, timeoutMs)
         .POST(HttpRequest.BodyPublishers.ofString(body))
         .build();
   }
 
-  protected HttpRequest buildDeleteRequest(String url, String body) {
-    return buildDeleteRequest(url, body, token, DEFAULT_TIMEOUT_MS);
+  protected HttpRequest deleteRequest(String url, String body) {
+    return deleteRequest(url, body, token, DEFAULT_TIMEOUT_MS);
   }
 
-  protected HttpRequest buildDeleteRequest(String url, String body, String token, long timeoutMs) {
+  protected HttpRequest deleteRequest(String url, String body, String token, long timeoutMs) {
     return setupARequest(url, token, timeoutMs)
         .method("DELETE", HttpRequest.BodyPublishers.ofString(body))
         .build();
