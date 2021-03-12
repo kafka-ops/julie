@@ -114,7 +114,9 @@ public class AlternativeKafkaContainer extends GenericContainer<AlternativeKafka
         overrideAdvertisedListeners(
             listeners
                 .replaceAll(":" + KAFKA_PORT, ":" + getMappedPort(KAFKA_PORT))
+                .replaceAll("OTHER://0\\.0\\.0\\.0", "OTHER://kafka")
                 .replaceAll("0\\.0\\.0\\.0", getContainerIpAddress()));
+
     final String startupScript =
         overrideStartupScript(
             "#!/bin/bash\n"
