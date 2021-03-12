@@ -237,30 +237,20 @@ public class AccessControlManager {
   }
 
   private boolean matchesTopicPrefixList(String topic) {
-    boolean matches =
-        managedTopicPrefixes.size() == 0
-            || managedTopicPrefixes.stream().anyMatch(topic::startsWith);
-    LOGGER.debug(
-        String.format("Topic %s matches %s with $s", topic, matches, managedTopicPrefixes));
-    return matches;
+    return matchesPrefix(managedTopicPrefixes, topic, "Topic");
   }
 
   private boolean matchesGroupPrefixList(String group) {
-    boolean matches =
-        managedGroupPrefixes.size() == 0
-            || managedGroupPrefixes.stream().anyMatch(group::startsWith);
-    LOGGER.debug(
-        String.format("Group %s matches %s with $s", group, matches, managedGroupPrefixes));
-    return matches;
+    return matchesPrefix(managedGroupPrefixes, group, "Group");
   }
 
   private boolean matchesServiceAccountPrefixList(String principal) {
-    boolean matches =
-        managedServiceAccountPrefixes.size() == 0
-            || managedServiceAccountPrefixes.stream().anyMatch(principal::startsWith);
-    LOGGER.debug(
-        String.format(
-            "Principal %s matches %s with $s", principal, matches, managedServiceAccountPrefixes));
+    return matchesPrefix(managedServiceAccountPrefixes, principal, "Principal");
+  }
+
+  private boolean matchesPrefix(List<String> prefixes, String item, String type) {
+    boolean matches = prefixes.size() == 0 || prefixes.stream().anyMatch(item::startsWith);
+    LOGGER.debug(String.format("%s %s matches %s with $s", type, item, matches, prefixes));
     return matches;
   }
 

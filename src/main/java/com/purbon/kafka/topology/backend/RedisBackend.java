@@ -6,22 +6,17 @@ import com.purbon.kafka.topology.roles.TopologyAclBinding;
 import java.io.IOException;
 import java.util.HashSet;
 import java.util.Set;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import redis.clients.jedis.Jedis;
 
-public class RedisBackend implements Backend {
+public class RedisBackend extends AbstractBackend {
 
   private static final Logger LOGGER = LogManager.getLogger(RedisBackend.class);
 
   static final String JULIE_OPS_BINDINGS = "julie.ops.bindings";
   static final String JULIE_OPS_TYPE = "julie.ops.type";
 
-  private String expression =
-      "^\\'(\\S+)\\',\\s*\\'(\\S+)\\',\\s*\\'(\\S+)\\',\\s*\\'(\\S+)\\',\\s*\\'(.+)\\',\\s*\\'(\\S+)\\'$";
-  private Pattern regexp;
   private Jedis jedis;
 
   public RedisBackend(String host, int port) {
@@ -30,7 +25,6 @@ public class RedisBackend implements Backend {
 
   public RedisBackend(Jedis jedis) {
     this.jedis = jedis;
-    this.regexp = Pattern.compile(expression);
   }
 
   @Override
@@ -89,7 +83,7 @@ public class RedisBackend implements Backend {
   public void saveBindings(Set<TopologyAclBinding> bindings) {
 
     String[] members =
-        bindings.stream().map(binding -> binding.toString()).toArray(size -> new String[size]);
+        bindings.stream().map(TopologyAclBinding::toString).toArray(size -> new String[size]);
 
     jedis.sadd(JULIE_OPS_BINDINGS, members);
   }
@@ -103,23 +97,5 @@ public class RedisBackend implements Backend {
   @Override
   public void close() {
     jedis.close();
-  }
-
-  private TopologyAclBinding buildAclBinding(String line) throws IOException {
-    // 'TOPIC', 'topicB', '*', 'READ', 'User:Connect1', 'LITERAL'
-    Matcher matches = regexp.matcher(line);
-
-    if (matches.groupCount() != 6 || !matches.matches()) {
-      throw new IOException(("line (" + line + ") does not match"));
-    }
-
-    return TopologyAclBinding.build(
-        matches.group(1), // resourceType
-        matches.group(2), // resourceName
-        matches.group(3), // host
-        matches.group(4), // operation
-        matches.group(5), // principal
-        matches.group(6) // pattern
-        );
   }
 }

@@ -27,10 +27,6 @@ public class PlanMapSerdes {
     return mapper.readValue(file, PlanMap.class);
   }
 
-  public PlanMap deserialise(String content) throws IOException {
-    return mapper.readValue(content, PlanMap.class);
-  }
-
   public String serialise(PlanMap planMap) throws JsonProcessingException {
     return mapper.writeValueAsString(planMap);
   }

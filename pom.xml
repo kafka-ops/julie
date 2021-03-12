@@ -176,8 +176,8 @@
         <artifactId>maven-compiler-plugin</artifactId>
         <version>${maven-compiler-plugin.version}</version>
         <configuration>
-          <source>8</source>
-          <target>8</target>
+          <source>11</source>
+          <target>11</target>
         </configuration>
       </plugin>
 
@@ -418,14 +418,13 @@
     <maven-project-info-reports-plugin.version>3.0.0</maven-project-info-reports-plugin.version>
     <jacoco-maven-plugin.version>0.8.5</jacoco-maven-plugin.version>
     <rpm-maven-plugin.version>2.2.0</rpm-maven-plugin.version>
-    <maven-compiler-plugin.version>3.1</maven-compiler-plugin.version>
+    <maven-compiler-plugin.version>3.7.0</maven-compiler-plugin.version>
     <maven-surefire-plugin.version>2.22.2</maven-surefire-plugin.version>
     <maven-failsafe-plugin.version>2.22.2</maven-failsafe-plugin.version>
     <!-- dependencies -->
     <jackson.version>2.12.1</jackson.version>
     <kafka.version>2.5.0</kafka.version>
     <log4j.version>2.13.3</log4j.version>
-    <httpclient.version>4.5.11</httpclient.version>
     <zookeeper.version>3.5.7</zookeeper.version>
     <commons.version>1.4</commons.version>
     <mockito.version>3.6.0</mockito.version>
@@ -487,11 +486,6 @@
       <groupId>io.confluent</groupId>
       <artifactId>kafka-protobuf-provider</artifactId>
       <version>${confluent.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.httpcomponents</groupId>
-      <artifactId>httpclient</artifactId>
-      <version>${httpclient.version}</version>
     </dependency>
     <dependency>
       <groupId>org.apache.zookeeper</groupId>
