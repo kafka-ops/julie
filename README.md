@@ -193,3 +193,5 @@ If you are interested on building a release artifact from the source code, check
 
 Nightly builds as well as release builds are regularly available from the [Actions](https://github.com/kafka-ops/julie/actions)
 in this project.
+
+Nightly release build are available as well from [here](https://github.com/kafka-ops/julie/actions/workflows/nightly-artifacts-build.yml).
