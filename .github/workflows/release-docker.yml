@@ -23,7 +23,7 @@ jobs:
       - name: Set up the JDK
         uses: actions/setup-java@v1
         with:
-          java-version: 1.8
+          java-version: 11
       - name: Cache dependencies
         uses: actions/cache@v2
         with:
