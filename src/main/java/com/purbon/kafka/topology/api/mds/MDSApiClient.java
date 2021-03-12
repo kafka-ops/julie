@@ -12,7 +12,6 @@ import java.io.IOException;
 import java.net.URI;
 import java.net.http.HttpRequest;
 import java.net.http.HttpRequest.BodyPublishers;
-import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.List;
@@ -109,7 +108,8 @@ public class MDSApiClient extends JulieHttpClient {
         jsonEntity = binding.getScope().asJson();
       }
       LOGGER.debug("bind.entity: " + jsonEntity);
-      HttpRequest postRequest = buildPostRequest(url, jsonEntity, basicCredentials);
+      HttpRequest postRequest =
+          buildPostRequest("/security/1.0/principals/" + url, jsonEntity, basicCredentials);
       doPost(postRequest);
     } catch (IOException e) {
       LOGGER.error(e);
@@ -161,22 +161,11 @@ public class MDSApiClient extends JulieHttpClient {
   }
 
   public List<String> lookupRoles(String principal, Map<String, Map<String, String>> clusters) {
-
-    HttpRequest.Builder requestBuilder =
-        HttpRequest.newBuilder()
-            .uri(
-                URI.create(
-                    mdsServer + "/security/1.0/lookup/principals/" + principal + "/roleNames"))
-            .timeout(Duration.ofMinutes(1))
-            .header("accept", " application/json")
-            .header("Content-Type", "application/json")
-            .header("Authorization", "Basic " + basicCredentials);
-
     List<String> roles = new ArrayList<>();
-
     try {
-      requestBuilder.POST(BodyPublishers.ofString(JSON.asString(clusters)));
-      String response = doPost(requestBuilder.build());
+      String url = "/security/1.0/lookup/principals/" + principal + "/roleNames";
+      HttpRequest request = buildPostRequest(url, JSON.asString(clusters), basicCredentials);
+      String response = doPost(request);
       if (!response.isEmpty()) {
         roles = JSON.toArray(response);
       }

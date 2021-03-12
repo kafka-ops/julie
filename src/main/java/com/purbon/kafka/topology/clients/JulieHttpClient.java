@@ -45,7 +45,7 @@ public abstract class JulieHttpClient {
   }
 
   protected HttpRequest buildPostRequest(String url, String body, String token, long timeoutMs) {
-    return setupARequest("/security/1.0/principals/" + url, token, timeoutMs)
+    return setupARequest(url, token, timeoutMs)
         .POST(HttpRequest.BodyPublishers.ofString(body))
         .build();
   }
