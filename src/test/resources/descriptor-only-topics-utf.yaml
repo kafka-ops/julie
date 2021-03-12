@@ -16,7 +16,7 @@ projects:
   - name: "bar"
     topics:
       - dataType: "avro"
-        name: "bar"
+        name: "bär"
         config:
           replication.factor: "1"
           num.partitions: "1"
