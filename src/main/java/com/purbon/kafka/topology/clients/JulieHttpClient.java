@@ -10,17 +10,26 @@ import java.time.Duration;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-public abstract class ExtHttpClient {
+public abstract class JulieHttpClient {
 
-  private static final Logger LOGGER = LogManager.getLogger(ExtHttpClient.class);
+  private static final Logger LOGGER = LogManager.getLogger(JulieHttpClient.class);
 
   private final long DEFAULT_TIMEOUT_MS = 60000;
 
   private final HttpClient httpClient = HttpClient.newBuilder().build();
   private final String server;
 
-  public ExtHttpClient(String server) {
+  public JulieHttpClient(String server) {
     this.server = server;
+  }
+
+  private HttpRequest.Builder setupARequest(String url, String token, long timeoutMs) {
+    return HttpRequest.newBuilder()
+        .uri(URI.create(server + url))
+        .timeout(Duration.ofMillis(timeoutMs))
+        .header("accept", " application/json")
+        .header("Content-Type", "application/json")
+        .header("Authorization", "Basic " + token);
   }
 
   protected HttpRequest buildGetRequest(String url, String token) {
@@ -28,12 +37,16 @@ public abstract class ExtHttpClient {
   }
 
   protected HttpRequest buildGetRequest(String url, String token, long timeoutMs) {
-    return HttpRequest.newBuilder()
-        .uri(URI.create(server + url))
-        .timeout(Duration.ofMillis(timeoutMs))
-        .header("accept", " application/json")
-        .header("Authorization", "Basic " + token)
-        .GET()
+    return setupARequest(url, token, timeoutMs).GET().build();
+  }
+
+  protected HttpRequest buildPostRequest(String url, String body, String token) {
+    return buildPostRequest(url, body, token, DEFAULT_TIMEOUT_MS);
+  }
+
+  protected HttpRequest buildPostRequest(String url, String body, String token, long timeoutMs) {
+    return setupARequest("/security/1.0/principals/" + url, token, timeoutMs)
+        .POST(HttpRequest.BodyPublishers.ofString(body))
         .build();
   }
 

@@ -4,7 +4,7 @@ import static com.purbon.kafka.topology.api.mds.RequestScope.RESOURCE_NAME;
 import static com.purbon.kafka.topology.api.mds.RequestScope.RESOURCE_PATTERN_TYPE;
 import static com.purbon.kafka.topology.api.mds.RequestScope.RESOURCE_TYPE;
 
-import com.purbon.kafka.topology.clients.ExtHttpClient;
+import com.purbon.kafka.topology.clients.JulieHttpClient;
 import com.purbon.kafka.topology.roles.TopologyAclBinding;
 import com.purbon.kafka.topology.roles.rbac.ClusterLevelRoleBuilder;
 import com.purbon.kafka.topology.utils.JSON;
@@ -21,7 +21,7 @@ import org.apache.kafka.common.resource.ResourceType;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-public class MDSApiClient extends ExtHttpClient {
+public class MDSApiClient extends JulieHttpClient {
 
   private static final Logger LOGGER = LogManager.getLogger(MDSApiClient.class);
 
@@ -29,7 +29,7 @@ public class MDSApiClient extends ExtHttpClient {
   private String basicCredentials;
 
   private AuthenticationCredentials authenticationCredentials;
-  private ClusterIDs clusterIDs;
+  private final ClusterIDs clusterIDs;
 
   public MDSApiClient(String mdsServer) {
     super(mdsServer);
@@ -109,23 +109,12 @@ public class MDSApiClient extends ExtHttpClient {
         jsonEntity = binding.getScope().asJson();
       }
       LOGGER.debug("bind.entity: " + jsonEntity);
-      HttpRequest postRequest = buildPostRequest(url, jsonEntity);
+      HttpRequest postRequest = buildPostRequest(url, jsonEntity, basicCredentials);
       doPost(postRequest);
     } catch (IOException e) {
       LOGGER.error(e);
       throw e;
     }
-  }
-
-  private HttpRequest buildPostRequest(String url, String body) {
-    return HttpRequest.newBuilder()
-        .uri(URI.create(mdsServer + "/security/1.0/principals/" + url))
-        .timeout(Duration.ofMinutes(1))
-        .header("accept", " application/json")
-        .header("Content-Type", "application/json")
-        .header("Authorization", "Basic " + basicCredentials)
-        .POST(BodyPublishers.ofString(body))
-        .build();
   }
 
   public TopologyAclBinding bind(
