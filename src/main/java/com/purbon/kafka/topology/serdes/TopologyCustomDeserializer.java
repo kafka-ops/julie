@@ -39,6 +39,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.function.Function;
+import java.util.regex.Pattern;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 import org.apache.logging.log4j.LogManager;
@@ -115,6 +116,13 @@ public class TopologyCustomDeserializer extends StdDeserializer<Topology> {
     topology.setPlatform(platform);
     parseProjects(parser, rootNode.get(PROJECTS_KEY), topology, config)
         .forEach(topology::addProject);
+
+    // validate the generated full topics names for valid encoding
+    for (Project project : topology.getProjects()) {
+      for (Topic topic : project.getTopics()) {
+        validateEncodingForTopicName(topic.toString());
+      }
+    }
 
     return topology;
   }
@@ -215,6 +223,18 @@ public class TopologyCustomDeserializer extends StdDeserializer<Topology> {
         .forEach(project::addTopic);
 
     return project;
+  }
+
+  private void validateEncodingForTopicName(String name) throws IOException {
+    Pattern p = Pattern.compile("^[\\x00-\\x7F\\._-]+$");
+    if (!p.matcher(name).matches()) {
+      String validCharacters = "ASCII alphanumerics, '.', '_' and '-'";
+      throw new IOException(
+          " Topic name \""
+              + name
+              + "\" is illegal, it contains a character other than "
+              + validCharacters);
+    }
   }
 
   private Map<String, List<String>> parseOptionalRbacRoles(JsonNode rbacRootNode) {

@@ -26,16 +26,8 @@ public class TopologySerdes {
     this(new Configuration(), FileType.YAML, new PlanMap());
   }
 
-  public TopologySerdes(Configuration config) {
-    this(config, config.getTopologyFileType(), new PlanMap());
-  }
-
   public TopologySerdes(Configuration config, PlanMap plans) {
     this(config, config.getTopologyFileType(), plans);
-  }
-
-  public TopologySerdes(Configuration config, FileType type) {
-    mapper = ObjectMapperFactory.build(type, config, new PlanMap());
   }
 
   public TopologySerdes(Configuration config, FileType type, PlanMap plans) {
