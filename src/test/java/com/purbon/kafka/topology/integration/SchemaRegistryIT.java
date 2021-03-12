@@ -124,9 +124,26 @@ public class SchemaRegistryIT {
     verifySubject("schemas.json.foo.foo.json-value");
   }
 
+  @Test
+  public void testSchemaSetupForProtoBufDefaults() throws IOException, RestClientException {
+    AdminClient kafkaAdminClient = ContainerTestUtils.getSaslAdminClient(container);
+    TopologyBuilderAdminClient adminClient = new TopologyBuilderAdminClient(kafkaAdminClient);
+
+    File file = TestUtils.getResourceFile("/descriptor-schemas-proto.yaml");
+
+    SchemaRegistryManager schemaRegistryManager =
+        new SchemaRegistryManager(schemaRegistryClient, file.getAbsolutePath());
+
+    TopicManager topicManager = new TopicManager(adminClient, schemaRegistryManager, config);
+
+    topicManager.apply(parser.deserialise(file), plan);
+    plan.run();
+
+    verifySubject("schemas.proto.foo.foo.proto-value");
+  }
+
   private void verifySubject(String... subjects) throws IOException, RestClientException {
     Collection<String> savedSubjects = schemaRegistryClient.getAllSubjects();
-    System.out.println(savedSubjects);
     for (String subject : subjects) {
       assertThat(savedSubjects).contains(subject);
     }
