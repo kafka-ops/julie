@@ -9,11 +9,8 @@ import com.purbon.kafka.topology.roles.TopologyAclBinding;
 import com.purbon.kafka.topology.roles.rbac.ClusterLevelRoleBuilder;
 import com.purbon.kafka.topology.utils.JSON;
 import java.io.IOException;
-import java.net.URI;
 import java.net.http.HttpRequest;
-import java.net.http.HttpRequest.BodyPublishers;
 import java.util.ArrayList;
-import java.util.Base64;
 import java.util.List;
 import java.util.Map;
 import org.apache.kafka.common.resource.ResourceType;
@@ -24,21 +21,12 @@ public class MDSApiClient extends JulieHttpClient {
 
   private static final Logger LOGGER = LogManager.getLogger(MDSApiClient.class);
 
-  private final String mdsServer;
-  private String basicCredentials;
-
   private AuthenticationCredentials authenticationCredentials;
   private final ClusterIDs clusterIDs;
 
   public MDSApiClient(String mdsServer) {
     super(mdsServer);
-    this.mdsServer = mdsServer;
     this.clusterIDs = new ClusterIDs();
-  }
-
-  public void login(String user, String password) {
-    String userAndPassword = user + ":" + password;
-    basicCredentials = Base64.getEncoder().encodeToString(userAndPassword.getBytes());
   }
 
   public AuthenticationCredentials getCredentials() {
@@ -46,7 +34,7 @@ public class MDSApiClient extends JulieHttpClient {
   }
 
   public void authenticate() throws IOException {
-    HttpRequest request = buildGetRequest("/security/1.0/authenticate", basicCredentials);
+    HttpRequest request = buildGetRequest("/security/1.0/authenticate");
 
     try {
       Response response = doGet(request);
@@ -108,8 +96,7 @@ public class MDSApiClient extends JulieHttpClient {
         jsonEntity = binding.getScope().asJson();
       }
       LOGGER.debug("bind.entity: " + jsonEntity);
-      HttpRequest postRequest =
-          buildPostRequest("/security/1.0/principals/" + url, jsonEntity, basicCredentials);
+      HttpRequest postRequest = buildPostRequest("/security/1.0/principals/" + url, jsonEntity);
       doPost(postRequest);
     } catch (IOException e) {
       LOGGER.error(e);
@@ -137,19 +124,11 @@ public class MDSApiClient extends JulieHttpClient {
    * @param scope The request scope
    */
   public void deleteRole(String principal, String role, RequestScope scope) {
-    HttpRequest request =
-        HttpRequest.newBuilder()
-            .uri(URI.create(mdsServer + "/security/1.0/principals/" + principal + "/roles/" + role))
-            .header("accept", " application/json")
-            .header("Content-Type", "application/json")
-            .header("Authorization", "Basic " + basicCredentials)
-            .method("DELETE", BodyPublishers.ofString(scope.asJson()))
-            .build();
-
-    LOGGER.debug("deleteRole: " + request.uri());
+    String url = "/security/1.0/principals/" + principal + "/roles/" + role;
+    HttpRequest request = buildDeleteRequest(url, scope.asJson());
 
     try {
-      LOGGER.debug("bind.entity: " + scope.asJson());
+      LOGGER.debug("deleteRole: " + request.uri() + " bind.entity: " + scope.asJson());
       doDelete(request);
     } catch (IOException e) {
       e.printStackTrace();
@@ -164,7 +143,7 @@ public class MDSApiClient extends JulieHttpClient {
     List<String> roles = new ArrayList<>();
     try {
       String url = "/security/1.0/lookup/principals/" + principal + "/roleNames";
-      HttpRequest request = buildPostRequest(url, JSON.asString(clusters), basicCredentials);
+      HttpRequest request = buildPostRequest(url, JSON.asString(clusters));
       String response = doPost(request);
       if (!response.isEmpty()) {
         roles = JSON.toArray(response);

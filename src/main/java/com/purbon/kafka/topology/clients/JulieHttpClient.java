@@ -7,6 +7,7 @@ import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.time.Duration;
+import java.util.Base64;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -18,6 +19,7 @@ public abstract class JulieHttpClient {
 
   private final HttpClient httpClient = HttpClient.newBuilder().build();
   private final String server;
+  private String token;
 
   public JulieHttpClient(String server) {
     this.server = server;
@@ -32,7 +34,12 @@ public abstract class JulieHttpClient {
         .header("Authorization", "Basic " + token);
   }
 
-  protected HttpRequest buildGetRequest(String url, String token) {
+  public void login(String user, String password) {
+    String userAndPassword = user + ":" + password;
+    this.token = Base64.getEncoder().encodeToString(userAndPassword.getBytes());
+  }
+
+  protected HttpRequest buildGetRequest(String url) {
     return buildGetRequest(url, token, DEFAULT_TIMEOUT_MS);
   }
 
@@ -40,13 +47,23 @@ public abstract class JulieHttpClient {
     return setupARequest(url, token, timeoutMs).GET().build();
   }
 
-  protected HttpRequest buildPostRequest(String url, String body, String token) {
+  protected HttpRequest buildPostRequest(String url, String body) {
     return buildPostRequest(url, body, token, DEFAULT_TIMEOUT_MS);
   }
 
   protected HttpRequest buildPostRequest(String url, String body, String token, long timeoutMs) {
     return setupARequest(url, token, timeoutMs)
         .POST(HttpRequest.BodyPublishers.ofString(body))
+        .build();
+  }
+
+  protected HttpRequest buildDeleteRequest(String url, String body) {
+    return buildDeleteRequest(url, body, token, DEFAULT_TIMEOUT_MS);
+  }
+
+  protected HttpRequest buildDeleteRequest(String url, String body, String token, long timeoutMs) {
+    return setupARequest(url, token, timeoutMs)
+        .method("DELETE", HttpRequest.BodyPublishers.ofString(body))
         .build();
   }
 
