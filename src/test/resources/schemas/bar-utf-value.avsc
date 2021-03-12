@@ -1,0 +1,9 @@
+{
+   "type" : "record",
+   "namespace" : "julieOps",
+   "name" : "Employee",
+   "fields" : [
+      { "name" : "Näme" , "type" : "string" },
+      { "name" : "Äge" , "type" : "int" }
+   ]
+}
