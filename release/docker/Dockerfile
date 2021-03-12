@@ -1,4 +1,4 @@
-FROM centos
+FROM alpine:3.12
 MAINTAINER pere.urbon@gmail.com
 ENV container docker
 ENV BUILDER_HOME /usr/local/julie-ops
@@ -6,12 +6,11 @@ ENV PATH="${BUILDER_HOME}:${PATH}"
 
 USER root
 
-RUN yum install -y java-1.8.0-openjdk
+RUN apk add bash && \
+    apk --no-cache add openjdk11 --repository=http://dl-cdn.alpinelinux.org/alpine/edge/community
 
-RUN mkdir -p /usr/local/julie-ops/bin
+RUN mkdir -p /usr/local/julie-ops/bin && chmod 755 /usr/local/julie-ops
 COPY julie-ops.jar /usr/local/julie-ops/bin
 COPY julie-ops-cli.sh /usr/local/julie-ops
-
-RUN chmod 755 /usr/local/julie-ops
 
 CMD ["julie-ops-cli.sh"]
