@@ -33,7 +33,7 @@ import java.util.*;
 import org.apache.kafka.clients.admin.AdminClient;
 import org.junit.*;
 
-public class SchemaRegistryIT {
+public class SchemaRegistryManagerIT {
 
   static SaslPlaintextKafkaContainer container;
   static SchemaRegistryContainer schemaRegistryContainer;
