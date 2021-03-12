@@ -9,7 +9,6 @@ import com.purbon.kafka.topology.roles.TopologyAclBinding;
 import com.purbon.kafka.topology.roles.rbac.ClusterLevelRoleBuilder;
 import com.purbon.kafka.topology.utils.JSON;
 import java.io.IOException;
-import java.net.http.HttpRequest;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -34,10 +33,8 @@ public class MDSApiClient extends JulieHttpClient {
   }
 
   public void authenticate() throws IOException {
-    HttpRequest request = getRequest("/security/1.0/authenticate");
-
     try {
-      Response response = doGet(request);
+      Response response = doGet("/security/1.0/authenticate");
       if (response.getStatus() < 200 || response.getStatus() > 204) {
         throw new IOException("MDS Authentication error: " + response.getResponseAsString());
       }
@@ -58,19 +55,6 @@ public class MDSApiClient extends JulieHttpClient {
 
   public TopologyAclBinding bind(String principal, String role, String topic, String patternType) {
     return bind(principal, role, topic, "Topic", patternType);
-  }
-
-  private TopologyAclBinding bind(String principal, String role, RequestScope scope) {
-
-    ResourceType resourceType = ResourceType.fromString(scope.getResource(0).get(RESOURCE_TYPE));
-    String resourceName = scope.getResource(0).get(RESOURCE_NAME);
-    String patternType = scope.getResource(0).get(RESOURCE_PATTERN_TYPE);
-
-    TopologyAclBinding binding =
-        new TopologyAclBinding(resourceType, resourceName, "*", role, principal, patternType);
-
-    binding.setScope(scope);
-    return binding;
   }
 
   public TopologyAclBinding bindClusterRole(String principal, String role, RequestScope scope) {
@@ -96,8 +80,7 @@ public class MDSApiClient extends JulieHttpClient {
         jsonEntity = binding.getScope().asJson();
       }
       LOGGER.debug("bind.entity: " + jsonEntity);
-      HttpRequest postRequest = postRequest("/security/1.0/principals/" + url, jsonEntity);
-      doPost(postRequest);
+      doPost("/security/1.0/principals/" + url, jsonEntity);
     } catch (IOException e) {
       LOGGER.error(e);
       throw e;
@@ -115,6 +98,19 @@ public class MDSApiClient extends JulieHttpClient {
     return bind(principal, role, scope);
   }
 
+  private TopologyAclBinding bind(String principal, String role, RequestScope scope) {
+
+    ResourceType resourceType = ResourceType.fromString(scope.getResource(0).get(RESOURCE_TYPE));
+    String resourceName = scope.getResource(0).get(RESOURCE_NAME);
+    String patternType = scope.getResource(0).get(RESOURCE_PATTERN_TYPE);
+
+    TopologyAclBinding binding =
+        new TopologyAclBinding(resourceType, resourceName, "*", role, principal, patternType);
+
+    binding.setScope(scope);
+    return binding;
+  }
+
   /**
    * Remove the role (cluster or resource scoped) from the principal at the given scope/cluster.
    * No-op if the user doesn’t have the role. Callable by Admins.
@@ -125,11 +121,8 @@ public class MDSApiClient extends JulieHttpClient {
    */
   public void deleteRole(String principal, String role, RequestScope scope) {
     String url = "/security/1.0/principals/" + principal + "/roles/" + role;
-    HttpRequest request = deleteRequest(url, scope.asJson());
-
     try {
-      LOGGER.debug("deleteRole: " + request.uri() + " bind.entity: " + scope.asJson());
-      doDelete(request);
+      doDelete(url, scope.asJson());
     } catch (IOException e) {
       e.printStackTrace();
     }
@@ -143,8 +136,7 @@ public class MDSApiClient extends JulieHttpClient {
     List<String> roles = new ArrayList<>();
     try {
       String url = "/security/1.0/lookup/principals/" + principal + "/roleNames";
-      HttpRequest request = postRequest(url, JSON.asString(clusters));
-      String response = doPost(request);
+      String response = doPost(url, JSON.asString(clusters));
       if (!response.isEmpty()) {
         roles = JSON.toArray(response);
       }

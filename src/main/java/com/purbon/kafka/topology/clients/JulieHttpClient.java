@@ -39,53 +39,58 @@ public abstract class JulieHttpClient {
     this.token = Base64.getEncoder().encodeToString(userAndPassword.getBytes());
   }
 
-  protected HttpRequest getRequest(String url) {
-    return getRequest(url, token, DEFAULT_TIMEOUT_MS);
+  protected Response doGet(String url) throws IOException {
+    HttpRequest request = getRequest(url, token, DEFAULT_TIMEOUT_MS);
+    return doGet(request);
   }
 
-  protected HttpRequest getRequest(String url, String token, long timeoutMs) {
+  private HttpRequest getRequest(String url, String token, long timeoutMs) {
     return setupARequest(url, token, timeoutMs).GET().build();
   }
 
-  protected HttpRequest postRequest(String url, String body) {
-    return postRequest(url, body, token, DEFAULT_TIMEOUT_MS);
-  }
-
-  protected HttpRequest postRequest(String url, String body, String token, long timeoutMs) {
-    return setupARequest(url, token, timeoutMs)
-        .POST(HttpRequest.BodyPublishers.ofString(body))
-        .build();
-  }
-
-  protected HttpRequest deleteRequest(String url, String body) {
-    return deleteRequest(url, body, token, DEFAULT_TIMEOUT_MS);
-  }
-
-  protected HttpRequest deleteRequest(String url, String body, String token, long timeoutMs) {
-    return setupARequest(url, token, timeoutMs)
-        .method("DELETE", HttpRequest.BodyPublishers.ofString(body))
-        .build();
-  }
-
-  protected Response doGet(HttpRequest request) throws IOException {
-    LOGGER.debug("GET.request: " + request);
+  private Response doGet(HttpRequest request) throws IOException {
+    LOGGER.debug("method: " + request.method() + " request.uri: " + request.uri());
     try {
       HttpResponse<String> response =
           httpClient.send(request, HttpResponse.BodyHandlers.ofString());
-      LOGGER.debug("GET.response: " + response);
+      LOGGER.debug("method: " + request.method() + " response: " + response);
       return new Response(response);
     } catch (Exception ex) {
       throw new IOException(ex);
     }
   }
 
-  protected String doPost(HttpRequest request) throws IOException {
-    LOGGER.debug("POST.request: " + request);
+  protected String doPost(String url, String body) throws IOException {
+    LOGGER.debug("doPost: " + url + " body: " + body);
+    HttpRequest request = postRequest(url, body, token, DEFAULT_TIMEOUT_MS);
+    return doRequest(request);
+  }
+
+  private HttpRequest postRequest(String url, String body, String token, long timeoutMs) {
+    return setupARequest(url, token, timeoutMs)
+        .POST(HttpRequest.BodyPublishers.ofString(body))
+        .build();
+  }
+
+  protected void doDelete(String url, String body) throws IOException {
+    LOGGER.debug("doDelete: " + url + " body: " + body);
+    HttpRequest request = deleteRequest(url, body, token, DEFAULT_TIMEOUT_MS);
+    doRequest(request);
+  }
+
+  private HttpRequest deleteRequest(String url, String body, String token, long timeoutMs) {
+    return setupARequest(url, token, timeoutMs)
+        .method("DELETE", HttpRequest.BodyPublishers.ofString(body))
+        .build();
+  }
+
+  private String doRequest(HttpRequest request) throws IOException {
+    LOGGER.debug("method: " + request.method() + " request.uri: " + request.uri());
     String result = "";
     try {
       HttpResponse<String> response =
           httpClient.send(request, HttpResponse.BodyHandlers.ofString());
-      LOGGER.debug("POST.response: " + response);
+      LOGGER.debug("method: " + request.method() + " response: " + response);
       int statusCode = response.statusCode();
       if (statusCode < 200 || statusCode > 299) {
         throw new IOException(
@@ -102,20 +107,5 @@ public abstract class JulieHttpClient {
       throw new IOException(ex);
     }
     return result;
-  }
-
-  protected void doDelete(HttpRequest request) throws IOException {
-    LOGGER.debug("DELETE.request: " + request);
-    String result = "";
-    try {
-      HttpResponse<String> response =
-          httpClient.send(request, HttpResponse.BodyHandlers.ofString());
-      if (response.body() != null) {
-        result = response.body();
-      }
-      LOGGER.debug("DELETE.response: " + response + " result: " + result);
-    } catch (Exception ex) {
-      throw new IOException(ex);
-    }
   }
 }
