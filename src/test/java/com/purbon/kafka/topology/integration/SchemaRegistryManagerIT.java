@@ -20,6 +20,7 @@ import com.purbon.kafka.topology.utils.TestUtils;
 import io.confluent.kafka.schemaregistry.SchemaProvider;
 import io.confluent.kafka.schemaregistry.avro.AvroSchemaProvider;
 import io.confluent.kafka.schemaregistry.client.CachedSchemaRegistryClient;
+import io.confluent.kafka.schemaregistry.client.SchemaMetadata;
 import io.confluent.kafka.schemaregistry.client.SchemaRegistryClient;
 import io.confluent.kafka.schemaregistry.client.rest.RestService;
 import io.confluent.kafka.schemaregistry.client.rest.exceptions.RestClientException;
@@ -140,6 +141,31 @@ public class SchemaRegistryManagerIT {
     plan.run();
 
     verifySubject("schemas.proto.foo.foo.proto-value");
+  }
+
+  @Test
+  public void testSchemaSetupWithContentInUTF() throws IOException, RestClientException {
+    AdminClient kafkaAdminClient = ContainerTestUtils.getSaslAdminClient(container);
+    TopologyBuilderAdminClient adminClient = new TopologyBuilderAdminClient(kafkaAdminClient);
+
+    File file = TestUtils.getResourceFile("/descriptor-schemas-utf.yaml");
+
+    SchemaRegistryManager schemaRegistryManager =
+        new SchemaRegistryManager(schemaRegistryClient, file.getAbsolutePath());
+
+    TopicManager topicManager = new TopicManager(adminClient, schemaRegistryManager, config);
+
+    topicManager.apply(parser.deserialise(file), plan);
+    plan.run();
+
+    String subjectName = "schemas.utf.foo.bar.avro-value";
+    verifySubject(subjectName);
+
+    SchemaMetadata schemaMetadata = schemaRegistryClient.getLatestSchemaMetadata(subjectName);
+    String schema = schemaMetadata.getSchema();
+
+    assertThat(schema).contains("Näme");
+    assertThat(schema).contains("Äge");
   }
 
   private void verifySubject(String... subjects) throws IOException, RestClientException {
