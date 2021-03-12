@@ -1,5 +1,6 @@
 ---
-context: "context"
+context: "schemas"
+type: "json"
 projects:
   - name: "foo"
     consumers:
@@ -17,6 +18,10 @@ projects:
         config:
           replication.factor: "1"
           num.partitions: "1"
+        dataType: "json"
+        schemas:
+          value.schema.file: "schemas/test.json"
+          value.format: "JSON"
       - name: "bar"
         config:
           replication.factor: "1"

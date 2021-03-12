@@ -14,7 +14,6 @@ import com.purbon.kafka.topology.integration.containerutils.ContainerFactory;
 import com.purbon.kafka.topology.integration.containerutils.ContainerTestUtils;
 import com.purbon.kafka.topology.integration.containerutils.SaslPlaintextKafkaContainer;
 import com.purbon.kafka.topology.integration.containerutils.SchemaRegistryContainer;
-import com.purbon.kafka.topology.model.schema.Subject;
 import com.purbon.kafka.topology.schemas.SchemaRegistryManager;
 import com.purbon.kafka.topology.serdes.TopologySerdes;
 import com.purbon.kafka.topology.utils.TestUtils;
@@ -32,10 +31,7 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.*;
 import org.apache.kafka.clients.admin.AdminClient;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.*;
 
 public class SchemaRegistryIT {
 
@@ -53,6 +49,12 @@ public class SchemaRegistryIT {
     container.start();
     schemaRegistryContainer = new SchemaRegistryContainer(container);
     schemaRegistryContainer.start();
+  }
+
+  @AfterClass
+  public static void after() {
+    schemaRegistryContainer.stop();
+    container.stop();
   }
 
   @Before
@@ -80,12 +82,15 @@ public class SchemaRegistryIT {
     schemaRegistryClient = new CachedSchemaRegistryClient(restService, 10, providers, null, null);
   }
 
+  @After
+  public void teardown() {}
+
   @Test
   public void testSchemaSetupForAvroDefaults() throws IOException, RestClientException {
     AdminClient kafkaAdminClient = ContainerTestUtils.getSaslAdminClient(container);
     TopologyBuilderAdminClient adminClient = new TopologyBuilderAdminClient(kafkaAdminClient);
 
-    File file = TestUtils.getResourceFile("/descriptor-schemas.yaml");
+    File file = TestUtils.getResourceFile("/descriptor-schemas-avro.yaml");
 
     SchemaRegistryManager schemaRegistryManager =
         new SchemaRegistryManager(schemaRegistryClient, file.getAbsolutePath());
@@ -95,19 +100,34 @@ public class SchemaRegistryIT {
     topicManager.apply(parser.deserialise(file), plan);
     plan.run();
 
-    verifySubject("context.foo.bar.avro-value", "context.foo.cat.avro-key", "context.foo.cat.avro-value");
+    verifySubject(
+        "schemas.avro.foo.bar.avro-value",
+        "schemas.avro.foo.cat.avro-key",
+        "schemas.avro.foo.cat.avro-value");
   }
 
-  @AfterClass
-  public static void after() {
-    schemaRegistryContainer.stop();
-    container.stop();
+  @Test
+  public void testSchemaSetupForJsonDefaults() throws IOException, RestClientException {
+    AdminClient kafkaAdminClient = ContainerTestUtils.getSaslAdminClient(container);
+    TopologyBuilderAdminClient adminClient = new TopologyBuilderAdminClient(kafkaAdminClient);
+
+    File file = TestUtils.getResourceFile("/descriptor-schemas-json.yaml");
+
+    SchemaRegistryManager schemaRegistryManager =
+        new SchemaRegistryManager(schemaRegistryClient, file.getAbsolutePath());
+
+    TopicManager topicManager = new TopicManager(adminClient, schemaRegistryManager, config);
+
+    topicManager.apply(parser.deserialise(file), plan);
+    plan.run();
+
+    verifySubject("schemas.json.foo.foo.json-value");
   }
 
   private void verifySubject(String... subjects) throws IOException, RestClientException {
     Collection<String> savedSubjects = schemaRegistryClient.getAllSubjects();
-
-    for(String subject : subjects) {
+    System.out.println(savedSubjects);
+    for (String subject : subjects) {
       assertThat(savedSubjects).contains(subject);
     }
   }
