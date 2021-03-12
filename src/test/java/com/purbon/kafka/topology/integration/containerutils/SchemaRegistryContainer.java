@@ -38,4 +38,8 @@ public class SchemaRegistryContainer extends GenericContainer<SchemaRegistryCont
     sb.append("\";");
     return sb.toString();
   }
+
+  public String getUrl() {
+    return "http://" + getHost() + ":" + getMappedPort(8081);
+  }
 }

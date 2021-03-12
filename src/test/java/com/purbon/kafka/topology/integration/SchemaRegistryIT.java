@@ -3,6 +3,7 @@ package com.purbon.kafka.topology.integration;
 import static com.purbon.kafka.topology.CommandLineInterface.ALLOW_DELETE_OPTION;
 import static com.purbon.kafka.topology.CommandLineInterface.BROKERS_OPTION;
 import static com.purbon.kafka.topology.Configuration.TOPOLOGY_TOPIC_STATE_FROM_CLUSTER;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import com.purbon.kafka.topology.BackendController;
 import com.purbon.kafka.topology.Configuration;
@@ -13,6 +14,7 @@ import com.purbon.kafka.topology.integration.containerutils.ContainerFactory;
 import com.purbon.kafka.topology.integration.containerutils.ContainerTestUtils;
 import com.purbon.kafka.topology.integration.containerutils.SaslPlaintextKafkaContainer;
 import com.purbon.kafka.topology.integration.containerutils.SchemaRegistryContainer;
+import com.purbon.kafka.topology.model.schema.Subject;
 import com.purbon.kafka.topology.schemas.SchemaRegistryManager;
 import com.purbon.kafka.topology.serdes.TopologySerdes;
 import com.purbon.kafka.topology.utils.TestUtils;
@@ -21,10 +23,13 @@ import io.confluent.kafka.schemaregistry.avro.AvroSchemaProvider;
 import io.confluent.kafka.schemaregistry.client.CachedSchemaRegistryClient;
 import io.confluent.kafka.schemaregistry.client.SchemaRegistryClient;
 import io.confluent.kafka.schemaregistry.client.rest.RestService;
+import io.confluent.kafka.schemaregistry.client.rest.exceptions.RestClientException;
 import io.confluent.kafka.schemaregistry.json.JsonSchemaProvider;
 import io.confluent.kafka.schemaregistry.protobuf.ProtobufSchemaProvider;
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.*;
 import org.apache.kafka.clients.admin.AdminClient;
 import org.junit.AfterClass;
@@ -40,6 +45,8 @@ public class SchemaRegistryIT {
   private Configuration config;
   private ExecutionPlan plan;
 
+  private SchemaRegistryClient schemaRegistryClient;
+
   @BeforeClass
   public static void setup() {
     container = ContainerFactory.fetchSaslKafkaContainer(System.getProperty("cp.version"));
@@ -50,6 +57,8 @@ public class SchemaRegistryIT {
 
   @Before
   public void configure() throws IOException {
+    Files.deleteIfExists(Paths.get(".cluster-state"));
+
     parser = new TopologySerdes();
 
     Properties props = new Properties();
@@ -62,24 +71,21 @@ public class SchemaRegistryIT {
     config = new Configuration(cliOps, props);
 
     this.plan = ExecutionPlan.init(new BackendController(), System.out);
-  }
 
-  @Test
-  public void testSetup() throws IOException {
-    AdminClient kafkaAdminClient = ContainerTestUtils.getSaslAdminClient(container);
-    TopologyBuilderAdminClient adminClient = new TopologyBuilderAdminClient(kafkaAdminClient);
-
-    File file = TestUtils.getResourceFile("/descriptor-schemas.yaml");
-
-    String schemaRegistryUrl =
-        schemaRegistryContainer.getHost() + ":" + schemaRegistryContainer.getExposedPorts().get(0);
-    RestService restService = new RestService(schemaRegistryUrl);
+    RestService restService = new RestService(schemaRegistryContainer.getUrl());
 
     List<SchemaProvider> providers =
         Arrays.asList(
             new AvroSchemaProvider(), new JsonSchemaProvider(), new ProtobufSchemaProvider());
-    SchemaRegistryClient schemaRegistryClient =
-        new CachedSchemaRegistryClient(restService, 10, providers, null, null);
+    schemaRegistryClient = new CachedSchemaRegistryClient(restService, 10, providers, null, null);
+  }
+
+  @Test
+  public void testSchemaSetupForAvroDefaults() throws IOException, RestClientException {
+    AdminClient kafkaAdminClient = ContainerTestUtils.getSaslAdminClient(container);
+    TopologyBuilderAdminClient adminClient = new TopologyBuilderAdminClient(kafkaAdminClient);
+
+    File file = TestUtils.getResourceFile("/descriptor-schemas.yaml");
 
     SchemaRegistryManager schemaRegistryManager =
         new SchemaRegistryManager(schemaRegistryClient, file.getAbsolutePath());
@@ -88,11 +94,21 @@ public class SchemaRegistryIT {
 
     topicManager.apply(parser.deserialise(file), plan);
     plan.run();
+
+    verifySubject("context.foo.bar.avro-value", "context.foo.cat.avro-key", "context.foo.cat.avro-value");
   }
 
   @AfterClass
   public static void after() {
     schemaRegistryContainer.stop();
     container.stop();
+  }
+
+  private void verifySubject(String... subjects) throws IOException, RestClientException {
+    Collection<String> savedSubjects = schemaRegistryClient.getAllSubjects();
+
+    for(String subject : subjects) {
+      assertThat(savedSubjects).contains(subject);
+    }
   }
 }

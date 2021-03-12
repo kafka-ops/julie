@@ -1,6 +1,5 @@
 ---
-context: "contextOrg"
-source: "source"
+context: "context"
 projects:
   - name: "foo"
     consumers:
@@ -13,31 +12,6 @@ projects:
         transactionId: "1234"
       - principal: "User:App2"
         idempotence: "true"
-    streams:
-      - principal: "User:App0"
-        topics:
-          read:
-            - "topicA"
-            - "topicB"
-          write:
-            - "topicC"
-            - "topicD"
-    connectors:
-      - principal: "User:Connect1"
-        cluster_id: "foo"
-        group: "group"
-        status_topic: "status"
-        offset_topic: "offset"
-        configs_topic: "configs"
-        topics:
-          read:
-            - "topicA"
-            - "topicB"
-      - principal: "User:Connect2"
-        topics:
-          write:
-            - "topicC"
-            - "topicD"
     topics:
       - name: "foo"
         config:
@@ -55,41 +29,6 @@ projects:
           replication.factor: "1"
           num.partitions: "1"
         dataType: "avro"
-        subject.name.strategy: "TopicRecordNameStrategy"
         schemas:
           - key.schema.file: "schemas/bar-key.avsc"
             value.schema.file: "schemas/bar-value.avsc"
-            key.record.type: "foo"
-            value.record.type: "bar"
-          - value.schema.file: "schemas/bar-value.avsc"
-            value.record.type: "value"
-  - name: "baz"
-    streams:
-      - principal: "User:App1"
-        applicationId: "applicationId-1"
-        topics:
-          read:
-            - "topicE"
-          write:
-            - "topicF"
-    topics:
-      - name: "topicE"
-        config:
-          replication.factor: "1"
-          num.partitions: "1"
-      - name: "topicF"
-        config:
-          replication.factor: "1"
-          num.partitions: "1"
-platform:
-  schema_registry:
-    instances:
-      - principal: "User:SchemaRegistry01"
-        topic: "foo"
-        group: "bar"
-      - principal: "User:SchemaRegistry02"
-        topic: "zet"
-  control_center:
-    instances:
-      - principal: "User:ControlCenter"
-        appId: "controlcenter"
