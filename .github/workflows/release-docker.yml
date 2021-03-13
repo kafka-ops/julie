@@ -1,8 +1,8 @@
-name: Docker publish latest
+name: Docker publish
 on:
   push:
     tags:
-      - 'v*.*.*'
+      - 'v3.*.*'
 jobs:
   ktb_docker_build:
     if: github.repository == 'kafka-ops/julie'
