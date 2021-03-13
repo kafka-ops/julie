@@ -1,4 +1,4 @@
-name: Release Builds
+name: Release Builds (legacy)
 on:
   push:
     tags:
