@@ -1,6 +1,6 @@
 # An operational manager for Apache Kafka (Automation, GitOps, SelfService)
 
-*NOTE*: This project was formally known as Kafka Topology Builder, old versions of this project can still be found under that name.
+*NOTE*: This project was formerly known as Kafka Topology Builder, old versions of this project can still be found under that name.
 
 <a href="https://codeclimate.com/github/purbon/kafka-topology-builder/maintainability"><img src="https://api.codeclimate.com/v1/badges/ef4bcda7d1b5fd0a4f1e/maintainability" /></a> ![CI tests](https://github.com/kafka-ops/kafka-topology-builder/workflows/CI%20tests/badge.svg?branch=master) [![Gitter](https://badges.gitter.im/kafka-topology-builder/community.svg)](https://gitter.im/kafka-topology-builder/community?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge) [![Documentation Status](https://readthedocs.org/projects/julieops/badge/?version=latest)](https://julieops.readthedocs.io/?badge=latest)
 
