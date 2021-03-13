@@ -36,35 +36,36 @@ public class Constants {
   public static final String MDS_SERVER = "topology.builder.mds.server";
   public static final String MDS_USER_CONFIG = "topology.builder.mds.user";
   public static final String MDS_PASSWORD_CONFIG = "topology.builder.mds.password";
+
   public static final String MDS_KAFKA_CLUSTER_ID_CONFIG = "topology.builder.mds.kafka.cluster.id";
-  public static final String MDS_SR_CLUSTER_ID_CONFIG =
-      "topology.builder.mds.schema.registry.cluster.id";
-  public static final String MDS_KC_CLUSTER_ID_CONFIG =
-      "topology.builder.mds.kafka.connect.cluster.id";
+  static final String MDS_SR_CLUSTER_ID_CONFIG = "topology.builder.mds.schema.registry.cluster.id";
+  static final String MDS_KC_CLUSTER_ID_CONFIG = "topology.builder.mds.kafka.connect.cluster.id";
 
   public static final String CONFLUENT_SCHEMA_REGISTRY_URL_CONFIG = "schema.registry.url";
-  public static final String CONFLUENT_MONITORING_TOPIC_CONFIG = "confluent.monitoring.topic";
-  public static final String CONFLUENT_COMMAND_TOPIC_CONFIG = "confluent.command.topic";
-  public static final String CONFLUENT_METRICS_TOPIC_CONFIG = "confluent.metrics.topic";
+  static final String CONFLUENT_MONITORING_TOPIC_CONFIG = "confluent.monitoring.topic";
+  static final String CONFLUENT_COMMAND_TOPIC_CONFIG = "confluent.command.topic";
+  static final String CONFLUENT_METRICS_TOPIC_CONFIG = "confluent.metrics.topic";
+
   public static final String TOPIC_PREFIX_FORMAT_CONFIG = "topology.topic.prefix.format";
   public static final String PROJECT_PREFIX_FORMAT_CONFIG = "topology.project.prefix.format";
   public static final String TOPIC_PREFIX_SEPARATOR_CONFIG = "topology.topic.prefix.separator";
   public static final String TOPOLOGY_VALIDATIONS_CONFIG = "topology.validations";
   public static final String CONNECTOR_ALLOW_TOPIC_CREATE = "topology.connector.allow.topic.create";
 
-  public static final String TOPOLOGY_FILE_TYPE = "topology.file.type";
+  static final String TOPOLOGY_FILE_TYPE = "topology.file.type";
 
   public static final String OPTIMIZED_ACLS_CONFIG = "topology.acls.optimized";
 
   public static final String ALLOW_DELETE_TOPICS = "allow.delete.topics";
   public static final String ALLOW_DELETE_BINDINGS = "allow.delete.bindings";
-  public static final String ALLOW_DELETE_PRINCIPALS = "allow.delete.principals";
+  static final String ALLOW_DELETE_PRINCIPALS = "allow.delete.principals";
+  static final String ALLOW_DELETE_CONNECT_ARTEFACTS = "allow.delete.artefacts.connect";
 
   public static final String CCLOUD_ENV_CONFIG = "ccloud.environment";
 
   public static final String TOPOLOGY_EXPERIMENTAL_ENABLED_CONFIG =
       "topology.features.experimental";
-  public static final String TOPOLOGY_PRINCIPAL_TRANSLATION_ENABLED_CONFIG =
+  static final String TOPOLOGY_PRINCIPAL_TRANSLATION_ENABLED_CONFIG =
       "topology.translation.principal.enabled";
 
   public static final String TOPOLOGY_TOPIC_STATE_FROM_CLUSTER =
@@ -78,6 +79,8 @@ public class Constants {
   public static final String TOPIC_MANAGED_PREFIXES = "topology.topic.managed.prefixes";
 
   public static final String GROUP_MANAGED_PREFIXES = "topology.group.managed.prefixes";
+
+  public static final String PLATFORM_SERVERS_CONNECT = "platform.servers.connect";
 
   public static final String TOPOLOGY_BUILDER_INTERNAL_PRINCIPAL =
       "topology.builder.internal.principal";

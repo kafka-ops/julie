@@ -2,18 +2,17 @@ package com.purbon.kafka.topology.model.Impl;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.purbon.kafka.topology.Configuration;
+import com.purbon.kafka.topology.model.PlatformSystem;
 import com.purbon.kafka.topology.model.Project;
 import com.purbon.kafka.topology.model.Topic;
+import com.purbon.kafka.topology.model.artefact.KafkaConnectArtefact;
 import com.purbon.kafka.topology.model.users.Connector;
 import com.purbon.kafka.topology.model.users.Consumer;
 import com.purbon.kafka.topology.model.users.KStream;
 import com.purbon.kafka.topology.model.users.Producer;
 import com.purbon.kafka.topology.model.users.Schemas;
 import com.purbon.kafka.topology.utils.JinjaUtils;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class ProjectImpl implements Project, Cloneable {
 
@@ -22,11 +21,11 @@ public class ProjectImpl implements Project, Cloneable {
   private String name;
   private List<String> zookeepers;
 
-  private List<Consumer> consumers;
-  private List<Producer> producers;
-  private List<KStream> streams;
-  private List<Connector> connectors;
-  private List<Schemas> schemas;
+  private PlatformSystem<Consumer> consumers;
+  private PlatformSystem<Producer> producers;
+  private PlatformSystem<KStream> streams;
+  private PlatformSystem<Connector> connectors;
+  private PlatformSystem<Schemas> schemas;
   private Map<String, List<String>> rbacRawRoles;
 
   private List<Topic> topics;
@@ -45,35 +44,33 @@ public class ProjectImpl implements Project, Cloneable {
   public ProjectImpl(String name, Configuration config) {
     this(
         name,
-        new ArrayList<>(),
-        new ArrayList<>(),
-        new ArrayList<>(),
-        new ArrayList<>(),
-        new ArrayList<>(),
-        new ArrayList<>(),
-        new ArrayList<>(),
+        Optional.empty(),
+        Optional.empty(),
+        Optional.empty(),
+        Optional.empty(),
+        Optional.empty(),
         new HashMap<>(),
         config);
   }
 
   public ProjectImpl(
       String name,
-      List<Consumer> consumers,
-      List<Producer> producers,
-      List<KStream> streams,
-      List<Connector> connectors,
-      List<Schemas> schemas,
+      Optional<PlatformSystem<Consumer>> consumers,
+      Optional<PlatformSystem<Producer>> producers,
+      Optional<PlatformSystem<KStream>> streams,
+      Optional<PlatformSystem<Connector>> connectors,
+      Optional<PlatformSystem<Schemas>> schemas,
       Map<String, List<String>> rbacRawRoles,
       Configuration config) {
     this(
         name,
         new ArrayList<>(),
-        consumers,
-        producers,
-        streams,
+        consumers.orElse(new PlatformSystem<>()),
+        producers.orElse(new PlatformSystem<>()),
+        streams.orElse(new PlatformSystem<>()),
         new ArrayList<>(),
-        connectors,
-        schemas,
+        connectors.orElse(new PlatformSystem<>()),
+        schemas.orElse(new PlatformSystem<>()),
         rbacRawRoles,
         config);
   }
@@ -81,12 +78,12 @@ public class ProjectImpl implements Project, Cloneable {
   public ProjectImpl(
       String name,
       List<Topic> topics,
-      List<Consumer> consumers,
-      List<Producer> producers,
-      List<KStream> streams,
+      PlatformSystem<Consumer> consumers,
+      PlatformSystem<Producer> producers,
+      PlatformSystem<KStream> streams,
       List<String> zookeepers,
-      List<Connector> connectors,
-      List<Schemas> schemas,
+      PlatformSystem<Connector> connectors,
+      PlatformSystem<Schemas> schemas,
       Map<String, List<String>> rbacRawRoles,
       Configuration config) {
     this.name = name;
@@ -112,35 +109,39 @@ public class ProjectImpl implements Project, Cloneable {
   }
 
   public List<Consumer> getConsumers() {
-    return consumers;
+    return consumers.getAccessControlLists();
   }
 
   public void setConsumers(List<Consumer> consumers) {
-    this.consumers = consumers;
+    this.consumers = new PlatformSystem<>(consumers);
   }
 
   public List<Producer> getProducers() {
-    return producers;
+    return producers.getAccessControlLists();
   }
 
   public void setProducers(List<Producer> producers) {
-    this.producers = producers;
+    this.producers = new PlatformSystem<>(producers);
   }
 
   public List<KStream> getStreams() {
-    return streams;
+    return streams.getAccessControlLists();
   }
 
   public void setStreams(List<KStream> streams) {
-    this.streams = streams;
+    this.streams = new PlatformSystem<>(streams);
   }
 
   public List<Connector> getConnectors() {
-    return connectors;
+    return connectors.getAccessControlLists();
+  }
+
+  public List<KafkaConnectArtefact> getConnectorArtefacts() {
+    return (List<KafkaConnectArtefact>) connectors.getArtefacts();
   }
 
   public void setConnectors(List<Connector> connectors) {
-    this.connectors = connectors;
+    this.connectors = new PlatformSystem<>(connectors);
   }
 
   public List<Topic> getTopics() {
@@ -208,12 +209,12 @@ public class ProjectImpl implements Project, Cloneable {
           new ProjectImpl(
               getName(),
               getTopics(),
-              getConsumers(),
-              getProducers(),
-              getStreams(),
+              new PlatformSystem<>(getConsumers()),
+              new PlatformSystem<>(getProducers()),
+              new PlatformSystem<>(getStreams()),
               getZookeepers(),
-              getConnectors(),
-              getSchemas(),
+              new PlatformSystem<>(getConnectors()),
+              new PlatformSystem<>(getSchemas()),
               getRbacRawRoles(),
               config);
       project.setPrefixContextAndOrder(prefixContext, order);
@@ -223,11 +224,11 @@ public class ProjectImpl implements Project, Cloneable {
 
   @Override
   public List<Schemas> getSchemas() {
-    return schemas;
+    return schemas.getAccessControlLists();
   }
 
   @Override
   public void setSchemas(List<Schemas> schemas) {
-    this.schemas = schemas;
+    this.schemas = new PlatformSystem<>(schemas);
   }
 }

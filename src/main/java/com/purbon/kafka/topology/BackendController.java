@@ -3,6 +3,7 @@ package com.purbon.kafka.topology;
 import com.purbon.kafka.topology.backend.Backend;
 import com.purbon.kafka.topology.backend.BackendState;
 import com.purbon.kafka.topology.backend.FileBackend;
+import com.purbon.kafka.topology.model.artefact.KafkaConnectArtefact;
 import com.purbon.kafka.topology.model.cluster.ServiceAccount;
 import com.purbon.kafka.topology.roles.TopologyAclBinding;
 import java.io.IOException;
@@ -48,6 +49,11 @@ public class BackendController {
     state.addAccounts(serviceAccounts);
   }
 
+  public void addConnectors(Set<KafkaConnectArtefact> connectors) {
+    LOGGER.debug(String.format("Adding Connectors %s to the backend", connectors));
+    state.addConnectors(connectors);
+  }
+
   public Set<ServiceAccount> getServiceAccounts() {
     return state.getAccounts();
   }
@@ -58,6 +64,10 @@ public class BackendController {
 
   public Set<String> getTopics() {
     return state.getTopics();
+  }
+
+  public Set<KafkaConnectArtefact> getConnectors() {
+    return state.getConnectors();
   }
 
   public void flushAndClose() throws IOException {

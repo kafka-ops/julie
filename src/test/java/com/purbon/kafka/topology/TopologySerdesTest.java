@@ -334,6 +334,33 @@ public class TopologySerdesTest {
   }
 
   @Test
+  public void testConnectorArtefactsRetrieval() {
+    Topology topology = parser.deserialise(TestUtils.getResourceFile("/descriptor.yaml"));
+    Project project = topology.getProjects().get(0);
+    assertEquals(2, project.getConnectorArtefacts().size());
+    assertThat(project.getConnectorArtefacts().get(0))
+        .hasFieldOrPropertyWithValue("path", "connectors/sink-jdbc.json");
+    assertThat(project.getConnectorArtefacts().get(0))
+        .hasFieldOrPropertyWithValue("serverLabel", "connector0");
+    assertThat(project.getConnectorArtefacts().get(1))
+        .hasFieldOrPropertyWithValue("path", "connectors/source-jdbc.json");
+    assertThat(project.getConnectorArtefacts().get(1))
+        .hasFieldOrPropertyWithValue("serverLabel", "connector0");
+  }
+
+  @Test
+  public void testBackwardsCompatibleDescriptorForConnectors() {
+    Topology topology =
+        parser.deserialise(TestUtils.getResourceFile("/backwards-comp-descriptor.yaml"));
+    Project fooProject = topology.getProjects().get(0);
+
+    assertEquals("foo", fooProject.getName());
+    assertEquals(2, fooProject.getConnectors().size());
+    assertEquals("User:Connect1", fooProject.getConnectors().get(0).getPrincipal());
+    assertEquals("User:Connect2", fooProject.getConnectors().get(1).getPrincipal());
+  }
+
+  @Test
   public void testTopicNameWithCustomSeparator() {
     Map<String, String> cliOps = new HashMap<>();
     cliOps.put(BROKERS_OPTION, "");

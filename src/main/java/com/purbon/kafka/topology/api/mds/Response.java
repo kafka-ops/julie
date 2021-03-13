@@ -15,7 +15,7 @@ public class Response {
   private static final String STATUS_FIELD = "status";
 
   private final String response;
-  private final Map<String, Object> map;
+  private Map<String, Object> map;
   private final int statusCode;
   private final HttpHeaders headers;
 
@@ -23,7 +23,6 @@ public class Response {
     this.headers = response.headers();
     this.statusCode = response.statusCode();
     this.response = response.body();
-    this.map = responseToJson(this.response);
   }
 
   public Integer getStatus() {
@@ -31,6 +30,14 @@ public class Response {
   }
 
   public Object getField(String field) {
+    if (map.isEmpty()) {
+      try {
+        this.map = responseToJson(this.response);
+      } catch (Exception ex) {
+        LOGGER.debug("response was not a map");
+        this.map = new HashMap<>();
+      }
+    }
     return map.get(field);
   }
 
@@ -38,6 +45,7 @@ public class Response {
     try {
       return JSON.toMap(response);
     } catch (JsonProcessingException e) {
+      LOGGER.error("The incoming data is not a map", e);
       return new HashMap<>();
     }
   }

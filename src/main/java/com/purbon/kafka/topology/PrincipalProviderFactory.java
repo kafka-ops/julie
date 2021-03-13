@@ -1,7 +1,5 @@
 package com.purbon.kafka.topology;
 
-import static com.purbon.kafka.topology.Constants.*;
-
 import com.purbon.kafka.topology.serviceAccounts.CCloudPrincipalProvider;
 import com.purbon.kafka.topology.serviceAccounts.VoidPrincipalProvider;
 
@@ -14,7 +12,7 @@ public class PrincipalProviderFactory {
   }
 
   public PrincipalProvider get() {
-    if (config.hasProperty(CCLOUD_ENV_CONFIG)) {
+    if (config.useConfuentCloud()) {
       return new CCloudPrincipalProvider(config);
     } else {
       return new VoidPrincipalProvider();

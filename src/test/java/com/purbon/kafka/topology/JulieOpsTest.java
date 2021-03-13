@@ -35,6 +35,8 @@ public class JulieOpsTest {
 
   @Mock AccessControlManager accessControlManager;
 
+  @Mock KafkaConnectArtefactManager connectorManager;
+
   @Rule public MockitoRule mockitoRule = MockitoJUnit.rule();
 
   @Mock RedisBackend stateProcessor;
@@ -141,6 +143,7 @@ public class JulieOpsTest {
 
     builder.setTopicManager(topicManager);
     builder.setAccessControlManager(accessControlManager);
+    builder.setConnectorManager(connectorManager);
 
     doNothing().when(topicManager).apply(anyObject(), anyObject());
 
@@ -151,6 +154,7 @@ public class JulieOpsTest {
 
     verify(topicManager, times(1)).apply(anyObject(), anyObject());
     verify(accessControlManager, times(1)).apply(anyObject(), anyObject());
+    verify(connectorManager, times(1)).apply(any(), any());
   }
 
   @Test
@@ -168,6 +172,7 @@ public class JulieOpsTest {
 
     builder.setTopicManager(topicManager);
     builder.setAccessControlManager(accessControlManager);
+    builder.setConnectorManager(connectorManager);
 
     doNothing().when(topicManager).apply(anyObject(), anyObject());
 
@@ -201,6 +206,7 @@ public class JulieOpsTest {
 
     builder.setTopicManager(topicManager);
     builder.setAccessControlManager(accessControlManager);
+    builder.setConnectorManager(connectorManager);
 
     doNothing().when(topicManager).apply(anyObject(), anyObject());
 

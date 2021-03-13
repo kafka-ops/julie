@@ -1,10 +1,14 @@
 package com.purbon.kafka.topology.clients;
 
+import static java.net.http.HttpRequest.BodyPublishers.noBody;
+import static java.net.http.HttpRequest.BodyPublishers.ofString;
+
 import com.purbon.kafka.topology.api.mds.Response;
 import java.io.IOException;
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
+import java.net.http.HttpRequest.BodyPublisher;
 import java.net.http.HttpResponse;
 import java.time.Duration;
 import java.util.Base64;
@@ -18,20 +22,24 @@ public abstract class JulieHttpClient {
   private final long DEFAULT_TIMEOUT_MS = 60000;
 
   private final HttpClient httpClient = HttpClient.newBuilder().build();
-  private final String server;
+  protected final String server;
   private String token;
 
   public JulieHttpClient(String server) {
     this.server = server;
+    this.token = "";
   }
 
   private HttpRequest.Builder setupARequest(String url, String token, long timeoutMs) {
-    return HttpRequest.newBuilder()
-        .uri(URI.create(server + url))
-        .timeout(Duration.ofMillis(timeoutMs))
-        .header("accept", " application/json")
-        .header("Content-Type", "application/json")
-        .header("Authorization", "Basic " + token);
+    HttpRequest.Builder builder =
+        HttpRequest.newBuilder(URI.create(server + url))
+            .timeout(Duration.ofMillis(timeoutMs))
+            .header("accept", " application/json")
+            .header("Content-Type", "application/json");
+    if (!token.isBlank()) {
+      builder = builder.header("Authorization", "Basic " + token);
+    }
+    return builder;
   }
 
   public void login(String user, String password) {
@@ -67,9 +75,17 @@ public abstract class JulieHttpClient {
   }
 
   private HttpRequest postRequest(String url, String body, String token, long timeoutMs) {
-    return setupARequest(url, token, timeoutMs)
-        .POST(HttpRequest.BodyPublishers.ofString(body))
-        .build();
+    return setupARequest(url, token, timeoutMs).POST(ofString(body)).build();
+  }
+
+  protected void doPut(String url) throws IOException {
+    LOGGER.debug("doPut: " + url);
+    HttpRequest request = putRequest(url, token, DEFAULT_TIMEOUT_MS);
+    doRequest(request);
+  }
+
+  private HttpRequest putRequest(String url, String token, long timeoutMs) {
+    return setupARequest(url, token, timeoutMs).PUT(noBody()).build();
   }
 
   protected void doDelete(String url, String body) throws IOException {
@@ -79,9 +95,10 @@ public abstract class JulieHttpClient {
   }
 
   private HttpRequest deleteRequest(String url, String body, String token, long timeoutMs) {
-    return setupARequest(url, token, timeoutMs)
-        .method("DELETE", HttpRequest.BodyPublishers.ofString(body))
-        .build();
+    HttpRequest.Builder builder = setupARequest(url, token, timeoutMs);
+    BodyPublisher bodyPublisher = !body.isEmpty() ? ofString(body) : noBody();
+    builder = builder.method("DELETE", bodyPublisher);
+    return builder.build();
   }
 
   private String doRequest(HttpRequest request) throws IOException {
@@ -93,11 +110,12 @@ public abstract class JulieHttpClient {
       LOGGER.debug("method: " + request.method() + " response: " + response);
       int statusCode = response.statusCode();
       if (statusCode < 200 || statusCode > 299) {
+        String body = response.body() != null ? response.body() : "";
         throw new IOException(
             "Something happened with the connection, response status code: "
                 + statusCode
-                + " "
-                + request);
+                + " body: "
+                + body);
       }
 
       if (response.body() != null) {

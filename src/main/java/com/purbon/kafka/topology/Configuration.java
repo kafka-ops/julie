@@ -20,7 +20,7 @@ import org.apache.kafka.clients.admin.AdminClientConfig;
 public class Configuration {
 
   private final Map<String, String> cliParams;
-  private Config config;
+  private final Config config;
 
   public Configuration() {
     this(new HashMap<>(), ConfigFactory.load());
@@ -305,6 +305,10 @@ public class Configuration {
     return config.getBoolean(ALLOW_DELETE_PRINCIPALS);
   }
 
+  public boolean isAllowDeleteConnectArtefacts() {
+    return config.getBoolean(ALLOW_DELETE_CONNECT_ARTEFACTS);
+  }
+
   public boolean enabledPrincipalTranslation() {
     return config.getBoolean(TOPOLOGY_PRINCIPAL_TRANSLATION_ENABLED_CONFIG);
   }
@@ -331,5 +335,28 @@ public class Configuration {
 
   public String getGCPBucket() {
     return config.getString(JULIE_GCP_BUCKET);
+  }
+
+  public String getMdsServer() {
+    return config.getString(MDS_SERVER);
+  }
+
+  public String getKafkaClusterId() {
+    return config.getString(MDS_KAFKA_CLUSTER_ID_CONFIG);
+  }
+
+  public String getSchemaRegistryClusterId() {
+    return config.getString(MDS_SR_CLUSTER_ID_CONFIG);
+  }
+
+  public String getKafkaConnectClusterId() {
+    return config.getString(MDS_KC_CLUSTER_ID_CONFIG);
+  }
+
+  public Map<String, String> getKafkaConnectServers() {
+    List<String> servers = config.getStringList(PLATFORM_SERVERS_CONNECT);
+    return servers.stream()
+        .map(server -> server.split(":"))
+        .collect(Collectors.toMap(server -> server[0].strip(), server -> server[1].strip()));
   }
 }

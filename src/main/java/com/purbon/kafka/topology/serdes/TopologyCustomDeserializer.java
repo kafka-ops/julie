@@ -12,13 +12,11 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.google.common.collect.Maps;
 import com.purbon.kafka.topology.Configuration;
+import com.purbon.kafka.topology.exceptions.TopologyParsingException;
+import com.purbon.kafka.topology.model.*;
 import com.purbon.kafka.topology.model.Impl.ProjectImpl;
 import com.purbon.kafka.topology.model.Impl.TopologyImpl;
-import com.purbon.kafka.topology.model.Platform;
-import com.purbon.kafka.topology.model.Project;
-import com.purbon.kafka.topology.model.Topic;
-import com.purbon.kafka.topology.model.Topology;
-import com.purbon.kafka.topology.model.User;
+import com.purbon.kafka.topology.model.artefact.KafkaConnectArtefact;
 import com.purbon.kafka.topology.model.users.Connector;
 import com.purbon.kafka.topology.model.users.Consumer;
 import com.purbon.kafka.topology.model.users.KStream;
@@ -30,14 +28,7 @@ import com.purbon.kafka.topology.model.users.platform.KafkaConnect;
 import com.purbon.kafka.topology.model.users.platform.SchemaRegistry;
 import com.purbon.kafka.topology.utils.Pair;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.function.Function;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
@@ -67,6 +58,9 @@ public class TopologyCustomDeserializer extends StdDeserializer<Topology> {
   private static final String RBAC_KEY = "rbac";
   private static final String TOPICS_KEY = "topics";
   private static final String PRINCIPAL_KEY = "principal";
+
+  private static final String ACCESS_CONTROL = "access_control";
+  private static final String ARTEFACTS = "artefacts";
 
   private final Configuration config;
 
@@ -163,48 +157,40 @@ public class TopologyCustomDeserializer extends StdDeserializer<Topology> {
 
     Map<String, JsonNode> rootNodes = Maps.asMap(new HashSet<>(keys), (key) -> rootNode.get(key));
 
-    Map<String, List<? extends User>> mapOfValues = new HashMap<>();
+    Map<String, PlatformSystem> mapOfValues = new HashMap<>();
     for (String key : rootNodes.keySet()) {
       JsonNode keyNode = rootNodes.get(key);
       if (keyNode != null) {
-        List<? extends User> objs = new ArrayList<>();
+        Optional<PlatformSystem> optionalPlatformSystem = Optional.empty();
         switch (key) {
           case CONSUMERS_KEY:
-            objs =
-                new JsonSerdesUtils<Consumer>()
-                    .parseApplicationUser(parser, keyNode, Consumer.class);
+            optionalPlatformSystem = doConsumerElements(parser, keyNode);
             break;
           case PRODUCERS_KEY:
-            objs =
-                new JsonSerdesUtils<Producer>()
-                    .parseApplicationUser(parser, keyNode, Producer.class);
+            optionalPlatformSystem = doProducerElements(parser, keyNode);
             break;
           case CONNECTORS_KEY:
-            objs =
-                new JsonSerdesUtils<Connector>()
-                    .parseApplicationUser(parser, keyNode, Connector.class);
+            optionalPlatformSystem = doKafkaConnectElements(parser, keyNode);
             break;
           case STREAMS_KEY:
-            objs =
-                new JsonSerdesUtils<KStream>().parseApplicationUser(parser, keyNode, KStream.class);
+            optionalPlatformSystem = doStreamsElements(parser, keyNode);
             break;
           case SCHEMAS_KEY:
-            objs =
-                new JsonSerdesUtils<Schemas>().parseApplicationUser(parser, keyNode, Schemas.class);
+            optionalPlatformSystem = doSchemasElements(parser, keyNode);
             break;
         }
-        mapOfValues.put(key, objs);
+        optionalPlatformSystem.ifPresent(ps -> mapOfValues.put(key, ps));
       }
     }
 
     ProjectImpl project =
         new ProjectImpl(
             rootNode.get(NAME_KEY).asText(),
-            (List<Consumer>) mapOfValues.getOrDefault(CONSUMERS_KEY, new ArrayList<>()),
-            (List<Producer>) mapOfValues.getOrDefault(PRODUCERS_KEY, new ArrayList<>()),
-            (List<KStream>) mapOfValues.getOrDefault(STREAMS_KEY, new ArrayList<>()),
-            (List<Connector>) mapOfValues.getOrDefault(CONNECTORS_KEY, new ArrayList<>()),
-            (List<Schemas>) mapOfValues.getOrDefault(SCHEMAS_KEY, new ArrayList<>()),
+            Optional.ofNullable(mapOfValues.get(CONSUMERS_KEY)),
+            Optional.ofNullable(mapOfValues.get(PRODUCERS_KEY)),
+            Optional.ofNullable(mapOfValues.get(STREAMS_KEY)),
+            Optional.ofNullable(mapOfValues.get(CONNECTORS_KEY)),
+            Optional.ofNullable(mapOfValues.get(SCHEMAS_KEY)),
             parseOptionalRbacRoles(rootNode.get(RBAC_KEY)),
             config);
 
@@ -223,6 +209,68 @@ public class TopologyCustomDeserializer extends StdDeserializer<Topology> {
         .forEach(project::addTopic);
 
     return project;
+  }
+
+  private Optional<PlatformSystem> doConsumerElements(JsonParser parser, JsonNode node)
+      throws JsonProcessingException {
+    List<Consumer> consumers =
+        new JsonSerdesUtils<Consumer>().parseApplicationUser(parser, node, Consumer.class);
+    return Optional.of(new PlatformSystem(consumers, Collections.emptyList()));
+  }
+
+  private Optional<PlatformSystem> doProducerElements(JsonParser parser, JsonNode node)
+      throws JsonProcessingException {
+    List<Producer> producers =
+        new JsonSerdesUtils<Producer>().parseApplicationUser(parser, node, Producer.class);
+    return Optional.of(new PlatformSystem(producers, Collections.emptyList()));
+  }
+
+  private Optional<PlatformSystem> doKafkaConnectElements(JsonParser parser, JsonNode node)
+      throws IOException {
+
+    JsonNode acNode = node;
+    if (node.has(ACCESS_CONTROL)) {
+      acNode = node.get(ACCESS_CONTROL);
+    }
+    List<Connector> connectors =
+        new JsonSerdesUtils<Connector>().parseApplicationUser(parser, acNode, Connector.class);
+    List<KafkaConnectArtefact> artefacts = Collections.emptyList();
+    if (node.has(ARTEFACTS)) {
+      artefacts =
+          new JsonSerdesUtils<KafkaConnectArtefact>()
+              .parseApplicationUser(parser, node.get(ARTEFACTS), KafkaConnectArtefact.class);
+      Set<String> serverLabels = config.getKafkaConnectServers().keySet();
+      for (KafkaConnectArtefact artefact : artefacts) {
+        if (artefact.getPath() == null
+            || artefact.getServerLabel() == null
+            || artefact.getName() == null) {
+          throw new TopologyParsingException(
+              "KafkaConnect: Path, name and label are artefact mandatory fields");
+        }
+        if (serverLabels.contains(artefact.getServerLabel())) {
+          throw new TopologyParsingException(
+              String.format(
+                  "KafkaConnect: Server alias label %s does not exist on the provided configuration, please check",
+                  artefact.getServerLabel()));
+        }
+      }
+    }
+
+    return Optional.of(new PlatformSystem(connectors, artefacts));
+  }
+
+  private Optional<PlatformSystem> doStreamsElements(JsonParser parser, JsonNode node)
+      throws JsonProcessingException {
+    List<KStream> streams =
+        new JsonSerdesUtils<KStream>().parseApplicationUser(parser, node, KStream.class);
+    return Optional.of(new PlatformSystem(streams, Collections.emptyList()));
+  }
+
+  private Optional<PlatformSystem> doSchemasElements(JsonParser parser, JsonNode node)
+      throws JsonProcessingException {
+    List<Schemas> schemas =
+        new JsonSerdesUtils<Schemas>().parseApplicationUser(parser, node, Schemas.class);
+    return Optional.of(new PlatformSystem(schemas, Collections.emptyList()));
   }
 
   private void validateEncodingForTopicName(String name) throws IOException {
