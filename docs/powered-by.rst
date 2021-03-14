@@ -1,4 +1,4 @@
-Julie Ops is currently helping this organisations with automating Apache Kafka
+Julie Ops is currently helping this organisations with Apache Kafka
 *******************************
 
 If you're looking for building examples, you can find in this page provided examples build by community members.

@@ -64,5 +64,6 @@ Contents
    handling-delete
    workflow-setup
    samples
+   powered-by
    config-values
 
