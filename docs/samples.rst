@@ -26,7 +26,7 @@ Thanks `Nikoleta Verbeck <https://github.com/nerdynick>`_ for making this.
 How to contribute a new page
 -----------
 
-If you are using Julie Ops, integrating it with more CI/CD solutions let us know and we will add your example to this list. Examples help
-newcomers use it faster and are a great contribution to the project.
+If you are using Julie Ops, integrating it with more CI/CD solutions let us know and we will add your example to this list.
+Examples help newcomers use it faster and are a great contribution to the project.
 
 Thanks a lot.
