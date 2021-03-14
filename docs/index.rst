@@ -63,6 +63,6 @@ Contents
    how-to-run-it
    handling-delete
    workflow-setup
-   powered-with
+   samples
    config-values
 
