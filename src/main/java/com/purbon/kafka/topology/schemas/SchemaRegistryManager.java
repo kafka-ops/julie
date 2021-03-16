@@ -3,6 +3,7 @@ package com.purbon.kafka.topology.schemas;
 import io.confluent.kafka.schemaregistry.ParsedSchema;
 import io.confluent.kafka.schemaregistry.client.SchemaRegistryClient;
 import java.io.File;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -49,7 +50,7 @@ public class SchemaRegistryManager {
     LOGGER.debug(
         String.format("Registering subject %s with source %s", subjectName, schemaFilePath));
     try {
-      final String schema = new String(Files.readAllBytes(schemaFilePath));
+      final String schema = new String(Files.readAllBytes(schemaFilePath), StandardCharsets.UTF_8);
       return save(subjectName, format, schema);
     } catch (Exception e) {
       throw new SchemaRegistryManagerException(

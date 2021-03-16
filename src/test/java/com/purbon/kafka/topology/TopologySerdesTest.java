@@ -11,13 +11,10 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 import com.purbon.kafka.topology.exceptions.TopologyParsingException;
+import com.purbon.kafka.topology.model.*;
 import com.purbon.kafka.topology.model.Impl.ProjectImpl;
 import com.purbon.kafka.topology.model.Impl.TopicImpl;
 import com.purbon.kafka.topology.model.Impl.TopologyImpl;
-import com.purbon.kafka.topology.model.Project;
-import com.purbon.kafka.topology.model.Topic;
-import com.purbon.kafka.topology.model.Topology;
-import com.purbon.kafka.topology.model.User;
 import com.purbon.kafka.topology.model.users.Connector;
 import com.purbon.kafka.topology.model.users.Consumer;
 import com.purbon.kafka.topology.model.users.KStream;
@@ -70,6 +67,11 @@ public class TopologySerdesTest {
     Project anotherProject = anotherTopology.getProjects().get(0);
 
     assertEquals("contextOrg.source.foo", anotherProject.namePrefix());
+  }
+
+  @Test(expected = TopologyParsingException.class)
+  public void testFileWithoutTopicsError() {
+    parser.deserialise(TestUtils.getResourceFile("/descriptor-without-topics.yml"));
   }
 
   @Test
@@ -343,7 +345,7 @@ public class TopologySerdesTest {
     props.put(TOPIC_PREFIX_SEPARATOR_CONFIG, "_");
     Configuration config = new Configuration(cliOps, props);
 
-    TopologySerdes parser = new TopologySerdes(config);
+    TopologySerdes parser = new TopologySerdes(config, new PlanMap());
 
     Topology topology =
         parser.deserialise(TestUtils.getResourceFile("/descriptor-only-topics.yaml"));
@@ -367,7 +369,7 @@ public class TopologySerdesTest {
     props.put(TOPIC_PREFIX_FORMAT_CONFIG, "{{source}}.{{context}}.{{project}}.{{topic}}");
     Configuration config = new Configuration(cliOps, props);
 
-    TopologySerdes parser = new TopologySerdes(config);
+    TopologySerdes parser = new TopologySerdes(config, new PlanMap());
 
     Topology topology =
         parser.deserialise(TestUtils.getResourceFile("/descriptor-only-topics.yaml"));
@@ -381,9 +383,14 @@ public class TopologySerdesTest {
     assertEquals("source.contextOrg.foo.bar", p.getTopics().get(1).toString());
   }
 
+  @Test(expected = TopologyParsingException.class)
+  public void testTopicNameWithUTFCharacters() {
+    parser.deserialise(TestUtils.getResourceFile("/descriptor-only-topics-utf.yaml"));
+  }
+
   @Test
   public void testJsonDescriptorFileSerdes() {
-    TopologySerdes parser = new TopologySerdes(new Configuration(), FileType.JSON);
+    TopologySerdes parser = new TopologySerdes(new Configuration(), FileType.JSON, new PlanMap());
     Topology topology = parser.deserialise(TestUtils.getResourceFile("/descriptor.json"));
 
     assertEquals(1, topology.getProjects().size());
