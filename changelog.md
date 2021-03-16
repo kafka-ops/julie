@@ -1,4 +1,14 @@
 
+v2.0.1 / 2021-03-16
+===================
+
+  * Upgrade dependencies to Kafka 2.7 and Confluent 6.1, plus some other minor ones
+  * add support and checks for non ascii characters in schema content (#230)
+  * Add integration test for SchemaRegistry Management in multiple formats (#229)
+  * Add more clear error for descriptor files without the topics section in the serdes (#227)
+  * Fix FileBackend bug in windows to use FileWriter due to closing problems with RandomAccessFile (#222)
+  * Add support for JsonSchema and Protobuf when working with Schema Registry (#216)
+
 v2.0.0 / 2021-02-27
 ===================
 
