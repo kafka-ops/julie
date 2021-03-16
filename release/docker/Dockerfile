@@ -13,12 +13,13 @@ RUN  /usr/lib/jvm/zulu11/bin/jlink \
     --verbose \
     --module-path /usr/lib/jvm/zulu11/jmods/ \
     --add-modules \
-        java.base,java.sql,java.naming,java.desktop,java.management,java.security.jgss,java.instrument \
+        java.net.http,java.base,java.sql,java.naming,java.desktop,java.management,java.security.jgss,java.instrument \
         # java.naming - javax/naming/NamingException
         # java.desktop - java/beans/PropertyEditorSupport
         # java.management - javax/management/MBeanServer
         # java.security.jgss - org/ietf/jgss/GSSException
         # java.instrument - java/lang/instrument/IllegalClassFormatException
+        # java.net.http - general http client for java 11
     --compress 2 \
     --strip-debug \
     --no-header-files \

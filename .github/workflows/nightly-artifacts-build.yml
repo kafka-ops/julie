@@ -2,7 +2,9 @@ name: Nightly Builds
 on:
   schedule:
     - cron: '0 0 * * *'
-
+  push:
+    branches:
+      - master
 jobs:
   ktb_docker_build:
     if: github.repository == 'kafka-ops/julie'
