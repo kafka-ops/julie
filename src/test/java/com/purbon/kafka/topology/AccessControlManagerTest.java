@@ -74,7 +74,7 @@ public class AccessControlManagerTest {
   }
 
   @Test
-  public void newConsumerACLsCreation() {
+  public void newConsumerACLsCreation() throws IOException {
     Topic topicA = new TopicImpl("topicA");
     TestTopologyBuilder builder =
         TestTopologyBuilder.createProject().addTopic(topicA).addConsumer("User:app1");
@@ -89,7 +89,7 @@ public class AccessControlManagerTest {
   }
 
   @Test
-  public void newConsumerOptimisedACLsCreation() {
+  public void newConsumerOptimisedACLsCreation() throws IOException {
 
     HashMap<String, String> cliOps = new HashMap<>();
     cliOps.put(BROKERS_OPTION, "");
@@ -112,7 +112,7 @@ public class AccessControlManagerTest {
   }
 
   @Test
-  public void testConsumerAclsAtTopicLevel() {
+  public void testConsumerAclsAtTopicLevel() throws IOException {
 
     Consumer projectConsumer = new Consumer("project-consumer");
     Consumer topicConsumer = new Consumer("topic-consumer");
@@ -150,7 +150,7 @@ public class AccessControlManagerTest {
   }
 
   @Test
-  public void newProducerACLsCreation() {
+  public void newProducerACLsCreation() throws IOException {
     Topic topicA = new TopicImpl("topicA");
     TestTopologyBuilder builder =
         TestTopologyBuilder.createProject().addTopic(topicA).addProducer("User:app1");
@@ -166,7 +166,7 @@ public class AccessControlManagerTest {
   }
 
   @Test
-  public void newProducerOptimizedACLsCreation() {
+  public void newProducerOptimizedACLsCreation() throws IOException {
     HashMap<String, String> cliOps = new HashMap<>();
     cliOps.put(BROKERS_OPTION, "");
     Properties props = new Properties();
@@ -188,7 +188,7 @@ public class AccessControlManagerTest {
   }
 
   @Test
-  public void testProducerAclsAtTopicLevel() {
+  public void testProducerAclsAtTopicLevel() throws IOException {
 
     Producer projectProducer = new Producer("project-producer");
     Producer topicProducer = new Producer("topic-producer");
@@ -226,7 +226,7 @@ public class AccessControlManagerTest {
   }
 
   @Test
-  public void newKafkaStreamsAppACLsCreation() {
+  public void newKafkaStreamsAppACLsCreation() throws IOException {
 
     Project project = new ProjectImpl();
 
@@ -256,6 +256,44 @@ public class AccessControlManagerTest {
             eq(project.namePrefix()),
             eq(topics.get(KStream.READ_TOPICS)),
             eq(topics.get(KStream.WRITE_TOPICS)));
+  }
+
+  @Test(expected = IOException.class)
+  public void testkStreamAclsCreationWithMissingPrefixGroup() throws Exception {
+
+    Properties props = new Properties();
+    props.put(PROJECT_PREFIX_FORMAT_CONFIG, "");
+    props.put(TOPOLOGY_STATE_FROM_CLUSTER, "true");
+    props.put(TOPIC_PREFIX_FORMAT_CONFIG, "{{topic}}");
+    props.put(ALLOW_DELETE_BINDINGS, true);
+    props.put(KAFKA_INTERNAL_TOPIC_PREFIXES, Arrays.asList("_"));
+
+    HashMap<String, String> cliOps = new HashMap<>();
+    cliOps.put(BROKERS_OPTION, "");
+    cliOps.put(ALLOW_DELETE_OPTION, "true");
+
+    Configuration config = new Configuration(cliOps, props);
+
+    AclsBindingsBuilder bindingsBuilder = new AclsBindingsBuilder(config);
+    AccessControlManager accessControlManager =
+        new AccessControlManager(aclsProvider, bindingsBuilder, config);
+
+    Project project = new ProjectImpl("foo", config);
+
+    KStream app = new KStream();
+    app.setPrincipal("User:App0");
+    HashMap<String, List<String>> topics = new HashMap<>();
+    topics.put(KStream.READ_TOPICS, Arrays.asList("topic-A", "topic-B"));
+    topics.put(KStream.WRITE_TOPICS, Arrays.asList("topic-C", "topic-D"));
+    app.setTopics(topics);
+    project.setStreams(Collections.singletonList(app));
+
+    Topology topology = new TopologyImpl();
+    topology.setContext("integration-test");
+    topology.addOther("source", "kstreamsAclsCreation");
+    topology.addProject(project);
+
+    accessControlManager.apply(topology, plan);
   }
 
   @Test
@@ -298,7 +336,7 @@ public class AccessControlManagerTest {
   }
 
   @Test
-  public void newControlCenterACLCreation() {
+  public void newControlCenterACLCreation() throws IOException {
 
     Project project = new ProjectImpl();
     Topology topology = new TopologyImpl();
@@ -375,7 +413,7 @@ public class AccessControlManagerTest {
   }
 
   @Test
-  public void newKafkaConnectACLsCreation() {
+  public void newKafkaConnectACLsCreation() throws IOException {
     Project project = new ProjectImpl();
 
     Connector connector1 = new Connector();
