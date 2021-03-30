@@ -41,8 +41,8 @@ public class TopicImpl implements Topic, Cloneable {
   @JsonIgnore private Configuration appConfig;
   @JsonIgnore private Map<String, Object> context;
 
-  private int partitionCount;
-  private short replicationFactor;
+  private Optional<Integer> partitionCount;
+  private Optional<Short> replicationFactor;
 
   @JsonIgnore private String projectPrefix;
   private static String DEFAULT_PARTITION_COUNT = "3";
@@ -59,6 +59,10 @@ public class TopicImpl implements Topic, Cloneable {
     this(name, Optional.empty(), new HashMap<>(), new Configuration());
   }
 
+  public TopicImpl(String name, Map<String, String> config) {
+    this(name, Optional.empty(), config, new Configuration());
+  }
+
   public TopicImpl(String name, Configuration config) {
     this(name, Optional.empty(), new HashMap<>(), config);
   }
@@ -67,7 +71,7 @@ public class TopicImpl implements Topic, Cloneable {
     this(name, Optional.of(dataType), new HashMap<>(), new Configuration());
   }
 
-  public TopicImpl(String name, String dataType, HashMap<String, String> config) {
+  public TopicImpl(String name, String dataType, Map<String, String> config) {
     this(name, Optional.of(dataType), config, new Configuration());
   }
 
@@ -94,13 +98,15 @@ public class TopicImpl implements Topic, Cloneable {
     this.config = config;
     this.schemas = new ArrayList<>();
     this.context = new HashMap<>();
-    this.replicationFactor = 0;
-    this.partitionCount = 0;
     this.appConfig = appConfig;
-    String value = config.getOrDefault(TopicManager.NUM_PARTITIONS, DEFAULT_PARTITION_COUNT);
-    partitionCount = Integer.parseInt(value);
-    value = config.getOrDefault(TopicManager.REPLICATION_FACTOR, DEFAULT_REPLICATION_FACTOR);
-    replicationFactor = Short.parseShort(value);
+    this.partitionCount = Optional.empty();
+    this.replicationFactor = Optional.empty();
+    if (config.containsKey(TopicManager.NUM_PARTITIONS)) {
+      partitionCount = Optional.of(Integer.valueOf(config.get(TopicManager.NUM_PARTITIONS)));
+    }
+    if (config.containsKey(TopicManager.REPLICATION_FACTOR)) {
+      replicationFactor = Optional.of(Short.valueOf(config.get(TopicManager.REPLICATION_FACTOR)));
+    }
     subjectNameStrategy = Optional.empty();
   }
 
@@ -190,7 +196,7 @@ public class TopicImpl implements Topic, Cloneable {
   }
 
   @Override
-  public short replicationFactor() {
+  public Optional<Short> replicationFactor() {
     return replicationFactor;
   }
 
@@ -217,7 +223,7 @@ public class TopicImpl implements Topic, Cloneable {
   }
 
   @Override
-  public int partitionsCount() {
+  public Optional<Integer> partitionsCount() {
     return partitionCount;
   }
 

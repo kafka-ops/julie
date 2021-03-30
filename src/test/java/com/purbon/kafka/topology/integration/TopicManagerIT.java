@@ -124,6 +124,26 @@ public class TopicManagerIT {
     verifyTopics(Arrays.asList(topicA.toString(), topicB.toString()));
   }
 
+  @Test
+  public void testTopicCreationWithDefaultTopicConfigs()
+      throws IOException, ExecutionException, InterruptedException {
+
+    Topology topology = new TopologyImpl();
+    topology.setContext("testTopicCreationWithDefaultTopicConfigs");
+    Project project = new ProjectImpl("project");
+    topology.addProject(project);
+
+    Topic topicA = new TopicImpl("topicA");
+    project.addTopic(topicA);
+    Topic topicB = new TopicImpl("topicB");
+    project.addTopic(topicB);
+
+    topicManager.apply(topology, plan);
+    plan.run();
+
+    verifyTopics(Arrays.asList(topicA.toString(), topicB.toString()));
+  }
+
   @Test(expected = IOException.class)
   public void testTopicCreationWithFalseConfig() throws IOException {
     HashMap<String, String> config = new HashMap<>();

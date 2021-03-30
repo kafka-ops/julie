@@ -95,7 +95,7 @@ public class TopologyBuilderAdminClient {
 
   public void updatePartitionCount(Topic topic, String topicName) throws IOException {
     Map<String, NewPartitions> map = new HashMap<>();
-    map.put(topicName, NewPartitions.increaseTo(topic.partitionsCount()));
+    map.put(topicName, NewPartitions.increaseTo(topic.partitionsCount().get()));
     try {
       adminClient.createPartitions(map).all().get();
     } catch (InterruptedException | ExecutionException e) {
@@ -186,9 +186,8 @@ public class TopologyBuilderAdminClient {
     NewTopic newTopic =
         new NewTopic(fullTopicName, topic.partitionsCount(), topic.replicationFactor())
             .configs(topic.getRawConfig());
-    Collection<NewTopic> newTopics = Collections.singleton(newTopic);
     try {
-      createAllTopics(newTopics);
+      createAllTopics(Collections.singleton(newTopic));
     } catch (TopicExistsException ex) {
       LOGGER.info(ex);
     } catch (ExecutionException | InterruptedException e) {

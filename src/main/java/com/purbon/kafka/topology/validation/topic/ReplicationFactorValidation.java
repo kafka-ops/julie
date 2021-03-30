@@ -8,11 +8,11 @@ public class ReplicationFactorValidation implements TopicValidation {
 
   @Override
   public void valid(Topic topic) throws ValidationException {
-    if (topic.replicationFactor() != 3) {
+    if (topic.replicationFactor().isPresent() && topic.replicationFactor().get() != 3) {
       String msg =
           String.format(
               "Topic %s has an unexpected replication factor: %s",
-              topic, topic.replicationFactor());
+              topic, topic.replicationFactor().get());
       throw new ValidationException(msg);
     }
   }

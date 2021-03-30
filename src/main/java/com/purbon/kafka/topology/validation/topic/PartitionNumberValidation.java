@@ -8,10 +8,11 @@ public class PartitionNumberValidation implements TopicValidation {
 
   @Override
   public void valid(Topic topic) throws ValidationException {
-    if (topic.partitionsCount() < 3) {
+    if (topic.partitionsCount().isPresent() && topic.partitionsCount().get() < 3) {
       String msg =
           String.format(
-              "Topic %s has an invalid number of partitions: %s", topic, topic.partitionsCount());
+              "Topic %s has an invalid number of partitions: %s",
+              topic, topic.partitionsCount().get());
       throw new ValidationException(msg);
     }
   }

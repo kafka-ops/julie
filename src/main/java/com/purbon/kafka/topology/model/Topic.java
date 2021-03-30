@@ -29,13 +29,13 @@ public interface Topic {
 
   void addAppConfig(Configuration appConfig);
 
-  int partitionsCount();
+  Optional<Integer> partitionsCount();
 
   void setDefaultProjectPrefix(String projectPrefix);
 
   void setPrefixContext(Map<String, Object> prefixContext);
 
-  short replicationFactor();
+  Optional<Short> replicationFactor();
 
   List<Consumer> getConsumers();
 
