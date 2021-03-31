@@ -1,8 +1,6 @@
 package com.purbon.kafka.topology;
 
-import static com.purbon.kafka.topology.model.Component.KAFKA;
-import static com.purbon.kafka.topology.model.Component.KAFKA_CONNECT;
-import static com.purbon.kafka.topology.model.Component.SCHEMA_REGISTRY;
+import static com.purbon.kafka.topology.model.Component.*;
 
 import com.purbon.kafka.topology.actions.Action;
 import com.purbon.kafka.topology.actions.access.ClearBindings;
@@ -75,7 +73,15 @@ public class AccessControlManager {
   private Set<TopologyAclBinding> loadActualClusterStateIfAvailable(ExecutionPlan plan) {
     Set<TopologyAclBinding> bindings =
         config.fetchStateFromTheCluster() ? providerBindings() : plan.getBindings();
-    return bindings.stream().filter(this::matchesManagedPrefixList).collect(Collectors.toSet());
+    return bindings.stream()
+        .filter(this::matchesManagedPrefixList)
+        .filter(this::isNotInternalAcl)
+        .collect(Collectors.toSet());
+  }
+
+  private boolean isNotInternalAcl(TopologyAclBinding binding) {
+    Optional<String> internalPrincipal = config.getInternalPrincipalOptional();
+    return internalPrincipal.map(i -> !binding.getPrincipal().equals(i)).orElse(true);
   }
 
   private Set<TopologyAclBinding> providerBindings() {

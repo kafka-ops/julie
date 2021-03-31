@@ -1,11 +1,9 @@
 package com.purbon.kafka.topology;
 
-import static com.purbon.kafka.topology.CommandLineInterface.BROKERS_OPTION;
-import static com.purbon.kafka.topology.Configuration.OPTIMIZED_ACLS_CONFIG;
-import static com.purbon.kafka.topology.roles.rbac.RBACBindingsBuilder.LITERAL;
-import static com.purbon.kafka.topology.roles.rbac.RBACBindingsBuilder.PREFIX;
-import static com.purbon.kafka.topology.roles.rbac.RBACPredefinedRoles.DEVELOPER_READ;
-import static com.purbon.kafka.topology.roles.rbac.RBACPredefinedRoles.DEVELOPER_WRITE;
+import static com.purbon.kafka.topology.CommandLineInterface.*;
+import static com.purbon.kafka.topology.Constants.*;
+import static com.purbon.kafka.topology.roles.rbac.RBACBindingsBuilder.*;
+import static com.purbon.kafka.topology.roles.rbac.RBACPredefinedRoles.*;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;

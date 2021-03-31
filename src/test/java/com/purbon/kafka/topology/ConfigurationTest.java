@@ -1,8 +1,7 @@
 package com.purbon.kafka.topology;
 
-import static com.purbon.kafka.topology.CommandLineInterface.ADMIN_CLIENT_CONFIG_OPTION;
-import static com.purbon.kafka.topology.CommandLineInterface.BROKERS_OPTION;
-import static com.purbon.kafka.topology.Configuration.*;
+import static com.purbon.kafka.topology.CommandLineInterface.*;
+import static com.purbon.kafka.topology.Constants.*;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.purbon.kafka.topology.exceptions.ConfigurationException;
@@ -34,7 +33,7 @@ public class ConfigurationTest {
   public void testWithAllRequiredFields() throws ConfigurationException {
     Topology topology = new TopologyImpl();
 
-    props.put(ACCESS_CONTROL_IMPLEMENTATION_CLASS, Configuration.RBAC_ACCESS_CONTROL_CLASS);
+    props.put(ACCESS_CONTROL_IMPLEMENTATION_CLASS, RBAC_ACCESS_CONTROL_CLASS);
     props.put(MDS_SERVER, "example.com");
     props.put(MDS_USER_CONFIG, "foo");
     props.put(MDS_PASSWORD_CONFIG, "bar");

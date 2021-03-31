@@ -1,7 +1,7 @@
 package com.purbon.kafka.topology.integration;
 
-import static com.purbon.kafka.topology.CommandLineInterface.ALLOW_DELETE_OPTION;
-import static com.purbon.kafka.topology.CommandLineInterface.BROKERS_OPTION;
+import static com.purbon.kafka.topology.CommandLineInterface.*;
+import static com.purbon.kafka.topology.Constants.*;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.when;
 
@@ -9,25 +9,17 @@ import com.purbon.kafka.topology.AccessControlManager;
 import com.purbon.kafka.topology.BackendController;
 import com.purbon.kafka.topology.Configuration;
 import com.purbon.kafka.topology.ExecutionPlan;
+import com.purbon.kafka.topology.api.adminclient.AclBuilder;
 import com.purbon.kafka.topology.api.adminclient.TopologyBuilderAdminClient;
 import com.purbon.kafka.topology.integration.containerutils.ContainerFactory;
 import com.purbon.kafka.topology.integration.containerutils.ContainerTestUtils;
 import com.purbon.kafka.topology.integration.containerutils.SaslPlaintextKafkaContainer;
+import com.purbon.kafka.topology.model.*;
 import com.purbon.kafka.topology.model.Impl.ProjectImpl;
 import com.purbon.kafka.topology.model.Impl.TopicImpl;
 import com.purbon.kafka.topology.model.Impl.TopologyImpl;
-import com.purbon.kafka.topology.model.Platform;
-import com.purbon.kafka.topology.model.Project;
-import com.purbon.kafka.topology.model.Topic;
-import com.purbon.kafka.topology.model.Topology;
-import com.purbon.kafka.topology.model.users.Connector;
-import com.purbon.kafka.topology.model.users.Consumer;
-import com.purbon.kafka.topology.model.users.KStream;
-import com.purbon.kafka.topology.model.users.Producer;
-import com.purbon.kafka.topology.model.users.platform.ControlCenter;
-import com.purbon.kafka.topology.model.users.platform.ControlCenterInstance;
-import com.purbon.kafka.topology.model.users.platform.SchemaRegistry;
-import com.purbon.kafka.topology.model.users.platform.SchemaRegistryInstance;
+import com.purbon.kafka.topology.model.users.*;
+import com.purbon.kafka.topology.model.users.platform.*;
 import com.purbon.kafka.topology.roles.SimpleAclsProvider;
 import com.purbon.kafka.topology.roles.TopologyAclBinding;
 import com.purbon.kafka.topology.roles.acls.AclsBindingsBuilder;
@@ -50,6 +42,7 @@ public class AccessControlManagerIT {
 
   private static SaslPlaintextKafkaContainer container;
   private static AdminClient kafkaAdminClient;
+  private TopologyBuilderAdminClient topologyAdminClient;
   private AccessControlManager accessControlManager;
   private SimpleAclsProvider aclsProvider;
   private AclsBindingsBuilder bindingsBuilder;
@@ -74,14 +67,14 @@ public class AccessControlManagerIT {
   @Before
   public void before() throws IOException {
     kafkaAdminClient = ContainerTestUtils.getSaslAdminClient(container);
-    TopologyBuilderAdminClient adminClient = new TopologyBuilderAdminClient(kafkaAdminClient);
-    adminClient.clearAcls();
+    topologyAdminClient = new TopologyBuilderAdminClient(kafkaAdminClient);
+    topologyAdminClient.clearAcls();
     TestUtils.deleteStateFile();
 
     this.cs = new BackendController();
     this.plan = ExecutionPlan.init(cs, System.out);
 
-    aclsProvider = new SimpleAclsProvider(adminClient);
+    aclsProvider = new SimpleAclsProvider(topologyAdminClient);
     bindingsBuilder = new AclsBindingsBuilder(config);
     accessControlManager = new AccessControlManager(aclsProvider, bindingsBuilder);
   }
@@ -149,18 +142,13 @@ public class AccessControlManagerIT {
 
     accessControlManager = new AccessControlManager(aclsProvider, bindingsBuilder, config);
 
-    TopologyImpl topology = new TopologyImpl();
-    topology.setContext("aclsRemovedTest-Integration");
-
-    List<Consumer> consumers = new ArrayList<>();
-    consumers.add(new Consumer("User:testAclsRemovalUser1"));
-    consumers.add(new Consumer("User:testAclsRemovalUser2"));
-
-    Project project = new ProjectImpl("project");
-    project.setConsumers(consumers);
-    Topic topicA = new TopicImpl("topicA");
-    project.addTopic(topicA);
-    topology.addProject(project);
+    Topology topology =
+        buildTopologyForConsumers(
+            "aclsRemovedTest-Integration",
+            "",
+            "topicA",
+            "User:testAclsRemovalUser1",
+            "User:testAclsRemovalUser2");
 
     accessControlManager.apply(topology, plan);
     plan.run();
@@ -171,13 +159,9 @@ public class AccessControlManagerIT {
     BackendController cs = new BackendController();
     ExecutionPlan plan = ExecutionPlan.init(cs, System.out);
 
-    consumers = new ArrayList<>();
-    consumers.add(new Consumer("User:testAclsRemovalUser1"));
-
-    Project project2 = new ProjectImpl("project");
-    project2.setConsumers(consumers);
-    project2.addTopic(topicA);
-    topology.setProjects(Collections.singletonList(project2));
+    topology =
+        buildTopologyForConsumers(
+            "aclsRemovedTest-Integration", "", "topicA", "User:testAclsRemovalUser1");
 
     accessControlManager.apply(topology, plan);
     plan.run();
@@ -302,6 +286,63 @@ public class AccessControlManagerIT {
     plan.run();
 
     verifyKStreamsAcls(app);
+  }
+
+  @Test
+  public void testAvoidHandlingInternalAclsForJulie() throws Exception {
+    // create a dummy internal ACL for julie
+    String juliePrincipal = "User:Julie";
+    AclBinding julieBinding =
+        new AclBuilder(juliePrincipal)
+            .addResource(ResourceType.TOPIC, "foo", PatternType.LITERAL)
+            .addControlEntry("*", AclOperation.ALL, AclPermissionType.ALLOW)
+            .build();
+
+    topologyAdminClient.createAcls(Collections.singleton(julieBinding));
+    verifyAclsOfSize(1);
+
+    Properties props = new Properties();
+    props.put(TOPOLOGY_STATE_FROM_CLUSTER, "true");
+    props.put(JULIE_INTERNAL_PRINCIPAL, juliePrincipal);
+
+    HashMap<String, String> cliOps = new HashMap<>();
+    cliOps.put(BROKERS_OPTION, "");
+    cliOps.put(ALLOW_DELETE_OPTION, "true");
+
+    Configuration config = new Configuration(cliOps, props);
+
+    accessControlManager = new AccessControlManager(aclsProvider, bindingsBuilder, config);
+
+    Topology topology =
+        buildTopologyForConsumers(
+            "testAvoidHandlingInternalAclsForJulie-Integration",
+            "",
+            "topicA",
+            "User:User1",
+            "User:User2");
+    accessControlManager.apply(topology, plan);
+    plan.run();
+    verifyAclsOfSize(7); // should have the acls for julie included
+  }
+
+  private Topology buildTopologyForConsumers(
+      String context, String source, String topic, String... principals) {
+    TopologyImpl topology = new TopologyImpl();
+    topology.setContext(context);
+    if (!source.isEmpty()) {
+      topology.addOther("source", source);
+    }
+    List<Consumer> consumers = new ArrayList<>();
+    for (String principal : principals) {
+      consumers.add(new Consumer(principal));
+    }
+    Project project = new ProjectImpl("project");
+    project.setConsumers(consumers);
+    Topic topicA = new TopicImpl(topic);
+    project.addTopic(topicA);
+    topology.addProject(project);
+
+    return topology;
   }
 
   @Test

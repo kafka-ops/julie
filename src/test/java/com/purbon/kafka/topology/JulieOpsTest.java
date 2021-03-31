@@ -1,7 +1,7 @@
 package com.purbon.kafka.topology;
 
 import static com.purbon.kafka.topology.CommandLineInterface.*;
-import static com.purbon.kafka.topology.Configuration.CONFLUENT_SCHEMA_REGISTRY_URL_CONFIG;
+import static com.purbon.kafka.topology.Constants.*;
 import static org.mockito.Matchers.anyObject;
 import static org.mockito.Mockito.*;
 
