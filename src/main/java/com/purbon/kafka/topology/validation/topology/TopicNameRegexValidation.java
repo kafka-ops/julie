@@ -1,5 +1,6 @@
 package com.purbon.kafka.topology.validation.topology;
 
+import com.purbon.kafka.topology.exceptions.ConfigurationException;
 import com.purbon.kafka.topology.exceptions.ValidationException;
 import com.purbon.kafka.topology.model.Project;
 import com.purbon.kafka.topology.model.Topic;
@@ -14,9 +15,9 @@ public class TopicNameRegexValidation implements TopologyValidation {
 
   private String topicNamePattern;
 
-  public TopicNameRegexValidation() {
-    LOGGER.info("Wish you were here...");
-    topicNamePattern = ".*"; // this is just for demonstration purposes..
+  public TopicNameRegexValidation() throws ConfigurationException {
+    throw new ConfigurationException(
+        "TopicNameRegexValidation is configured without specifying a topic name pattern");
   }
 
   public TopicNameRegexValidation(String pattern) {
