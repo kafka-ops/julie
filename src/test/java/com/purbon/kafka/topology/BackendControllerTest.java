@@ -1,10 +1,12 @@
 package com.purbon.kafka.topology;
 
 import static org.junit.Assert.assertEquals;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import com.purbon.kafka.topology.backend.BackendState;
 import com.purbon.kafka.topology.backend.FileBackend;
 import com.purbon.kafka.topology.model.Impl.ProjectImpl;
 import com.purbon.kafka.topology.model.Impl.TopicImpl;
@@ -37,9 +39,9 @@ public class BackendControllerTest {
         TopologyAclBinding.build(
             ResourceType.CLUSTER.name(), "Topic", "host", "op", "principal", "LITERAL");
 
-    when(fileStateProcessor.loadBindings()).thenReturn(Collections.singleton(binding));
+    when(fileStateProcessor.load()).thenReturn(new BackendState());
     backend.load();
-    verify(fileStateProcessor, times(1)).loadBindings();
+    verify(fileStateProcessor, times(1)).load();
   }
 
   @Test
@@ -56,7 +58,7 @@ public class BackendControllerTest {
   }
 
   @Test
-  public void testStoreBindingsAndServiceAccounts() {
+  public void testStoreBindingsAndServiceAccounts() throws IOException {
 
     BackendController backend = new BackendController(fileStateProcessor);
 
@@ -71,12 +73,11 @@ public class BackendControllerTest {
 
     backend.flushAndClose();
 
-    verify(fileStateProcessor, times(1)).saveBindings(Collections.singleton(binding));
-    verify(fileStateProcessor, times(1)).saveAccounts(Collections.singleton(serviceAccount));
+    verify(fileStateProcessor, times(1)).save(any(BackendState.class));
   }
 
   @Test
-  public void testStoreBindingsAndTopics() {
+  public void testStoreBindingsAndTopics() throws IOException {
     BackendController backend = new BackendController(fileStateProcessor);
 
     Topic topic = new TopicImpl("foo");
@@ -94,8 +95,6 @@ public class BackendControllerTest {
     backend.addTopics(Collections.singleton(topic.getName()));
 
     backend.flushAndClose();
-
-    verify(fileStateProcessor, times(1)).saveBindings(Collections.singleton(binding));
-    verify(fileStateProcessor, times(1)).saveTopics(Collections.singleton(topic.getName()));
+    verify(fileStateProcessor, times(1)).save(any(BackendState.class));
   }
 }
