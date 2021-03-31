@@ -6,6 +6,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import com.purbon.kafka.topology.Configuration;
 import com.purbon.kafka.topology.model.users.KStream;
 import com.purbon.kafka.topology.roles.acls.AclsBindingsBuilder;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
@@ -24,7 +25,7 @@ public class BuildBindingsForKStreamsTest {
   }
 
   @Test
-  public void testStreamsWithoutApplicationId() {
+  public void testStreamsWithoutApplicationId() throws IOException {
     HashMap<String, List<String>> topics = new HashMap<>();
     topics.put(KStream.READ_TOPICS, singletonList("topicA"));
     topics.put(KStream.WRITE_TOPICS, singletonList("topicB"));
@@ -46,7 +47,7 @@ public class BuildBindingsForKStreamsTest {
   }
 
   @Test
-  public void testStreamWithApplicationId() {
+  public void testStreamWithApplicationId() throws IOException {
     HashMap<String, List<String>> topics = new HashMap<>();
     topics.put(KStream.READ_TOPICS, singletonList("topicA"));
     topics.put(KStream.WRITE_TOPICS, singletonList("topicB"));
