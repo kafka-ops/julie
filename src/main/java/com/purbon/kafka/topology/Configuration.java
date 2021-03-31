@@ -309,4 +309,12 @@ public class Configuration {
   public boolean fetchTopicStateFromTheCluster() {
     return fetchStateFromTheCluster() || config.getBoolean(TOPOLOGY_TOPIC_STATE_FROM_CLUSTER);
   }
+
+  public String getS3Bucket() {
+    return config.getString(JULIE_S3_BUCKET);
+  }
+
+  public String getS3Region() {
+    return config.getString(JULIE_S3_REGION);
+  }
 }
