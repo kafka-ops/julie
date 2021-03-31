@@ -77,4 +77,7 @@ public class Constants {
       "topology.builder.internal.principal";
 
   public static final String JULIE_INTERNAL_PRINCIPAL = "julie.internal.principal";
+
+  public static final String JULIE_S3_REGION = "julie.s3.region";
+  public static final String JULIE_S3_BUCKET = "julie.s3.bucket";
 }

@@ -17,13 +17,11 @@ import java.util.LinkedHashSet;
 import java.util.Objects;
 import java.util.Set;
 import java.util.function.Function;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-public class FileBackend implements Backend {
+public class FileBackend extends AbstractBackend {
 
   private static final Logger LOGGER = LogManager.getLogger(FileBackend.class);
   public static final String STATE_FILE_NAME = ".cluster-state";
@@ -34,12 +32,9 @@ public class FileBackend implements Backend {
   // Use FileWriter instead of RandomAccessFile due to
   // https://bugs.java.com/bugdatabase/view_bug.do?bug_id=4715154
   private FileWriter writer;
-  private String expression =
-      "^\"?\\'(\\S+)\\',\\s*\\'(\\S+)\\',\\s*\\'(\\S+)\\',\\s*\\'(\\S+)\\',\\s*\\'(.+)\\',\\s*\\'(\\S+)\\'\"?$";
-  private Pattern regexp;
 
   public FileBackend() {
-    this.regexp = Pattern.compile(expression);
+    super();
   }
 
   @Override
@@ -148,24 +143,6 @@ public class FileBackend implements Backend {
       }
     }
     return line;
-  }
-
-  private TopologyAclBinding buildAclBinding(String line) throws IOException {
-    // 'TOPIC', 'topicB', '*', 'READ', 'User:Connect1', 'LITERAL'
-    Matcher matches = regexp.matcher(line);
-
-    if (matches.groupCount() != 6 || !matches.matches()) {
-      throw new IOException(("line (" + line + ") does not match"));
-    }
-
-    return TopologyAclBinding.build(
-        matches.group(1), // resourceType
-        matches.group(2), // resourceName
-        matches.group(3), // host
-        matches.group(4), // operation
-        matches.group(5), // principal
-        matches.group(6) // pattern
-        );
   }
 
   public void saveType(String type) {

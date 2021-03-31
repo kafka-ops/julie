@@ -439,6 +439,7 @@
     <hamcrest.version>2.2</hamcrest.version>
     <assertj.version>3.15.0</assertj.version>
     <jinjava.version>2.5.4</jinjava.version>
+    <aws.java.sdk.version>2.16.31</aws.java.sdk.version>
   </properties>
 
   <dependencies>
@@ -560,6 +561,10 @@
       <version>${commons.version}</version>
     </dependency>
     <dependency>
+      <groupId>software.amazon.awssdk</groupId>
+      <artifactId>s3</artifactId>
+    </dependency>
+    <dependency>
       <groupId>org.hamcrest</groupId>
       <artifactId>hamcrest-core</artifactId>
       <version>${hamcrest.version}</version>
@@ -601,5 +606,22 @@
       <version>4.0.3</version>
       <scope>test</scope>
     </dependency>
+    <dependency>
+      <groupId>io.findify</groupId>
+      <artifactId>s3mock_2.13</artifactId>
+      <version>0.2.6</version>
+      <scope>test</scope>
+    </dependency>
   </dependencies>
+  <dependencyManagement>
+    <dependencies>
+      <dependency>
+        <groupId>software.amazon.awssdk</groupId>
+        <artifactId>bom</artifactId>
+        <version>${aws.java.sdk.version}</version>
+        <type>pom</type>
+        <scope>import</scope>
+      </dependency>
+    </dependencies>
+  </dependencyManagement>
 </project>
