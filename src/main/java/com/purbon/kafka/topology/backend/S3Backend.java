@@ -1,5 +1,7 @@
 package com.purbon.kafka.topology.backend;
 
+import static com.purbon.kafka.topology.BackendController.STATE_FILE_NAME;
+
 import com.purbon.kafka.topology.BackendController;
 import com.purbon.kafka.topology.Configuration;
 import com.purbon.kafka.topology.utils.JSON;
@@ -18,7 +20,6 @@ import software.amazon.awssdk.services.s3.model.*;
 public class S3Backend extends AbstractBackend {
 
   private static final Logger LOGGER = LogManager.getLogger(S3Backend.class);
-  public static final String STATE_FILE_NAME = ".cluster-state";
 
   private S3Client s3;
   private Configuration config;
@@ -41,9 +42,6 @@ public class S3Backend extends AbstractBackend {
 
   @Override
   public void createOrOpen(BackendController.Mode mode) {}
-
-  @Override
-  public void saveType(String type) {}
 
   @Override
   public void save(BackendState state) throws IOException {

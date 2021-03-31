@@ -9,8 +9,6 @@ public interface Backend {
 
   void createOrOpen(BackendController.Mode mode);
 
-  void saveType(String type);
-
   void close();
 
   void save(BackendState state) throws IOException;

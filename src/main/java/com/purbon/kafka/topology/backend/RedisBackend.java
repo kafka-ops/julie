@@ -41,11 +41,6 @@ public class RedisBackend extends AbstractBackend {
   }
 
   @Override
-  public void saveType(String type) {
-    jedis.set(JULIE_OPS_TYPE, type);
-  }
-
-  @Override
   public void close() {
     jedis.close();
   }
