@@ -13,15 +13,14 @@ import org.apache.logging.log4j.Logger;
 
 public class BackendController {
 
+  public static final String STATE_FILE_NAME = ".cluster-state";
+
   public enum Mode {
     TRUNCATE,
     APPEND
   }
 
   private static final Logger LOGGER = LogManager.getLogger(BackendController.class);
-
-  private static final String STORE_TYPE = "acls";
-
   private final Backend backend;
   private BackendState state;
 
@@ -62,9 +61,8 @@ public class BackendController {
   }
 
   public void flushAndClose() throws IOException {
-    LOGGER.debug(String.format("Flushing the current state of %s", STORE_TYPE));
+    LOGGER.debug(String.format("Flush data from the backend at %s", backend.getClass()));
     backend.createOrOpen(Mode.TRUNCATE);
-    backend.saveType(STORE_TYPE);
     backend.save(state);
     backend.close();
   }

@@ -1,5 +1,7 @@
 package com.purbon.kafka.topology.backend;
 
+import static com.purbon.kafka.topology.BackendController.STATE_FILE_NAME;
+
 import com.purbon.kafka.topology.BackendController.Mode;
 import com.purbon.kafka.topology.utils.JSON;
 import java.io.BufferedReader;
@@ -15,8 +17,6 @@ import org.apache.logging.log4j.Logger;
 public class FileBackend extends AbstractBackend {
 
   private static final Logger LOGGER = LogManager.getLogger(FileBackend.class);
-  public static final String STATE_FILE_NAME = ".cluster-state";
-  static final String ACLS_TAG = "acls";
 
   // Use FileWriter instead of RandomAccessFile due to
   // https://bugs.java.com/bugdatabase/view_bug.do?bug_id=4715154
@@ -57,8 +57,6 @@ public class FileBackend extends AbstractBackend {
       return (BackendState) JSON.toObject(backendStateAsJsonString, BackendState.class);
     }
   }
-
-  public void saveType(String type) {}
 
   private void writeLine(String line) throws IOException {
     try {

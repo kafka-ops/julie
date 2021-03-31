@@ -26,7 +26,6 @@ public class RedisBackendIT {
     RedisBackend rsp = new RedisBackend(host, port);
     rsp.createOrOpen();
 
-    rsp.saveType("acls");
     TopologyAclBinding binding =
         TopologyAclBinding.build(
             ResourceType.TOPIC.name(), "foo", "*", "Write", "User:foo", "LITERAL");

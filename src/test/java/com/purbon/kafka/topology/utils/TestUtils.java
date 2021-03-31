@@ -1,6 +1,7 @@
 package com.purbon.kafka.topology.utils;
 
-import com.purbon.kafka.topology.backend.FileBackend;
+import static com.purbon.kafka.topology.BackendController.STATE_FILE_NAME;
+
 import java.io.File;
 import java.io.IOException;
 import java.net.URISyntaxException;
@@ -14,7 +15,7 @@ public final class TestUtils {
 
   public static void deleteStateFile() {
     try {
-      Files.deleteIfExists(Paths.get(FileBackend.STATE_FILE_NAME));
+      Files.deleteIfExists(Paths.get(STATE_FILE_NAME));
     } catch (final IOException e) {
       throw new RuntimeException(e);
     }

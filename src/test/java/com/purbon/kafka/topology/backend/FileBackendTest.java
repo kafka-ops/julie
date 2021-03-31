@@ -1,7 +1,6 @@
 package com.purbon.kafka.topology.backend;
 
-import static com.purbon.kafka.topology.backend.FileBackend.ACLS_TAG;
-import static com.purbon.kafka.topology.backend.FileBackend.STATE_FILE_NAME;
+import static com.purbon.kafka.topology.BackendController.STATE_FILE_NAME;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.purbon.kafka.topology.BackendController.Mode;
@@ -64,7 +63,6 @@ public class FileBackendTest {
     state.addTopics(Arrays.asList(fooTopic.toString(), barTopic.toString()));
 
     backend.createOrOpen(Mode.TRUNCATE);
-    backend.saveType(ACLS_TAG);
     backend.save(state);
     backend.close();
 
