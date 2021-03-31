@@ -72,4 +72,9 @@ public class Constants {
   public static final String TOPIC_MANAGED_PREFIXES = "topology.topic.managed.prefixes";
 
   public static final String GROUP_MANAGED_PREFIXES = "topology.group.managed.prefixes";
+
+  public static final String TOPOLOGY_BUILDER_INTERNAL_PRINCIPAL =
+      "topology.builder.internal.principal";
+
+  public static final String JULIE_INTERNAL_PRINCIPAL = "julie.internal.principal";
 }

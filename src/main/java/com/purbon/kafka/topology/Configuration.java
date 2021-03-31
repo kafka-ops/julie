@@ -10,10 +10,7 @@ import com.purbon.kafka.topology.model.Topology;
 import com.purbon.kafka.topology.serdes.TopologySerdes.FileType;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
+import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -247,6 +244,16 @@ public class Configuration {
 
   public boolean useConfuentCloud() {
     return config.hasPath(CCLOUD_ENV_CONFIG);
+  }
+
+  public Optional<String> getInternalPrincipalOptional() {
+    String internalPrincipal = null;
+    if (hasProperty(JULIE_INTERNAL_PRINCIPAL)) {
+      internalPrincipal = config.getString(JULIE_INTERNAL_PRINCIPAL);
+    } else if (hasProperty(TOPOLOGY_BUILDER_INTERNAL_PRINCIPAL)) {
+      internalPrincipal = config.getString(TOPOLOGY_BUILDER_INTERNAL_PRINCIPAL);
+    }
+    return Optional.ofNullable(internalPrincipal);
   }
 
   public boolean hasProperty(String property) {
