@@ -48,7 +48,7 @@ public class AccessControlWithRBACTest {
   }
 
   @Test
-  public void testPredefinedRoles() {
+  public void testPredefinedRoles() throws IOException {
     Map<String, List<String>> predefinedRoles = new HashMap<>();
     predefinedRoles.put("ResourceOwner", Arrays.asList("User:Foo"));
 

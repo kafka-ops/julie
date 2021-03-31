@@ -21,9 +21,10 @@ import com.purbon.kafka.topology.model.users.Schemas;
 import com.purbon.kafka.topology.model.users.platform.ControlCenterInstance;
 import com.purbon.kafka.topology.model.users.platform.SchemaRegistryInstance;
 import com.purbon.kafka.topology.roles.TopologyAclBinding;
+import com.purbon.kafka.topology.utils.Either;
+import java.io.IOException;
 import java.io.PrintStream;
 import java.util.*;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.apache.logging.log4j.LogManager;
@@ -64,7 +65,7 @@ public class AccessControlManager {
    * @param topology A topology file descriptor
    * @param plan An Execution plan
    */
-  public void apply(final Topology topology, ExecutionPlan plan) {
+  public void apply(final Topology topology, ExecutionPlan plan) throws IOException {
     List<Action> actions = buildProjectActions(topology);
     actions.addAll(buildPlatformLevelActions(topology));
     buildUpdateBindingsActions(actions, loadActualClusterStateIfAvailable(plan)).forEach(plan::add);
@@ -187,12 +188,40 @@ public class AccessControlManager {
    * @return List<Action> list of actions necessary to update the cluster
    */
   public List<Action> buildUpdateBindingsActions(
-      List<Action> actions, Set<TopologyAclBinding> bindings) {
+      List<Action> actions, Set<TopologyAclBinding> bindings) throws IOException {
 
     List<Action> updateActions = new ArrayList<>();
 
+    List<Either> eitherStreamOrError =
+        actions.stream()
+            .map(
+                action -> {
+                  try {
+                    action.run();
+                    return Either.Left(action.getBindings().stream());
+                  } catch (IOException e) {
+                    return Either.Right(e);
+                  }
+                })
+            .collect(Collectors.toList());
+
+    List<IOException> errors =
+        eitherStreamOrError.stream()
+            .filter(Either::isRight)
+            .map(e -> (IOException) e.getRight().get())
+            .collect(Collectors.toList());
+    if (!errors.isEmpty()) {
+      for (IOException err : errors) {
+        LOGGER.error(err);
+      }
+      throw errors.get(0);
+    }
+
     Set<TopologyAclBinding> allFinalBindings =
-        actions.stream().flatMap(actionApplyFunction()).collect(Collectors.toSet());
+        eitherStreamOrError.stream()
+            .filter(Either::isLeft)
+            .flatMap(e -> (Stream<TopologyAclBinding>) e.getLeft().get())
+            .collect(Collectors.toSet());
 
     Set<TopologyAclBinding> bindingsToBeCreated =
         allFinalBindings.stream()
@@ -268,18 +297,6 @@ public class AccessControlManager {
         String.format(
             "Principal %s matches %s with $s", principal, matches, managedServiceAccountPrefixes));
     return matches;
-  }
-
-  private Function<Action, Stream<TopologyAclBinding>> actionApplyFunction() {
-    return action -> {
-      try {
-        action.run();
-        return action.getBindings().stream();
-      } catch (Exception ex) {
-        LOGGER.error(ex);
-        return Stream.empty();
-      }
-    };
   }
 
   // Sync platform relevant Access Control List.

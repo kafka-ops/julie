@@ -3,6 +3,7 @@ package com.purbon.kafka.topology.actions.access.builders;
 import com.purbon.kafka.topology.BindingsBuilderProvider;
 import com.purbon.kafka.topology.actions.BaseAccessControlAction;
 import com.purbon.kafka.topology.model.users.KStream;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -22,7 +23,13 @@ public class BuildBindingsForKStreams extends BaseAccessControlAction {
   }
 
   @Override
-  protected void execute() {
+  protected void execute() throws IOException {
+    if (prefix.isEmpty()) {
+      String message =
+          "KStream application prefix should not be empty."
+              + " Please define the applicationID or allow a nonEmpty project prefix (aka everything before the topic";
+      throw new IOException(message);
+    }
     List<String> readTopics = app.getTopics().get(KStream.READ_TOPICS);
     List<String> writeTopics = app.getTopics().get(KStream.WRITE_TOPICS);
 
