@@ -1,6 +1,6 @@
 package com.purbon.kafka.topology;
 
-import static com.purbon.kafka.topology.Configuration.CONNECTOR_ALLOW_TOPIC_CREATE;
+import static com.purbon.kafka.topology.Constants.*;
 import static java.util.Collections.*;
 import static org.assertj.core.api.Assertions.assertThat;
 
