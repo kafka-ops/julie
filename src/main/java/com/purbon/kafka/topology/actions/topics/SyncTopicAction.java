@@ -50,7 +50,7 @@ public class SyncTopicAction extends BaseAction {
       throws IOException {
     LOGGER.debug(String.format("Sync topic %s", fullTopicName));
     if (existTopic(fullTopicName, listOfTopics)) {
-      if (topic.partitionsCount().orElse(-1) > adminClient.getPartitionCount(fullTopicName)) {
+      if (topic.partitionsCount() > adminClient.getPartitionCount(fullTopicName)) {
         LOGGER.debug(String.format("Update partition count of topic %s", fullTopicName));
         adminClient.updatePartitionCount(topic, fullTopicName);
       }

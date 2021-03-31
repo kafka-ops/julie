@@ -29,7 +29,9 @@ public interface Topic {
 
   void addAppConfig(Configuration appConfig);
 
-  Optional<Integer> partitionsCount();
+  Optional<Integer> partitionsCountOptional();
+
+  Integer partitionsCount();
 
   void setDefaultProjectPrefix(String projectPrefix);
 

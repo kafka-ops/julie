@@ -223,8 +223,13 @@ public class TopicImpl implements Topic, Cloneable {
   }
 
   @Override
-  public Optional<Integer> partitionsCount() {
+  public Optional<Integer> partitionsCountOptional() {
     return partitionCount;
+  }
+
+  @Override
+  public Integer partitionsCount() {
+    return partitionCount.orElse(-1);
   }
 
   public Configuration getAppConfig() {
