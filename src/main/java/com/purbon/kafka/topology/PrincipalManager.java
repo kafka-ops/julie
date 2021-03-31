@@ -47,12 +47,12 @@ public class PrincipalManager {
     List<String> principals = parseListOfPrincipals(topology);
     Map<String, ServiceAccount> accounts = loadActualClusterStateIfAvailable(plan);
 
-    // build list of principals to be created.
-    List<ServiceAccount> principalsToBeCreated =
+    // build set of principals to be created.
+    Set<ServiceAccount> principalsToBeCreated =
         principals.stream()
             .filter(wishPrincipal -> !accounts.containsKey(wishPrincipal))
             .map(principal -> new ServiceAccount(-1, principal, "Managed by KTB"))
-            .collect(Collectors.toList());
+            .collect(Collectors.toSet());
 
     if (!principalsToBeCreated.isEmpty()) {
       plan.add(new CreateAccounts(provider, principalsToBeCreated));
