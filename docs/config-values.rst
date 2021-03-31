@@ -139,6 +139,26 @@ An example configuration will look like this:
 ::
     topology.connector.allow.topic.create=false
 
+Prevent ACL manager to delete dedicated rules for JulieOps
+-----------
+
+It is a common case to use a dedicated principal for allowing access to JulieOps to manage a certain resources.
+This would be done for by giving Julie a certain principal and create their own ACL rules.
+
+When managing application level rules, you want to exclude this principal from the ACL delete process.
+You can do this configuring this property.
+
+**Property**: *julie.internal.principal*
+**Default value**: null
+
+For backwards compatibility you can as well use *topology.builder.internal.principal* as property name.
+
+An example configuration would be:
+
+julie.internal.principal="User:Julie"
+
+this would exclude all ACLs or RBAC rules that has this principal from the management of JulieOps
+
 Retrieve topic management state from local controlled view
 -----------
 

@@ -1,6 +1,6 @@
 package com.purbon.kafka.topology;
 
-import static com.purbon.kafka.topology.Configuration.CCLOUD_ENV_CONFIG;
+import static com.purbon.kafka.topology.Constants.*;
 
 import com.purbon.kafka.topology.serviceAccounts.CCloudPrincipalProvider;
 import com.purbon.kafka.topology.serviceAccounts.VoidPrincipalProvider;

@@ -1,8 +1,7 @@
 package com.purbon.kafka.topology;
 
-import static com.purbon.kafka.topology.CommandLineInterface.ALLOW_DELETE_OPTION;
-import static com.purbon.kafka.topology.CommandLineInterface.BROKERS_OPTION;
-import static com.purbon.kafka.topology.Configuration.*;
+import static com.purbon.kafka.topology.CommandLineInterface.*;
+import static com.purbon.kafka.topology.Constants.*;
 import static com.purbon.kafka.topology.TopicManager.NUM_PARTITIONS;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.*;
