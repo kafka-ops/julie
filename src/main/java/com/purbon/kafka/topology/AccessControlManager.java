@@ -1,8 +1,6 @@
 package com.purbon.kafka.topology;
 
-import static com.purbon.kafka.topology.model.Component.KAFKA;
-import static com.purbon.kafka.topology.model.Component.KAFKA_CONNECT;
-import static com.purbon.kafka.topology.model.Component.SCHEMA_REGISTRY;
+import static com.purbon.kafka.topology.model.Component.*;
 
 import com.purbon.kafka.topology.actions.Action;
 import com.purbon.kafka.topology.actions.access.ClearBindings;

@@ -1,10 +1,7 @@
 package com.purbon.kafka.topology;
 
-import static com.purbon.kafka.topology.CommandLineInterface.ALLOW_DELETE_OPTION;
-import static com.purbon.kafka.topology.CommandLineInterface.BROKERS_OPTION;
-import static com.purbon.kafka.topology.Configuration.SERVICE_ACCOUNT_MANAGED_PREFIXES;
-import static com.purbon.kafka.topology.Configuration.TOPOLOGY_EXPERIMENTAL_ENABLED_CONFIG;
-import static com.purbon.kafka.topology.Configuration.TOPOLOGY_STATE_FROM_CLUSTER;
+import static com.purbon.kafka.topology.CommandLineInterface.*;
+import static com.purbon.kafka.topology.Constants.*;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;

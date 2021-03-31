@@ -1,11 +1,7 @@
 package com.purbon.kafka.topology;
 
-import static com.purbon.kafka.topology.CommandLineInterface.BROKERS_OPTION;
-import static com.purbon.kafka.topology.Configuration.ACCESS_CONTROL_IMPLEMENTATION_CLASS;
-import static com.purbon.kafka.topology.Configuration.MDS_KAFKA_CLUSTER_ID_CONFIG;
-import static com.purbon.kafka.topology.Configuration.MDS_PASSWORD_CONFIG;
-import static com.purbon.kafka.topology.Configuration.MDS_SERVER;
-import static com.purbon.kafka.topology.Configuration.MDS_USER_CONFIG;
+import static com.purbon.kafka.topology.CommandLineInterface.*;
+import static com.purbon.kafka.topology.Constants.*;
 import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.verify;
