@@ -67,7 +67,7 @@ public class MDSApiClient extends JulieHttpClient {
 
   public void bindRequest(TopologyAclBinding binding) throws IOException {
 
-    String url = binding.getPrincipal() + "/roles/" + binding.getRole();
+    String url = binding.getPrincipal() + "/roles/" + binding.getOperation();
     if (!binding.getResourceType().equals(ResourceType.CLUSTER)) {
       url = url + "/bindings";
     }

@@ -5,15 +5,11 @@ import static com.purbon.kafka.topology.backend.RedisBackend.JULIE_OPS_TYPE;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 import com.purbon.kafka.topology.roles.TopologyAclBinding;
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.Collections;
 import org.apache.kafka.common.resource.ResourceType;
 import org.junit.Before;
 import org.junit.Rule;
@@ -37,7 +33,7 @@ public class RedisBackendTest {
   }
 
   @Test
-  public void testSaveBindings() {
+  public void testSaveBindings() throws IOException {
 
     TopologyAclBinding binding =
         TopologyAclBinding.build(
@@ -45,7 +41,9 @@ public class RedisBackendTest {
 
     when(jedis.sadd(eq(JULIE_OPS_BINDINGS), any())).thenReturn(1l);
 
-    stateProcessor.saveBindings(new HashSet<>(Arrays.asList(binding)));
+    BackendState state = new BackendState();
+    state.addBindings(Collections.singleton(binding));
+    stateProcessor.save(state);
 
     verify(jedis, times(1)).sadd(eq(JULIE_OPS_BINDINGS), any());
   }
@@ -60,8 +58,7 @@ public class RedisBackendTest {
             "'TOPIC', 'topicA', '*', 'READ', 'User:C=NO,CN=John Doe,emailAddress=john.doe@example.com', 'LITERAL'")
         .thenReturn("'TOPIC', 'topicB', '*', 'READ', 'User:Connect1', 'LITERAL'");
 
-    Set<TopologyAclBinding> bindings = stateProcessor.loadBindings();
-
-    assertEquals(2, bindings.size());
+    BackendState state = stateProcessor.load();
+    assertEquals(2, state.size());
   }
 }

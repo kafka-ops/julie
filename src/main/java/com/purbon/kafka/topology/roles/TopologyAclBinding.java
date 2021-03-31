@@ -185,10 +185,6 @@ public class TopologyAclBinding implements Comparable<TopologyAclBinding> {
         getPattern());
   }
 
-  public String getRole() {
-    return operation;
-  }
-
   private RequestScope scope;
 
   public void setScope(RequestScope scope) {
