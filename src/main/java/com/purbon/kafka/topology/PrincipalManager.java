@@ -2,6 +2,7 @@ package com.purbon.kafka.topology;
 
 import com.purbon.kafka.topology.actions.accounts.ClearAccounts;
 import com.purbon.kafka.topology.actions.accounts.CreateAccounts;
+import com.purbon.kafka.topology.model.Platform;
 import com.purbon.kafka.topology.model.Topic;
 import com.purbon.kafka.topology.model.Topology;
 import com.purbon.kafka.topology.model.User;
@@ -9,11 +10,9 @@ import com.purbon.kafka.topology.model.cluster.ServiceAccount;
 import com.purbon.kafka.topology.serviceAccounts.VoidPrincipalProvider;
 import java.io.IOException;
 import java.io.PrintStream;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -108,21 +107,29 @@ public class PrincipalManager {
   }
 
   private List<String> parseListOfPrincipals(Topology topology) {
-    return topology.getProjects().stream()
-        .flatMap(
-            project -> {
-              List<User> users = new ArrayList<>();
-              users.addAll(project.getConsumers());
-              users.addAll(project.getProducers());
-              users.addAll(project.getStreams());
-              users.addAll(project.getConnectors());
-              users.addAll(project.getSchemas());
-              for (Topic topic : project.getTopics()) {
-                users.addAll(topic.getConsumers());
-                users.addAll(topic.getProducers());
-              }
-              return users.stream();
-            })
+    Stream<User> projectPrincipals =
+        topology.getProjects().stream()
+            .flatMap(
+                project -> {
+                  List<User> users = new ArrayList<>();
+                  users.addAll(project.getConsumers());
+                  users.addAll(project.getProducers());
+                  users.addAll(project.getStreams());
+                  users.addAll(project.getConnectors());
+                  users.addAll(project.getSchemas());
+                  for (Topic topic : project.getTopics()) {
+                    users.addAll(topic.getConsumers());
+                    users.addAll(topic.getProducers());
+                  }
+                  return users.stream();
+                });
+
+    List<User> platformPrincipals = new ArrayList<>();
+    Platform platform = topology.getPlatform();
+    platformPrincipals.addAll(platform.getControlCenter().getInstances());
+    platformPrincipals.addAll(platform.getSchemaRegistry().getInstances());
+
+    return Stream.concat(projectPrincipals, platformPrincipals.stream())
         .map(User::getPrincipal)
         .filter(this::matchesPrefixList)
         .collect(Collectors.toList());
