@@ -5,9 +5,7 @@ import static com.purbon.kafka.topology.Constants.*;
 import com.purbon.kafka.topology.api.adminclient.TopologyBuilderAdminClient;
 import com.purbon.kafka.topology.api.adminclient.TopologyBuilderAdminClientBuilder;
 import com.purbon.kafka.topology.api.mds.MDSApiClientBuilder;
-import com.purbon.kafka.topology.backend.Backend;
-import com.purbon.kafka.topology.backend.FileBackend;
-import com.purbon.kafka.topology.backend.RedisBackend;
+import com.purbon.kafka.topology.backend.*;
 import com.purbon.kafka.topology.exceptions.ValidationException;
 import com.purbon.kafka.topology.model.Topology;
 import com.purbon.kafka.topology.schemas.SchemaRegistryManager;
@@ -219,17 +217,21 @@ public class JulieOps implements AutoCloseable {
 
   private static BackendController buildBackendController(Configuration config) throws IOException {
 
-    String stateProcessorClass = config.getStateProcessorImplementationClassName();
+    String backendClass = config.getStateProcessorImplementationClassName();
     Backend backend = null;
     try {
-      if (stateProcessorClass.equalsIgnoreCase(STATE_PROCESSOR_DEFAULT_CLASS)) {
+      if (backendClass.equalsIgnoreCase(STATE_PROCESSOR_DEFAULT_CLASS)) {
         backend = new FileBackend();
-      } else if (stateProcessorClass.equalsIgnoreCase(REDIS_STATE_PROCESSOR_CLASS)) {
+      } else if (backendClass.equalsIgnoreCase(REDIS_STATE_PROCESSOR_CLASS)) {
         String host = config.getProperty(REDIS_HOST_CONFIG);
         int port = Integer.parseInt(config.getProperty(REDIS_PORT_CONFIG));
         backend = new RedisBackend(host, port);
+      } else if (backendClass.equalsIgnoreCase(S3_STATE_PROCESSOR_CLASS)) {
+        backend = new S3Backend();
+      } else if (backendClass.equalsIgnoreCase(GCP_STATE_PROCESSOR_CLASS)) {
+        backend = new GCPBackend();
       } else {
-        throw new IOException(stateProcessorClass + " Unknown state processor provided.");
+        throw new IOException(backendClass + " Unknown state processor provided.");
       }
     } catch (Exception ex) {
       throw new IOException(ex);

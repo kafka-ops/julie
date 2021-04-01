@@ -33,9 +33,7 @@ public class S3Backend extends AbstractBackend {
   // Visible and used for tests
   public void configure(Configuration config, URI endpoint, boolean anonymous) {
     this.config = config;
-    S3ClientBuilder builder = S3Client
-            .builder()
-            .region(Region.of(config.getS3Region()));
+    S3ClientBuilder builder = S3Client.builder().region(Region.of(config.getS3Region()));
     if (endpoint != null) {
       builder = builder.endpointOverride(endpoint);
     }
@@ -44,12 +42,6 @@ public class S3Backend extends AbstractBackend {
     }
     this.s3 = builder.build();
   }
-
-  @Override
-  public void createOrOpen() {}
-
-  @Override
-  public void createOrOpen(BackendController.Mode mode) {}
 
   @Override
   public void save(BackendState state) throws IOException {
