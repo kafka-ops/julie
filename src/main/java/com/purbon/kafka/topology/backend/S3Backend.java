@@ -2,7 +2,6 @@ package com.purbon.kafka.topology.backend;
 
 import static com.purbon.kafka.topology.BackendController.STATE_FILE_NAME;
 
-import com.purbon.kafka.topology.BackendController;
 import com.purbon.kafka.topology.Configuration;
 import com.purbon.kafka.topology.utils.JSON;
 import java.io.IOException;

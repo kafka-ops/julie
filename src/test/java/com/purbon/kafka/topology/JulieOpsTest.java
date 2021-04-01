@@ -46,7 +46,7 @@ public class JulieOpsTest {
   public void before() throws IOException {
     cliOps = new HashMap<>();
     cliOps.put(BROKERS_OPTION, "");
-    cliOps.put(ADMIN_CLIENT_CONFIG_OPTION, "/fooBar");
+    cliOps.put(CLIENT_CONFIG_OPTION, "/fooBar");
 
     props = new Properties();
     props.put(CONFLUENT_SCHEMA_REGISTRY_URL_CONFIG, "http://foo:8082");
@@ -112,7 +112,7 @@ public class JulieOpsTest {
     String fileOrDirPath = TestUtils.getResourceFilename("/descriptor.yaml");
     String clientConfigFile = TestUtils.getResourceFilename("/client-config.properties");
 
-    cliOps.put(ADMIN_CLIENT_CONFIG_OPTION, clientConfigFile);
+    cliOps.put(CLIENT_CONFIG_OPTION, clientConfigFile);
 
     Configuration builderConfig = new Configuration(cliOps, props);
     JulieOps builder =
@@ -136,7 +136,7 @@ public class JulieOpsTest {
     config.put(ALLOW_DELETE_OPTION, "false");
     config.put(DRY_RUN_OPTION, "true");
     config.put(QUIET_OPTION, "false");
-    config.put(ADMIN_CLIENT_CONFIG_OPTION, clientConfigFile);
+    config.put(CLIENT_CONFIG_OPTION, clientConfigFile);
 
     JulieOps builder = JulieOps.build(fileOrDirPath, config);
 
@@ -164,7 +164,7 @@ public class JulieOpsTest {
     config.put(ALLOW_DELETE_OPTION, "false");
     config.put(DRY_RUN_OPTION, "true");
     config.put(QUIET_OPTION, "false");
-    config.put(ADMIN_CLIENT_CONFIG_OPTION, clientConfigFile);
+    config.put(CLIENT_CONFIG_OPTION, clientConfigFile);
 
     JulieOps builder = JulieOps.build(fileOrDirPath, config);
 

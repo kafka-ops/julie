@@ -25,10 +25,10 @@ public class Constants {
       "com.purbon.kafka.topology.backend.RedisBackend";
 
   public static final String S3_STATE_PROCESSOR_CLASS =
-          "com.purbon.kafka.topology.backend.S3Backend";
+      "com.purbon.kafka.topology.backend.S3Backend";
 
   public static final String GCP_STATE_PROCESSOR_CLASS =
-          "com.purbon.kafka.topology.backend.GCPBackend";
+      "com.purbon.kafka.topology.backend.GCPBackend";
 
   public static final String REDIS_HOST_CONFIG = "topology.builder.redis.host";
   public static final String REDIS_PORT_CONFIG = "topology.builder.redis.port";

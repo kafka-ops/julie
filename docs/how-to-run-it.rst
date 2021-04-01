@@ -17,21 +17,27 @@ If you are using the CLI tool, you an use the *--help* command to list the diffe
 
     $> julie-ops-cli.sh  --help
         usage: cli
-          --allowDelete          Permits delete operations for topics and
-                                 configs. (deprecated, to be removed)
-          --brokers <arg>        The Apache Kafka server(s) to connect to.
-          --clientConfig <arg>   The AdminClient configuration file.
-          --dryRun               Print the execution plan without altering
-                                  anything.
-          --help                 Prints usage information.
-          --quiet                Print minimum status update
-          --topology <arg>       Topology config file.
-          --version              Prints useful version information.
+		    --allowDelete                    Permits delete operations for topics
+		                                     and configs. (deprecated, to be
+		                                     removed)
+		    --brokers <arg>                  The Apache Kafka server(s) to connect
+		                                     to.
+		    --clientConfig <arg>             The client configuration file.
+		    --dryRun                         Print the execution plan without
+		                                     altering anything.
+		    --help                           Prints usage information.
+		    --overridingClientConfig <arg>   The overriding client configuration
+		                                     file.
+		    --plans <arg>                    File describing the predefined plans
+		    --quiet                          Print minimum status update
+		    --topology <arg>                 Topology config file.
+		    --version                        Prints useful version information.
 
 The most important ones are:
 
 * *--brokers*: This is an optional parameter where the user can list the target Kafka cluster urls.
 * *--clientConfig*: As other tools, Julie Ops needs it's own configuration. In this parameter users can pass a file listing all different personalisation options.
+* *--overridingClientConfig*: The user can pass a second configuration. This configuration takes priority over the default. This mechanism can be used in a CI/CD pipeline, to separate credentials from the main configuration.
 * *--dryRun*: When as a user, you don't want to run the tool, but instead see what might happen. This option is very useful to evaluate changes before applying them to the cluster.
 * *--topology*: This is where you will pass the topology file. It can be either a single file, or a directory. If a directory is used, all files within are going to be compiled into a single macro topology.
 * *--version*: If you wanna know the version you are running.

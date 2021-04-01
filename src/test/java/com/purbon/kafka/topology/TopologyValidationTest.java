@@ -102,7 +102,7 @@ public class TopologyValidationTest {
   private Configuration createTopologyBuilderConfig(String... validations) {
     Map<String, String> cliOps = new HashMap<>();
     cliOps.put(BROKERS_OPTION, "");
-    cliOps.put(ADMIN_CLIENT_CONFIG_OPTION, "/fooBar");
+    cliOps.put(CLIENT_CONFIG_OPTION, "/fooBar");
 
     Properties props = new Properties();
     props.put(TOPOLOGY_VALIDATIONS_CONFIG, Arrays.asList(validations));

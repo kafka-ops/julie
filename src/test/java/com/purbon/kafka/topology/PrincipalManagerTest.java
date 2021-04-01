@@ -79,9 +79,8 @@ public class PrincipalManagerTest {
     Topology topology = new TopologyImpl();
     topology.setContext("context");
     Project project = new ProjectImpl("foo");
-    project.setConsumers(Arrays.asList(
-            new Consumer("consumer-principal"),
-            new Consumer("consumer-principal")));
+    project.setConsumers(
+        Arrays.asList(new Consumer("consumer-principal"), new Consumer("consumer-principal")));
     project.setProducers(Collections.singletonList(new Producer("producer-principal")));
     topology.addProject(project);
 
