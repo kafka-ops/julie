@@ -47,7 +47,7 @@ It is necessary for the topology builder to keep some state, if it does not retr
 for example for situations when the tool needs to decide what ACLs to remove.
 As well this property is important when the tool does not manage all topics in the cluster, so it is important to know it context.
 
-The default implementation is a File, however is possible ot use other systems.
+The default implementation is a File, however is possible ot use other systems such as S3, GCP Storage or Redis.
 To configure it you can use:
 
 Configure the state management system.
@@ -56,6 +56,8 @@ Configure the state management system.
 **values**:
  - File: "com.purbon.kafka.topology.backend.FileBackend"
  - Redis: "com.purbon.kafka.topology.backend.RedisBackend"
+ - S3: "com.purbon.kafka.topology.backend.S3Backend"
+ - GCP: "com.purbon.kafka.topology.backend.GCPBackend"
 
 If you are using redis, you need to extend two other properties to setup the server location:
 ::
