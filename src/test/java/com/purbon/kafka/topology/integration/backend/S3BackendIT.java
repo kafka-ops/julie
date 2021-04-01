@@ -13,6 +13,9 @@ import com.purbon.kafka.topology.roles.TopologyAclBinding;
 import io.findify.s3mock.S3Mock;
 import java.io.IOException;
 import java.net.URI;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -35,7 +38,9 @@ public class S3BackendIT {
     cliOps = new HashMap<>();
     cliOps.put(BROKERS_OPTION, "");
 
-    api = S3Mock.create(8001, "/tmp/s3");
+    String tmpDir = System.getProperty("java.io.tmpdir");
+    Path s3Path = Paths.get(tmpDir, "s3");
+    api = S3Mock.create(8001, s3Path.toFile().getAbsolutePath());
     api.start();
 
     AmazonS3Client client = new AmazonS3Client(new AnonymousAWSCredentials());
@@ -58,7 +63,7 @@ public class S3BackendIT {
     props.put(JULIE_S3_BUCKET, TEST_BUCKET);
 
     Configuration config = new Configuration(cliOps, props);
-    backend.configure(config, URI.create(TEST_ENDPOINT));
+    backend.configure(config, URI.create(TEST_ENDPOINT), true);
 
     TopologyAclBinding binding =
         TopologyAclBinding.build(
@@ -70,7 +75,7 @@ public class S3BackendIT {
     backend.close();
 
     S3Backend newBackend = new S3Backend();
-    newBackend.configure(config, URI.create(TEST_ENDPOINT));
+    newBackend.configure(config, URI.create(TEST_ENDPOINT), true);
 
     BackendState newState = newBackend.load();
     assertThat(newState.size()).isEqualTo(1);
