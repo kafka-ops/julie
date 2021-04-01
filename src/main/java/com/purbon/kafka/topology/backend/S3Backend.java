@@ -30,10 +30,12 @@ public class S3Backend extends AbstractBackend {
   private S3Client s3;
   private Configuration config;
 
+  @Override
   public void configure(Configuration config) {
     configure(config, null);
   }
 
+  // Visible and used for tests
   public void configure(Configuration config, URI endpoint) {
     this.config = config;
     S3ClientBuilder builder = S3Client.builder().region(Region.of(config.getS3Region()));

@@ -24,6 +24,7 @@ public class S3BackendIT {
   private Map<String, String> cliOps;
 
   private static final String TEST_BUCKET = "testbucket";
+  private static final String TEST_ENDPOINT = "http://127.0.0.1:8001";
 
   @Before
   public void before() {
@@ -34,11 +35,8 @@ public class S3BackendIT {
     api.start();
 
     AmazonS3Client client = new AmazonS3Client(new AnonymousAWSCredentials());
-    // use local API mock, not the AWS one
-    client.setEndpoint("http://127.0.0.1:8001");
+    client.setEndpoint(TEST_ENDPOINT);
     client.createBucket(TEST_BUCKET);
-    // client.putObject("testbucket", "file/name", "contents");
-
   }
 
   @After
@@ -56,7 +54,7 @@ public class S3BackendIT {
     props.put(JULIE_S3_BUCKET, TEST_BUCKET);
 
     Configuration config = new Configuration(cliOps, props);
-    backend.configure(config, URI.create("http://localhost:8001"));
+    backend.configure(config, URI.create(TEST_ENDPOINT));
 
     TopologyAclBinding binding =
         TopologyAclBinding.build(

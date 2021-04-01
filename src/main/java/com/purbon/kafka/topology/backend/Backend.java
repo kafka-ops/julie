@@ -1,12 +1,17 @@
 package com.purbon.kafka.topology.backend;
 
 import com.purbon.kafka.topology.BackendController;
+import com.purbon.kafka.topology.Configuration;
 import com.purbon.kafka.topology.model.cluster.ServiceAccount;
 import com.purbon.kafka.topology.roles.TopologyAclBinding;
 import java.io.IOException;
 import java.util.Set;
 
 public interface Backend {
+
+  default void configure(Configuration config) {
+    // empty if not implemented
+  }
 
   void createOrOpen();
 
