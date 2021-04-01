@@ -5,6 +5,7 @@ import static com.purbon.kafka.topology.Constants.*;
 import com.purbon.kafka.topology.api.adminclient.TopologyBuilderAdminClient;
 import com.purbon.kafka.topology.api.adminclient.TopologyBuilderAdminClientBuilder;
 import com.purbon.kafka.topology.api.mds.MDSApiClientBuilder;
+import com.purbon.kafka.topology.backend.Backend;
 import com.purbon.kafka.topology.backend.FileBackend;
 import com.purbon.kafka.topology.backend.RedisBackend;
 import com.purbon.kafka.topology.exceptions.ValidationException;
@@ -193,7 +194,7 @@ public class JulieOps implements AutoCloseable {
   }
 
   public void run() throws IOException {
-    BackendController cs = buildStateProcessor(config);
+    BackendController cs = buildBackendController(config);
     ExecutionPlan plan = ExecutionPlan.init(cs, outputStream);
     run(plan);
   }
@@ -216,23 +217,25 @@ public class JulieOps implements AutoCloseable {
     }
   }
 
-  private static BackendController buildStateProcessor(Configuration config) throws IOException {
+  private static BackendController buildBackendController(Configuration config) throws IOException {
 
     String stateProcessorClass = config.getStateProcessorImplementationClassName();
-
+    Backend backend = null;
     try {
       if (stateProcessorClass.equalsIgnoreCase(STATE_PROCESSOR_DEFAULT_CLASS)) {
-        return new BackendController(new FileBackend());
+        backend = new FileBackend();
       } else if (stateProcessorClass.equalsIgnoreCase(REDIS_STATE_PROCESSOR_CLASS)) {
         String host = config.getProperty(REDIS_HOST_CONFIG);
         int port = Integer.parseInt(config.getProperty(REDIS_PORT_CONFIG));
-        return new BackendController(new RedisBackend(host, port));
+        backend = new RedisBackend(host, port);
       } else {
         throw new IOException(stateProcessorClass + " Unknown state processor provided.");
       }
     } catch (Exception ex) {
       throw new IOException(ex);
     }
+    backend.configure(config);
+    return new BackendController(backend);
   }
 
   void setTopicManager(TopicManager topicManager) {
