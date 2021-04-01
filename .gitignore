@@ -13,3 +13,4 @@ example/topology-builder-with-schema-cloud.properties
 release/
 private.key
 rpm-gen-key
+.s3/

@@ -1,7 +1,8 @@
 package com.purbon.kafka.topology.integration.backend;
 
-import static com.purbon.kafka.topology.CommandLineInterface.*;
-import static com.purbon.kafka.topology.Constants.*;
+import static com.purbon.kafka.topology.CommandLineInterface.BROKERS_OPTION;
+import static com.purbon.kafka.topology.Constants.JULIE_S3_BUCKET;
+import static com.purbon.kafka.topology.Constants.JULIE_S3_REGION;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.amazonaws.auth.AnonymousAWSCredentials;
@@ -12,6 +13,8 @@ import com.purbon.kafka.topology.roles.TopologyAclBinding;
 import io.findify.s3mock.S3Mock;
 import java.io.IOException;
 import java.net.URI;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.*;
 import org.apache.kafka.common.resource.ResourceType;
 import org.junit.After;
@@ -31,7 +34,9 @@ public class S3BackendIT {
     cliOps = new HashMap<>();
     cliOps.put(BROKERS_OPTION, "");
 
-    api = S3Mock.create(8001, "/tmp/s3");
+    String tmpDir = System.getProperty("java.io.tmpdir");
+    Path s3Path = Paths.get(tmpDir, "s3");
+    api = S3Mock.create(8001, s3Path.toFile().getAbsolutePath());
     api.start();
 
     AmazonS3Client client = new AmazonS3Client(new AnonymousAWSCredentials());
@@ -54,7 +59,7 @@ public class S3BackendIT {
     props.put(JULIE_S3_BUCKET, TEST_BUCKET);
 
     Configuration config = new Configuration(cliOps, props);
-    backend.configure(config, URI.create(TEST_ENDPOINT));
+    backend.configure(config, URI.create(TEST_ENDPOINT), true);
 
     TopologyAclBinding binding =
         TopologyAclBinding.build(
@@ -64,7 +69,7 @@ public class S3BackendIT {
     backend.close();
 
     S3Backend newBackend = new S3Backend();
-    newBackend.configure(config, URI.create("http://localhost:8001"));
+    newBackend.configure(config, URI.create(TEST_ENDPOINT), true);
 
     Set<TopologyAclBinding> newBindings = newBackend.loadBindings();
     assertThat(newBindings.size()).isEqualTo(1);
