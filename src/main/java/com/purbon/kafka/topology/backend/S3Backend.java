@@ -10,6 +10,7 @@ import java.net.URI;
 import java.nio.charset.StandardCharsets;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import software.amazon.awssdk.auth.credentials.AnonymousCredentialsProvider;
 import software.amazon.awssdk.core.ResponseBytes;
 import software.amazon.awssdk.core.sync.RequestBody;
 import software.amazon.awssdk.regions.Region;
@@ -26,15 +27,20 @@ public class S3Backend extends AbstractBackend {
 
   @Override
   public void configure(Configuration config) {
-    configure(config, null);
+    configure(config, null, false);
   }
 
   // Visible and used for tests
-  public void configure(Configuration config, URI endpoint) {
+  public void configure(Configuration config, URI endpoint, boolean anonymous) {
     this.config = config;
-    S3ClientBuilder builder = S3Client.builder().region(Region.of(config.getS3Region()));
+    S3ClientBuilder builder = S3Client
+            .builder()
+            .region(Region.of(config.getS3Region()));
     if (endpoint != null) {
       builder = builder.endpointOverride(endpoint);
+    }
+    if (anonymous) {
+      builder = builder.credentialsProvider(AnonymousCredentialsProvider.create());
     }
     this.s3 = builder.build();
   }
