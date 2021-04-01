@@ -24,6 +24,12 @@ public class Constants {
   public static final String REDIS_STATE_PROCESSOR_CLASS =
       "com.purbon.kafka.topology.backend.RedisBackend";
 
+  public static final String S3_STATE_PROCESSOR_CLASS =
+      "com.purbon.kafka.topology.backend.S3Backend";
+
+  public static final String GCP_STATE_PROCESSOR_CLASS =
+      "com.purbon.kafka.topology.backend.GCPBackend";
+
   public static final String REDIS_HOST_CONFIG = "topology.builder.redis.host";
   public static final String REDIS_PORT_CONFIG = "topology.builder.redis.port";
 
@@ -80,4 +86,6 @@ public class Constants {
 
   public static final String JULIE_S3_REGION = "julie.s3.region";
   public static final String JULIE_S3_BUCKET = "julie.s3.bucket";
+  public static final String JULIE_GCP_PROJECT_ID = "julie.gcp.project.id";
+  public static final String JULIE_GCP_BUCKET = "julie.gcp.bucket";
 }

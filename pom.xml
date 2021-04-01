@@ -440,6 +440,7 @@
     <assertj.version>3.15.0</assertj.version>
     <jinjava.version>2.5.4</jinjava.version>
     <aws.java.sdk.version>2.16.31</aws.java.sdk.version>
+    <gcp.java.sdk.version>19.2.1</gcp.java.sdk.version>
   </properties>
 
   <dependencies>
@@ -565,6 +566,10 @@
       <artifactId>s3</artifactId>
     </dependency>
     <dependency>
+      <groupId>com.google.cloud</groupId>
+      <artifactId>google-cloud-storage</artifactId>
+    </dependency>
+    <dependency>
       <groupId>org.hamcrest</groupId>
       <artifactId>hamcrest-core</artifactId>
       <version>${hamcrest.version}</version>
@@ -619,6 +624,13 @@
         <groupId>software.amazon.awssdk</groupId>
         <artifactId>bom</artifactId>
         <version>${aws.java.sdk.version}</version>
+        <type>pom</type>
+        <scope>import</scope>
+      </dependency>
+      <dependency>
+        <groupId>com.google.cloud</groupId>
+        <artifactId>libraries-bom</artifactId>
+        <version>${gcp.java.sdk.version}</version>
         <type>pom</type>
         <scope>import</scope>
       </dependency>

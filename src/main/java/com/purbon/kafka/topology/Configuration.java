@@ -317,4 +317,12 @@ public class Configuration {
   public String getS3Region() {
     return config.getString(JULIE_S3_REGION);
   }
+
+  public String getGCPProjectId() {
+    return config.getString(JULIE_GCP_PROJECT_ID);
+  }
+
+  public String getGCPBucket() {
+    return config.getString(JULIE_GCP_BUCKET);
+  }
 }

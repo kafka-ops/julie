@@ -13,9 +13,13 @@ public interface Backend {
     // empty if not implemented
   }
 
-  void createOrOpen();
+  default void createOrOpen() {
+    // empty if not implemented
+  }
 
-  void createOrOpen(BackendController.Mode mode);
+  default void createOrOpen(BackendController.Mode mode) {
+    // empty if not implemented
+  }
 
   Set<ServiceAccount> loadServiceAccounts() throws IOException;
 

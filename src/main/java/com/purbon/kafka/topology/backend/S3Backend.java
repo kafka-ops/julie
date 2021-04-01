@@ -24,10 +24,6 @@ public class S3Backend extends AbstractBackend {
 
   private static final Logger LOGGER = LogManager.getLogger(S3Backend.class);
 
-  private static final String TOPIC_FILE_NAME = "julie-topics";
-  private static final String SA_FILE_NAME = "julie-accounts";
-  private static final String BINDINGS_FILE_NAME = "julie-bindings";
-
   private S3Client s3;
   private Configuration config;
 

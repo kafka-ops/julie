@@ -7,6 +7,10 @@ import java.util.regex.Pattern;
 
 public abstract class AbstractBackend implements Backend {
 
+  protected static final String TOPIC_FILE_NAME = "julie-topics";
+  protected static final String SA_FILE_NAME = "julie-accounts";
+  protected static final String BINDINGS_FILE_NAME = "julie-bindings";
+
   private final String expression =
       "^\"?\\'(\\S+)\\',\\s*\\'(\\S+)\\',\\s*\\'(\\S+)\\',\\s*\\'(\\S+)\\',\\s*\\'(.+)\\',\\s*\\'(\\S+)\\'\"?$";
   private Pattern regexp;
