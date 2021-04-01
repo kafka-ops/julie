@@ -39,7 +39,7 @@ public class JulieOpsIT {
     config.put(ALLOW_DELETE_OPTION, "false");
     config.put(DRY_RUN_OPTION, "false");
     config.put(QUIET_OPTION, "true");
-    config.put(ADMIN_CLIENT_CONFIG_OPTION, clientConfigFile);
+    config.put(CLIENT_CONFIG_OPTION, clientConfigFile);
 
     JulieOps.build(fileOrDirPath, config);
   }
@@ -55,7 +55,7 @@ public class JulieOpsIT {
     config.put(ALLOW_DELETE_OPTION, "false");
     config.put(DRY_RUN_OPTION, "false");
     config.put(QUIET_OPTION, "true");
-    config.put(ADMIN_CLIENT_CONFIG_OPTION, clientConfigFile);
+    config.put(CLIENT_CONFIG_OPTION, clientConfigFile);
 
     JulieOps.build(fileOrDirPath, config);
   }

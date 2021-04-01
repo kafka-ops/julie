@@ -158,8 +158,7 @@ public class JulieOps implements AutoCloseable {
       throw new IOException("Topology file does not exist");
     }
 
-    String configFilePath = config.get(CommandLineInterface.ADMIN_CLIENT_CONFIG_OPTION);
-
+    String configFilePath = config.get(CommandLineInterface.CLIENT_CONFIG_OPTION);
     if (!Files.exists(Paths.get(configFilePath))) {
       throw new IOException("AdminClient config file does not exist");
     }
