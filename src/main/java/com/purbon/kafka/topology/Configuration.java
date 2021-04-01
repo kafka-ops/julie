@@ -10,6 +10,7 @@ import com.purbon.kafka.topology.model.Topology;
 import com.purbon.kafka.topology.serdes.TopologySerdes.FileType;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
+import java.io.File;
 import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -26,7 +27,7 @@ public class Configuration {
   }
 
   public static Configuration build(Map<String, String> cliParams) {
-    return build(cliParams, cliParams.get(ADMIN_CLIENT_CONFIG_OPTION));
+    return build(cliParams, cliParams.get(CLIENT_CONFIG_OPTION));
   }
 
   public static Configuration build(Map<String, String> cliParams, String configFile) {
@@ -35,6 +36,12 @@ public class Configuration {
     }
     ConfigFactory.invalidateCaches();
     Config config = ConfigFactory.load();
+
+    String overridingConfigFile = cliParams.get(OVERRIDING_CLIENT_CONFIG_OPTION);
+    if (overridingConfigFile != null) {
+      Config overridingConfig = ConfigFactory.parseFile(new File(overridingConfigFile));
+      config = overridingConfig.withFallback(config);
+    }
     return new Configuration(cliParams, config);
   }
 

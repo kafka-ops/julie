@@ -161,7 +161,7 @@ public class ConfigurationTest {
   public void testKafkaInternalTopicDefaultPrefix() {
     String clientConfigFile = TestUtils.getResourceFilename("/client-config.properties");
 
-    cliOps.put(ADMIN_CLIENT_CONFIG_OPTION, clientConfigFile);
+    cliOps.put(CLIENT_CONFIG_OPTION, clientConfigFile);
 
     Configuration config = Configuration.build(cliOps);
     assertThat(config.getKafkaInternalTopicPrefixes()).isEqualTo(Collections.singletonList("_"));
@@ -172,7 +172,7 @@ public class ConfigurationTest {
     String clientConfigFile =
         TestUtils.getResourceFilename("/config-internals-extended.properties");
 
-    cliOps.put(ADMIN_CLIENT_CONFIG_OPTION, clientConfigFile);
+    cliOps.put(CLIENT_CONFIG_OPTION, clientConfigFile);
 
     Configuration config = Configuration.build(cliOps);
     assertThat(config.getKafkaInternalTopicPrefixes())
