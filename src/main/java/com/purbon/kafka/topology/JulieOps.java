@@ -65,6 +65,7 @@ public class JulieOps implements AutoCloseable {
   public static JulieOps build(String topologyFile, String plansFile, Map<String, String> config)
       throws Exception {
 
+    verifyRequiredParameters(topologyFile, config);
     Configuration builderConfig = Configuration.build(config);
     TopologyBuilderAdminClient adminClient =
         new TopologyBuilderAdminClientBuilder(builderConfig).build();
@@ -83,7 +84,6 @@ public class JulieOps implements AutoCloseable {
             factory.get(),
             factory.builder(),
             principalProviderFactory.get());
-    builder.verifyRequiredParameters(topologyFile, config);
 
     return builder;
   }
@@ -156,16 +156,18 @@ public class JulieOps implements AutoCloseable {
     return new JulieOps(topology, config, topicManager, accessControlManager, principalManager);
   }
 
-  void verifyRequiredParameters(String topologyFile, Map<String, String> config)
+  static void verifyRequiredParameters(String topologyFile, Map<String, String> config)
       throws IOException {
     if (!Files.exists(Paths.get(topologyFile))) {
       throw new IOException("Topology file does not exist");
     }
 
-    String configFilePath = config.get(CommandLineInterface.ADMIN_CLIENT_CONFIG_OPTION);
-
-    if (!Files.exists(Paths.get(configFilePath))) {
-      throw new IOException("AdminClient config file does not exist");
+    String configFilePaths = config.get(CommandLineInterface.ADMIN_CLIENT_CONFIG_OPTION);
+    for (String configFilePath : configFilePaths.split(",")) {
+      if (!Files.exists(Paths.get(configFilePath))) {
+        throw new IOException(
+            String.format("AdminClient config file '%s' does not exist", configFilePath));
+      }
     }
   }
 

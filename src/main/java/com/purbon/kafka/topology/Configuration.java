@@ -10,6 +10,8 @@ import com.purbon.kafka.topology.model.Topology;
 import com.purbon.kafka.topology.serdes.TopologySerdes.FileType;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
+import java.io.File;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -100,12 +102,21 @@ public class Configuration {
     return build(cliParams, cliParams.get(ADMIN_CLIENT_CONFIG_OPTION));
   }
 
-  public static Configuration build(Map<String, String> cliParams, String configFile) {
+  public static Configuration build(Map<String, String> cliParams, String configFilesAsString) {
+    String[] configFiles = configFilesAsString.split(",");
+    String configFile = configFiles[0];
     if (!configFile.isEmpty()) {
       System.setProperty("config.file", configFile);
     }
     ConfigFactory.invalidateCaches();
-    Config config = ConfigFactory.load();
+    Config config =
+        Arrays.stream(configFiles)
+            .skip(1) // First config file is read by ConfigFactory.load()
+            .map(cf -> ConfigFactory.parseFile(new File(cf)))
+            .reduce(
+                ConfigFactory.load(),
+                (hithertoConf, overridingConf) -> overridingConf.withFallback(hithertoConf));
+
     return new Configuration(cliParams, config);
   }
 
