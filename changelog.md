@@ -1,4 +1,25 @@
 
+v2.1.0 / 2021-04-03
+===================
+
+  * Use Set as internal datastructure for 'principals to be created' instead of List. 
+  * Add gcp backend and general cleanup
+  * Introduce an s3 backend
+  * Add control center and schema registry principals on the platform level to be handled by the service account manager as well (#247)
+  * Add error handling when building acls and specially when the group prefix is empty (#245)
+  * Update topic partition and replication factor to use cluster defaults  if nothing is available in the topology (#244)
+  * Skip Julie principal when dealing with ACLs, if present (#246)
+
+v2.0.1 / 2021-03-16
+===================
+
+* Upgrade dependencies to Kafka 2.7 and Confluent 6.1, plus some other minor ones
+* Add support and checks for non ascii characters in schema content (#230)
+* Add integration test for SchemaRegistry Management in multiple formats (#229)
+* Add more clear error for descriptor files without the topics section in the serdes (#227)
+* Fix FileBackend bug in windows to use FileWriter due to closing problems with RandomAccessFile (#222)
+* Add support for JsonSchema and Protobuf when working with Schema Registry (#216)
+
 v2.0.0 / 2021-02-27
 ===================
 
