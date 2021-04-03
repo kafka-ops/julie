@@ -1,4 +1,11 @@
 
+v2.0.2 / 2021-04-03
+===================
+
+  * Use Set as internal datastructure for 'principals to be created' instead of List. 
+  * add error handling when building acls and specially when the group prefix is empty (#245)
+  * Skip Julie principal when dealing with ACLs, if present (#246)
+
 v2.0.1 / 2021-03-16
 ===================
 
