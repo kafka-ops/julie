@@ -9,6 +9,7 @@ import com.purbon.kafka.topology.validation.TopicValidation;
 import com.purbon.kafka.topology.validation.TopologyValidation;
 import com.purbon.kafka.topology.validation.Validation;
 import java.io.IOException;
+import java.lang.reflect.Constructor;
 import java.util.List;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -19,8 +20,6 @@ import org.apache.logging.log4j.Logger;
 public class TopologyValidator {
 
   private static final Logger LOGGER = LogManager.getLogger(TopologyValidator.class);
-
-  private static final String CLASS_PARAM_DELIMITER = "#";
 
   private final Configuration config;
   private final String classPrefix;
@@ -101,12 +100,8 @@ public class TopologyValidator {
                           validationClass));
                 }
 
-                String constructorParam = getValidationStringParam(validationClass);
-                Object instance =
-                    constructorParam == null
-                        ? clazz.getConstructor().newInstance()
-                        : clazz.getConstructor(String.class).newInstance(constructorParam);
-
+                Constructor<?> constructor = clazz.getConstructor();
+                Object instance = constructor.newInstance();
                 if (instance instanceof TopologyValidation) {
                   return (TopologyValidation) instance;
                 } else if (instance instanceof TopicValidation) {
@@ -124,18 +119,9 @@ public class TopologyValidator {
 
   private Class<?> getValidationClazz(String validationClass) {
     try {
-      return Class.forName(getValidationClassName(validationClass));
+      return Class.forName(validationClass);
     } catch (ClassNotFoundException e) {
       return null;
     }
-  }
-
-  private String getValidationClassName(String validationClass) {
-    return validationClass.split(CLASS_PARAM_DELIMITER)[0];
-  }
-
-  private String getValidationStringParam(String validationClass) {
-    String[] strings = validationClass.split(CLASS_PARAM_DELIMITER);
-    return strings.length > 1 ? strings[1] : null;
   }
 }
