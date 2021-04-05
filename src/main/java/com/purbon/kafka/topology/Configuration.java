@@ -2,6 +2,7 @@ package com.purbon.kafka.topology;
 
 import static com.purbon.kafka.topology.CommandLineInterface.ADMIN_CLIENT_CONFIG_OPTION;
 import static com.purbon.kafka.topology.CommandLineInterface.DRY_RUN_OPTION;
+import static com.purbon.kafka.topology.CommandLineInterface.OVERRIDING_ADMIN_CLIENT_CONFIG_OPTION;
 
 import com.purbon.kafka.topology.exceptions.ConfigurationException;
 import com.purbon.kafka.topology.model.Project;
@@ -11,7 +12,6 @@ import com.purbon.kafka.topology.serdes.TopologySerdes.FileType;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
 import java.io.File;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -102,21 +102,18 @@ public class Configuration {
     return build(cliParams, cliParams.get(ADMIN_CLIENT_CONFIG_OPTION));
   }
 
-  public static Configuration build(Map<String, String> cliParams, String configFilesAsString) {
-    String[] configFiles = configFilesAsString.split(",");
-    String configFile = configFiles[0];
+  public static Configuration build(Map<String, String> cliParams, String configFile) {
     if (!configFile.isEmpty()) {
       System.setProperty("config.file", configFile);
     }
     ConfigFactory.invalidateCaches();
-    Config config =
-        Arrays.stream(configFiles)
-            .skip(1) // First config file is read by ConfigFactory.load()
-            .map(cf -> ConfigFactory.parseFile(new File(cf)))
-            .reduce(
-                ConfigFactory.load(),
-                (hithertoConf, overridingConf) -> overridingConf.withFallback(hithertoConf));
+    Config config = ConfigFactory.load();
 
+    String overridingConfigFile = cliParams.get(OVERRIDING_ADMIN_CLIENT_CONFIG_OPTION);
+    if (overridingConfigFile != null) {
+      Config overridingConfig = ConfigFactory.parseFile(new File(overridingConfigFile));
+      config = overridingConfig.withFallback(config);
+    }
     return new Configuration(cliParams, config);
   }
 
