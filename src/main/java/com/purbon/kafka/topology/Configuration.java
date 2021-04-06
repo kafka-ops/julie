@@ -2,7 +2,45 @@ package com.purbon.kafka.topology;
 
 import static com.purbon.kafka.topology.CommandLineInterface.ADMIN_CLIENT_CONFIG_OPTION;
 import static com.purbon.kafka.topology.CommandLineInterface.DRY_RUN_OPTION;
-import static com.purbon.kafka.topology.CommandLineInterface.OVERRIDING_ADMIN_CLIENT_CONFIG_OPTION;
+import static com.purbon.kafka.topology.CommandLineInterface.OVERRIDING_CLIENT_CONFIG_OPTION;
+import static com.purbon.kafka.topology.Constants.ACCESS_CONTROL_IMPLEMENTATION_CLASS;
+import static com.purbon.kafka.topology.Constants.ALLOW_DELETE_BINDINGS;
+import static com.purbon.kafka.topology.Constants.ALLOW_DELETE_PRINCIPALS;
+import static com.purbon.kafka.topology.Constants.ALLOW_DELETE_TOPICS;
+import static com.purbon.kafka.topology.Constants.CCLOUD_ENV_CONFIG;
+import static com.purbon.kafka.topology.Constants.CONFLUENT_COMMAND_TOPIC_CONFIG;
+import static com.purbon.kafka.topology.Constants.CONFLUENT_METRICS_TOPIC_CONFIG;
+import static com.purbon.kafka.topology.Constants.CONFLUENT_MONITORING_TOPIC_CONFIG;
+import static com.purbon.kafka.topology.Constants.CONFLUENT_SCHEMA_REGISTRY_URL_CONFIG;
+import static com.purbon.kafka.topology.Constants.CONNECTOR_ALLOW_TOPIC_CREATE;
+import static com.purbon.kafka.topology.Constants.GROUP_MANAGED_PREFIXES;
+import static com.purbon.kafka.topology.Constants.JULIE_GCP_BUCKET;
+import static com.purbon.kafka.topology.Constants.JULIE_GCP_PROJECT_ID;
+import static com.purbon.kafka.topology.Constants.JULIE_INTERNAL_PRINCIPAL;
+import static com.purbon.kafka.topology.Constants.JULIE_S3_BUCKET;
+import static com.purbon.kafka.topology.Constants.JULIE_S3_REGION;
+import static com.purbon.kafka.topology.Constants.KAFKA_INTERNAL_TOPIC_PREFIXES;
+import static com.purbon.kafka.topology.Constants.MDS_KAFKA_CLUSTER_ID_CONFIG;
+import static com.purbon.kafka.topology.Constants.MDS_KC_CLUSTER_ID_CONFIG;
+import static com.purbon.kafka.topology.Constants.MDS_PASSWORD_CONFIG;
+import static com.purbon.kafka.topology.Constants.MDS_SERVER;
+import static com.purbon.kafka.topology.Constants.MDS_SR_CLUSTER_ID_CONFIG;
+import static com.purbon.kafka.topology.Constants.MDS_USER_CONFIG;
+import static com.purbon.kafka.topology.Constants.OPTIMIZED_ACLS_CONFIG;
+import static com.purbon.kafka.topology.Constants.PROJECT_PREFIX_FORMAT_CONFIG;
+import static com.purbon.kafka.topology.Constants.RBAC_ACCESS_CONTROL_CLASS;
+import static com.purbon.kafka.topology.Constants.SERVICE_ACCOUNT_MANAGED_PREFIXES;
+import static com.purbon.kafka.topology.Constants.STATE_PROCESSOR_IMPLEMENTATION_CLASS;
+import static com.purbon.kafka.topology.Constants.TOPIC_MANAGED_PREFIXES;
+import static com.purbon.kafka.topology.Constants.TOPIC_PREFIX_FORMAT_CONFIG;
+import static com.purbon.kafka.topology.Constants.TOPIC_PREFIX_SEPARATOR_CONFIG;
+import static com.purbon.kafka.topology.Constants.TOPOLOGY_BUILDER_INTERNAL_PRINCIPAL;
+import static com.purbon.kafka.topology.Constants.TOPOLOGY_EXPERIMENTAL_ENABLED_CONFIG;
+import static com.purbon.kafka.topology.Constants.TOPOLOGY_FILE_TYPE;
+import static com.purbon.kafka.topology.Constants.TOPOLOGY_PRINCIPAL_TRANSLATION_ENABLED_CONFIG;
+import static com.purbon.kafka.topology.Constants.TOPOLOGY_STATE_FROM_CLUSTER;
+import static com.purbon.kafka.topology.Constants.TOPOLOGY_TOPIC_STATE_FROM_CLUSTER;
+import static com.purbon.kafka.topology.Constants.TOPOLOGY_VALIDATIONS_CONFIG;
 
 import com.purbon.kafka.topology.exceptions.ConfigurationException;
 import com.purbon.kafka.topology.model.Project;
@@ -15,6 +53,7 @@ import java.io.File;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Properties;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -22,74 +61,6 @@ import java.util.stream.Stream;
 import org.apache.kafka.clients.admin.AdminClientConfig;
 
 public class Configuration {
-
-  static final String KAFKA_INTERNAL_TOPIC_PREFIXES = "kafka.internal.topic.prefixes";
-  static final String ACCESS_CONTROL_IMPLEMENTATION_CLASS = "topology.builder.access.control.class";
-
-  static final String ACCESS_CONTROL_DEFAULT_CLASS =
-      "com.purbon.kafka.topology.roles.SimpleAclsProvider";
-
-  static final String CONFLUENT_CLOUD_CONTROL_CLASS =
-      "com.purbon.kafka.topology.roles.CCloudAclsProvider";
-
-  static final String RBAC_ACCESS_CONTROL_CLASS = "com.purbon.kafka.topology.roles.RBACProvider";
-
-  private static final String STATE_PROCESSOR_IMPLEMENTATION_CLASS =
-      "topology.builder.state.processor.class";
-
-  static final String STATE_PROCESSOR_DEFAULT_CLASS =
-      "com.purbon.kafka.topology.backend.FileBackend";
-
-  static final String REDIS_STATE_PROCESSOR_CLASS =
-      "com.purbon.kafka.topology.backend.RedisBackend";
-
-  static final String REDIS_HOST_CONFIG = "topology.builder.redis.host";
-  static final String REDIS_PORT_CONFIG = "topology.builder.redis.port";
-
-  public static final String MDS_SERVER = "topology.builder.mds.server";
-  static final String MDS_USER_CONFIG = "topology.builder.mds.user";
-  static final String MDS_PASSWORD_CONFIG = "topology.builder.mds.password";
-  public static final String MDS_KAFKA_CLUSTER_ID_CONFIG = "topology.builder.mds.kafka.cluster.id";
-  public static final String MDS_SR_CLUSTER_ID_CONFIG =
-      "topology.builder.mds.schema.registry.cluster.id";
-  public static final String MDS_KC_CLUSTER_ID_CONFIG =
-      "topology.builder.mds.kafka.connect.cluster.id";
-
-  static final String CONFLUENT_SCHEMA_REGISTRY_URL_CONFIG = "schema.registry.url";
-  private static final String CONFLUENT_MONITORING_TOPIC_CONFIG = "confluent.monitoring.topic";
-  private static final String CONFLUENT_COMMAND_TOPIC_CONFIG = "confluent.command.topic";
-  private static final String CONFLUENT_METRICS_TOPIC_CONFIG = "confluent.metrics.topic";
-  static final String TOPIC_PREFIX_FORMAT_CONFIG = "topology.topic.prefix.format";
-  static final String PROJECT_PREFIX_FORMAT_CONFIG = "topology.project.prefix.format";
-  static final String TOPIC_PREFIX_SEPARATOR_CONFIG = "topology.topic.prefix.separator";
-  static final String TOPOLOGY_VALIDATIONS_CONFIG = "topology.validations";
-  static final String CONNECTOR_ALLOW_TOPIC_CREATE = "topology.connector.allow.topic.create";
-
-  static final String TOPOLOGY_FILE_TYPE = "topology.file.type";
-
-  static final String OPTIMIZED_ACLS_CONFIG = "topology.acls.optimized";
-
-  static final String ALLOW_DELETE_TOPICS = "allow.delete.topics";
-  private static final String ALLOW_DELETE_BINDINGS = "allow.delete.bindings";
-  private static final String ALLOW_DELETE_PRINCIPALS = "allow.delete.principals";
-
-  static final String CCLOUD_ENV_CONFIG = "ccloud.environment";
-
-  static final String TOPOLOGY_EXPERIMENTAL_ENABLED_CONFIG = "topology.features.experimental";
-  static final String TOPOLOGY_PRINCIPAL_TRANSLATION_ENABLED_CONFIG =
-      "topology.translation.principal.enabled";
-
-  public static final String TOPOLOGY_TOPIC_STATE_FROM_CLUSTER =
-      "topology.state.topics.cluster.enabled";
-
-  static final String TOPOLOGY_STATE_FROM_CLUSTER = "topology.state.cluster.enabled";
-
-  static final String SERVICE_ACCOUNT_MANAGED_PREFIXES =
-      "topology.service.accounts.managed.prefixes";
-
-  static final String TOPIC_MANAGED_PREFIXES = "topology.topic.managed.prefixes";
-
-  static final String GROUP_MANAGED_PREFIXES = "topology.group.managed.prefixes";
 
   private final Map<String, String> cliParams;
   private Config config;
@@ -109,7 +80,7 @@ public class Configuration {
     ConfigFactory.invalidateCaches();
     Config config = ConfigFactory.load();
 
-    String overridingConfigFile = cliParams.get(OVERRIDING_ADMIN_CLIENT_CONFIG_OPTION);
+    String overridingConfigFile = cliParams.get(OVERRIDING_CLIENT_CONFIG_OPTION);
     if (overridingConfigFile != null) {
       Config overridingConfig = ConfigFactory.parseFile(new File(overridingConfigFile));
       config = overridingConfig.withFallback(config);
@@ -325,6 +296,16 @@ public class Configuration {
     return config.hasPath(CCLOUD_ENV_CONFIG);
   }
 
+  public Optional<String> getInternalPrincipalOptional() {
+    String internalPrincipal = null;
+    if (hasProperty(JULIE_INTERNAL_PRINCIPAL)) {
+      internalPrincipal = config.getString(JULIE_INTERNAL_PRINCIPAL);
+    } else if (hasProperty(TOPOLOGY_BUILDER_INTERNAL_PRINCIPAL)) {
+      internalPrincipal = config.getString(TOPOLOGY_BUILDER_INTERNAL_PRINCIPAL);
+    }
+    return Optional.ofNullable(internalPrincipal);
+  }
+
   public boolean hasProperty(String property) {
     return config.hasPath(property);
   }
@@ -377,5 +358,21 @@ public class Configuration {
 
   public boolean fetchTopicStateFromTheCluster() {
     return fetchStateFromTheCluster() || config.getBoolean(TOPOLOGY_TOPIC_STATE_FROM_CLUSTER);
+  }
+
+  public String getS3Bucket() {
+    return config.getString(JULIE_S3_BUCKET);
+  }
+
+  public String getS3Region() {
+    return config.getString(JULIE_S3_REGION);
+  }
+
+  public String getGCPProjectId() {
+    return config.getString(JULIE_GCP_PROJECT_ID);
+  }
+
+  public String getGCPBucket() {
+    return config.getString(JULIE_GCP_BUCKET);
   }
 }

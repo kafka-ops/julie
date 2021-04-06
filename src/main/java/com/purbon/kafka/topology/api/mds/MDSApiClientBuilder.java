@@ -1,9 +1,6 @@
 package com.purbon.kafka.topology.api.mds;
 
-import static com.purbon.kafka.topology.Configuration.MDS_KAFKA_CLUSTER_ID_CONFIG;
-import static com.purbon.kafka.topology.Configuration.MDS_KC_CLUSTER_ID_CONFIG;
-import static com.purbon.kafka.topology.Configuration.MDS_SERVER;
-import static com.purbon.kafka.topology.Configuration.MDS_SR_CLUSTER_ID_CONFIG;
+import static com.purbon.kafka.topology.Constants.*;
 
 import com.purbon.kafka.topology.Configuration;
 import org.apache.logging.log4j.LogManager;

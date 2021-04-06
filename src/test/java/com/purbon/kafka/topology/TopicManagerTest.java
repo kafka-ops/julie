@@ -1,8 +1,7 @@
 package com.purbon.kafka.topology;
 
-import static com.purbon.kafka.topology.CommandLineInterface.ALLOW_DELETE_OPTION;
-import static com.purbon.kafka.topology.CommandLineInterface.BROKERS_OPTION;
-import static com.purbon.kafka.topology.Configuration.*;
+import static com.purbon.kafka.topology.CommandLineInterface.*;
+import static com.purbon.kafka.topology.Constants.*;
 import static com.purbon.kafka.topology.TopicManager.NUM_PARTITIONS;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.*;
@@ -111,8 +110,7 @@ public class TopicManagerTest {
 
     topicA = new TopicImpl("topicA");
     project.addTopic(topicA);
-    topicB = new TopicImpl("topicB");
-    topicB.getConfig().put(NUM_PARTITIONS, "12");
+    topicB = new TopicImpl("topicB", Collections.singletonMap(NUM_PARTITIONS, "12"));
     project.addTopic(topicB);
 
     topicManager.apply(topology, plan);
@@ -324,8 +322,7 @@ public class TopicManagerTest {
     Project project = new ProjectImpl("project");
     Topic topicA = new TopicImpl("topicA");
     project.addTopic(topicA);
-    Topic topicB = new TopicImpl("topicB");
-    topicB.getConfig().put(NUM_PARTITIONS, "12");
+    Topic topicB = new TopicImpl("topicB", Collections.singletonMap(NUM_PARTITIONS, "12"));
     project.addTopic(topicB);
     Topology topology = new TopologyImpl();
     topology.addProject(project);

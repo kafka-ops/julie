@@ -1,11 +1,9 @@
 package com.purbon.kafka.topology;
 
-import static com.purbon.kafka.topology.CommandLineInterface.BROKERS_OPTION;
-import static com.purbon.kafka.topology.Configuration.OPTIMIZED_ACLS_CONFIG;
-import static com.purbon.kafka.topology.roles.rbac.RBACBindingsBuilder.LITERAL;
-import static com.purbon.kafka.topology.roles.rbac.RBACBindingsBuilder.PREFIX;
-import static com.purbon.kafka.topology.roles.rbac.RBACPredefinedRoles.DEVELOPER_READ;
-import static com.purbon.kafka.topology.roles.rbac.RBACPredefinedRoles.DEVELOPER_WRITE;
+import static com.purbon.kafka.topology.CommandLineInterface.*;
+import static com.purbon.kafka.topology.Constants.*;
+import static com.purbon.kafka.topology.roles.rbac.RBACBindingsBuilder.*;
+import static com.purbon.kafka.topology.roles.rbac.RBACPredefinedRoles.*;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
@@ -35,6 +33,7 @@ import com.purbon.kafka.topology.roles.RBACProvider;
 import com.purbon.kafka.topology.roles.TopologyAclBinding;
 import com.purbon.kafka.topology.roles.rbac.ClusterLevelRoleBuilder;
 import com.purbon.kafka.topology.roles.rbac.RBACBindingsBuilder;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -76,7 +75,7 @@ public class RbacProviderTest {
   }
 
   @Test
-  public void newConsumerACLsCreation() {
+  public void newConsumerACLsCreation() throws IOException {
 
     List<Consumer> consumers = new ArrayList<>();
     consumers.add(new Consumer("User:app1"));
@@ -100,7 +99,7 @@ public class RbacProviderTest {
   }
 
   @Test
-  public void newConsumerOptimisedACLsCreation() {
+  public void newConsumerOptimisedACLsCreation() throws IOException {
 
     HashMap<String, String> cliOps = new HashMap<>();
     cliOps.put(BROKERS_OPTION, "");
@@ -132,7 +131,7 @@ public class RbacProviderTest {
   }
 
   @Test
-  public void newProducerACLsCreation() {
+  public void newProducerACLsCreation() throws IOException {
 
     List<Producer> producers = new ArrayList<>();
     producers.add(new Producer("User:app1"));
@@ -156,7 +155,7 @@ public class RbacProviderTest {
   }
 
   @Test
-  public void newProducerOptimizedACLsCreation() {
+  public void newProducerOptimizedACLsCreation() throws IOException {
 
     HashMap<String, String> cliOps = new HashMap<>();
     cliOps.put(BROKERS_OPTION, "");
@@ -187,7 +186,7 @@ public class RbacProviderTest {
   }
 
   @Test
-  public void newKafkaStreamsAppACLsCreation() {
+  public void newKafkaStreamsAppACLsCreation() throws IOException {
 
     Project project = new ProjectImpl();
 
@@ -212,7 +211,7 @@ public class RbacProviderTest {
   }
 
   @Test
-  public void newSchemaRegistryACLCreation() {
+  public void newSchemaRegistryACLCreation() throws IOException {
 
     Project project = new ProjectImpl();
     Topology topology = new TopologyImpl();
@@ -248,7 +247,7 @@ public class RbacProviderTest {
   }
 
   @Test
-  public void newControlCenterACLCreation() {
+  public void newControlCenterACLCreation() throws IOException {
 
     Project project = new ProjectImpl();
     Topology topology = new TopologyImpl();
@@ -276,7 +275,7 @@ public class RbacProviderTest {
   }
 
   @Test
-  public void newKafkaConnectACLsCreation() {
+  public void newKafkaConnectACLsCreation() throws IOException {
 
     Project project = new ProjectImpl();
 

@@ -1,8 +1,7 @@
 package com.purbon.kafka.topology.integration;
 
-import static com.purbon.kafka.topology.CommandLineInterface.ALLOW_DELETE_OPTION;
-import static com.purbon.kafka.topology.CommandLineInterface.BROKERS_OPTION;
-import static com.purbon.kafka.topology.Configuration.TOPOLOGY_TOPIC_STATE_FROM_CLUSTER;
+import static com.purbon.kafka.topology.CommandLineInterface.*;
+import static com.purbon.kafka.topology.Constants.*;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertTrue;
 
@@ -116,6 +115,26 @@ public class TopicManagerIT {
     config.put(TopicManager.REPLICATION_FACTOR, "1");
 
     Topic topicB = new TopicImpl("topicB", config);
+    project.addTopic(topicB);
+
+    topicManager.apply(topology, plan);
+    plan.run();
+
+    verifyTopics(Arrays.asList(topicA.toString(), topicB.toString()));
+  }
+
+  @Test
+  public void testTopicCreationWithDefaultTopicConfigs()
+      throws IOException, ExecutionException, InterruptedException {
+
+    Topology topology = new TopologyImpl();
+    topology.setContext("testTopicCreationWithDefaultTopicConfigs");
+    Project project = new ProjectImpl("project");
+    topology.addProject(project);
+
+    Topic topicA = new TopicImpl("topicA");
+    project.addTopic(topicA);
+    Topic topicB = new TopicImpl("topicB");
     project.addTopic(topicB);
 
     topicManager.apply(topology, plan);

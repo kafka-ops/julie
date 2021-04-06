@@ -1,10 +1,7 @@
 package com.purbon.kafka.topology;
 
-import static com.purbon.kafka.topology.CommandLineInterface.ALLOW_DELETE_OPTION;
-import static com.purbon.kafka.topology.CommandLineInterface.BROKERS_OPTION;
-import static com.purbon.kafka.topology.Configuration.SERVICE_ACCOUNT_MANAGED_PREFIXES;
-import static com.purbon.kafka.topology.Configuration.TOPOLOGY_EXPERIMENTAL_ENABLED_CONFIG;
-import static com.purbon.kafka.topology.Configuration.TOPOLOGY_STATE_FROM_CLUSTER;
+import static com.purbon.kafka.topology.CommandLineInterface.*;
+import static com.purbon.kafka.topology.Constants.*;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
@@ -29,12 +26,7 @@ import java.io.IOException;
 import java.io.PrintStream;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Properties;
+import java.util.*;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -87,8 +79,9 @@ public class PrincipalManagerTest {
     Topology topology = new TopologyImpl();
     topology.setContext("context");
     Project project = new ProjectImpl("foo");
-    project.setConsumers(Collections.singletonList(new Consumer("consumer")));
-    project.setProducers(Collections.singletonList(new Producer("producer")));
+    project.setConsumers(
+        Arrays.asList(new Consumer("consumer-principal"), new Consumer("consumer-principal")));
+    project.setProducers(Collections.singletonList(new Producer("producer-principal")));
     topology.addProject(project);
 
     doNothing().when(provider).configure();
@@ -96,10 +89,11 @@ public class PrincipalManagerTest {
     principalManager.applyCreate(topology, plan);
     principalManager.applyDelete(topology, plan);
 
-    Collection<ServiceAccount> accounts =
-        Arrays.asList(
-            new ServiceAccount(-1, "consumer", "Managed by KTB"),
-            new ServiceAccount(-1, "producer", "Managed by KTB"));
+    Set<ServiceAccount> accounts =
+        new HashSet<>(
+            Arrays.asList(
+                new ServiceAccount(-1, "consumer-principal", "Managed by KTB"),
+                new ServiceAccount(-1, "producer-principal", "Managed by KTB")));
 
     assertThat(plan.getActions()).hasSize(1);
     assertThat(plan.getActions()).containsAnyOf(new CreateAccounts(provider, accounts));
@@ -113,8 +107,8 @@ public class PrincipalManagerTest {
     topology.setContext("context");
     Project project = new ProjectImpl("foo");
     Topic topic = new TopicImpl("baa");
-    topic.setConsumers(Collections.singletonList(new Consumer("topicConsumer")));
-    topic.setProducers(Collections.singletonList(new Producer("topicProducer")));
+    topic.setConsumers(Collections.singletonList(new Consumer("topicConsumer-principal")));
+    topic.setProducers(Collections.singletonList(new Producer("topicProducer-principal")));
 
     project.addTopic(topic);
     topology.addProject(project);
@@ -124,10 +118,11 @@ public class PrincipalManagerTest {
     principalManager.applyCreate(topology, plan);
     principalManager.applyDelete(topology, plan);
 
-    Collection<ServiceAccount> accounts =
-        Arrays.asList(
-            new ServiceAccount(-1, "topicConsumer", "Managed by KTB"),
-            new ServiceAccount(-1, "topicProducer", "Managed by KTB"));
+    Set<ServiceAccount> accounts =
+        new HashSet<>(
+            Arrays.asList(
+                new ServiceAccount(-1, "topicConsumer-principal", "Managed by KTB"),
+                new ServiceAccount(-1, "topicProducer-principal", "Managed by KTB")));
 
     assertThat(plan.getActions()).hasSize(1);
     assertThat(plan.getActions()).containsAnyOf(new CreateAccounts(provider, accounts));

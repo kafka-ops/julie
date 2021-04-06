@@ -47,7 +47,7 @@ It is necessary for the topology builder to keep some state, if it does not retr
 for example for situations when the tool needs to decide what ACLs to remove.
 As well this property is important when the tool does not manage all topics in the cluster, so it is important to know it context.
 
-The default implementation is a File, however is possible ot use other systems.
+The default implementation is a File, however is possible ot use other systems such as S3, GCP Storage or Redis.
 To configure it you can use:
 
 Configure the state management system.
@@ -56,6 +56,8 @@ Configure the state management system.
 **values**:
  - File: "com.purbon.kafka.topology.backend.FileBackend"
  - Redis: "com.purbon.kafka.topology.backend.RedisBackend"
+ - S3: "com.purbon.kafka.topology.backend.S3Backend"
+ - GCP: "com.purbon.kafka.topology.backend.GCPBackend"
 
 If you are using redis, you need to extend two other properties to setup the server location:
 ::
@@ -138,6 +140,26 @@ You can override this behaviour by setting the config below to `false`. And inst
 An example configuration will look like this:
 ::
     topology.connector.allow.topic.create=false
+
+Prevent ACL manager to delete dedicated rules for JulieOps
+-----------
+
+It is a common case to use a dedicated principal for allowing access to JulieOps to manage a certain resources.
+This would be done for by giving Julie a certain principal and create their own ACL rules.
+
+When managing application level rules, you want to exclude this principal from the ACL delete process.
+You can do this configuring this property.
+
+**Property**: *julie.internal.principal*
+**Default value**: null
+
+For backwards compatibility you can as well use *topology.builder.internal.principal* as property name.
+
+An example configuration would be:
+
+julie.internal.principal="User:Julie"
+
+this would exclude all ACLs or RBAC rules that has this principal from the management of JulieOps
 
 Retrieve topic management state from local controlled view
 -----------

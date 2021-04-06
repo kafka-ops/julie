@@ -1,30 +1,26 @@
 package com.purbon.kafka.topology.backend;
 
 import com.purbon.kafka.topology.BackendController;
-import com.purbon.kafka.topology.model.cluster.ServiceAccount;
-import com.purbon.kafka.topology.roles.TopologyAclBinding;
+import com.purbon.kafka.topology.Configuration;
 import java.io.IOException;
-import java.util.Set;
 
 public interface Backend {
 
-  void createOrOpen();
+  default void configure(Configuration config) {
+    // empty if not implemented
+  }
 
-  void createOrOpen(BackendController.Mode mode);
+  default void createOrOpen() {
+    // empty if not implemented
+  }
 
-  Set<ServiceAccount> loadServiceAccounts() throws IOException;
-
-  Set<TopologyAclBinding> loadBindings() throws IOException;
-
-  Set<String> loadTopics() throws IOException;
-
-  void saveType(String type);
-
-  void saveBindings(Set<TopologyAclBinding> bindings);
-
-  void saveAccounts(Set<ServiceAccount> accounts);
-
-  void saveTopics(Set<String> topics);
+  default void createOrOpen(BackendController.Mode mode) {
+    // empty if not implemented
+  }
 
   void close();
+
+  void save(BackendState state) throws IOException;
+
+  BackendState load() throws IOException;
 }

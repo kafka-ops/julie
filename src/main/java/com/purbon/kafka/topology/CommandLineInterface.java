@@ -26,9 +26,9 @@ public class CommandLineInterface {
   public static final String ADMIN_CLIENT_CONFIG_OPTION = "clientConfig";
   public static final String ADMIN_CLIENT_CONFIG_DESC = "The AdminClient configuration file.";
 
-  public static final String OVERRIDING_ADMIN_CLIENT_CONFIG_OPTION = "overridingClientConfig";
-  public static final String OVERRIDING_ADMIN_CLIENT_CONFIG_DESC =
-      "The overriding AdminClient configuration file.";
+  public static final String OVERRIDING_CLIENT_CONFIG_OPTION = "overridingClientConfig";
+  public static final String OVERRIDING_CLIENT_CONFIG_DESC =
+      "The overriding client configuration file.";
 
   public static final String ALLOW_DELETE_OPTION = "allowDelete";
   public static final String ALLOW_DELETE_DESC =
@@ -82,11 +82,11 @@ public class CommandLineInterface {
             .required()
             .build();
 
-    final Option overridingAdminClientConfigFileOption =
+    final Option overridingClientConfigFileOption =
         Option.builder()
-            .longOpt(OVERRIDING_ADMIN_CLIENT_CONFIG_OPTION)
+            .longOpt(OVERRIDING_CLIENT_CONFIG_OPTION)
             .hasArg()
-            .desc(OVERRIDING_ADMIN_CLIENT_CONFIG_DESC)
+            .desc(OVERRIDING_CLIENT_CONFIG_DESC)
             .required(false)
             .build();
 
@@ -132,7 +132,7 @@ public class CommandLineInterface {
     options.addOption(brokersListOption);
     options.addOption(adminClientConfigFileOption);
 
-    options.addOption(overridingAdminClientConfigFileOption);
+    options.addOption(overridingClientConfigFileOption);
     options.addOption(allowDeleteOption);
     options.addOption(dryRunOption);
     options.addOption(quietOption);
@@ -175,9 +175,6 @@ public class CommandLineInterface {
     config.put(DRY_RUN_OPTION, String.valueOf(cmd.hasOption(DRY_RUN_OPTION)));
     config.put(QUIET_OPTION, String.valueOf(cmd.hasOption(QUIET_OPTION)));
     config.put(ADMIN_CLIENT_CONFIG_OPTION, cmd.getOptionValue(ADMIN_CLIENT_CONFIG_OPTION));
-    config.put(
-        OVERRIDING_ADMIN_CLIENT_CONFIG_OPTION,
-        cmd.getOptionValue(OVERRIDING_ADMIN_CLIENT_CONFIG_OPTION));
     return config;
   }
 

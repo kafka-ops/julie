@@ -1,9 +1,6 @@
 package com.purbon.kafka.topology.backend;
 
-import static com.purbon.kafka.topology.backend.FileBackend.ACLS_TAG;
-import static com.purbon.kafka.topology.backend.FileBackend.SERVICE_ACCOUNTS_TAG;
-import static com.purbon.kafka.topology.backend.FileBackend.STATE_FILE_NAME;
-import static com.purbon.kafka.topology.backend.FileBackend.TOPICS_TAG;
+import static com.purbon.kafka.topology.BackendController.STATE_FILE_NAME;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.purbon.kafka.topology.BackendController.Mode;
@@ -15,7 +12,6 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.Set;
 import org.apache.kafka.common.resource.ResourceType;
 import org.junit.After;
@@ -62,19 +58,21 @@ public class FileBackendTest {
     Topic fooTopic = builder.getTopic("foo");
     Topic barTopic = builder.getTopic("bar");
 
+    BackendState state = new BackendState();
+    state.addBindings(Collections.singleton(binding));
+    state.addTopics(Arrays.asList(fooTopic.toString(), barTopic.toString()));
+
     backend.createOrOpen(Mode.TRUNCATE);
-    backend.saveType(ACLS_TAG);
-    backend.saveBindings(Collections.singleton(binding));
-    backend.saveType(SERVICE_ACCOUNTS_TAG);
-    backend.saveType(TOPICS_TAG);
-    backend.saveTopics(new HashSet<>(Arrays.asList(fooTopic.toString(), barTopic.toString())));
+    backend.save(state);
     backend.close();
 
     backend = new FileBackend();
     backend.createOrOpen();
 
-    Set<TopologyAclBinding> bindings = backend.loadBindings();
-    Set<String> topics = backend.loadTopics();
+    BackendState recoveredState = backend.load();
+
+    Set<TopologyAclBinding> bindings = recoveredState.getBindings();
+    Set<String> topics = recoveredState.getTopics();
 
     assertThat(bindings).hasSize(1);
     assertThat(bindings).contains(binding);

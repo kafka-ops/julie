@@ -1,11 +1,10 @@
 package com.purbon.kafka.topology.integration.backend;
 
+import com.purbon.kafka.topology.backend.BackendState;
 import com.purbon.kafka.topology.backend.RedisBackend;
 import com.purbon.kafka.topology.roles.TopologyAclBinding;
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.Collections;
 import org.apache.kafka.common.resource.ResourceType;
 import org.junit.Assert;
 import org.junit.Rule;
@@ -27,15 +26,18 @@ public class RedisBackendIT {
     RedisBackend rsp = new RedisBackend(host, port);
     rsp.createOrOpen();
 
-    rsp.saveType("acls");
     TopologyAclBinding binding =
         TopologyAclBinding.build(
             ResourceType.TOPIC.name(), "foo", "*", "Write", "User:foo", "LITERAL");
-    rsp.saveBindings(new HashSet<>(Arrays.asList(binding)));
 
-    Set<TopologyAclBinding> bindings = rsp.loadBindings();
+    BackendState state = new BackendState();
+    state.addBindings(Collections.singleton(binding));
+    rsp.save(state);
 
-    Assert.assertEquals(1, bindings.size());
-    Assert.assertEquals(binding.getPrincipal(), bindings.iterator().next().getPrincipal());
+    BackendState recoveredState = rsp.load();
+
+    Assert.assertEquals(1, recoveredState.getBindings().size());
+    Assert.assertEquals(
+        binding.getPrincipal(), recoveredState.getBindings().iterator().next().getPrincipal());
   }
 }

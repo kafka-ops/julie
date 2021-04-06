@@ -1,12 +1,13 @@
 package com.purbon.kafka.topology;
 
 import static com.purbon.kafka.topology.CommandLineInterface.*;
-import static com.purbon.kafka.topology.Configuration.CONFLUENT_SCHEMA_REGISTRY_URL_CONFIG;
+import static com.purbon.kafka.topology.Constants.*;
 import static org.mockito.Matchers.anyObject;
 import static org.mockito.Mockito.*;
 
 import com.purbon.kafka.topology.BackendController.Mode;
 import com.purbon.kafka.topology.api.adminclient.TopologyBuilderAdminClient;
+import com.purbon.kafka.topology.backend.BackendState;
 import com.purbon.kafka.topology.backend.RedisBackend;
 import com.purbon.kafka.topology.exceptions.TopologyParsingException;
 import com.purbon.kafka.topology.utils.TestUtils;
@@ -36,11 +37,13 @@ public class JulieOpsTest {
 
   @Rule public MockitoRule mockitoRule = MockitoJUnit.rule();
 
+  @Mock RedisBackend stateProcessor;
+
   private Map<String, String> cliOps;
   private Properties props;
 
   @Before
-  public void before() {
+  public void before() throws IOException {
     cliOps = new HashMap<>();
     cliOps.put(BROKERS_OPTION, "");
     cliOps.put(ADMIN_CLIENT_CONFIG_OPTION, "/fooBar");
@@ -49,6 +52,8 @@ public class JulieOpsTest {
     props.put(CONFLUENT_SCHEMA_REGISTRY_URL_CONFIG, "http://foo:8082");
     props.put(AdminClientConfig.BOOTSTRAP_SERVERS_CONFIG, "");
     props.put(AdminClientConfig.RETRIES_CONFIG, Integer.MAX_VALUE);
+
+    when(stateProcessor.load()).thenReturn(new BackendState());
   }
 
   @Test
@@ -148,8 +153,6 @@ public class JulieOpsTest {
     verify(topicManager, times(1)).apply(anyObject(), anyObject());
     verify(accessControlManager, times(1)).apply(anyObject(), anyObject());
   }
-
-  @Mock RedisBackend stateProcessor;
 
   @Test
   public void builderRunTestAsFromCLIWithARedisBackend() throws Exception {

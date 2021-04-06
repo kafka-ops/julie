@@ -4,7 +4,6 @@ import com.purbon.kafka.topology.PrincipalProvider;
 import com.purbon.kafka.topology.actions.BaseAccountsAction;
 import com.purbon.kafka.topology.model.cluster.ServiceAccount;
 import java.io.IOException;
-import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 import org.apache.logging.log4j.LogManager;
@@ -14,7 +13,7 @@ public class CreateAccounts extends BaseAccountsAction {
 
   private static final Logger LOGGER = LogManager.getLogger(CreateAccounts.class);
 
-  public CreateAccounts(PrincipalProvider provider, Collection<ServiceAccount> accounts) {
+  public CreateAccounts(PrincipalProvider provider, Set<ServiceAccount> accounts) {
     super(provider, accounts);
   }
 

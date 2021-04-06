@@ -1,7 +1,6 @@
 package com.purbon.kafka.topology.backend;
 
 import com.purbon.kafka.topology.BackendController.Mode;
-import com.purbon.kafka.topology.model.cluster.ServiceAccount;
 import com.purbon.kafka.topology.roles.TopologyAclBinding;
 import java.io.IOException;
 import java.util.HashSet;
@@ -42,45 +41,16 @@ public class RedisBackend extends AbstractBackend {
   }
 
   @Override
-  public Set<TopologyAclBinding> loadBindings() throws IOException {
-    connectIfNeed();
-
-    Set<TopologyAclBinding> bindings = new HashSet<>();
-    String type = jedis.get(JULIE_OPS_TYPE);
-
-    long count = jedis.scard(JULIE_OPS_BINDINGS);
-    for (long i = 0; i < count; i++) {
-      String elem = jedis.spop(JULIE_OPS_BINDINGS);
-      TopologyAclBinding binding = buildAclBinding(elem);
-      bindings.add(binding);
-    }
-
-    return bindings;
-  }
-
-  private void connectIfNeed() {
-    if (!jedis.isConnected()) {
-      createOrOpen();
-    }
+  public void close() {
+    jedis.close();
   }
 
   @Override
-  public Set<ServiceAccount> loadServiceAccounts() throws IOException {
-    return new HashSet<>();
+  public void save(BackendState state) throws IOException {
+    saveBindings(state.getBindings());
   }
 
-  @Override
-  public Set<String> loadTopics() throws IOException {
-    return new HashSet<>();
-  }
-
-  @Override
-  public void saveType(String type) {
-    jedis.set(JULIE_OPS_TYPE, type);
-  }
-
-  @Override
-  public void saveBindings(Set<TopologyAclBinding> bindings) {
+  private void saveBindings(Set<TopologyAclBinding> bindings) {
 
     String[] members =
         bindings.stream().map(TopologyAclBinding::toString).toArray(size -> new String[size]);
@@ -89,13 +59,27 @@ public class RedisBackend extends AbstractBackend {
   }
 
   @Override
-  public void saveAccounts(Set<ServiceAccount> accounts) {}
+  public BackendState load() throws IOException {
+    BackendState state = new BackendState();
+    state.addBindings(loadBindings());
+    return state;
+  }
 
-  @Override
-  public void saveTopics(Set<String> topics) {}
+  private Set<TopologyAclBinding> loadBindings() throws IOException {
+    connectIfNeed();
+    Set<TopologyAclBinding> bindings = new HashSet<>();
+    long count = jedis.scard(JULIE_OPS_BINDINGS);
+    for (long i = 0; i < count; i++) {
+      String elem = jedis.spop(JULIE_OPS_BINDINGS);
+      TopologyAclBinding binding = buildAclBinding(elem);
+      bindings.add(binding);
+    }
+    return bindings;
+  }
 
-  @Override
-  public void close() {
-    jedis.close();
+  private void connectIfNeed() {
+    if (!jedis.isConnected()) {
+      createOrOpen();
+    }
   }
 }
