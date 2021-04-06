@@ -61,6 +61,7 @@ public class JulieOps implements AutoCloseable {
   public static JulieOps build(String topologyFile, String plansFile, Map<String, String> config)
       throws Exception {
 
+    verifyRequiredParameters(topologyFile, config);
     Configuration builderConfig = Configuration.build(config);
     TopologyBuilderAdminClient adminClient =
         new TopologyBuilderAdminClientBuilder(builderConfig).build();
@@ -79,7 +80,6 @@ public class JulieOps implements AutoCloseable {
             factory.get(),
             factory.builder(),
             principalProviderFactory.get());
-    builder.verifyRequiredParameters(topologyFile, config);
 
     return builder;
   }
@@ -152,7 +152,7 @@ public class JulieOps implements AutoCloseable {
     return new JulieOps(topology, config, topicManager, accessControlManager, principalManager);
   }
 
-  void verifyRequiredParameters(String topologyFile, Map<String, String> config)
+  static void verifyRequiredParameters(String topologyFile, Map<String, String> config)
       throws IOException {
     if (!Files.exists(Paths.get(topologyFile))) {
       throw new IOException("Topology file does not exist");
