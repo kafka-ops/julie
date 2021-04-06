@@ -1,8 +1,8 @@
 package com.purbon.kafka.topology;
 
-import static com.purbon.kafka.topology.CommandLineInterface.ADMIN_CLIENT_CONFIG_OPTION;
 import static com.purbon.kafka.topology.CommandLineInterface.ALLOW_DELETE_OPTION;
 import static com.purbon.kafka.topology.CommandLineInterface.BROKERS_OPTION;
+import static com.purbon.kafka.topology.CommandLineInterface.CLIENT_CONFIG_OPTION;
 import static com.purbon.kafka.topology.CommandLineInterface.DRY_RUN_OPTION;
 import static com.purbon.kafka.topology.CommandLineInterface.QUIET_OPTION;
 import static org.mockito.Matchers.anyMap;
@@ -47,7 +47,7 @@ public class CLITest {
     config.put(ALLOW_DELETE_OPTION, "false");
     config.put(DRY_RUN_OPTION, "false");
     config.put(QUIET_OPTION, "false");
-    config.put(ADMIN_CLIENT_CONFIG_OPTION, "topology-builder-sasl-plain.properties");
+    config.put(CLIENT_CONFIG_OPTION, "topology-builder-sasl-plain.properties");
     cli.run(args);
 
     verify(cli, times(1)).processTopology(eq("descriptor.yaml"), eq("default"), eq(config));
@@ -70,7 +70,7 @@ public class CLITest {
     config.put(ALLOW_DELETE_OPTION, "false");
     config.put(DRY_RUN_OPTION, "true");
     config.put(QUIET_OPTION, "false");
-    config.put(ADMIN_CLIENT_CONFIG_OPTION, "topology-builder-sasl-plain.properties");
+    config.put(CLIENT_CONFIG_OPTION, "topology-builder-sasl-plain.properties");
     cli.run(args);
 
     verify(cli, times(1)).processTopology(eq("descriptor.yaml"), eq("default"), eq(config));

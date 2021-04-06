@@ -337,7 +337,7 @@ public class TopologySerdesTest {
   public void testTopicNameWithCustomSeparator() {
     Map<String, String> cliOps = new HashMap<>();
     cliOps.put(BROKERS_OPTION, "");
-    cliOps.put(ADMIN_CLIENT_CONFIG_OPTION, "/fooBar");
+    cliOps.put(CLIENT_CONFIG_OPTION, "/fooBar");
 
     Properties props = new Properties();
     props.put(TOPIC_PREFIX_SEPARATOR_CONFIG, "_");
@@ -361,7 +361,7 @@ public class TopologySerdesTest {
   public void testTopicNameWithCustomPattern() {
     Map<String, String> cliOps = new HashMap<>();
     cliOps.put(BROKERS_OPTION, "");
-    cliOps.put(ADMIN_CLIENT_CONFIG_OPTION, "/fooBar");
+    cliOps.put(CLIENT_CONFIG_OPTION, "/fooBar");
 
     Properties props = new Properties();
     props.put(TOPIC_PREFIX_FORMAT_CONFIG, "{{source}}.{{context}}.{{project}}.{{topic}}");

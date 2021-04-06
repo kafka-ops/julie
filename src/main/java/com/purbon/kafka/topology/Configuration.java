@@ -1,6 +1,6 @@
 package com.purbon.kafka.topology;
 
-import static com.purbon.kafka.topology.CommandLineInterface.ADMIN_CLIENT_CONFIG_OPTION;
+import static com.purbon.kafka.topology.CommandLineInterface.CLIENT_CONFIG_OPTION;
 import static com.purbon.kafka.topology.CommandLineInterface.DRY_RUN_OPTION;
 import static com.purbon.kafka.topology.CommandLineInterface.OVERRIDING_CLIENT_CONFIG_OPTION;
 import static com.purbon.kafka.topology.Constants.ACCESS_CONTROL_IMPLEMENTATION_CLASS;
@@ -70,7 +70,7 @@ public class Configuration {
   }
 
   public static Configuration build(Map<String, String> cliParams) {
-    return build(cliParams, cliParams.get(ADMIN_CLIENT_CONFIG_OPTION));
+    return build(cliParams, cliParams.get(CLIENT_CONFIG_OPTION));
   }
 
   public static Configuration build(Map<String, String> cliParams, String configFile) {

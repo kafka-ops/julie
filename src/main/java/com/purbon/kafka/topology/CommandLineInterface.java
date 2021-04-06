@@ -23,8 +23,8 @@ public class CommandLineInterface {
   public static final String BROKERS_OPTION = "brokers";
   public static final String BROKERS_DESC = "The Apache Kafka server(s) to connect to.";
 
-  public static final String ADMIN_CLIENT_CONFIG_OPTION = "clientConfig";
-  public static final String ADMIN_CLIENT_CONFIG_DESC = "The AdminClient configuration file.";
+  public static final String CLIENT_CONFIG_OPTION = "clientConfig";
+  public static final String CLIENT_CONFIG_DESC = "The client configuration file.";
 
   public static final String OVERRIDING_CLIENT_CONFIG_OPTION = "overridingClientConfig";
   public static final String OVERRIDING_CLIENT_CONFIG_DESC =
@@ -74,11 +74,11 @@ public class CommandLineInterface {
             .required(false)
             .build();
 
-    final Option adminClientConfigFileOption =
+    final Option clientConfigFileOption =
         Option.builder()
-            .longOpt(ADMIN_CLIENT_CONFIG_OPTION)
+            .longOpt(CLIENT_CONFIG_OPTION)
             .hasArg()
-            .desc(ADMIN_CLIENT_CONFIG_DESC)
+            .desc(CLIENT_CONFIG_DESC)
             .required()
             .build();
 
@@ -130,7 +130,7 @@ public class CommandLineInterface {
     options.addOption(topologyFileOption);
     options.addOption(plansFileOption);
     options.addOption(brokersListOption);
-    options.addOption(adminClientConfigFileOption);
+    options.addOption(clientConfigFileOption);
 
     options.addOption(overridingClientConfigFileOption);
     options.addOption(allowDeleteOption);
@@ -174,7 +174,7 @@ public class CommandLineInterface {
     }
     config.put(DRY_RUN_OPTION, String.valueOf(cmd.hasOption(DRY_RUN_OPTION)));
     config.put(QUIET_OPTION, String.valueOf(cmd.hasOption(QUIET_OPTION)));
-    config.put(ADMIN_CLIENT_CONFIG_OPTION, cmd.getOptionValue(ADMIN_CLIENT_CONFIG_OPTION));
+    config.put(CLIENT_CONFIG_OPTION, cmd.getOptionValue(CLIENT_CONFIG_OPTION));
     return config;
   }
 
