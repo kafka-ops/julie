@@ -17,6 +17,8 @@ import org.apache.kafka.clients.admin.AdminClient;
 
 public final class ContainerTestUtils {
 
+  static final String DEFAULT_CP_KAFKA_VERSION = "6.1.0";
+
   private ContainerTestUtils() {}
 
   public static AdminClient getSaslAdminClient(final AlternativeKafkaContainer container) {

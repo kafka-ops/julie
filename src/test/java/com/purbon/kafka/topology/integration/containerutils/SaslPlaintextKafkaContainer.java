@@ -10,7 +10,8 @@ import org.testcontainers.utility.DockerImageName;
 public final class SaslPlaintextKafkaContainer extends AlternativeKafkaContainer {
 
   private static final DockerImageName DEFAULT_IMAGE =
-      DockerImageName.parse("confluentinc/cp-kafka").withTag("5.5.0");
+      DockerImageName.parse("confluentinc/cp-kafka")
+          .withTag(ContainerTestUtils.DEFAULT_CP_KAFKA_VERSION);
   public static final String DEFAULT_SUPER_USERNAME = "kafka";
   public static final String DEFAULT_SUPER_PASSWORD = "kafka";
   private static final String JAAS_CONFIG_FILE = "/tmp/broker_jaas.conf";
