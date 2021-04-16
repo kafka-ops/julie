@@ -10,9 +10,9 @@ import static org.junit.Assert.assertTrue;
 
 import com.purbon.kafka.topology.exceptions.TopologyParsingException;
 import com.purbon.kafka.topology.model.*;
-import com.purbon.kafka.topology.model.Impl.ProjectImpl;
-import com.purbon.kafka.topology.model.Impl.TopicImpl;
-import com.purbon.kafka.topology.model.Impl.TopologyImpl;
+import com.purbon.kafka.topology.model.impl.ProjectImpl;
+import com.purbon.kafka.topology.model.impl.TopicImpl;
+import com.purbon.kafka.topology.model.impl.TopologyImpl;
 import com.purbon.kafka.topology.model.users.Connector;
 import com.purbon.kafka.topology.model.users.Consumer;
 import com.purbon.kafka.topology.model.users.KStream;
@@ -40,7 +40,7 @@ public class TopologySerdesTest {
   @Test
   public void testMetadata() {
     Topology topology =
-        parser.deserialise(TestUtils.getResourceFile("/descriptor-with-metadata.yaml"));
+        parser.deserialize(TestUtils.getResourceFile("/descriptor-with-metadata.yaml"));
     Project project = topology.getProjects().get(0);
 
     assertThat(project.getConsumers().get(0).getMetadata()).containsKey("system");
@@ -57,11 +57,11 @@ public class TopologySerdesTest {
   @Test
   public void testDynamicFirstLevelAttributes() {
     Topology topology =
-        parser.deserialise(TestUtils.getResourceFile("/descriptor-with-others.yml"));
+        parser.deserialize(TestUtils.getResourceFile("/descriptor-with-others.yml"));
     Project project = topology.getProjects().get(0);
     assertThat(project.namePrefix()).startsWith("contextOrg.source.foo.bar.zet");
 
-    Topology anotherTopology = parser.deserialise(TestUtils.getResourceFile("/descriptor.yaml"));
+    Topology anotherTopology = parser.deserialize(TestUtils.getResourceFile("/descriptor.yaml"));
     Project anotherProject = anotherTopology.getProjects().get(0);
 
     assertEquals("contextOrg.source.foo", anotherProject.namePrefix());
@@ -69,7 +69,7 @@ public class TopologySerdesTest {
 
   @Test(expected = TopologyParsingException.class)
   public void testFileWithoutTopicsError() {
-    parser.deserialise(TestUtils.getResourceFile("/descriptor-without-topics.yml"));
+    parser.deserialize(TestUtils.getResourceFile("/descriptor-without-topics.yml"));
   }
 
   @Test
@@ -78,8 +78,8 @@ public class TopologySerdesTest {
     topology.setContext("contextOrg");
     topology.setProjects(buildProjects());
 
-    String topologyYamlString = parser.serialise(topology);
-    Topology deserTopology = parser.deserialise(topologyYamlString);
+    String topologyYamlString = parser.serialize(topology);
+    Topology deserTopology = parser.deserialize(topologyYamlString);
 
     assertEquals(topology.getContext(), deserTopology.getContext());
     assertEquals(topology.getProjects().size(), deserTopology.getProjects().size());
@@ -134,8 +134,8 @@ public class TopologySerdesTest {
 
     topology.setProjects(Arrays.asList(project, project2));
 
-    String topologyYamlString = parser.serialise(topology);
-    Topology deserTopology = parser.deserialise(topologyYamlString);
+    String topologyYamlString = parser.serialize(topology);
+    Topology deserTopology = parser.deserialize(topologyYamlString);
 
     Project serdesProject = deserTopology.getProjects().get(0);
     Topic serdesTopic = serdesProject.getTopics().get(0);
@@ -161,8 +161,8 @@ public class TopologySerdesTest {
     Topic topic2 = new TopicImpl("topic2", topicConfig);
     project.addTopic(topic2);
 
-    String topologyYamlString = parser.serialise(topology);
-    Topology deserTopology = parser.deserialise(topologyYamlString);
+    String topologyYamlString = parser.serialize(topology);
+    Topology deserTopology = parser.deserialize(topologyYamlString);
 
     Project serdesProject = deserTopology.getProjects().get(0);
     Topic serdesTopic = serdesProject.getTopics().get(0);
@@ -176,17 +176,17 @@ public class TopologySerdesTest {
 
   @Test(expected = TopologyParsingException.class)
   public void testTopologyWithNoTeam() {
-    parser.deserialise(TestUtils.getResourceFile("/descriptor-with-no-context.yaml"));
+    parser.deserialize(TestUtils.getResourceFile("/descriptor-with-no-context.yaml"));
   }
 
   @Test(expected = TopologyParsingException.class)
   public void testTopologyWithNoProject() {
-    parser.deserialise(TestUtils.getResourceFile("/descriptor-with-no-project.yaml"));
+    parser.deserialize(TestUtils.getResourceFile("/descriptor-with-no-project.yaml"));
   }
 
   @Test
   public void testCoreElementsProcessing() {
-    Topology topology = parser.deserialise(TestUtils.getResourceFile("/descriptor.yaml"));
+    Topology topology = parser.deserialize(TestUtils.getResourceFile("/descriptor.yaml"));
 
     assertThat(topology.getProjects()).hasSize(3);
 
@@ -207,7 +207,7 @@ public class TopologySerdesTest {
 
   @Test
   public void testStreamsApps() {
-    Topology topology = parser.deserialise(TestUtils.getResourceFile("/descriptor.yaml"));
+    Topology topology = parser.deserialize(TestUtils.getResourceFile("/descriptor.yaml"));
 
     Project project1 = topology.getProjects().get(0);
     assertThat(project1.getStreams()).hasSize(1);
@@ -221,12 +221,12 @@ public class TopologySerdesTest {
 
   @Test(expected = IllegalArgumentException.class)
   public void testInvalidSchemaSerdes() {
-    parser.deserialise(TestUtils.getResourceFile("/descriptor-wrong-schemas.yaml"));
+    parser.deserialize(TestUtils.getResourceFile("/descriptor-wrong-schemas.yaml"));
   }
 
   @Test
   public void testSchemaSerdes() {
-    Topology topology = parser.deserialise(TestUtils.getResourceFile("/descriptor.yaml"));
+    Topology topology = parser.deserialize(TestUtils.getResourceFile("/descriptor.yaml"));
     Project project = topology.getProjects().get(0);
     List<Topic> topics = project.getTopics();
     Optional<Topic> topicBar = topics.stream().filter(t -> t.getName().equals("bar")).findFirst();
@@ -246,7 +246,7 @@ public class TopologySerdesTest {
 
   @Test
   public void testPlaformProcessing() {
-    Topology topology = parser.deserialise(TestUtils.getResourceFile("/descriptor.yaml"));
+    Topology topology = parser.deserialize(TestUtils.getResourceFile("/descriptor.yaml"));
 
     assertEquals("contextOrg", topology.getContext());
 
@@ -268,7 +268,7 @@ public class TopologySerdesTest {
   @Test
   public void testOnlyTopics() {
     Topology topology =
-        parser.deserialise(TestUtils.getResourceFile("/descriptor-only-topics.yaml"));
+        parser.deserialize(TestUtils.getResourceFile("/descriptor-only-topics.yaml"));
 
     assertEquals("contextOrg", topology.getContext());
     assertTrue(topology.getProjects().get(0).getConnectors().isEmpty());
@@ -280,7 +280,7 @@ public class TopologySerdesTest {
   @Test
   public void testRBACTopics() {
     Topology topology =
-        parser.deserialise(TestUtils.getResourceFile("/descriptor-with-rbac-topics.yaml"));
+        parser.deserialize(TestUtils.getResourceFile("/descriptor-with-rbac-topics.yaml"));
 
     Project project = topology.getProjects().get(0);
     assertEquals("contextOrg", topology.getContext());
@@ -302,7 +302,7 @@ public class TopologySerdesTest {
 
   @Test
   public void testWithRBACDescriptor() {
-    Topology topology = parser.deserialise(TestUtils.getResourceFile("/descriptor-with-rbac.yaml"));
+    Topology topology = parser.deserialize(TestUtils.getResourceFile("/descriptor-with-rbac.yaml"));
     Project myProject = topology.getProjects().get(0);
 
     assertEquals(2, myProject.getRbacRawRoles().size());
@@ -346,7 +346,7 @@ public class TopologySerdesTest {
     TopologySerdes parser = new TopologySerdes(config, new PlanMap());
 
     Topology topology =
-        parser.deserialise(TestUtils.getResourceFile("/descriptor-only-topics.yaml"));
+        parser.deserialize(TestUtils.getResourceFile("/descriptor-only-topics.yaml"));
 
     assertEquals("contextOrg", topology.getContext());
 
@@ -370,7 +370,7 @@ public class TopologySerdesTest {
     TopologySerdes parser = new TopologySerdes(config, new PlanMap());
 
     Topology topology =
-        parser.deserialise(TestUtils.getResourceFile("/descriptor-only-topics.yaml"));
+        parser.deserialize(TestUtils.getResourceFile("/descriptor-only-topics.yaml"));
 
     assertEquals("contextOrg", topology.getContext());
 
@@ -383,13 +383,13 @@ public class TopologySerdesTest {
 
   @Test(expected = TopologyParsingException.class)
   public void testTopicNameWithUTFCharacters() {
-    parser.deserialise(TestUtils.getResourceFile("/descriptor-only-topics-utf.yaml"));
+    parser.deserialize(TestUtils.getResourceFile("/descriptor-only-topics-utf.yaml"));
   }
 
   @Test
   public void testJsonDescriptorFileSerdes() {
     TopologySerdes parser = new TopologySerdes(new Configuration(), FileType.JSON, new PlanMap());
-    Topology topology = parser.deserialise(TestUtils.getResourceFile("/descriptor.json"));
+    Topology topology = parser.deserialize(TestUtils.getResourceFile("/descriptor.json"));
 
     assertEquals(1, topology.getProjects().size());
     assertEquals("foo", topology.getProjects().get(0).getName());

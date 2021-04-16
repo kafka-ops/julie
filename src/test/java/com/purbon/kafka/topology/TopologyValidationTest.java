@@ -24,7 +24,7 @@ public class TopologyValidationTest {
   public void testPositiveExecutionOnCamelCaseNames() {
 
     Topology topology =
-        parser.deserialise(TestUtils.getResourceFile("/descriptor-with-camelCaseNames.yml"));
+        parser.deserialize(TestUtils.getResourceFile("/descriptor-with-camelCaseNames.yml"));
 
     Configuration config =
         createTopologyBuilderConfig(
@@ -39,7 +39,7 @@ public class TopologyValidationTest {
   public void testInvalidExecutionBecuaseofNumberOfPartitions() {
 
     Topology topology =
-        parser.deserialise(TestUtils.getResourceFile("/descriptor-with-camelCaseNames.yml"));
+        parser.deserialize(TestUtils.getResourceFile("/descriptor-with-camelCaseNames.yml"));
 
     Configuration config =
         createTopologyBuilderConfig(
@@ -54,7 +54,7 @@ public class TopologyValidationTest {
   @Test
   public void testInvalidExecutionWithFailedValidation() {
 
-    Topology topology = parser.deserialise(TestUtils.getResourceFile("/descriptor.yaml"));
+    Topology topology = parser.deserialize(TestUtils.getResourceFile("/descriptor.yaml"));
 
     Configuration config =
         createTopologyBuilderConfig(
@@ -78,7 +78,7 @@ public class TopologyValidationTest {
   @Test
   public void testUsingDeprecatedValidationsConfig() {
 
-    Topology topology = parser.deserialise(TestUtils.getResourceFile("/descriptor.yaml"));
+    Topology topology = parser.deserialize(TestUtils.getResourceFile("/descriptor.yaml"));
 
     Configuration config = createTopologyBuilderConfig("topology.CamelCaseNameFormatValidation");
 
@@ -91,7 +91,7 @@ public class TopologyValidationTest {
   @Test(expected = IllegalStateException.class)
   public void testUsingUnknwownClassName() {
 
-    Topology topology = parser.deserialise(TestUtils.getResourceFile("/descriptor.yaml"));
+    Topology topology = parser.deserialize(TestUtils.getResourceFile("/descriptor.yaml"));
 
     Configuration config = createTopologyBuilderConfig("not.available.Validation");
 

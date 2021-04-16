@@ -7,7 +7,7 @@ import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
 import com.purbon.kafka.topology.Configuration;
 import com.purbon.kafka.topology.exceptions.TopologyParsingException;
-import com.purbon.kafka.topology.model.Impl.TopicImpl;
+import com.purbon.kafka.topology.model.impl.TopicImpl;
 import com.purbon.kafka.topology.model.PlanMap;
 import com.purbon.kafka.topology.model.Topology;
 import java.io.File;
@@ -34,7 +34,7 @@ public class TopologySerdes {
     mapper = ObjectMapperFactory.build(type, config, plans);
   }
 
-  public Topology deserialise(File file) {
+  public Topology deserialize(File file) {
     try {
       return mapper.readValue(file, Topology.class);
     } catch (IOException e) {
@@ -43,7 +43,7 @@ public class TopologySerdes {
     }
   }
 
-  public Topology deserialise(String content) {
+  public Topology deserialize(String content) {
     try {
       return mapper.readValue(content, Topology.class);
     } catch (IOException e) {
@@ -51,7 +51,7 @@ public class TopologySerdes {
     }
   }
 
-  public String serialise(Topology topology) throws JsonProcessingException {
+  public String serialize(Topology topology) throws JsonProcessingException {
     return mapper.writeValueAsString(topology);
   }
 

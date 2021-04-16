@@ -165,7 +165,7 @@ public class ProjectImpl implements Project, Cloneable {
   }
 
   private String patternBasedProjectPrefix() {
-    return JinjaUtils.serialise(config.getProjectPrefixFormat(), prefixContext);
+    return JinjaUtils.serialize(config.getProjectPrefixFormat(), prefixContext);
   }
 
   private String namePrefix(String topologyPrefix) {

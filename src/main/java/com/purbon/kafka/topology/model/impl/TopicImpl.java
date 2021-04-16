@@ -1,4 +1,4 @@
-package com.purbon.kafka.topology.model.Impl;
+package com.purbon.kafka.topology.model.impl;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
@@ -149,7 +149,7 @@ public class TopicImpl implements Topic, Cloneable {
   private String patternBasedTopicNameStructureString() {
     context.put("topic", name);
     dataType.ifPresent(s -> context.put("dataType", s));
-    return JinjaUtils.serialise(appConfig.getTopicPrefixFormat(), context);
+    return JinjaUtils.serialize(appConfig.getTopicPrefixFormat(), context);
   }
 
   private String defaultTopicStructureString(String projectPrefix) {
