@@ -15,7 +15,8 @@ import org.testcontainers.utility.DockerImageName;
 public class AlternativeKafkaContainer extends GenericContainer<AlternativeKafkaContainer> {
 
   private static final DockerImageName DEFAULT_IMAGE =
-      DockerImageName.parse("confluentinc/cp-kafka").withTag("5.5.0");
+      DockerImageName.parse("confluentinc/cp-kafka")
+          .withTag(ContainerTestUtils.DEFAULT_CP_KAFKA_VERSION);
   private static final String STARTER_SCRIPT = "/testcontainers_start.sh";
   public static final String INTERNAL_LISTENER_NAME = "BROKER";
   public static final int KAFKA_PORT = 9092;
