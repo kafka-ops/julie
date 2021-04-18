@@ -1,12 +1,18 @@
 package com.purbon.kafka.topology.api.mds;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.purbon.kafka.topology.serdes.RequestScopeDeser;
+import com.purbon.kafka.topology.serdes.RequestScopeSerde;
 import com.purbon.kafka.topology.utils.JSON;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+@JsonDeserialize(using = RequestScopeDeser.class)
+@JsonSerialize(using = RequestScopeSerde.class)
 public class RequestScope {
 
   public static final String RESOURCE_TYPE = "resourceType";
@@ -63,7 +69,15 @@ public class RequestScope {
     }
   }
 
-  public Map<String, String> getClusterIDs() {
+  public Map<String, Map<String, String>> getScope() {
+    return clusters;
+  }
+
+  public List<Map<String, String>> getResources() {
+    return resources;
+  }
+
+  public Map<String, String> clusterIDs() {
     return ((Map<String, Map<String, String>>) scope.get("scope")).get("clusters");
   }
 }
