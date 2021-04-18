@@ -58,7 +58,7 @@ public class ClusterLevelRoleBuilderTest {
     assertEquals("kafka-connect", runner.getScope().getResource(0).get(RESOURCE_NAME));
 
     String connectClusterId = "1234";
-    Map<String, String> clusterIDs = runner.getScope().getClusterIDs();
+    Map<String, String> clusterIDs = runner.getScope().clusterIDs();
     assertEquals(connectClusterId, clusterIDs.get(CONNECT_CLUSTER_ID_LABEL));
   }
 
@@ -70,7 +70,7 @@ public class ClusterLevelRoleBuilderTest {
     runner.forSchemaRegistry();
 
     String connectClusterId = "4321";
-    Map<String, String> clusterIDs = runner.getScope().getClusterIDs();
+    Map<String, String> clusterIDs = runner.getScope().clusterIDs();
     assertEquals(connectClusterId, clusterIDs.get(SCHEMA_REGISTRY_CLUSTER_ID_LABEL));
   }
 
@@ -82,7 +82,7 @@ public class ClusterLevelRoleBuilderTest {
     runner.forKafka();
 
     String clusterId = "abcd";
-    Map<String, String> clusterIDs = runner.getScope().getClusterIDs();
+    Map<String, String> clusterIDs = runner.getScope().clusterIDs();
     assertEquals(clusterId, clusterIDs.get(KAFKA_CLUSTER_ID_LABEL));
   }
 
@@ -94,7 +94,7 @@ public class ClusterLevelRoleBuilderTest {
     runner.forControlCenter();
 
     String clusterId = "abcd";
-    Map<String, String> clusterIDs = runner.getScope().getClusterIDs();
+    Map<String, String> clusterIDs = runner.getScope().clusterIDs();
     assertEquals(clusterId, clusterIDs.get(KAFKA_CLUSTER_ID_LABEL));
   }
 
@@ -105,7 +105,7 @@ public class ClusterLevelRoleBuilderTest {
     ClusterLevelRoleBuilder runner = new ClusterLevelRoleBuilder("foo", SECURITY_ADMIN, apiClient);
     runner.forKafkaConnect();
 
-    Map<String, String> clusterIDs = runner.getScope().getClusterIDs();
+    Map<String, String> clusterIDs = runner.getScope().clusterIDs();
     assertEquals("1234", clusterIDs.get(CONNECT_CLUSTER_ID_LABEL));
     assertEquals("abcd", clusterIDs.get(KAFKA_CLUSTER_ID_LABEL));
   }
@@ -117,7 +117,7 @@ public class ClusterLevelRoleBuilderTest {
     ClusterLevelRoleBuilder runner = new ClusterLevelRoleBuilder("foo", SECURITY_ADMIN, apiClient);
     runner.forSchemaSubject("foo");
 
-    Map<String, String> clusterIDs = runner.getScope().getClusterIDs();
+    Map<String, String> clusterIDs = runner.getScope().clusterIDs();
     assertEquals("4321", clusterIDs.get(SCHEMA_REGISTRY_CLUSTER_ID_LABEL));
     assertEquals("abcd", clusterIDs.get(KAFKA_CLUSTER_ID_LABEL));
   }
