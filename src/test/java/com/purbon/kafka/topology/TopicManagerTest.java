@@ -128,9 +128,9 @@ public class TopicManagerTest {
 
     cliOps = new HashMap<>();
     cliOps.put(BROKERS_OPTION, "");
-    cliOps.put(ALLOW_DELETE_OPTION, "true");
 
     Properties props = new Properties();
+    props.put(ALLOW_DELETE_TOPICS, true);
 
     Configuration config = new Configuration(cliOps, props);
 
@@ -175,10 +175,10 @@ public class TopicManagerTest {
 
     cliOps = new HashMap<>();
     cliOps.put(BROKERS_OPTION, "");
-    cliOps.put(ALLOW_DELETE_OPTION, "true");
 
     Properties props = new Properties();
     props.put(KAFKA_INTERNAL_TOPIC_PREFIXES, Arrays.asList("foo.", "_"));
+    props.put(ALLOW_DELETE_TOPICS, true);
 
     Configuration config = new Configuration(cliOps, props);
 
@@ -218,7 +218,6 @@ public class TopicManagerTest {
 
     HashMap<String, String> cliOps = new HashMap<>();
     cliOps.put(BROKERS_OPTION, "");
-    cliOps.put(ALLOW_DELETE_OPTION, "false");
 
     Configuration config = new Configuration(cliOps, props);
 
@@ -253,7 +252,6 @@ public class TopicManagerTest {
 
     HashMap<String, String> cliOps = new HashMap<>();
     cliOps.put(BROKERS_OPTION, "");
-    cliOps.put(ALLOW_DELETE_OPTION, "false");
 
     Configuration config = new Configuration(cliOps, props);
 
@@ -288,7 +286,6 @@ public class TopicManagerTest {
 
     HashMap<String, String> cliOps = new HashMap<>();
     cliOps.put(BROKERS_OPTION, "");
-    cliOps.put(ALLOW_DELETE_OPTION, "false");
 
     Configuration config = new Configuration(cliOps, props);
 

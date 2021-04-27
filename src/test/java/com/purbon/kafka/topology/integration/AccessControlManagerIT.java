@@ -83,10 +83,10 @@ public class AccessControlManagerIT {
   public void aclsRemoval() throws ExecutionException, InterruptedException, IOException {
 
     Properties props = new Properties();
+    props.put(ALLOW_DELETE_BINDINGS, true);
 
     HashMap<String, String> cliOps = new HashMap<>();
     cliOps.put(BROKERS_OPTION, "");
-    cliOps.put(ALLOW_DELETE_OPTION, "true");
 
     Configuration config = new Configuration(cliOps, props);
 
@@ -133,10 +133,10 @@ public class AccessControlManagerIT {
   public void aclsRemovedTest() throws IOException, ExecutionException, InterruptedException {
 
     Properties props = new Properties();
+    props.put(ALLOW_DELETE_BINDINGS, true);
 
     HashMap<String, String> cliOps = new HashMap<>();
     cliOps.put(BROKERS_OPTION, "");
-    cliOps.put(ALLOW_DELETE_OPTION, "true");
 
     Configuration config = new Configuration(cliOps, props);
 
@@ -304,10 +304,10 @@ public class AccessControlManagerIT {
     Properties props = new Properties();
     props.put(TOPOLOGY_STATE_FROM_CLUSTER, "true");
     props.put(JULIE_INTERNAL_PRINCIPAL, juliePrincipal);
+    props.put(ALLOW_DELETE_BINDINGS, true);
 
     HashMap<String, String> cliOps = new HashMap<>();
     cliOps.put(BROKERS_OPTION, "");
-    cliOps.put(ALLOW_DELETE_OPTION, "true");
 
     Configuration config = new Configuration(cliOps, props);
 

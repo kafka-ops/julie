@@ -57,7 +57,7 @@ public class TopicManager {
                   adminClient, schemaRegistryManager, topic, topicName, listOfTopics));
         });
 
-    if (config.allowDelete() || config.isAllowDeleteTopics()) {
+    if (config.isAllowDeleteTopics()) {
       // Handle topic delete: Topics in the initial list, but not present anymore after a
       // full topic sync should be deleted
       List<String> topicsToBeDeleted =

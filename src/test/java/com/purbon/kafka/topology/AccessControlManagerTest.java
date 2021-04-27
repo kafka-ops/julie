@@ -264,13 +264,13 @@ public class AccessControlManagerTest {
     Properties props = new Properties();
     props.put(PROJECT_PREFIX_FORMAT_CONFIG, "");
     props.put(TOPOLOGY_STATE_FROM_CLUSTER, "true");
+    props.put(ALLOW_DELETE_TOPICS, true);
     props.put(TOPIC_PREFIX_FORMAT_CONFIG, "{{topic}}");
     props.put(ALLOW_DELETE_BINDINGS, true);
     props.put(KAFKA_INTERNAL_TOPIC_PREFIXES, Arrays.asList("_"));
 
     HashMap<String, String> cliOps = new HashMap<>();
     cliOps.put(BROKERS_OPTION, "");
-    cliOps.put(ALLOW_DELETE_OPTION, "true");
 
     Configuration config = new Configuration(cliOps, props);
 
@@ -458,20 +458,6 @@ public class AccessControlManagerTest {
     plan.run(true);
 
     verify(mockPrintStream, times(1)).println(any(Action.class));
-  }
-
-  @Test
-  public void testAclDeleteWithDeleteAllEnabled() throws IOException {
-    doReturn(true).when(config).allowDelete();
-
-    testAclsDelete();
-  }
-
-  @Test
-  public void testAclDeleteWithDeleteAllDisabled() throws IOException {
-    doReturn(false).when(config).allowDelete();
-
-    testNoAclsDeleted();
   }
 
   @Test

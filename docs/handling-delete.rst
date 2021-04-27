@@ -7,30 +7,7 @@ This way the project can ensure that the final state of the cluster is consisten
 However in some situations having delete enabled might not be what you are looking for.
 For this reason the tool allows you to control it in full granularity.
 
-Delete flag in the CLI
------------
-
-The CLI provide you currently with a global DELETE flag, this would allow deletion of all resources controlled by Julie Ops.
-The user can set this flag (*--allowDelete*) from the CLI as described.
-
-.. code-block:: bash
-
-    $> kafka-topology-builder.sh  --help
-        usage: cli
-          --allowDelete          Permits delete operations for topics and
-                                 configs. (deprecated, to be removed)
-          --brokers <arg>        The Apache Kafka server(s) to connect to.
-          --clientConfig <arg>   The AdminClient configuration file.
-          --dryRun               Print the execution plan without altering
-                                  anything.
-          --help                 Prints usage information.
-          --quiet                Print minimum status update
-          --topology <arg>       Topology config file.
-          --version              Prints useful version information.
-
-*NOTE*: This is a global flag, allowing/deny all delete operations.
-
-By default the value for this variable is false, so Julie Ops will **not** delete any resource.
+*NOTE*: By default this configurations options are false, to enable delete the reader will need to enable each one of them based on your use case.
 
 Granular delete flags
 -----------
@@ -61,3 +38,12 @@ The user can control bindings deletion by:
 
 - setting the *allow.delete.bindings* configuration in the provided file to the tool.
 - set the ENV variable *ALLOW_DELETE_BINDINGS* when calling the tool from the CLI.
+
+
+Principals deletion flag
+^^^^^^^^^^^
+
+The user can control principals deletion by:
+
+- setting the *allow.delete.principals* configuration in the provided file to the tool.
+- set the ENV variable *ALLOW_DELETE_PRINCIPALS* when calling the tool from the CLI.

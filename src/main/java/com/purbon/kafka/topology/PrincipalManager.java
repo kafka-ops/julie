@@ -70,7 +70,7 @@ public class PrincipalManager {
       return;
     }
 
-    if (config.allowDelete() || config.isAllowDeletePrincipals()) {
+    if (config.isAllowDeletePrincipals()) {
       provider.configure();
 
       List<String> principals = parseListOfPrincipals(topology);

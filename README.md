@@ -104,8 +104,6 @@ This is how you can run the tool directly as a docker image:
 docker run purbon/kafka-topology-builder:latest julie-ops-cli.sh  --help
 Parsing failed cause of Missing required options: topology, brokers, clientConfig
 usage: cli
-    --allowDelete          			Permits delete operations for topics and
-                           			configs.
     --brokers <arg>        			The Apache Kafka server(s) to connect to.
     --clientConfig <arg>   			The client configuration file.
     --overridingClientConfig <arg>  The overriding client configuration file.

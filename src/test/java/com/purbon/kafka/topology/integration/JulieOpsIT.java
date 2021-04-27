@@ -36,7 +36,6 @@ public class JulieOpsIT {
 
     Map<String, String> config = new HashMap<>();
     config.put(BROKERS_OPTION, container.getBootstrapServers());
-    config.put(ALLOW_DELETE_OPTION, "false");
     config.put(DRY_RUN_OPTION, "false");
     config.put(QUIET_OPTION, "true");
     config.put(CLIENT_CONFIG_OPTION, clientConfigFile);
@@ -52,7 +51,6 @@ public class JulieOpsIT {
 
     Map<String, String> config = new HashMap<>();
     config.put(BROKERS_OPTION, container.getBootstrapServers());
-    config.put(ALLOW_DELETE_OPTION, "false");
     config.put(DRY_RUN_OPTION, "false");
     config.put(QUIET_OPTION, "true");
     config.put(CLIENT_CONFIG_OPTION, clientConfigFile);
