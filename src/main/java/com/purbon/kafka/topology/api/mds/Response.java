@@ -42,7 +42,6 @@ public class Response {
     try {
       return JSON.toMap(response);
     } catch (JsonProcessingException e) {
-      LOGGER.error(e);
       return new HashMap<>();
     }
   }
