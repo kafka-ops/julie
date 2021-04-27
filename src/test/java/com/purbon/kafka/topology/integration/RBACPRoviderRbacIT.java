@@ -1,12 +1,9 @@
 package com.purbon.kafka.topology.integration;
 
-import static com.purbon.kafka.topology.CommandLineInterface.ALLOW_DELETE_OPTION;
-import static com.purbon.kafka.topology.CommandLineInterface.BROKERS_OPTION;
-import static com.purbon.kafka.topology.roles.rbac.RBACPredefinedRoles.DEVELOPER_READ;
-import static com.purbon.kafka.topology.roles.rbac.RBACPredefinedRoles.DEVELOPER_WRITE;
-import static com.purbon.kafka.topology.roles.rbac.RBACPredefinedRoles.RESOURCE_OWNER;
-import static com.purbon.kafka.topology.roles.rbac.RBACPredefinedRoles.SECURITY_ADMIN;
-import static com.purbon.kafka.topology.roles.rbac.RBACPredefinedRoles.SYSTEM_ADMIN;
+import static com.purbon.kafka.topology.CommandLineInterface.*;
+import static com.purbon.kafka.topology.Constants.*;
+import static com.purbon.kafka.topology.roles.rbac.RBACPredefinedRoles.*;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.anyList;
@@ -37,20 +34,25 @@ import com.purbon.kafka.topology.model.users.platform.KafkaConnect;
 import com.purbon.kafka.topology.model.users.platform.SchemaRegistry;
 import com.purbon.kafka.topology.model.users.platform.SchemaRegistryInstance;
 import com.purbon.kafka.topology.roles.RBACProvider;
+import com.purbon.kafka.topology.roles.TopologyAclBinding;
 import com.purbon.kafka.topology.roles.rbac.RBACBindingsBuilder;
+import com.purbon.kafka.topology.utils.TestUtils;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Properties;
+import java.util.stream.Collectors;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.runners.MockitoJUnitRunner;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -69,6 +71,8 @@ public class RBACPRoviderRbacIT extends MDSBaseTest {
   @Before
   public void before() throws IOException, InterruptedException {
     super.beforeEach();
+    TestUtils.deleteStateFile();
+
     apiClient = new MDSApiClient(mdsServer);
     apiClient.login(mdsUser, mdsPassword);
     apiClient.authenticate();
@@ -119,7 +123,7 @@ public class RBACPRoviderRbacIT extends MDSBaseTest {
   public void producerAclsCreation() throws IOException {
 
     List<Producer> producers = new ArrayList<>();
-    producers.add(new Producer("User:app2"));
+    producers.add(new Producer("User:appp2"));
 
     Project project = new ProjectImpl("project");
     project.setProducers(producers);
@@ -296,6 +300,64 @@ public class RBACPRoviderRbacIT extends MDSBaseTest {
     verify(cs, times(1)).flushAndClose();
 
     verifyConnectClusterACLs(platform);
+  }
+
+  @Test
+  public void testRoleDeleteFlow() throws IOException {
+
+    BackendController cs = new BackendController();
+    ExecutionPlan plan = ExecutionPlan.init(cs, System.out);
+    RBACProvider rbacProvider = Mockito.spy(new RBACProvider(apiClient));
+    RBACBindingsBuilder bindingsBuilder = new RBACBindingsBuilder(apiClient);
+
+    Properties props = new Properties();
+    props.put(TOPOLOGY_STATE_FROM_CLUSTER, true);
+
+    HashMap<String, String> cliOps = new HashMap<>();
+    cliOps.put(BROKERS_OPTION, "");
+    cliOps.put(ALLOW_DELETE_OPTION, "true");
+
+    Configuration config = new Configuration(cliOps, props);
+
+    accessControlManager = new AccessControlManager(rbacProvider, bindingsBuilder, config);
+
+    List<Consumer> consumers = new ArrayList<>();
+    consumers.add(new Consumer("User:app1a"));
+    consumers.add(new Consumer("User:app2a"));
+
+    Topology topology = new TopologyImpl(config);
+    topology.setContext("testRoleDeleteFlow-test");
+
+    Project project = new ProjectImpl("project");
+    project.setConsumers(consumers);
+    topology.setProjects(Collections.singletonList(project));
+
+    Topic topicA = new TopicImpl("topicA");
+    project.addTopic(topicA);
+
+    accessControlManager.apply(topology, plan);
+    plan.run();
+
+    // two group and two topics as we have one topic and two principles
+    List<TopologyAclBinding> bindings = getBindings(rbacProvider);
+    assertThat(bindings).hasSize(4);
+    consumers.remove(0); // remove the first consumer
+
+    cs = new BackendController();
+    plan = ExecutionPlan.init(cs, System.out);
+
+    accessControlManager.apply(topology, plan);
+    plan.run();
+
+    bindings = getBindings(rbacProvider);
+    // only one group and one topic as we removed one of principles
+    assertThat(bindings).hasSize(2);
+  }
+
+  private List<TopologyAclBinding> getBindings(RBACProvider rbacProvider) {
+    return rbacProvider.listAcls().values().stream()
+        .flatMap(Collection::stream)
+        .collect(Collectors.toList());
   }
 
   private void verifyConnectClusterACLs(Platform platform) {
