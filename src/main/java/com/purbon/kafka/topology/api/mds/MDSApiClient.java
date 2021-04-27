@@ -1,8 +1,6 @@
 package com.purbon.kafka.topology.api.mds;
 
-import static com.purbon.kafka.topology.api.mds.RequestScope.RESOURCE_NAME;
-import static com.purbon.kafka.topology.api.mds.RequestScope.RESOURCE_PATTERN_TYPE;
-import static com.purbon.kafka.topology.api.mds.RequestScope.RESOURCE_TYPE;
+import static com.purbon.kafka.topology.api.mds.RequestScope.*;
 
 import com.purbon.kafka.topology.api.mds.http.HttpDeleteWithBody;
 import com.purbon.kafka.topology.roles.TopologyAclBinding;
@@ -10,6 +8,7 @@ import com.purbon.kafka.topology.roles.rbac.ClusterLevelRoleBuilder;
 import com.purbon.kafka.topology.utils.JSON;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Base64;
 import java.util.List;
 import java.util.Map;
@@ -103,7 +102,7 @@ public class MDSApiClient {
 
   public void bindRequest(TopologyAclBinding binding) throws IOException {
 
-    String url = binding.getPrincipal() + "/roles/" + binding.getOperation();
+    String url = "principals/" + binding.getPrincipal() + "/roles/" + binding.getOperation();
     if (!binding.getResourceType().equals(ResourceType.CLUSTER)) {
       url = url + "/bindings";
     }
@@ -127,7 +126,7 @@ public class MDSApiClient {
   }
 
   private HttpPost buildPostRequest(String url) {
-    HttpPost postRequest = new HttpPost(mdsServer + "/security/1.0/principals/" + url);
+    HttpPost postRequest = new HttpPost(mdsServer + "/security/1.0/" + url);
     postRequest.addHeader("accept", " application/json");
     postRequest.addHeader("Content-Type", "application/json");
     postRequest.addHeader("Authorization", "Basic " + basicCredentials);
@@ -172,12 +171,44 @@ public class MDSApiClient {
     request.addHeader("Authorization", "Basic " + basicCredentials);
     LOGGER.debug("deleteRole: " + request.getURI());
     try {
-      request.setEntity(new StringEntity(scope.asJson()));
-      LOGGER.debug("bind.entity: " + scope.asJson());
+      request.setEntity(new StringEntity(scope.clustersAsJson()));
+      LOGGER.debug("bind.entity: " + scope.clustersAsJson());
       delete(request);
     } catch (IOException e) {
       e.printStackTrace();
     }
+  }
+
+  public List<String> lookupKafkaPrincipalsByRoleForKafka(String role) {
+    Map<String, Map<String, String>> clusters = clusterIDs.forKafka().asMap();
+    return lookupKafkaPrincipalsByRole(role, clusters);
+  }
+
+  public List<String> lookupKafkaPrincipalsByRoleForConnect(String role) {
+    Map<String, Map<String, String>> clusters = clusterIDs.forKafka().forKafkaConnect().asMap();
+    return lookupKafkaPrincipalsByRole(role, clusters);
+  }
+
+  public List<String> lookupKafkaPrincipalsByRoleForSchemaRegistry(String role) {
+    Map<String, Map<String, String>> clusters = clusterIDs.forKafka().forSchemaRegistry().asMap();
+    return lookupKafkaPrincipalsByRole(role, clusters);
+  }
+
+  public List<String> lookupKafkaPrincipalsByRole(
+      String role, Map<String, Map<String, String>> clusters) {
+    List<String> users = new ArrayList<>();
+
+    try {
+      HttpPost postRequest = buildPostRequest("lookup/role/" + role);
+      postRequest.setEntity(new StringEntity(JSON.asString(clusters)));
+      String response = post(postRequest);
+      if (!response.isEmpty()) {
+        users = JSON.toArray(response);
+      }
+    } catch (IOException ex) {
+      LOGGER.error(ex);
+    }
+    return users;
   }
 
   public List<String> lookupRoles(String principal) {
@@ -185,15 +216,9 @@ public class MDSApiClient {
   }
 
   public List<String> lookupRoles(String principal, Map<String, Map<String, String>> clusters) {
-    HttpPost postRequest =
-        new HttpPost(mdsServer + "/security/1.0/lookup/principals/" + principal + "/roleNames");
-    postRequest.addHeader("accept", " application/json");
-    postRequest.addHeader("Content-Type", "application/json");
-    postRequest.addHeader("Authorization", "Basic " + basicCredentials);
-
     List<String> roles = new ArrayList<>();
-
     try {
+      HttpPost postRequest = buildPostRequest("lookup/principals/" + principal + "/roleNames");
       postRequest.setEntity(new StringEntity(JSON.asString(clusters)));
       String stringResponse = post(postRequest);
       if (!stringResponse.isEmpty()) {
@@ -255,6 +280,56 @@ public class MDSApiClient {
 
       return result;
     }
+  }
+
+  public List<RbacResourceType> lookupResourcesForKafka(String principal, String role) {
+    Map<String, Map<String, String>> clusters = clusterIDs.forKafka().asMap();
+    return lookupResources(principal, role, clusters);
+  }
+
+  public List<RbacResourceType> lookupResourcesForConnect(String principal, String role) {
+    Map<String, Map<String, String>> clusters = clusterIDs.forKafka().forKafkaConnect().asMap();
+    return lookupResources(principal, role, clusters);
+  }
+
+  public List<RbacResourceType> lookupResourcesForSchemaRegistry(String principal, String role) {
+    Map<String, Map<String, String>> clusters = clusterIDs.forKafka().forSchemaRegistry().asMap();
+    return lookupResources(principal, role, clusters);
+  }
+
+  public List<RbacResourceType> lookupResources(
+      String principal, String role, Map<String, Map<String, String>> clusters) {
+    List<RbacResourceType> resources = new ArrayList<>();
+    try {
+      String url = "principals/" + principal + "/roles/" + role + "/resources";
+      HttpPost postRequest = buildPostRequest(url);
+      postRequest.setEntity(new StringEntity(JSON.asString(clusters)));
+      String response = post(postRequest);
+      if (!response.isEmpty()) {
+        resources = (List<RbacResourceType>) JSON.toObjectList(response, RbacResourceType.class);
+      }
+    } catch (IOException e) {
+      LOGGER.error(e);
+    }
+
+    return resources;
+  }
+
+  public List<String> getRoleNames() {
+    List<String> roles = new ArrayList<>();
+    try {
+      String url = "/security/1.0/roleNames";
+      HttpGet request = new HttpGet(mdsServer + url);
+      request.addHeader("accept", " application/json");
+      request.addHeader("Authorization", "Basic " + basicCredentials);
+
+      Response response = get(request);
+      String[] myRoles = (String[]) JSON.toObject(response.getResponseAsString(), String[].class);
+      roles = Arrays.asList(myRoles);
+    } catch (IOException e) {
+      LOGGER.error(e);
+    }
+    return roles;
   }
 
   public void setKafkaClusterId(String clusterId) {
