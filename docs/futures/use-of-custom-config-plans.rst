@@ -81,7 +81,6 @@ An example call will look like:
 
 .. code-block:: BASH
 
-  $>  kafka-topology-builder.sh --brokers localhost:9092  \
+  $>  julie-ops-cli.sh --brokers localhost:9092  \
                 --clientConfig example/topology-builder.properties \
-                --topology example/descriptor-with-plans.yaml  \
-                --allowDelete
+                --topology example/descriptor-with-plans.yaml
