@@ -64,9 +64,9 @@ public class RBACProvider implements AccessControlProvider {
     for (String roleName : roleNames) {
       List<String> principalNames = apiClient.lookupKafkaPrincipalsByRoleForKafka(roleName);
       for (String principalName : principalNames) {
-        List<RbacResourceType> resouces =
+        List<RbacResourceType> resources =
             apiClient.lookupResourcesForKafka(principalName, roleName);
-        for (RbacResourceType resource : resouces) {
+        for (RbacResourceType resource : resources) {
           if (!map.containsKey(resource.getName())) {
             map.put(resource.getName(), new ArrayList<>());
           }
