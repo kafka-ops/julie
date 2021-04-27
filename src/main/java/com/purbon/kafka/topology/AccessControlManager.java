@@ -237,7 +237,7 @@ public class AccessControlManager {
       updateActions.add(createBindings);
     }
 
-    if (config.allowDelete() || config.isAllowDeleteBindings()) {
+    if (config.isAllowDeleteBindings()) {
       // clear acls that does not appear anymore in the new generated list,
       // but where previously created
       Set<TopologyAclBinding> bindingsToDelete =

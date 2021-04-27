@@ -40,7 +40,6 @@ public class CLITest {
 
     Map<String, String> config = new HashMap<>();
     config.put(BROKERS_OPTION, "localhost:9092");
-    config.put(ALLOW_DELETE_OPTION, "false");
     config.put(DRY_RUN_OPTION, "false");
     config.put(QUIET_OPTION, "false");
     config.put(CLIENT_CONFIG_OPTION, "topology-builder-sasl-plain.properties");
@@ -64,7 +63,6 @@ public class CLITest {
 
     Map<String, String> config = new HashMap<>();
     config.put(BROKERS_OPTION, "localhost:9092");
-    config.put(ALLOW_DELETE_OPTION, "false");
     config.put(DRY_RUN_OPTION, "true");
     config.put(QUIET_OPTION, "false");
     config.put(CLIENT_CONFIG_OPTION, "topology-builder-sasl-plain.properties");

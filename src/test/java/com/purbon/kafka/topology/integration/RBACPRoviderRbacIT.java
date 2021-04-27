@@ -54,6 +54,7 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.runners.MockitoJUnitRunner;
+import org.testcontainers.shaded.com.google.common.eventbus.AllowConcurrentEvents;
 
 @RunWith(MockitoJUnitRunner.class)
 public class RBACPRoviderRbacIT extends MDSBaseTest {
@@ -85,10 +86,10 @@ public class RBACPRoviderRbacIT extends MDSBaseTest {
     RBACBindingsBuilder bindingsBuilder = new RBACBindingsBuilder(apiClient);
 
     Properties props = new Properties();
+    props.put(ALLOW_DELETE_BINDINGS, true);
 
     HashMap<String, String> cliOps = new HashMap<>();
     cliOps.put(BROKERS_OPTION, "");
-    cliOps.put(ALLOW_DELETE_OPTION, "true");
 
     Configuration config = new Configuration(cliOps, props);
 
@@ -312,10 +313,10 @@ public class RBACPRoviderRbacIT extends MDSBaseTest {
 
     Properties props = new Properties();
     props.put(TOPOLOGY_STATE_FROM_CLUSTER, true);
+    props.put(ALLOW_DELETE_TOPICS, true);
 
     HashMap<String, String> cliOps = new HashMap<>();
     cliOps.put(BROKERS_OPTION, "");
-    cliOps.put(ALLOW_DELETE_OPTION, "true");
 
     Configuration config = new Configuration(cliOps, props);
 

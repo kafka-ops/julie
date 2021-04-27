@@ -85,10 +85,10 @@ public class TopicManagerIT {
 
     Properties props = new Properties();
     props.put(TOPOLOGY_TOPIC_STATE_FROM_CLUSTER, "false");
+    props.put(ALLOW_DELETE_TOPICS, true);
 
     HashMap<String, String> cliOps = new HashMap<>();
     cliOps.put(BROKERS_OPTION, "");
-    cliOps.put(ALLOW_DELETE_OPTION, "true");
 
     Configuration config = new Configuration(cliOps, props);
 

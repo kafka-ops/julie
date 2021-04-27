@@ -276,11 +276,6 @@ public class Configuration {
     return config.getBoolean(CONNECTOR_ALLOW_TOPIC_CREATE);
   }
 
-  public boolean allowDelete() {
-    return Boolean.parseBoolean(
-        cliParams.getOrDefault(CommandLineInterface.ALLOW_DELETE_OPTION, "false"));
-  }
-
   public boolean isQuiet() {
     return Boolean.parseBoolean(cliParams.getOrDefault(CommandLineInterface.QUIET_OPTION, "false"));
   }

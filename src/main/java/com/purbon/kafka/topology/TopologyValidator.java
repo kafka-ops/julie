@@ -22,11 +22,9 @@ public class TopologyValidator {
   private static final Logger LOGGER = LogManager.getLogger(TopologyValidator.class);
 
   private final Configuration config;
-  private final String classPrefix;
 
   public TopologyValidator(Configuration config) {
     this.config = config;
-    this.classPrefix = "com.purbon.kafka.topology.validation.";
   }
 
   public List<String> validate(Topology topology) {
@@ -82,16 +80,6 @@ public class TopologyValidator {
             validationClass -> {
               try {
                 Class<?> clazz = getValidationClazz(validationClass);
-                if (clazz == null) {
-                  String deprecatedClassNameFromPrefix = classPrefix + validationClass;
-                  clazz = getValidationClazz(deprecatedClassNameFromPrefix);
-                  if (clazz != null) {
-                    LOGGER.warn(
-                        "Deprecation warning: Specifying validations in the config without using the "
-                            + "fully qualified class name is deprecated. Support will be removed in next major release. "
-                            + "Please switch to using fully qualified class name");
-                  }
-                }
                 if (clazz == null) {
                   throw new IOException(
                       String.format(

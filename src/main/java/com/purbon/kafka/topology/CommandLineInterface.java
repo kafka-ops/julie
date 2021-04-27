@@ -30,10 +30,6 @@ public class CommandLineInterface {
   public static final String OVERRIDING_CLIENT_CONFIG_DESC =
       "The overriding AdminClient configuration file.";
 
-  public static final String ALLOW_DELETE_OPTION = "allowDelete";
-  public static final String ALLOW_DELETE_DESC =
-      "Permits delete operations for topics and configs. (deprecated, to be removed)";
-
   public static final String DRY_RUN_OPTION = "dryRun";
   public static final String DRY_RUN_DESC = "Print the execution plan without altering anything.";
 
@@ -90,14 +86,6 @@ public class CommandLineInterface {
             .required(false)
             .build();
 
-    final Option allowDeleteOption =
-        Option.builder()
-            .longOpt(ALLOW_DELETE_OPTION)
-            .hasArg(false)
-            .desc(ALLOW_DELETE_DESC)
-            .required(false)
-            .build();
-
     final Option dryRunOption =
         Option.builder()
             .longOpt(DRY_RUN_OPTION)
@@ -133,7 +121,6 @@ public class CommandLineInterface {
     options.addOption(clientConfigFileOption);
 
     options.addOption(overridingAdminClientConfigFileOption);
-    options.addOption(allowDeleteOption);
     options.addOption(dryRunOption);
     options.addOption(quietOption);
     options.addOption(versionOption);
@@ -163,14 +150,6 @@ public class CommandLineInterface {
     Map<String, String> config = new HashMap<>();
     if (cmd.hasOption(BROKERS_OPTION)) {
       config.put(BROKERS_OPTION, cmd.getOptionValue(BROKERS_OPTION));
-    }
-    config.put(ALLOW_DELETE_OPTION, String.valueOf(cmd.hasOption(ALLOW_DELETE_OPTION)));
-    // Add deprecation note for using allow delete CLI option
-    if (cmd.hasOption(ALLOW_DELETE_OPTION)) {
-      LOGGER.info(
-          String.format(
-              "CLI option %s is currently deprecated. Expected to be removed in next major version.",
-              ALLOW_DELETE_OPTION));
     }
     config.put(DRY_RUN_OPTION, String.valueOf(cmd.hasOption(DRY_RUN_OPTION)));
     config.put(QUIET_OPTION, String.valueOf(cmd.hasOption(QUIET_OPTION)));

@@ -62,11 +62,11 @@ public class PrincipalManagerTest {
 
     cliOps = new HashMap<>();
     cliOps.put(BROKERS_OPTION, "");
-    cliOps.put(ALLOW_DELETE_OPTION, "true");
     props = new Properties();
 
     props.put(TOPOLOGY_EXPERIMENTAL_ENABLED_CONFIG, "true");
     props.put(TOPOLOGY_STATE_FROM_CLUSTER, "false");
+    props.put(ALLOW_DELETE_PRINCIPALS, true);
 
     plan = ExecutionPlan.init(backendController, mockPrintStream);
     config = new Configuration(cliOps, props);

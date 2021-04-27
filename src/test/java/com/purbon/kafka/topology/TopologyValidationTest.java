@@ -75,7 +75,7 @@ public class TopologyValidationTest {
         .isEqualTo("Topic contextOrg.source.baz.topicF has an invalid number of partitions: 1");
   }
 
-  @Test
+  @Test(expected = IllegalStateException.class)
   public void testUsingDeprecatedValidationsConfig() {
 
     Topology topology = parser.deserialise(TestUtils.getResourceFile("/descriptor.yaml"));
