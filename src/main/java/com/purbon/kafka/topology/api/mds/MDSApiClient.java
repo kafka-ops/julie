@@ -10,6 +10,7 @@ import com.purbon.kafka.topology.roles.rbac.ClusterLevelRoleBuilder;
 import com.purbon.kafka.topology.utils.JSON;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import org.apache.kafka.common.resource.ResourceType;
@@ -122,10 +123,41 @@ public class MDSApiClient extends JulieHttpClient {
   public void deleteRole(String principal, String role, RequestScope scope) {
     String url = "/security/1.0/principals/" + principal + "/roles/" + role;
     try {
-      doDelete(url, scope.asJson());
+      doDelete(url, scope.clustersAsJson());
     } catch (IOException e) {
       e.printStackTrace();
     }
+  }
+
+  public List<String> lookupKafkaPrincipalsByRoleForKafka(String role) {
+    Map<String, Map<String, String>> clusters = clusterIDs.forKafka().asMap();
+    return lookupKafkaPrincipalsByRole(role, clusters);
+  }
+
+  public List<String> lookupKafkaPrincipalsByRoleForConnect(String role) {
+    Map<String, Map<String, String>> clusters = clusterIDs.forKafka().forKafkaConnect().asMap();
+    return lookupKafkaPrincipalsByRole(role, clusters);
+  }
+
+  public List<String> lookupKafkaPrincipalsByRoleForSchemaRegistry(String role) {
+    Map<String, Map<String, String>> clusters = clusterIDs.forKafka().forSchemaRegistry().asMap();
+    return lookupKafkaPrincipalsByRole(role, clusters);
+  }
+
+  public List<String> lookupKafkaPrincipalsByRole(
+      String role, Map<String, Map<String, String>> clusters) {
+    List<String> users = new ArrayList<>();
+
+    try {
+      String url = "/security/1.0/lookup/role/" + role;
+      String response = doPost(url, JSON.asString(clusters));
+      if (!response.isEmpty()) {
+        users = JSON.toArray(response);
+      }
+    } catch (IOException ex) {
+      LOGGER.error(ex);
+    }
+    return users;
   }
 
   public List<String> lookupRoles(String principal) {
@@ -144,6 +176,50 @@ public class MDSApiClient extends JulieHttpClient {
       LOGGER.error(e);
     }
 
+    return roles;
+  }
+
+  public List<RbacResourceType> lookupResourcesForKafka(String principal, String role) {
+    Map<String, Map<String, String>> clusters = clusterIDs.forKafka().asMap();
+    return lookupResources(principal, role, clusters);
+  }
+
+  public List<RbacResourceType> lookupResourcesForConnect(String principal, String role) {
+    Map<String, Map<String, String>> clusters = clusterIDs.forKafka().forKafkaConnect().asMap();
+    return lookupResources(principal, role, clusters);
+  }
+
+  public List<RbacResourceType> lookupResourcesForSchemaRegistry(String principal, String role) {
+    Map<String, Map<String, String>> clusters = clusterIDs.forKafka().forSchemaRegistry().asMap();
+    return lookupResources(principal, role, clusters);
+  }
+
+  public List<RbacResourceType> lookupResources(
+      String principal, String role, Map<String, Map<String, String>> clusters) {
+    List<RbacResourceType> resources = new ArrayList<>();
+    try {
+      String url = "/security/1.0/principals/" + principal + "/roles/" + role + "/resources";
+      String response = doPost(url, JSON.asString(clusters));
+      if (!response.isEmpty()) {
+        resources = (List<RbacResourceType>) JSON.toObjectList(response, RbacResourceType.class);
+      }
+    } catch (IOException e) {
+      LOGGER.error(e);
+    }
+
+    return resources;
+  }
+
+  public List<String> getRoleNames() {
+    List<String> roles = new ArrayList<>();
+    try {
+      String url = "/security/1.0/roleNames";
+      Response response = doGet(url);
+      String[] myRoles = (String[]) JSON.toObject(response.getResponseAsString(), String[].class);
+      roles = Arrays.asList(myRoles);
+    } catch (IOException e) {
+      LOGGER.error(e);
+    }
     return roles;
   }
 

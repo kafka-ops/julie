@@ -1,9 +1,15 @@
 package com.purbon.kafka.topology.roles;
 
 import com.purbon.kafka.topology.AccessControlProvider;
+import com.purbon.kafka.topology.Configuration;
 import com.purbon.kafka.topology.api.mds.MDSApiClient;
+import com.purbon.kafka.topology.api.mds.RbacResourceType;
 import com.purbon.kafka.topology.api.mds.RequestScope;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -12,9 +18,15 @@ public class RBACProvider implements AccessControlProvider {
 
   private static final Logger LOGGER = LogManager.getLogger(RBACProvider.class);
   private final MDSApiClient apiClient;
+  private final Configuration config;
+
+  public RBACProvider(MDSApiClient apiClient, Configuration config) {
+    this.apiClient = apiClient;
+    this.config = config;
+  }
 
   public RBACProvider(MDSApiClient apiClient) {
-    this.apiClient = apiClient;
+    this(apiClient, new Configuration());
   }
 
   @Override
@@ -43,5 +55,33 @@ public class RBACProvider implements AccessControlProvider {
 
           apiClient.deleteRole(principal, role, scope);
         });
+  }
+
+  @Override
+  public Map<String, List<TopologyAclBinding>> listAcls() {
+    Map<String, List<TopologyAclBinding>> map = new HashMap<>();
+    List<String> roleNames = apiClient.getRoleNames();
+    for (String roleName : roleNames) {
+      List<String> principalNames = apiClient.lookupKafkaPrincipalsByRoleForKafka(roleName);
+      for (String principalName : principalNames) {
+        List<RbacResourceType> resouces =
+            apiClient.lookupResourcesForKafka(principalName, roleName);
+        for (RbacResourceType resource : resouces) {
+          if (!map.containsKey(resource.getName())) {
+            map.put(resource.getName(), new ArrayList<>());
+          }
+          TopologyAclBinding binding =
+              TopologyAclBinding.build(
+                  resource.getResourceType().toUpperCase(),
+                  resource.getName(),
+                  "*",
+                  roleName,
+                  principalName,
+                  resource.getPatternType());
+          map.get(resource.getName()).add(binding);
+        }
+      }
+    }
+    return map;
   }
 }
