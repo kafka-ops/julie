@@ -1,7 +1,6 @@
 package com.purbon.kafka.topology.roles;
 
 import com.purbon.kafka.topology.AccessControlProvider;
-import com.purbon.kafka.topology.Configuration;
 import com.purbon.kafka.topology.api.mds.MDSApiClient;
 import com.purbon.kafka.topology.api.mds.RbacResourceType;
 import com.purbon.kafka.topology.api.mds.RequestScope;
@@ -18,15 +17,9 @@ public class RBACProvider implements AccessControlProvider {
 
   private static final Logger LOGGER = LogManager.getLogger(RBACProvider.class);
   private final MDSApiClient apiClient;
-  private final Configuration config;
-
-  public RBACProvider(MDSApiClient apiClient, Configuration config) {
-    this.apiClient = apiClient;
-    this.config = config;
-  }
 
   public RBACProvider(MDSApiClient apiClient) {
-    this(apiClient, new Configuration());
+    this.apiClient = apiClient;
   }
 
   @Override
