@@ -211,4 +211,32 @@ public class JulieOpsTest {
     verify(topicManager, times(1)).apply(anyObject(), anyObject());
     verify(accessControlManager, times(1)).apply(anyObject(), anyObject());
   }
+
+  @Test
+  public void builderRunTestAsFromDirectoryWithSchema() throws Exception {
+    String fileOrDirPath = TestUtils.getResourceFilename("/dir_with_subdir");
+
+    Configuration builderConfig = new Configuration(cliOps, props);
+
+    JulieOps builder =
+        JulieOps.build(
+            fileOrDirPath,
+            builderConfig,
+            topologyAdminClient,
+            accessControlProvider,
+            bindingsBuilderProvider);
+
+    builder.setTopicManager(topicManager);
+    builder.setAccessControlManager(accessControlManager);
+
+    doNothing().when(topicManager).apply(anyObject(), anyObject());
+
+    doNothing().when(accessControlManager).apply(anyObject(), anyObject());
+
+    builder.run();
+    builder.close();
+
+    verify(topicManager, times(1)).apply(anyObject(), anyObject());
+    verify(accessControlManager, times(1)).apply(anyObject(), anyObject());
+  }
 }
