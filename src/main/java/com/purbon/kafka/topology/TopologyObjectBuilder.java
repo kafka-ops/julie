@@ -55,6 +55,7 @@ public class TopologyObjectBuilder {
     if (isDir) {
       Files.list(Paths.get(fileOrDir))
           .sorted()
+          .filter(p -> !Files.isDirectory(p))
           .map(path -> parser.deserialise(path.toFile()))
           .forEach(subTopology -> topologies.add(subTopology));
     } else {
