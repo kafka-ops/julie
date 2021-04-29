@@ -423,7 +423,6 @@
     <maven-failsafe-plugin.version>2.22.2</maven-failsafe-plugin.version>
     <!-- dependencies -->
     <jackson.version>2.12.1</jackson.version>
-    <kafka.version>2.5.0</kafka.version>
     <log4j.version>2.13.3</log4j.version>
     <httpclient.version>4.5.11</httpclient.version>
     <zookeeper.version>3.5.7</zookeeper.version>
@@ -432,8 +431,8 @@
     <junit.version>4.13.1</junit.version>
     <testcontainers.version>1.15.2</testcontainers.version>
     <jedis.version>3.2.0</jedis.version>
-    <confluent.version>5.5.0</confluent.version>
-    <confluent-ce.version>5.5.1-ce</confluent-ce.version>
+    <confluent.version>6.1.0</confluent.version>
+    <confluent-ce.version>6.1.0-ce</confluent-ce.version>
     <avro.version>1.9.2</avro.version>
     <jersey.version>2.22.2</jersey.version>
     <hamcrest.version>2.2</hamcrest.version>
@@ -503,12 +502,12 @@
     <dependency>
       <groupId>org.apache.kafka</groupId>
       <artifactId>kafka-clients</artifactId>
-      <version>${kafka.version}</version>
+      <version>${confluent-ce.version}</version>
     </dependency>
     <dependency>
       <groupId>org.apache.kafka</groupId>
       <artifactId>kafka-streams</artifactId>
-      <version>${kafka.version}</version>
+      <version>${confluent-ce.version}</version>
       <scope>test</scope>
     </dependency>
     <dependency>
