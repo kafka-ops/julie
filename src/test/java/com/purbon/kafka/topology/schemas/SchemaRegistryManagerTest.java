@@ -178,13 +178,12 @@ public class SchemaRegistryManagerTest {
         Paths.get(
             getClass()
                 .getClassLoader()
-                .getResource("schemas/test-forward-compatible.json")
+                .getResource("schemas/test-backward-compatible.json")
                 .toURI());
     final String updatedSampleSchema = new String(Files.readAllBytes(updatedSchemaFilePath));
 
     final ParsedSchema parsedUpdatedSampleSchema =
         client.parseSchema(schemaTypeJson, updatedSampleSchema, Collections.emptyList()).get();
-
     assertThat(client.testCompatibility(subjectName, parsedUpdatedSampleSchema)).isTrue();
 
     assertThat(manager.save(subjectName, schemaTypeJson, updatedSampleSchema)).isEqualTo(2);
@@ -206,7 +205,7 @@ public class SchemaRegistryManagerTest {
         Paths.get(
             getClass()
                 .getClassLoader()
-                .getResource("schemas/test-backward-compatible.json")
+                .getResource("schemas/test-forward-compatible.json")
                 .toURI());
     final String updatedSampleSchema = new String(Files.readAllBytes(updatedSchemaFilePath));
 
