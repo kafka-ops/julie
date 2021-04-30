@@ -1,4 +1,14 @@
 
+v2.1.1 / 2021-04-30
+===================
+
+  * Amend dependencies to be fully supporting Confluent RBAC implementation  (#272)
+  * Fix problem with passing a dir that containts another dir for topologies (#269)
+  * Amend listAcls function for rbac providers so delete and listing after execution works as well when using RBAC (#266)
+  * Sync integration test Kafka version with the version in the pom. (#260)
+  * Add overridingClientConfig parameter to allow override and fallbacks ot the original configuration. This would be useful when passing parameters that need to be adapted in some execution scenarios like deployments or CI/CD.
+  * verify CLI parameters as first thing in the process before creating the main handler object  (#253)
+
 v2.1.0 / 2021-04-03
 ===================
 
