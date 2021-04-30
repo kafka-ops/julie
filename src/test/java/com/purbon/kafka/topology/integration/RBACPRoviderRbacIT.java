@@ -313,6 +313,7 @@ public class RBACPRoviderRbacIT extends MDSBaseTest {
     Properties props = new Properties();
     props.put(TOPOLOGY_STATE_FROM_CLUSTER, true);
     props.put(ALLOW_DELETE_TOPICS, true);
+    props.put(ALLOW_DELETE_BINDINGS, true);
 
     HashMap<String, String> cliOps = new HashMap<>();
     cliOps.put(BROKERS_OPTION, "");

@@ -1,0 +1,67 @@
+#!/bin/sh
+
+usage() { echo "Usage: $0 [--ssl] " 1>&2; exit 1; }
+
+ssl=0
+while getopts ":s-:" opt; do
+  case $opt in
+    -)
+      case "${OPTARG}" in
+        ssl)
+         ssl=1
+         ;;
+        *)
+          usage
+          exit 1
+          ;;
+      esac;;
+    *)
+      usage
+      exit 1
+      ;;
+  esac
+done
+
+## Select to run with security or not
+
+DOCKER_COMPOSE_FILE="$PWD/docker-compose.yaml"
+
+if [ $ssl -eq 1 ]; then
+    echo "Running with SSL enabled between the brokers and the LDAP server"
+    # Generate the certificates
+    cd scripts
+    ./certs-create.sh
+
+    ## Copy the necessary broker JKS stores
+    cp kafka.kafka.keystore.jks ../kafka/jks/ldap.keystore.jks
+    cp kafka.kafka.truststore.jks ../kafka/jks/ldap.truststore.jks
+
+    ## copy the LDAP server certificates
+    cp ldap-ca1-signed.crt ../ldap/certs/my-ldap.crt
+    cp ldap.key ../ldap/certs/my-ldap.key
+    cp snakeoil-ca-1.crt ../ldap/certs/my-ca.crt
+    cd ..
+    DOCKER_COMPOSE_FILE="$PWD/docker-compose-with-ssl.yaml"
+fi
+
+## start docker-compose up to and including kafka
+docker-compose -f $DOCKER_COMPOSE_FILE up -d --build kafka
+
+# Creating the users
+# kafka is configured as a super user
+docker-compose exec kafka kafka-configs --zookeeper zookeeper:2181 --alter --add-config 'SCRAM-SHA-256=[password=kafka],SCRAM-SHA-512=[password=kafka]' --entity-type users --entity-name kafka
+docker-compose exec kafka kafka-configs --zookeeper zookeeper:2181 --alter --add-config 'SCRAM-SHA-256=[password=alice-secret],SCRAM-SHA-512=[password=alice-secret]' --entity-type users --entity-name alice
+docker-compose exec kafka kafka-configs --zookeeper zookeeper:2181 --alter --add-config 'SCRAM-SHA-256=[password=barnie-secret],SCRAM-SHA-512=[password=barnie-secret]' --entity-type users --entity-name barnie
+docker-compose exec kafka kafka-configs --zookeeper zookeeper:2181 --alter --add-config 'SCRAM-SHA-256=[password=charlie-secret],SCRAM-SHA-512=[password=charlie-secret]' --entity-type users --entity-name charlie
+
+docker-compose up -d
+
+echo "Example configuration:"
+echo "Should succeed (barnie is in group)"
+echo "-> docker-compose exec kafka kafka-console-producer --broker-list kafka:9093 --topic test-topic --producer.config=/etc/kafka/barnie.properties"
+echo "Should fail (charlie is NOT in group)"
+echo "-> docker-compose exec kafka kafka-console-producer --broker-list kafka:9093 --topic test-topic --producer.config=/etc/kafka/charlie.properties"
+echo "Should succeed (alice is in group)"
+echo "-> docker-compose exec kafka kafka-console-consumer --bootstrap-server kafka:9093 --consumer.config /etc/kafka/alice.properties --topic test-topic --from-beginning"
+echo "List ACLs"
+echo "-> docker-compose exec  kafka kafka-acls --bootstrap-server kafka:9093 --list --command-config /etc/kafka/kafka.properties"
