@@ -1,4 +1,9 @@
 
+v2.1.2 / 2021-04-30
+===================
+
+  * Bump version for httpclient.version to avoid regression in internal domain validation HTTPCLIENT-2047 (a18ea2d81f8074ca0844582c62b646323b19db02)
+
 v2.1.1 / 2021-04-30
 ===================
 
