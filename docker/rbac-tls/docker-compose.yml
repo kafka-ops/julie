@@ -1,0 +1,492 @@
+---
+version: '2.3'
+services:
+
+  phpldapadmin-service:
+    image: osixia/phpldapadmin:0.7.2
+    container_name: ldapadmin-service
+    environment:
+      - PHPLDAPADMIN_LDAP_HOSTS=openldap
+    ports:
+      - "6444:443"
+    depends_on:
+      - openldap
+
+  openldap:
+    image: rroemhild/test-openldap
+    hostname: openldap
+    container_name: openldap
+    ports:
+      - "389:389"
+    privileged: true
+
+  zookeeper:
+    image: confluentinc/cp-zookeeper:${TAG}
+    hostname: zookeeper
+    container_name: zookeeper
+    ports:
+      - "2181:2181"
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+
+  broker:
+    image: confluentinc/cp-server:${TAG}
+    hostname: broker
+    container_name: broker
+    networks:
+      default:
+        aliases:
+          - broker
+          - thusnelda
+    depends_on:
+      - 'zookeeper'
+      - 'openldap'
+    ports:
+      - "8090:8090"
+      - "8091:8091"
+      - "9092:9092"
+      - "9093:9093"
+      - "9094:9094"
+      - "9095:9095"
+    volumes:
+      - ./certs/:/etc/kafka/secrets/
+      - ./conf:/tmp/conf
+      - ./client-configs:/etc/client-configs
+      - ./kafka/:/etc/kafka/
+      - ./jvm/:/etc/kafka/jvm/
+    environment:
+      KAFKA_LOG4J_LOGGERS: kafka.controller=INFO,kafka.authorizer.logger=DEBUG
+      KAFKA_LOG4J_ROOT_LOGLEVEL: DEBUG
+      KAFKA_SUPER_USERS: User:admin;User:kafka;User:professor;User:ANONYMOUS
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: 'zookeeper:2181'
+      KAFKA_CONFLUENT_LICENSE_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_CONFLUENT_SCHEMA_REGISTRY_URL: https://schema-registry:8081
+      KAFKA_ADVERTISED_LISTENERS: INTERNAL://localhost:9093,EXTERNAL://localhost:9092,TOKEN://localhost:9094,TOKENE://thusnelda:9095
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: INTERNAL:SSL,EXTERNAL:SSL,TOKEN:SASL_SSL,TOKENE:SASL_SSL
+      KAFKA_SASL_ENABLED_MECHANISMS: OAUTHBEARER
+
+       # Configure interbroker listener
+      KAFKA_INTER_BROKER_LISTENER_NAME: INTERNAL
+
+      ############################ SSL SETTINGS #####################################
+      KAFKA_LISTENER_NAME_INTERNAL_SECURITY_PROTOCOL: SSL
+      KAFKA_LISTENER_NAME_INTERNAL_SSL_TRUSTSTORE_LOCATION: /etc/kafka/secrets/kafka.truststore.jks
+      KAFKA_LISTENER_NAME_INTERNAL_SSL_TRUSTSTORE_PASSWORD: confluent
+      KAFKA_LISTENER_NAME_INTERNAL_SSL_KEYSTORE_LOCATION: /etc/kafka/secrets/kafka.keystore.jks
+      KAFKA_LISTENER_NAME_INTERNAL_SSL_KEYSTORE_PASSWORD: confluent
+      KAFKA_LISTENER_NAME_INTERNAL_SSL_KEY_PASSWORD: confluent
+
+      KAFKA_LISTENER_NAME_EXTERNAL_SECURITY_PROTOCOL: SSL
+      KAFKA_LISTENER_NAME_EXTERNAL_SSL_TRUSTSTORE_LOCATION: /etc/kafka/secrets/kafka.truststore.jks
+      KAFKA_LISTENER_NAME_EXTERNAL_SSL_TRUSTSTORE_PASSWORD: confluent
+      KAFKA_LISTENER_NAME_EXTERNAL_SSL_KEYSTORE_LOCATION: /etc/kafka/secrets/kafka.keystore.jks
+      KAFKA_LISTENER_NAME_EXTERNAL_SSL_KEYSTORE_PASSWORD: confluent
+      KAFKA_LISTENER_NAME_EXTERNAL_SSL_KEY_PASSWORD: confluent
+
+      KAFKA_LISTENER_NAME_TOKEN_SECURITY_PROTOCOL: SSL
+      KAFKA_LISTENER_NAME_TOKEN_SSL_TRUSTSTORE_LOCATION: /etc/kafka/secrets/kafka.truststore.jks
+      KAFKA_LISTENER_NAME_TOKEN_SSL_TRUSTSTORE_PASSWORD: confluent
+      KAFKA_LISTENER_NAME_TOKEN_SSL_KEYSTORE_LOCATION: /etc/kafka/secrets/kafka.keystore.jks
+      KAFKA_LISTENER_NAME_TOKEN_SSL_KEYSTORE_PASSWORD: confluent
+      KAFKA_LISTENER_NAME_TOKEN_SSL_KEY_PASSWORD: confluent
+
+      KAFKA_LISTENER_NAME_TOKENE_SECURITY_PROTOCOL: SSL
+      KAFKA_LISTENER_NAME_TOKENE_SSL_TRUSTSTORE_LOCATION: /etc/kafka/secrets/thusnelda.truststore.jks
+      KAFKA_LISTENER_NAME_TOKENE_SSL_TRUSTSTORE_PASSWORD: confluent
+      KAFKA_LISTENER_NAME_TOKENE_SSL_KEYSTORE_LOCATION: /etc/kafka/secrets/thusnelda.keystore.jks
+      KAFKA_LISTENER_NAME_TOKENE_SSL_KEYSTORE_PASSWORD: confluent
+      KAFKA_LISTENER_NAME_TOKENE_SSL_KEY_PASSWORD: confluent
+
+      KAFKA_SSL_CLIENT_AUTH: required
+      #KAFKA_SSL_PRINCIPAL_MAPPING_RULES: RULE:^CN=(.*?),.*$$/$$1/,DEFAULT
+
+      KAFKA_LISTENER_NAME_INTERNAL_SSL_PRINCIPAL_MAPPING_RULES: RULE:^CN=([a-zA-Z0-9.]*).*$$/$$1/ , DEFAULT
+      KAFKA_LISTENER_NAME_EXTERNAL_SSL_PRINCIPAL_MAPPING_RULES: RULE:^CN=([a-zA-Z0-9.]*).*$$/kafka/ , DEFAULT
+
+      # Configure token listener
+      KAFKA_LISTENER_NAME_TOKEN_SASL_ENABLED_MECHANISMS: OAUTHBEARER
+      KAFKA_LISTENER_NAME_TOKEN_OAUTHBEARER_SASL_SERVER_CALLBACK_HANDLER_CLASS: io.confluent.kafka.server.plugins.auth.token.TokenBearerValidatorCallbackHandler
+      KAFKA_LISTENER_NAME_TOKEN_OAUTHBEARER_SASL_LOGIN_CALLBACK_HANDLER_CLASS: io.confluent.kafka.server.plugins.auth.token.TokenBearerServerLoginCallbackHandler
+      KAFKA_LISTENER_NAME_TOKEN_OAUTHBEARER_SASL_JAAS_CONFIG: |
+                                                                 \
+                                                                 org.apache.kafka.common.security.oauthbearer.OAuthBearerLoginModule required \
+                                                                 publicKeyPath="/tmp/conf/public.pem";
+
+      KAFKA_LISTENER_NAME_TOKENE_SASL_ENABLED_MECHANISMS: OAUTHBEARER
+      KAFKA_LISTENER_NAME_TOKENE_OAUTHBEARER_SASL_SERVER_CALLBACK_HANDLER_CLASS: io.confluent.kafka.server.plugins.auth.token.TokenBearerValidatorCallbackHandler
+      KAFKA_LISTENER_NAME_TOKENE_OAUTHBEARER_SASL_LOGIN_CALLBACK_HANDLER_CLASS: io.confluent.kafka.server.plugins.auth.token.TokenBearerServerLoginCallbackHandler
+      KAFKA_LISTENER_NAME_TOKENE_OAUTHBEARER_SASL_JAAS_CONFIG: |
+                                                                 \
+                                                                 org.apache.kafka.common.security.oauthbearer.OAuthBearerLoginModule required \
+                                                                 publicKeyPath="/tmp/conf/public.pem";
+
+      # CONFIGURE AUTHORIZER
+      KAFKA_AUTHORIZER_CLASS_NAME: io.confluent.kafka.security.authorizer.ConfluentServerAuthorizer
+      KAFKA_CONFLUENT_AUTHORIZER_ACCESS_RULE_PROVIDERS: CONFLUENT,ZK_ACL
+      KAFKA_CONFLUENT_AUTHORIZER_GROUP_PROVIDER: RBAC
+
+      # ======================== CONFIGURE MDS ====================================
+      KAFKA_CONFLUENT_METADATA_TOPIC_REPLICATION_FACTOR: 1
+
+      # Configure MDS listener and http(s) server
+      KAFKA_CONFLUENT_METADATA_SERVER_AUTHENTICATION_METHOD: BEARER
+      KAFKA_CONFLUENT_METADATA_SERVER_AUTHENTICATION_ROLES: '**'
+      KAFKA_CONFLUENT_METADATA_SERVER_LISTENERS: https://0.0.0.0:8090
+      KAFKA_CONFLUENT_METADATA_SERVER_ADVERTISED_LISTENERS: https://broker:8090
+      KAFKA_CONFLUENT_METADATA_SERVER_OPENAPI_ENABLE: "true"
+
+      ## SSL settings for MDS
+      KAFKA_CONFLUENT_METADATA_SERVER_SSL_KEYSTORE_LOCATION: /etc/kafka/secrets/mds.keystore.jks
+      KAFKA_CONFLUENT_METADATA_SERVER_SSL_KEYSTORE_PASSWORD: confluent
+      KAFKA_CONFLUENT_METADATA_SERVER_SSL_KEY_PASSWORD: confluent
+      KAFKA_CONFLUENT_METADATA_SERVER_SSL_TRUSTSTORE_LOCATION: /etc/kafka/secrets/mds.truststore.jks
+      KAFKA_CONFLUENT_METADATA_SERVER_SSL_TRUSTSTORE_PASSWORD: confluent
+
+      # Configure RBAC token server (authentication)
+      KAFKA_CONFLUENT_METADATA_SERVER_TOKEN_AUTH_ENABLE: 'true'
+      KAFKA_CONFLUENT_METADATA_SERVER_TOKEN_MAX_LIFETIME_MS: 3600000
+      KAFKA_CONFLUENT_METADATA_SERVER_TOKEN_SIGNATURE_ALGORITHM: RS256
+      KAFKA_CONFLUENT_METADATA_SERVER_TOKEN_KEY_PATH: /tmp/conf/keypair.pem
+      KAFKA_CONFLUENT_METADATA_SERVER_PUBLIC_KEY_PATH: /tmp/conf/public.pem
+
+      # Configure MDS to talk to AD/LDAP
+      KAFKA_LDAP_JAVA_NAMING_FACTORY_INITIAL: com.sun.jndi.ldap.LdapCtxFactory
+      KAFKA_LDAP_COM_SUN_JNDI_LDAP_READ_TIMEOUT: 3000
+      KAFKA_LDAP_JAVA_NAMING_PROVIDER_URL: ldap://openldap:389
+      # how to authenticate to LDAP
+      KAFKA_LDAP_JAVA_NAMING_SECURITY_PRINCIPAL: cn=admin,dc=planetexpress,dc=com
+      KAFKA_LDAP_JAVA_NAMING_SECURITY_CREDENTIALS: GoodNewsEveryone
+      KAFKA_LDAP_JAVA_NAMING_SECURITY_AUTHENTICATION: simple
+      # how to locate users and groups
+      KAFKA_LDAP_USER_SEARCH_BASE: ou=people,dc=planetexpress,dc=com
+      KAFKA_LDAP_GROUP_SEARCH_BASE: ou=people,dc=planetexpress,dc=com
+      KAFKA_LDAP_USER_NAME_ATTRIBUTE: uid
+      KAFKA_LDAP_USER_OBJECT_CLASS: inetOrgPerson
+      KAFKA_LDAP_USER_MEMBEROF_ATTRIBUTE: ou
+      KAFKA_LDAP_GROUP_NAME_ATTRIBUTE: cn
+      KAFKA_LDAP_GROUP_OBJECT_CLASS: group
+
+      # ======================= CONFIGURE METRICS REPORTER =========================
+      KAFKA_METRIC_REPORTERS: io.confluent.metrics.reporter.ConfluentMetricsReporter
+      CONFLUENT_METRICS_REPORTER_BOOTSTRAP_SERVERS: localhost:9093
+      CONFLUENT_METRICS_REPORTER_TOPIC_REPLICAS: 1
+      CONFLUENT_METRICS_REPORTER_SECURITY_PROTOCOL: SSL
+      CONFLUENT_METRICS_REPORTER_SSL_TRUSTSTORE_LOCATION: /etc/kafka/secrets/kafka.truststore.jks
+      CONFLUENT_METRICS_REPORTER_SSL_TRUSTSTORE_PASSWORD: confluent
+      CONFLUENT_METRICS_REPORTER_SSL_KEYSTORE_LOCATION: /etc/kafka/secrets/kafka.keystore.jks
+      CONFLUENT_METRICS_REPORTER_SSL_KEYSTORE_PASSWORD: confluent
+      CONFLUENT_METRICS_REPORTER_SSL_KEY_PASSWORD: confluent
+
+      # ======================= OTHER BROKER STUFF =================================
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      SSL_ENABLED_PROTOCOLS: TLSv1.2
+      KAFKA_OPTS: " -Djava.security.properties=/etc/kafka/jvm/security-policy.properties"
+      KAFKA_SSL_CIPHER_SUITES: TLS_RSA_WITH_AES_256_CBC_SHA256, TLS_RSA_WITH_AES_256_GCM_SHA384, TLS_DHE_RSA_WITH_AES_256_CBC_SHA256, TLS_DHE_RSA_WITH_AES_256_GCM_SHA384, TLS_DHE_DSS_WITH_AES_256_CBC_SHA256, TLS_DHE_DSS_WITH_AES_256_GCM_SHA384, TLS_ECDH_RSA_WITH_AES_256_CBC_SHA384, TLS_ECDH_RSA_WITH_AES_256_GCM_SHA384, TLS_ECDH_ECDSA_WITH_AES_256_CBC_SHA384, TLS_ECDH_ECDSA_WITH_AES_256_GCM_SHA384, TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384, TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384, TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA384, TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384
+      # KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0
+      # CONFLUENT_METRICS_ENABLE: 'true'
+      # CONFLUENT_SUPPORT_CUSTOMER_ID: 'anonymous'
+
+  schema-registry:
+    image: confluentinc/cp-schema-registry:${TAG}
+    hostname: schema-registry
+    container_name: schema-registry
+    depends_on:
+      - broker
+    ports:
+      - "8081:8081"
+    volumes:
+      - ./certs/:/etc/kafka/secrets/
+      - ./conf:/tmp/conf
+      - ./jvm/:/etc/kafka/jvm/
+    environment:
+      CUB_CLASSPATH: '/etc/confluent/docker/docker-utils.jar:/usr/share/java/confluent-security/schema-registry/*:/usr/share/java/schema-registry/*:/usr/share/java/cp-base-new/*'
+      SCHEMA_REGISTRY_LISTENERS: https://0.0.0.0:8081
+      SCHEMA_REGISTRY_HOST_NAME: schema-registry
+      # This is only needed if you don't have a license and would like to test as part of a trial period
+      SCHEMA_REGISTRY_KAFKASTORE_CONNECTION_URL: zookeeper:2181
+
+      # configure how to connect to kafka for SR to store its internal info
+      SCHEMA_REGISTRY_KAFKASTORE_BOOTSTRAP_SERVERS: broker:9094
+      SCHEMA_REGISTRY_KAFKASTORE_SECURITY_PROTOCOL: SASL_SSL
+      SCHEMA_REGISTRY_KAFKASTORE_SASL_MECHANISM: OAUTHBEARER
+      SCHEMA_REGISTRY_KAFKASTORE_SASL_LOGIN_CALLBACK_HANDLER_CLASS: io.confluent.kafka.clients.plugins.auth.token.TokenUserLoginCallbackHandler
+      SCHEMA_REGISTRY_KAFKASTORE_SASL_JAAS_CONFIG: |
+                                                    \
+                                                    org.apache.kafka.common.security.oauthbearer.OAuthBearerLoginModule required \
+                                                    username="leela" \
+                                                    password="leela" \
+                                                    metadataServerUrls="https://broker:8090";
+
+      SCHEMA_REGISTRY_KAFKASTORE_SSL_TRUSTSTORE_LOCATION: /etc/kafka/secrets/schemaregistry.truststore.jks
+      SCHEMA_REGISTRY_KAFKASTORE_SSL_TRUSTSTORE_PASSWORD: confluent
+      SCHEMA_REGISTRY_KAFKASTORE_SSL_KEYSTORE_LOCATION: /etc/kafka/secrets/schemaregistry.keystore.jks
+      SCHEMA_REGISTRY_KAFKASTORE_SSL_KEYSTORE_PASSWORD: confluent
+      SCHEMA_REGISTRY_KAFKASTORE_SSL_KEY_PASSWORD: confluent
+
+      SCHEMA_REGISTRY_KAFKASTORE_TOPIC: _schemas
+      SCHEMA_REGISTRY_DEBUG: 'true'
+
+      SCHEMA_REGISTRY_SSL_TRUSTSTORE_LOCATION: /etc/kafka/secrets/schemaregistry.truststore.jks
+      SCHEMA_REGISTRY_SSL_TRUSTSTORE_PASSWORD: confluent
+      SCHEMA_REGISTRY_SSL_KEYSTORE_LOCATION: /etc/kafka/secrets/schemaregistry.keystore.jks
+      SCHEMA_REGISTRY_SSL_KEYSTORE_PASSWORD: confluent
+      SCHEMA_REGISTRY_SSL_KEY_PASSWORD: confluent
+      SCHEMA_REGISTRY_SSL_CLIENT_AUTH: 'false'
+
+      SCHEMA_REGISTRY_SCHEMA_REGISTRY_INTER_INSTANCE_PROTOCOL: "https"
+
+      # ======================= RBAC =================================
+      SCHEMA_REGISTRY_SCHEMA_REGISTRY_RESOURCE_EXTENSION_CLASS: io.confluent.kafka.schemaregistry.security.SchemaRegistrySecurityResourceExtension
+      SCHEMA_REGISTRY_CONFLUENT_SCHEMA_REGISTRY_AUTHORIZER_CLASS: io.confluent.kafka.schemaregistry.security.authorizer.rbac.RbacAuthorizer
+      SCHEMA_REGISTRY_REST_SERVLET_INITIALIZOR_CLASSES: io.confluent.common.security.jetty.initializer.InstallBearerOrBasicSecurityHandler
+      # how to connect to MDS
+      SCHEMA_REGISTRY_CONFLUENT_METADATA_BOOTSTRAP_SERVER_URLS: https://broker:8090
+      SCHEMA_REGISTRY_CONFLUENT_METADATA_HTTP_AUTH_CREDENTIALS_PROVIDER: BASIC
+      SCHEMA_REGISTRY_CONFLUENT_METADATA_BASIC_AUTH_USER_INFO: leela:leela
+      # public key to verify tokens during authentication
+      SCHEMA_REGISTRY_PUBLIC_KEY_PATH: /tmp/conf/public.pem
+      SCHEMA_REGISTRY_SSL_ENABLED_PROTOCOLS: TLSv1.2
+      KAFKA_OPTS: " -Djava.security.properties=/etc/kafka/jvm/security-policy.properties"
+      SCHEMA_REGISTRY_SSL_CIPHER_SUITES: TLS_RSA_WITH_AES_256_CBC_SHA256, TLS_RSA_WITH_AES_256_GCM_SHA384, TLS_DHE_RSA_WITH_AES_256_CBC_SHA256, TLS_DHE_RSA_WITH_AES_256_GCM_SHA384, TLS_DHE_DSS_WITH_AES_256_CBC_SHA256, TLS_DHE_DSS_WITH_AES_256_GCM_SHA384, TLS_ECDH_RSA_WITH_AES_256_CBC_SHA384, TLS_ECDH_RSA_WITH_AES_256_GCM_SHA384, TLS_ECDH_ECDSA_WITH_AES_256_CBC_SHA384, TLS_ECDH_ECDSA_WITH_AES_256_GCM_SHA384, TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384, TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384, TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA384, TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384
+
+  connect:
+    image: confluentinc/cp-server-connect:${TAG}
+    hostname: connect
+    container_name: connect
+    depends_on:
+      - 'broker'
+    ports:
+      - "8083:8083"
+    volumes:
+      - ./certs/:/etc/kafka/secrets/
+      - ./conf:/tmp/conf
+      - ./jvm/:/etc/kafka/jvm/
+    environment:
+      CUB_CLASSPATH: '/etc/confluent/docker/docker-utils.jar:/usr/share/java/confluent-security/connect/*:/usr/share/java/kafka/*:/usr/share/java/cp-base-new/*'
+      CLASSPATH: "/usr/share/java/monitoring-interceptors/*"
+      CONNECT_REST_ADVERTISED_HOST_NAME: connect
+      CONNECT_LISTENERS: https://0.0.0.0:8083
+      CONNECT_REST_PORT: 8083
+      CONNECT_GROUP_ID: connect-cluster
+      CONNECT_REPLICATION_FACTOR: 1
+      # configs storage topic
+      CONNECT_CONFIG_STORAGE_TOPIC: connect-configs
+      CONNECT_CONFIG_STORAGE_REPLICATION_FACTOR: 1
+      # offsets storage topic and settings
+      CONNECT_OFFSET_STORAGE_TOPIC: connect-offsets
+      CONNECT_OFFSET_STORAGE_REPLICATION_FACTOR: 1
+      CONNECT_OFFSET_FLUSH_INTERVAL_MS: 10000
+      # status storage topic
+      CONNECT_STATUS_STORAGE_TOPIC: connect-status
+      CONNECT_STATUS_STORAGE_REPLICATION_FACTOR: 1
+
+      # Default to Json converters:
+      CONNECT_KEY_CONVERTER: org.apache.kafka.connect.json.JsonConverter
+      CONNECT_VALUE_CONVERTER: org.apache.kafka.connect.json.JsonConverter
+      CONNECT_INTERNAL_KEY_CONVERTER: org.apache.kafka.connect.json.JsonConverter
+      CONNECT_INTERNAL_VALUE_CONVERTER: org.apache.kafka.connect.json.JsonConverter
+
+      CONNECT_LOG4J_ROOT_LOGLEVEL: INFO
+      CONNECT_LOG4J_LOGGERS: org.reflections=ERROR
+
+      # Connect to broker
+      CONNECT_BOOTSTRAP_SERVERS: broker:9094
+      CONNECT_SECURITY_PROTOCOL: SASL_SSL
+      # RBAC
+      CONNECT_SASL_MECHANISM: 'OAUTHBEARER'
+      CONNECT_SASL_LOGIN_CALLBACK_HANDLER_CLASS: 'io.confluent.kafka.clients.plugins.auth.token.TokenUserLoginCallbackHandler'
+      CONNECT_SASL_JAAS_CONFIG: |
+              org.apache.kafka.common.security.oauthbearer.OAuthBearerLoginModule required \
+              username="fry" \
+              password="fry" \
+              metadataServerUrls="https://broker:8090";
+
+      # Connect Worker
+      CONNECT_SECURITY_PROTOCOL: SASL_SSL
+      CONNECT_SSL_TRUSTSTORE_LOCATION: /etc/kafka/secrets/connect.truststore.jks
+      CONNECT_SSL_TRUSTSTORE_PASSWORD: confluent
+      CONNECT_SSL_KEYSTORE_LOCATION: /etc/kafka/secrets/connect.keystore.jks
+      CONNECT_SSL_KEYSTORE_PASSWORD: confluent
+      CONNECT_SSL_KEY_PASSWORD: confluent
+
+      # Allow overriding configs on the connector level
+      CONNECT_CONNECTOR_CLIENT_CONFIG_OVERRIDE_POLICY: 'All'
+
+      # Default producers configuration
+      CONNECT_PRODUCER_SECURITY_PROTOCOL: SASL_SSL
+      CONNECT_PRODUCER_SSL_TRUSTSTORE_LOCATION: /etc/kafka/secrets/connect.truststore.jks
+      CONNECT_PRODUCER_SSL_TRUSTSTORE_PASSWORD: confluent
+      CONNECT_PRODUCER_SSL_KEYSTORE_LOCATION: /etc/kafka/secrets/connect.keystore.jks
+      CONNECT_PRODUCER_SSL_KEYSTORE_PASSWORD: confluent
+      CONNECT_PRODUCER_SSL_KEY_PASSWORD: confluent
+      CONNECT_PRODUCER_INTERCEPTOR_CLASSES: "io.confluent.monitoring.clients.interceptor.MonitoringProducerInterceptor"
+      CONNECT_PRODUCER_CONFLUENT_MONITORING_INTERCEPTOR_SECURITY_PROTOCOL: SASL_SSL
+      CONNECT_PRODUCER_CONFLUENT_MONITORING_INTERCEPTOR_SSL_TRUSTSTORE_LOCATION: /etc/kafka/secrets/connect.truststore.jks
+      CONNECT_PRODUCER_CONFLUENT_MONITORING_INTERCEPTOR_SSL_TRUSTSTORE_PASSWORD: confluent
+      CONNECT_PRODUCER_CONFLUENT_MONITORING_INTERCEPTOR_SSL_KEYSTORE_LOCATION: /etc/kafka/secrets/connect.keystore.jks
+      CONNECT_PRODUCER_CONFLUENT_MONITORING_INTERCEPTOR_SSL_KEYSTORE_PASSWORD: confluent
+      CONNECT_PRODUCER_CONFLUENT_MONITORING_INTERCEPTOR_SSL_KEY_PASSWORD: confluent
+
+       # Producer
+      CONNECT_PRODUCER_SASL_MECHANISM: 'OAUTHBEARER'
+      CONNECT_PRODUCER_SASL_LOGIN_CALLBACK_HANDLER_CLASS: 'io.confluent.kafka.clients.plugins.auth.token.TokenUserLoginCallbackHandler'
+      CONNECT_PRODUCER_CONFLUENT_MONITORING_INTERCEPTOR_SASL_MECHANISM: 'OAUTHBEARER'
+      CONNECT_PRODUCER_CONFLUENT_MONITORING_INTERCEPTOR_SASL_LOGIN_CALLBACK_HANDLER_CLASS: 'io.confluent.kafka.clients.plugins.auth.token.TokenUserLoginCallbackHandler'
+      CONNECT_PRODUCER_CONFLUENT_MONITORING_INTERCEPTOR_SASL_JAAS_CONFIG: |
+              org.apache.kafka.common.security.oauthbearer.OAuthBearerLoginModule required \
+              username="fry" \
+              password="fry" \
+              metadataServerUrls="https://broker:8090";
+
+      # Default consumer configs
+      CONNECT_CONSUMER_SECURITY_PROTOCOL: SASL_SSL
+      CONNECT_CONSUMER_SSL_TRUSTSTORE_LOCATION: /etc/kafka/secrets/connect.truststore.jks
+      CONNECT_CONSUMER_SSL_TRUSTSTORE_PASSWORD: confluent
+      CONNECT_CONSUMER_SSL_KEYSTORE_LOCATION: /etc/kafka/secrets/connect.keystore.jks
+      CONNECT_CONSUMER_SSL_KEYSTORE_PASSWORD: confluent
+      CONNECT_CONSUMER_SSL_KEY_PASSWORD: confluent
+      CONNECT_CONSUMER_INTERCEPTOR_CLASSES: "io.confluent.monitoring.clients.interceptor.MonitoringConsumerInterceptor"
+      CONNECT_CONSUMER_CONFLUENT_MONITORING_INTERCEPTOR_SECURITY_PROTOCOL: SASL_SSL
+      CONNECT_CONSUMER_CONFLUENT_MONITORING_INTERCEPTOR_SSL_TRUSTSTORE_LOCATION: /etc/kafka/secrets/connect.truststore.jks
+      CONNECT_CONSUMER_CONFLUENT_MONITORING_INTERCEPTOR_SSL_TRUSTSTORE_PASSWORD: confluent
+      CONNECT_CONSUMER_CONFLUENT_MONITORING_INTERCEPTOR_SSL_KEYSTORE_LOCATION: /etc/kafka/secrets/connect.keystore.jks
+      CONNECT_CONSUMER_CONFLUENT_MONITORING_INTERCEPTOR_SSL_KEYSTORE_PASSWORD: confluent
+      CONNECT_CONSUMER_CONFLUENT_MONITORING_INTERCEPTOR_SSL_KEY_PASSWORD: confluent
+
+      CONNECT_CONSUMER_SASL_MECHANISM: 'OAUTHBEARER'
+      CONNECT_CONSUMER_SASL_LOGIN_CALLBACK_HANDLER_CLASS: 'io.confluent.kafka.clients.plugins.auth.token.TokenUserLoginCallbackHandler'
+      CONNECT_CONSUMER_CONFLUENT_MONITORING_INTERCEPTOR_SASL_MECHANISM: 'OAUTHBEARER'
+      CONNECT_CONSUMER_CONFLUENT_MONITORING_INTERCEPTOR_SASL_LOGIN_CALLBACK_HANDLER_CLASS: 'io.confluent.kafka.clients.plugins.auth.token.TokenUserLoginCallbackHandler'
+      CONNECT_CONSUMER_CONFLUENT_MONITORING_INTERCEPTOR_SASL_JAAS_CONFIG: |
+              org.apache.kafka.common.security.oauthbearer.OAuthBearerLoginModule required \
+              username="fry" \
+              password="fry" \
+              metadataServerUrls="https://broker:8090";
+
+      # Default admin config
+      CONNECT_ADMIN_SECURITY_PROTOCOL: SASL_SSL
+      CONNECT_ADMIN_SASL_MECHANISM: 'OAUTHBEARER'
+      CONNECT_ADMIN_SASL_LOGIN_CALLBACK_HANDLER_CLASS: 'io.confluent.kafka.clients.plugins.auth.token.TokenUserLoginCallbackHandler'
+      CONNECT_ADMIN_SSL_TRUSTSTORE_LOCATION: /etc/kafka/secrets/connect.truststore.jks
+      CONNECT_ADMIN_SSL_TRUSTSTORE_PASSWORD: confluent
+      CONNECT_ADMIN_SSL_KEYSTORE_LOCATION: /etc/kafka/secrets/connect.keystore.jks
+      CONNECT_ADMIN_SSL_KEYSTORE_PASSWORD: confluent
+      CONNECT_ADMIN_SSL_KEY_PASSWORD: confluent
+
+      # Load confluent plugins
+      CONNECT_PLUGIN_PATH: "/usr/share/java,/usr/share/confluent-hub-components"
+      # ============================== RBAC ========================================
+      CONNECT_REST_EXTENSION_CLASSES: 'io.confluent.connect.security.ConnectSecurityExtension,io.confluent.connect.secretregistry.ConnectSecretRegistryExtension'
+      CONNECT_REST_SERVLET_INITIALIZOR_CLASSES: 'io.confluent.common.security.jetty.initializer.InstallBearerOrBasicSecurityHandler'
+      CONNECT_PUBLIC_KEY_PATH: '/tmp/conf/public.pem'
+
+      CONNECT_CONFLUENT_METADATA_BOOTSTRAP_SERVER_URLS: 'https://broker:8090'
+      CONNECT_CONFLUENT_METADATA_BASIC_AUTH_USER_INFO: 'fry:fry'
+      CONNECT_CONFLUENT_METADATA_HTTP_AUTH_CREDENTIALS_PROVIDER: 'BASIC'
+      # ========================= OTHERS =========================
+      KAFKA_OPTS: -Djavax.net.ssl.trustStore=/etc/kafka/secrets/connect.truststore.jks
+                  -Djavax.net.ssl.trustStorePassword=confluent
+                  -Djavax.net.ssl.keyStore=/etc/kafka/secrets/connect.keystore.jks
+                  -Djavax.net.ssl.keyStorePassword=confluent
+                  -Djava.security.properties=/etc/kafka/jvm/security-policy.properties
+      # ========================= SECRET REGISTRY ==================================
+      CONNECT_CONFIG_PROVIDERS: 'secret'
+      CONNECT_CONFIG_PROVIDERS_SECRET_CLASS: 'io.confluent.connect.secretregistry.rbac.config.provider.InternalSecretConfigProvider'
+      CONNECT_CONFIG_PROVIDERS_SECRET_PARAM_MASTER_ENCRYPTION_KEY: 'password1234'
+      CONNECT_CONFIG_PROVIDERS_SECRET_PARAM_KAFKASTORE_BOOTSTRAP_SERVERS: broker:9094
+      CONNECT_CONFIG_PROVIDERS_SECRET_PARAM_KAFKASTORE_SECURITY_PROTOCOL: SASL_SSL
+      CONNECT_CONFIG_PROVIDERS_SECRET_PARAM_KAFKASTORE_SSL_TRUSTSTORE_LOCATION: /etc/kafka/secrets/connect.truststore.jks
+      CONNECT_CONFIG_PROVIDERS_SECRET_PARAM_KAFKASTORE_SSL_TRUSTSTORE_PASSWORD: confluent
+      CONNECT_CONFIG_PROVIDERS_SECRET_PARAM_KAFKASTORE_SSL_KEYSTORE_LOCATION: /etc/kafka/secrets/connect.keystore.jks
+      CONNECT_CONFIG_PROVIDERS_SECRET_PARAM_KAFKASTORE_SSL_KEYSTORE_PASSWORD: confluent
+      CONNECT_CONFIG_PROVIDERS_SECRET_PARAM_KAFKASTORE_SSL_KEY_PASSWORD: confluent
+      CONNECT_CONFIG_PROVIDERS_SECRET_PARAM_KAFKASTORE_SASL_MECHANISM: 'OAUTHBEARER'
+      CONNECT_CONFIG_PROVIDERS_SECRET_PARAM_KAFKASTORE_SASL_LOGIN_CALLBACK_HANDLER_CLASS: 'io.confluent.kafka.clients.plugins.auth.token.TokenUserLoginCallbackHandler'
+      CONNECT_CONFIG_PROVIDERS_SECRET_PARAM_KAFKASTORE_SASL_JAAS_CONFIG: |
+              org.apache.kafka.common.security.oauthbearer.OAuthBearerLoginModule required \
+              username="fry" \
+              password="fry" \
+              metadataServerUrls="https://broker:8090";
+      CONNECT_SSL_ENABLED_PROTOCOLS: TLSv1.2
+      CONNECT_SSL_CIPHER_SUITES: TLS_RSA_WITH_AES_256_CBC_SHA256, TLS_RSA_WITH_AES_256_GCM_SHA384, TLS_DHE_RSA_WITH_AES_256_CBC_SHA256, TLS_DHE_RSA_WITH_AES_256_GCM_SHA384, TLS_DHE_DSS_WITH_AES_256_CBC_SHA256, TLS_DHE_DSS_WITH_AES_256_GCM_SHA384, TLS_ECDH_RSA_WITH_AES_256_CBC_SHA384, TLS_ECDH_RSA_WITH_AES_256_GCM_SHA384, TLS_ECDH_ECDSA_WITH_AES_256_CBC_SHA384, TLS_ECDH_ECDSA_WITH_AES_256_GCM_SHA384, TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384, TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384, TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA384, TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384
+
+  control-center:
+    image: confluentinc/cp-enterprise-control-center:${TAG}
+    hostname: control-center
+    container_name: control-center
+    depends_on:
+      - 'zookeeper'
+      - 'broker'
+      #- 'connect'
+    ports:
+      - "9021:9021"
+    volumes:
+      - ./certs/:/etc/kafka/secrets/
+      - ./conf:/tmp/conf
+      - ./jvm/:/etc/kafka/jvm/
+    environment:
+      # CUB CLASSPATH
+      CUB_CLASSPATH: '/etc/confluent/docker/docker-utils.jar:/usr/share/java/confluent-control-center/*:/usr/share/java/rest-utils/*:/usr/share/java/confluent-common/*'
+      # general settings
+      #CONTROL_CENTER_LOG4J_ROOT_LOGLEVEL: DEBUG
+      CONTROL_CENTER_BOOTSTRAP_SERVERS: 'SASL_SSL://broker:9094'
+      CONTROL_CENTER_ZOOKEEPER_CONNECT: 'zookeeper:2181'
+
+      CONTROL_CENTER_REPLICATION_FACTOR: 1
+      CONTROL_CENTER_INTERNAL_TOPICS_PARTITIONS: 1
+      CONFLUENT_METRICS_TOPIC_REPLICATION: 1
+      CONTROL_CENTER_MONITORING_INTERCEPTOR_TOPIC_PARTITIONS: 1
+      CONTROL_CENTER_MONITORING_INTERCEPTOR_TOPIC_REPLICATION: 1
+      CONTROL_CENTER_METRICS_TOPIC_REPLICATION: 1
+      CONTROL_CENTER_METRICS_TOPIC_PARTITIONS: 1
+
+      PORT: 9021
+
+      # ========================= other services ==============================
+      # connect
+      CONTROL_CENTER_CONNECT_CONNECT1_CLUSTER: https://connect:8083
+      # schema-registry
+      CONTROL_CENTER_SCHEMA_REGISTRY_URL: https://schema-registry:8081
+
+      # ========================= RBAC =================================
+      CONTROL_CENTER_REST_AUTHENTICATION_METHOD: BEARER
+      PUBLIC_KEY_PATH: /tmp/conf/public.pem
+      CONFLUENT_METADATA_BOOTSTRAP_SERVER_URLS: https://broker:8090
+      CONFLUENT_METADATA_BASIC_AUTH_USER_INFO: hermes:hermes
+
+      CONTROL_CENTER_REST_LISTENERS: https://0.0.0.0:9021
+      CONTROL_CENTER_REST_SSL_TRUSTSTORE_LOCATION: /etc/kafka/secrets/controlcenter.truststore.jks
+      CONTROL_CENTER_REST_SSL_TRUSTSTORE_PASSWORD: confluent
+      CONTROL_CENTER_REST_SSL_KEYSTORE_LOCATION: /etc/kafka/secrets/controlcenter.keystore.jks
+      CONTROL_CENTER_REST_SSL_KEYSTORE_PASSWORD: confluent
+      CONTROL_CENTER_REST_SSL_KEY_PASSWORD: confluent
+
+      CONTROL_CENTER_STREAMS_CPREST_URL: https://broker:8090
+
+      # internal streams application
+      CONTROL_CENTER_STREAMS_CACHE_MAX_BYTES_BUFFERING: 100000000
+      CONTROL_CENTER_STREAMS_CONSUMER_REQUEST_TIMEOUT_MS: "960032"
+      CONTROL_CENTER_STREAMS_NUM_STREAM_THREADS: 1
+
+      CONTROL_CENTER_STREAMS_SECURITY_PROTOCOL: SASL_SSL
+      CONTROL_CENTER_STREAMS_SSL_TRUSTSTORE_LOCATION: /etc/kafka/secrets/controlcenter.truststore.jks
+      CONTROL_CENTER_STREAMS_SSL_TRUSTSTORE_PASSWORD: confluent
+      CONTROL_CENTER_STREAMS_SSL_KEYSTORE_LOCATION: /etc/kafka/secrets/controlcenter.keystore.jks
+      CONTROL_CENTER_STREAMS_SSL_KEYSTORE_PASSWORD: confluent
+      CONTROL_CENTER_STREAMS_SSL_KEY_PASSWORD: confluent
+
+      # The following configs are not required by C3 itself, but are required by cub to be able to connect to kafka to check if its ready
+      # Seems like C3 would generate these configs when started, but cub runs before C3 starts, so it doesn't have access to these configs
+      CONTROL_CENTER_STREAMS_SASL_MECHANISM: OAUTHBEARER
+      CONTROL_CENTER_STREAMS_SASL_LOGIN_CALLBACK_HANDLER_CLASS: io.confluent.kafka.clients.plugins.auth.token.TokenUserLoginCallbackHandler
+      CONTROL_CENTER_STREAMS_SASL_JAAS_CONFIG: |
+                                                \
+                                                org.apache.kafka.common.security.oauthbearer.OAuthBearerLoginModule required \
+                                                username="hermes" \
+                                                password="hermes" \
+                                                metadataServerUrls="https://broker:8090";
+      CONTROL_CENTER_SSL_ENABLED_PROTOCOLS: TLSv1.2
+      KAFKA_OPTS: " -Djava.security.properties=/etc/kafka/jvm/security-policy.properties"
+      CONTROL_CENTER_SSL_CIPHER_SUITES: TLS_RSA_WITH_AES_256_CBC_SHA256, TLS_RSA_WITH_AES_256_GCM_SHA384, TLS_DHE_RSA_WITH_AES_256_CBC_SHA256, TLS_DHE_RSA_WITH_AES_256_GCM_SHA384, TLS_DHE_DSS_WITH_AES_256_CBC_SHA256, TLS_DHE_DSS_WITH_AES_256_GCM_SHA384, TLS_ECDH_RSA_WITH_AES_256_CBC_SHA384, TLS_ECDH_RSA_WITH_AES_256_GCM_SHA384, TLS_ECDH_ECDSA_WITH_AES_256_CBC_SHA384, TLS_ECDH_ECDSA_WITH_AES_256_GCM_SHA384, TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384, TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384, TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA384, TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384
