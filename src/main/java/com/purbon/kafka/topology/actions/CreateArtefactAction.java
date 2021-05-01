@@ -35,7 +35,9 @@ public class CreateArtefactAction extends BaseAction {
   @Override
   public void run() throws IOException {
     if (!artefacts.contains(artefact)) {
-      LOGGER.info(String.format("Creating artefact %s for client %s", artefact.getName(), client.getClass()));
+      LOGGER.info(
+          String.format(
+              "Creating artefact %s for client %s", artefact.getName(), client.getClass()));
       client.add(content());
     }
   }
@@ -45,7 +47,9 @@ public class CreateArtefactAction extends BaseAction {
   }
 
   private String content() throws IOException {
-    LOGGER.debug(String.format("Reading artefact content from %s with rootPath %s", artefact.getPath(), rootPath));
+    LOGGER.debug(
+        String.format(
+            "Reading artefact content from %s with rootPath %s", artefact.getPath(), rootPath));
     return Utils.readFullFile(filePath(artefact.getPath(), rootPath));
   }
 

@@ -59,7 +59,7 @@ public class Constants {
   public static final String ALLOW_DELETE_TOPICS = "allow.delete.topics";
   public static final String ALLOW_DELETE_BINDINGS = "allow.delete.bindings";
   static final String ALLOW_DELETE_PRINCIPALS = "allow.delete.principals";
-  static final String ALLOW_DELETE_CONNECT_ARTEFACTS = "allow.delete.artefacts.connect";
+  public static final String ALLOW_DELETE_CONNECT_ARTEFACTS = "allow.delete.artefacts.connect";
 
   public static final String CCLOUD_ENV_CONFIG = "ccloud.environment";
 

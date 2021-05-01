@@ -22,7 +22,9 @@ public class DeleteArtefactAction extends BaseAction {
 
   @Override
   public void run() throws IOException {
-    LOGGER.debug(String.format("Deleting artefact %s with client %s", artefact.getName(), client.getClass()));
+    LOGGER.debug(
+        String.format(
+            "Deleting artefact %s with client %s", artefact.getName(), client.getClass()));
     client.delete(artefact.getName());
   }
 

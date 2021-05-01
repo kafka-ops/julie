@@ -43,6 +43,12 @@ public abstract class ArtefactManager implements ManagerOfThings {
     for (Artefact artefact : artefacts) {
       if (!currentArtefacts.contains(artefact)) {
         ArtefactClient client = selectClient(artefact);
+        if (client == null) {
+          throw new IOException(
+              "The Artefact "
+                  + artefact.getName()
+                  + " require a non configured client, please check our configuration");
+        }
         plan.add(new CreateArtefactAction(client, rootPath(), currentArtefacts, artefact));
       }
     }
@@ -57,6 +63,12 @@ public abstract class ArtefactManager implements ManagerOfThings {
         LOGGER.debug("Artefacts to be deleted: " + StringUtils.join(toBeDeleted, ","));
         for (Artefact artefact : toBeDeleted) {
           ArtefactClient client = selectClient(artefact);
+          if (client == null) {
+            throw new IOException(
+                "The Artefact "
+                    + artefact.getName()
+                    + " require a non configured client, please check our configuration");
+          }
           plan.add(new DeleteArtefactAction(client, artefact));
         }
       }

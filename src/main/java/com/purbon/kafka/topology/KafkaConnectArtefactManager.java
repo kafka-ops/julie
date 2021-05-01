@@ -8,6 +8,7 @@ import com.purbon.kafka.topology.model.artefact.KafkaConnectArtefact;
 import com.purbon.kafka.topology.utils.Either;
 import java.io.File;
 import java.io.IOException;
+import java.io.PrintStream;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.*;
@@ -68,7 +69,7 @@ public class KafkaConnectArtefactManager extends ArtefactManager {
 
   @Override
   boolean isAllowDelete() {
-    return config.allowDelete() || config.isAllowDeleteConnectArtefacts();
+    return config.isAllowDeleteConnectArtefacts();
   }
 
   @Override
@@ -76,5 +77,11 @@ public class KafkaConnectArtefactManager extends ArtefactManager {
     return Files.isDirectory(Paths.get(topologyFileOrDir))
         ? topologyFileOrDir
         : new File(topologyFileOrDir).getParent();
+  }
+
+  @Override
+  public void printCurrentState(PrintStream out) throws IOException {
+    out.println("List of Connectors:");
+    getClustersState().forEach(out::println);
   }
 }

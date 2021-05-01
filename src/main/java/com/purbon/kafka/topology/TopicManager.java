@@ -109,7 +109,7 @@ public class TopicManager implements ManagerOfThings {
     return matches;
   }
 
-  void printCurrentState(PrintStream os) throws IOException {
+  public void printCurrentState(PrintStream os) throws IOException {
     os.println("List of Topics:");
     adminClient.listTopics().forEach(os::println);
   }
