@@ -155,7 +155,9 @@ public class CommandLineInterface {
 
     processTopology(
         cmd.getOptionValue(TOPOLOGY_OPTION), cmd.getOptionValue(PLANS_OPTION, "default"), config);
-    System.out.println("Kafka Topology updated");
+    if (!cmd.hasOption(DRY_RUN_OPTION) && !cmd.hasOption(VALIDATE_OPTION)) {
+      System.out.println("Kafka Topology updated");
+    }
   }
 
   private Map<String, String> parseConfig(CommandLine cmd) {
