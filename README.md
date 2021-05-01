@@ -104,15 +104,20 @@ This is how you can run the tool directly as a docker image:
 docker run purbon/kafka-topology-builder:latest julie-ops-cli.sh  --help
 Parsing failed cause of Missing required options: topology, brokers, clientConfig
 usage: cli
-    --brokers <arg>        			The Apache Kafka server(s) to connect to.
-    --clientConfig <arg>   			The client configuration file.
-    --overridingClientConfig <arg>  The overriding client configuration file.
-    --dryRun               			Print the execution plan without altering
-                           			anything.
-    --help                 			Prints usage information.
-    --quiet                			Print minimum status update
-    --topology <arg>       			Topology config file.
-    --version              			Prints useful version information.
+    --brokers <arg>                  The Apache Kafka server(s) to connect
+                                     to.
+    --clientConfig <arg>             The client configuration file.
+    --dryRun                         Print the execution plan without
+                                     altering anything.
+    --help                           Prints usage information.
+    --overridingClientConfig <arg>   The overriding AdminClient
+                                     configuration file.
+    --plans <arg>                    File describing the predefined plans
+    --quiet                          Print minimum status update
+    --topology <arg>                 Topology config file.
+    --validate                       Only run configured validations in
+                                     your topology
+    --version                        Prints useful version information.
 ```
 
 If you install the tool as rpm, you will have available in your $PATH the _julie-ops-cli.sh_.
