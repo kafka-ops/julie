@@ -23,7 +23,7 @@ projects:
             - "topicC"
             - "topicD"
     connectors:
-      artefacts:
+      artifacts:
         - path: "connectors/source-jdbc.json"
           server: "connector0"
           name: "source-jdbc"

@@ -61,6 +61,7 @@ public class TopologyCustomDeserializer extends StdDeserializer<Topology> {
 
   private static final String ACCESS_CONTROL = "access_control";
   private static final String ARTEFACTS = "artefacts";
+  private static final String ARTIFACTS = "artifacts";
 
   private final Configuration config;
 
@@ -235,10 +236,11 @@ public class TopologyCustomDeserializer extends StdDeserializer<Topology> {
     List<Connector> connectors =
         new JsonSerdesUtils<Connector>().parseApplicationUser(parser, acNode, Connector.class);
     List<KafkaConnectArtefact> artefacts = Collections.emptyList();
-    if (node.has(ARTEFACTS)) {
+    if (node.has(ARTEFACTS) || node.has(ARTIFACTS)) {
+      String key = node.has(ARTEFACTS) ? ARTEFACTS : ARTIFACTS;
       artefacts =
           new JsonSerdesUtils<KafkaConnectArtefact>()
-              .parseApplicationUser(parser, node.get(ARTEFACTS), KafkaConnectArtefact.class);
+              .parseApplicationUser(parser, node.get(key), KafkaConnectArtefact.class);
       Set<String> serverLabels = config.getKafkaConnectServers().keySet();
       for (KafkaConnectArtefact artefact : artefacts) {
         if (artefact.getPath() == null
