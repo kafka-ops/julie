@@ -1,5 +1,7 @@
 package com.purbon.kafka.topology.validation.topic;
 
+import static com.purbon.kafka.topology.Constants.TOPOLOGY_VALIDATIONS_TOPIC_NAME_REGEXP;
+
 import com.purbon.kafka.topology.exceptions.ConfigurationException;
 import com.purbon.kafka.topology.exceptions.ValidationException;
 import com.purbon.kafka.topology.model.Topic;
@@ -43,10 +45,13 @@ public class TopicNameRegexValidation implements TopicValidation {
   private static String getTopicNamePatternFromConfig() throws ConfigurationException {
     Config config = ConfigFactory.load();
     try {
-      return config.getString("topology.validations.regexp");
+      return config.getString(TOPOLOGY_VALIDATIONS_TOPIC_NAME_REGEXP);
     } catch (ConfigException e) {
-      throw new ConfigurationException(
-          "TopicNameRegexValidation requires you to define your regex in config 'topology.validations.regexp'");
+      String msg =
+          String.format(
+              "TopicNameRegexValidation requires you to define your regex in config '%s'",
+              TOPOLOGY_VALIDATIONS_TOPIC_NAME_REGEXP);
+      throw new ConfigurationException(msg);
     }
   }
 
