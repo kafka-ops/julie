@@ -17,6 +17,7 @@ If you are using the CLI tool, you an use the *--help* command to list the diffe
 
     $> julie-ops-cli.sh  --help
         usage: cli
+<<<<<<< HEAD
 		    --allowDelete                    Permits delete operations for topics
 		                                     and configs. (deprecated, to be
 		                                     removed)
@@ -31,6 +32,8 @@ If you are using the CLI tool, you an use the *--help* command to list the diffe
 		    --plans <arg>                    File describing the predefined plans
 		    --quiet                          Print minimum status update
 		    --topology <arg>                 Topology config file.
+            --validate                       Only run configured validations in
+                                             your topology
 		    --version                        Prints useful version information.
 
 The most important ones are:
