@@ -23,6 +23,23 @@ In the previous example we have configured two validations.
 1.- ConfigurationKeyValidation will make sure all config keys are valid for Kafka.
 2.- Will validate, based on the configured regexp that all topic names follow the right pattern.
 
+All detected errors will be reported in a single outcome like this:
+
+.. code-block:: bash
+
+    ...
+    Exception in thread "main" com.purbon.kafka.topology.exceptions.ValidationException: Topology name does not follow the camelCase format: context
+    Topic context.company.env.source.projectA.foo has an invalid number of partitions: 1
+    Topic context.company.env.source.projectA.bar.avro has an invalid number of partitions: 1
+    Topic context.company.env.source.projectB.bar.avro has an invalid number of partitions: 1
+    Topic context.company.env.source.projectC.topicE has an invalid number of partitions: 1
+    Topic context.company.env.source.projectC.topicF has an invalid number of partitions: 1
+	    at com.purbon.kafka.topology.JulieOps.build(JulieOps.java:125)
+	    at com.purbon.kafka.topology.JulieOps.build(JulieOps.java:75)
+	    at com.purbon.kafka.topology.CommandLineInterface.processTopology(CommandLineInterface.java:206)
+	    at com.purbon.kafka.topology.CommandLineInterface.run(CommandLineInterface.java:156)
+	    at com.purbon.kafka.topology.CommandLineInterface.main(CommandLineInterface.java:146)
+
 Add your own validations
 -----------
 
