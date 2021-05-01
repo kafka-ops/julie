@@ -285,6 +285,11 @@ public class Configuration {
     return Boolean.parseBoolean(cliParams.getOrDefault(CommandLineInterface.QUIET_OPTION, "false"));
   }
 
+  public boolean doValidate() {
+    return Boolean.parseBoolean(
+        cliParams.getOrDefault(CommandLineInterface.VALIDATE_OPTION, "false"));
+  }
+
   public boolean isDryRun() {
     return Boolean.parseBoolean(cliParams.getOrDefault(DRY_RUN_OPTION, "false"));
   }

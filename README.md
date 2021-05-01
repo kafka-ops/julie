@@ -114,6 +114,8 @@ usage: cli
     --help                 			Prints usage information.
     --quiet                			Print minimum status update
     --topology <arg>       			Topology config file.
+    --validate                      Only run configured validations in
+                                    your topology
     --version              			Prints useful version information.
 ```
 
