@@ -17,18 +17,19 @@ If you are using the CLI tool, you an use the *--help* command to list the diffe
 
     $> julie-ops-cli.sh  --help
         usage: cli
-		    --brokers <arg>                  The Apache Kafka server(s) to connect
-		                                     to.
-		    --clientConfig <arg>             The client configuration file.
-		    --dryRun                         Print the execution plan without
-		                                     altering anything.
-		    --help                           Prints usage information.
-		    --overridingClientConfig <arg>   The overriding client configuration
-		                                     file.
-		    --plans <arg>                    File describing the predefined plans
-		    --quiet                          Print minimum status update
-		    --topology <arg>                 Topology config file.
-		    --version                        Prints useful version information.
+            --brokers <arg>                  The Apache Kafka server(s) to connect to.
+            --clientConfig <arg>             The client configuration file.
+            --dryRun                         Print the execution plan without
+                                             altering anything.
+            --help                           Prints usage information.
+            --overridingClientConfig <arg>   The overriding AdminClient
+                                             configuration file.
+            --plans <arg>                    File describing the predefined plans
+            --quiet                          Print minimum status update
+            --topology <arg>                 Topology config file.
+            --validate                       Only run configured validations in
+                                             your topology
+            --version                        Prints useful version information.
 
 The most important ones are:
 
