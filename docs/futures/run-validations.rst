@@ -32,3 +32,5 @@ JulieOps provides you with a set of integrated validations, however you as user 
 * Build a jar with your validations.
 * Run JulieOps with a configured CLASSPATH where the JVM can find access to your validations jar in order to dynamically load them.
 Remember when running JulieOps you can use the _JULIE_OPS_OPTIONS_ env variable to pass custom system configurations such as CLASSPATH or related to security.
+
+**NOTE**: The UberJar is for now only available from the release page, in future releases we will facilitate a smaller plugin jar.
