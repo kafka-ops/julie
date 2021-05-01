@@ -36,6 +36,9 @@ public class CommandLineInterface {
   public static final String QUIET_OPTION = "quiet";
   public static final String QUIET_DESC = "Print minimum status update";
 
+  public static final String VALIDATE_OPTION = "validate";
+  public static final String VALIDATE_DESC = "Only run configured validations in your topology";
+
   public static final String HELP_OPTION = "help";
   public static final String HELP_DESC = "Prints usage information.";
 
@@ -102,6 +105,14 @@ public class CommandLineInterface {
             .required(false)
             .build();
 
+    final Option validateOption =
+        Option.builder()
+            .longOpt(VALIDATE_OPTION)
+            .hasArg(false)
+            .desc(VALIDATE_DESC)
+            .required(false)
+            .build();
+
     final Option versionOption =
         Option.builder()
             .longOpt(VERSION_OPTION)
@@ -123,6 +134,7 @@ public class CommandLineInterface {
     options.addOption(overridingAdminClientConfigFileOption);
     options.addOption(dryRunOption);
     options.addOption(quietOption);
+    options.addOption(validateOption);
     options.addOption(versionOption);
     options.addOption(helpOption);
 
@@ -153,6 +165,7 @@ public class CommandLineInterface {
     }
     config.put(DRY_RUN_OPTION, String.valueOf(cmd.hasOption(DRY_RUN_OPTION)));
     config.put(QUIET_OPTION, String.valueOf(cmd.hasOption(QUIET_OPTION)));
+    config.put(VALIDATE_OPTION, String.valueOf(cmd.hasOption(VALIDATE_OPTION)));
     config.put(
         OVERRIDING_CLIENT_CONFIG_OPTION, cmd.getOptionValue(OVERRIDING_CLIENT_CONFIG_OPTION));
     config.put(CLIENT_CONFIG_OPTION, cmd.getOptionValue(CLIENT_CONFIG_OPTION));

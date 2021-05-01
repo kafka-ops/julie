@@ -42,6 +42,7 @@ public class CLITest {
     config.put(BROKERS_OPTION, "localhost:9092");
     config.put(DRY_RUN_OPTION, "false");
     config.put(QUIET_OPTION, "false");
+    config.put(VALIDATE_OPTION, "false");
     config.put(CLIENT_CONFIG_OPTION, "topology-builder-sasl-plain.properties");
     config.put(OVERRIDING_CLIENT_CONFIG_OPTION, null);
     cli.run(args);
@@ -65,6 +66,7 @@ public class CLITest {
     config.put(BROKERS_OPTION, "localhost:9092");
     config.put(DRY_RUN_OPTION, "true");
     config.put(QUIET_OPTION, "false");
+    config.put(VALIDATE_OPTION, "false");
     config.put(CLIENT_CONFIG_OPTION, "topology-builder-sasl-plain.properties");
     config.put(OVERRIDING_CLIENT_CONFIG_OPTION, null);
     cli.run(args);

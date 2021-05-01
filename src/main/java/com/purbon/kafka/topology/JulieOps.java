@@ -191,6 +191,9 @@ public class JulieOps implements AutoCloseable {
   }
 
   public void run() throws IOException {
+    if (config.doValidate()) {
+      return;
+    }
     BackendController cs = buildBackendController(config);
     ExecutionPlan plan = ExecutionPlan.init(cs, outputStream);
     run(plan);
