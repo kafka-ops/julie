@@ -1,4 +1,4 @@
-Validate your configuration before application
+Validate your topologies
 *******************************
 
 A normal practise in many *gitops* deployments is to run a set of automated validations before allowing the changes in.
