@@ -36,7 +36,7 @@ public class TopologyValidationTest {
   }
 
   @Test
-  public void testInvalidExecutionBecuaseofNumberOfPartitions() {
+  public void testInvalidExecutionBecauseOfNumberOfPartitions() {
 
     Topology topology =
         parser.deserialise(TestUtils.getResourceFile("/descriptor-with-camelCaseNames.yml"));

@@ -4,12 +4,14 @@ import static com.purbon.kafka.topology.Constants.*;
 
 import com.purbon.kafka.topology.api.adminclient.TopologyBuilderAdminClient;
 import com.purbon.kafka.topology.api.adminclient.TopologyBuilderAdminClientBuilder;
+import com.purbon.kafka.topology.api.connect.KConnectApiClient;
 import com.purbon.kafka.topology.api.mds.MDSApiClientBuilder;
 import com.purbon.kafka.topology.backend.*;
 import com.purbon.kafka.topology.exceptions.ValidationException;
 import com.purbon.kafka.topology.model.Topology;
 import com.purbon.kafka.topology.schemas.SchemaRegistryManager;
 import com.purbon.kafka.topology.serviceAccounts.VoidPrincipalProvider;
+import com.purbon.kafka.topology.utils.Pair;
 import io.confluent.kafka.schemaregistry.SchemaProvider;
 import io.confluent.kafka.schemaregistry.avro.AvroSchemaProvider;
 import io.confluent.kafka.schemaregistry.client.CachedSchemaRegistryClient;
@@ -22,10 +24,8 @@ import java.io.InputStream;
 import java.io.PrintStream;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
+import java.util.*;
+import java.util.stream.Collectors;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -34,23 +34,26 @@ public class JulieOps implements AutoCloseable {
   private static final Logger LOGGER = LogManager.getLogger(JulieOps.class);
 
   private TopicManager topicManager;
-  private PrincipalManager principalManager;
+  private final PrincipalManager principalManager;
   private AccessControlManager accessControlManager;
-  private Topology topology;
-  private Configuration config;
-  private PrintStream outputStream;
+  private KafkaConnectArtefactManager connectorManager;
+  private final Topology topology;
+  private final Configuration config;
+  private final PrintStream outputStream;
 
   private JulieOps(
       Topology topology,
       Configuration config,
       TopicManager topicManager,
       AccessControlManager accessControlManager,
-      PrincipalManager principalManager) {
+      PrincipalManager principalManager,
+      KafkaConnectArtefactManager connectorManager) {
     this.topology = topology;
     this.config = config;
     this.topicManager = topicManager;
     this.accessControlManager = accessControlManager;
     this.principalManager = principalManager;
+    this.connectorManager = connectorManager;
     this.outputStream = System.out;
   }
 
@@ -149,7 +152,26 @@ public class JulieOps implements AutoCloseable {
 
     PrincipalManager principalManager = new PrincipalManager(principalProvider, config);
 
-    return new JulieOps(topology, config, topicManager, accessControlManager, principalManager);
+    KafkaConnectArtefactManager connectorManager =
+        configureKConnectArtefactManager(config, topologyFileOrDir);
+
+    return new JulieOps(
+        topology, config, topicManager, accessControlManager, principalManager, connectorManager);
+  }
+
+  private static KafkaConnectArtefactManager configureKConnectArtefactManager(
+      Configuration config, String topologyFileOrDir) {
+    Map<String, KConnectApiClient> clients =
+        config.getKafkaConnectServers().entrySet().stream()
+            .map(entry -> new Pair<>(entry.getKey(), new KConnectApiClient(entry.getValue())))
+            .collect(Collectors.toMap(Pair::getKey, Pair::getValue));
+
+    if (clients.isEmpty()) {
+      LOGGER.debug(
+          "No KafkaConnect clients configured for JulieOps to use, please verify your config file");
+    }
+
+    return new KafkaConnectArtefactManager(clients, config, topologyFileOrDir);
   }
 
   static void verifyRequiredParameters(String topologyFile, Map<String, String> config)
@@ -176,6 +198,8 @@ public class JulieOps implements AutoCloseable {
     topicManager.apply(topology, plan);
     accessControlManager.apply(topology, plan);
 
+    connectorManager.apply(topology, plan);
+
     // Delete users should always be last,
     // avoids any unlinked acls, e.g. if acl delete or something errors then there is a link still
     // from the account, and can be re-run or manually fixed more easily
@@ -187,6 +211,7 @@ public class JulieOps implements AutoCloseable {
       topicManager.printCurrentState(System.out);
       accessControlManager.printCurrentState(System.out);
       principalManager.printCurrentState(System.out);
+      connectorManager.printCurrentState(System.out);
     }
   }
 
@@ -248,5 +273,9 @@ public class JulieOps implements AutoCloseable {
 
   void setAccessControlManager(AccessControlManager accessControlManager) {
     this.accessControlManager = accessControlManager;
+  }
+
+  public void setConnectorManager(KafkaConnectArtefactManager connectorManager) {
+    this.connectorManager = connectorManager;
   }
 }

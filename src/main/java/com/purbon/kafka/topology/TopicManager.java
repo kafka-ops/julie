@@ -14,7 +14,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-public class TopicManager {
+public class TopicManager implements ManagerOfThings {
 
   private static final Logger LOGGER = LogManager.getLogger(TopicManager.class);
 
@@ -109,7 +109,7 @@ public class TopicManager {
     return matches;
   }
 
-  void printCurrentState(PrintStream os) throws IOException {
+  public void printCurrentState(PrintStream os) throws IOException {
     os.println("List of Topics:");
     adminClient.listTopics().forEach(os::println);
   }

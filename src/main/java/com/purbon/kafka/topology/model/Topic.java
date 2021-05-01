@@ -3,6 +3,7 @@ package com.purbon.kafka.topology.model;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.purbon.kafka.topology.Configuration;
 import com.purbon.kafka.topology.model.Impl.TopicImpl;
+import com.purbon.kafka.topology.model.schema.TopicSchemas;
 import com.purbon.kafka.topology.model.users.Consumer;
 import com.purbon.kafka.topology.model.users.Producer;
 import java.util.HashMap;

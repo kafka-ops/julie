@@ -2,11 +2,15 @@ package com.purbon.kafka.topology;
 
 import com.purbon.kafka.topology.actions.Action;
 import com.purbon.kafka.topology.actions.BaseAccountsAction;
+import com.purbon.kafka.topology.actions.CreateArtefactAction;
+import com.purbon.kafka.topology.actions.DeleteArtefactAction;
 import com.purbon.kafka.topology.actions.access.ClearBindings;
 import com.purbon.kafka.topology.actions.accounts.ClearAccounts;
 import com.purbon.kafka.topology.actions.accounts.CreateAccounts;
 import com.purbon.kafka.topology.actions.topics.DeleteTopics;
 import com.purbon.kafka.topology.actions.topics.SyncTopicAction;
+import com.purbon.kafka.topology.model.Artefact;
+import com.purbon.kafka.topology.model.artefact.KafkaConnectArtefact;
 import com.purbon.kafka.topology.model.cluster.ServiceAccount;
 import com.purbon.kafka.topology.roles.TopologyAclBinding;
 import com.purbon.kafka.topology.utils.StreamUtils;
@@ -32,6 +36,7 @@ public class ExecutionPlan {
   private Set<TopologyAclBinding> bindings;
   private Set<ServiceAccount> serviceAccounts;
   private Set<String> topics;
+  private Set<KafkaConnectArtefact> connectors;
 
   private ExecutionPlan(
       List<Action> plan, PrintStream outputStream, BackendController backendController) {
@@ -40,11 +45,13 @@ public class ExecutionPlan {
     this.bindings = new HashSet<>();
     this.serviceAccounts = new HashSet<>();
     this.topics = new HashSet<>();
+    this.connectors = new HashSet<>();
     this.backendController = backendController;
     if (backendController.size() > 0) {
       this.bindings.addAll(backendController.getBindings());
       this.serviceAccounts.addAll(backendController.getServiceAccounts());
       this.topics.addAll(backendController.getTopics());
+      this.connectors.addAll(backendController.getConnectors());
     }
   }
 
@@ -77,6 +84,7 @@ public class ExecutionPlan {
     backendController.addBindings(new ArrayList<>(bindings));
     backendController.addServiceAccounts(serviceAccounts);
     backendController.addTopics(topics);
+    backendController.addConnectors(connectors);
     backendController.flushAndClose();
   }
 
@@ -114,6 +122,16 @@ public class ExecutionPlan {
           serviceAccounts.addAll(createAction.getPrincipals());
         }
       }
+      // TODO: will need to be extended when KSQL and other artefacts might be managed via JulieOps
+      if (action instanceof CreateArtefactAction) {
+        Artefact artefact = ((CreateArtefactAction) action).getArtefact();
+        connectors.add((KafkaConnectArtefact) artefact);
+      } else if (action instanceof DeleteArtefactAction) {
+        Artefact toBeDeleted = ((DeleteArtefactAction) action).getArtefact();
+        connectors =
+            new StreamUtils<>(connectors.stream())
+                .filterAsSet(connector -> !connector.equals(toBeDeleted));
+      }
     }
   }
 
@@ -131,5 +149,9 @@ public class ExecutionPlan {
 
   public List<Action> getActions() {
     return plan;
+  }
+
+  public Set<KafkaConnectArtefact> getConnectors() {
+    return connectors;
   }
 }

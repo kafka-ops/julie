@@ -7,7 +7,7 @@ import com.purbon.kafka.topology.Configuration;
 import com.purbon.kafka.topology.TopicManager;
 import com.purbon.kafka.topology.model.SubjectNameStrategy;
 import com.purbon.kafka.topology.model.Topic;
-import com.purbon.kafka.topology.model.TopicSchemas;
+import com.purbon.kafka.topology.model.schema.TopicSchemas;
 import com.purbon.kafka.topology.model.users.Consumer;
 import com.purbon.kafka.topology.model.users.Producer;
 import com.purbon.kafka.topology.utils.JinjaUtils;

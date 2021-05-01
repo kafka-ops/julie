@@ -8,6 +8,7 @@ import com.purbon.kafka.topology.model.Project;
 import com.purbon.kafka.topology.model.Topic;
 import com.purbon.kafka.topology.model.Topology;
 import com.purbon.kafka.topology.serdes.TopologySerdes.FileType;
+import com.purbon.kafka.topology.utils.Pair;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
 import java.io.File;
@@ -20,7 +21,7 @@ import org.apache.kafka.clients.admin.AdminClientConfig;
 public class Configuration {
 
   private final Map<String, String> cliParams;
-  private Config config;
+  private final Config config;
 
   public Configuration() {
     this(new HashMap<>(), ConfigFactory.load());
@@ -305,6 +306,10 @@ public class Configuration {
     return config.getBoolean(ALLOW_DELETE_PRINCIPALS);
   }
 
+  public boolean isAllowDeleteConnectArtefacts() {
+    return config.getBoolean(ALLOW_DELETE_CONNECT_ARTEFACTS);
+  }
+
   public boolean enabledPrincipalTranslation() {
     return config.getBoolean(TOPOLOGY_PRINCIPAL_TRANSLATION_ENABLED_CONFIG);
   }
@@ -331,5 +336,37 @@ public class Configuration {
 
   public String getGCPBucket() {
     return config.getString(JULIE_GCP_BUCKET);
+  }
+
+  public String getMdsServer() {
+    return config.getString(MDS_SERVER);
+  }
+
+  public String getKafkaClusterId() {
+    return config.getString(MDS_KAFKA_CLUSTER_ID_CONFIG);
+  }
+
+  public String getSchemaRegistryClusterId() {
+    return config.getString(MDS_SR_CLUSTER_ID_CONFIG);
+  }
+
+  public String getKafkaConnectClusterId() {
+    return config.getString(MDS_KC_CLUSTER_ID_CONFIG);
+  }
+
+  public Map<String, String> getKafkaConnectServers() {
+    List<String> servers = config.getStringList(PLATFORM_SERVERS_CONNECT);
+    return servers.stream()
+        .map(server -> server.split(":"))
+        .map(
+            new Function<String[], Pair<String, String>>() {
+              @Override
+              public Pair<String, String> apply(String[] strings) {
+                String key = strings[0].strip();
+                String value = String.join(":", Arrays.copyOfRange(strings, 1, strings.length));
+                return new Pair<>(key, value);
+              }
+            })
+        .collect(Collectors.toMap(Pair::getKey, Pair::getValue));
   }
 }

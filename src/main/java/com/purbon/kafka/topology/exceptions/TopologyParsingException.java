@@ -4,4 +4,8 @@ public class TopologyParsingException extends RuntimeException {
   public TopologyParsingException(String msg, Throwable e) {
     super(msg, e);
   }
+
+  public TopologyParsingException(String msg) {
+    super(msg);
+  }
 }
