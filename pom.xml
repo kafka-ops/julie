@@ -439,6 +439,7 @@
     <jinjava.version>2.5.4</jinjava.version>
     <aws.java.sdk.version>2.16.31</aws.java.sdk.version>
     <gcp.java.sdk.version>19.2.1</gcp.java.sdk.version>
+    <ksqldb.version>0.17.0</ksqldb.version>
   </properties>
 
   <dependencies>
@@ -508,6 +509,11 @@
       <groupId>io.confluent</groupId>
       <artifactId>kafka-client-plugins</artifactId>
       <version>${confluent-ce.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>io.confluent.ksql</groupId>
+      <artifactId>ksqldb-api-client</artifactId>
+      <version>${confluent.version}</version>
     </dependency>
     <dependency>
       <groupId>org.glassfish.jersey.core</groupId>
