@@ -21,7 +21,7 @@ public class TopologyBuilderAdminClientBuilder {
 
   public TopologyBuilderAdminClient build() throws IOException {
     Properties props = config.asProperties();
-    LOGGER.info(
+    LOGGER.debug(
         String.format(
             "Connecting AdminClient to %s",
             props.getProperty(AdminClientConfig.BOOTSTRAP_SERVERS_CONFIG)));
