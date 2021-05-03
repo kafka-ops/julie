@@ -19,6 +19,7 @@ import com.purbon.kafka.topology.model.users.KStream;
 import com.purbon.kafka.topology.model.users.Producer;
 import com.purbon.kafka.topology.model.users.Schemas;
 import com.purbon.kafka.topology.model.users.platform.ControlCenterInstance;
+import com.purbon.kafka.topology.model.users.platform.KsqlServerInstance;
 import com.purbon.kafka.topology.model.users.platform.SchemaRegistryInstance;
 import com.purbon.kafka.topology.roles.TopologyAclBinding;
 import com.purbon.kafka.topology.utils.Either;
@@ -306,6 +307,11 @@ public class AccessControlManager {
     for (ControlCenterInstance controlCenter : platform.getControlCenter().getInstances()) {
       actions.add(new BuildBindingsForControlCenter(bindingsBuilder, controlCenter));
     }
+
+    for (KsqlServerInstance ksqlServer : platform.getKsqlServer().getInstances()) {
+      actions.add(new BuildBindingsForKSqlServer(bindingsBuilder, ksqlServer));
+    }
+
     return actions;
   }
 

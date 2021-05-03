@@ -5,6 +5,7 @@ import com.purbon.kafka.topology.model.Component;
 import com.purbon.kafka.topology.model.users.Connector;
 import com.purbon.kafka.topology.model.users.Consumer;
 import com.purbon.kafka.topology.model.users.Producer;
+import com.purbon.kafka.topology.model.users.platform.KsqlServerInstance;
 import com.purbon.kafka.topology.model.users.platform.SchemaRegistryInstance;
 import com.purbon.kafka.topology.roles.TopologyAclBinding;
 import java.io.IOException;
@@ -49,4 +50,6 @@ public interface BindingsBuilderProvider {
       String role, String principal, Component component) throws IOException {
     return Collections.emptyList();
   }
+
+  Collection<TopologyAclBinding> buildBindingsForKSqlServer(KsqlServerInstance ksqlServer);
 }

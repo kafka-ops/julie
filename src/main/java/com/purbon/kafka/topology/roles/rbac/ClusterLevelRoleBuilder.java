@@ -87,6 +87,18 @@ public class ClusterLevelRoleBuilder {
     return this;
   }
 
+  public ClusterLevelRoleBuilder forKSqlServer(String clusterId) {
+    client.setKSqlClusterID(clusterId);
+    Map<String, Map<String, String>> clusters = client.withClusterIDs().forKafka().asMap();
+
+    scope = new RequestScope();
+    scope.setClusters(clusters);
+    scope.addResource("KsqlCluster", "ksql-cluster", PatternType.LITERAL.name());
+    scope.build();
+
+    return this;
+  }
+
   public ClusterLevelRoleBuilder forKafkaConnect() {
     Map<String, Map<String, String>> clusters =
         client.withClusterIDs().forKafkaConnect().forKafka().asMap();

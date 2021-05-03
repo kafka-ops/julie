@@ -235,6 +235,10 @@ public class MDSApiClient extends JulieHttpClient {
     clusterIDs.setSchemaRegistryClusterID(clusterId);
   }
 
+  public void setKSqlClusterID(String clusterId) {
+    clusterIDs.setKsqlClusterID(clusterId);
+  }
+
   /**
    * Builder method used to compose custom versions of clusterIDs, this is useful when for example
    * listing the permissions using the listResource method.

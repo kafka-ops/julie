@@ -3,6 +3,7 @@ package com.purbon.kafka.topology.model;
 import com.purbon.kafka.topology.model.users.platform.ControlCenter;
 import com.purbon.kafka.topology.model.users.platform.Kafka;
 import com.purbon.kafka.topology.model.users.platform.KafkaConnect;
+import com.purbon.kafka.topology.model.users.platform.KsqlServer;
 import com.purbon.kafka.topology.model.users.platform.SchemaRegistry;
 
 public class Platform {
@@ -11,12 +12,14 @@ public class Platform {
   private KafkaConnect kafkaConnect;
   private SchemaRegistry schemaRegistry;
   private ControlCenter controlCenter;
+  private KsqlServer ksqlServer;
 
   public Platform() {
     this.kafka = new Kafka();
     this.kafkaConnect = new KafkaConnect();
     this.schemaRegistry = new SchemaRegistry();
     this.controlCenter = new ControlCenter();
+    this.ksqlServer = new KsqlServer();
   }
 
   public Kafka getKafka() {
@@ -49,5 +52,13 @@ public class Platform {
 
   public void setKafkaConnect(KafkaConnect kafkaConnect) {
     this.kafkaConnect = kafkaConnect;
+  }
+
+  public KsqlServer getKsqlServer() {
+    return ksqlServer;
+  }
+
+  public void setKsqlServer(KsqlServer ksqlServer) {
+    this.ksqlServer = ksqlServer;
   }
 }

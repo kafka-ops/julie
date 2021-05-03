@@ -12,6 +12,7 @@ import com.purbon.kafka.topology.model.Component;
 import com.purbon.kafka.topology.model.users.Connector;
 import com.purbon.kafka.topology.model.users.Consumer;
 import com.purbon.kafka.topology.model.users.Producer;
+import com.purbon.kafka.topology.model.users.platform.KsqlServerInstance;
 import com.purbon.kafka.topology.model.users.platform.SchemaRegistryInstance;
 import com.purbon.kafka.topology.roles.TopologyAclBinding;
 import java.io.IOException;
@@ -185,6 +186,46 @@ public class RBACBindingsBuilder implements BindingsBuilderProvider {
   public List<TopologyAclBinding> buildBindingsForControlCenter(String principal, String appId) {
     TopologyAclBinding binding = apiClient.bind(principal, SYSTEM_ADMIN).forControlCenter().apply();
     return Collections.singletonList(binding);
+  }
+
+  @Override
+  public Collection<TopologyAclBinding> buildBindingsForKSqlServer(KsqlServerInstance ksqlServer) {
+    List<TopologyAclBinding> bindings = new ArrayList<>();
+
+    // Ksql cluster scope
+    String clusterId = ksqlServer.getKsqlDbId();
+    TopologyAclBinding ownerBinding =
+        apiClient.bind(ksqlServer.getOwner(), RESOURCE_OWNER).forKSqlServer(clusterId).apply();
+    bindings.add(ownerBinding);
+    ownerBinding =
+        apiClient.bind(ksqlServer.getOwner(), SECURITY_ADMIN).forKSqlServer(clusterId).apply();
+    bindings.add(ownerBinding);
+    ownerBinding =
+        apiClient.bind(ksqlServer.getPrincipal(), RESOURCE_OWNER).forKSqlServer(clusterId).apply();
+    bindings.add(ownerBinding);
+
+    // Kafka Cluster scope
+    List<String> topics =
+        Arrays.asList(
+            ksqlServer.commandTopic(),
+            ksqlServer.processingLogTopic(),
+            ksqlServer.consumerGroupPrefix());
+    for (String topic : topics) {
+      TopologyAclBinding binding =
+          apiClient.bind(ksqlServer.getPrincipal(), RESOURCE_OWNER, topic, LITERAL);
+      bindings.add(binding);
+    }
+    TopologyAclBinding binding =
+        apiClient.bind(
+            ksqlServer.getPrincipal(), DEVELOPER_WRITE, ksqlServer.TransactionId(), LITERAL);
+    bindings.add(binding);
+
+    binding =
+        apiClient.bind(
+            ksqlServer.getPrincipal(), DEVELOPER_WRITE, "Cluster:kafka-cluster", LITERAL);
+    bindings.add(binding);
+
+    return bindings;
   }
 
   @Override

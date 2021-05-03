@@ -8,6 +8,7 @@ public class ClusterIDs implements Cloneable {
   private String kafkaClusterID;
   private String schemaRegistryClusterID;
   private String connectClusterID;
+  private String KsqlClusterID;
 
   public static String KAFKA_CLUSTER_ID_LABEL = "kafka-cluster";
   public static String SCHEMA_REGISTRY_CLUSTER_ID_LABEL = "schema-registry-cluster";
@@ -71,5 +72,9 @@ public class ClusterIDs implements Cloneable {
 
   public ClusterIDs clone() throws CloneNotSupportedException {
     return (ClusterIDs) super.clone();
+  }
+
+  public void setKsqlClusterID(String clusterId) {
+    this.KsqlClusterID = clusterId;
   }
 }

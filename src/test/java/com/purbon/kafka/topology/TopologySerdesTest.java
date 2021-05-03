@@ -5,6 +5,7 @@ import static com.purbon.kafka.topology.Constants.*;
 import static com.purbon.kafka.topology.model.SubjectNameStrategy.TOPIC_NAME_STRATEGY;
 import static com.purbon.kafka.topology.model.SubjectNameStrategy.TOPIC_RECORD_NAME_STRATEGY;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.InstanceOfAssertFactories.list;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
@@ -18,6 +19,7 @@ import com.purbon.kafka.topology.model.users.Consumer;
 import com.purbon.kafka.topology.model.users.KStream;
 import com.purbon.kafka.topology.model.users.Producer;
 import com.purbon.kafka.topology.model.users.platform.ControlCenterInstance;
+import com.purbon.kafka.topology.model.users.platform.KsqlServerInstance;
 import com.purbon.kafka.topology.model.users.platform.SchemaRegistryInstance;
 import com.purbon.kafka.topology.serdes.TopologySerdes;
 import com.purbon.kafka.topology.serdes.TopologySerdes.FileType;
@@ -263,6 +265,18 @@ public class TopologySerdesTest {
     assertEquals(1, listOfC3.size());
     assertEquals("User:ControlCenter", listOfC3.get(0).getPrincipal());
     assertEquals("controlcenter", listOfC3.get(0).getAppId());
+
+    List<KsqlServerInstance> listOfKsql = topology.getPlatform().getKsqlServer().getInstances();
+
+    assertEquals(2, listOfKsql.size());
+    assertEquals("User:ksql", listOfKsql.get(0).getPrincipal());
+    assertEquals("ksql-server1", listOfKsql.get(0).getKsqlDbId());
+    assertEquals("User:foo", listOfKsql.get(0).getOwner());
+
+    assertEquals("User:ksql", listOfKsql.get(1).getPrincipal());
+    assertEquals("ksql-server2", listOfKsql.get(1).getKsqlDbId());
+    assertEquals("User:foo", listOfKsql.get(1).getOwner());
+
   }
 
   @Test

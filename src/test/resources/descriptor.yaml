@@ -13,6 +13,8 @@ projects:
         transactionId: "1234"
       - principal: "User:App2"
         idempotence: "true"
+    ksql:
+      - principal: "User:ksql0"
     streams:
       - principal: "User:App0"
         topics:
@@ -96,6 +98,14 @@ projects:
           replication.factor: "1"
           num.partitions: "1"
 platform:
+  ksql:
+    instances:
+      - principal: "User:ksql"
+        ksqlDbId: "ksql-server1"
+        owner: "User:foo"
+      - principal: "User:ksql"
+        ksqlDbId: "ksql-server2"
+        owner: "User:foo"
   schema_registry:
     instances:
       - principal: "User:SchemaRegistry01"
