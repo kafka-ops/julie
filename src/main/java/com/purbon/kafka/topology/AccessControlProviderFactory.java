@@ -49,7 +49,9 @@ public class AccessControlProviderFactory {
         case RBAC_ACCESS_CONTROL_CLASS:
           Constructor<?> rbacProviderContructor = clazz.getConstructor(MDSApiClient.class);
           MDSApiClient apiClient = apiClientLogIn();
-          apiClient.authenticate();
+          if (!config.doValidate()) {
+            apiClient.authenticate();
+          }
           return (RBACProvider) rbacProviderContructor.newInstance(apiClient);
         default:
           throw new IOException("Unknown access control provided. " + accessControlClassName);
@@ -72,7 +74,9 @@ public class AccessControlProviderFactory {
         return new AclsBindingsBuilder(config, cCloudUtils);
       } else if (accessControlClass.equalsIgnoreCase(RBAC_ACCESS_CONTROL_CLASS)) {
         MDSApiClient apiClient = apiClientLogIn();
-        apiClient.authenticate();
+        if (!config.doValidate()) {
+          apiClient.authenticate();
+        }
         return new RBACBindingsBuilder(apiClient);
       } else {
         throw new IOException(accessControlClass + " Unknown access control provided.");

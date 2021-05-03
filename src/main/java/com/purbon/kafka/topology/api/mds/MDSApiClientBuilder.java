@@ -28,7 +28,7 @@ public class MDSApiClientBuilder {
     String kafkaConnectClusterID = config.getProperty(MDS_KC_CLUSTER_ID_CONFIG);
     apiClient.setConnectClusterID(kafkaConnectClusterID);
 
-    LOGGER.info(String.format("Connecting to an MDS server at %s", mdsServer));
+    LOGGER.debug(String.format("Connecting to an MDS server at %s", mdsServer));
     return apiClient;
   }
 
