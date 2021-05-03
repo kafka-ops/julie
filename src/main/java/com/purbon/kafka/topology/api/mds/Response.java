@@ -23,6 +23,7 @@ public class Response {
     this.headers = response.headers();
     this.statusCode = response.statusCode();
     this.response = response.body();
+    this.map = new HashMap<>();
   }
 
   public Integer getStatus() {

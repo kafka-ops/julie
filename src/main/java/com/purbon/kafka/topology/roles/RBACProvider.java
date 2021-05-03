@@ -65,7 +65,7 @@ public class RBACProvider implements AccessControlProvider {
           }
           TopologyAclBinding binding =
               TopologyAclBinding.build(
-                  resource.getResourceType().toUpperCase(),
+                  normalize(resource.getResourceType()),
                   resource.getName(),
                   "*",
                   roleName,
@@ -76,5 +76,10 @@ public class RBACProvider implements AccessControlProvider {
       }
     }
     return map;
+  }
+
+  private String normalize(String resourceType) {
+    String[] fields = resourceType.split("(?=\\p{Upper})");
+    return String.join("_", fields).toUpperCase();
   }
 }

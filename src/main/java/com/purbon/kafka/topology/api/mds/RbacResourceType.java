@@ -27,4 +27,19 @@ public class RbacResourceType {
   public String getPatternType() {
     return patternType;
   }
+
+  @Override
+  public String toString() {
+    return "RbacResourceType{"
+        + "resourceType='"
+        + resourceType
+        + '\''
+        + ", name='"
+        + name
+        + '\''
+        + ", patternType='"
+        + patternType
+        + '\''
+        + '}';
+  }
 }
