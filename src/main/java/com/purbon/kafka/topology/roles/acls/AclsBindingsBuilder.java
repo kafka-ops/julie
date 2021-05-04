@@ -141,14 +141,14 @@ public class AclsBindingsBuilder implements BindingsBuilderProvider {
               bindings.add(
                   buildTransactionIdLevelAcl(
                       producer.getPrincipal(),
-                      transactionId,
-                      PatternType.LITERAL,
+                      evaluateResourcePattern(transactionId),
+                      evaluateResourcePatternType(transactionId),
                       AclOperation.DESCRIBE));
               bindings.add(
                   buildTransactionIdLevelAcl(
                       producer.getPrincipal(),
-                      transactionId,
-                      PatternType.LITERAL,
+                      evaluateResourcePattern(transactionId),
+                      evaluateResourcePatternType(transactionId),
                       AclOperation.WRITE));
             });
 
@@ -170,7 +170,11 @@ public class AclsBindingsBuilder implements BindingsBuilderProvider {
     return Stream.of(
         buildTopicLevelAcl(principal, topic, patternType, AclOperation.DESCRIBE),
         buildTopicLevelAcl(principal, topic, patternType, AclOperation.READ),
-        buildGroupLevelAcl(principal, consumer.groupString(), patternType, AclOperation.READ));
+        buildGroupLevelAcl(
+            principal,
+            evaluateResourcePattern(consumer.groupString()),
+            evaluateResourcePatternType(consumer.groupString()),
+            AclOperation.READ));
   }
 
   private Stream<AclBinding> streamsAppStream(
@@ -286,5 +290,17 @@ public class AclsBindingsBuilder implements BindingsBuilderProvider {
         .addResource(ResourceType.GROUP, group, patternType)
         .addControlEntry("*", op, AclPermissionType.ALLOW)
         .build();
+  }
+
+  private boolean isResourcePrefixed(String res) {
+    return res.length() > 1 && res.endsWith("*");
+  }
+
+  private String evaluateResourcePattern(String res) {
+    return isResourcePrefixed(res) ? res.replaceFirst(".$", "") : res;
+  }
+
+  private PatternType evaluateResourcePatternType(String res) {
+    return isResourcePrefixed(res) ? PatternType.PREFIXED : PatternType.LITERAL;
   }
 }

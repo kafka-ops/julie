@@ -18,6 +18,11 @@ public class Consumer extends User {
     group = Optional.empty();
   }
 
+  public Consumer(String principal, String group) {
+    super(principal);
+    this.group = Optional.of(group);
+  }
+
   public String groupString() {
     return group.orElse("*");
   }

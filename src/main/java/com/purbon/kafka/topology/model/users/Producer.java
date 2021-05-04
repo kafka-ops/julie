@@ -21,6 +21,12 @@ public class Producer extends User {
     idempotence = Optional.empty();
   }
 
+  public Producer(String principal, String transactionId) {
+    super(principal);
+    this.transactionId = Optional.of(transactionId);
+    idempotence = Optional.of(true);
+  }
+
   public Optional<String> getTransactionId() {
     return transactionId;
   }
