@@ -5,7 +5,6 @@ import static com.purbon.kafka.topology.Constants.*;
 import static com.purbon.kafka.topology.model.SubjectNameStrategy.TOPIC_NAME_STRATEGY;
 import static com.purbon.kafka.topology.model.SubjectNameStrategy.TOPIC_RECORD_NAME_STRATEGY;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.InstanceOfAssertFactories.list;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
@@ -16,6 +15,7 @@ import com.purbon.kafka.topology.model.Impl.TopicImpl;
 import com.purbon.kafka.topology.model.Impl.TopologyImpl;
 import com.purbon.kafka.topology.model.users.Connector;
 import com.purbon.kafka.topology.model.users.Consumer;
+import com.purbon.kafka.topology.model.users.KSqlApp;
 import com.purbon.kafka.topology.model.users.KStream;
 import com.purbon.kafka.topology.model.users.Producer;
 import com.purbon.kafka.topology.model.users.platform.ControlCenterInstance;
@@ -247,6 +247,18 @@ public class TopologySerdesTest {
   }
 
   @Test
+  public void testKsqlSerdes() {
+    Topology topology = parser.deserialise(TestUtils.getResourceFile("/descriptor.yaml"));
+    Project project = topology.getProjects().get(0);
+
+    KSqlApp kSqlApp = project.getKSqls().get(0);
+    assertThat(kSqlApp.getPrincipal()).isEqualTo("User:ksql0");
+    assertThat(kSqlApp.getTopics().get("read")).hasSize(1);
+    assertThat(kSqlApp.getTopics().get("write")).hasSize(1);
+  }
+
+
+  @Test
   public void testPlaformProcessing() {
     Topology topology = parser.deserialise(TestUtils.getResourceFile("/descriptor.yaml"));
 
@@ -276,7 +288,6 @@ public class TopologySerdesTest {
     assertEquals("User:ksql", listOfKsql.get(1).getPrincipal());
     assertEquals("ksql-server2", listOfKsql.get(1).getKsqlDbId());
     assertEquals("User:foo", listOfKsql.get(1).getOwner());
-
   }
 
   @Test

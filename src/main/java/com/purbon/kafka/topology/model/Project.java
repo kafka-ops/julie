@@ -5,6 +5,7 @@ import com.purbon.kafka.topology.model.Impl.ProjectImpl;
 import com.purbon.kafka.topology.model.artefact.KafkaConnectArtefact;
 import com.purbon.kafka.topology.model.users.Connector;
 import com.purbon.kafka.topology.model.users.Consumer;
+import com.purbon.kafka.topology.model.users.KSqlApp;
 import com.purbon.kafka.topology.model.users.KStream;
 import com.purbon.kafka.topology.model.users.Producer;
 import com.purbon.kafka.topology.model.users.Schemas;
@@ -29,6 +30,10 @@ public interface Project {
   List<KStream> getStreams();
 
   void setStreams(List<KStream> streams);
+
+  List<KSqlApp> getKSqls();
+
+  void setKSqls(List<KSqlApp> ksqls);
 
   List<Connector> getConnectors();
 

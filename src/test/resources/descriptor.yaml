@@ -15,6 +15,11 @@ projects:
         idempotence: "true"
     ksql:
       - principal: "User:ksql0"
+        topics:
+          read:
+            - "topicA"
+          write:
+            - "topicC"
     streams:
       - principal: "User:App0"
         topics:

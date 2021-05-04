@@ -52,4 +52,6 @@ public interface BindingsBuilderProvider {
   }
 
   Collection<TopologyAclBinding> buildBindingsForKSqlServer(KsqlServerInstance ksqlServer);
+
+  Collection<TopologyAclBinding> buildBindingsForKSqlApp(String principal, String prefix, List<String> readTopics, List<String> writeTopics);
 }

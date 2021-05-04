@@ -229,6 +229,12 @@ public class RBACBindingsBuilder implements BindingsBuilderProvider {
   }
 
   @Override
+  public Collection<TopologyAclBinding> buildBindingsForKSqlApp(String principal, String prefix,
+                                                                List<String> readTopics, List<String> writeTopics) {
+    return null;
+  }
+
+  @Override
   public List<TopologyAclBinding> setClusterLevelRole(
       String role, String principal, Component component) throws IOException {
 
