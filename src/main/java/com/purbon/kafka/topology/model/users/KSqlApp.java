@@ -12,6 +12,8 @@ public class KSqlApp extends DynamicUser {
   @JsonInclude(Include.NON_EMPTY)
   private Optional<String> applicationId;
 
+  private String ksqlDbId;
+
   public KSqlApp() {
     this("", new HashMap<>());
   }
@@ -32,5 +34,9 @@ public class KSqlApp extends DynamicUser {
 
   public void setApplicationId(Optional<String> applicationId) {
     this.applicationId = applicationId;
+  }
+
+  public String getKsqlDbId() {
+    return ksqlDbId;
   }
 }

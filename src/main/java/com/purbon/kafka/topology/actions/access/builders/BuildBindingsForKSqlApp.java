@@ -3,10 +3,8 @@ package com.purbon.kafka.topology.actions.access.builders;
 import com.purbon.kafka.topology.BindingsBuilderProvider;
 import com.purbon.kafka.topology.actions.BaseAccessControlAction;
 import com.purbon.kafka.topology.model.users.KSqlApp;
-
 import java.io.IOException;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 public class BuildBindingsForKSqlApp extends BaseAccessControlAction {
@@ -31,12 +29,8 @@ public class BuildBindingsForKSqlApp extends BaseAccessControlAction {
               + " Please define the applicationID or allow a nonEmpty project prefix (aka everything before the topic";
       throw new IOException(message);
     }
-    List<String> readTopics = app.getTopics().get(KSqlApp.READ_TOPICS);
-    List<String> writeTopics = app.getTopics().get(KSqlApp.WRITE_TOPICS);
 
-    bindings =
-        builderProvider.buildBindingsForKSqlApp(
-            app.getPrincipal(), prefix, readTopics, writeTopics);
+    bindings = builderProvider.buildBindingsForKSqlApp(app, prefix);
   }
 
   @Override

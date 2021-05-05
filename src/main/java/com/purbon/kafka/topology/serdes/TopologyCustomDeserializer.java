@@ -159,7 +159,13 @@ public class TopologyCustomDeserializer extends StdDeserializer<Topology> {
 
     List<String> keys =
         Arrays.asList(
-            CONSUMERS_KEY, PROJECTS_KEY, PRODUCERS_KEY, CONNECTORS_KEY, STREAMS_KEY, SCHEMAS_KEY, KSQL_KEY);
+            CONSUMERS_KEY,
+            PROJECTS_KEY,
+            PRODUCERS_KEY,
+            CONNECTORS_KEY,
+            STREAMS_KEY,
+            SCHEMAS_KEY,
+            KSQL_KEY);
 
     Map<String, JsonNode> rootNodes = Maps.asMap(new HashSet<>(keys), (key) -> rootNode.get(key));
 
@@ -278,9 +284,9 @@ public class TopologyCustomDeserializer extends StdDeserializer<Topology> {
   }
 
   private Optional<PlatformSystem> doKSqlElements(JsonParser parser, JsonNode node)
-          throws JsonProcessingException {
+      throws JsonProcessingException {
     List<KSqlApp> ksqls =
-            new JsonSerdesUtils<KSqlApp>().parseApplicationUser(parser, node, KSqlApp.class);
+        new JsonSerdesUtils<KSqlApp>().parseApplicationUser(parser, node, KSqlApp.class);
     return Optional.of(new PlatformSystem(ksqls, Collections.emptyList()));
   }
 

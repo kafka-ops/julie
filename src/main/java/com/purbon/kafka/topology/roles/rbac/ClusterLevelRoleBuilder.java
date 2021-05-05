@@ -36,12 +36,16 @@ public class ClusterLevelRoleBuilder {
   }
 
   public ClusterLevelRoleBuilder forSchemaSubject(String subject) {
+    return forSchemaSubject(subject, PatternType.LITERAL.name());
+  }
+
+  public ClusterLevelRoleBuilder forSchemaSubject(String subject, String patternType) {
     Map<String, Map<String, String>> clusters =
         client.withClusterIDs().forSchemaRegistry().forKafka().asMap();
 
     scope = new RequestScope();
     scope.setClusters(clusters);
-    scope.addResource("Subject", "Subject:" + subject, PatternType.LITERAL.name());
+    scope.addResource("Subject", "Subject:" + subject, patternType);
     scope.build();
 
     return this;

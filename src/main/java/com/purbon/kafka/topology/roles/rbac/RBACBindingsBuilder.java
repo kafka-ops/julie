@@ -11,6 +11,7 @@ import com.purbon.kafka.topology.api.mds.MDSApiClient;
 import com.purbon.kafka.topology.model.Component;
 import com.purbon.kafka.topology.model.users.Connector;
 import com.purbon.kafka.topology.model.users.Consumer;
+import com.purbon.kafka.topology.model.users.KSqlApp;
 import com.purbon.kafka.topology.model.users.Producer;
 import com.purbon.kafka.topology.model.users.platform.KsqlServerInstance;
 import com.purbon.kafka.topology.model.users.platform.SchemaRegistryInstance;
@@ -22,7 +23,10 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
+import java.util.function.Function;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class RBACBindingsBuilder implements BindingsBuilderProvider {
 
@@ -215,7 +219,12 @@ public class RBACBindingsBuilder implements BindingsBuilderProvider {
           apiClient.bind(ksqlServer.getPrincipal(), RESOURCE_OWNER, topic, LITERAL);
       bindings.add(binding);
     }
+    String resource = String.format("_confluent-ksql-%stransient", clusterId);
     TopologyAclBinding binding =
+        apiClient.bind(ksqlServer.getPrincipal(), RESOURCE_OWNER, resource, "Topic", PREFIX);
+    bindings.add(binding);
+
+    binding =
         apiClient.bind(
             ksqlServer.getPrincipal(), DEVELOPER_WRITE, ksqlServer.TransactionId(), LITERAL);
     bindings.add(binding);
@@ -225,13 +234,95 @@ public class RBACBindingsBuilder implements BindingsBuilderProvider {
             ksqlServer.getPrincipal(), DEVELOPER_WRITE, "Cluster:kafka-cluster", LITERAL);
     bindings.add(binding);
 
+    // For tables that use Avro, Protobuf, or JSON_SR:
+    // Grant full access for the ksql service principal to all internal ksql subjects.
+    String subject = String.format("_confluent-ksql-%s", clusterId);
+    apiClient
+        .bind(ksqlServer.getPrincipal(), RESOURCE_OWNER)
+        .forSchemaSubject(subject, PREFIX)
+        .apply();
+
     return bindings;
   }
 
   @Override
-  public Collection<TopologyAclBinding> buildBindingsForKSqlApp(String principal, String prefix,
-                                                                List<String> readTopics, List<String> writeTopics) {
-    return null;
+  public Collection<TopologyAclBinding> buildBindingsForKSqlApp(KSqlApp app, String prefix) {
+    List<TopologyAclBinding> bindings = new ArrayList<>();
+
+    // Ksql cluster scope
+    String clusterId = app.getKsqlDbId();
+    TopologyAclBinding binding =
+        apiClient.bind(app.getPrincipal(), DEVELOPER_WRITE).forKSqlServer(clusterId).apply();
+    bindings.add(binding);
+
+    // Kafka Cluster scope
+    String resource = String.format("_confluent-ksql-%s", clusterId);
+    binding = apiClient.bind(app.getPrincipal(), DEVELOPER_READ, resource, "Group", PREFIX);
+    bindings.add(binding);
+    // Assigned to allow access to the processing log
+    resource = String.format("%sksql_processing_log", clusterId);
+    binding = apiClient.bind(app.getPrincipal(), DEVELOPER_READ, resource, "Topic", LITERAL);
+    bindings.add(binding);
+
+    // Topic access
+    Optional<List<String>> readTopics = Optional.ofNullable(app.getTopics().get("read"));
+    readTopics.ifPresent(
+        topics -> {
+          for (String topic : topics) {
+            TopologyAclBinding topicBinding =
+                apiClient.bind(app.getPrincipal(), DEVELOPER_READ, topic, LITERAL);
+            bindings.add(topicBinding);
+          }
+        });
+
+    Optional<List<String>> writeTopics = Optional.ofNullable(app.getTopics().get("write"));
+    writeTopics.ifPresent(
+        topics -> {
+          for (String topic : topics) {
+            TopologyAclBinding topicBinding =
+                apiClient.bind(app.getPrincipal(), DEVELOPER_WRITE, topic, LITERAL);
+            bindings.add(topicBinding);
+          }
+        });
+    // schema access
+    List<String> subjects =
+        readTopics.stream()
+            .flatMap((Function<List<String>, Stream<String>>) topics -> topics.stream())
+            .map(topicName -> String.format("%s-value", topicName))
+            .collect(Collectors.toList());
+
+    subjects.stream()
+        .map(
+            subject ->
+                apiClient
+                    .bind(app.getPrincipal(), DEVELOPER_READ)
+                    .forSchemaSubject(subject)
+                    .apply())
+        .filter(Objects::nonNull)
+        .forEach(bindings::add);
+
+    subjects =
+        writeTopics.stream()
+            .flatMap((Function<List<String>, Stream<String>>) topics -> topics.stream())
+            .map(topicName -> String.format("%s-value", topicName))
+            .collect(Collectors.toList());
+
+    subjects.stream()
+        .map(
+            subject ->
+                apiClient
+                    .bind(app.getPrincipal(), RESOURCE_OWNER)
+                    .forSchemaSubject(subject)
+                    .apply())
+        .filter(Objects::nonNull)
+        .forEach(bindings::add);
+
+    // Access to transient query topics
+    resource = String.format("_confluent-ksql-%stransient", clusterId);
+    binding = apiClient.bind(app.getPrincipal(), RESOURCE_OWNER, resource, "Topic", PREFIX);
+    bindings.add(binding);
+
+    return bindings;
   }
 
   @Override

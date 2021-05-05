@@ -113,7 +113,7 @@ public class AccessControlManager {
       for (KStream app : project.getStreams()) {
         syncApplicationAcls(app, topicPrefix).ifPresent(actions::add);
       }
-      for(KSqlApp kSqlApp : project.getKSqls()) {
+      for (KSqlApp kSqlApp : project.getKSqls()) {
         syncApplicationAcls(kSqlApp, topicPrefix).ifPresent(actions::add);
       }
       for (Connector connector : project.getConnectors()) {
@@ -349,7 +349,7 @@ public class AccessControlManager {
     } else if (app instanceof Connector) {
       action = new BuildBindingsForKConnect(bindingsBuilder, (Connector) app, topicPrefix);
     } else if (app instanceof KSqlApp) {
-      action = new BuildBindingsForKSqlApp(bindingsBuilder, (KSqlApp)app, topicPrefix);
+      action = new BuildBindingsForKSqlApp(bindingsBuilder, (KSqlApp) app, topicPrefix);
     }
     return Optional.ofNullable(action);
   }

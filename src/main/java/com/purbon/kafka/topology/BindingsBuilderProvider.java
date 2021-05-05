@@ -4,6 +4,7 @@ import com.purbon.kafka.topology.exceptions.ConfigurationException;
 import com.purbon.kafka.topology.model.Component;
 import com.purbon.kafka.topology.model.users.Connector;
 import com.purbon.kafka.topology.model.users.Consumer;
+import com.purbon.kafka.topology.model.users.KSqlApp;
 import com.purbon.kafka.topology.model.users.Producer;
 import com.purbon.kafka.topology.model.users.platform.KsqlServerInstance;
 import com.purbon.kafka.topology.model.users.platform.SchemaRegistryInstance;
@@ -53,5 +54,5 @@ public interface BindingsBuilderProvider {
 
   Collection<TopologyAclBinding> buildBindingsForKSqlServer(KsqlServerInstance ksqlServer);
 
-  Collection<TopologyAclBinding> buildBindingsForKSqlApp(String principal, String prefix, List<String> readTopics, List<String> writeTopics);
+  Collection<TopologyAclBinding> buildBindingsForKSqlApp(KSqlApp app, String prefix);
 }

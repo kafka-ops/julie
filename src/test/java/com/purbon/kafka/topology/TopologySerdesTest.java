@@ -257,7 +257,6 @@ public class TopologySerdesTest {
     assertThat(kSqlApp.getTopics().get("write")).hasSize(1);
   }
 
-
   @Test
   public void testPlaformProcessing() {
     Topology topology = parser.deserialise(TestUtils.getResourceFile("/descriptor.yaml"));
