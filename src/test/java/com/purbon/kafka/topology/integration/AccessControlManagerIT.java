@@ -2,6 +2,8 @@ package com.purbon.kafka.topology.integration;
 
 import static com.purbon.kafka.topology.CommandLineInterface.*;
 import static com.purbon.kafka.topology.Constants.*;
+import static java.util.Arrays.asList;
+import static java.util.Collections.singletonList;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.when;
 
@@ -289,6 +291,29 @@ public class AccessControlManagerIT {
   }
 
   @Test
+  public void ksqlAppAclsCreation() throws ExecutionException, InterruptedException, IOException {
+    Project project = new ProjectImpl();
+
+    KSqlApp app = new KSqlApp();
+    HashMap<String, List<String>> topics = new HashMap<>();
+    topics.put(KStream.READ_TOPICS, asList("topicA", "topicB"));
+    topics.put(KStream.WRITE_TOPICS, asList("topicC", "topicD"));
+    app.setTopics(topics);
+    app.setPrincipal("User:foo");
+    project.setKSqls(singletonList(app));
+
+    Topology topology = new TopologyImpl();
+    topology.setContext("integration-test");
+    topology.addOther("source", "ksqlAppAclsCreation");
+    topology.addProject(project);
+
+    accessControlManager.apply(topology, plan);
+    plan.run();
+
+    verifyKSqlAppAcls(app);
+  }
+
+  @Test
   public void testAvoidHandlingInternalAclsForJulie() throws Exception {
     // create a dummy internal ACL for julie
     String juliePrincipal = "User:Julie";
@@ -546,6 +571,43 @@ public class AccessControlManagerIT {
 
     // 1 acls created for the prefix internal topics
     assertEquals(1, acls.size());
+  }
+
+  private void verifyKSqlAppAcls(KSqlApp app) throws ExecutionException, InterruptedException {
+    ResourcePatternFilter resourceFilter = ResourcePatternFilter.ANY;
+
+    AccessControlEntryFilter entryFilter =
+        new AccessControlEntryFilter(
+            app.getPrincipal(), null, AclOperation.WRITE, AclPermissionType.ALLOW);
+
+    AclBindingFilter filter = new AclBindingFilter(resourceFilter, entryFilter);
+
+    Collection<AclBinding> acls = kafkaAdminClient.describeAcls(filter).values().get();
+
+    // two acls created for the write topics
+    assertEquals(2, acls.size());
+
+    entryFilter =
+        new AccessControlEntryFilter(
+            app.getPrincipal(), null, AclOperation.READ, AclPermissionType.ALLOW);
+
+    filter = new AclBindingFilter(resourceFilter, entryFilter);
+
+    acls = kafkaAdminClient.describeAcls(filter).values().get();
+
+    // two acls created for the read topics
+    assertEquals(2, acls.size());
+
+    entryFilter =
+        new AccessControlEntryFilter(
+            app.getPrincipal(), null, AclOperation.ALL, AclPermissionType.ALLOW);
+
+    filter = new AclBindingFilter(resourceFilter, entryFilter);
+
+    acls = kafkaAdminClient.describeAcls(filter).values().get();
+
+    // 1 acls created for the prefix internal topics
+    assertEquals(2, acls.size());
   }
 
   private void verifyProducerAcls(List<Producer> producers, String topic, int aclsCount)

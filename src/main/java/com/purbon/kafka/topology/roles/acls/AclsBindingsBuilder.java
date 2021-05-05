@@ -1,6 +1,5 @@
 package com.purbon.kafka.topology.roles.acls;
 
-import static com.purbon.kafka.topology.roles.rbac.RBACPredefinedRoles.DEVELOPER_READ;
 import static java.util.Arrays.asList;
 
 import com.purbon.kafka.topology.BindingsBuilderProvider;
@@ -293,19 +292,21 @@ public class AclsBindingsBuilder implements BindingsBuilderProvider {
 
     Optional<List<String>> readTopics = Optional.ofNullable(app.getTopics().get("read"));
     readTopics.ifPresent(
-            topics -> {
-              for (String topic : topics) {
-                bindings.add(buildTopicLevelAcl(principal, topic, PatternType.LITERAL, AclOperation.READ));
-              }
-            });
+        topics -> {
+          for (String topic : topics) {
+            bindings.add(
+                buildTopicLevelAcl(principal, topic, PatternType.LITERAL, AclOperation.READ));
+          }
+        });
 
     Optional<List<String>> writeTopics = Optional.ofNullable(app.getTopics().get("write"));
     writeTopics.ifPresent(
-            topics -> {
-              for (String topic : topics) {
-                bindings.add(buildTopicLevelAcl(principal, topic, PatternType.LITERAL, AclOperation.WRITE));
-              }
-            });
+        topics -> {
+          for (String topic : topics) {
+            bindings.add(
+                buildTopicLevelAcl(principal, topic, PatternType.LITERAL, AclOperation.WRITE));
+          }
+        });
 
     bindings.add(buildTopicLevelAcl(principal, prefix, PatternType.PREFIXED, AclOperation.ALL));
     bindings.add(buildGroupLevelAcl(principal, prefix, PatternType.PREFIXED, AclOperation.ALL));

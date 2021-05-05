@@ -3,6 +3,8 @@ package com.purbon.kafka.topology.integration;
 import static com.purbon.kafka.topology.CommandLineInterface.*;
 import static com.purbon.kafka.topology.Constants.*;
 import static com.purbon.kafka.topology.roles.rbac.RBACPredefinedRoles.*;
+import static java.util.Arrays.asList;
+import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -25,6 +27,7 @@ import com.purbon.kafka.topology.model.Topology;
 import com.purbon.kafka.topology.model.User;
 import com.purbon.kafka.topology.model.users.Connector;
 import com.purbon.kafka.topology.model.users.Consumer;
+import com.purbon.kafka.topology.model.users.KSqlApp;
 import com.purbon.kafka.topology.model.users.KStream;
 import com.purbon.kafka.topology.model.users.Producer;
 import com.purbon.kafka.topology.model.users.platform.ControlCenter;
@@ -165,6 +168,32 @@ public class RBACPRoviderRbacIT extends MDSBaseTest {
     verify(cs, times(1)).addBindings(anyList());
     verify(cs, times(1)).flushAndClose();
     verifyKStreamsAcls(app);
+  }
+
+  @Test
+  public void ksqlAppAclsCreation() throws IOException {
+    Project project = new ProjectImpl();
+
+    KSqlApp app = new KSqlApp();
+    HashMap<String, List<String>> topics = new HashMap<>();
+    topics.put(KStream.READ_TOPICS, asList("topicA", "topicB"));
+    topics.put(KStream.WRITE_TOPICS, asList("topicC", "topicD"));
+    app.setTopics(topics);
+    app.setPrincipal("User:foo");
+    project.setKSqls(singletonList(app));
+
+    Topology topology = new TopologyImpl();
+    topology.setContext("integration-test");
+    topology.addOther("source", "ksqlAppAclsCreationi-test");
+    topology.addProject(project);
+
+    accessControlManager.apply(topology, plan);
+    plan.run();
+
+    verify(cs, times(1)).addBindings(anyList());
+    verify(cs, times(1)).flushAndClose();
+
+    verifyKSqlAppAcls(app);
   }
 
   @Test
@@ -420,6 +449,13 @@ public class RBACPRoviderRbacIT extends MDSBaseTest {
   }
 
   private void verifyKStreamsAcls(KStream app) {
+    List<String> roles = apiClient.lookupRoles(app.getPrincipal());
+    assertTrue(roles.contains(DEVELOPER_READ));
+    assertTrue(roles.contains(DEVELOPER_WRITE));
+    assertTrue(roles.contains(RESOURCE_OWNER));
+  }
+
+  private void verifyKSqlAppAcls(KSqlApp app) {
     List<String> roles = apiClient.lookupRoles(app.getPrincipal());
     assertTrue(roles.contains(DEVELOPER_READ));
     assertTrue(roles.contains(DEVELOPER_WRITE));

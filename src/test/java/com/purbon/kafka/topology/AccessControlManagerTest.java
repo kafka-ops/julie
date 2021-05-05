@@ -255,6 +255,29 @@ public class AccessControlManagerTest {
             eq(topics.get(KStream.WRITE_TOPICS)));
   }
 
+  @Test
+  public void newKSqlApplicationCreation() throws IOException {
+    Project project = new ProjectImpl();
+    KSqlApp app = new KSqlApp();
+    HashMap<String, List<String>> topics = new HashMap<>();
+    topics.put(KStream.READ_TOPICS, asList("topicA", "topicB"));
+    topics.put(KStream.WRITE_TOPICS, asList("topicC", "topicD"));
+    app.setTopics(topics);
+    app.setPrincipal("User:foo");
+    project.setKSqls(singletonList(app));
+
+    Topology topology = new TopologyImpl();
+    topology.addProject(project);
+
+    accessControlManager.apply(topology, plan);
+
+    doReturn(new ArrayList<TopologyAclBinding>())
+        .when(aclsBuilder)
+        .buildBindingsForKSqlApp(any(KSqlApp.class), anyString());
+
+    verify(aclsBuilder, times(1)).buildBindingsForKSqlApp(app, "default.default");
+  }
+
   @Test(expected = IOException.class)
   public void testkStreamAclsCreationWithMissingPrefixGroup() throws Exception {
 
