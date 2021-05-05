@@ -16,7 +16,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Optional;
 import java.util.Properties;
 import org.apache.kafka.common.acl.AccessControlEntry;
 import org.apache.kafka.common.acl.AclBinding;
@@ -88,8 +87,7 @@ public class AclsBindingsBuilderTest {
 
   @Test
   public void testProducerWithTxIdAclsBuilder() {
-    Producer producer = new Producer("User:foo");
-    producer.setTransactionId(Optional.of("1234"));
+    Producer producer = new Producer("User:foo", "1234", true);
     List<TopologyAclBinding> aclBindings =
         builder.buildBindingsForProducers(Collections.singleton(producer), "bar", false);
     assertThat(aclBindings.size()).isEqualTo(5);
@@ -122,8 +120,7 @@ public class AclsBindingsBuilderTest {
 
   @Test
   public void testProducerWithTxIdPrefixAclsBuilder() {
-    Producer producer = new Producer("User:foo", "foo*");
-
+    Producer producer = new Producer("User:foo", "foo*", true);
     List<TopologyAclBinding> aclBindings =
         builder.buildBindingsForProducers(Collections.singleton(producer), "bar", false);
     assertThat(aclBindings.size()).isEqualTo(5);
@@ -150,8 +147,7 @@ public class AclsBindingsBuilderTest {
 
   @Test
   public void testIdempotenceProducerAclsBuilder() {
-    Producer producer = new Producer("User:foo");
-    producer.setIdempotence(Optional.of(true));
+    Producer producer = new Producer("User:foo", null, true);
     List<TopologyAclBinding> aclBindings =
         builder.buildBindingsForProducers(Collections.singleton(producer), "bar", false);
     assertThat(aclBindings.size()).isEqualTo(3);

@@ -10,7 +10,6 @@ import com.purbon.kafka.topology.model.users.Consumer;
 import com.purbon.kafka.topology.model.users.Producer;
 import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -78,8 +77,7 @@ public class TestTopologyBuilder {
   }
 
   public TestTopologyBuilder addConsumer(String user, String group) {
-    Consumer consumer = new Consumer(user);
-    consumer.setGroup(Optional.of(group));
+    Consumer consumer = new Consumer(user, group);
     consumers.add(consumer);
     return this;
   }

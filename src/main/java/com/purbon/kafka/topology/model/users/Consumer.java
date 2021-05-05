@@ -14,13 +14,12 @@ public class Consumer extends User {
   }
 
   public Consumer(String principal) {
-    super(principal);
-    group = Optional.empty();
+    this(principal, null);
   }
 
   public Consumer(String principal, String group) {
     super(principal);
-    this.group = Optional.of(group);
+    this.group = Optional.ofNullable(group);
   }
 
   public String groupString() {
