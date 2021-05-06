@@ -66,8 +66,11 @@ public class ClusterLevelRoleBuilder {
   }
 
   public TopologyAclBinding apply() {
+    return apply("CLUSTER", "cluster");
+  }
 
-    return client.bindClusterRole(principal, role, scope);
+  public TopologyAclBinding apply(String resourceType, String resourceName) {
+    return client.bindClusterRole(principal, resourceType, resourceName, role, scope);
   }
 
   public ClusterLevelRoleBuilder forKafka() {
@@ -93,7 +96,8 @@ public class ClusterLevelRoleBuilder {
 
   public ClusterLevelRoleBuilder forKSqlServer(String clusterId) {
     client.setKSqlClusterID(clusterId);
-    Map<String, Map<String, String>> clusters = client.withClusterIDs().forKafka().asMap();
+    Map<String, Map<String, String>> clusters =
+        client.withClusterIDs().forKsql().forKafka().asMap();
 
     scope = new RequestScope();
     scope.setClusters(clusters);

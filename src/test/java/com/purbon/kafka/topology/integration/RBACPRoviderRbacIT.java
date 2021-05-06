@@ -175,6 +175,7 @@ public class RBACPRoviderRbacIT extends MDSBaseTest {
     Project project = new ProjectImpl();
 
     KSqlApp app = new KSqlApp();
+    app.setKsqlDbId("ksql-id");
     HashMap<String, List<String>> topics = new HashMap<>();
     topics.put(KStream.READ_TOPICS, asList("topicA", "topicB"));
     topics.put(KStream.WRITE_TOPICS, asList("topicC", "topicD"));
@@ -184,7 +185,7 @@ public class RBACPRoviderRbacIT extends MDSBaseTest {
 
     Topology topology = new TopologyImpl();
     topology.setContext("integration-test");
-    topology.addOther("source", "ksqlAppAclsCreationi-test");
+    topology.addOther("source", "ksqlAppAclsCreation-test");
     topology.addProject(project);
 
     accessControlManager.apply(topology, plan);

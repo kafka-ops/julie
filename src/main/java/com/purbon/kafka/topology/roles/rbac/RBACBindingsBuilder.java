@@ -251,10 +251,13 @@ public class RBACBindingsBuilder implements BindingsBuilderProvider {
 
     // Ksql cluster scope
     String clusterId = app.getKsqlDbId();
-    TopologyAclBinding binding =
-        apiClient.bind(app.getPrincipal(), DEVELOPER_WRITE).forKSqlServer(clusterId).apply();
-    bindings.add(binding);
 
+    TopologyAclBinding binding =
+        apiClient
+            .bind(app.getPrincipal(), DEVELOPER_WRITE)
+            .forKSqlServer(clusterId)
+            .apply("KsqlCluster", "ksql-cluster");
+    bindings.add(binding);
     // Kafka Cluster scope
     String resource = String.format("_confluent-ksql-%s", clusterId);
     binding = apiClient.bind(app.getPrincipal(), DEVELOPER_READ, resource, "Group", PREFIX);
@@ -284,6 +287,7 @@ public class RBACBindingsBuilder implements BindingsBuilderProvider {
             bindings.add(topicBinding);
           }
         });
+
     // schema access
     List<String> subjects =
         readTopics.stream()
@@ -297,9 +301,9 @@ public class RBACBindingsBuilder implements BindingsBuilderProvider {
                 apiClient
                     .bind(app.getPrincipal(), DEVELOPER_READ)
                     .forSchemaSubject(subject)
-                    .apply())
+                    .apply("Subject", subject))
         .filter(Objects::nonNull)
-        .forEach(bindings::add);
+        .collect(Collectors.toList());
 
     subjects =
         writeTopics.stream()
@@ -313,7 +317,7 @@ public class RBACBindingsBuilder implements BindingsBuilderProvider {
                 apiClient
                     .bind(app.getPrincipal(), RESOURCE_OWNER)
                     .forSchemaSubject(subject)
-                    .apply())
+                    .apply("Subject", subject))
         .filter(Objects::nonNull)
         .forEach(bindings::add);
 

@@ -36,6 +36,10 @@ public class KSqlApp extends DynamicUser {
     this.applicationId = applicationId;
   }
 
+  public void setKsqlDbId(String ksqlDbId) {
+    this.ksqlDbId = ksqlDbId;
+  }
+
   public String getKsqlDbId() {
     return ksqlDbId;
   }

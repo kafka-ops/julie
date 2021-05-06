@@ -30,6 +30,7 @@ import org.apache.kafka.common.errors.InvalidConfigurationException;
 import org.apache.kafka.common.errors.TopicExistsException;
 import org.apache.kafka.common.resource.PatternType;
 import org.apache.kafka.common.resource.ResourcePatternFilter;
+import org.apache.kafka.common.resource.ResourceType;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -116,7 +117,7 @@ public class TopologyBuilderAdminClient {
     LOGGER.debug("clearAcl = " + aclBinding);
     ResourcePatternFilter resourceFilter =
         new ResourcePatternFilter(
-            aclBinding.getResourceType(),
+            ResourceType.valueOf(aclBinding.getResourceType()),
             aclBinding.getResourceName(),
             PatternType.valueOf(aclBinding.getPattern()));
 

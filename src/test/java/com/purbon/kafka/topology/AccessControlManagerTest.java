@@ -632,7 +632,7 @@ public class AccessControlManagerTest {
         plan.getActions().get(0).getBindings().stream()
             .filter(
                 b ->
-                    b.getResourceType().equals(ResourceType.TOPIC)
+                    b.getResourceType().equals(ResourceType.TOPIC.name())
                         && b.getResourceName().equals("NamespaceA_topicA"))
             .count());
     assertEquals(
@@ -640,7 +640,7 @@ public class AccessControlManagerTest {
         plan.getActions().get(0).getBindings().stream()
             .filter(
                 b ->
-                    b.getResourceType().equals(ResourceType.TOPIC)
+                    b.getResourceType().equals(ResourceType.TOPIC.name())
                         && b.getResourceName().equals("topicA"))
             .count());
   }
@@ -675,7 +675,7 @@ public class AccessControlManagerTest {
         plan.getActions().get(0).getBindings().stream()
             .filter(
                 b ->
-                    b.getResourceType().equals(ResourceType.GROUP)
+                    b.getResourceType().equals(ResourceType.GROUP.name())
                         && b.getResourceName().equals("NamespaceA_ConsumerGroupA"))
             .count());
     assertEquals(
@@ -683,7 +683,7 @@ public class AccessControlManagerTest {
         plan.getActions().get(0).getBindings().stream()
             .filter(
                 b ->
-                    b.getResourceType().equals(ResourceType.GROUP)
+                    b.getResourceType().equals(ResourceType.GROUP.name())
                         && b.getResourceName().equals("NamespaceB_ConsumerGroupB"))
             .count());
     assertEquals(
@@ -691,7 +691,7 @@ public class AccessControlManagerTest {
         plan.getActions().get(0).getBindings().stream()
             .filter(
                 b ->
-                    b.getResourceType().equals(ResourceType.GROUP)
+                    b.getResourceType().equals(ResourceType.GROUP.name())
                         && b.getResourceName().equals("*"))
             .count());
   }
@@ -725,7 +725,7 @@ public class AccessControlManagerTest {
         plan.getActions().get(0).getBindings().stream()
             .filter(
                 b ->
-                    b.getResourceType().equals(ResourceType.GROUP)
+                    b.getResourceType().equals(ResourceType.GROUP.name())
                         && b.getResourceName().equals("*")
                         && b.getPrincipal().equals("User:NamespaceA_app1"))
             .count());
@@ -734,7 +734,7 @@ public class AccessControlManagerTest {
         plan.getActions().get(0).getBindings().stream()
             .filter(
                 b ->
-                    b.getResourceType().equals(ResourceType.GROUP)
+                    b.getResourceType().equals(ResourceType.GROUP.name())
                         && b.getResourceName().equals("*")
                         && b.getPrincipal().equals("User:NamespaceB_app2"))
             .count());

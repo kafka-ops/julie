@@ -266,13 +266,12 @@ public class AccessControlManager {
       return matchesServiceAccountPrefixList(principle);
     }
 
-    switch (topologyAclBinding.getResourceType()) {
-      case TOPIC:
-        return matchesTopicPrefixList(resourceName);
-      case GROUP:
-        return matchesGroupPrefixList(resourceName);
-      default:
-        return matchesServiceAccountPrefixList(principle);
+    if ("TOPIC".equalsIgnoreCase(topologyAclBinding.getResourceType())) {
+      return matchesTopicPrefixList(resourceName);
+    } else if ("GROUP".equalsIgnoreCase(topologyAclBinding.getResourceType())) {
+      return matchesGroupPrefixList(resourceName);
+    } else {
+      return matchesServiceAccountPrefixList(principle);
     }
   }
 

@@ -59,9 +59,13 @@ public class MDSApiClient extends JulieHttpClient {
   }
 
   public TopologyAclBinding bindClusterRole(String principal, String role, RequestScope scope) {
-    ResourceType resourceType = ResourceType.CLUSTER;
+    return bindClusterRole(principal, ResourceType.CLUSTER.name(), "cluster", role, scope);
+  }
+
+  public TopologyAclBinding bindClusterRole(
+      String principal, String resourceType, String resourceName, String role, RequestScope scope) {
     TopologyAclBinding binding =
-        new TopologyAclBinding(resourceType, "cluster", "*", role, principal, "LITERAL");
+        new TopologyAclBinding(resourceType, resourceName, "*", role, principal, "LITERAL");
     binding.setScope(scope);
     return binding;
   }
@@ -69,13 +73,13 @@ public class MDSApiClient extends JulieHttpClient {
   public void bindRequest(TopologyAclBinding binding) throws IOException {
 
     String url = binding.getPrincipal() + "/roles/" + binding.getOperation();
-    if (!binding.getResourceType().equals(ResourceType.CLUSTER)) {
+    if (!binding.getResourceType().equals(ResourceType.CLUSTER.name())) {
       url = url + "/bindings";
     }
 
     try {
       String jsonEntity;
-      if (binding.getResourceType().equals(ResourceType.CLUSTER)) {
+      if (binding.getResourceType().equals(ResourceType.CLUSTER.name())) {
         jsonEntity = binding.getScope().clustersAsJson();
       } else {
         jsonEntity = binding.getScope().asJson();
@@ -106,7 +110,8 @@ public class MDSApiClient extends JulieHttpClient {
     String patternType = scope.getResource(0).get(RESOURCE_PATTERN_TYPE);
 
     TopologyAclBinding binding =
-        new TopologyAclBinding(resourceType, resourceName, "*", role, principal, patternType);
+        new TopologyAclBinding(
+            resourceType.name(), resourceName, "*", role, principal, patternType);
 
     binding.setScope(scope);
     return binding;

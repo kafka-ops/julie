@@ -8,11 +8,12 @@ public class ClusterIDs implements Cloneable {
   private String kafkaClusterID;
   private String schemaRegistryClusterID;
   private String connectClusterID;
-  private String KsqlClusterID;
+  private String ksqlClusterID;
 
   public static String KAFKA_CLUSTER_ID_LABEL = "kafka-cluster";
   public static String SCHEMA_REGISTRY_CLUSTER_ID_LABEL = "schema-registry-cluster";
   public static String CONNECT_CLUSTER_ID_LABEL = "connect-cluster";
+  public static String KSQL_CLUSTER_ID_LABEL = "ksql-cluster";
 
   private Map<String, String> clusterIds;
 
@@ -52,6 +53,11 @@ public class ClusterIDs implements Cloneable {
     return this;
   }
 
+  public ClusterIDs forKsql() {
+    clusterIds.put(KSQL_CLUSTER_ID_LABEL, ksqlClusterID);
+    return this;
+  }
+
   public Map<String, Map<String, String>> asMap() {
     Map<String, Map<String, String>> clusters = new HashMap<>();
     clusters.put("clusters", clusterIds);
@@ -71,10 +77,15 @@ public class ClusterIDs implements Cloneable {
   }
 
   public ClusterIDs clone() throws CloneNotSupportedException {
-    return (ClusterIDs) super.clone();
+    ClusterIDs clusterIDs = new ClusterIDs();
+    clusterIDs.setKsqlClusterID(ksqlClusterID);
+    clusterIDs.setConnectClusterID(connectClusterID);
+    clusterIDs.setKafkaClusterId(kafkaClusterID);
+    clusterIDs.setSchemaRegistryClusterID(schemaRegistryClusterID);
+    return clusterIDs;
   }
 
   public void setKsqlClusterID(String clusterId) {
-    this.KsqlClusterID = clusterId;
+    this.ksqlClusterID = clusterId;
   }
 }
