@@ -8,6 +8,8 @@ import com.purbon.kafka.topology.utils.JSON;
 import io.confluent.ksql.api.client.Client;
 import io.confluent.ksql.api.client.ClientOptions;
 import io.confluent.ksql.api.client.QueryInfo;
+import io.confluent.ksql.api.client.StreamInfo;
+
 import java.io.IOException;
 import java.util.Collection;
 import java.util.Collections;
@@ -21,26 +23,31 @@ import java.util.stream.Collectors;
 public class KsqlApiClient implements ArtefactClient {
 
   private String server;
+  private Integer port;
   private Client client;
 
-  public KsqlApiClient(String server) {
+  public KsqlApiClient(String server, Integer port) {
     this.server = server;
-    String port = server.split(":")[1].strip();
+    this.port = port;
     ClientOptions options =
         ClientOptions.create()
             .setHost(server.split(":")[0].strip())
-            .setPort(Integer.parseInt(port));
+            .setPort(port);
     client = Client.create(options);
   }
 
   @Override
   public String getServer() {
-    return server;
+    return server+":"+port;
   }
 
   @Override
   public Map<String, Object> add(String sql) throws IOException {
-    client.executeStatement(sql);
+    try {
+      client.executeStatement(sql).get();
+    } catch (InterruptedException | ExecutionException e) {
+      throw new IOException(e);
+    }
     return Collections.emptyMap();
   }
 
@@ -51,9 +58,9 @@ public class KsqlApiClient implements ArtefactClient {
 
   @Override
   public List<String> list() throws IOException {
-    List<QueryInfo> queryInfos;
+    List<StreamInfo> queryInfos;
     try {
-      queryInfos = client.listQueries().get();
+      queryInfos = client.listStreams().get();
     } catch (InterruptedException | ExecutionException e) {
       e.printStackTrace();
       throw new IOException(e);
@@ -61,10 +68,10 @@ public class KsqlApiClient implements ArtefactClient {
 
     return queryInfos.stream()
         .map(
-            new Function<QueryInfo, KsqlArtefact>() {
+            new Function<StreamInfo, KsqlArtefact>() {
               @Override
-              public KsqlArtefact apply(QueryInfo queryInfo) {
-                return new KsqlArtefact("", queryInfo.getId(), server);
+              public KsqlArtefact apply(StreamInfo queryInfo) {
+                return new KsqlArtefact("", queryInfo.getName(), server);
               }
             })
         .map(
