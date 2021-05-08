@@ -9,22 +9,30 @@ import io.confluent.ksql.api.client.Client;
 import io.confluent.ksql.api.client.ClientOptions;
 import io.confluent.ksql.api.client.QueryInfo;
 import io.confluent.ksql.api.client.StreamInfo;
+import io.confluent.ksql.api.client.TableInfo;
 
 import java.io.IOException;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.ExecutionException;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class KsqlApiClient implements ArtefactClient {
 
   private String server;
   private Integer port;
   private Client client;
+
+  public static String QUERY_TYPE = "query";
+  public static String STREAM_TYPE = "stream";
+  public static String TABLE_TYPE = "table";
+
 
   public KsqlApiClient(String server, Integer port) {
     this.server = server;
@@ -44,48 +52,96 @@ public class KsqlApiClient implements ArtefactClient {
   @Override
   public Map<String, Object> add(String sql) throws IOException {
     try {
-      client.executeStatement(sql).get();
+      var result = client.executeStatement(sql).get();
+      return new QueryResponse(result).asMap();
     } catch (InterruptedException | ExecutionException e) {
       throw new IOException(e);
     }
-    return Collections.emptyMap();
   }
 
   @Override
   public void delete(String id) throws IOException {
-    client.terminatePushQuery(id);
+      delete(id, "STREAM");
+      delete(id, "TABLE");
   }
+
+  public void delete(String id, String type) throws IOException {
+    try {
+      if (STREAM_TYPE.equalsIgnoreCase(type) || TABLE_TYPE.equalsIgnoreCase(type)) {
+        String sql = String.format("DROP %s IF EXISTS %s;", type.toUpperCase(), id);
+        client.executeStatement(sql).get();
+      } else {
+        client.terminatePushQuery(id).get();
+      }
+    } catch (InterruptedException | ExecutionException e) {
+      e.printStackTrace();
+      throw new IOException(e);
+    }
+  }
+
 
   @Override
   public List<String> list() throws IOException {
-    List<StreamInfo> queryInfos;
+    return Stream.of(listStreams(), listTables())
+            .flatMap(Collection::stream)
+            .collect(Collectors.toList());
+  }
+
+  public List<String> listQuery() throws IOException {
+    List<QueryInfo> infos;
     try {
-      queryInfos = client.listStreams().get();
+      infos = client.listQueries().get();
     } catch (InterruptedException | ExecutionException e) {
       e.printStackTrace();
       throw new IOException(e);
     }
 
-    return queryInfos.stream()
-        .map(
-            new Function<StreamInfo, KsqlArtefact>() {
-              @Override
-              public KsqlArtefact apply(StreamInfo queryInfo) {
-                return new KsqlArtefact("", queryInfo.getName(), server);
-              }
-            })
-        .map(
-            new Function<KsqlArtefact, String>() {
-              @Override
-              public String apply(KsqlArtefact ksqlArtefact) {
-                try {
-                  return JSON.asString(ksqlArtefact);
-                } catch (JsonProcessingException e) {
-                  e.printStackTrace();
-                  return "";
-                }
-              }
-            })
+    return infos.stream()
+            .map(info -> new KsqlArtefact("", server, info.getId()))
+            .map(artefactToString())
+            .filter(s -> !s.isEmpty())
+            .collect(Collectors.toList());
+  }
+
+  public List<String> listTables() throws IOException {
+    List<TableInfo> infos;
+    try {
+      infos = client.listTables().get();
+    } catch (InterruptedException | ExecutionException e) {
+      e.printStackTrace();
+      throw new IOException(e);
+    }
+
+    return infos.stream()
+            .map(tableInfo -> new KsqlArtefact("", server, tableInfo.getName()))
+            .map(artefactToString())
+            .filter(s -> !s.isEmpty())
+            .collect(Collectors.toList());
+  }
+
+  private Function<KsqlArtefact, String> artefactToString() {
+    return ksqlArtefact -> {
+      try {
+        return JSON.asString(ksqlArtefact);
+      } catch (JsonProcessingException e) {
+        e.printStackTrace();
+        return "";
+      }
+    };
+  }
+
+  public List<String> listStreams() throws IOException {
+    List<StreamInfo> infos;
+    try {
+      infos = client.listStreams().get();
+    } catch (InterruptedException | ExecutionException e) {
+      e.printStackTrace();
+      throw new IOException(e);
+    }
+
+    return infos.stream()
+        .map(queryInfo -> new KsqlArtefact("", server, queryInfo.getName()))
+        .map(artefactToString())
         .filter(s -> !s.isEmpty())
         .collect(Collectors.toList());
   }

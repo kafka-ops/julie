@@ -1,6 +1,9 @@
 package com.purbon.kafka.topology.integration.containerutils;
 
 import org.testcontainers.containers.GenericContainer;
+import org.testcontainers.containers.wait.strategy.Wait;
+import org.testcontainers.containers.wait.strategy.WaitAllStrategy;
+import org.testcontainers.containers.wait.strategy.WaitStrategy;
 import org.testcontainers.utility.DockerImageName;
 
 public class KsqlContainer extends GenericContainer<KsqlContainer> {

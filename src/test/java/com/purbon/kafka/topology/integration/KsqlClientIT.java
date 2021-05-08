@@ -1,6 +1,7 @@
 package com.purbon.kafka.topology.integration;
 
 import com.purbon.kafka.topology.api.ksql.KsqlApiClient;
+import com.purbon.kafka.topology.api.ksql.QueryResponse;
 import com.purbon.kafka.topology.integration.containerutils.ContainerFactory;
 import com.purbon.kafka.topology.integration.containerutils.KsqlContainer;
 import com.purbon.kafka.topology.integration.containerutils.SaslPlaintextKafkaContainer;
@@ -10,7 +11,10 @@ import org.junit.Test;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Optional;
 
+import static com.purbon.kafka.topology.api.ksql.KsqlApiClient.STREAM_TYPE;
+import static com.purbon.kafka.topology.api.ksql.KsqlApiClient.TABLE_TYPE;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class KsqlClientIT {
@@ -34,17 +38,46 @@ public class KsqlClientIT {
     }
 
     @Test
-    public void testStreamRegistration() throws IOException {
+    public void testStreamTableCreateAndDelete() throws IOException {
 
         KsqlApiClient client = new KsqlApiClient(ksqlContainer.getHost(), ksqlContainer.getPort());
 
-        String sql = "CREATE STREAM riderLocations (profileId VARCHAR, latitude DOUBLE, longitude DOUBLE)\n" +
+        String streamName = "riderLocations";
+
+        String sql = "CREATE STREAM "+streamName+" (profileId VARCHAR, latitude DOUBLE, longitude DOUBLE)\n" +
                 "  WITH (kafka_topic='locations', value_format='json', partitions=1);";
 
         client.add(sql);
 
-       List<String> queries = client.list();
-       assertThat(queries).hasSize(2);
+        List<String> queries = client.list();
+        assertThat(queries).hasSize(2);
+
+        client.delete(streamName, STREAM_TYPE);
+
+        queries = client.list();
+        assertThat(queries).hasSize(1);
+
+        String tableName = "users";
+        sql = "CREATE TABLE "+tableName+" (\n" +
+                "     id BIGINT PRIMARY KEY,\n" +
+                "     usertimestamp BIGINT,\n" +
+                "     gender VARCHAR,\n" +
+                "     region_id VARCHAR\n" +
+                "   ) WITH (\n" +
+                "     KAFKA_TOPIC = 'my-users-topic', \n" +
+                "     KEY_FORMAT='KAFKA', PARTITIONS=2, REPLICAS=1,"+
+                "     VALUE_FORMAT = 'JSON'\n" +
+                "   );";
+
+        client.add(sql);
+
+        queries = client.list();
+        assertThat(queries).hasSize(2);
+
+        client.delete(tableName, TABLE_TYPE);
+
+        queries = client.list();
+        assertThat(queries).hasSize(1);
     }
 
 }
