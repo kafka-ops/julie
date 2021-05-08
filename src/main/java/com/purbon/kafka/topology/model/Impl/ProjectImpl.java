@@ -5,7 +5,8 @@ import com.purbon.kafka.topology.Configuration;
 import com.purbon.kafka.topology.model.PlatformSystem;
 import com.purbon.kafka.topology.model.Project;
 import com.purbon.kafka.topology.model.Topic;
-import com.purbon.kafka.topology.model.artefact.KafkaConnectArtefact;
+import com.purbon.kafka.topology.model.artefact.KConnectArtefacts;
+import com.purbon.kafka.topology.model.artefact.KsqlArtefacts;
 import com.purbon.kafka.topology.model.users.Connector;
 import com.purbon.kafka.topology.model.users.Consumer;
 import com.purbon.kafka.topology.model.users.KSqlApp;
@@ -151,8 +152,12 @@ public class ProjectImpl implements Project, Cloneable {
     return connectors.getAccessControlLists();
   }
 
-  public List<KafkaConnectArtefact> getConnectorArtefacts() {
-    return (List<KafkaConnectArtefact>) connectors.getArtefacts();
+  public KConnectArtefacts getConnectorArtefacts() {
+    return (KConnectArtefacts) connectors.getArtefacts().orElse(new KConnectArtefacts());
+  }
+
+  public KsqlArtefacts getKsqlArtefacts() {
+    return (KsqlArtefacts) ksqls.getArtefacts().orElse(new KsqlArtefacts());
   }
 
   public void setConnectors(List<Connector> connectors) {

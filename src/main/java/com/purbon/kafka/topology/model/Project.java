@@ -2,7 +2,8 @@ package com.purbon.kafka.topology.model;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.purbon.kafka.topology.model.Impl.ProjectImpl;
-import com.purbon.kafka.topology.model.artefact.KafkaConnectArtefact;
+import com.purbon.kafka.topology.model.artefact.KConnectArtefacts;
+import com.purbon.kafka.topology.model.artefact.KsqlArtefacts;
 import com.purbon.kafka.topology.model.users.Connector;
 import com.purbon.kafka.topology.model.users.Consumer;
 import com.purbon.kafka.topology.model.users.KSqlApp;
@@ -37,7 +38,9 @@ public interface Project {
 
   List<Connector> getConnectors();
 
-  List<KafkaConnectArtefact> getConnectorArtefacts();
+  KConnectArtefacts getConnectorArtefacts();
+
+  KsqlArtefacts getKsqlArtefacts();
 
   void setConnectors(List<Connector> connectors);
 

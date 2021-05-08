@@ -1,9 +1,6 @@
 package com.purbon.kafka.topology.integration.containerutils;
 
 import org.testcontainers.containers.GenericContainer;
-import org.testcontainers.containers.wait.strategy.Wait;
-import org.testcontainers.containers.wait.strategy.WaitAllStrategy;
-import org.testcontainers.containers.wait.strategy.WaitStrategy;
 import org.testcontainers.utility.DockerImageName;
 
 public class KsqlContainer extends GenericContainer<KsqlContainer> {
@@ -17,16 +14,13 @@ public class KsqlContainer extends GenericContainer<KsqlContainer> {
     this(DEFAULT_IMAGE, kafka);
   }
 
-  public KsqlContainer(
-      final DockerImageName dockerImageName, AlternativeKafkaContainer kafka) {
+  public KsqlContainer(final DockerImageName dockerImageName, AlternativeKafkaContainer kafka) {
     super(dockerImageName);
     String kafkaHost = kafka.getNetworkAliases().get(1);
     withExposedPorts(KSQL_PORT);
-    //withEnv("KSQL_KSQL_SERVICE_ID", "confluent_ksql_streams_01");
+    // withEnv("KSQL_KSQL_SERVICE_ID", "confluent_ksql_streams_01");
     withEnv("KSQL_SECURITY_PROTOCOL", "SASL_PLAINTEXT");
-    withEnv(
-        "KSQL_BOOTSTRAP_SERVERS",
-        "SASL_PLAINTEXT://" + kafkaHost + ":" + 9091);
+    withEnv("KSQL_BOOTSTRAP_SERVERS", "SASL_PLAINTEXT://" + kafkaHost + ":" + 9091);
     withEnv("KSQL_SASL_JAAS_CONFIG", saslConfig());
     withEnv("KSQL_SASL_MECHANISM", "PLAIN");
     withEnv("KSQL_LISTENERS", "http://0.0.0.0:8088");

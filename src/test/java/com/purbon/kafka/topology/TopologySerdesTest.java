@@ -13,6 +13,10 @@ import com.purbon.kafka.topology.model.*;
 import com.purbon.kafka.topology.model.Impl.ProjectImpl;
 import com.purbon.kafka.topology.model.Impl.TopicImpl;
 import com.purbon.kafka.topology.model.Impl.TopologyImpl;
+import com.purbon.kafka.topology.model.artefact.KafkaConnectArtefact;
+import com.purbon.kafka.topology.model.artefact.KsqlArtefacts;
+import com.purbon.kafka.topology.model.artefact.KsqlStreamArtefact;
+import com.purbon.kafka.topology.model.artefact.KsqlTableArtefact;
 import com.purbon.kafka.topology.model.users.Connector;
 import com.purbon.kafka.topology.model.users.Consumer;
 import com.purbon.kafka.topology.model.users.KSqlApp;
@@ -255,6 +259,15 @@ public class TopologySerdesTest {
     assertThat(kSqlApp.getPrincipal()).isEqualTo("User:ksql0");
     assertThat(kSqlApp.getTopics().get("read")).hasSize(1);
     assertThat(kSqlApp.getTopics().get("write")).hasSize(1);
+
+    KsqlArtefacts artefacts = project.getKsqlArtefacts();
+    assertThat(artefacts.getStreams()).hasSize(1);
+    KsqlStreamArtefact artefact = artefacts.getStreams().get(0);
+    assertThat(artefact.getName()).isEqualTo("stream0");
+
+    assertThat(artefacts.getTables()).hasSize(1);
+    KsqlTableArtefact tableArtefact = artefacts.getTables().get(0);
+    assertThat(tableArtefact.getName()).isEqualTo("table0");
   }
 
   @Test
@@ -361,15 +374,12 @@ public class TopologySerdesTest {
   public void testConnectorArtefactsRetrieval() {
     Topology topology = parser.deserialise(TestUtils.getResourceFile("/descriptor.yaml"));
     Project project = topology.getProjects().get(0);
-    assertEquals(2, project.getConnectorArtefacts().size());
-    assertThat(project.getConnectorArtefacts().get(0))
-        .hasFieldOrPropertyWithValue("path", "connectors/sink-jdbc.json");
-    assertThat(project.getConnectorArtefacts().get(0))
-        .hasFieldOrPropertyWithValue("serverLabel", "connector0");
-    assertThat(project.getConnectorArtefacts().get(1))
-        .hasFieldOrPropertyWithValue("path", "connectors/source-jdbc.json");
-    assertThat(project.getConnectorArtefacts().get(1))
-        .hasFieldOrPropertyWithValue("serverLabel", "connector0");
+    List<KafkaConnectArtefact> artefacts = project.getConnectorArtefacts().getConnectors();
+    assertEquals(2, artefacts.size());
+    assertThat(artefacts.get(0)).hasFieldOrPropertyWithValue("path", "connectors/sink-jdbc.json");
+    assertThat(artefacts.get(0)).hasFieldOrPropertyWithValue("serverLabel", "connector0");
+    assertThat(artefacts.get(1)).hasFieldOrPropertyWithValue("path", "connectors/source-jdbc.json");
+    assertThat(artefacts.get(1)).hasFieldOrPropertyWithValue("serverLabel", "connector0");
   }
 
   @Test

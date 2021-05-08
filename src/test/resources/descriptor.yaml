@@ -14,12 +14,22 @@ projects:
       - principal: "User:App2"
         idempotence: "true"
     ksql:
-      - principal: "User:ksql0"
-        topics:
-          read:
-            - "topicA"
-          write:
-            - "topicC"
+      artefacts:
+        streams:
+          - path: "ksql-streams/stream0.json"
+            server: "ksql0"
+            name: "stream0"
+        tables:
+          - path: "ksql-tables/table0.json"
+            server: "ksql0"
+            name: "table0"
+      access_control:
+        - principal: "User:ksql0"
+          topics:
+            read:
+              - "topicA"
+            write:
+              - "topicC"
     streams:
       - principal: "User:App0"
         topics:

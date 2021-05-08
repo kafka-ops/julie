@@ -16,7 +16,11 @@ import com.purbon.kafka.topology.exceptions.TopologyParsingException;
 import com.purbon.kafka.topology.model.*;
 import com.purbon.kafka.topology.model.Impl.ProjectImpl;
 import com.purbon.kafka.topology.model.Impl.TopologyImpl;
+import com.purbon.kafka.topology.model.artefact.KConnectArtefacts;
 import com.purbon.kafka.topology.model.artefact.KafkaConnectArtefact;
+import com.purbon.kafka.topology.model.artefact.KsqlArtefacts;
+import com.purbon.kafka.topology.model.artefact.KsqlStreamArtefact;
+import com.purbon.kafka.topology.model.artefact.KsqlTableArtefact;
 import com.purbon.kafka.topology.model.users.Connector;
 import com.purbon.kafka.topology.model.users.Consumer;
 import com.purbon.kafka.topology.model.users.KSqlApp;
@@ -65,6 +69,8 @@ public class TopologyCustomDeserializer extends StdDeserializer<Topology> {
   private static final String ACCESS_CONTROL = "access_control";
   private static final String ARTEFACTS = "artefacts";
   private static final String ARTIFACTS = "artifacts";
+  private static final String STREAMS_NODE = "streams";
+  private static final String TABLES_NODE = "tables";
 
   private final Configuration config;
 
@@ -231,14 +237,14 @@ public class TopologyCustomDeserializer extends StdDeserializer<Topology> {
       throws JsonProcessingException {
     List<Consumer> consumers =
         new JsonSerdesUtils<Consumer>().parseApplicationUser(parser, node, Consumer.class);
-    return Optional.of(new PlatformSystem(consumers, Collections.emptyList()));
+    return Optional.of(new PlatformSystem(consumers));
   }
 
   private Optional<PlatformSystem> doProducerElements(JsonParser parser, JsonNode node)
       throws JsonProcessingException {
     List<Producer> producers =
         new JsonSerdesUtils<Producer>().parseApplicationUser(parser, node, Producer.class);
-    return Optional.of(new PlatformSystem(producers, Collections.emptyList()));
+    return Optional.of(new PlatformSystem(producers));
   }
 
   private Optional<PlatformSystem> doKafkaConnectElements(JsonParser parser, JsonNode node)
@@ -272,29 +278,55 @@ public class TopologyCustomDeserializer extends StdDeserializer<Topology> {
         }
       }
     }
+    return Optional.of(new PlatformSystem(connectors, new KConnectArtefacts(artefacts)));
+  }
 
-    return Optional.of(new PlatformSystem(connectors, artefacts));
+  private Optional<PlatformSystem> doKSqlElements(JsonParser parser, JsonNode node)
+      throws JsonProcessingException {
+
+    JsonNode acNode = node;
+    if (node.has(ACCESS_CONTROL)) {
+      acNode = node.get(ACCESS_CONTROL);
+    }
+
+    List<KSqlApp> ksqls =
+        new JsonSerdesUtils<KSqlApp>().parseApplicationUser(parser, acNode, KSqlApp.class);
+    List<KsqlStreamArtefact> streamArtefacts = new ArrayList<>();
+    List<KsqlTableArtefact> tableArtefacts = new ArrayList<>();
+    if (node.has(ARTEFACTS) || node.has(ARTIFACTS)) {
+      String key = node.has(ARTEFACTS) ? ARTEFACTS : ARTIFACTS;
+      JsonNode artefactsNode = node.get(key);
+      if (artefactsNode.has(STREAMS_NODE)) {
+        streamArtefacts =
+            new JsonSerdesUtils<KsqlStreamArtefact>()
+                .parseApplicationUser(
+                    parser, artefactsNode.get(STREAMS_NODE), KsqlStreamArtefact.class);
+      }
+
+      if (artefactsNode.has(TABLES_NODE)) {
+        tableArtefacts =
+            new JsonSerdesUtils<KsqlTableArtefact>()
+                .parseApplicationUser(
+                    parser, artefactsNode.get(TABLES_NODE), KsqlTableArtefact.class);
+      }
+    }
+
+    return Optional.of(
+        new PlatformSystem(ksqls, new KsqlArtefacts(streamArtefacts, tableArtefacts)));
   }
 
   private Optional<PlatformSystem> doStreamsElements(JsonParser parser, JsonNode node)
       throws JsonProcessingException {
     List<KStream> streams =
         new JsonSerdesUtils<KStream>().parseApplicationUser(parser, node, KStream.class);
-    return Optional.of(new PlatformSystem(streams, Collections.emptyList()));
-  }
-
-  private Optional<PlatformSystem> doKSqlElements(JsonParser parser, JsonNode node)
-      throws JsonProcessingException {
-    List<KSqlApp> ksqls =
-        new JsonSerdesUtils<KSqlApp>().parseApplicationUser(parser, node, KSqlApp.class);
-    return Optional.of(new PlatformSystem(ksqls, Collections.emptyList()));
+    return Optional.of(new PlatformSystem(streams));
   }
 
   private Optional<PlatformSystem> doSchemasElements(JsonParser parser, JsonNode node)
       throws JsonProcessingException {
     List<Schemas> schemas =
         new JsonSerdesUtils<Schemas>().parseApplicationUser(parser, node, Schemas.class);
-    return Optional.of(new PlatformSystem(schemas, Collections.emptyList()));
+    return Optional.of(new PlatformSystem(schemas));
   }
 
   private void validateEncodingForTopicName(String name) throws IOException {

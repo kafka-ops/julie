@@ -10,11 +10,8 @@ import io.confluent.ksql.api.client.ClientOptions;
 import io.confluent.ksql.api.client.QueryInfo;
 import io.confluent.ksql.api.client.StreamInfo;
 import io.confluent.ksql.api.client.TableInfo;
-
 import java.io.IOException;
 import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -33,20 +30,17 @@ public class KsqlApiClient implements ArtefactClient {
   public static String STREAM_TYPE = "stream";
   public static String TABLE_TYPE = "table";
 
-
   public KsqlApiClient(String server, Integer port) {
     this.server = server;
     this.port = port;
     ClientOptions options =
-        ClientOptions.create()
-            .setHost(server.split(":")[0].strip())
-            .setPort(port);
+        ClientOptions.create().setHost(server.split(":")[0].strip()).setPort(port);
     client = Client.create(options);
   }
 
   @Override
   public String getServer() {
-    return server+":"+port;
+    return server + ":" + port;
   }
 
   @Override
@@ -61,8 +55,8 @@ public class KsqlApiClient implements ArtefactClient {
 
   @Override
   public void delete(String id) throws IOException {
-      delete(id, "STREAM");
-      delete(id, "TABLE");
+    delete(id, "STREAM");
+    delete(id, "TABLE");
   }
 
   public void delete(String id, String type) throws IOException {
@@ -79,12 +73,11 @@ public class KsqlApiClient implements ArtefactClient {
     }
   }
 
-
   @Override
   public List<String> list() throws IOException {
     return Stream.of(listStreams(), listTables())
-            .flatMap(Collection::stream)
-            .collect(Collectors.toList());
+        .flatMap(Collection::stream)
+        .collect(Collectors.toList());
   }
 
   public List<String> listQuery() throws IOException {
@@ -97,10 +90,10 @@ public class KsqlApiClient implements ArtefactClient {
     }
 
     return infos.stream()
-            .map(info -> new KsqlArtefact("", server, info.getId()))
-            .map(artefactToString())
-            .filter(s -> !s.isEmpty())
-            .collect(Collectors.toList());
+        .map(info -> new KsqlArtefact("", server, info.getId()))
+        .map(artefactToString())
+        .filter(s -> !s.isEmpty())
+        .collect(Collectors.toList());
   }
 
   public List<String> listTables() throws IOException {
@@ -113,10 +106,10 @@ public class KsqlApiClient implements ArtefactClient {
     }
 
     return infos.stream()
-            .map(tableInfo -> new KsqlArtefact("", server, tableInfo.getName()))
-            .map(artefactToString())
-            .filter(s -> !s.isEmpty())
-            .collect(Collectors.toList());
+        .map(tableInfo -> new KsqlArtefact("", server, tableInfo.getName()))
+        .map(artefactToString())
+        .filter(s -> !s.isEmpty())
+        .collect(Collectors.toList());
   }
 
   private Function<KsqlArtefact, String> artefactToString() {
