@@ -1,6 +1,8 @@
 package com.purbon.kafka.topology.model;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+
+import java.util.Locale;
 import java.util.Objects;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
@@ -35,15 +37,19 @@ public abstract class Artefact {
     if (!(o instanceof Artefact)) return false;
     Artefact artefact = (Artefact) o;
     if (serverLabel != null) {
-      return getServerLabel().equals(artefact.getServerLabel())
-          && Objects.equals(name, artefact.getName());
+      return getServerLabel().equalsIgnoreCase(artefact.getServerLabel())
+          && Objects.equals(name.toLowerCase(), artefact.getName().toLowerCase());
     } else {
-      return Objects.equals(name, artefact.getName());
+      return Objects.equals(name.toLowerCase(), artefact.getName().toLowerCase());
     }
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(getServerLabel(), getName());
+    if (serverLabel != null) {
+      return Objects.hash(getServerLabel().toLowerCase(), getName().toLowerCase());
+    } else {
+      return Objects.hash(getName().toLowerCase());
+    }
   }
 }

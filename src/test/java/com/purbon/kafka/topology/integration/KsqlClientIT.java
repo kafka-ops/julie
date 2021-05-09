@@ -50,12 +50,12 @@ public class KsqlClientIT {
     client.add(sql);
 
     List<String> queries = client.list();
-    assertThat(queries).hasSize(2);
+    assertThat(queries).hasSize(1);
 
     client.delete(streamName, STREAM_TYPE);
 
     queries = client.list();
-    assertThat(queries).hasSize(1);
+    assertThat(queries).hasSize(0);
 
     String tableName = "users";
     sql =
@@ -75,11 +75,11 @@ public class KsqlClientIT {
     client.add(sql);
 
     queries = client.list();
-    assertThat(queries).hasSize(2);
+    assertThat(queries).hasSize(1);
 
     client.delete(tableName, TABLE_TYPE);
 
     queries = client.list();
-    assertThat(queries).hasSize(1);
+    assertThat(queries).hasSize(0);
   }
 }

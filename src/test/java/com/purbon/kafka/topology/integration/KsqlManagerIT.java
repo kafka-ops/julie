@@ -67,6 +67,19 @@ public class KsqlManagerIT {
     testCreateAndUpdatePath(props, file);
   }
 
+  @Test
+  public void testCreateAndUpdatePathWithRemoveClusterState() throws IOException {
+    Properties props = new Properties();
+    props.put(TOPOLOGY_STATE_FROM_CLUSTER, "true");
+    props.put(TOPOLOGY_TOPIC_STATE_FROM_CLUSTER, "false");
+    props.put(ALLOW_DELETE_KSQL_ARTEFACTS, "true");
+    props.put(PLATFORM_SERVER_KSQL, "http://"+client.getServer());
+
+    File file = TestUtils.getResourceFile("/descriptor-ksql.yaml");
+
+    testCreateAndUpdatePath(props, file);
+  }
+
   public void testCreateAndUpdatePath(Properties props, File file) throws IOException {
 
     HashMap<String, String> cliOps = new HashMap<>();
@@ -82,7 +95,7 @@ public class KsqlManagerIT {
     plan.run();
 
     List<String> streams = client.listStreams();
-    assertThat(streams).hasSize(2);
+    assertThat(streams).hasSize(1);
     assertThat(streams).contains("{\"path\":\"\",\"name\":\"RIDERLOCATIONS\"}");
 
     topology.getProjects().get(0).getKsqlArtefacts().getStreams().remove(0);
@@ -95,6 +108,6 @@ public class KsqlManagerIT {
     newPlan.run();
 
     streams = client.listStreams();
-    assertThat(streams).hasSize(1);
+    assertThat(streams).hasSize(0);
   }
 }

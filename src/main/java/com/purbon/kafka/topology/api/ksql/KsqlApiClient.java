@@ -120,6 +120,7 @@ public class KsqlApiClient implements ArtefactClient {
     }
 
     return infos.stream()
+        .filter(e -> !"KSQL_PROCESSING_LOG".equalsIgnoreCase(e.getName()))
         .map(queryInfo -> new KsqlStreamArtefact("", server, queryInfo.getName()))
         .map(artefactToString())
         .filter(s -> !s.isEmpty())

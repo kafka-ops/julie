@@ -86,12 +86,12 @@ public class KSqlArtefactManager extends ArtefactManager {
               if (artefact instanceof KsqlStreamArtefact) {
                 return new KsqlStreamArtefact(
                     artefact.getPath(),
-                    reverseLookup(artefact.getServerLabel()),
+                    null,
                     artefact.getName());
               } else if (artefact instanceof KsqlTableArtefact) {
                 return new KsqlTableArtefact(
                     artefact.getPath(),
-                    reverseLookup(artefact.getServerLabel()),
+                    null,
                     artefact.getName());
               } else {
                 LOGGER.error("KSQL Artefact of wrong type " + artefact.getClass());
@@ -100,10 +100,6 @@ public class KSqlArtefactManager extends ArtefactManager {
             })
         .filter(Objects::nonNull)
         .collect(Collectors.toSet());
-  }
-
-  private String reverseLookup(String host) {
-    return config.getKSQLServer();
   }
 
   @Override
