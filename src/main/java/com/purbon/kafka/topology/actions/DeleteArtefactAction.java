@@ -2,6 +2,7 @@ package com.purbon.kafka.topology.actions;
 
 import com.purbon.kafka.topology.clients.ArtefactClient;
 import com.purbon.kafka.topology.model.Artefact;
+import com.purbon.kafka.topology.model.artefact.TypeArtefact;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
@@ -25,7 +26,15 @@ public class DeleteArtefactAction extends BaseAction {
     LOGGER.debug(
         String.format(
             "Deleting artefact %s with client %s", artefact.getName(), client.getClass()));
-    client.delete(artefact.getName());
+
+    if (artefact.getClass().isAnnotationPresent(TypeArtefact.class)) {
+      TypeArtefact annon = artefact.getClass().getAnnotation(TypeArtefact.class);
+      LOGGER.debug("Deleting artefact with type " + annon.name());
+      client.delete(artefact.getName(), annon.name());
+
+    } else {
+      client.delete(artefact.getName());
+    }
   }
 
   public Artefact getArtefact() {

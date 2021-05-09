@@ -263,11 +263,11 @@ public class TopologySerdesTest {
     KsqlArtefacts artefacts = project.getKsqlArtefacts();
     assertThat(artefacts.getStreams()).hasSize(1);
     KsqlStreamArtefact artefact = artefacts.getStreams().get(0);
-    assertThat(artefact.getName()).isEqualTo("stream0");
+    assertThat(artefact.getName()).isEqualTo("riderLocations");
 
     assertThat(artefacts.getTables()).hasSize(1);
     KsqlTableArtefact tableArtefact = artefacts.getTables().get(0);
-    assertThat(tableArtefact.getName()).isEqualTo("table0");
+    assertThat(tableArtefact.getName()).isEqualTo("users");
   }
 
   @Test

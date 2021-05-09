@@ -15,6 +15,7 @@ public final class SaslPlaintextKafkaContainer extends AlternativeKafkaContainer
   public static final String DEFAULT_SUPER_USERNAME = "kafka";
   public static final String DEFAULT_SUPER_PASSWORD = "kafka";
   private static final String JAAS_CONFIG_FILE = "/tmp/broker_jaas.conf";
+  private final Network network;
   private String superUsername = DEFAULT_SUPER_USERNAME;
   private String superPassword = DEFAULT_SUPER_PASSWORD;
   private final Map<String, String> usernamesAndPasswords = new HashMap<>();
@@ -51,8 +52,14 @@ public final class SaslPlaintextKafkaContainer extends AlternativeKafkaContainer
     withUser("bob", "bob-secret");
     withAclAuthorizer();
     withNetworkAliases("kafka");
-    Network network = Network.newNetwork();
+    network = Network.newNetwork();
     withNetwork(network);
+  }
+
+  @Override
+  public void stop() {
+    super.stop();
+    network.close();
   }
 
   public SaslPlaintextKafkaContainer withSuperUser(final String username, final String password) {

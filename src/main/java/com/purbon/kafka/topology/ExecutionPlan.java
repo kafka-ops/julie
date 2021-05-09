@@ -11,6 +11,9 @@ import com.purbon.kafka.topology.actions.topics.DeleteTopics;
 import com.purbon.kafka.topology.actions.topics.SyncTopicAction;
 import com.purbon.kafka.topology.model.Artefact;
 import com.purbon.kafka.topology.model.artefact.KafkaConnectArtefact;
+import com.purbon.kafka.topology.model.artefact.KsqlArtefact;
+import com.purbon.kafka.topology.model.artefact.KsqlStreamArtefact;
+import com.purbon.kafka.topology.model.artefact.KsqlTableArtefact;
 import com.purbon.kafka.topology.model.cluster.ServiceAccount;
 import com.purbon.kafka.topology.roles.TopologyAclBinding;
 import com.purbon.kafka.topology.utils.StreamUtils;
@@ -23,6 +26,8 @@ import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -31,27 +36,36 @@ public class ExecutionPlan {
   private static final Logger LOGGER = LogManager.getLogger(ExecutionPlan.class);
 
   private final List<Action> plan;
-  private PrintStream outputStream;
-  private BackendController backendController;
+  private final PrintStream outputStream;
+  private final BackendController backendController;
+
   private Set<TopologyAclBinding> bindings;
   private Set<ServiceAccount> serviceAccounts;
   private Set<String> topics;
   private Set<KafkaConnectArtefact> connectors;
+  private Set<KsqlStreamArtefact> ksqlStreams;
+  private Set<KsqlTableArtefact> ksqlTables;
 
   private ExecutionPlan(
       List<Action> plan, PrintStream outputStream, BackendController backendController) {
     this.plan = plan;
     this.outputStream = outputStream;
+
     this.bindings = new HashSet<>();
     this.serviceAccounts = new HashSet<>();
     this.topics = new HashSet<>();
     this.connectors = new HashSet<>();
+    this.ksqlStreams = new HashSet<>();
+    this.ksqlTables = new HashSet<>();
     this.backendController = backendController;
+
     if (backendController.size() > 0) {
       this.bindings.addAll(backendController.getBindings());
       this.serviceAccounts.addAll(backendController.getServiceAccounts());
       this.topics.addAll(backendController.getTopics());
       this.connectors.addAll(backendController.getConnectors());
+      this.ksqlStreams.addAll(backendController.getKSqlStreams());
+      this.ksqlTables.addAll(backendController.getKSqlTables());
     }
   }
 
@@ -85,6 +99,8 @@ public class ExecutionPlan {
     backendController.addServiceAccounts(serviceAccounts);
     backendController.addTopics(topics);
     backendController.addConnectors(connectors);
+    backendController.addKSqlStreams(ksqlStreams);
+    backendController.addKSqlTables(ksqlTables);
     backendController.flushAndClose();
   }
 
@@ -94,6 +110,8 @@ public class ExecutionPlan {
       outputStream.println(action);
     } else {
       action.run();
+      // TODO: a nicer and more clean version of this might be a cool thing to have, current version
+      // is shitty.
       if (action instanceof SyncTopicAction) {
         topics.add(((SyncTopicAction) action).getTopic());
       } else if (action instanceof DeleteTopics) {
@@ -122,15 +140,30 @@ public class ExecutionPlan {
           serviceAccounts.addAll(createAction.getPrincipals());
         }
       }
-      // TODO: will need to be extended when KSQL and other artefacts might be managed via JulieOps
+
       if (action instanceof CreateArtefactAction) {
         Artefact artefact = ((CreateArtefactAction) action).getArtefact();
-        connectors.add((KafkaConnectArtefact) artefact);
+        if (artefact instanceof KafkaConnectArtefact) {
+          connectors.add((KafkaConnectArtefact) artefact);
+        } else if (artefact instanceof KsqlStreamArtefact) {
+          ksqlStreams.add((KsqlStreamArtefact) artefact);
+        } else if (artefact instanceof KsqlTableArtefact) {
+          ksqlTables.add((KsqlTableArtefact) artefact);
+        }
       } else if (action instanceof DeleteArtefactAction) {
         Artefact toBeDeleted = ((DeleteArtefactAction) action).getArtefact();
-        connectors =
-            new StreamUtils<>(connectors.stream())
-                .filterAsSet(connector -> !connector.equals(toBeDeleted));
+        if (toBeDeleted instanceof KafkaConnectArtefact) {
+          connectors =
+              new StreamUtils<>(connectors.stream())
+                  .filterAsSet(connector -> !connector.equals(toBeDeleted));
+        } else if (toBeDeleted instanceof KsqlStreamArtefact) {
+          ksqlStreams =
+              new StreamUtils<>(ksqlStreams.stream())
+                  .filterAsSet(ksql -> !ksql.equals(toBeDeleted));
+        } else if (toBeDeleted instanceof KsqlTableArtefact) {
+          ksqlTables =
+              new StreamUtils<>(ksqlTables.stream()).filterAsSet(ksql -> !ksql.equals(toBeDeleted));
+        }
       }
     }
   }
@@ -153,5 +186,11 @@ public class ExecutionPlan {
 
   public Set<KafkaConnectArtefact> getConnectors() {
     return connectors;
+  }
+
+  public Set<? extends KsqlArtefact> getKSqlArtefacts() {
+    return Stream.of(ksqlStreams, ksqlTables)
+        .flatMap(Collection::stream)
+        .collect(Collectors.toSet());
   }
 }
