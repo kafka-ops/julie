@@ -69,8 +69,10 @@ What can you achieve with this tool:
     * Kafka Producers
     * Kafka Connect 
     * Kafka Streams applications ( microservices )
+    * KSQL applications
     * Schema Registry instances
     * Confluent Control Center
+    * KSQL server instances
 * Manage topic naming with a topic name convention
     * Including the definition of *projects*, *teams*, *datatypes* and for sure the topic name
     * Some of the topics are flexible defined by user requirements

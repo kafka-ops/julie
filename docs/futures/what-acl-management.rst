@@ -165,6 +165,51 @@ If you are having more than one Kafka Connect cluster you can specify a custom g
 
 When using RBAC, you can add under each principal the connectors it can use and this principals will only have visibility over them.
 
+KSQL servers and queries
+^^^^^^^^^^^
+
+In a similar fashion as with the previous roles, users can setup specific KSQL setups.
+In JulieOps you can manage either single KSQL queries or ACL to deploy KSQL servers using a given Kafka Cluster.
+
+*Note* When using RBAC, according role bindings will be created
+
+.. code-block:: YAML
+
+  ---
+    context: "context"
+    projects:
+        - name: "foo"
+          ksql:
+            artefacts:
+                streams:
+                    - path: "ksql-streams/riderlocations.sql"
+                      name: "riderLocations"
+                tables:
+                    - path: "ksql-tables/users.sql"
+                      name: "users"
+            access_control:
+                - principal: "User:ksql0"
+                  topics:
+                    read:
+                        - "topicA"
+                    write:
+                        - "topicC"
+        topics:
+          - name: "foo"
+            config:
+              replication.factor: "1"
+              num.partitions: "1"
+    platform:
+      ksql:
+        instances:
+          - principal: "User:ksql"
+            ksqlDbId: "ksql-server1"
+            owner: "User:foo"
+          - principal: "User:ksql"
+            ksqlDbId: "ksql-server2"
+            owner: "User:foo"
+
+
 Schema Registry
 ^^^^^^^^^^^
 
