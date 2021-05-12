@@ -16,7 +16,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Optional;
 import java.util.Properties;
 import org.apache.kafka.common.acl.AccessControlEntry;
 import org.apache.kafka.common.acl.AclBinding;
@@ -57,6 +56,23 @@ public class AclsBindingsBuilderTest {
   }
 
   @Test
+  public void testConsumerAclsBuilderWithGroupPrefix() {
+
+    Consumer consumer = new Consumer("User:foo", "foo*");
+
+    List<TopologyAclBinding> aclBindings =
+        builder.buildBindingsForConsumers(Collections.singleton(consumer), "bar", false);
+    assertThat(aclBindings.size()).isEqualTo(3);
+    assertThat(aclBindings)
+        .contains(buildTopicLevelAcl("User:foo", "bar", PatternType.LITERAL, AclOperation.READ));
+    assertThat(aclBindings)
+        .contains(
+            buildTopicLevelAcl("User:foo", "bar", PatternType.LITERAL, AclOperation.DESCRIBE));
+    assertThat(aclBindings)
+        .contains(buildGroupLevelAcl("User:foo", "foo", PatternType.PREFIXED, AclOperation.READ));
+  }
+
+  @Test
   public void testProducerAclsBuilder() {
     Producer producer = new Producer("User:foo");
     List<TopologyAclBinding> aclBindings =
@@ -71,8 +87,7 @@ public class AclsBindingsBuilderTest {
 
   @Test
   public void testProducerWithTxIdAclsBuilder() {
-    Producer producer = new Producer("User:foo");
-    producer.setTransactionId(Optional.of("1234"));
+    Producer producer = new Producer("User:foo", "1234", true);
     List<TopologyAclBinding> aclBindings =
         builder.buildBindingsForProducers(Collections.singleton(producer), "bar", false);
     assertThat(aclBindings.size()).isEqualTo(5);
@@ -104,9 +119,35 @@ public class AclsBindingsBuilderTest {
   }
 
   @Test
+  public void testProducerWithTxIdPrefixAclsBuilder() {
+    Producer producer = new Producer("User:foo", "foo*", true);
+    List<TopologyAclBinding> aclBindings =
+        builder.buildBindingsForProducers(Collections.singleton(producer), "bar", false);
+    assertThat(aclBindings.size()).isEqualTo(5);
+
+    assertThat(aclBindings)
+        .contains(buildTopicLevelAcl("User:foo", "bar", PatternType.LITERAL, AclOperation.WRITE));
+    assertThat(aclBindings)
+        .contains(
+            buildTopicLevelAcl("User:foo", "bar", PatternType.LITERAL, AclOperation.DESCRIBE));
+
+    assertThat(aclBindings)
+        .contains(
+            buildTransactionIdLevelAcl(
+                "User:foo", "foo", PatternType.PREFIXED, AclOperation.DESCRIBE));
+
+    assertThat(aclBindings)
+        .contains(
+            buildTransactionIdLevelAcl(
+                "User:foo", "foo", PatternType.PREFIXED, AclOperation.WRITE));
+
+    assertThat(aclBindings)
+        .contains(buildClusterLevelAcl(producer.getPrincipal(), AclOperation.IDEMPOTENT_WRITE));
+  }
+
+  @Test
   public void testIdempotenceProducerAclsBuilder() {
-    Producer producer = new Producer("User:foo");
-    producer.setIdempotence(Optional.of(true));
+    Producer producer = new Producer("User:foo", null, true);
     List<TopologyAclBinding> aclBindings =
         builder.buildBindingsForProducers(Collections.singleton(producer), "bar", false);
     assertThat(aclBindings.size()).isEqualTo(3);

@@ -16,9 +16,13 @@ public class Producer extends User {
   }
 
   public Producer(String principal) {
+    this(principal, null, null);
+  }
+
+  public Producer(String principal, String transactionId, Boolean idempotence) {
     super(principal);
-    transactionId = Optional.empty();
-    idempotence = Optional.empty();
+    this.transactionId = Optional.ofNullable(transactionId);
+    this.idempotence = Optional.ofNullable(idempotence);
   }
 
   public Optional<String> getTransactionId() {

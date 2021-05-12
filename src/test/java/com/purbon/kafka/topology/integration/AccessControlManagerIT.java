@@ -220,8 +220,7 @@ public class AccessControlManagerIT {
       throws ExecutionException, InterruptedException, IOException {
 
     List<Producer> producers = new ArrayList<>();
-    Producer producer = new Producer("User:Producer12");
-    producer.setTransactionId(Optional.of("1234"));
+    Producer producer = new Producer("User:Producer12", "1234", true);
     producers.add(producer);
 
     Project project = new ProjectImpl("project");
@@ -245,8 +244,7 @@ public class AccessControlManagerIT {
       throws ExecutionException, InterruptedException, IOException {
 
     List<Producer> producers = new ArrayList<>();
-    Producer producer = new Producer("User:Producer13");
-    producer.setIdempotence(Optional.of(true));
+    Producer producer = new Producer("User:Producer13", null, true);
     producers.add(producer);
 
     Project project = new ProjectImpl("project");
