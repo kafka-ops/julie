@@ -4,6 +4,8 @@ import com.purbon.kafka.topology.backend.Backend;
 import com.purbon.kafka.topology.backend.BackendState;
 import com.purbon.kafka.topology.backend.FileBackend;
 import com.purbon.kafka.topology.model.artefact.KafkaConnectArtefact;
+import com.purbon.kafka.topology.model.artefact.KsqlStreamArtefact;
+import com.purbon.kafka.topology.model.artefact.KsqlTableArtefact;
 import com.purbon.kafka.topology.model.cluster.ServiceAccount;
 import com.purbon.kafka.topology.roles.TopologyAclBinding;
 import java.io.IOException;
@@ -54,6 +56,16 @@ public class BackendController {
     state.addConnectors(connectors);
   }
 
+  public void addKSqlStreams(Set<KsqlStreamArtefact> ksqlStreams) {
+    LOGGER.debug(String.format("Adding KSQL Streams %s to the backend", ksqlStreams));
+    state.addKSqlStreams(ksqlStreams);
+  }
+
+  public void addKSqlTables(Set<KsqlTableArtefact> ksqlTable) {
+    LOGGER.debug(String.format("Adding KSQL Table %s to the backend", ksqlTable));
+    state.addKSqlTables(ksqlTable);
+  }
+
   public Set<ServiceAccount> getServiceAccounts() {
     return state.getAccounts();
   }
@@ -68,6 +80,14 @@ public class BackendController {
 
   public Set<KafkaConnectArtefact> getConnectors() {
     return state.getConnectors();
+  }
+
+  public Set<KsqlStreamArtefact> getKSqlStreams() {
+    return state.getKSqlStreams();
+  }
+
+  public Set<KsqlTableArtefact> getKSqlTables() {
+    return state.getKSqlTables();
   }
 
   public void flushAndClose() throws IOException {

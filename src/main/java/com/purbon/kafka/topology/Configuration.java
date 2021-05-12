@@ -310,6 +310,10 @@ public class Configuration {
     return config.getBoolean(ALLOW_DELETE_CONNECT_ARTEFACTS);
   }
 
+  public boolean isAllowDeleteKsqlArtefacts() {
+    return config.getBoolean(ALLOW_DELETE_KSQL_ARTEFACTS);
+  }
+
   public boolean enabledPrincipalTranslation() {
     return config.getBoolean(TOPOLOGY_PRINCIPAL_TRANSLATION_ENABLED_CONFIG);
   }
@@ -368,5 +372,13 @@ public class Configuration {
               }
             })
         .collect(Collectors.toMap(Pair::getKey, Pair::getValue));
+  }
+
+  public String getKSQLServer() {
+    return config.getString(PLATFORM_SERVER_KSQL);
+  }
+
+  public boolean hasKSQLServer() {
+    return config.hasPath(PLATFORM_SERVER_KSQL);
   }
 }

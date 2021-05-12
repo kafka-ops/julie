@@ -5,6 +5,7 @@ import static com.purbon.kafka.topology.Constants.*;
 import com.purbon.kafka.topology.api.adminclient.TopologyBuilderAdminClient;
 import com.purbon.kafka.topology.api.adminclient.TopologyBuilderAdminClientBuilder;
 import com.purbon.kafka.topology.api.connect.KConnectApiClient;
+import com.purbon.kafka.topology.api.ksql.KsqlApiClient;
 import com.purbon.kafka.topology.api.mds.MDSApiClientBuilder;
 import com.purbon.kafka.topology.backend.*;
 import com.purbon.kafka.topology.exceptions.ValidationException;
@@ -37,6 +38,7 @@ public class JulieOps implements AutoCloseable {
   private final PrincipalManager principalManager;
   private AccessControlManager accessControlManager;
   private KafkaConnectArtefactManager connectorManager;
+  private KSqlArtefactManager kSqlArtefactManager;
   private final Topology topology;
   private final Configuration config;
   private final PrintStream outputStream;
@@ -47,13 +49,15 @@ public class JulieOps implements AutoCloseable {
       TopicManager topicManager,
       AccessControlManager accessControlManager,
       PrincipalManager principalManager,
-      KafkaConnectArtefactManager connectorManager) {
+      KafkaConnectArtefactManager connectorManager,
+      KSqlArtefactManager kSqlArtefactManager) {
     this.topology = topology;
     this.config = config;
     this.topicManager = topicManager;
     this.accessControlManager = accessControlManager;
     this.principalManager = principalManager;
     this.connectorManager = connectorManager;
+    this.kSqlArtefactManager = kSqlArtefactManager;
     this.outputStream = System.out;
   }
 
@@ -155,8 +159,17 @@ public class JulieOps implements AutoCloseable {
     KafkaConnectArtefactManager connectorManager =
         configureKConnectArtefactManager(config, topologyFileOrDir);
 
+    KSqlArtefactManager kSqlArtefactManager =
+        configureKSqlArtefactManager(config, topologyFileOrDir);
+
     return new JulieOps(
-        topology, config, topicManager, accessControlManager, principalManager, connectorManager);
+        topology,
+        config,
+        topicManager,
+        accessControlManager,
+        principalManager,
+        connectorManager,
+        kSqlArtefactManager);
   }
 
   private static KafkaConnectArtefactManager configureKConnectArtefactManager(
@@ -172,6 +185,26 @@ public class JulieOps implements AutoCloseable {
     }
 
     return new KafkaConnectArtefactManager(clients, config, topologyFileOrDir);
+  }
+
+  private static KSqlArtefactManager configureKSqlArtefactManager(
+      Configuration config, String topologyFileOrDir) {
+
+    Map<String, KsqlApiClient> clients = new HashMap<>();
+    if (config.hasKSQLServer()) {
+      String ksqlAddress = config.getKSQLServer();
+      String server = ksqlAddress.substring(0, ksqlAddress.lastIndexOf(":"));
+      Integer port = Integer.parseInt(ksqlAddress.substring(ksqlAddress.lastIndexOf(":") + 1));
+      KsqlApiClient client = new KsqlApiClient(server, port);
+      clients.put("default", client);
+    }
+
+    if (clients.isEmpty()) {
+      LOGGER.debug(
+          "No KSQL clients configured for JulieOps to use, please verify your config file");
+    }
+
+    return new KSqlArtefactManager(clients, config, topologyFileOrDir);
   }
 
   static void verifyRequiredParameters(String topologyFile, Map<String, String> config)
@@ -199,6 +232,7 @@ public class JulieOps implements AutoCloseable {
     accessControlManager.apply(topology, plan);
 
     connectorManager.apply(topology, plan);
+    kSqlArtefactManager.apply(topology, plan);
 
     // Delete users should always be last,
     // avoids any unlinked acls, e.g. if acl delete or something errors then there is a link still
@@ -212,6 +246,7 @@ public class JulieOps implements AutoCloseable {
       accessControlManager.printCurrentState(System.out);
       principalManager.printCurrentState(System.out);
       connectorManager.printCurrentState(System.out);
+      kSqlArtefactManager.printCurrentState(System.out);
     }
   }
 
@@ -277,5 +312,9 @@ public class JulieOps implements AutoCloseable {
 
   public void setConnectorManager(KafkaConnectArtefactManager connectorManager) {
     this.connectorManager = connectorManager;
+  }
+
+  public void setKsqlArtefactManager(KSqlArtefactManager kSqlArtefactManager) {
+    this.kSqlArtefactManager = kSqlArtefactManager;
   }
 }

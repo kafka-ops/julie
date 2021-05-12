@@ -3,6 +3,8 @@ package com.purbon.kafka.topology.backend;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.purbon.kafka.topology.model.artefact.KafkaConnectArtefact;
+import com.purbon.kafka.topology.model.artefact.KsqlStreamArtefact;
+import com.purbon.kafka.topology.model.artefact.KsqlTableArtefact;
 import com.purbon.kafka.topology.model.cluster.ServiceAccount;
 import com.purbon.kafka.topology.roles.TopologyAclBinding;
 import com.purbon.kafka.topology.utils.JSON;
@@ -16,12 +18,16 @@ public class BackendState {
   private final Set<ServiceAccount> accounts;
   private final Set<String> topics;
   private final Set<KafkaConnectArtefact> connectors;
+  private final Set<KsqlStreamArtefact> ksqlStreams;
+  private final Set<KsqlTableArtefact> ksqlTables;
 
   public BackendState() {
     this.accounts = new HashSet<>();
     this.bindings = new HashSet<>();
     this.topics = new HashSet<>();
     this.connectors = new HashSet<>();
+    this.ksqlStreams = new HashSet<>();
+    this.ksqlTables = new HashSet<>();
   }
 
   public void addAccounts(Collection<ServiceAccount> accounts) {
@@ -40,6 +46,14 @@ public class BackendState {
     this.connectors.addAll(connectors);
   }
 
+  public void addKSqlStreams(Collection<KsqlStreamArtefact> ksqlStreams) {
+    this.ksqlStreams.addAll(ksqlStreams);
+  }
+
+  public void addKSqlTables(Collection<KsqlTableArtefact> ksqlTables) {
+    this.ksqlTables.addAll(ksqlTables);
+  }
+
   public Set<TopologyAclBinding> getBindings() {
     return bindings;
   }
@@ -56,6 +70,14 @@ public class BackendState {
     return connectors;
   }
 
+  public Set<KsqlStreamArtefact> getKSqlStreams() {
+    return ksqlStreams;
+  }
+
+  public Set<KsqlTableArtefact> getKSqlTables() {
+    return ksqlTables;
+  }
+
   @JsonIgnore
   public String asJson() throws JsonProcessingException {
     return JSON.asString(this);
@@ -66,9 +88,16 @@ public class BackendState {
     accounts.clear();
     topics.clear();
     connectors.clear();
+    ksqlStreams.clear();
+    ksqlTables.clear();
   }
 
   public int size() {
-    return bindings.size() + accounts.size() + topics.size() + connectors.size();
+    return bindings.size()
+        + accounts.size()
+        + topics.size()
+        + connectors.size()
+        + ksqlTables.size()
+        + ksqlStreams.size();
   }
 }

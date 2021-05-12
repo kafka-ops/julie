@@ -103,6 +103,32 @@ public class MDSApiClientRbacIT extends MDSBaseTest {
   }
 
   @Test
+  public void testBindSubjectRole() throws IOException {
+    apiClient.login(mdsUser, mdsPassword);
+    apiClient.authenticate();
+    apiClient.setKafkaClusterId(getKafkaClusterID());
+    apiClient.setSchemaRegistryClusterID("schema-registry");
+
+    String principal = "User:foo" + System.currentTimeMillis();
+    String subject = "topic-value";
+
+    TopologyAclBinding binding =
+        apiClient
+            .bind(principal, DEVELOPER_READ)
+            .forSchemaSubject(subject)
+            .apply("Subject", subject);
+
+    apiClient.bindRequest(binding);
+
+    Map<String, Map<String, String>> clusters =
+        apiClient.withClusterIDs().forKafka().forSchemaRegistry().asMap();
+
+    List<String> roles = apiClient.lookupRoles(principal, clusters);
+    assertEquals(1, roles.size());
+    assertTrue(roles.contains(DEVELOPER_READ));
+  }
+
+  @Test
   public void testBindResourceOwnerRole() throws IOException {
     apiClient.login(mdsUser, mdsPassword);
     apiClient.authenticate();

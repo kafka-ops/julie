@@ -12,7 +12,7 @@ public class TopologyAclBinding implements Comparable<TopologyAclBinding> {
 
   private Optional<AclBinding> aclBindingOptional;
 
-  private ResourceType resourceType;
+  private String resourceType;
   private String resourceName;
   private String host;
   private String operation;
@@ -30,7 +30,7 @@ public class TopologyAclBinding implements Comparable<TopologyAclBinding> {
    * @param pattern a pattern to match this acl
    */
   public TopologyAclBinding(
-      ResourceType resourceType,
+      String resourceType,
       String resourceName,
       String host,
       String operation,
@@ -65,11 +65,12 @@ public class TopologyAclBinding implements Comparable<TopologyAclBinding> {
       String pattern) {
 
     ResourceType resourceType = ResourceType.valueOf(resourceTypeString);
-    return new TopologyAclBinding(resourceType, resourceName, host, operation, principal, pattern);
+    return new TopologyAclBinding(
+        resourceType.name(), resourceName, host, operation, principal, pattern);
   }
 
   public TopologyAclBinding() {
-    this(ResourceType.ANY, "", "", "", "", "");
+    this(ResourceType.ANY.name(), "", "", "", "", "");
   }
 
   public TopologyAclBinding(AclBinding binding) {
@@ -79,7 +80,7 @@ public class TopologyAclBinding implements Comparable<TopologyAclBinding> {
     AccessControlEntry entry = binding.entry();
     ResourcePattern pattern = binding.pattern();
 
-    this.resourceType = pattern.resourceType();
+    this.resourceType = pattern.resourceType().name();
     this.resourceName = pattern.name();
     this.principal = entry.principal();
     this.operation = entry.operation().name();
@@ -91,7 +92,7 @@ public class TopologyAclBinding implements Comparable<TopologyAclBinding> {
     return aclBindingOptional;
   }
 
-  public ResourceType getResourceType() {
+  public String getResourceType() {
     return resourceType;
   }
 
@@ -111,7 +112,7 @@ public class TopologyAclBinding implements Comparable<TopologyAclBinding> {
     return host;
   }
 
-  public void setResourceType(ResourceType resourceType) {
+  public void setResourceType(String resourceType) {
     this.resourceType = resourceType;
   }
 
@@ -166,7 +167,7 @@ public class TopologyAclBinding implements Comparable<TopologyAclBinding> {
       return false;
     }
     TopologyAclBinding binding = (TopologyAclBinding) o;
-    return getResourceType() == binding.getResourceType()
+    return getResourceType().equals(binding.getResourceType())
         && getResourceName().equals(binding.getResourceName())
         && getHost().equals(binding.getHost())
         && getOperation().equals(binding.getOperation())
@@ -177,12 +178,7 @@ public class TopologyAclBinding implements Comparable<TopologyAclBinding> {
   @Override
   public int hashCode() {
     return Objects.hash(
-        getResourceType(),
-        getResourceName(),
-        getHost(),
-        getOperation(),
-        getPrincipal(),
-        getPattern());
+        resourceType, getResourceName(), getHost(), getOperation(), getPrincipal(), getPattern());
   }
 
   private RequestScope scope;

@@ -8,7 +8,9 @@ import com.purbon.kafka.topology.api.adminclient.AclBuilder;
 import com.purbon.kafka.topology.api.ccloud.CCloudCLI;
 import com.purbon.kafka.topology.model.users.Connector;
 import com.purbon.kafka.topology.model.users.Consumer;
+import com.purbon.kafka.topology.model.users.KSqlApp;
 import com.purbon.kafka.topology.model.users.Producer;
+import com.purbon.kafka.topology.model.users.platform.KsqlServerInstance;
 import com.purbon.kafka.topology.model.users.platform.SchemaRegistryInstance;
 import com.purbon.kafka.topology.roles.TopologyAclBinding;
 import com.purbon.kafka.topology.utils.CCloudUtils;
@@ -119,6 +121,16 @@ public class AclsBindingsBuilder implements BindingsBuilderProvider {
   @Override
   public List<TopologyAclBinding> buildBindingsForControlCenter(String principal, String appId) {
     return toList(controlCenterStream(translate(principal), appId));
+  }
+
+  @Override
+  public Collection<TopologyAclBinding> buildBindingsForKSqlServer(KsqlServerInstance ksqlServer) {
+    return toList(ksqlServerStream(ksqlServer));
+  }
+
+  @Override
+  public Collection<TopologyAclBinding> buildBindingsForKSqlApp(KSqlApp app, String prefix) {
+    return toList(ksqlAppStream(app, prefix));
   }
 
   private List<TopologyAclBinding> toList(Stream<AclBinding> bindingStream) {
@@ -249,6 +261,60 @@ public class AclsBindingsBuilder implements BindingsBuilderProvider {
         new AccessControlEntry(
             principal, "*", AclOperation.DESCRIBE_CONFIGS, AclPermissionType.ALLOW);
     bindings.add(new AclBinding(resourcePattern, entry));
+    return bindings.stream();
+  }
+
+  private Stream<AclBinding> ksqlServerStream(KsqlServerInstance ksqlServer) {
+    String principal = translate(ksqlServer.getPrincipal());
+
+    List<AclBinding> bindings = new ArrayList<>();
+
+    ResourcePattern resourcePattern =
+        new ResourcePattern(ResourceType.CLUSTER, "kafka-cluster", PatternType.LITERAL);
+    AccessControlEntry entry =
+        new AccessControlEntry(
+            principal, "*", AclOperation.DESCRIBE_CONFIGS, AclPermissionType.ALLOW);
+    bindings.add(new AclBinding(resourcePattern, entry));
+
+    bindings.add(
+        buildTopicLevelAcl(
+            principal, ksqlServer.commandTopic(), PatternType.LITERAL, AclOperation.ALL));
+    bindings.add(
+        buildTopicLevelAcl(
+            principal, ksqlServer.processingLogTopic(), PatternType.LITERAL, AclOperation.ALL));
+    bindings.add(
+        buildGroupLevelAcl(
+            principal, ksqlServer.consumerGroupPrefix(), PatternType.PREFIXED, AclOperation.ALL));
+
+    return bindings.stream();
+  }
+
+  private Stream<AclBinding> ksqlAppStream(KSqlApp app, String prefix) {
+    String principal = translate(app.getPrincipal());
+
+    List<AclBinding> bindings = new ArrayList<>();
+
+    Optional<List<String>> readTopics = Optional.ofNullable(app.getTopics().get("read"));
+    readTopics.ifPresent(
+        topics -> {
+          for (String topic : topics) {
+            bindings.add(
+                buildTopicLevelAcl(principal, topic, PatternType.LITERAL, AclOperation.READ));
+          }
+        });
+
+    Optional<List<String>> writeTopics = Optional.ofNullable(app.getTopics().get("write"));
+    writeTopics.ifPresent(
+        topics -> {
+          for (String topic : topics) {
+            bindings.add(
+                buildTopicLevelAcl(principal, topic, PatternType.LITERAL, AclOperation.WRITE));
+          }
+        });
+
+    bindings.add(buildTopicLevelAcl(principal, prefix, PatternType.PREFIXED, AclOperation.ALL));
+    bindings.add(buildGroupLevelAcl(principal, prefix, PatternType.PREFIXED, AclOperation.ALL));
+
     return bindings.stream();
   }
 

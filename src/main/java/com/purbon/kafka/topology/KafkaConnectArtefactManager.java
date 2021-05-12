@@ -89,7 +89,7 @@ public class KafkaConnectArtefactManager extends ArtefactManager {
   @Override
   Set<KafkaConnectArtefact> parseNewArtefacts(Topology topology) {
     return topology.getProjects().stream()
-        .flatMap(project -> project.getConnectorArtefacts().stream())
+        .flatMap(project -> project.getConnectorArtefacts().getConnectors().stream())
         .collect(Collectors.toSet());
   }
 

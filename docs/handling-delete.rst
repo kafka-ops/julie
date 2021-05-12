@@ -47,3 +47,19 @@ The user can control principals deletion by:
 
 - setting the *allow.delete.principals* configuration in the provided file to the tool.
 - set the ENV variable *ALLOW_DELETE_PRINCIPALS* when calling the tool from the CLI.
+
+Connectors deletion flag
+^^^^^^^^^^^
+
+The user can control connector deletion by:
+
+- setting the *allow.delete.artefacts.connect* configuration in the provided file to the tool.
+- set the ENV variable *ALLOW_DELETE_ARTEFACTS_CONNECT* when calling the tool from the CLI.
+
+KSQL queries deletion flag
+^^^^^^^^^^^
+
+The user can control connector deletion by:
+
+- setting the *allow.delete.artefacts.ksql* configuration in the provided file to the tool.
+- set the ENV variable *ALLOW_DELETE_ARTEFACTS_KSQL* when calling the tool from the CLI.

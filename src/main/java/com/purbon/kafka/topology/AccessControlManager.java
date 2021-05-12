@@ -15,10 +15,12 @@ import com.purbon.kafka.topology.model.Topology;
 import com.purbon.kafka.topology.model.User;
 import com.purbon.kafka.topology.model.users.Connector;
 import com.purbon.kafka.topology.model.users.Consumer;
+import com.purbon.kafka.topology.model.users.KSqlApp;
 import com.purbon.kafka.topology.model.users.KStream;
 import com.purbon.kafka.topology.model.users.Producer;
 import com.purbon.kafka.topology.model.users.Schemas;
 import com.purbon.kafka.topology.model.users.platform.ControlCenterInstance;
+import com.purbon.kafka.topology.model.users.platform.KsqlServerInstance;
 import com.purbon.kafka.topology.model.users.platform.SchemaRegistryInstance;
 import com.purbon.kafka.topology.roles.TopologyAclBinding;
 import com.purbon.kafka.topology.utils.Either;
@@ -110,6 +112,9 @@ public class AccessControlManager {
       String topicPrefix = project.namePrefix();
       for (KStream app : project.getStreams()) {
         syncApplicationAcls(app, topicPrefix).ifPresent(actions::add);
+      }
+      for (KSqlApp kSqlApp : project.getKSqls()) {
+        syncApplicationAcls(kSqlApp, topicPrefix).ifPresent(actions::add);
       }
       for (Connector connector : project.getConnectors()) {
         syncApplicationAcls(connector, topicPrefix).ifPresent(actions::add);
@@ -261,13 +266,12 @@ public class AccessControlManager {
       return matchesServiceAccountPrefixList(principle);
     }
 
-    switch (topologyAclBinding.getResourceType()) {
-      case TOPIC:
-        return matchesTopicPrefixList(resourceName);
-      case GROUP:
-        return matchesGroupPrefixList(resourceName);
-      default:
-        return matchesServiceAccountPrefixList(principle);
+    if ("TOPIC".equalsIgnoreCase(topologyAclBinding.getResourceType())) {
+      return matchesTopicPrefixList(resourceName);
+    } else if ("GROUP".equalsIgnoreCase(topologyAclBinding.getResourceType())) {
+      return matchesGroupPrefixList(resourceName);
+    } else {
+      return matchesServiceAccountPrefixList(principle);
     }
   }
 
@@ -306,6 +310,11 @@ public class AccessControlManager {
     for (ControlCenterInstance controlCenter : platform.getControlCenter().getInstances()) {
       actions.add(new BuildBindingsForControlCenter(bindingsBuilder, controlCenter));
     }
+
+    for (KsqlServerInstance ksqlServer : platform.getKsqlServer().getInstances()) {
+      actions.add(new BuildBindingsForKSqlServer(bindingsBuilder, ksqlServer));
+    }
+
     return actions;
   }
 
@@ -338,6 +347,8 @@ public class AccessControlManager {
       action = new BuildBindingsForKStreams(bindingsBuilder, (KStream) app, topicPrefix);
     } else if (app instanceof Connector) {
       action = new BuildBindingsForKConnect(bindingsBuilder, (Connector) app, topicPrefix);
+    } else if (app instanceof KSqlApp) {
+      action = new BuildBindingsForKSqlApp(bindingsBuilder, (KSqlApp) app, topicPrefix);
     }
     return Optional.ofNullable(action);
   }

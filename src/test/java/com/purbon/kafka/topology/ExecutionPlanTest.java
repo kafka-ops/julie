@@ -58,9 +58,11 @@ public class ExecutionPlanTest {
   @Test
   public void addBindingsTest() throws IOException {
     TopologyAclBinding binding1 =
-        new TopologyAclBinding(ResourceType.ANY, "topicA", "*", "ALL", "User:foo", "LITERAL");
+        new TopologyAclBinding(
+            ResourceType.ANY.name(), "topicA", "*", "ALL", "User:foo", "LITERAL");
     TopologyAclBinding binding2 =
-        new TopologyAclBinding(ResourceType.ANY, "topicB", "*", "ALL", "User:foo", "LITERAL");
+        new TopologyAclBinding(
+            ResourceType.ANY.name(), "topicB", "*", "ALL", "User:foo", "LITERAL");
     Set<TopologyAclBinding> bindings = new HashSet<>(Arrays.asList(binding1, binding2));
     CreateBindings addBindingsAction = new CreateBindings(aclsProvider, bindings);
 
@@ -75,9 +77,11 @@ public class ExecutionPlanTest {
   @Test
   public void deleteBindingsAfterCreateTest() throws IOException {
     TopologyAclBinding binding1 =
-        new TopologyAclBinding(ResourceType.ANY, "topicA", "*", "ALL", "User:foo", "LITERAL");
+        new TopologyAclBinding(
+            ResourceType.ANY.name(), "topicA", "*", "ALL", "User:foo", "LITERAL");
     TopologyAclBinding binding2 =
-        new TopologyAclBinding(ResourceType.ANY, "topicB", "*", "ALL", "User:foo", "LITERAL");
+        new TopologyAclBinding(
+            ResourceType.ANY.name(), "topicB", "*", "ALL", "User:foo", "LITERAL");
     Set<TopologyAclBinding> bindings = new HashSet<>(Arrays.asList(binding1, binding2));
     CreateBindings addBindingsAction = new CreateBindings(aclsProvider, bindings);
 

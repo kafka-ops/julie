@@ -103,8 +103,8 @@ public class ConnectorManagerIT {
     assertThat(connectors).hasSize(2);
     assertThat(connectors).contains("source-jdbc", "sink-jdbc");
 
-    topology.getProjects().get(0).getConnectorArtefacts().remove(0);
-    assertThat(topology.getProjects().get(0).getConnectorArtefacts()).hasSize(1);
+    topology.getProjects().get(0).getConnectorArtefacts().getConnectors().remove(0);
+    assertThat(topology.getProjects().get(0).getConnectorArtefacts().getConnectors()).hasSize(1);
 
     ExecutionPlan newPlan = ExecutionPlan.init(new BackendController(), System.out);
 

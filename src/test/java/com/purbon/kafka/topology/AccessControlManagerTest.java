@@ -255,6 +255,29 @@ public class AccessControlManagerTest {
             eq(topics.get(KStream.WRITE_TOPICS)));
   }
 
+  @Test
+  public void newKSqlApplicationCreation() throws IOException {
+    Project project = new ProjectImpl();
+    KSqlApp app = new KSqlApp();
+    HashMap<String, List<String>> topics = new HashMap<>();
+    topics.put(KStream.READ_TOPICS, asList("topicA", "topicB"));
+    topics.put(KStream.WRITE_TOPICS, asList("topicC", "topicD"));
+    app.setTopics(topics);
+    app.setPrincipal("User:foo");
+    project.setKSqls(singletonList(app));
+
+    Topology topology = new TopologyImpl();
+    topology.addProject(project);
+
+    accessControlManager.apply(topology, plan);
+
+    doReturn(new ArrayList<TopologyAclBinding>())
+        .when(aclsBuilder)
+        .buildBindingsForKSqlApp(any(KSqlApp.class), anyString());
+
+    verify(aclsBuilder, times(1)).buildBindingsForKSqlApp(app, "default.default");
+  }
+
   @Test(expected = IOException.class)
   public void testkStreamAclsCreationWithMissingPrefixGroup() throws Exception {
 
@@ -609,7 +632,7 @@ public class AccessControlManagerTest {
         plan.getActions().get(0).getBindings().stream()
             .filter(
                 b ->
-                    b.getResourceType().equals(ResourceType.TOPIC)
+                    b.getResourceType().equals(ResourceType.TOPIC.name())
                         && b.getResourceName().equals("NamespaceA_topicA"))
             .count());
     assertEquals(
@@ -617,7 +640,7 @@ public class AccessControlManagerTest {
         plan.getActions().get(0).getBindings().stream()
             .filter(
                 b ->
-                    b.getResourceType().equals(ResourceType.TOPIC)
+                    b.getResourceType().equals(ResourceType.TOPIC.name())
                         && b.getResourceName().equals("topicA"))
             .count());
   }
@@ -652,7 +675,7 @@ public class AccessControlManagerTest {
         plan.getActions().get(0).getBindings().stream()
             .filter(
                 b ->
-                    b.getResourceType().equals(ResourceType.GROUP)
+                    b.getResourceType().equals(ResourceType.GROUP.name())
                         && b.getResourceName().equals("NamespaceA_ConsumerGroupA"))
             .count());
     assertEquals(
@@ -660,7 +683,7 @@ public class AccessControlManagerTest {
         plan.getActions().get(0).getBindings().stream()
             .filter(
                 b ->
-                    b.getResourceType().equals(ResourceType.GROUP)
+                    b.getResourceType().equals(ResourceType.GROUP.name())
                         && b.getResourceName().equals("NamespaceB_ConsumerGroupB"))
             .count());
     assertEquals(
@@ -668,7 +691,7 @@ public class AccessControlManagerTest {
         plan.getActions().get(0).getBindings().stream()
             .filter(
                 b ->
-                    b.getResourceType().equals(ResourceType.GROUP)
+                    b.getResourceType().equals(ResourceType.GROUP.name())
                         && b.getResourceName().equals("*"))
             .count());
   }
@@ -702,7 +725,7 @@ public class AccessControlManagerTest {
         plan.getActions().get(0).getBindings().stream()
             .filter(
                 b ->
-                    b.getResourceType().equals(ResourceType.GROUP)
+                    b.getResourceType().equals(ResourceType.GROUP.name())
                         && b.getResourceName().equals("*")
                         && b.getPrincipal().equals("User:NamespaceA_app1"))
             .count());
@@ -711,7 +734,7 @@ public class AccessControlManagerTest {
         plan.getActions().get(0).getBindings().stream()
             .filter(
                 b ->
-                    b.getResourceType().equals(ResourceType.GROUP)
+                    b.getResourceType().equals(ResourceType.GROUP.name())
                         && b.getResourceName().equals("*")
                         && b.getPrincipal().equals("User:NamespaceB_app2"))
             .count());

@@ -13,6 +13,21 @@ projects:
         transactionId: "1234"
       - principal: "User:App2"
         idempotence: "true"
+    ksql:
+      artefacts:
+        streams:
+          - path: "ksql-streams/riderlocations.sql"
+            name: "riderLocations"
+        tables:
+          - path: "ksql-tables/users.sql"
+            name: "users"
+      access_control:
+        - principal: "User:ksql0"
+          topics:
+            read:
+              - "topicA"
+            write:
+              - "topicC"
     streams:
       - principal: "User:App0"
         topics:
@@ -96,6 +111,14 @@ projects:
           replication.factor: "1"
           num.partitions: "1"
 platform:
+  ksql:
+    instances:
+      - principal: "User:ksql"
+        ksqlDbId: "ksql-server1"
+        owner: "User:foo"
+      - principal: "User:ksql"
+        ksqlDbId: "ksql-server2"
+        owner: "User:foo"
   schema_registry:
     instances:
       - principal: "User:SchemaRegistry01"

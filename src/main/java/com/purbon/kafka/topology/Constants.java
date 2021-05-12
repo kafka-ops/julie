@@ -60,6 +60,7 @@ public class Constants {
   public static final String ALLOW_DELETE_BINDINGS = "allow.delete.bindings";
   static final String ALLOW_DELETE_PRINCIPALS = "allow.delete.principals";
   public static final String ALLOW_DELETE_CONNECT_ARTEFACTS = "allow.delete.artefacts.connect";
+  public static final String ALLOW_DELETE_KSQL_ARTEFACTS = "allow.delete.artefacts.ksql";
 
   public static final String CCLOUD_ENV_CONFIG = "ccloud.environment";
 
@@ -81,6 +82,7 @@ public class Constants {
   public static final String GROUP_MANAGED_PREFIXES = "topology.group.managed.prefixes";
 
   public static final String PLATFORM_SERVERS_CONNECT = "platform.servers.connect";
+  public static final String PLATFORM_SERVER_KSQL = "platform.server.ksql";
 
   public static final String TOPOLOGY_BUILDER_INTERNAL_PRINCIPAL =
       "topology.builder.internal.principal";

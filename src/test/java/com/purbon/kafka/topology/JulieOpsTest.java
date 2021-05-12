@@ -37,6 +37,8 @@ public class JulieOpsTest {
 
   @Mock KafkaConnectArtefactManager connectorManager;
 
+  @Mock KSqlArtefactManager ksqlArtefactManager;
+
   @Rule public MockitoRule mockitoRule = MockitoJUnit.rule();
 
   @Mock RedisBackend stateProcessor;
@@ -144,6 +146,7 @@ public class JulieOpsTest {
     builder.setTopicManager(topicManager);
     builder.setAccessControlManager(accessControlManager);
     builder.setConnectorManager(connectorManager);
+    builder.setKsqlArtefactManager(ksqlArtefactManager);
 
     doNothing().when(topicManager).apply(anyObject(), anyObject());
 
@@ -173,6 +176,7 @@ public class JulieOpsTest {
     builder.setTopicManager(topicManager);
     builder.setAccessControlManager(accessControlManager);
     builder.setConnectorManager(connectorManager);
+    builder.setKsqlArtefactManager(ksqlArtefactManager);
 
     doNothing().when(topicManager).apply(anyObject(), anyObject());
 
@@ -207,6 +211,7 @@ public class JulieOpsTest {
     builder.setTopicManager(topicManager);
     builder.setAccessControlManager(accessControlManager);
     builder.setConnectorManager(connectorManager);
+    builder.setKsqlArtefactManager(ksqlArtefactManager);
 
     doNothing().when(topicManager).apply(anyObject(), anyObject());
 
@@ -235,6 +240,7 @@ public class JulieOpsTest {
 
     builder.setTopicManager(topicManager);
     builder.setAccessControlManager(accessControlManager);
+    builder.setKsqlArtefactManager(ksqlArtefactManager);
 
     doNothing().when(topicManager).apply(anyObject(), anyObject());
 

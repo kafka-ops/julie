@@ -5,9 +5,11 @@ import com.purbon.kafka.topology.Configuration;
 import com.purbon.kafka.topology.model.PlatformSystem;
 import com.purbon.kafka.topology.model.Project;
 import com.purbon.kafka.topology.model.Topic;
-import com.purbon.kafka.topology.model.artefact.KafkaConnectArtefact;
+import com.purbon.kafka.topology.model.artefact.KConnectArtefacts;
+import com.purbon.kafka.topology.model.artefact.KsqlArtefacts;
 import com.purbon.kafka.topology.model.users.Connector;
 import com.purbon.kafka.topology.model.users.Consumer;
+import com.purbon.kafka.topology.model.users.KSqlApp;
 import com.purbon.kafka.topology.model.users.KStream;
 import com.purbon.kafka.topology.model.users.Producer;
 import com.purbon.kafka.topology.model.users.Schemas;
@@ -24,6 +26,7 @@ public class ProjectImpl implements Project, Cloneable {
   private PlatformSystem<Consumer> consumers;
   private PlatformSystem<Producer> producers;
   private PlatformSystem<KStream> streams;
+  private PlatformSystem<KSqlApp> ksqls;
   private PlatformSystem<Connector> connectors;
   private PlatformSystem<Schemas> schemas;
   private Map<String, List<String>> rbacRawRoles;
@@ -49,6 +52,7 @@ public class ProjectImpl implements Project, Cloneable {
         Optional.empty(),
         Optional.empty(),
         Optional.empty(),
+        Optional.empty(),
         new HashMap<>(),
         config);
   }
@@ -60,6 +64,7 @@ public class ProjectImpl implements Project, Cloneable {
       Optional<PlatformSystem<KStream>> streams,
       Optional<PlatformSystem<Connector>> connectors,
       Optional<PlatformSystem<Schemas>> schemas,
+      Optional<PlatformSystem<KSqlApp>> ksqls,
       Map<String, List<String>> rbacRawRoles,
       Configuration config) {
     this(
@@ -71,6 +76,7 @@ public class ProjectImpl implements Project, Cloneable {
         new ArrayList<>(),
         connectors.orElse(new PlatformSystem<>()),
         schemas.orElse(new PlatformSystem<>()),
+        ksqls.orElse(new PlatformSystem<>()),
         rbacRawRoles,
         config);
   }
@@ -84,6 +90,7 @@ public class ProjectImpl implements Project, Cloneable {
       List<String> zookeepers,
       PlatformSystem<Connector> connectors,
       PlatformSystem<Schemas> schemas,
+      PlatformSystem<KSqlApp> ksqls,
       Map<String, List<String>> rbacRawRoles,
       Configuration config) {
     this.name = name;
@@ -91,6 +98,7 @@ public class ProjectImpl implements Project, Cloneable {
     this.consumers = consumers;
     this.producers = producers;
     this.streams = streams;
+    this.ksqls = ksqls;
     this.zookeepers = zookeepers;
     this.connectors = connectors;
     this.schemas = schemas;
@@ -132,12 +140,24 @@ public class ProjectImpl implements Project, Cloneable {
     this.streams = new PlatformSystem<>(streams);
   }
 
+  public List<KSqlApp> getKSqls() {
+    return ksqls.getAccessControlLists();
+  }
+
+  public void setKSqls(List<KSqlApp> ksqls) {
+    this.ksqls = new PlatformSystem<>(ksqls);
+  }
+
   public List<Connector> getConnectors() {
     return connectors.getAccessControlLists();
   }
 
-  public List<KafkaConnectArtefact> getConnectorArtefacts() {
-    return (List<KafkaConnectArtefact>) connectors.getArtefacts();
+  public KConnectArtefacts getConnectorArtefacts() {
+    return (KConnectArtefacts) connectors.getArtefacts().orElse(new KConnectArtefacts());
+  }
+
+  public KsqlArtefacts getKsqlArtefacts() {
+    return (KsqlArtefacts) ksqls.getArtefacts().orElse(new KsqlArtefacts());
   }
 
   public void setConnectors(List<Connector> connectors) {
@@ -215,6 +235,7 @@ public class ProjectImpl implements Project, Cloneable {
               getZookeepers(),
               new PlatformSystem<>(getConnectors()),
               new PlatformSystem<>(getSchemas()),
+              new PlatformSystem<>(getKSqls()),
               getRbacRawRoles(),
               config);
       project.setPrefixContextAndOrder(prefixContext, order);

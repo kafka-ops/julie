@@ -2,30 +2,31 @@ package com.purbon.kafka.topology.model;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 public class PlatformSystem<T extends User> {
 
   private List<T> accessControlLists;
-  private List<? extends Artefact> artefacts;
+  private Optional<Artefacts> artefacts;
 
   public PlatformSystem() {
-    this(Collections.emptyList(), Collections.emptyList());
+    this(Collections.emptyList(), null);
   }
 
   public PlatformSystem(List<T> accessControlLists) {
-    this(accessControlLists, Collections.emptyList());
+    this(accessControlLists, null);
   }
 
-  public PlatformSystem(List<T> accessControlLists, List<? extends Artefact> artefacts) {
+  public PlatformSystem(List<T> accessControlLists, Artefacts artefacts) {
     this.accessControlLists = accessControlLists;
-    this.artefacts = artefacts;
+    this.artefacts = Optional.ofNullable(artefacts);
   }
 
   public List<T> getAccessControlLists() {
     return accessControlLists;
   }
 
-  public List<? extends Artefact> getArtefacts() {
+  public Optional<Artefacts> getArtefacts() {
     return artefacts;
   }
 }

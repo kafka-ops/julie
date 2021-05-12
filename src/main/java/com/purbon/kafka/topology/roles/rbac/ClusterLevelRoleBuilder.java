@@ -36,12 +36,16 @@ public class ClusterLevelRoleBuilder {
   }
 
   public ClusterLevelRoleBuilder forSchemaSubject(String subject) {
+    return forSchemaSubject(subject, PatternType.LITERAL.name());
+  }
+
+  public ClusterLevelRoleBuilder forSchemaSubject(String subject, String patternType) {
     Map<String, Map<String, String>> clusters =
         client.withClusterIDs().forSchemaRegistry().forKafka().asMap();
 
     scope = new RequestScope();
     scope.setClusters(clusters);
-    scope.addResource("Subject", "Subject:" + subject, PatternType.LITERAL.name());
+    scope.addResource("Subject", "Subject:" + subject, patternType);
     scope.build();
 
     return this;
@@ -62,8 +66,11 @@ public class ClusterLevelRoleBuilder {
   }
 
   public TopologyAclBinding apply() {
+    return apply("CLUSTER", "cluster");
+  }
 
-    return client.bindClusterRole(principal, role, scope);
+  public TopologyAclBinding apply(String resourceType, String resourceName) {
+    return client.bindClusterRole(principal, resourceType, resourceName, role, scope);
   }
 
   public ClusterLevelRoleBuilder forKafka() {
@@ -82,6 +89,19 @@ public class ClusterLevelRoleBuilder {
     scope = new RequestScope();
     scope.setClusters(clusters);
     scope.addResource("Cluster", "control-center", PatternType.LITERAL.name());
+    scope.build();
+
+    return this;
+  }
+
+  public ClusterLevelRoleBuilder forKSqlServer(String clusterId) {
+    client.setKSqlClusterID(clusterId);
+    Map<String, Map<String, String>> clusters =
+        client.withClusterIDs().forKsql().forKafka().asMap();
+
+    scope = new RequestScope();
+    scope.setClusters(clusters);
+    scope.addResource("KsqlCluster", "ksql-cluster", PatternType.LITERAL.name());
     scope.build();
 
     return this;
