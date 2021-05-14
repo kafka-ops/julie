@@ -43,8 +43,10 @@ RUN apk add bash
 
 COPY --from=packager "$JAVA_MINIMAL" "$JAVA_MINIMAL"
 
-RUN mkdir -p /usr/local/julie-ops/bin && chmod 755 /usr/local/julie-ops
+RUN mkdir -p /usr/local/julie-ops/bin && chmod 755 /usr/local/julie-ops && mkdir /home/julie-ops
 COPY julie-ops.jar /usr/local/julie-ops/bin
 COPY julie-ops-cli.sh /usr/local/julie-ops
+
+WORKDIR /home/julie-ops
 
 CMD ["julie-ops-cli.sh"]
