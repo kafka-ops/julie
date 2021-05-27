@@ -38,7 +38,8 @@ public interface BindingsBuilderProvider {
 
   List<TopologyAclBinding> buildBindingsForControlCenter(String principal, String appId);
 
-  default List<TopologyAclBinding> setSchemaAuthorization(String principal, List<String> subjects) {
+  default List<TopologyAclBinding> setSchemaAuthorization(
+      String principal, List<String> subjects, String role, boolean prefixed) {
     return Collections.emptyList();
   }
 

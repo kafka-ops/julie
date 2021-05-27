@@ -27,6 +27,7 @@ import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import org.apache.kafka.common.resource.PatternType;
 
 public class RBACBindingsBuilder implements BindingsBuilderProvider {
 
@@ -352,9 +353,14 @@ public class RBACBindingsBuilder implements BindingsBuilderProvider {
   }
 
   @Override
-  public List<TopologyAclBinding> setSchemaAuthorization(String principal, List<String> subjects) {
+  public List<TopologyAclBinding> setSchemaAuthorization(
+      String principal, List<String> subjects, String role, boolean prefixed) {
+
+    String patternType = prefixed ? PatternType.PREFIXED.name() : PatternType.LITERAL.name();
     return subjects.stream()
-        .map(subject -> apiClient.bind(principal, RESOURCE_OWNER).forSchemaSubject(subject).apply())
+        .map(
+            subject ->
+                apiClient.bind(principal, role).forSchemaSubject(subject, patternType).apply())
         .filter(Objects::nonNull)
         .collect(Collectors.toList());
   }

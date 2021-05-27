@@ -376,6 +376,10 @@ It is possible in RBAC to assign permission for a given principal to access a gi
 This is possible with Julie Ops with a topology like the one below, where *User:App0* will
 have access to schemas in subjects *transactions* and *User:App1* to subject *contracts*.
 
+By default, Julie Ops grants `ResourceOwner` role for subjects, and creates non-prefixed (literal) role bindings.
+It's possible to specify different role, and create prefixed role bindings for subjects,
+as shown in the example below for *User:App2*.
+
 .. code-block:: YAML
 
   ---
@@ -402,7 +406,11 @@ have access to schemas in subjects *transactions* and *User:App1* to subject *co
           - principal: "User:App1"
             subjects:
               - "contracts"
-
+          - principal: "User:App2"
+            subjects:
+              - "myapp"
+            role: "DeveloperRead"
+            prefixed: true
 
 Cluster wide roles
 ^^^^^^^^^^^
