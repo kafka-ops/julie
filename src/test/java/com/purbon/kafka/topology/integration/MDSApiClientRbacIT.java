@@ -19,8 +19,8 @@ import org.junit.Test;
 
 public class MDSApiClientRbacIT extends MDSBaseTest {
 
-  private String mdsUser = "professor";
-  private String mdsPassword = "professor";
+  private final String mdsUser = "professor";
+  private final String mdsPassword = "professor";
 
   private MDSApiClient apiClient;
 
