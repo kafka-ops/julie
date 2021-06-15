@@ -219,7 +219,9 @@ public class JulieOps implements AutoCloseable {
     }
   }
 
-  void run(ExecutionPlan plan) throws IOException {
+  void buildAndExecutePlan(BackendController backendController, PrintStream printStream)
+      throws IOException {
+    ExecutionPlan plan = ExecutionPlan.init(backendController, printStream);
     LOGGER.debug(
         String.format(
             "Running topology builder with TopicManager=[%s], accessControlManager=[%s], dryRun=[%s], isQuite=[%s]",
@@ -250,13 +252,11 @@ public class JulieOps implements AutoCloseable {
     }
   }
 
-  public void run() throws IOException {
+  public void buildAndExecutePlan() throws IOException {
     if (config.doValidate()) {
       return;
     }
-    BackendController cs = buildBackendController(config);
-    ExecutionPlan plan = ExecutionPlan.init(cs, outputStream);
-    run(plan);
+    buildAndExecutePlan(buildBackendController(config), outputStream);
   }
 
   public void close() {

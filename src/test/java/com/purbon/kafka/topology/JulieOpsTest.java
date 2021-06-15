@@ -152,7 +152,7 @@ public class JulieOpsTest {
 
     doNothing().when(accessControlManager).apply(anyObject(), anyObject());
 
-    builder.run();
+    builder.buildAndExecutePlan();
     builder.close();
 
     verify(topicManager, times(1)).apply(anyObject(), anyObject());
@@ -182,10 +182,7 @@ public class JulieOpsTest {
 
     doNothing().when(accessControlManager).apply(anyObject(), anyObject());
 
-    BackendController cs = new BackendController(stateProcessor);
-    ExecutionPlan plan = ExecutionPlan.init(cs, System.out);
-
-    builder.run(plan);
+    builder.buildAndExecutePlan(new BackendController(stateProcessor), System.out);
     builder.close();
 
     verify(stateProcessor, times(1)).createOrOpen();
@@ -217,7 +214,7 @@ public class JulieOpsTest {
 
     doNothing().when(accessControlManager).apply(anyObject(), anyObject());
 
-    builder.run();
+    builder.buildAndExecutePlan();
     builder.close();
 
     verify(topicManager, times(1)).apply(anyObject(), anyObject());
@@ -246,7 +243,7 @@ public class JulieOpsTest {
 
     doNothing().when(accessControlManager).apply(anyObject(), anyObject());
 
-    builder.run();
+    builder.buildAndExecutePlan();
     builder.close();
 
     verify(topicManager, times(1)).apply(anyObject(), anyObject());

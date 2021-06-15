@@ -67,7 +67,7 @@ public final class ContainerTestUtils {
       final JulieOps julieOps =
           getKafkaTopologyBuilder(kafkaAdminClient, topologyResource, configResource);
       try {
-        julieOps.run();
+        julieOps.buildAndExecutePlan();
       } catch (final IOException e) {
         throw new RuntimeException(e);
       }
