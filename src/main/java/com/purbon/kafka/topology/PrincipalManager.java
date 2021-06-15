@@ -57,7 +57,7 @@ public class PrincipalManager {
     }
   }
 
-  public void applyDelete(Topology topology, ExecutionPlan plan) throws IOException {
+  public void updatePlanWithPrincipalsDeletion(ExecutionPlan plan, Topology topology) throws IOException {
     if (!config.enabledExperimental()) {
       LOGGER.debug("Not running the PrincipalsManager as this is an experimental feature.");
       return;

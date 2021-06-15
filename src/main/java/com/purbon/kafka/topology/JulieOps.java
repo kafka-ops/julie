@@ -239,7 +239,7 @@ public class JulieOps implements AutoCloseable {
     // Delete users should always be last,
     // avoids any unlinked acls, e.g. if acl delete or something errors then there is a link still
     // from the account, and can be re-run or manually fixed more easily
-    principalManager.applyDelete(topology, plan);
+    principalManager.updatePlanWithPrincipalsDeletion(plan, topology);
 
     plan.run(config.isDryRun());
 
