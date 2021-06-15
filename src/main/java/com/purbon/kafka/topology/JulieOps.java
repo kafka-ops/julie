@@ -227,19 +227,21 @@ public class JulieOps implements AutoCloseable {
             "Running topology builder with topicManager=[%s], accessControlManager=[%s], dryRun=[%s], isQuiet=[%s]",
             topicManager, accessControlManager, config.isDryRun(), config.isQuiet()));
 
-    // Create users should always be first, so user exists when making acl link
-    principalManager.updatePlanWithPrincipalsCreation(plan, topology);
+    ExecutionPlanUpdater[] updaters =
+        new ExecutionPlanUpdater[] {
+          principalManager,
+          topicManager,
+          accessControlManager,
+          connectorManager,
+          kSqlArtefactManager
+        };
 
-    topicManager.updatePlan(plan, topology);
-    accessControlManager.updatePlan(plan, topology);
-
-    connectorManager.updatePlan(plan, topology);
-    kSqlArtefactManager.updatePlan(plan, topology);
-
-    // Delete users should always be last,
-    // avoids any unlinked acls, e.g. if acl delete or something errors then there is a link still
-    // from the account, and can be re-run or manually fixed more easily
-    principalManager.updatePlanWithPrincipalsDeletion(plan, topology);
+    for (ExecutionPlanUpdater updater : updaters) {
+      updater.updatePlan(plan, topology);
+    }
+    for (ExecutionPlanUpdater updater : updaters) {
+      updater.updatePlanWithFinalActions(plan, topology);
+    }
 
     plan.run(config.isDryRun());
 

@@ -8,5 +8,8 @@ public interface ExecutionPlanUpdater {
 
   void updatePlan(ExecutionPlan plan, Topology topology) throws IOException;
 
+  default void updatePlanWithFinalActions(ExecutionPlan plan, Topology topology)
+      throws IOException {};
+
   void printCurrentState(PrintStream out) throws IOException;
 }

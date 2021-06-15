@@ -13,7 +13,7 @@ import java.util.stream.Stream;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-public class PrincipalManager {
+public class PrincipalManager implements ExecutionPlanUpdater {
 
   private static final Logger LOGGER = LogManager.getLogger(PrincipalManager.class);
   private final List<String> managedPrefixes;
@@ -28,8 +28,8 @@ public class PrincipalManager {
     this.managedPrefixes = config.getServiceAccountManagedPrefixes();
   }
 
-  public void updatePlanWithPrincipalsCreation(ExecutionPlan plan, Topology topology)
-      throws IOException {
+  @Override
+  public void updatePlan(ExecutionPlan plan, Topology topology) throws IOException {
     if (!config.enabledExperimental()) {
       LOGGER.debug("Not running the PrincipalsManager as this is an experimental feature.");
       return;
@@ -57,8 +57,8 @@ public class PrincipalManager {
     }
   }
 
-  public void updatePlanWithPrincipalsDeletion(ExecutionPlan plan, Topology topology)
-      throws IOException {
+  @Override
+  public void updatePlanWithFinalActions(ExecutionPlan plan, Topology topology) throws IOException {
     if (!config.enabledExperimental()) {
       LOGGER.debug("Not running the PrincipalsManager as this is an experimental feature.");
       return;
@@ -134,6 +134,7 @@ public class PrincipalManager {
         .collect(Collectors.toList());
   }
 
+  @Override
   public void printCurrentState(PrintStream out) throws IOException {
     out.println("List of Principles: ");
     provider.listServiceAccounts().forEach(out::println);

@@ -86,8 +86,8 @@ public class PrincipalManagerTest {
 
     doNothing().when(provider).configure();
 
-    principalManager.updatePlanWithPrincipalsCreation(plan, topology);
-    principalManager.updatePlanWithPrincipalsDeletion(plan, topology);
+    principalManager.updatePlan(plan, topology);
+    principalManager.updatePlanWithFinalActions(plan, topology);
 
     Set<ServiceAccount> accounts =
         new HashSet<>(
@@ -115,8 +115,8 @@ public class PrincipalManagerTest {
 
     doNothing().when(provider).configure();
 
-    principalManager.updatePlanWithPrincipalsCreation(plan, topology);
-    principalManager.updatePlanWithPrincipalsDeletion(plan, topology);
+    principalManager.updatePlan(plan, topology);
+    principalManager.updatePlanWithFinalActions(plan, topology);
 
     Set<ServiceAccount> accounts =
         new HashSet<>(
@@ -149,8 +149,8 @@ public class PrincipalManagerTest {
         .when(provider)
         .createServiceAccount(eq("producer"), eq("Managed by KTB"));
 
-    principalManager.updatePlanWithPrincipalsCreation(plan, topology);
-    principalManager.updatePlanWithPrincipalsDeletion(plan, topology);
+    principalManager.updatePlan(plan, topology);
+    principalManager.updatePlanWithFinalActions(plan, topology);
     plan.run();
     assertThat(plan.getServiceAccounts()).hasSize(2);
 
@@ -162,8 +162,8 @@ public class PrincipalManagerTest {
 
     backendController = new BackendController();
     plan = ExecutionPlan.init(backendController, mockPrintStream);
-    principalManager.updatePlanWithPrincipalsCreation(plan, topology);
-    principalManager.updatePlanWithPrincipalsDeletion(plan, topology);
+    principalManager.updatePlan(plan, topology);
+    principalManager.updatePlanWithFinalActions(plan, topology);
 
     Collection<ServiceAccount> accounts =
         Arrays.asList(new ServiceAccount(124, "producer", "Managed by KTB"));
@@ -187,8 +187,8 @@ public class PrincipalManagerTest {
 
     Topology topology = new TopologyImpl();
 
-    principalManager.updatePlanWithPrincipalsCreation(plan, topology);
-    principalManager.updatePlanWithPrincipalsDeletion(plan, topology);
+    principalManager.updatePlan(plan, topology);
+    principalManager.updatePlanWithFinalActions(plan, topology);
 
     verify(mockPlan, times(0)).add(any(Action.class));
     backendController.flushAndClose();
@@ -219,8 +219,8 @@ public class PrincipalManagerTest {
         .when(provider)
         .createServiceAccount(eq("producer"), eq("Managed by KTB"));
 
-    principalManager.updatePlanWithPrincipalsCreation(plan, topology);
-    principalManager.updatePlanWithPrincipalsDeletion(plan, topology);
+    principalManager.updatePlan(plan, topology);
+    principalManager.updatePlanWithFinalActions(plan, topology);
     plan.run();
 
     assertThat(plan.getServiceAccounts()).hasSize(1);
