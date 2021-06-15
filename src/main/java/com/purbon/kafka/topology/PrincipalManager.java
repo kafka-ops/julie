@@ -28,7 +28,7 @@ public class PrincipalManager {
     this.managedPrefixes = config.getServiceAccountManagedPrefixes();
   }
 
-  public void applyCreate(Topology topology, ExecutionPlan plan) throws IOException {
+  public void updatePlanWithPrincipalsCreation(ExecutionPlan plan, Topology topology) throws IOException {
     if (!config.enabledExperimental()) {
       LOGGER.debug("Not running the PrincipalsManager as this is an experimental feature.");
       return;

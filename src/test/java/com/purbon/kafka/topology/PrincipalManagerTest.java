@@ -86,7 +86,7 @@ public class PrincipalManagerTest {
 
     doNothing().when(provider).configure();
 
-    principalManager.applyCreate(topology, plan);
+    principalManager.updatePlanWithPrincipalsCreation(plan, topology);
     principalManager.applyDelete(topology, plan);
 
     Set<ServiceAccount> accounts =
@@ -115,7 +115,7 @@ public class PrincipalManagerTest {
 
     doNothing().when(provider).configure();
 
-    principalManager.applyCreate(topology, plan);
+    principalManager.updatePlanWithPrincipalsCreation(plan, topology);
     principalManager.applyDelete(topology, plan);
 
     Set<ServiceAccount> accounts =
@@ -149,7 +149,7 @@ public class PrincipalManagerTest {
         .when(provider)
         .createServiceAccount(eq("producer"), eq("Managed by KTB"));
 
-    principalManager.applyCreate(topology, plan);
+    principalManager.updatePlanWithPrincipalsCreation(plan, topology);
     principalManager.applyDelete(topology, plan);
     plan.run();
     assertThat(plan.getServiceAccounts()).hasSize(2);
@@ -162,7 +162,7 @@ public class PrincipalManagerTest {
 
     backendController = new BackendController();
     plan = ExecutionPlan.init(backendController, mockPrintStream);
-    principalManager.applyCreate(topology, plan);
+    principalManager.updatePlanWithPrincipalsCreation(plan, topology);
     principalManager.applyDelete(topology, plan);
 
     Collection<ServiceAccount> accounts =
@@ -187,7 +187,7 @@ public class PrincipalManagerTest {
 
     Topology topology = new TopologyImpl();
 
-    principalManager.applyCreate(topology, plan);
+    principalManager.updatePlanWithPrincipalsCreation(plan, topology);
     principalManager.applyDelete(topology, plan);
 
     verify(mockPlan, times(0)).add(any(Action.class));
@@ -219,7 +219,7 @@ public class PrincipalManagerTest {
         .when(provider)
         .createServiceAccount(eq("producer"), eq("Managed by KTB"));
 
-    principalManager.applyCreate(topology, plan);
+    principalManager.updatePlanWithPrincipalsCreation(plan, topology);
     principalManager.applyDelete(topology, plan);
     plan.run();
 

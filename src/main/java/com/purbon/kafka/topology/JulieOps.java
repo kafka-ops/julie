@@ -228,7 +228,7 @@ public class JulieOps implements AutoCloseable {
             topicManager, accessControlManager, config.isDryRun(), config.isQuiet()));
 
     // Create users should always be first, so user exists when making acl link
-    principalManager.applyCreate(topology, plan);
+    principalManager.updatePlanWithPrincipalsCreation(plan, topology);
 
     topicManager.apply(topology, plan);
     accessControlManager.apply(topology, plan);
