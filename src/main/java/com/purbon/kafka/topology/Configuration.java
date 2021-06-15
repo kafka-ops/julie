@@ -410,4 +410,12 @@ public class Configuration {
       return null;
     }
   }
+
+  public Optional<BasicAuth> getMdsBasicAuth() {
+    BasicAuth auth = null;
+    if (hasProperty(MDS_USER_CONFIG) && hasProperty(MDS_PASSWORD_CONFIG)) {
+      auth = new BasicAuth(getProperty(MDS_USER_CONFIG), getProperty(MDS_PASSWORD_CONFIG));
+    }
+    return Optional.ofNullable(auth);
+  }
 }

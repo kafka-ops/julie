@@ -35,12 +35,12 @@ public class KsqlApiClient implements ArtefactClient {
     if (server.getProtocol() != null && server.getProtocol().equals(Constants.HTTPS)) {
       options.setUseTls(true);
     }
-    options.setUseAlpn(ksqlClientConfig.useAlpn()); // keep default unless specified by user
-    options.setKeyStore(ksqlClientConfig.getKeyStore()); // may be null
+    options.setUseAlpn(ksqlClientConfig.useAlpn());
+    options.setKeyStore(ksqlClientConfig.getKeyStore());
     options.setKeyStorePassword(ksqlClientConfig.getKeyStorePassword());
     options.setTrustStore(ksqlClientConfig.getTrustStore());
     options.setTrustStorePassword(ksqlClientConfig.getTrustStorePassword());
-    options.setVerifyHost(ksqlClientConfig.isVerifyHost()); // keep default unless specified by user
+    options.setVerifyHost(ksqlClientConfig.isVerifyHost());
     if (ksqlClientConfig.useBasicAuth()) {
       options.setBasicAuthCredentials(
           ksqlClientConfig.getBasicAuth().getUser(), ksqlClientConfig.getBasicAuth().getPassword());

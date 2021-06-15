@@ -3,8 +3,6 @@ package com.purbon.kafka.topology.model.artefact;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-import java.util.StringJoiner;
-
 @TypeArtefact(name = "STREAM")
 public class KsqlStreamArtefact extends KsqlArtefact {
 
@@ -21,5 +19,4 @@ public class KsqlStreamArtefact extends KsqlArtefact {
     String serverLabel = getServerLabel() == null ? "" : String.format(" (%s)", getServerLabel());
     return "STREAM " + getName() + serverLabel;
   }
-
 }

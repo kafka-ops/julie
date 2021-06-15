@@ -206,13 +206,4 @@ public class ConfigurationTest {
         .hasMessageContaining("example.com:8083")
         .isInstanceOf(IllegalArgumentException.class);
   }
-
-  @Test
-  public void testKsqlServerWithoutValue() {
-    String clientConfigFile = TestUtils.getResourceFilename("/client-config.properties");
-    cliOps.put(CLIENT_CONFIG_OPTION, clientConfigFile);
-    Configuration config = new Configuration(cliOps, props);
-
-    assertThat(config.hasKSQLServer()).isFalse();
-  }
 }

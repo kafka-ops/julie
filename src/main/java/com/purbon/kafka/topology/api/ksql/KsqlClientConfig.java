@@ -78,7 +78,7 @@ public class KsqlClientConfig {
     private String keyStorePassword;
     private String trustStore;
     private String trustStorePassword;
-    private boolean verifyHost;
+    private boolean verifyHost = true;
 
     public Builder setServer(String server) {
       this.server = server;
