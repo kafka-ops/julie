@@ -21,7 +21,7 @@ public class BuildBindingsForConnectorAuthorization extends BaseAccessControlAct
 
   @Override
   protected void execute() {
-    bindings =
+    aclBindings =
         builderProvider.setConnectorAuthorization(
             connector.getPrincipal(), connector.getConnectors().orElse(new ArrayList<>()));
   }

@@ -34,12 +34,12 @@ public class BuildBindingsForKStreamsTest {
     String topicPrefix = "topicPrefix";
     action = new BuildBindingsForKStreams(aclsBindingsBuilder, app, topicPrefix);
     action.execute();
-    assertThat(action.getBindings())
+    assertThat(action.getAclBindings())
         .anyMatch(
             b ->
                 b.getResourceType() == ResourceType.TOPIC.name()
                     && b.getResourceName().equals(topicPrefix));
-    assertThat(action.getBindings())
+    assertThat(action.getAclBindings())
         .anyMatch(
             b ->
                 b.getResourceType() == ResourceType.GROUP.name()
@@ -56,12 +56,12 @@ public class BuildBindingsForKStreamsTest {
     KStream app = new KStream("User:user", topics, Optional.of(applicationId));
     action = new BuildBindingsForKStreams(aclsBindingsBuilder, app, "topicPrefix");
     action.execute();
-    assertThat(action.getBindings())
+    assertThat(action.getAclBindings())
         .anyMatch(
             b ->
                 b.getResourceType() == ResourceType.TOPIC.name()
                     && b.getResourceName().equals(applicationId));
-    assertThat(action.getBindings())
+    assertThat(action.getAclBindings())
         .anyMatch(
             b ->
                 b.getResourceType() == ResourceType.GROUP.name()

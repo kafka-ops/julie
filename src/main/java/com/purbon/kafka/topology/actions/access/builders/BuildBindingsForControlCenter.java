@@ -21,7 +21,7 @@ public class BuildBindingsForControlCenter extends BaseAccessControlAction {
 
   @Override
   protected void execute() throws IOException {
-    bindings =
+    aclBindings =
         builderProvider.buildBindingsForControlCenter(
             controlCenter.getPrincipal(), controlCenter.getAppId());
   }

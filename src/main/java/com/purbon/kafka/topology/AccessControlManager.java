@@ -203,7 +203,7 @@ public class AccessControlManager {
                 action -> {
                   try {
                     action.run();
-                    return Either.Left(action.getBindings().stream());
+                    return Either.Left(action.getAclBindings().stream());
                   } catch (IOException e) {
                     return Either.Right(e);
                   }

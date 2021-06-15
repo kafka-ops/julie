@@ -26,7 +26,7 @@ public class BuildClusterLevelBinding extends BaseAccessControlAction {
 
   @Override
   protected void execute() throws IOException {
-    bindings = builderProvider.setClusterLevelRole(role, user.getPrincipal(), cmp);
+    aclBindings = builderProvider.setClusterLevelRole(role, user.getPrincipal(), cmp);
   }
 
   @Override

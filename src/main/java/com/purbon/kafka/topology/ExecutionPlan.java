@@ -120,13 +120,13 @@ public class ExecutionPlan {
             new StreamUtils<>(topics.stream())
                 .filterAsSet(topic -> !topicsToBeDeleted.contains(topic));
       }
-      if (!action.getBindings().isEmpty()) {
+      if (!action.getAclBindings().isEmpty()) {
         if (action instanceof ClearBindings) {
           bindings =
               new StreamUtils<>(bindings.stream())
-                  .filterAsSet(binding -> !action.getBindings().contains(binding));
+                  .filterAsSet(binding -> !action.getAclBindings().contains(binding));
         } else {
-          bindings.addAll(action.getBindings());
+          bindings.addAll(action.getAclBindings());
         }
       }
       if (action instanceof BaseAccountsAction) {

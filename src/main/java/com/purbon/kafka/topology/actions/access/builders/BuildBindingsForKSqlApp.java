@@ -30,7 +30,7 @@ public class BuildBindingsForKSqlApp extends BaseAccessControlAction {
       throw new IOException(message);
     }
 
-    bindings = builderProvider.buildBindingsForKSqlApp(app, prefix);
+    aclBindings = builderProvider.buildBindingsForKSqlApp(app, prefix);
   }
 
   @Override

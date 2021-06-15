@@ -9,7 +9,7 @@ public interface Action {
 
   void run() throws IOException;
 
-  default List<TopologyAclBinding> getBindings() {
+  default List<TopologyAclBinding> getAclBindings() {
     return Collections.emptyList();
   }
 }
