@@ -80,7 +80,7 @@ public class AccessControlManagerTest {
     doReturn(new ArrayList<TopologyAclBinding>())
         .when(aclsBuilder)
         .buildBindingsForConsumers(users, topicA.toString(), false);
-    accessControlManager.apply(builder.buildTopology(), plan);
+    accessControlManager.updatePlan(plan, builder.buildTopology());
     verify(aclsBuilder, times(1))
         .buildBindingsForConsumers(eq(users), eq(topicA.toString()), eq(false));
   }
@@ -103,7 +103,7 @@ public class AccessControlManagerTest {
     doReturn(new ArrayList<TopologyAclBinding>())
         .when(aclsBuilder)
         .buildBindingsForConsumers(users, builder.getProject().namePrefix(), true);
-    accessControlManager.apply(builder.buildTopology(), plan);
+    accessControlManager.updatePlan(plan, builder.buildTopology());
     verify(aclsBuilder, times(1))
         .buildBindingsForConsumers(eq(users), eq(builder.getProject().namePrefix()), eq(true));
   }
@@ -133,7 +133,7 @@ public class AccessControlManagerTest {
         .when(aclsBuilder)
         .buildBindingsForConsumers(any(), eq(topic.toString()), eq(false));
 
-    accessControlManager.apply(topology, plan);
+    accessControlManager.updatePlan(plan, topology);
 
     ArgumentCaptor<List> argumentCaptor = ArgumentCaptor.forClass(List.class);
 
@@ -157,7 +157,7 @@ public class AccessControlManagerTest {
         .when(aclsBuilder)
         .buildBindingsForProducers(producers, topicA.toString(), false);
 
-    accessControlManager.apply(builder.buildTopology(), plan);
+    accessControlManager.updatePlan(plan, builder.buildTopology());
     verify(aclsBuilder, times(1))
         .buildBindingsForProducers(eq(producers), eq(topicA.toString()), eq(false));
   }
@@ -179,7 +179,7 @@ public class AccessControlManagerTest {
     doReturn(new ArrayList<TopologyAclBinding>())
         .when(aclsBuilder)
         .buildBindingsForProducers(producers, builder.getProject().namePrefix(), true);
-    accessControlManager.apply(builder.buildTopology(), plan);
+    accessControlManager.updatePlan(plan, builder.buildTopology());
     verify(aclsBuilder, times(1))
         .buildBindingsForProducers(eq(producers), eq(builder.getProject().namePrefix()), eq(true));
   }
@@ -209,7 +209,7 @@ public class AccessControlManagerTest {
         .when(aclsBuilder)
         .buildBindingsForProducers(any(), eq(topic.toString()), eq(false));
 
-    accessControlManager.apply(topology, plan);
+    accessControlManager.updatePlan(plan, topology);
 
     ArgumentCaptor<List> argumentCaptor = ArgumentCaptor.forClass(List.class);
 
@@ -238,7 +238,7 @@ public class AccessControlManagerTest {
     Topology topology = new TopologyImpl();
     topology.addProject(project);
 
-    accessControlManager.apply(topology, plan);
+    accessControlManager.updatePlan(plan, topology);
 
     doReturn(new ArrayList<TopologyAclBinding>())
         .when(aclsBuilder)
@@ -269,7 +269,7 @@ public class AccessControlManagerTest {
     Topology topology = new TopologyImpl();
     topology.addProject(project);
 
-    accessControlManager.apply(topology, plan);
+    accessControlManager.updatePlan(plan, topology);
 
     doReturn(new ArrayList<TopologyAclBinding>())
         .when(aclsBuilder)
@@ -313,7 +313,7 @@ public class AccessControlManagerTest {
     topology.addOther("source", "kstreamsAclsCreation");
     topology.addProject(project);
 
-    accessControlManager.apply(topology, plan);
+    accessControlManager.updatePlan(plan, topology);
   }
 
   @Test
@@ -338,7 +338,7 @@ public class AccessControlManagerTest {
     platform.setSchemaRegistry(sr);
     topology.setPlatform(platform);
 
-    accessControlManager.apply(topology, plan);
+    accessControlManager.updatePlan(plan, topology);
 
     doReturn(new ArrayList<TopologyAclBinding>())
         .when(aclsBuilder)
@@ -371,7 +371,7 @@ public class AccessControlManagerTest {
     platform.setControlCenter(c3);
     topology.setPlatform(platform);
 
-    accessControlManager.apply(topology, plan);
+    accessControlManager.updatePlan(plan, topology);
 
     doReturn(new ArrayList<TopologyAclBinding>())
         .when(aclsBuilder)
@@ -395,7 +395,7 @@ public class AccessControlManagerTest {
     platform.setKafka(kafka);
     topology.setPlatform(platform);
 
-    accessControlManager.apply(topology, plan);
+    accessControlManager.updatePlan(plan, topology);
 
     doReturn(new ArrayList<TopologyAclBinding>())
         .when(aclsBuilder)
@@ -420,7 +420,7 @@ public class AccessControlManagerTest {
     platform.setKafkaConnect(connect);
     topology.setPlatform(platform);
 
-    accessControlManager.apply(topology, plan);
+    accessControlManager.updatePlan(plan, topology);
 
     doReturn(new ArrayList<TopologyAclBinding>())
         .when(aclsBuilder)
@@ -447,7 +447,7 @@ public class AccessControlManagerTest {
     Topology topology = new TopologyImpl();
     topology.addProject(project);
 
-    accessControlManager.apply(topology, plan);
+    accessControlManager.updatePlan(plan, topology);
 
     doReturn(new ArrayList<TopologyAclBinding>())
         .when(aclsBuilder)
@@ -473,7 +473,7 @@ public class AccessControlManagerTest {
         .when(aclsBuilder)
         .buildBindingsForConsumers(users, topicA.toString(), false);
 
-    accessControlManager.apply(builder.buildTopology(), plan);
+    accessControlManager.updatePlan(plan, builder.buildTopology());
 
     plan.run(true);
 
@@ -508,7 +508,7 @@ public class AccessControlManagerTest {
             .addConsumer("User:app1")
             .addConsumer("User:app2");
 
-    accessControlManager.apply(builder.buildTopology(), plan);
+    accessControlManager.updatePlan(plan, builder.buildTopology());
     plan.run();
 
     verify(aclsProvider, times(1)).createBindings(any());
@@ -517,7 +517,7 @@ public class AccessControlManagerTest {
 
     Mockito.reset(aclsProvider);
     plan = ExecutionPlan.init(backendController, mockPrintStream);
-    accessControlManager.apply(builder.buildTopology(), plan);
+    accessControlManager.updatePlan(plan, builder.buildTopology());
     plan.run();
 
     verify(aclsProvider, times(0)).clearBindings(any());
@@ -535,7 +535,7 @@ public class AccessControlManagerTest {
             .addConsumer("User:app1")
             .addConsumer("User:app2");
 
-    accessControlManager.apply(builder.buildTopology(), plan);
+    accessControlManager.updatePlan(plan, builder.buildTopology());
     plan.run();
 
     verify(aclsProvider, times(1)).createBindings(any());
@@ -545,7 +545,7 @@ public class AccessControlManagerTest {
     Mockito.reset(aclsProvider);
     plan = ExecutionPlan.init(backendController, mockPrintStream);
     Topology topology = builder.buildTopology();
-    accessControlManager.apply(topology, plan);
+    accessControlManager.updatePlan(plan, topology);
     plan.run();
 
     List<TopologyAclBinding> bindingsToDelete =
@@ -621,7 +621,7 @@ public class AccessControlManagerTest {
             .addTopic("NamespaceA_topicA")
             .addConsumer("User:app1");
 
-    accessControlManager.apply(builder.buildTopology(), plan);
+    accessControlManager.updatePlan(plan, builder.buildTopology());
 
     // Check that we only have one action not 2
     assertEquals(1, plan.getActions().size());
@@ -664,7 +664,7 @@ public class AccessControlManagerTest {
             .addConsumer("User:app2", "NamespaceB_ConsumerGroupB")
             .addConsumer("User:app3", "*");
 
-    accessControlManager.apply(builder.buildTopology(), plan);
+    accessControlManager.updatePlan(plan, builder.buildTopology());
 
     // Check that we only have one action
     assertEquals(1, plan.getActions().size());
@@ -714,7 +714,7 @@ public class AccessControlManagerTest {
             .addConsumer("User:NamespaceA_app1", "*")
             .addConsumer("User:NamespaceB_app2", "*");
 
-    accessControlManager.apply(builder.buildTopology(), plan);
+    accessControlManager.updatePlan(plan, builder.buildTopology());
 
     // Check that we only have one action
     assertEquals(1, plan.getActions().size());

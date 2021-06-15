@@ -230,11 +230,11 @@ public class JulieOps implements AutoCloseable {
     // Create users should always be first, so user exists when making acl link
     principalManager.updatePlanWithPrincipalsCreation(plan, topology);
 
-    topicManager.apply(topology, plan);
-    accessControlManager.apply(topology, plan);
+    topicManager.updatePlan(plan, topology);
+    accessControlManager.updatePlan(plan, topology);
 
-    connectorManager.apply(topology, plan);
-    kSqlArtefactManager.apply(topology, plan);
+    connectorManager.updatePlan(plan, topology);
+    kSqlArtefactManager.updatePlan(plan, topology);
 
     // Delete users should always be last,
     // avoids any unlinked acls, e.g. if acl delete or something errors then there is a link still

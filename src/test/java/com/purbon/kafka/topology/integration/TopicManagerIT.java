@@ -117,7 +117,7 @@ public class TopicManagerIT {
     Topic topicB = new TopicImpl("topicB", config);
     project.addTopic(topicB);
 
-    topicManager.apply(topology, plan);
+    topicManager.updatePlan(plan, topology);
     plan.run();
 
     verifyTopics(Arrays.asList(topicA.toString(), topicB.toString()));
@@ -137,7 +137,7 @@ public class TopicManagerIT {
     Topic topicB = new TopicImpl("topicB");
     project.addTopic(topicB);
 
-    topicManager.apply(topology, plan);
+    topicManager.updatePlan(plan, topology);
     plan.run();
 
     verifyTopics(Arrays.asList(topicA.toString(), topicB.toString()));
@@ -158,7 +158,7 @@ public class TopicManagerIT {
     Topic topicA = new TopicImpl("topicA", config);
     project.addTopic(topicA);
 
-    topicManager.apply(topology, plan);
+    topicManager.updatePlan(plan, topology);
     plan.run();
   }
 
@@ -184,7 +184,7 @@ public class TopicManagerIT {
     Topic topicB = new TopicImpl("topicB", config);
     project.addTopic(topicB);
 
-    topicManager.apply(topology, plan);
+    topicManager.updatePlan(plan, topology);
     plan.run();
 
     verifyTopics(Arrays.asList(topicA.toString(), topicB.toString()));
@@ -209,7 +209,7 @@ public class TopicManagerIT {
     upProject.addTopic(topicB);
 
     plan.getActions().clear();
-    topicManager.apply(upTopology, plan);
+    topicManager.updatePlan(plan, upTopology);
     plan.run();
 
     verifyTopics(Arrays.asList(topicA.toString(), topicB.toString()));
@@ -231,7 +231,7 @@ public class TopicManagerIT {
     topology.setContext("testTopicDelete-test");
     topology.addProject(project);
 
-    topicManager.apply(topology, plan);
+    topicManager.updatePlan(plan, topology);
     plan.run();
 
     Topic topicC = new TopicImpl("topicC", buildDummyTopicConfig());
@@ -246,7 +246,7 @@ public class TopicManagerIT {
     topology.addProject(project);
 
     plan.getActions().clear();
-    topicManager.apply(topology, plan);
+    topicManager.updatePlan(plan, topology);
     plan.run();
 
     verifyTopics(Arrays.asList(topicA.toString(), internalTopic, topicC.toString()), 2);
@@ -280,7 +280,7 @@ public class TopicManagerIT {
     Topic topicA = new TopicImpl("topicA", config);
     project.addTopic(topicA);
 
-    topicManager.apply(topology, plan);
+    topicManager.updatePlan(plan, topology);
     plan.run();
 
     verifyTopicConfiguration(topicA.toString(), config);
@@ -301,7 +301,7 @@ public class TopicManagerIT {
     Topic topicA = new TopicImpl("topicA", config);
     project.addTopic(topicA);
 
-    topicManager.apply(topology, plan);
+    topicManager.updatePlan(plan, topology);
     plan.run();
 
     verifyTopicConfiguration(topicA.toString(), config);
@@ -314,7 +314,7 @@ public class TopicManagerIT {
     topology.setProjects(Collections.singletonList(project));
 
     plan.getActions().clear();
-    topicManager.apply(topology, plan);
+    topicManager.updatePlan(plan, topology);
     plan.run();
 
     verifyTopicConfiguration(topicA.toString(), config, Collections.singletonList("segment.bytes"));

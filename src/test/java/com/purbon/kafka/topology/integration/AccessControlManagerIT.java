@@ -114,7 +114,7 @@ public class AccessControlManagerIT {
     topology.addOther("source", "testAclsRemoval");
     topology.addProject(project);
 
-    accessControlManager.apply(topology, plan);
+    accessControlManager.updatePlan(plan, topology);
     plan.run();
 
     assertEquals(6, cs.size());
@@ -124,7 +124,7 @@ public class AccessControlManagerIT {
     project.setConsumers(consumers);
 
     plan.getActions().clear();
-    accessControlManager.apply(topology, plan);
+    accessControlManager.updatePlan(plan, topology);
     plan.run();
 
     assertEquals(3, cs.size());
@@ -152,7 +152,7 @@ public class AccessControlManagerIT {
             "User:testAclsRemovalUser1",
             "User:testAclsRemovalUser2");
 
-    accessControlManager.apply(topology, plan);
+    accessControlManager.updatePlan(plan, topology);
     plan.run();
     assertEquals(6, cs.size());
 
@@ -165,7 +165,7 @@ public class AccessControlManagerIT {
         buildTopologyForConsumers(
             "aclsRemovedTest-Integration", "", "topicA", "User:testAclsRemovalUser1");
 
-    accessControlManager.apply(topology, plan);
+    accessControlManager.updatePlan(plan, topology);
     plan.run();
 
     assertEquals(3, cs.size());
@@ -188,7 +188,7 @@ public class AccessControlManagerIT {
     topology.addOther("source", "testConsumerAclsCreation");
     topology.addProject(project);
 
-    accessControlManager.apply(topology, plan);
+    accessControlManager.updatePlan(plan, topology);
     plan.run(false);
 
     verifyConsumerAcls(consumers, topicA.toString());
@@ -211,7 +211,7 @@ public class AccessControlManagerIT {
     topology.addOther("source", "producerAclsCreation");
     topology.addProject(project);
 
-    accessControlManager.apply(topology, plan);
+    accessControlManager.updatePlan(plan, topology);
     plan.run(false);
 
     verifyProducerAcls(producers, topicA.toString(), 2);
@@ -235,7 +235,7 @@ public class AccessControlManagerIT {
     topology.addOther("source", "producerAclsCreation");
     topology.addProject(project);
 
-    accessControlManager.apply(topology, plan);
+    accessControlManager.updatePlan(plan, topology);
     plan.run(false);
 
     verifyProducerAcls(producers, topicA.toString(), 5);
@@ -259,7 +259,7 @@ public class AccessControlManagerIT {
     topology.addOther("source", "producerAclsCreation");
     topology.addProject(project);
 
-    accessControlManager.apply(topology, plan);
+    accessControlManager.updatePlan(plan, topology);
     plan.run(false);
 
     verifyProducerAcls(producers, topicA.toString(), 3);
@@ -282,7 +282,7 @@ public class AccessControlManagerIT {
     topology.addOther("source", "kstreamsAclsCreation");
     topology.addProject(project);
 
-    accessControlManager.apply(topology, plan);
+    accessControlManager.updatePlan(plan, topology);
     plan.run();
 
     verifyKStreamsAcls(app);
@@ -305,7 +305,7 @@ public class AccessControlManagerIT {
     topology.addOther("source", "ksqlAppAclsCreation");
     topology.addProject(project);
 
-    accessControlManager.apply(topology, plan);
+    accessControlManager.updatePlan(plan, topology);
     plan.run();
 
     verifyKSqlAppAcls(app);
@@ -343,7 +343,7 @@ public class AccessControlManagerIT {
             "topicA",
             "User:User1",
             "User:User2");
-    accessControlManager.apply(topology, plan);
+    accessControlManager.updatePlan(plan, topology);
     plan.run();
     verifyAclsOfSize(7); // should have the acls for julie included
   }
@@ -391,7 +391,7 @@ public class AccessControlManagerIT {
 
     topology.setPlatform(platform);
 
-    accessControlManager.apply(topology, plan);
+    accessControlManager.updatePlan(plan, topology);
     plan.run();
 
     verifySchemaRegistryAcls(platform);
@@ -422,7 +422,7 @@ public class AccessControlManagerIT {
 
     topology.setPlatform(platform);
 
-    accessControlManager.apply(topology, plan);
+    accessControlManager.updatePlan(plan, topology);
     plan.run();
 
     verifyControlCenterAcls(platform);
@@ -444,7 +444,7 @@ public class AccessControlManagerIT {
     topology.addOther("source", "connectAclsCreation");
     topology.addProject(project);
 
-    accessControlManager.apply(topology, plan);
+    accessControlManager.updatePlan(plan, topology);
     plan.run();
 
     verifyConnectAcls(connector);

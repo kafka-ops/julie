@@ -97,7 +97,7 @@ public class SchemaRegistryManagerIT {
 
     TopicManager topicManager = new TopicManager(adminClient, schemaRegistryManager, config);
 
-    topicManager.apply(parser.deserialise(file), plan);
+    topicManager.updatePlan(plan, parser.deserialise(file));
     plan.run();
 
     verifySubject(
@@ -118,7 +118,7 @@ public class SchemaRegistryManagerIT {
 
     TopicManager topicManager = new TopicManager(adminClient, schemaRegistryManager, config);
 
-    topicManager.apply(parser.deserialise(file), plan);
+    topicManager.updatePlan(plan, parser.deserialise(file));
     plan.run();
 
     verifySubject("schemas.json.foo.foo.json-value");
@@ -136,7 +136,7 @@ public class SchemaRegistryManagerIT {
 
     TopicManager topicManager = new TopicManager(adminClient, schemaRegistryManager, config);
 
-    topicManager.apply(parser.deserialise(file), plan);
+    topicManager.updatePlan(plan, parser.deserialise(file));
     plan.run();
 
     verifySubject("schemas.proto.foo.foo.proto-value");
@@ -154,7 +154,7 @@ public class SchemaRegistryManagerIT {
 
     TopicManager topicManager = new TopicManager(adminClient, schemaRegistryManager, config);
 
-    topicManager.apply(parser.deserialise(file), plan);
+    topicManager.updatePlan(plan, parser.deserialise(file));
     plan.run();
 
     String subjectName = "schemas.utf.foo.bar.avro-value";

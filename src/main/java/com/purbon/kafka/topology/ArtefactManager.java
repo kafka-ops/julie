@@ -35,7 +35,7 @@ public abstract class ArtefactManager implements ManagerOfThings {
   }
 
   @Override
-  public void apply(Topology topology, ExecutionPlan plan) throws IOException {
+  public void updatePlan(ExecutionPlan plan, Topology topology) throws IOException {
 
     Collection<? extends Artefact> currentArtefacts = loadActualClusterStateIfAvailable(plan);
 

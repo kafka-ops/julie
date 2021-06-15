@@ -148,16 +148,16 @@ public class JulieOpsTest {
     builder.setConnectorManager(connectorManager);
     builder.setKsqlArtefactManager(ksqlArtefactManager);
 
-    doNothing().when(topicManager).apply(anyObject(), anyObject());
+    doNothing().when(topicManager).updatePlan(anyObject(), anyObject());
 
-    doNothing().when(accessControlManager).apply(anyObject(), anyObject());
+    doNothing().when(accessControlManager).updatePlan(anyObject(), anyObject());
 
     builder.buildAndExecutePlan();
     builder.close();
 
-    verify(topicManager, times(1)).apply(anyObject(), anyObject());
-    verify(accessControlManager, times(1)).apply(anyObject(), anyObject());
-    verify(connectorManager, times(1)).apply(any(), any());
+    verify(topicManager, times(1)).updatePlan(anyObject(), anyObject());
+    verify(accessControlManager, times(1)).updatePlan(anyObject(), anyObject());
+    verify(connectorManager, times(1)).updatePlan(any(), any());
   }
 
   @Test
@@ -178,17 +178,17 @@ public class JulieOpsTest {
     builder.setConnectorManager(connectorManager);
     builder.setKsqlArtefactManager(ksqlArtefactManager);
 
-    doNothing().when(topicManager).apply(anyObject(), anyObject());
+    doNothing().when(topicManager).updatePlan(anyObject(), anyObject());
 
-    doNothing().when(accessControlManager).apply(anyObject(), anyObject());
+    doNothing().when(accessControlManager).updatePlan(anyObject(), anyObject());
 
     builder.buildAndExecutePlan(new BackendController(stateProcessor), System.out);
     builder.close();
 
     verify(stateProcessor, times(1)).createOrOpen();
     verify(stateProcessor, times(1)).createOrOpen(Mode.TRUNCATE);
-    verify(topicManager, times(1)).apply(anyObject(), anyObject());
-    verify(accessControlManager, times(1)).apply(anyObject(), anyObject());
+    verify(topicManager, times(1)).updatePlan(anyObject(), anyObject());
+    verify(accessControlManager, times(1)).updatePlan(anyObject(), anyObject());
   }
 
   @Test
@@ -210,15 +210,15 @@ public class JulieOpsTest {
     builder.setConnectorManager(connectorManager);
     builder.setKsqlArtefactManager(ksqlArtefactManager);
 
-    doNothing().when(topicManager).apply(anyObject(), anyObject());
+    doNothing().when(topicManager).updatePlan(anyObject(), anyObject());
 
-    doNothing().when(accessControlManager).apply(anyObject(), anyObject());
+    doNothing().when(accessControlManager).updatePlan(anyObject(), anyObject());
 
     builder.buildAndExecutePlan();
     builder.close();
 
-    verify(topicManager, times(1)).apply(anyObject(), anyObject());
-    verify(accessControlManager, times(1)).apply(anyObject(), anyObject());
+    verify(topicManager, times(1)).updatePlan(anyObject(), anyObject());
+    verify(accessControlManager, times(1)).updatePlan(anyObject(), anyObject());
   }
 
   @Test
@@ -239,14 +239,14 @@ public class JulieOpsTest {
     builder.setAccessControlManager(accessControlManager);
     builder.setKsqlArtefactManager(ksqlArtefactManager);
 
-    doNothing().when(topicManager).apply(anyObject(), anyObject());
+    doNothing().when(topicManager).updatePlan(anyObject(), anyObject());
 
-    doNothing().when(accessControlManager).apply(anyObject(), anyObject());
+    doNothing().when(accessControlManager).updatePlan(anyObject(), anyObject());
 
     builder.buildAndExecutePlan();
     builder.close();
 
-    verify(topicManager, times(1)).apply(anyObject(), anyObject());
-    verify(accessControlManager, times(1)).apply(anyObject(), anyObject());
+    verify(topicManager, times(1)).updatePlan(anyObject(), anyObject());
+    verify(accessControlManager, times(1)).updatePlan(anyObject(), anyObject());
   }
 }

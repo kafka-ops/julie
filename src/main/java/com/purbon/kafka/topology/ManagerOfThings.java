@@ -6,7 +6,7 @@ import java.io.PrintStream;
 
 public interface ManagerOfThings {
 
-  void apply(Topology topology, ExecutionPlan plan) throws IOException;
+  void updatePlan(ExecutionPlan plan, Topology topology) throws IOException;
 
   void printCurrentState(PrintStream out) throws IOException;
 }

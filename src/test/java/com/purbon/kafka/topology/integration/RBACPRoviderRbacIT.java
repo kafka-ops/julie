@@ -113,7 +113,7 @@ public class RBACPRoviderRbacIT extends MDSBaseTest {
     topology.setContext("testConsumerAclsCreation-test");
     topology.addProject(project);
 
-    accessControlManager.apply(topology, plan);
+    accessControlManager.updatePlan(plan, topology);
     plan.run();
 
     // this method is call twice, once for consumers and one for producers
@@ -137,7 +137,7 @@ public class RBACPRoviderRbacIT extends MDSBaseTest {
     topology.setContext("producerAclsCreation-test");
     topology.addProject(project);
 
-    accessControlManager.apply(topology, plan);
+    accessControlManager.updatePlan(plan, topology);
     plan.run();
 
     // this method is call twice, once for consumers and one for consumers
@@ -162,7 +162,7 @@ public class RBACPRoviderRbacIT extends MDSBaseTest {
     topology.setContext("kstreamsAclsCreation-test");
     topology.addProject(project);
 
-    accessControlManager.apply(topology, plan);
+    accessControlManager.updatePlan(plan, topology);
     plan.run();
 
     verify(cs, times(1)).addBindings(anyList());
@@ -188,7 +188,7 @@ public class RBACPRoviderRbacIT extends MDSBaseTest {
     topology.addOther("source", "ksqlAppAclsCreation-test");
     topology.addProject(project);
 
-    accessControlManager.apply(topology, plan);
+    accessControlManager.updatePlan(plan, topology);
     plan.run();
 
     verify(cs, times(1)).addBindings(anyList());
@@ -212,7 +212,7 @@ public class RBACPRoviderRbacIT extends MDSBaseTest {
     topology.setContext("connectAclsCreation-test");
     topology.addProject(project);
 
-    accessControlManager.apply(topology, plan);
+    accessControlManager.updatePlan(plan, topology);
     plan.run();
 
     verify(cs, times(1)).addBindings(anyList());
@@ -246,7 +246,7 @@ public class RBACPRoviderRbacIT extends MDSBaseTest {
     platform.setSchemaRegistry(sr);
     topology.setPlatform(platform);
 
-    accessControlManager.apply(topology, plan);
+    accessControlManager.updatePlan(plan, topology);
     plan.run();
 
     verify(cs, times(1)).addBindings(anyList());
@@ -272,7 +272,7 @@ public class RBACPRoviderRbacIT extends MDSBaseTest {
 
     topology.setPlatform(platform);
 
-    accessControlManager.apply(topology, plan);
+    accessControlManager.updatePlan(plan, topology);
     plan.run();
 
     verify(cs, times(1)).addBindings(anyList());
@@ -297,7 +297,7 @@ public class RBACPRoviderRbacIT extends MDSBaseTest {
     platform.setKafka(kafka);
     topology.setPlatform(platform);
 
-    accessControlManager.apply(topology, plan);
+    accessControlManager.updatePlan(plan, topology);
     plan.run();
 
     verify(cs, times(1)).addBindings(anyList());
@@ -323,7 +323,7 @@ public class RBACPRoviderRbacIT extends MDSBaseTest {
     platform.setKafkaConnect(connect);
     topology.setPlatform(platform);
 
-    accessControlManager.apply(topology, plan);
+    accessControlManager.updatePlan(plan, topology);
     plan.run();
 
     verify(cs, times(1)).addBindings(anyList());
@@ -366,7 +366,7 @@ public class RBACPRoviderRbacIT extends MDSBaseTest {
     Topic topicA = new TopicImpl("topicA");
     project.addTopic(topicA);
 
-    accessControlManager.apply(topology, plan);
+    accessControlManager.updatePlan(plan, topology);
     plan.run();
 
     // two group and two topics as we have one topic and two principles
@@ -377,7 +377,7 @@ public class RBACPRoviderRbacIT extends MDSBaseTest {
     cs = new BackendController();
     plan = ExecutionPlan.init(cs, System.out);
 
-    accessControlManager.apply(topology, plan);
+    accessControlManager.updatePlan(plan, topology);
     plan.run();
 
     bindings = getBindings(rbacProvider);

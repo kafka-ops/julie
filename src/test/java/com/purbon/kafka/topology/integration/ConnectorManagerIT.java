@@ -93,7 +93,7 @@ public class ConnectorManagerIT {
     Topology topology = parser.deserialise(file);
     connectorManager = new KafkaConnectArtefactManager(client, config, file.getAbsolutePath());
 
-    connectorManager.apply(topology, plan);
+    connectorManager.updatePlan(plan, topology);
     plan.run();
     // we should wait a bit until the connector starts downstream
     Thread.sleep(1000);
@@ -108,7 +108,7 @@ public class ConnectorManagerIT {
 
     ExecutionPlan newPlan = ExecutionPlan.init(new BackendController(), System.out);
 
-    connectorManager.apply(topology, newPlan);
+    connectorManager.updatePlan(newPlan, topology);
     newPlan.run();
     // we should wait a bit until the connector starts downstream
     Thread.sleep(1000);

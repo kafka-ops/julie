@@ -52,7 +52,7 @@ public class TopicManager implements ManagerOfThings {
     this.managedPrefixes = config.getTopicManagedPrefixes();
   }
 
-  public void apply(Topology topology, ExecutionPlan plan) throws IOException {
+  public void updatePlan(ExecutionPlan plan, Topology topology) throws IOException {
 
     Set<String> currentTopics = loadActualClusterStateIfAvailable(plan);
     // Foreach topic in the topology, sync it's content

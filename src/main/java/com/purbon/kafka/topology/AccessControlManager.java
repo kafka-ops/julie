@@ -64,10 +64,10 @@ public class AccessControlManager {
    * Main apply method, append to the execution plan the necessary bindings to update the access
    * control
    *
-   * @param topology A topology file descriptor
    * @param plan An Execution plan
+   * @param topology A topology file descriptor
    */
-  public void apply(final Topology topology, ExecutionPlan plan) throws IOException {
+  public void updatePlan(ExecutionPlan plan, final Topology topology) throws IOException {
     List<Action> actions = buildProjectActions(topology);
     actions.addAll(buildPlatformLevelActions(topology));
     buildUpdateBindingsActions(actions, loadActualClusterStateIfAvailable(plan)).forEach(plan::add);
