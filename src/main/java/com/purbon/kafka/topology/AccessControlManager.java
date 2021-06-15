@@ -32,7 +32,7 @@ import java.util.stream.Stream;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-public class AccessControlManager {
+public class AccessControlManager implements ManagerOfThings {
 
   private static final Logger LOGGER = LogManager.getLogger(AccessControlManager.class);
 
@@ -67,6 +67,7 @@ public class AccessControlManager {
    * @param plan An Execution plan
    * @param topology A topology file descriptor
    */
+  @Override
   public void updatePlan(ExecutionPlan plan, final Topology topology) throws IOException {
     List<Action> actions = buildProjectActions(topology);
     actions.addAll(buildPlatformLevelActions(topology));
@@ -99,7 +100,7 @@ public class AccessControlManager {
    * @param topology A topology file
    * @return List<Action> A list of actions required based on the parameters
    */
-  public List<Action> buildProjectActions(Topology topology) {
+  private List<Action> buildProjectActions(Topology topology) {
     List<Action> actions = new ArrayList<>();
 
     for (Project project : topology.getProjects()) {
@@ -192,7 +193,7 @@ public class AccessControlManager {
    * @param bindings List of current bindings available in the cluster
    * @return List<Action> list of actions necessary to update the cluster
    */
-  public List<Action> buildUpdateBindingsActions(
+  private List<Action> buildUpdateBindingsActions(
       List<Action> actions, Set<TopologyAclBinding> bindings) throws IOException {
 
     List<Action> updateActions = new ArrayList<>();
@@ -294,7 +295,7 @@ public class AccessControlManager {
   }
 
   // Sync platform relevant Access Control List.
-  public List<Action> buildPlatformLevelActions(final Topology topology) {
+  private List<Action> buildPlatformLevelActions(final Topology topology) {
     List<Action> actions = new ArrayList<>();
     Platform platform = topology.getPlatform();
 
@@ -353,6 +354,7 @@ public class AccessControlManager {
     return Optional.ofNullable(action);
   }
 
+  @Override
   public void printCurrentState(PrintStream out) {
     out.println("List of ACLs: ");
     controlProvider

@@ -52,6 +52,7 @@ public class TopicManager implements ManagerOfThings {
     this.managedPrefixes = config.getTopicManagedPrefixes();
   }
 
+  @Override
   public void updatePlan(ExecutionPlan plan, Topology topology) throws IOException {
 
     Set<String> currentTopics = loadActualClusterStateIfAvailable(plan);
@@ -135,6 +136,7 @@ public class TopicManager implements ManagerOfThings {
     return matches;
   }
 
+  @Override
   public void printCurrentState(PrintStream os) throws IOException {
     os.println("List of Topics:");
     adminClient.listTopics().forEach(os::println);
