@@ -13,40 +13,34 @@ public class UpdateTopicConfigAction extends BaseAction {
 
   private static final Logger LOGGER = LogManager.getLogger(UpdateTopicConfigAction.class);
 
-  private final Topic topic;
-  private final String fullTopicName;
+  private final TopicConfigUpdatePlan topicConfigUpdatePlan;
   private final TopologyBuilderAdminClient adminClient;
 
   public UpdateTopicConfigAction(
-      TopologyBuilderAdminClient adminClient, Topic topic, String fullTopicName) {
-    this.topic = topic;
-    this.fullTopicName = fullTopicName;
+      TopologyBuilderAdminClient adminClient, TopicConfigUpdatePlan topicConfigUpdatePlan) {
+    this.topicConfigUpdatePlan = topicConfigUpdatePlan;
     this.adminClient = adminClient;
-  }
-
-  public String getTopic() {
-    return fullTopicName;
   }
 
   @Override
   public void run() throws IOException {
-    updateConfig(topic, fullTopicName);
-  }
+    final Topic topic = topicConfigUpdatePlan.getTopic();
+    final String fullTopicName = topicConfigUpdatePlan.getFullTopicName();
 
-  private void updateConfig(Topic topic, String fullTopicName) throws IOException {
     LOGGER.debug(String.format("Update config for topic %s", fullTopicName));
-    if (topic.partitionsCount() > adminClient.getPartitionCount(fullTopicName)) {
+    if (topicConfigUpdatePlan.isUpdatePartitionCount()) {
       LOGGER.debug(String.format("Update partition count of topic %s", fullTopicName));
       adminClient.updatePartitionCount(topic, fullTopicName);
     }
-    adminClient.updateTopicConfig(topic, fullTopicName);
+
+    adminClient.updateTopicConfig(topicConfigUpdatePlan);
   }
 
   @Override
   protected Map<String, Object> props() {
     Map<String, Object> map = new HashMap<>();
     map.put("Operation", getClass().getName());
-    map.put("Topic", fullTopicName);
+    map.put("Topic", topicConfigUpdatePlan.getFullTopicName());
     map.put("Action", "update");
     return map;
   }

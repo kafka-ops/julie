@@ -118,7 +118,7 @@ public class TopicManagerTest {
 
     verify(adminClient, times(0)).createTopic(topicA, topicA.toString());
     verify(adminClient, times(0)).createTopic(topicB, topicB.toString());
-    verify(adminClient, times(1)).updateTopicConfig(topicB, topicB.toString());
+    verify(adminClient, times(2)).updateTopicConfig(any());
     verify(adminClient, times(1)).getPartitionCount(topicB.toString());
     verify(adminClient, times(1)).updatePartitionCount(topicB, topicB.toString());
   }

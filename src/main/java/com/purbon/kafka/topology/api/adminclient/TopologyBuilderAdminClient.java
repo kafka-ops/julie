@@ -1,5 +1,6 @@
 package com.purbon.kafka.topology.api.adminclient;
 
+import com.purbon.kafka.topology.actions.topics.TopicConfigUpdatePlan;
 import com.purbon.kafka.topology.model.Topic;
 import com.purbon.kafka.topology.roles.TopologyAclBinding;
 import java.io.IOException;
@@ -7,6 +8,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ExecutionException;
@@ -74,12 +76,40 @@ public class TopologyBuilderAdminClient {
     return listTopics(options);
   }
 
-  public void updateTopicConfig(Topic topic, String fullTopicName) throws IOException {
+  public void updateTopicConfig(TopicConfigUpdatePlan configUpdatePlan) {
+    Set<AlterConfigOp> configChanges = new HashSet<>();
+
+    configUpdatePlan
+        .getNewConfigValues()
+        .forEach(
+            (configKey, configValue) -> {
+              configChanges.add(
+                  new AlterConfigOp(new ConfigEntry(configKey, configValue), OpType.SET));
+            });
+
+    configUpdatePlan
+        .getUpdatedConfigValues()
+        .forEach(
+            (configKey, configValue) -> {
+              configChanges.add(
+                  new AlterConfigOp(new ConfigEntry(configKey, configValue), OpType.SET));
+            });
+
+    configUpdatePlan
+        .getDeletedConfigValues()
+        .forEach(
+            (configKey, configValue) -> {
+              configChanges.add(
+                  new AlterConfigOp(new ConfigEntry(configKey, configValue), OpType.DELETE));
+            });
+    Map<ConfigResource, Collection<AlterConfigOp>> configs = new HashMap<>();
+    configs.put(new ConfigResource(Type.TOPIC, configUpdatePlan.getFullTopicName()), configChanges);
+
     try {
-      updateTopicConfigPostAK23(topic, fullTopicName);
+      adminClient.incrementalAlterConfigs(configs).all().get();
     } catch (InterruptedException | ExecutionException ex) {
-      LOGGER.error(ex);
-      throw new IOException(ex);
+      LOGGER.error("Failed to update configs for topic " + configUpdatePlan.getFullTopicName(), ex);
+      throw new RuntimeException(ex);
     }
   }
 
@@ -142,42 +172,17 @@ public class TopologyBuilderAdminClient {
     }
   }
 
-  private void updateTopicConfigPostAK23(Topic topic, String fullTopicName)
-      throws ExecutionException, InterruptedException {
-
-    Config currentConfigs = getActualTopicConfig(fullTopicName);
-
-    Map<ConfigResource, Collection<AlterConfigOp>> configs = new HashMap<>();
-    ArrayList<AlterConfigOp> listOfValues = new ArrayList<>();
-
-    topic
-        .getRawConfig()
-        .forEach(
-            (configKey, configValue) -> {
-              listOfValues.add(
-                  new AlterConfigOp(new ConfigEntry(configKey, configValue), OpType.SET));
-            });
-    Set<String> newEntryKeys = topic.getRawConfig().keySet();
-
-    currentConfigs
-        .entries()
-        .forEach(
-            entry -> {
-              if (!entry.isDefault() && !newEntryKeys.contains(entry.name())) {
-                listOfValues.add(new AlterConfigOp(entry, OpType.DELETE));
-              }
-            });
-
-    configs.put(new ConfigResource(Type.TOPIC, fullTopicName), listOfValues);
-
-    adminClient.incrementalAlterConfigs(configs).all().get();
-  }
-
-  public Config getActualTopicConfig(String topic) throws ExecutionException, InterruptedException {
+  public Config getActualTopicConfig(String topic) {
     ConfigResource resource = new ConfigResource(Type.TOPIC, topic);
     Collection<ConfigResource> resources = Collections.singletonList(resource);
 
-    Map<ConfigResource, Config> configs = adminClient.describeConfigs(resources).all().get();
+    Map<ConfigResource, Config> configs = null;
+    try {
+      configs = adminClient.describeConfigs(resources).all().get();
+    } catch (InterruptedException | ExecutionException ex) {
+      LOGGER.error(ex);
+      throw new RuntimeException(ex);
+    }
 
     return configs.get(resource);
   }

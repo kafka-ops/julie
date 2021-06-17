@@ -4,7 +4,9 @@ import com.purbon.kafka.topology.actions.Action;
 import com.purbon.kafka.topology.actions.topics.CreateTopicAction;
 import com.purbon.kafka.topology.actions.topics.DeleteTopics;
 import com.purbon.kafka.topology.actions.topics.RegisterSchemaAction;
+import com.purbon.kafka.topology.actions.topics.TopicConfigUpdatePlan;
 import com.purbon.kafka.topology.actions.topics.UpdateTopicConfigAction;
+import com.purbon.kafka.topology.actions.topics.builders.TopicConfigUpdatePlanBuilder;
 import com.purbon.kafka.topology.api.adminclient.TopologyBuilderAdminClient;
 import com.purbon.kafka.topology.model.Topic;
 import com.purbon.kafka.topology.model.Topology;
@@ -63,7 +65,11 @@ public class TopicManager implements ManagerOfThings {
     topics.forEach(
         (topicName, topic) -> {
           if (currentTopics.contains(topicName)) {
-            updateTopicConfigActions.add(new UpdateTopicConfigAction(adminClient, topic, topicName));
+            TopicConfigUpdatePlanBuilder builder = new TopicConfigUpdatePlanBuilder(adminClient);
+            TopicConfigUpdatePlan topicConfigUpdatePlan =
+                builder.createTopicConfigUpdatePlan(topic, topicName);
+            updateTopicConfigActions.add(
+                new UpdateTopicConfigAction(adminClient, topicConfigUpdatePlan));
           } else {
             createTopicActions.add(new CreateTopicAction(adminClient, topic, topicName));
           }
