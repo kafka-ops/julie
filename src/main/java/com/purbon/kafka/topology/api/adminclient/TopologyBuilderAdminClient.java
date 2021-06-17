@@ -173,8 +173,7 @@ public class TopologyBuilderAdminClient {
     adminClient.incrementalAlterConfigs(configs).all().get();
   }
 
-  private Config getActualTopicConfig(String topic)
-      throws ExecutionException, InterruptedException {
+  public Config getActualTopicConfig(String topic) throws ExecutionException, InterruptedException {
     ConfigResource resource = new ConfigResource(Type.TOPIC, topic);
     Collection<ConfigResource> resources = Collections.singletonList(resource);
 

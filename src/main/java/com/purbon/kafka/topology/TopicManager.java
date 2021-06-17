@@ -1,14 +1,21 @@
 package com.purbon.kafka.topology;
 
+import com.purbon.kafka.topology.actions.Action;
+import com.purbon.kafka.topology.actions.topics.CreateTopicAction;
 import com.purbon.kafka.topology.actions.topics.DeleteTopics;
-import com.purbon.kafka.topology.actions.topics.SyncTopicAction;
+import com.purbon.kafka.topology.actions.topics.RegisterSchemaAction;
+import com.purbon.kafka.topology.actions.topics.UpdateTopicConfigAction;
 import com.purbon.kafka.topology.api.adminclient.TopologyBuilderAdminClient;
 import com.purbon.kafka.topology.model.Topic;
 import com.purbon.kafka.topology.model.Topology;
 import com.purbon.kafka.topology.schemas.SchemaRegistryManager;
 import java.io.IOException;
 import java.io.PrintStream;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
@@ -45,23 +52,36 @@ public class TopicManager implements ManagerOfThings {
 
   public void apply(Topology topology, ExecutionPlan plan) throws IOException {
 
-    Set<String> listOfTopics = loadActualClusterStateIfAvailable(plan);
+    Set<String> currentTopics = loadActualClusterStateIfAvailable(plan);
     // Foreach topic in the topology, sync it's content
     // if topics does not exist already it's created
 
     Map<String, Topic> topics = parseMapOfTopics(topology);
+
+    Set<Action> createTopicActions = new HashSet<>();
+    Set<Action> updateTopicConfigActions = new HashSet<>();
     topics.forEach(
         (topicName, topic) -> {
-          plan.add(
-              new SyncTopicAction(
-                  adminClient, schemaRegistryManager, topic, topicName, listOfTopics));
+          if (currentTopics.contains(topicName)) {
+            updateTopicConfigActions.add(new UpdateTopicConfigAction(adminClient, topic, topicName));
+          } else {
+            createTopicActions.add(new CreateTopicAction(adminClient, topic, topicName));
+          }
+        });
+
+    createTopicActions.forEach(plan::add); // Do createActions before update actions
+    updateTopicConfigActions.forEach(plan::add);
+
+    topics.forEach(
+        (topicName, topic) -> {
+          plan.add(new RegisterSchemaAction(schemaRegistryManager, topic, topicName));
         });
 
     if (config.isAllowDeleteTopics()) {
       // Handle topic delete: Topics in the initial list, but not present anymore after a
       // full topic sync should be deleted
       List<String> topicsToBeDeleted =
-          listOfTopics.stream()
+          currentTopics.stream()
               .filter(topic -> !topics.containsKey(topic) && !isAnInternalTopics(topic))
               .collect(Collectors.toList());
 

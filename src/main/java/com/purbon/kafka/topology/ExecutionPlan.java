@@ -7,8 +7,8 @@ import com.purbon.kafka.topology.actions.DeleteArtefactAction;
 import com.purbon.kafka.topology.actions.access.ClearBindings;
 import com.purbon.kafka.topology.actions.accounts.ClearAccounts;
 import com.purbon.kafka.topology.actions.accounts.CreateAccounts;
+import com.purbon.kafka.topology.actions.topics.CreateTopicAction;
 import com.purbon.kafka.topology.actions.topics.DeleteTopics;
-import com.purbon.kafka.topology.actions.topics.SyncTopicAction;
 import com.purbon.kafka.topology.model.Artefact;
 import com.purbon.kafka.topology.model.artefact.KafkaConnectArtefact;
 import com.purbon.kafka.topology.model.artefact.KsqlArtefact;
@@ -112,8 +112,8 @@ public class ExecutionPlan {
       action.run();
       // TODO: a nicer and more clean version of this might be a cool thing to have, current version
       // is shitty.
-      if (action instanceof SyncTopicAction) {
-        topics.add(((SyncTopicAction) action).getTopic());
+      if (action instanceof CreateTopicAction) {
+        topics.add(((CreateTopicAction) action).getTopic());
       } else if (action instanceof DeleteTopics) {
         List<String> topicsToBeDeleted = ((DeleteTopics) action).getTopicsToBeDeleted();
         topics =
