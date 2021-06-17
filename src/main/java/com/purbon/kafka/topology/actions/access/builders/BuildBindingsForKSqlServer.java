@@ -21,7 +21,7 @@ public class BuildBindingsForKSqlServer extends BaseAccessControlAction {
 
   @Override
   protected void execute() throws IOException {
-    aclBindings = builderProvider.buildBindingsForKSqlServer(ksqlServer);
+    bindings = builderProvider.buildBindingsForKSqlServer(ksqlServer);
   }
 
   @Override

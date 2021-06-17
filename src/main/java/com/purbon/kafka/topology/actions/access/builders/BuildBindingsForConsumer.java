@@ -28,7 +28,7 @@ public class BuildBindingsForConsumer extends BaseAccessControlAction {
 
   @Override
   protected void execute() {
-    aclBindings = builderProvider.buildBindingsForConsumers(consumers, fullTopicName, prefixed);
+    bindings = builderProvider.buildBindingsForConsumers(consumers, fullTopicName, prefixed);
   }
 
   @Override

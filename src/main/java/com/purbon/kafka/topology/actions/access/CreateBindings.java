@@ -24,15 +24,15 @@ public class CreateBindings extends BaseAccessControlAction {
 
   @Override
   protected void execute() throws IOException {
-    LOGGER.debug("CreateBindings: " + aclBindings);
-    controlProvider.createBindings(new HashSet<>(aclBindings));
+    LOGGER.debug("CreateBindings: " + bindings);
+    controlProvider.createBindings(new HashSet<>(bindings));
   }
 
   @Override
   protected Map<String, Object> props() {
     Map<String, Object> map = new HashMap<>();
     map.put("Operation", getClass().getName());
-    map.put("Bindings", aclBindings);
+    map.put("Bindings", bindings);
     return map;
   }
 }

@@ -14,26 +14,26 @@ public abstract class BaseAccessControlAction extends BaseAction {
 
   private static final Logger LOGGER = LogManager.getLogger(BaseAccessControlAction.class);
 
-  protected Collection<TopologyAclBinding> aclBindings;
+  protected Collection<TopologyAclBinding> bindings;
 
   public BaseAccessControlAction() {
     this(new ArrayList<>());
   }
 
-  public BaseAccessControlAction(Collection<TopologyAclBinding> aclBindings) {
-    this.aclBindings = aclBindings;
+  public BaseAccessControlAction(Collection<TopologyAclBinding> bindings) {
+    this.bindings = bindings;
   }
 
   @Override
   public void run() throws IOException {
     LOGGER.debug(String.format("Running Action %s", getClass()));
     execute();
-    if (!getAclBindings().isEmpty()) logResults();
+    if (!getBindings().isEmpty()) logResults();
   }
 
   private void logResults() {
     List<String> bindingsAsList =
-        getAclBindings().stream()
+        getBindings().stream()
             .filter(Objects::nonNull)
             .map(TopologyAclBinding::toString)
             .collect(Collectors.toList());
@@ -43,7 +43,7 @@ public abstract class BaseAccessControlAction extends BaseAction {
   protected abstract void execute() throws IOException;
 
   @Override
-  public List<TopologyAclBinding> getAclBindings() {
-    return new ArrayList<>(aclBindings);
+  public List<TopologyAclBinding> getBindings() {
+    return new ArrayList<>(bindings);
   }
 }

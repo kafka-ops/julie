@@ -33,7 +33,7 @@ public class BuildBindingsForKStreams extends BaseAccessControlAction {
     List<String> readTopics = app.getTopics().get(KStream.READ_TOPICS);
     List<String> writeTopics = app.getTopics().get(KStream.WRITE_TOPICS);
 
-    aclBindings =
+    bindings =
         builderProvider.buildBindingsForStreamsApp(
             app.getPrincipal(), prefix, readTopics, writeTopics);
   }

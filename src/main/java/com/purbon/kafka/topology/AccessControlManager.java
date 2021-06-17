@@ -204,7 +204,7 @@ public class AccessControlManager implements ExecutionPlanUpdater {
                 action -> {
                   try {
                     action.run();
-                    return Either.Left(action.getAclBindings().stream());
+                    return Either.Left(action.getBindings().stream());
                   } catch (IOException e) {
                     return Either.Right(e);
                   }

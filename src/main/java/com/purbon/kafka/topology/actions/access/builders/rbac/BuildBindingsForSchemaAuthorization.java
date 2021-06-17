@@ -21,7 +21,7 @@ public class BuildBindingsForSchemaAuthorization extends BaseAccessControlAction
 
   @Override
   protected void execute() throws IOException {
-    aclBindings =
+    bindings =
         builderProvider.setSchemaAuthorization(
             schemaAuthorization.getPrincipal(), schemaAuthorization.getSubjects());
   }

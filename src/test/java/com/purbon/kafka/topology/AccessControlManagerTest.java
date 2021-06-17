@@ -629,7 +629,7 @@ public class AccessControlManagerTest {
     // Check that the action bindings are for the managed prefix topic, not the non-managed prefix.
     assertEquals(
         2,
-        plan.getActions().get(0).getAclBindings().stream()
+        plan.getActions().get(0).getBindings().stream()
             .filter(
                 b ->
                     b.getResourceType().equals(ResourceType.TOPIC.name())
@@ -637,7 +637,7 @@ public class AccessControlManagerTest {
             .count());
     assertEquals(
         0,
-        plan.getActions().get(0).getAclBindings().stream()
+        plan.getActions().get(0).getBindings().stream()
             .filter(
                 b ->
                     b.getResourceType().equals(ResourceType.TOPIC.name())
@@ -672,7 +672,7 @@ public class AccessControlManagerTest {
     // Check that the action bindings are for the managed prefix group, not the non-managed prefix.
     assertEquals(
         1,
-        plan.getActions().get(0).getAclBindings().stream()
+        plan.getActions().get(0).getBindings().stream()
             .filter(
                 b ->
                     b.getResourceType().equals(ResourceType.GROUP.name())
@@ -680,7 +680,7 @@ public class AccessControlManagerTest {
             .count());
     assertEquals(
         0,
-        plan.getActions().get(0).getAclBindings().stream()
+        plan.getActions().get(0).getBindings().stream()
             .filter(
                 b ->
                     b.getResourceType().equals(ResourceType.GROUP.name())
@@ -688,7 +688,7 @@ public class AccessControlManagerTest {
             .count());
     assertEquals(
         1,
-        plan.getActions().get(0).getAclBindings().stream()
+        plan.getActions().get(0).getBindings().stream()
             .filter(
                 b ->
                     b.getResourceType().equals(ResourceType.GROUP.name())
@@ -722,7 +722,7 @@ public class AccessControlManagerTest {
     // Check that the action bindings are for the managed service group, not the non-managed prefix.
     assertEquals(
         1,
-        plan.getActions().get(0).getAclBindings().stream()
+        plan.getActions().get(0).getBindings().stream()
             .filter(
                 b ->
                     b.getResourceType().equals(ResourceType.GROUP.name())
@@ -731,7 +731,7 @@ public class AccessControlManagerTest {
             .count());
     assertEquals(
         0,
-        plan.getActions().get(0).getAclBindings().stream()
+        plan.getActions().get(0).getBindings().stream()
             .filter(
                 b ->
                     b.getResourceType().equals(ResourceType.GROUP.name())

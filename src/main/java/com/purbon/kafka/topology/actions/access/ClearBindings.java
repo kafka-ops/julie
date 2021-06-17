@@ -25,15 +25,15 @@ public class ClearBindings extends BaseAccessControlAction {
 
   @Override
   protected void execute() throws IOException {
-    LOGGER.debug("ClearBindings: " + aclBindings);
-    controlProvider.clearBindings(new HashSet(aclBindings));
+    LOGGER.debug("ClearBindings: " + bindings);
+    controlProvider.clearBindings(new HashSet(bindings));
   }
 
   @Override
   protected Map<String, Object> props() {
     Map<String, Object> map = new HashMap<>();
     map.put("Operation", getClass().getName());
-    map.put("Bindings", aclBindings);
+    map.put("Bindings", bindings);
     return map;
   }
 }
