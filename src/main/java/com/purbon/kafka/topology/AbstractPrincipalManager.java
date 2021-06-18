@@ -41,6 +41,7 @@ abstract class AbstractPrincipalManager implements ExecutionPlanUpdater {
       // This means the management of principals is either not possible or has not been configured
       return;
     }
+    provider.configure();
     List<String> principals = parseListOfPrincipals(topology);
     Map<String, ServiceAccount> accounts = loadActualClusterStateIfAvailable(plan);
     doUpdatePlan(plan, topology, principals, accounts);

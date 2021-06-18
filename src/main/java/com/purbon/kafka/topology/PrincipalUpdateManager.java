@@ -3,7 +3,7 @@ package com.purbon.kafka.topology;
 import com.purbon.kafka.topology.actions.accounts.CreateAccounts;
 import com.purbon.kafka.topology.model.Topology;
 import com.purbon.kafka.topology.model.cluster.ServiceAccount;
-import java.io.IOException;
+
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -20,9 +20,7 @@ public class PrincipalUpdateManager extends AbstractPrincipalManager {
       ExecutionPlan plan,
       Topology topology,
       List<String> principals,
-      Map<String, ServiceAccount> accounts)
-      throws IOException {
-    provider.configure();
+      Map<String, ServiceAccount> accounts) {
     // build set of principals to be created.
     Set<ServiceAccount> principalsToBeCreated =
         principals.stream()

@@ -3,7 +3,7 @@ package com.purbon.kafka.topology;
 import com.purbon.kafka.topology.actions.accounts.ClearAccounts;
 import com.purbon.kafka.topology.model.Topology;
 import com.purbon.kafka.topology.model.cluster.ServiceAccount;
-import java.io.IOException;
+
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -19,10 +19,8 @@ public class PrincipalDeleteManager extends AbstractPrincipalManager {
       ExecutionPlan plan,
       Topology topology,
       List<String> principals,
-      Map<String, ServiceAccount> accounts)
-      throws IOException {
+      Map<String, ServiceAccount> accounts) {
     if (config.isAllowDeletePrincipals()) {
-      provider.configure();
       // build list of principals to be deleted.
       List<ServiceAccount> principalsToBeDeleted =
           accounts.values().stream()
