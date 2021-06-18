@@ -219,8 +219,7 @@ public class JulieOps implements AutoCloseable {
     }
   }
 
-  void buildAndExecutePlan(BackendController backendController, PrintStream printStream)
-      throws IOException {
+  void run(BackendController backendController, PrintStream printStream) throws IOException {
     ExecutionPlan plan = ExecutionPlan.init(backendController, printStream);
     LOGGER.debug(
         String.format(
@@ -245,11 +244,11 @@ public class JulieOps implements AutoCloseable {
     }
   }
 
-  public void buildAndExecutePlan() throws IOException {
+  public void run() throws IOException {
     if (config.doValidate()) {
       return;
     }
-    buildAndExecutePlan(buildBackendController(config), outputStream);
+    run(buildBackendController(config), outputStream);
   }
 
   public void close() {

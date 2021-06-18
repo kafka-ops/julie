@@ -204,7 +204,7 @@ public class CommandLineInterface {
   void processTopology(String topologyFile, String plansFile, Map<String, String> config)
       throws Exception {
     try (JulieOps builder = JulieOps.build(topologyFile, plansFile, config)) {
-      builder.buildAndExecutePlan();
+      builder.run();
     }
   }
 }
