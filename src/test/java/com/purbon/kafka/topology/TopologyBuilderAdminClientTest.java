@@ -99,7 +99,7 @@ public class TopologyBuilderAdminClientTest {
     Topology topology = new TopologyImpl();
     topology.addProject(project);
 
-    accessControlManager.apply(topology, plan);
+    accessControlManager.updatePlan(plan, topology);
     plan.run();
 
     verify(kafkaAdminClient, times(1)).createAcls(anyCollection());
@@ -119,7 +119,7 @@ public class TopologyBuilderAdminClientTest {
     Topology topology = new TopologyImpl();
     topology.addProject(project);
 
-    accessControlManager.apply(topology, plan);
+    accessControlManager.updatePlan(plan, topology);
     plan.run();
 
     verify(kafkaAdminClient, times(1)).createAcls(anyCollection());
@@ -141,7 +141,7 @@ public class TopologyBuilderAdminClientTest {
     Topology topology = new TopologyImpl();
     topology.addProject(project);
 
-    accessControlManager.apply(topology, plan);
+    accessControlManager.updatePlan(plan, topology);
     plan.run();
 
     verify(kafkaAdminClient, times(1)).createAcls(anyCollection());
@@ -169,7 +169,7 @@ public class TopologyBuilderAdminClientTest {
     platform.setSchemaRegistry(sr);
     topology.setPlatform(platform);
 
-    accessControlManager.apply(topology, plan);
+    accessControlManager.updatePlan(plan, topology);
     plan.run();
 
     verify(kafkaAdminClient, times(1)).createAcls(anyCollection());
@@ -191,7 +191,7 @@ public class TopologyBuilderAdminClientTest {
     platform.setControlCenter(c3);
     topology.setPlatform(platform);
 
-    accessControlManager.apply(topology, plan);
+    accessControlManager.updatePlan(plan, topology);
     plan.run();
 
     verify(kafkaAdminClient, times(1)).createAcls(anyCollection());
@@ -213,7 +213,7 @@ public class TopologyBuilderAdminClientTest {
     Topology topology = new TopologyImpl();
     topology.addProject(project);
 
-    accessControlManager.apply(topology, plan);
+    accessControlManager.updatePlan(plan, topology);
     plan.run();
 
     verify(kafkaAdminClient, times(1)).createAcls(anyCollection());

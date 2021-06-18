@@ -92,7 +92,7 @@ public class RbacProviderTest {
         .when(apiClient)
         .bind("User:app1", DEVELOPER_READ, topicA.toString(), LITERAL);
 
-    accessControlManager.apply(topology, plan);
+    accessControlManager.updatePlan(plan, topology);
 
     verify(apiClient, times(1))
         .bind(eq("User:app1"), anyString(), eq(topicA.toString()), anyString());
@@ -124,7 +124,7 @@ public class RbacProviderTest {
         .when(apiClient)
         .bind("User:app1", DEVELOPER_READ, project.namePrefix(), PREFIX);
 
-    accessControlManager.apply(topology, plan);
+    accessControlManager.updatePlan(plan, topology);
 
     verify(apiClient, times(1))
         .bind(eq("User:app1"), eq(DEVELOPER_READ), eq(project.namePrefix()), eq(PREFIX));
@@ -148,7 +148,7 @@ public class RbacProviderTest {
         .when(apiClient)
         .bind("User:app1", DEVELOPER_WRITE, topicA.toString(), LITERAL);
 
-    accessControlManager.apply(topology, plan);
+    accessControlManager.updatePlan(plan, topology);
 
     verify(apiClient, times(1))
         .bind(eq("User:app1"), anyString(), eq(topicA.toString()), anyString());
@@ -179,7 +179,7 @@ public class RbacProviderTest {
         .when(apiClient)
         .bind("User:app1", DEVELOPER_WRITE, project.namePrefix(), PREFIX);
 
-    accessControlManager.apply(topology, plan);
+    accessControlManager.updatePlan(plan, topology);
 
     verify(apiClient, times(1))
         .bind(eq("User:app1"), eq(DEVELOPER_WRITE), eq(project.namePrefix()), eq(PREFIX));
@@ -205,7 +205,7 @@ public class RbacProviderTest {
         .when(apiClient)
         .bind(anyString(), anyString(), anyString(), anyString());
 
-    accessControlManager.apply(topology, plan);
+    accessControlManager.updatePlan(plan, topology);
 
     verify(apiClient, times(6)).bind(eq("User:App0"), anyString(), anyString(), anyString());
   }
@@ -239,7 +239,7 @@ public class RbacProviderTest {
         .when(apiClient)
         .bindClusterRole(anyString(), anyString(), any(RequestScope.class));
 
-    accessControlManager.apply(topology, plan);
+    accessControlManager.updatePlan(plan, topology);
 
     verify(apiClient, times(1))
         .bind(anyString(), anyString(), anyString(), anyString(), anyString());
@@ -269,7 +269,7 @@ public class RbacProviderTest {
         .when(apiClient)
         .bindClusterRole(anyString(), anyString(), any(RequestScope.class));
 
-    accessControlManager.apply(topology, plan);
+    accessControlManager.updatePlan(plan, topology);
 
     verify(apiClient, times(1)).bind(anyString(), anyString());
   }
@@ -298,7 +298,7 @@ public class RbacProviderTest {
         .when(apiClient)
         .bindClusterRole(anyString(), anyString(), any(RequestScope.class));
 
-    accessControlManager.apply(topology, plan);
+    accessControlManager.updatePlan(plan, topology);
 
     verify(apiClient, times(1)).bind(anyString(), anyString());
     verify(apiClient, times(6))

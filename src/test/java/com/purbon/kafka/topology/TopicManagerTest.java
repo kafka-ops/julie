@@ -75,7 +75,7 @@ public class TopicManagerTest {
     topology.addProject(project);
 
     when(adminClient.listApplicationTopics()).thenReturn(new HashSet<>());
-    topicManager.apply(topology, plan);
+    topicManager.updatePlan(plan, topology);
     plan.run();
 
     verify(adminClient, times(1)).createTopic(topicA, topicA.toString());
@@ -94,7 +94,7 @@ public class TopicManagerTest {
     Topic topicB = new TopicImpl("topicB");
     project.addTopic(topicB);
 
-    topicManager.apply(topology, plan);
+    topicManager.updatePlan(plan, topology);
     plan.run();
 
     verify(adminClient, times(1)).createTopic(topicA, topicA.toString());
@@ -113,7 +113,7 @@ public class TopicManagerTest {
     topicB = new TopicImpl("topicB", Collections.singletonMap(NUM_PARTITIONS, "12"));
     project.addTopic(topicB);
 
-    topicManager.apply(topology, plan);
+    topicManager.updatePlan(plan, topology);
     plan.run();
 
     verify(adminClient, times(0)).createTopic(topicA, topicA.toString());
@@ -162,7 +162,7 @@ public class TopicManagerTest {
         "_my-internal-topic"); // return an internal topic using the default config values
     when(adminClient.listApplicationTopics()).thenReturn(dummyTopicList);
 
-    topicManager.apply(topology, plan);
+    topicManager.updatePlan(plan, topology);
     plan.run();
 
     verify(adminClient, times(1)).createTopic(topicA, topicA.toString());
@@ -202,7 +202,7 @@ public class TopicManagerTest {
         Arrays.asList(topicC, topicI1, topicI2).stream().collect(Collectors.toSet());
     when(adminClient.listApplicationTopics()).thenReturn(appTopics);
 
-    topicManager.apply(topology, plan);
+    topicManager.updatePlan(plan, topology);
     plan.run();
 
     verify(adminClient, times(1)).createTopic(topicA, topicA.toString());
@@ -238,7 +238,7 @@ public class TopicManagerTest {
     Set<String> appTopics = Arrays.asList(topicC).stream().collect(Collectors.toSet());
     when(adminClient.listApplicationTopics()).thenReturn(appTopics);
 
-    topicManager.apply(topology, plan);
+    topicManager.updatePlan(plan, topology);
     plan.run();
 
     verify(adminClient, times(0)).deleteTopics(Collections.singletonList(topicC));
@@ -272,7 +272,7 @@ public class TopicManagerTest {
     Set<String> appTopics = Collections.singleton(topicC);
     when(adminClient.listApplicationTopics()).thenReturn(appTopics);
 
-    topicManager.apply(topology, plan);
+    topicManager.updatePlan(plan, topology);
     plan.run();
 
     verify(adminClient, times(1)).deleteTopics(Collections.singletonList(topicC));
@@ -306,7 +306,7 @@ public class TopicManagerTest {
     Set<String> appTopics = Collections.singleton(topicC);
     when(adminClient.listApplicationTopics()).thenReturn(appTopics);
 
-    topicManager.apply(topology, plan);
+    topicManager.updatePlan(plan, topology);
     plan.run();
 
     verify(adminClient, times(0)).deleteTopics(Collections.singletonList(topicC));
@@ -328,7 +328,7 @@ public class TopicManagerTest {
     dummyTopicList.add(topicB.toString());
     when(adminClient.listApplicationTopics()).thenReturn(dummyTopicList);
 
-    topicManager.apply(topology, plan);
+    topicManager.updatePlan(plan, topology);
     plan.run(true);
 
     verify(outputStream, times(4)).println(any(Action.class));
@@ -353,7 +353,7 @@ public class TopicManagerTest {
     topology.addProject(project);
 
     when(adminClient.listApplicationTopics()).thenReturn(new HashSet<>());
-    topicManager.apply(topology, plan);
+    topicManager.updatePlan(plan, topology);
     plan.run();
 
     verify(adminClient, times(1)).createTopic(topicA, topicA.toString());

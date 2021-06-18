@@ -72,7 +72,7 @@ public class AccessControlWithRBACTest {
     when(bindingsBuilder.setPredefinedRole("User:Foo", "ResourceOwner", project.namePrefix()))
         .thenReturn(binding);
 
-    accessControlManager.apply(topology, plan);
+    accessControlManager.updatePlan(plan, topology);
 
     verify(bindingsBuilder, times(1))
         .setPredefinedRole(eq("User:Foo"), eq("ResourceOwner"), eq(project.namePrefix()));

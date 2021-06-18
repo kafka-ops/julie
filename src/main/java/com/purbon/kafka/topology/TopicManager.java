@@ -23,7 +23,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-public class TopicManager implements ManagerOfThings {
+public class TopicManager implements ExecutionPlanUpdater {
 
   private static final Logger LOGGER = LogManager.getLogger(TopicManager.class);
 
@@ -52,7 +52,8 @@ public class TopicManager implements ManagerOfThings {
     this.managedPrefixes = config.getTopicManagedPrefixes();
   }
 
-  public void apply(Topology topology, ExecutionPlan plan) throws IOException {
+  @Override
+  public void updatePlan(ExecutionPlan plan, Topology topology) throws IOException {
 
     Set<String> currentTopics = loadActualClusterStateIfAvailable(plan);
     // Foreach topic in the topology, sync it's content
@@ -135,6 +136,7 @@ public class TopicManager implements ManagerOfThings {
     return matches;
   }
 
+  @Override
   public void printCurrentState(PrintStream os) throws IOException {
     os.println("List of Topics:");
     adminClient.listTopics().forEach(os::println);

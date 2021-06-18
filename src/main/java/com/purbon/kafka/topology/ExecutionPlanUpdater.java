@@ -4,9 +4,9 @@ import com.purbon.kafka.topology.model.Topology;
 import java.io.IOException;
 import java.io.PrintStream;
 
-public interface ManagerOfThings {
+public interface ExecutionPlanUpdater {
 
-  void apply(Topology topology, ExecutionPlan plan) throws IOException;
+  void updatePlan(ExecutionPlan plan, Topology topology) throws IOException;
 
   void printCurrentState(PrintStream out) throws IOException;
 }
