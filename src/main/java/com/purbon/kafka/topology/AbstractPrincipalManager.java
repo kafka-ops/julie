@@ -53,7 +53,7 @@ abstract class AbstractPrincipalManager implements ExecutionPlanUpdater {
       final Map<String, ServiceAccount> accounts)
       throws IOException;
 
-  protected final Map<String, ServiceAccount> loadActualClusterStateIfAvailable(ExecutionPlan plan)
+  private Map<String, ServiceAccount> loadActualClusterStateIfAvailable(ExecutionPlan plan)
       throws IOException {
     Set<ServiceAccount> accounts =
         config.fetchStateFromTheCluster()
@@ -102,7 +102,7 @@ abstract class AbstractPrincipalManager implements ExecutionPlanUpdater {
   }
 
   @Override
-  public void printCurrentState(PrintStream out) throws IOException {
+  public final void printCurrentState(PrintStream out) throws IOException {
     out.println("List of Principles: ");
     provider.listServiceAccounts().forEach(out::println);
   }
