@@ -227,21 +227,12 @@ public class JulieOps implements AutoCloseable {
             "Running topology builder with topicManager=[%s], accessControlManager=[%s], dryRun=[%s], isQuiet=[%s]",
             topicManager, accessControlManager, config.isDryRun(), config.isQuiet()));
 
-    ExecutionPlanUpdater[] updaters =
-        new ExecutionPlanUpdater[] {
-          principalManager,
-          topicManager,
-          accessControlManager,
-          connectorManager,
-          kSqlArtefactManager
-        };
-
-    for (ExecutionPlanUpdater updater : updaters) {
-      updater.updatePlan(plan, topology);
-    }
-    for (ExecutionPlanUpdater updater : updaters) {
-      updater.updatePlanWithFinalActions(plan, topology);
-    }
+    principalManager.updatePlan(plan, topology);
+    topicManager.updatePlan(plan, topology);
+    accessControlManager.updatePlan(plan, topology);
+    connectorManager.updatePlan(plan, topology);
+    kSqlArtefactManager.updatePlan(plan, topology);
+    principalManager.updatePlanWithFinalActions(plan, topology); // Must be last
 
     plan.run(config.isDryRun());
 
