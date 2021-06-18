@@ -1,35 +1,37 @@
 package com.purbon.kafka.topology;
 
-import com.purbon.kafka.topology.actions.accounts.ClearAccounts;
-import com.purbon.kafka.topology.actions.accounts.CreateAccounts;
-import com.purbon.kafka.topology.model.*;
+import com.purbon.kafka.topology.model.Platform;
+import com.purbon.kafka.topology.model.Topic;
+import com.purbon.kafka.topology.model.Topology;
+import com.purbon.kafka.topology.model.User;
 import com.purbon.kafka.topology.model.cluster.ServiceAccount;
 import com.purbon.kafka.topology.serviceAccounts.VoidPrincipalProvider;
 import java.io.IOException;
 import java.io.PrintStream;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-public class PrincipalManager implements ExecutionPlanUpdater {
+abstract class AbstractPrincipalManager implements ExecutionPlanUpdater {
 
-  private static final Logger LOGGER = LogManager.getLogger(PrincipalManager.class);
+  private static final Logger LOGGER = LogManager.getLogger(AbstractPrincipalManager.class);
   private final List<String> managedPrefixes;
+  protected PrincipalProvider provider;
+  protected Configuration config;
 
-  private PrincipalProvider provider;
-
-  private Configuration config;
-
-  public PrincipalManager(PrincipalProvider provider, Configuration config) {
+  public AbstractPrincipalManager(PrincipalProvider provider, Configuration config) {
     this.provider = provider;
     this.config = config;
     this.managedPrefixes = config.getServiceAccountManagedPrefixes();
   }
 
   @Override
-  public void updatePlan(ExecutionPlan plan, Topology topology) throws IOException {
+  public final void updatePlan(ExecutionPlan plan, Topology topology) throws IOException {
     if (!config.enabledExperimental()) {
       LOGGER.debug("Not running the PrincipalsManager as this is an experimental feature.");
       return;
@@ -39,54 +41,19 @@ public class PrincipalManager implements ExecutionPlanUpdater {
       // This means the management of principals is either not possible or has not been configured
       return;
     }
-
-    provider.configure();
-
     List<String> principals = parseListOfPrincipals(topology);
     Map<String, ServiceAccount> accounts = loadActualClusterStateIfAvailable(plan);
-
-    // build set of principals to be created.
-    Set<ServiceAccount> principalsToBeCreated =
-        principals.stream()
-            .filter(wishPrincipal -> !accounts.containsKey(wishPrincipal))
-            .map(principal -> new ServiceAccount(-1, principal, "Managed by KTB"))
-            .collect(Collectors.toSet());
-
-    if (!principalsToBeCreated.isEmpty()) {
-      plan.add(new CreateAccounts(provider, principalsToBeCreated));
-    }
+    doUpdatePlan(plan, topology, principals, accounts);
   }
 
-  @Override
-  public void updatePlanWithFinalActions(ExecutionPlan plan, Topology topology) throws IOException {
-    if (!config.enabledExperimental()) {
-      LOGGER.debug("Not running the PrincipalsManager as this is an experimental feature.");
-      return;
-    }
-    if (provider instanceof VoidPrincipalProvider) {
-      // Do Nothing if the provider is the void one.
-      // This means the management of principals is either not possible or has not been configured
-      return;
-    }
+  protected abstract void doUpdatePlan(
+      ExecutionPlan plan,
+      Topology topology,
+      final List<String> principals,
+      final Map<String, ServiceAccount> accounts)
+      throws IOException;
 
-    if (config.isAllowDeletePrincipals()) {
-      provider.configure();
-
-      List<String> principals = parseListOfPrincipals(topology);
-      Map<String, ServiceAccount> accounts = loadActualClusterStateIfAvailable(plan);
-
-      // build list of principals to be deleted.
-      List<ServiceAccount> principalsToBeDeleted =
-          accounts.values().stream()
-              .filter(currentPrincipal -> !principals.contains(currentPrincipal.getName()))
-              .collect(Collectors.toList());
-      if (!principalsToBeDeleted.isEmpty()) {
-        plan.add(new ClearAccounts(provider, principalsToBeDeleted));
-      }
-    }
-  }
-
-  private Map<String, ServiceAccount> loadActualClusterStateIfAvailable(ExecutionPlan plan)
+  protected final Map<String, ServiceAccount> loadActualClusterStateIfAvailable(ExecutionPlan plan)
       throws IOException {
     Set<ServiceAccount> accounts =
         config.fetchStateFromTheCluster()

@@ -45,7 +45,8 @@ public class PrincipalManagerTest {
 
   @Rule public MockitoRule mockitoRule = MockitoJUnit.rule();
 
-  PrincipalManager principalManager;
+  PrincipalUpdateManager principalUpdateManager;
+  PrincipalDeleteManager principalDeleteManager;
   Configuration config;
 
   BackendController backendController;
@@ -70,7 +71,8 @@ public class PrincipalManagerTest {
 
     plan = ExecutionPlan.init(backendController, mockPrintStream);
     config = new Configuration(cliOps, props);
-    principalManager = new PrincipalManager(provider, config);
+    principalUpdateManager = new PrincipalUpdateManager(provider, config);
+    principalDeleteManager = new PrincipalDeleteManager(provider, config);
   }
 
   @Test
@@ -86,8 +88,8 @@ public class PrincipalManagerTest {
 
     doNothing().when(provider).configure();
 
-    principalManager.updatePlan(plan, topology);
-    principalManager.updatePlanWithFinalActions(plan, topology);
+    principalUpdateManager.updatePlan(plan, topology);
+    principalDeleteManager.updatePlan(plan, topology);
 
     Set<ServiceAccount> accounts =
         new HashSet<>(
@@ -115,8 +117,8 @@ public class PrincipalManagerTest {
 
     doNothing().when(provider).configure();
 
-    principalManager.updatePlan(plan, topology);
-    principalManager.updatePlanWithFinalActions(plan, topology);
+    principalUpdateManager.updatePlan(plan, topology);
+    principalDeleteManager.updatePlan(plan, topology);
 
     Set<ServiceAccount> accounts =
         new HashSet<>(
@@ -149,8 +151,8 @@ public class PrincipalManagerTest {
         .when(provider)
         .createServiceAccount(eq("producer"), eq("Managed by KTB"));
 
-    principalManager.updatePlan(plan, topology);
-    principalManager.updatePlanWithFinalActions(plan, topology);
+    principalUpdateManager.updatePlan(plan, topology);
+    principalDeleteManager.updatePlan(plan, topology);
     plan.run();
     assertThat(plan.getServiceAccounts()).hasSize(2);
 
@@ -162,8 +164,8 @@ public class PrincipalManagerTest {
 
     backendController = new BackendController();
     plan = ExecutionPlan.init(backendController, mockPrintStream);
-    principalManager.updatePlan(plan, topology);
-    principalManager.updatePlanWithFinalActions(plan, topology);
+    principalUpdateManager.updatePlan(plan, topology);
+    principalDeleteManager.updatePlan(plan, topology);
 
     Collection<ServiceAccount> accounts =
         Arrays.asList(new ServiceAccount(124, "producer", "Managed by KTB"));
@@ -183,12 +185,13 @@ public class PrincipalManagerTest {
     props.put(TOPOLOGY_EXPERIMENTAL_ENABLED_CONFIG, "false");
 
     config = new Configuration(cliOps, props);
-    principalManager = new PrincipalManager(provider, config);
+    principalUpdateManager = new PrincipalUpdateManager(provider, config);
+    principalDeleteManager = new PrincipalDeleteManager(provider, config);
 
     Topology topology = new TopologyImpl();
 
-    principalManager.updatePlan(plan, topology);
-    principalManager.updatePlanWithFinalActions(plan, topology);
+    principalUpdateManager.updatePlan(plan, topology);
+    principalDeleteManager.updatePlan(plan, topology);
 
     verify(mockPlan, times(0)).add(any(Action.class));
     backendController.flushAndClose();
@@ -200,7 +203,8 @@ public class PrincipalManagerTest {
     props.put(SERVICE_ACCOUNT_MANAGED_PREFIXES, Collections.singletonList("pro"));
 
     config = new Configuration(cliOps, props);
-    principalManager = new PrincipalManager(provider, config);
+    principalUpdateManager = new PrincipalUpdateManager(provider, config);
+    principalDeleteManager = new PrincipalDeleteManager(provider, config);
 
     Topology topology = new TopologyImpl();
     topology.setContext("context");
@@ -219,8 +223,8 @@ public class PrincipalManagerTest {
         .when(provider)
         .createServiceAccount(eq("producer"), eq("Managed by KTB"));
 
-    principalManager.updatePlan(plan, topology);
-    principalManager.updatePlanWithFinalActions(plan, topology);
+    principalUpdateManager.updatePlan(plan, topology);
+    principalDeleteManager.updatePlan(plan, topology);
     plan.run();
 
     assertThat(plan.getServiceAccounts()).hasSize(1);

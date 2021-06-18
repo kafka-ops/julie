@@ -35,7 +35,8 @@ public class JulieOps implements AutoCloseable {
   private static final Logger LOGGER = LogManager.getLogger(JulieOps.class);
 
   private TopicManager topicManager;
-  private final PrincipalManager principalManager;
+  private final PrincipalUpdateManager principalUpdateManager;
+  private final PrincipalDeleteManager principalDeleteManager;
   private AccessControlManager accessControlManager;
   private KafkaConnectArtefactManager connectorManager;
   private KSqlArtefactManager kSqlArtefactManager;
@@ -48,14 +49,16 @@ public class JulieOps implements AutoCloseable {
       Configuration config,
       TopicManager topicManager,
       AccessControlManager accessControlManager,
-      PrincipalManager principalManager,
+      PrincipalUpdateManager principalUpdateManager,
+      PrincipalDeleteManager principalDeleteManager,
       KafkaConnectArtefactManager connectorManager,
       KSqlArtefactManager kSqlArtefactManager) {
     this.topology = topology;
     this.config = config;
     this.topicManager = topicManager;
     this.accessControlManager = accessControlManager;
-    this.principalManager = principalManager;
+    this.principalUpdateManager = principalUpdateManager;
+    this.principalDeleteManager = principalDeleteManager;
     this.connectorManager = connectorManager;
     this.kSqlArtefactManager = kSqlArtefactManager;
     this.outputStream = System.out;
@@ -154,7 +157,10 @@ public class JulieOps implements AutoCloseable {
 
     TopicManager topicManager = new TopicManager(adminClient, schemaRegistryManager, config);
 
-    PrincipalManager principalManager = new PrincipalManager(principalProvider, config);
+    PrincipalUpdateManager principalUpdateManager =
+        new PrincipalUpdateManager(principalProvider, config);
+    PrincipalDeleteManager principalDeleteManager =
+        new PrincipalDeleteManager(principalProvider, config);
 
     KafkaConnectArtefactManager connectorManager =
         configureKConnectArtefactManager(config, topologyFileOrDir);
@@ -167,7 +173,8 @@ public class JulieOps implements AutoCloseable {
         config,
         topicManager,
         accessControlManager,
-        principalManager,
+        principalUpdateManager,
+        principalDeleteManager,
         connectorManager,
         kSqlArtefactManager);
   }
@@ -226,19 +233,20 @@ public class JulieOps implements AutoCloseable {
             "Running topology builder with topicManager=[%s], accessControlManager=[%s], dryRun=[%s], isQuiet=[%s]",
             topicManager, accessControlManager, config.isDryRun(), config.isQuiet()));
 
-    principalManager.updatePlan(plan, topology);
+    principalUpdateManager.updatePlan(plan, topology);
     topicManager.updatePlan(plan, topology);
     accessControlManager.updatePlan(plan, topology);
     connectorManager.updatePlan(plan, topology);
     kSqlArtefactManager.updatePlan(plan, topology);
-    principalManager.updatePlanWithFinalActions(plan, topology); // Must be last
+    principalDeleteManager.updatePlan(plan, topology); // Must be last
 
     plan.run(config.isDryRun());
 
     if (!config.isQuiet() && !config.isDryRun()) {
       topicManager.printCurrentState(System.out);
       accessControlManager.printCurrentState(System.out);
-      principalManager.printCurrentState(System.out);
+      principalUpdateManager.printCurrentState(System.out);
+      principalDeleteManager.printCurrentState(System.out);
       connectorManager.printCurrentState(System.out);
       kSqlArtefactManager.printCurrentState(System.out);
     }
