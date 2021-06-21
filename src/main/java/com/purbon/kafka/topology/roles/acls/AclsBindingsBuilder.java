@@ -213,12 +213,28 @@ public class AclsBindingsBuilder implements BindingsBuilderProvider {
   private Stream<AclBinding> schemaRegistryAclsStream(SchemaRegistryInstance schemaRegistry) {
     String principal = translate(schemaRegistry.getPrincipal());
     List<AclBinding> bindings =
-        Stream.of(AclOperation.DESCRIBE_CONFIGS, AclOperation.WRITE, AclOperation.READ)
+        Stream.of(
+                AclOperation.DESCRIBE_CONFIGS,
+                AclOperation.DESCRIBE,
+                AclOperation.WRITE,
+                AclOperation.READ)
             .map(
                 aclOperation ->
                     buildTopicLevelAcl(
                         principal, schemaRegistry.topicString(), PatternType.LITERAL, aclOperation))
             .collect(Collectors.toList());
+
+    bindings.add(
+        buildTopicLevelAcl(
+            principal,
+            schemaRegistry.consumerOffsetsTopicString(),
+            PatternType.LITERAL,
+            AclOperation.DESCRIBE_CONFIGS));
+
+    bindings.add(
+        buildGroupLevelAcl(
+            principal, schemaRegistry.groupString(), PatternType.LITERAL, AclOperation.READ));
+
     return bindings.stream();
   }
 
