@@ -4,7 +4,7 @@ import com.purbon.kafka.topology.actions.BaseAction;
 import com.purbon.kafka.topology.api.adminclient.TopologyBuilderAdminClient;
 import com.purbon.kafka.topology.model.Topic;
 import java.io.IOException;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -38,10 +38,25 @@ public class UpdateTopicConfigAction extends BaseAction {
 
   @Override
   protected Map<String, Object> props() {
-    Map<String, Object> map = new HashMap<>();
+    Map<String, Object> changes = new LinkedHashMap<>();
+    if (topicConfigUpdatePlan.hasNewConfigs()) {
+      changes.put("NewConfigs", topicConfigUpdatePlan.getNewConfigValues());
+    }
+    if (topicConfigUpdatePlan.hasUpdatedConfigs()) {
+      changes.put("UpdatedConfigs", topicConfigUpdatePlan.getUpdatedConfigValues());
+    }
+    if (topicConfigUpdatePlan.hasDeletedConfigs()) {
+      changes.put("DeletedConfigs", topicConfigUpdatePlan.getDeletedConfigValues());
+    }
+    if (topicConfigUpdatePlan.isUpdatePartitionCount()) {
+      changes.put("UpdatedPartitionCount", topicConfigUpdatePlan.getTopicPartitionCount());
+    }
+
+    Map<String, Object> map = new LinkedHashMap<>();
     map.put("Operation", getClass().getName());
     map.put("Topic", topicConfigUpdatePlan.getFullTopicName());
     map.put("Action", "update");
+    map.put("Changes", changes);
     return map;
   }
 }

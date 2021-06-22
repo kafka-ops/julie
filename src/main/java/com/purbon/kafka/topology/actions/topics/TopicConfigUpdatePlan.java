@@ -47,11 +47,34 @@ public class TopicConfigUpdatePlan {
     return deletedConfigValues;
   }
 
+  public boolean hasNewConfigs() {
+    return !newConfigValues.isEmpty();
+  }
+
+  public boolean hasUpdatedConfigs() {
+    return !updatedConfigValues.isEmpty();
+  }
+
+  public boolean hasDeletedConfigs() {
+    return !deletedConfigValues.isEmpty();
+  }
+
+  public Integer getTopicPartitionCount() {
+    return topic.partitionsCount();
+  }
+
   public boolean isUpdatePartitionCount() {
     return updatePartitionCount;
   }
 
   public void setUpdatePartitionCount(boolean updatePartitionCount) {
     this.updatePartitionCount = updatePartitionCount;
+  }
+
+  public boolean hasConfigChanges() {
+    return updatePartitionCount ||
+            hasNewConfigs() ||
+            hasUpdatedConfigs() ||
+            hasDeletedConfigs();
   }
 }
