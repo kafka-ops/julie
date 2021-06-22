@@ -16,8 +16,10 @@ public class SchemaRegistryInstance extends User {
   @JsonInclude(Include.NON_EMPTY)
   private Optional<String> topic;
 
+  @JsonInclude(Include.NON_EMPTY)
   private Optional<String> consumer_offsets_topic;
 
+  @JsonInclude(Include.NON_EMPTY)
   private Optional<String> group;
 
   public SchemaRegistryInstance() {
@@ -31,11 +33,11 @@ public class SchemaRegistryInstance extends User {
   public SchemaRegistryInstance(
       String principal,
       Optional<String> topic,
-      Optional<String> consumerOffsetsTopic,
+      Optional<String> consumer_offsets_topic,
       Optional<String> group) {
     super(principal);
     this.topic = topic;
-    this.consumer_offsets_topic = consumerOffsetsTopic;
+    this.consumer_offsets_topic = consumer_offsets_topic;
     this.group = group;
   }
 
@@ -43,20 +45,20 @@ public class SchemaRegistryInstance extends User {
     return topic.orElse(DEFAULT_SCHEMA_TOPIC);
   }
 
-  public void setTopic(Optional<String> topic) {
-    this.topic = topic;
-  }
-
   public String consumerOffsetsTopicString() {
-    return topic.orElse(DEFAULT_CONSUMER_OFFSETS_TOPIC);
-  }
-
-  public void setConsumerOffsetsTopic(Optional<String> consumerOffsetsTopic) {
-    this.consumer_offsets_topic = consumerOffsetsTopic;
+    return consumer_offsets_topic.orElse(DEFAULT_CONSUMER_OFFSETS_TOPIC);
   }
 
   public String groupString() {
     return group.orElse(DEFAULT_SCHEMA_REGISTRY_GROUP);
+  }
+
+  public void setTopic(Optional<String> topic) {
+    this.topic = topic;
+  }
+
+  public void setConsumer_offsets_topic(Optional<String> consumer_offsets_topic) {
+    this.consumer_offsets_topic = consumer_offsets_topic;
   }
 
   public void setGroup(Optional<String> group) {
@@ -67,7 +69,7 @@ public class SchemaRegistryInstance extends User {
     return topic;
   }
 
-  public Optional<String> getConsumerOffsetsTopic() {
+  public Optional<String> getConsumer_offsets_topic() {
     return consumer_offsets_topic;
   }
 

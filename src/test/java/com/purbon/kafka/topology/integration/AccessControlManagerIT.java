@@ -519,7 +519,7 @@ public class AccessControlManagerIT {
 
       Collection<AclBinding> groupAcls = kafkaAdminClient.describeAcls(groupFilter).values().get();
 
-      assertEquals(5, acls.size());
+      assertEquals(6, acls.size());
       assertEquals(1, groupAcls.size());
     }
   }

@@ -214,6 +214,7 @@ public class AclsBindingsBuilder implements BindingsBuilderProvider {
     String principal = translate(schemaRegistry.getPrincipal());
     List<AclBinding> bindings =
         Stream.of(
+                AclOperation.CREATE,
                 AclOperation.DESCRIBE_CONFIGS,
                 AclOperation.DESCRIBE,
                 AclOperation.WRITE,
