@@ -230,7 +230,7 @@ public class AclsBindingsBuilder implements BindingsBuilderProvider {
             principal,
             schemaRegistry.consumerOffsetsTopicString(),
             PatternType.LITERAL,
-            AclOperation.DESCRIBE_CONFIGS));
+            AclOperation.DESCRIBE));
 
     bindings.add(
         buildGroupLevelAcl(
