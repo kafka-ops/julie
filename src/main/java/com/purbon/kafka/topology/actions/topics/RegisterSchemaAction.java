@@ -16,7 +16,7 @@ public class RegisterSchemaAction extends BaseAction {
 
   private static final Logger LOGGER = LogManager.getLogger(RegisterSchemaAction.class);
 
-  private final Topic topic; // Må endrast til ein modell for endringane
+  private final Topic topic;
   private final String fullTopicName;
   private final SchemaRegistryManager schemaRegistryManager;
 
@@ -47,7 +47,6 @@ public class RegisterSchemaAction extends BaseAction {
 
   private void registerSchemaIfExists(Subject subject, Topic topic) throws IOException {
     if (subject.hasSchemaFile()) {
-      // Dette må flytte til TopicManager og lage modellen som blir sendt inn til denne action
       String keySchemaFile = subject.getSchemaFile();
       String subjectName = subject.buildSubjectName(topic);
       schemaRegistryManager.register(subjectName, keySchemaFile, subject.getFormat());
