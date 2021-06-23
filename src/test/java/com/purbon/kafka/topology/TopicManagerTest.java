@@ -83,7 +83,7 @@ public class TopicManagerTest {
   }
 
   @Test
-  public void topicUpdateTest() throws IOException {
+  public void topicPartitionCountUpdateTest() throws IOException {
 
     Topology topology = new TopologyImpl();
     Project project = new ProjectImpl("project");
@@ -99,6 +99,7 @@ public class TopicManagerTest {
 
     verify(adminClient, times(1)).createTopic(topicA, topicA.toString());
     verify(adminClient, times(1)).createTopic(topicB, topicB.toString());
+    verify(adminClient, times(0)).updatePartitionCount(topicB, topicB.toString());
 
     ExecutionPlan plan = ExecutionPlan.init(backendController, System.out);
     Configuration config = new Configuration(cliOps, props);
@@ -118,8 +119,7 @@ public class TopicManagerTest {
 
     verify(adminClient, times(0)).createTopic(topicA, topicA.toString());
     verify(adminClient, times(0)).createTopic(topicB, topicB.toString());
-    verify(adminClient, times(2)).updateTopicConfig(any());
-    verify(adminClient, times(1)).getPartitionCount(topicB.toString());
+    verify(adminClient, times(0)).updatePartitionCount(topicA, topicB.toString());
     verify(adminClient, times(1)).updatePartitionCount(topicB, topicB.toString());
   }
 
