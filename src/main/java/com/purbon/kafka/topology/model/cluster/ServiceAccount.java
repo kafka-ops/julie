@@ -1,5 +1,6 @@
 package com.purbon.kafka.topology.model.cluster;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.Objects;
 
 public class ServiceAccount {
@@ -7,6 +8,8 @@ public class ServiceAccount {
   private int id;
   private String name;
   private String description;
+
+  @JsonProperty("resource_id")
   private String resourceId;
 
   public ServiceAccount() {
