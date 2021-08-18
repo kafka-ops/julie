@@ -1,0 +1,47 @@
+---
+version: "3.5"
+services:
+  kdc:
+    hostname: kdc.kerberos-demo.local
+    container_name: 'kdc'
+    build: kdc/
+    volumes:
+      - /dev/urandom:/dev/random
+      - secret:/var/lib/secret
+      - ./krb5/krb5.conf:/etc/kdc/krb5.conf
+    ports:
+      - "9749:749"
+      - "9988:88/udp"
+  zookeeper:
+    build: zookeeper/
+    container_name: zookeeper
+    hostname: zookeeper.kerberos-demo.local
+    #domainname: kerberos_default
+    depends_on:
+      - kdc
+    # Required to wait for the keytab to get generated
+    restart: on-failure
+    volumes:
+      - secret:/var/lib/secret
+      - ./krb5/krb5.conf:/etc/krb5.conf
+
+  kafka:
+      build: kafka/
+      container_name: kafka
+      hostname: kafka.kerberos-demo.local
+      #domainname: kerberos_default
+      depends_on:
+        - zookeeper
+        - kdc
+      # Required to wait for the keytab to get generated
+      restart: on-failure
+      volumes:
+        - secret:/var/lib/secret
+        - ./krb5/krb5.conf:/etc/krb5.conf
+
+volumes:
+  secret: { }
+
+networks:
+  default:
+    name: kerberos-demo.local
