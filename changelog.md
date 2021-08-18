@@ -1,4 +1,12 @@
 
+v2.1.3 / 2021-08-18
+===================
+
+  * Add kerberos example for julieops and fix the docker image to have krb5 dependencies (#310)
+  * Avoid connection to mds when running in validate mode
+  * Add validate only flag process to facilitate descriptor testing in feature branches and add ConfigurationKeyValidation and TopicNameRegexValidation validations (#274)
+  * Fix issue when listing transactionId resourceType in the RBAC provider as name is transient from the ACLs default one
+
 v2.1.2 / 2021-04-30
 ===================
 
