@@ -6,7 +6,7 @@ ENV PATH="${BUILDER_HOME}:${PATH}"
 
 USER root
 
-RUN yum install -y java-1.8.0-openjdk
+RUN yum install -y java-1.8.0-openjdk krb5-workstation krb5-libs
 
 RUN mkdir -p /usr/local/julie-ops/bin
 COPY julie-ops.jar /usr/local/julie-ops/bin
