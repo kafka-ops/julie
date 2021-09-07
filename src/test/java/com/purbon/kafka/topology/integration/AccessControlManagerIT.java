@@ -191,7 +191,7 @@ public class AccessControlManagerIT {
     accessControlManager.updatePlan(plan, topology);
     plan.run(false);
 
-    verifyConsumerAcls(consumers, topicA.toString());
+    verifyConsumerAcls(consumers);
   }
 
   @Test
@@ -214,7 +214,7 @@ public class AccessControlManagerIT {
     accessControlManager.updatePlan(plan, topology);
     plan.run(false);
 
-    verifyProducerAcls(producers, topicA.toString(), 2);
+    verifyProducerAcls(producers, 2);
   }
 
   @Test
@@ -238,7 +238,7 @@ public class AccessControlManagerIT {
     accessControlManager.updatePlan(plan, topology);
     plan.run(false);
 
-    verifyProducerAcls(producers, topicA.toString(), 5);
+    verifyProducerAcls(producers, 5);
   }
 
   @Test
@@ -262,7 +262,7 @@ public class AccessControlManagerIT {
     accessControlManager.updatePlan(plan, topology);
     plan.run(false);
 
-    verifyProducerAcls(producers, topicA.toString(), 3);
+    verifyProducerAcls(producers, 3);
   }
 
   @Test
@@ -608,7 +608,7 @@ public class AccessControlManagerIT {
     assertEquals(2, acls.size());
   }
 
-  private void verifyProducerAcls(List<Producer> producers, String topic, int aclsCount)
+  private void verifyProducerAcls(List<Producer> producers, int aclsCount)
       throws InterruptedException, ExecutionException {
 
     for (Producer producer : producers) {
@@ -639,7 +639,7 @@ public class AccessControlManagerIT {
     }
   }
 
-  private void verifyConsumerAcls(List<Consumer> consumers, String topic)
+  private void verifyConsumerAcls(List<Consumer> consumers)
       throws InterruptedException, ExecutionException {
 
     for (Consumer consumer : consumers) {

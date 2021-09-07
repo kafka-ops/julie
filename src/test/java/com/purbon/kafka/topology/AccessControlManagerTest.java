@@ -12,6 +12,7 @@ import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.*;
 
 import com.purbon.kafka.topology.actions.Action;
+import com.purbon.kafka.topology.actions.BaseAccessControlAction;
 import com.purbon.kafka.topology.api.adminclient.AclBuilder;
 import com.purbon.kafka.topology.model.*;
 import com.purbon.kafka.topology.model.Impl.ProjectImpl;
@@ -624,7 +625,7 @@ public class AccessControlManagerTest {
     // Check that the action bindings are for the managed prefix topic, not the non-managed prefix.
     assertEquals(
         2,
-        plan.getActions().get(0).getBindings().stream()
+        getAccessControlActions(plan).get(0).getAclBindings().stream()
             .filter(
                 b ->
                     b.getResourceType().equals(ResourceType.TOPIC.name())
@@ -632,7 +633,7 @@ public class AccessControlManagerTest {
             .count());
     assertEquals(
         0,
-        plan.getActions().get(0).getBindings().stream()
+        getAccessControlActions(plan).get(0).getAclBindings().stream()
             .filter(
                 b ->
                     b.getResourceType().equals(ResourceType.TOPIC.name())
@@ -667,7 +668,7 @@ public class AccessControlManagerTest {
     // Check that the action bindings are for the managed prefix group, not the non-managed prefix.
     assertEquals(
         1,
-        plan.getActions().get(0).getBindings().stream()
+        getAccessControlActions(plan).get(0).getAclBindings().stream()
             .filter(
                 b ->
                     b.getResourceType().equals(ResourceType.GROUP.name())
@@ -675,7 +676,7 @@ public class AccessControlManagerTest {
             .count());
     assertEquals(
         0,
-        plan.getActions().get(0).getBindings().stream()
+        getAccessControlActions(plan).get(0).getAclBindings().stream()
             .filter(
                 b ->
                     b.getResourceType().equals(ResourceType.GROUP.name())
@@ -683,7 +684,7 @@ public class AccessControlManagerTest {
             .count());
     assertEquals(
         1,
-        plan.getActions().get(0).getBindings().stream()
+        getAccessControlActions(plan).get(0).getAclBindings().stream()
             .filter(
                 b ->
                     b.getResourceType().equals(ResourceType.GROUP.name())
@@ -717,7 +718,7 @@ public class AccessControlManagerTest {
     // Check that the action bindings are for the managed service group, not the non-managed prefix.
     assertEquals(
         1,
-        plan.getActions().get(0).getBindings().stream()
+        getAccessControlActions(plan).get(0).getAclBindings().stream()
             .filter(
                 b ->
                     b.getResourceType().equals(ResourceType.GROUP.name())
@@ -726,12 +727,22 @@ public class AccessControlManagerTest {
             .count());
     assertEquals(
         0,
-        plan.getActions().get(0).getBindings().stream()
+        getAccessControlActions(plan).get(0).getAclBindings().stream()
             .filter(
                 b ->
                     b.getResourceType().equals(ResourceType.GROUP.name())
                         && b.getResourceName().equals("*")
                         && b.getPrincipal().equals("User:NamespaceB_app2"))
             .count());
+  }
+
+  private List<BaseAccessControlAction> getAccessControlActions(ExecutionPlan plan) {
+    List<BaseAccessControlAction> list = new ArrayList<>();
+    for (Action action : plan.getActions()) {
+      if (action instanceof BaseAccessControlAction) {
+        list.add((BaseAccessControlAction) action);
+      }
+    }
+    return list;
   }
 }
