@@ -35,8 +35,8 @@ public class TopicTest {
   public void buildTopicNameTest() {
     Topic topic = new TopicImpl("topic");
     topic.setDefaultProjectPrefix(project.namePrefix());
-    String fulllName = topic.toString();
-    Assert.assertEquals("team.project.topic", fulllName);
+    String fullName = topic.toString();
+    Assert.assertEquals("team.project.topic", fullName);
   }
 
   @Test
@@ -55,16 +55,16 @@ public class TopicTest {
 
     Topic topic = new TopicImpl("topic");
     project.addTopic(topic);
-    String fulllName = topic.toString();
-    Assert.assertEquals("team.other.another.project.topic", fulllName);
+    String fullName = topic.toString();
+    Assert.assertEquals("team.other.another.project.topic", fullName);
   }
 
   @Test
   public void buildTopicNameWithDataTypeTest() {
     Topic topic = new TopicImpl("topic", "type");
     topic.setDefaultProjectPrefix(project.namePrefix());
-    String fulllName = topic.toString();
-    Assert.assertEquals("team.project.topic.type", fulllName);
+    String fullName = topic.toString();
+    Assert.assertEquals("team.project.topic.type", fullName);
   }
 
   @Test
@@ -90,8 +90,8 @@ public class TopicTest {
     Topic topic = new TopicImpl("topic", config);
     project.addTopic(topic);
 
-    String fulllName = topic.toString();
-    Assert.assertEquals("team_other_another_project_topic", fulllName);
+    String fullName = topic.toString();
+    Assert.assertEquals("team_other_another_project_topic", fullName);
   }
 
   @Test
@@ -117,7 +117,7 @@ public class TopicTest {
     Topic topic = new TopicImpl("topic", config);
     project.addTopic(topic);
 
-    String fulllName = topic.toString();
-    Assert.assertEquals("other.team.project.topic", fulllName);
+    String fullName = topic.toString();
+    Assert.assertEquals("other.team.project.topic", fullName);
   }
 }

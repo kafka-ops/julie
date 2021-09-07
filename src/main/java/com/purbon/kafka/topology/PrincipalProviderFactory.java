@@ -12,7 +12,7 @@ public class PrincipalProviderFactory {
   }
 
   public PrincipalProvider get() {
-    if (config.useConfuentCloud()) {
+    if (config.useConfluentCloud()) {
       return new CCloudPrincipalProvider(config);
     } else {
       return new VoidPrincipalProvider();

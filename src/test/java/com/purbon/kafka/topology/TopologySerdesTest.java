@@ -271,7 +271,7 @@ public class TopologySerdesTest {
   }
 
   @Test
-  public void testPlaformProcessing() {
+  public void testPlatformProcessing() {
     Topology topology = parser.deserialise(TestUtils.getResourceFile("/descriptor.yaml"));
 
     assertEquals("contextOrg", topology.getContext());

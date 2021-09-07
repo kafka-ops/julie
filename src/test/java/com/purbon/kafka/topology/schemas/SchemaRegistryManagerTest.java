@@ -25,7 +25,6 @@ import java.util.List;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.MockitoJUnit;
 import org.mockito.junit.MockitoRule;
@@ -44,8 +43,6 @@ public class SchemaRegistryManagerTest {
   private Path rootDir;
 
   @Rule public MockitoRule mockitoRule = MockitoJUnit.rule();
-
-  @Mock SchemaRegistryClient mockClient;
 
   @Before
   public void before() {

@@ -1,20 +1,12 @@
 package com.purbon.kafka.topology;
 
-import static org.mockito.Matchers.anyCollection;
-import static org.mockito.Mockito.doNothing;
-import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.*;
 
 import com.purbon.kafka.topology.api.adminclient.TopologyBuilderAdminClient;
+import com.purbon.kafka.topology.model.*;
 import com.purbon.kafka.topology.model.Impl.ProjectImpl;
 import com.purbon.kafka.topology.model.Impl.TopicImpl;
 import com.purbon.kafka.topology.model.Impl.TopologyImpl;
-import com.purbon.kafka.topology.model.Platform;
-import com.purbon.kafka.topology.model.Project;
-import com.purbon.kafka.topology.model.Topic;
-import com.purbon.kafka.topology.model.Topology;
-import com.purbon.kafka.topology.model.User;
 import com.purbon.kafka.topology.model.users.Connector;
 import com.purbon.kafka.topology.model.users.Consumer;
 import com.purbon.kafka.topology.model.users.KStream;
@@ -26,13 +18,7 @@ import com.purbon.kafka.topology.model.users.platform.SchemaRegistryInstance;
 import com.purbon.kafka.topology.roles.SimpleAclsProvider;
 import com.purbon.kafka.topology.roles.acls.AclsBindingsBuilder;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.concurrent.ExecutionException;
 import org.apache.kafka.clients.admin.AdminClient;
 import org.apache.kafka.clients.admin.CreateAclsResult;
@@ -40,7 +26,7 @@ import org.apache.kafka.common.KafkaFuture;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-import org.mockito.Matchers;
+import org.mockito.ArgumentMatchers;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnit;
 import org.mockito.junit.MockitoRule;
@@ -73,7 +59,7 @@ public class TopologyBuilderAdminClientTest {
 
     plan = ExecutionPlan.init(backendController, System.out);
 
-    doNothing().when(backendController).addBindings(Matchers.anyList());
+    doNothing().when(backendController).addBindings(ArgumentMatchers.anyList());
     doNothing().when(backendController).flushAndClose();
 
     doReturn("foo").when(config).getConfluentCommandTopic();
@@ -208,7 +194,7 @@ public class TopologyBuilderAdminClientTest {
     topics.put(Connector.READ_TOPICS, Arrays.asList("topicA", "topicB"));
     connector1.setTopics(topics);
 
-    project.setConnectors(Arrays.asList(connector1));
+    project.setConnectors(Collections.singletonList(connector1));
 
     Topology topology = new TopologyImpl();
     topology.addProject(project);

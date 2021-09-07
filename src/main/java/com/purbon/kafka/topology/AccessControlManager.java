@@ -261,7 +261,7 @@ public class AccessControlManager implements ExecutionPlanUpdater {
   private boolean matchesManagedPrefixList(TopologyAclBinding topologyAclBinding) {
     String resourceName = topologyAclBinding.getResourceName();
     String principle = topologyAclBinding.getPrincipal();
-    // For global wild cards ACL's we manage only if we manage the service account/principle,
+    // For global wild cards ACLs we manage only if we manage the service account/principle,
     // regardless.
     if (resourceName.equals("*")) {
       return matchesServiceAccountPrefixList(principle);

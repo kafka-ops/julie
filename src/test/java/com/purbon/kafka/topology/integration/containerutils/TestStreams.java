@@ -41,7 +41,6 @@ public final class TestStreams implements Closeable {
     config.put(
         StreamsConfig.DEFAULT_VALUE_SERDE_CLASS_CONFIG, Serdes.String().getClass().getName());
     config.put(StreamsConfig.REQUEST_TIMEOUT_MS_CONFIG, "3000");
-    config.put(StreamsConfig.RETRIES_CONFIG, "0");
 
     Properties properties = new Properties();
     properties.putAll(config);

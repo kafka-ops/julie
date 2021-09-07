@@ -1,11 +1,16 @@
 package com.purbon.kafka.topology.integration.backend;
 
-import static com.purbon.kafka.topology.CommandLineInterface.*;
-import static com.purbon.kafka.topology.Constants.*;
+import static com.purbon.kafka.topology.CommandLineInterface.BROKERS_OPTION;
+import static com.purbon.kafka.topology.Constants.JULIE_S3_BUCKET;
+import static com.purbon.kafka.topology.Constants.JULIE_S3_REGION;
 import static org.assertj.core.api.Assertions.assertThat;
 
+import com.amazonaws.auth.AWSStaticCredentialsProvider;
 import com.amazonaws.auth.AnonymousAWSCredentials;
-import com.amazonaws.services.s3.AmazonS3Client;
+import com.amazonaws.client.builder.AwsClientBuilder;
+import com.amazonaws.services.s3.AmazonS3;
+import com.amazonaws.services.s3.AmazonS3ClientBuilder;
+import com.amazonaws.services.s3.model.Region;
 import com.purbon.kafka.topology.Configuration;
 import com.purbon.kafka.topology.backend.BackendState;
 import com.purbon.kafka.topology.backend.S3Backend;
@@ -42,8 +47,15 @@ public class S3BackendIT {
     api = S3Mock.create(8001, s3Path.toFile().getAbsolutePath());
     api.start();
 
-    AmazonS3Client client = new AmazonS3Client(new AnonymousAWSCredentials());
-    client.setEndpoint(TEST_ENDPOINT);
+    AnonymousAWSCredentials credentials = new AnonymousAWSCredentials();
+    AwsClientBuilder.EndpointConfiguration endpointConfiguration =
+        new AwsClientBuilder.EndpointConfiguration(
+            TEST_ENDPOINT, Region.US_Standard.getFirstRegionId());
+    AmazonS3 client =
+        AmazonS3ClientBuilder.standard()
+            .withEndpointConfiguration(endpointConfiguration)
+            .withCredentials(new AWSStaticCredentialsProvider(credentials))
+            .build();
     client.createBucket(TEST_BUCKET);
   }
 

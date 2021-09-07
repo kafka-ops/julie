@@ -250,7 +250,7 @@ public class Configuration {
     return config.getBoolean(TOPOLOGY_EXPERIMENTAL_ENABLED_CONFIG);
   }
 
-  public boolean useConfuentCloud() {
+  public boolean useConfluentCloud() {
     return config.hasPath(CCLOUD_ENV_CONFIG);
   }
 

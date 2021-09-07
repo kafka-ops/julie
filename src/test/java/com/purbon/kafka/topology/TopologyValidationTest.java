@@ -89,7 +89,7 @@ public class TopologyValidationTest {
   }
 
   @Test(expected = IllegalStateException.class)
-  public void testUsingUnknwownClassName() {
+  public void testUsingUnknownClassName() {
 
     Topology topology = parser.deserialise(TestUtils.getResourceFile("/descriptor.yaml"));
 

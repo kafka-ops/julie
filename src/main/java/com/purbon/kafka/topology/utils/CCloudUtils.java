@@ -16,7 +16,7 @@ public class CCloudUtils {
 
   public CCloudUtils(CCloudCLI cli, Configuration config) {
     this.cli = cli;
-    this.env = config.useConfuentCloud() ? config.getConfluentCloudEnv() : "";
+    this.env = config.useConfluentCloud() ? config.getConfluentCloudEnv() : "";
     this.serviceAccounts = new HashMap<>();
     this.warmed = false;
   }

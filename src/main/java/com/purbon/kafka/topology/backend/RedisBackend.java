@@ -46,7 +46,7 @@ public class RedisBackend extends AbstractBackend {
   }
 
   @Override
-  public void save(BackendState state) throws IOException {
+  public void save(BackendState state) {
     saveBindings(state.getBindings());
   }
 

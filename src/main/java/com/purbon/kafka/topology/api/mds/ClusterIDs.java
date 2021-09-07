@@ -76,7 +76,7 @@ public class ClusterIDs implements Cloneable {
     this.connectClusterID = connectClusterID;
   }
 
-  public ClusterIDs clone() throws CloneNotSupportedException {
+  public ClusterIDs clone() {
     ClusterIDs clusterIDs = new ClusterIDs();
     clusterIDs.setKsqlClusterID(ksqlClusterID);
     clusterIDs.setConnectClusterID(connectClusterID);

@@ -3,8 +3,6 @@ package com.purbon.kafka.topology.backend;
 import static com.purbon.kafka.topology.backend.RedisBackend.JULIE_OPS_BINDINGS;
 import static com.purbon.kafka.topology.backend.RedisBackend.JULIE_OPS_TYPE;
 import static org.junit.Assert.assertEquals;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.*;
 
 import com.purbon.kafka.topology.roles.TopologyAclBinding;
@@ -33,13 +31,13 @@ public class RedisBackendTest {
   }
 
   @Test
-  public void testSaveBindings() throws IOException {
+  public void testSaveBindings() {
 
     TopologyAclBinding binding =
         TopologyAclBinding.build(
             ResourceType.CLUSTER.name(), "Topic", "host", "op", "principal", "LITERAL");
 
-    when(jedis.sadd(eq(JULIE_OPS_BINDINGS), any())).thenReturn(1l);
+    when(jedis.sadd(eq(JULIE_OPS_BINDINGS), any())).thenReturn(1L);
 
     BackendState state = new BackendState();
     state.addBindings(Collections.singleton(binding));
@@ -52,7 +50,7 @@ public class RedisBackendTest {
   public void testDataLoading() throws IOException {
 
     when(jedis.get(eq(JULIE_OPS_TYPE))).thenReturn("acls");
-    when(jedis.scard(eq(JULIE_OPS_BINDINGS))).thenReturn(10l);
+    when(jedis.scard(eq(JULIE_OPS_BINDINGS))).thenReturn(10L);
     when(jedis.spop(eq(JULIE_OPS_BINDINGS)))
         .thenReturn(
             "'TOPIC', 'topicA', '*', 'READ', 'User:C=NO,CN=John Doe,emailAddress=john.doe@example.com', 'LITERAL'")

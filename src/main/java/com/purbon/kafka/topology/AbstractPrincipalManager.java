@@ -51,8 +51,7 @@ abstract class AbstractPrincipalManager implements ExecutionPlanUpdater {
       ExecutionPlan plan,
       Topology topology,
       final List<String> principals,
-      final Map<String, ServiceAccount> accounts)
-      throws IOException;
+      final Map<String, ServiceAccount> accounts);
 
   private Map<String, ServiceAccount> loadActualClusterStateIfAvailable(ExecutionPlan plan)
       throws IOException {

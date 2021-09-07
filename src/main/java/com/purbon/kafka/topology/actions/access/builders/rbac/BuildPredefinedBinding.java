@@ -3,7 +3,6 @@ package com.purbon.kafka.topology.actions.access.builders.rbac;
 import com.purbon.kafka.topology.BindingsBuilderProvider;
 import com.purbon.kafka.topology.actions.BaseAccessControlAction;
 import com.purbon.kafka.topology.roles.TopologyAclBinding;
-import java.io.IOException;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -28,7 +27,7 @@ public class BuildPredefinedBinding extends BaseAccessControlAction {
   }
 
   @Override
-  protected void execute() throws IOException {
+  protected void execute() {
     TopologyAclBinding binding =
         builderProvider.setPredefinedRole(principal, predefinedRole, topicPrefix);
     bindings = Collections.singletonList(binding);

@@ -1,6 +1,6 @@
 package com.purbon.kafka.topology.integration;
 
-import static com.purbon.kafka.topology.CommandLineInterface.*;
+import static com.purbon.kafka.topology.CommandLineInterface.BROKERS_OPTION;
 import static com.purbon.kafka.topology.Constants.*;
 import static com.purbon.kafka.topology.roles.rbac.RBACPredefinedRoles.*;
 import static java.util.Arrays.asList;
@@ -8,7 +8,7 @@ import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
-import static org.mockito.Matchers.anyList;
+import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
@@ -17,46 +17,25 @@ import com.purbon.kafka.topology.BackendController;
 import com.purbon.kafka.topology.Configuration;
 import com.purbon.kafka.topology.ExecutionPlan;
 import com.purbon.kafka.topology.api.mds.MDSApiClient;
+import com.purbon.kafka.topology.model.*;
 import com.purbon.kafka.topology.model.Impl.ProjectImpl;
 import com.purbon.kafka.topology.model.Impl.TopicImpl;
 import com.purbon.kafka.topology.model.Impl.TopologyImpl;
-import com.purbon.kafka.topology.model.Platform;
-import com.purbon.kafka.topology.model.Project;
-import com.purbon.kafka.topology.model.Topic;
-import com.purbon.kafka.topology.model.Topology;
-import com.purbon.kafka.topology.model.User;
-import com.purbon.kafka.topology.model.users.Connector;
-import com.purbon.kafka.topology.model.users.Consumer;
-import com.purbon.kafka.topology.model.users.KSqlApp;
-import com.purbon.kafka.topology.model.users.KStream;
-import com.purbon.kafka.topology.model.users.Producer;
-import com.purbon.kafka.topology.model.users.platform.ControlCenter;
-import com.purbon.kafka.topology.model.users.platform.ControlCenterInstance;
-import com.purbon.kafka.topology.model.users.platform.Kafka;
-import com.purbon.kafka.topology.model.users.platform.KafkaConnect;
-import com.purbon.kafka.topology.model.users.platform.SchemaRegistry;
-import com.purbon.kafka.topology.model.users.platform.SchemaRegistryInstance;
+import com.purbon.kafka.topology.model.users.*;
+import com.purbon.kafka.topology.model.users.platform.*;
 import com.purbon.kafka.topology.roles.RBACProvider;
 import com.purbon.kafka.topology.roles.TopologyAclBinding;
 import com.purbon.kafka.topology.roles.rbac.RBACBindingsBuilder;
 import com.purbon.kafka.topology.utils.TestUtils;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Properties;
+import java.util.*;
 import java.util.stream.Collectors;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 
 @RunWith(MockitoJUnitRunner.class)
 public class RBACPRoviderRbacIT extends MDSBaseTest {
@@ -126,7 +105,7 @@ public class RBACPRoviderRbacIT extends MDSBaseTest {
   public void producerAclsCreation() throws IOException {
 
     List<Producer> producers = new ArrayList<>();
-    producers.add(new Producer("User:appp2"));
+    producers.add(new Producer("User:app2"));
 
     Project project = new ProjectImpl("project");
     project.setProducers(producers);

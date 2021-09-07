@@ -48,7 +48,7 @@ public class S3Backend extends AbstractBackend {
   }
 
   @Override
-  public BackendState load() throws IOException {
+  public BackendState load() {
     try {
       String content = getRemoteStateContent(STATE_FILE_NAME);
       return (BackendState) JSON.toObject(content, BackendState.class);

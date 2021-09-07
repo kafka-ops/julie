@@ -3,7 +3,6 @@ package com.purbon.kafka.topology.actions.access.builders;
 import com.purbon.kafka.topology.BindingsBuilderProvider;
 import com.purbon.kafka.topology.actions.BaseAccessControlAction;
 import com.purbon.kafka.topology.model.users.Connector;
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -22,7 +21,7 @@ public class BuildBindingsForKConnect extends BaseAccessControlAction {
   }
 
   @Override
-  protected void execute() throws IOException {
+  protected void execute() {
     bindings = controlProvider.buildBindingsForConnect(app, topicPrefix);
   }
 

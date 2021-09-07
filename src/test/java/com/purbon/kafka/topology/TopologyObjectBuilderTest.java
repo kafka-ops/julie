@@ -48,7 +48,7 @@ public class TopologyObjectBuilderTest {
     topic = map.get("barFoo");
     assertThat(topic.getConfig()).containsEntry("replication.factor", "1");
 
-    // should overwide values with priority given to the plans
+    // should override values with priority given to the plans
     topic = map.get("barFooBar");
     assertThat(topic.getConfig()).containsEntry("replication.factor", "1");
     assertThat(topic.getConfig()).containsEntry("bar", "3");

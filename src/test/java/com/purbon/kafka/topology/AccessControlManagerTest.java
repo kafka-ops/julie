@@ -1,7 +1,7 @@
 package com.purbon.kafka.topology;
 
 import static com.google.common.collect.Lists.newArrayList;
-import static com.purbon.kafka.topology.CommandLineInterface.*;
+import static com.purbon.kafka.topology.CommandLineInterface.BROKERS_OPTION;
 import static com.purbon.kafka.topology.Constants.*;
 import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
@@ -9,9 +9,6 @@ import static org.hamcrest.CoreMatchers.hasItem;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.collection.IsCollectionWithSize.hasSize;
 import static org.junit.Assert.assertEquals;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyString;
-import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.*;
 
 import com.purbon.kafka.topology.actions.Action;
@@ -39,7 +36,7 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
-import org.mockito.Matchers;
+import org.mockito.ArgumentMatchers;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.MockitoJUnit;
@@ -66,7 +63,7 @@ public class AccessControlManagerTest {
     TestUtils.deleteStateFile();
     plan = ExecutionPlan.init(backendController, mockPrintStream);
     accessControlManager = new AccessControlManager(aclsProvider, aclsBuilder);
-    doNothing().when(backendController).addBindings(Matchers.anyList());
+    doNothing().when(backendController).addBindings(ArgumentMatchers.anyList());
     doNothing().when(backendController).flushAndClose();
   }
 
@@ -287,7 +284,7 @@ public class AccessControlManagerTest {
     props.put(ALLOW_DELETE_TOPICS, true);
     props.put(TOPIC_PREFIX_FORMAT_CONFIG, "{{topic}}");
     props.put(ALLOW_DELETE_BINDINGS, true);
-    props.put(KAFKA_INTERNAL_TOPIC_PREFIXES, Arrays.asList("_"));
+    props.put(KAFKA_INTERNAL_TOPIC_PREFIXES, singletonList("_"));
 
     HashMap<String, String> cliOps = new HashMap<>();
     cliOps.put(BROKERS_OPTION, "");
@@ -574,9 +571,7 @@ public class AccessControlManagerTest {
               AclOperation.READ));
     }
 
-    return acls.stream()
-        .map(aclBinding -> new TopologyAclBinding(aclBinding))
-        .collect(Collectors.toList());
+    return acls.stream().map(TopologyAclBinding::new).collect(Collectors.toList());
   }
 
   private AclBinding buildTopicLevelAcl(
