@@ -3,7 +3,6 @@ package com.purbon.kafka.topology;
 import com.purbon.kafka.topology.actions.accounts.ClearAccounts;
 import com.purbon.kafka.topology.model.Topology;
 import com.purbon.kafka.topology.model.cluster.ServiceAccount;
-
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;

@@ -1,5 +1,6 @@
 package com.purbon.kafka.topology.model.cluster;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.Objects;
 
 public class ServiceAccount {
@@ -8,14 +9,22 @@ public class ServiceAccount {
   private String name;
   private String description;
 
+  @JsonProperty("resource_id")
+  private String resourceId;
+
   public ServiceAccount() {
-    this(-1, "", "");
+    this(-1, "", "", "");
   }
 
   public ServiceAccount(int id, String name, String description) {
+    this(id, name, description, "");
+  }
+
+  public ServiceAccount(int id, String name, String description, String resourceId) {
     this.id = id;
     this.name = name;
     this.description = description;
+    this.resourceId = resourceId;
   }
 
   public int getId() {
@@ -30,11 +39,16 @@ public class ServiceAccount {
     return description;
   }
 
+  public String getResourceId() {
+    return resourceId;
+  }
+
   @Override
   public String toString() {
     final StringBuffer sb = new StringBuffer("ServiceAccount{");
     sb.append("id=").append(id);
     sb.append(", name='").append(name).append('\'');
+    sb.append(", resourceId='").append(resourceId).append('\'');
     sb.append('}');
     return sb.toString();
   }
@@ -53,6 +67,6 @@ public class ServiceAccount {
 
   @Override
   public int hashCode() {
-    return Objects.hash(getId(), getName(), getDescription());
+    return Objects.hash(getId(), getName(), getDescription(), getResourceId());
   }
 }

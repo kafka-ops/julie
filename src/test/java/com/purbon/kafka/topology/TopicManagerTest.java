@@ -21,6 +21,7 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.*;
 import java.util.stream.Collectors;
+import org.apache.kafka.clients.admin.Config;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -114,6 +115,7 @@ public class TopicManagerTest {
     topicB = new TopicImpl("topicB", Collections.singletonMap(NUM_PARTITIONS, "12"));
     project.addTopic(topicB);
 
+    doReturn(new Config(Collections.emptyList())).when(adminClient).getActualTopicConfig(any());
     topicManager.updatePlan(plan, topology);
     plan.run();
 
