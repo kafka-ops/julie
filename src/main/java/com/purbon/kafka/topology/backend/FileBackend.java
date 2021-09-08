@@ -54,6 +54,9 @@ public class FileBackend extends AbstractBackend {
     }
     try (BufferedReader reader = new BufferedReader(new FileReader(filePath.toFile()))) {
       String backendStateAsJsonString = reader.readLine();
+      if (OldFileBackendLoader.isControlTag(backendStateAsJsonString)) {
+        return new OldFileBackendLoader().load();
+      }
       return (BackendState) JSON.toObject(backendStateAsJsonString, BackendState.class);
     }
   }
