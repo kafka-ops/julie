@@ -53,12 +53,16 @@ public class FileBackend extends AbstractBackend {
       return new BackendState();
     }
     try (BufferedReader reader = new BufferedReader(new FileReader(filePath.toFile()))) {
-      String backendStateAsJsonString = reader.readLine();
-      if (OldFileBackendLoader.isControlTag(backendStateAsJsonString)) {
-        return new OldFileBackendLoader().load();
-      }
-      return (BackendState) JSON.toObject(backendStateAsJsonString, BackendState.class);
+      return load(reader);
     }
+  }
+
+  BackendState load(BufferedReader reader) throws IOException {
+    String backendStateAsJsonString = reader.readLine();
+    if (OldFileBackendLoader.isControlTag(backendStateAsJsonString)) {
+      return new OldFileBackendLoader().load();
+    }
+    return (BackendState) JSON.toObject(backendStateAsJsonString, BackendState.class);
   }
 
   private void writeLine(String line) throws IOException {
