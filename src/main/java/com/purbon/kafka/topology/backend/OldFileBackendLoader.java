@@ -1,38 +1,27 @@
 package com.purbon.kafka.topology.backend;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.purbon.kafka.topology.BackendController;
 import com.purbon.kafka.topology.model.cluster.ServiceAccount;
 import com.purbon.kafka.topology.roles.TopologyAclBinding;
 import com.purbon.kafka.topology.utils.JSON;
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.*;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-public class OldFileBackendLoader extends AbstractBackend {
+class OldFileBackendLoader {
 
   private static final Logger LOGGER = LogManager.getLogger(OldFileBackendLoader.class);
   static final String SERVICE_ACCOUNTS_TAG = "ServiceAccounts";
   static final String TOPICS_TAG = "Topics";
   static final String ACLS_TAG = "acls";
 
-  @Override
-  public void close() {}
-
-  @Override
-  public void save(BackendState state) throws IOException {
-    throw new RuntimeException(
-        "This class is for loading old-style state files. Saving is not supported.");
-  }
-
-  @Override
-  public BackendState load() throws IOException {
+  BackendState load(File file) throws IOException {
     BackendState state = new BackendState();
-    try (BufferedReader in =
-        new BufferedReader(new FileReader(BackendController.STATE_FILE_NAME))) {
+    try (BufferedReader in = new BufferedReader(new FileReader(file))) {
       String type = null;
       String line;
       while ((line = in.readLine()) != null) {
@@ -40,14 +29,14 @@ public class OldFileBackendLoader extends AbstractBackend {
           type = line;
           continue;
         }
-        if (line.equalsIgnoreCase(SERVICE_ACCOUNTS_TAG)) {
+        if (type.equalsIgnoreCase(SERVICE_ACCOUNTS_TAG)) {
           final ServiceAccount serviceAccount = parseServiceAccount(line);
           if (serviceAccount != null) {
             state.addAccounts(Collections.singleton(serviceAccount));
           }
-        } else if (line.equalsIgnoreCase(ACLS_TAG)) {
+        } else if (type.equalsIgnoreCase(ACLS_TAG)) {
           state.addBindings(Collections.singleton(parseAcl(line)));
-        } else if (line.equalsIgnoreCase(TOPICS_TAG)) {
+        } else if (type.equalsIgnoreCase(TOPICS_TAG)) {
           state.addTopics(Collections.singleton(parseTopic(line)));
         } else {
           throw new IOException("Binding type \"" + type + "\" not supported.");
@@ -67,7 +56,7 @@ public class OldFileBackendLoader extends AbstractBackend {
   }
 
   private TopologyAclBinding parseAcl(final String line) throws IOException {
-    return buildAclBinding(line);
+    return BackendHelper.buildAclBinding(line);
   }
 
   private String parseTopic(final String line) {
