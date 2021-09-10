@@ -4,7 +4,8 @@ import static com.purbon.kafka.topology.BackendController.STATE_FILE_NAME;
 
 import com.purbon.kafka.topology.BackendController.Mode;
 import com.purbon.kafka.topology.utils.JSON;
-import java.io.*;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -40,7 +41,7 @@ public class FileBackend implements Backend {
 
   @Override
   public void save(BackendState state) throws IOException {
-    writeLine(state.asJson());
+    writeLine(state.asPrettyJson());
   }
 
   @Override
@@ -49,17 +50,15 @@ public class FileBackend implements Backend {
     if (Files.size(filePath) == 0) { // if we are loading when there is no file or is empty.
       return new BackendState();
     }
-    return load(filePath.toFile());
+    return load(filePath);
   }
 
-  BackendState load(File stateFile) throws IOException {
-    try (BufferedReader reader = new BufferedReader(new FileReader(stateFile))) {
-      String backendStateAsJsonString = reader.readLine();
-      if (OldFileBackendLoader.isControlTag(backendStateAsJsonString)) {
-        return new OldFileBackendLoader().load(stateFile);
-      }
-      return (BackendState) JSON.toObject(backendStateAsJsonString, BackendState.class);
+  BackendState load(Path stateFilePath) throws IOException {
+    String backendStateAsJsonString = Files.readString(stateFilePath);
+    if (OldFileBackendLoader.isControlTag(backendStateAsJsonString.split("\\r?\\n")[0])) {
+      return new OldFileBackendLoader().load(stateFilePath.toFile());
     }
+    return (BackendState) JSON.toObject(backendStateAsJsonString, BackendState.class);
   }
 
   private void writeLine(String line) throws IOException {

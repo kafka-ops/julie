@@ -96,7 +96,7 @@ public class FileBackendTest {
   @Test
   public void shouldParseOldStyleStateFileSuccessfully() throws IOException {
     File file = TestUtils.getResourceFile("/old-style-state-file.txt");
-    final BackendState state = new FileBackend().load(file);
+    final BackendState state = new FileBackend().load(file.toPath());
     assertThat(state.getTopics()).hasSize(2);
     assertThat(state.getBindings()).hasSize(3);
     assertThat(state.getAccounts()).hasSize(0);
