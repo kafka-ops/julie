@@ -41,7 +41,7 @@ public class FileBackend implements Backend {
 
   @Override
   public void save(BackendState state) throws IOException {
-    writeLine(state.asPrettyJson());
+    writeText(state.asPrettyJson());
   }
 
   @Override
@@ -61,10 +61,9 @@ public class FileBackend implements Backend {
     return (BackendState) JSON.toObject(backendStateAsJsonString, BackendState.class);
   }
 
-  private void writeLine(String line) throws IOException {
+  private void writeText(String text) throws IOException {
     try {
-      writer.write(line);
-      writer.write("\n");
+      writer.write(text);
     } catch (IOException e) {
       LOGGER.error(e);
       throw e;
