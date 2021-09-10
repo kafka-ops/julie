@@ -12,10 +12,12 @@ jobs:
       - uses: actions/checkout@v2
       - name: Import private GPG key
         id: import_gpg
-        uses: crazy-max/ghaction-import-gpg@v3
+        uses: crazy-max/ghaction-import-gpg@v4
         with:
-          gpg-private-key: ${{ secrets.GPG_PRIVATE_KEY }}
+          gpg_private_key: ${{ secrets.GPG_PRIVATE_KEY }}
           passphrase: ${{ secrets.GPG_PASSPHRASE }}
+          git_user_signingkey: true
+          git_commit_gpgsign: true
       - name: Import public GPG Key
         run: rpm --import release/keys/public.key
       - name: Set up the JDK
@@ -34,7 +36,7 @@ jobs:
         run: mvn rpm:rpm
       - name: Sign rpm
         run: |
-          rpm --define "_gpg_name $GPG_KEY_NAME" --addsign target/rpm/julie-ops/RPMS/noarch/*.rpm
+          rpm --define "_gpg_name ${{ steps.import_gpg.outputs.keyid }}" --addsign target/rpm/julie-ops/RPMS/noarch/*.rpm
           rpm --checksig target/rpm/julie-ops/RPMS/noarch/*.rpm
         env:
           GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
@@ -42,7 +44,7 @@ jobs:
       - name: Sign deb
         run: |
           sudo apt-get install dpkg-sig -y
-          dpkg-sig -k $GPG_KEY_NAME --sign builder $FILE target/*.deb
+          dpkg-sig -k ${{ steps.import_gpg.outputs.keyid }} --sign builder $FILE target/*.deb
         env:
           GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
           GPG_KEY_NAME: ${{ steps.import_gpg.outputs.email }}

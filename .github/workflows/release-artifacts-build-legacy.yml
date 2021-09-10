@@ -22,8 +22,29 @@ jobs:
           restore-keys: ${{ runner.os }}-m2
       - name: Build with Maven
         run: mvn -B package --file pom.xml
+      - name: Import private GPG key
+          id: import_gpg
+          uses: crazy-max/ghaction-import-gpg@v4
+          with:
+            gpg_private_key: ${{ secrets.GPG_PRIVATE_KEY }}
+            passphrase: ${{ secrets.GPG_PASSPHRASE }}
+            git_user_signingkey: true
+            git_commit_gpgsign: true
+            - name: Import public GPG Key
+              run: rpm --import release/keys/public.key
       - name: Build the rpm
         run: mvn rpm:rpm
+      - name: Sign rpm
+          run: |
+            rpm --define "_gpg_name ${{ steps.import_gpg.outputs.keyid }}" --addsign target/rpm/julie-ops/RPMS/noarch/*.rpm
+            rpm --checksig target/rpm/julie-ops/RPMS/noarch/*.rpm
+      - name: Sign deb
+          run: |
+            sudo apt-get install dpkg-sig -y
+            dpkg-sig -k ${{ steps.import_gpg.outputs.keyid }} --sign builder $FILE target/*.deb
+          env:
+            GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
+            GPG_KEY_NAME: ${{ steps.import_gpg.outputs.email }}
       - uses: actions/upload-artifact@v2
         with:
           name: RPM package
