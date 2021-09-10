@@ -89,7 +89,7 @@ jobs:
       - name: Sign deb
         run: |
           sudo apt-get install dpkg-sig -y
-          dpkg-sig -k $GPG_KEY_NAME --sign builder $FILE target/*.deb
+          dpkg-sig -k ${{ steps.import_gpg.outputs.keyid }} --sign builder $FILE target/*.deb
         env:
           GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
           GPG_KEY_NAME: ${{ steps.import_gpg.outputs.email }}
