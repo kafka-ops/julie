@@ -17,14 +17,6 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-      - name: Import private GPG key
-        id: import_gpg
-        uses: crazy-max/ghaction-import-gpg@v3
-        with:
-          gpg-private-key: ${{ secrets.GPG_PRIVATE_KEY }}
-          passphrase: ${{ secrets.GPG_PASSPHRASE }}
-      - name: Import public GPG Key
-        run: rpm --import release/keys/public.key
       - uses: docker/setup-buildx-action@v1
       - name: Set up the JDK
         uses: actions/setup-java@v1
@@ -75,11 +67,19 @@ jobs:
           restore-keys: ${{ runner.os }}-m2
       - name: Build with Maven
         run: mvn -B package --file pom.xml
+      - name: Import private GPG key
+        id: import_gpg
+        uses: crazy-max/ghaction-import-gpg@v4
+        with:
+          gpg-private-key: ${{ secrets.GPG_PRIVATE_KEY }}
+          passphrase: ${{ secrets.GPG_PASSPHRASE }}
+      - name: Import public GPG Key
+        run: rpm --import release/keys/public.key
       - name: Build the rpm
         run: mvn rpm:rpm
       - name: Sign rpm
         run: |
-          rpm --define "_gpg_name $GPG_KEY_NAME" --addsign target/rpm/julie-ops/RPMS/noarch/*.rpm
+          rpm --define "_gpg_name ${{ steps.import_gpg.outputs.name }}" --addsign target/rpm/julie-ops/RPMS/noarch/*.rpm
           rpm --checksig target/rpm/julie-ops/RPMS/noarch/*.rpm
         env:
           GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
