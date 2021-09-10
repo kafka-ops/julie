@@ -37,6 +37,10 @@ public class JSON {
     return mapper.writeValueAsString(account);
   }
 
+  public static String asPrettyString(Object account) throws JsonProcessingException {
+    return mapper.writerWithDefaultPrettyPrinter().writeValueAsString(account);
+  }
+
   public static Object toObjectList(String jsonString, Class objectClazz)
       throws JsonProcessingException {
     CollectionType collectionType =
