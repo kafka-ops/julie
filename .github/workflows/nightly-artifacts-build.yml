@@ -81,7 +81,7 @@ jobs:
         run: mvn rpm:rpm
       - name: Sign rpm
         run: |
-          rpm --define "_gpg_name ${{ steps.import_gpg.outputs.name }}" --addsign target/rpm/julie-ops/RPMS/noarch/*.rpm
+          rpm --define "_gpg_name ${{ steps.import_gpg.outputs.keyid }}" --addsign target/rpm/julie-ops/RPMS/noarch/*.rpm
           rpm --checksig target/rpm/julie-ops/RPMS/noarch/*.rpm
         env:
           GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
