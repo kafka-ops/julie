@@ -17,7 +17,7 @@ import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.S3ClientBuilder;
 import software.amazon.awssdk.services.s3.model.*;
 
-public class S3Backend extends AbstractBackend {
+public class S3Backend implements Backend {
 
   private static final Logger LOGGER = LogManager.getLogger(S3Backend.class);
 

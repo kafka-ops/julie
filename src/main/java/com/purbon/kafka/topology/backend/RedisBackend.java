@@ -9,7 +9,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import redis.clients.jedis.Jedis;
 
-public class RedisBackend extends AbstractBackend {
+public class RedisBackend implements Backend {
 
   private static final Logger LOGGER = LogManager.getLogger(RedisBackend.class);
 
@@ -71,7 +71,7 @@ public class RedisBackend extends AbstractBackend {
     long count = jedis.scard(JULIE_OPS_BINDINGS);
     for (long i = 0; i < count; i++) {
       String elem = jedis.spop(JULIE_OPS_BINDINGS);
-      TopologyAclBinding binding = buildAclBinding(elem);
+      TopologyAclBinding binding = BackendHelper.buildAclBinding(elem);
       bindings.add(binding);
     }
     return bindings;
