@@ -93,6 +93,15 @@ public class FileBackendTest {
     assertThat(backend.getAccounts()).hasSize(0);
   }
 
+  @Test
+  public void shouldParseOldStyleStateFileSuccessfully() throws IOException {
+    File file = TestUtils.getResourceFile("/old-style-state-file.txt");
+    final BackendState state = new FileBackend().load(file);
+    assertThat(state.getTopics()).hasSize(2);
+    assertThat(state.getBindings()).hasSize(3);
+    assertThat(state.getAccounts()).hasSize(0);
+  }
+
   private void verifyStoreAndLoadWithPrincipal(final String principal) throws IOException {
     TopologyAclBinding binding =
         TopologyAclBinding.build(
