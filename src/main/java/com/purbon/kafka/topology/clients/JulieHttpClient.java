@@ -27,6 +27,7 @@ public abstract class JulieHttpClient {
 
   public JulieHttpClient(String server) {
     this.server = server;
+    this.token = "";
   }
 
   private HttpRequest.Builder setupARequest(String url, long timeoutMs) {
