@@ -136,12 +136,24 @@ public class RBACBindingsBuilder implements BindingsBuilderProvider {
               apiClient.bind(
                   consumer.getPrincipal(),
                   RESOURCE_OWNER,
-                  consumer.groupString(),
+                  evaluateResourcePattern(consumer.groupString()),
                   "Group",
-                  LITERAL);
+                  evaluateResourcePatternType(consumer.groupString()));
           bindings.add(binding);
         });
     return bindings;
+  }
+
+  private boolean isResourcePrefixed(String res) {
+    return res.length() > 1 && res.endsWith("*");
+  }
+
+  private String evaluateResourcePattern(String res) {
+    return isResourcePrefixed(res) ? res.replaceFirst(".$", "") : res;
+  }
+
+  private String evaluateResourcePatternType(String res) {
+    return isResourcePrefixed(res) ? PREFIX : LITERAL;
   }
 
   @Override
