@@ -530,7 +530,7 @@ public class AccessControlManagerIT {
 
       Collection<AclBinding> acls = kafkaAdminClient.describeAcls(filter).values().get();
 
-      assertEquals(16, acls.size());
+      assertEquals(17, acls.size());
     }
   }
 
