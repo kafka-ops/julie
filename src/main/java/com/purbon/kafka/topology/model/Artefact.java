@@ -6,10 +6,10 @@ import java.util.Objects;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public abstract class Artefact {
 
-  private String path;
+  private final String path;
 
-  private String serverLabel;
-  private String name;
+  private final String serverLabel;
+  private final String name;
 
   public Artefact(String path, String serverLabel, String name) {
     this.path = path;
