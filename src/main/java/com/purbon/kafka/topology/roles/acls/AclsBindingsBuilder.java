@@ -228,6 +228,7 @@ public class AclsBindingsBuilder implements BindingsBuilderProvider {
     bindings.add(buildGroupLevelAcl(principal, appId, PatternType.PREFIXED, AclOperation.READ));
     bindings.add(
         buildGroupLevelAcl(principal, appId + "-command", PatternType.PREFIXED, AclOperation.READ));
+    bindings.add(buildGroupLevelAcl(principal, "*", PatternType.LITERAL, AclOperation.DESCRIBE));
 
     asList(
             config.getConfluentMonitoringTopic(),
@@ -248,8 +249,11 @@ public class AclsBindingsBuilder implements BindingsBuilderProvider {
     Stream.of(AclOperation.WRITE, AclOperation.READ, AclOperation.CREATE, AclOperation.DESCRIBE)
         .map(
             aclOperation ->
-                buildTopicLevelAcl(principal, appId, PatternType.PREFIXED, aclOperation))
+                buildTopicLevelAcl(
+                    principal, "_confluent-controlcenter", PatternType.PREFIXED, aclOperation))
         .forEach(bindings::add);
+
+    bindings.add(buildTopicLevelAcl(principal, "*", PatternType.LITERAL, AclOperation.CREATE));
 
     ResourcePattern resourcePattern =
         new ResourcePattern(ResourceType.CLUSTER, "kafka-cluster", PatternType.LITERAL);
