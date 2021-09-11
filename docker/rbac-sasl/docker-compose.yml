@@ -17,7 +17,7 @@ services:
     hostname: openldap
     container_name: openldap
     ports:
-      - "389:389"
+      - "10389:10389"
     privileged: true
 
   zookeeper:
@@ -124,7 +124,7 @@ services:
       # Configure MDS to talk to AD/LDAP
       KAFKA_LDAP_JAVA_NAMING_FACTORY_INITIAL: com.sun.jndi.ldap.LdapCtxFactory
       KAFKA_LDAP_COM_SUN_JNDI_LDAP_READ_TIMEOUT: 3000
-      KAFKA_LDAP_JAVA_NAMING_PROVIDER_URL: ldap://openldap:389
+      KAFKA_LDAP_JAVA_NAMING_PROVIDER_URL: ldap://openldap:10389
       # how to authenticate to LDAP
       KAFKA_LDAP_JAVA_NAMING_SECURITY_PRINCIPAL: cn=admin,dc=planetexpress,dc=com
       KAFKA_LDAP_JAVA_NAMING_SECURITY_CREDENTIALS: GoodNewsEveryone
