@@ -4,6 +4,8 @@ import com.purbon.kafka.topology.Configuration;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import java.util.Optional;
+
 public class MDSApiClientBuilder {
 
   private static final Logger LOGGER = LogManager.getLogger(MDSApiClientBuilder.class);
@@ -17,7 +19,7 @@ public class MDSApiClientBuilder {
   public MDSApiClient build() {
     String mdsServer = config.getMdsServer();
 
-    MDSApiClient apiClient = new MDSApiClient(mdsServer);
+    MDSApiClient apiClient = new MDSApiClient(mdsServer, Optional.of(config));
     // Pass Cluster IDS
     apiClient.setKafkaClusterId(config.getKafkaClusterId());
     apiClient.setSchemaRegistryClusterID(config.getSchemaRegistryClusterId());

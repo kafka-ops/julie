@@ -108,4 +108,11 @@ public class Constants {
 
   public static final String TOPOLOGY_VALIDATIONS_TOPIC_NAME_REGEXP =
       "topology.validations.topic.name.regexp";
+
+  public static final String SSL_TRUSTSTORE_LOCATION = "ssl.truststore.location";
+  public static final String SSL_TRUSTSTORE_PASSWORD = "ssl.truststore.password";
+  public static final String SSL_KEYSTORE_LOCATION = "ssl.keystore.location";
+  public static final String SSL_KEYSTORE_PASSWORD = "ssl.keystore.password";
+  public static final String SSL_KEY_PASSWORD = "ssl.key.password";
+
 }
