@@ -1,13 +1,18 @@
 package com.purbon.kafka.topology.integration;
 
+import static com.purbon.kafka.topology.CommandLineInterface.BROKERS_OPTION;
 import static org.assertj.core.api.Assertions.assertThat;
 
+import com.purbon.kafka.topology.Configuration;
 import com.purbon.kafka.topology.api.connect.KConnectApiClient;
 import com.purbon.kafka.topology.integration.containerutils.ConnectContainer;
 import com.purbon.kafka.topology.integration.containerutils.ContainerFactory;
 import com.purbon.kafka.topology.integration.containerutils.SaslPlaintextKafkaContainer;
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Properties;
+
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -39,7 +44,10 @@ public class ConnectApiClientIT {
 
   @Before
   public void configure() {
-    client = new KConnectApiClient(connectContainer.getHttpUrl());
+    HashMap<String, String> cliOps = new HashMap<>();
+    cliOps.put(BROKERS_OPTION, "");
+    Configuration config = new Configuration(cliOps, new Properties());
+    client = new KConnectApiClient(connectContainer.getHttpUrl(), config);
   }
 
   @Test
