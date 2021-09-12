@@ -40,7 +40,14 @@ public class TopologySerdesTest {
 
   @Before
   public void setup() {
-    parser = new TopologySerdes();
+    Properties props = new Properties();
+    props.put(PLATFORM_SERVERS_CONNECT + ".0", "connector0:foo");
+    HashMap<String, String> cliOps = new HashMap<>();
+    cliOps.put(BROKERS_OPTION, "");
+
+    Configuration config = new Configuration(cliOps, props);
+
+    parser = new TopologySerdes(config, new PlanMap());
   }
 
   @Test
@@ -372,13 +379,13 @@ public class TopologySerdesTest {
 
   @Test
   public void testConnectorArtefactsRetrieval() {
-    Topology topology = parser.deserialise(TestUtils.getResourceFile("/descriptor.yaml"));
+    Topology topology = parser.deserialise(TestUtils.getResourceFile("/descriptor-connector.yaml"));
     Project project = topology.getProjects().get(0);
     List<KafkaConnectArtefact> artefacts = project.getConnectorArtefacts().getConnectors();
     assertEquals(2, artefacts.size());
-    assertThat(artefacts.get(0)).hasFieldOrPropertyWithValue("path", "connectors/sink-jdbc.json");
+    assertThat(artefacts.get(0)).hasFieldOrPropertyWithValue("path", "connectors/source-jdbc.json");
     assertThat(artefacts.get(0)).hasFieldOrPropertyWithValue("serverLabel", "connector0");
-    assertThat(artefacts.get(1)).hasFieldOrPropertyWithValue("path", "connectors/source-jdbc.json");
+    assertThat(artefacts.get(1)).hasFieldOrPropertyWithValue("path", "connectors/sink-jdbc.json");
     assertThat(artefacts.get(1)).hasFieldOrPropertyWithValue("serverLabel", "connector0");
   }
 
