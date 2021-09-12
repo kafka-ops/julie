@@ -97,8 +97,10 @@ public abstract class JulieHttpClient {
         }
       }
 
-      if (ks != null && ts != null) {
-        sslContext.init(kmf.getKeyManagers(), tmf.getTrustManagers(), null);
+      if (ks != null || ts != null) {
+        var keyManagers = ks != null ? kmf.getKeyManagers() : null;
+        var trustManagers = ts != null ? tmf.getTrustManagers() : null;
+        sslContext.init(keyManagers, trustManagers, null);
       } else {
         sslContext = SSLContext.getDefault();
       }
