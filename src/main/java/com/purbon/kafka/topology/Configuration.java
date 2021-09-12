@@ -418,10 +418,10 @@ public class Configuration {
     KsqlClientConfig.Builder ksqlConf =
         new KsqlClientConfig.Builder()
             .setServer(getProperty(PLATFORM_SERVER_KSQL_URL))
-            .setTrustStore(getPropertyOrNull(PLATFORM_SERVER_KSQL_TRUSTSTORE))
-            .setTrustStorePassword(getPropertyOrNull(PLATFORM_SERVER_KSQL_TRUSTSTORE_PW))
-            .setKeyStore(getPropertyOrNull(PLATFORM_SERVER_KSQL_KEYSTORE))
-            .setKeyStorePassword(getPropertyOrNull(PLATFORM_SERVER_KSQL_KEYSTORE_PW));
+            .setTrustStore(getPropertyOrNull(PLATFORM_SERVER_KSQL_TRUSTSTORE, SSL_TRUSTSTORE_LOCATION))
+            .setTrustStorePassword(getPropertyOrNull(PLATFORM_SERVER_KSQL_TRUSTSTORE_PW, SSL_TRUSTSTORE_PASSWORD))
+            .setKeyStore(getPropertyOrNull(PLATFORM_SERVER_KSQL_KEYSTORE, SSL_KEYSTORE_LOCATION))
+            .setKeyStorePassword(getPropertyOrNull(PLATFORM_SERVER_KSQL_KEYSTORE_PW, SSL_KEYSTORE_PASSWORD));
     if (hasProperty(PLATFORM_SERVER_KSQL_ALPN)) {
       ksqlConf.setUseAlpn(config.getBoolean(PLATFORM_SERVER_KSQL_ALPN));
     }
@@ -443,10 +443,13 @@ public class Configuration {
     return config.hasPath(PLATFORM_SERVER_KSQL_URL);
   }
 
-  private String getPropertyOrNull(String key) {
+  private String getPropertyOrNull(String key, String defaultKey) {
     try {
       return config.getString(key);
     } catch (ConfigException.Missing e) {
+      if (!defaultKey.isBlank()) {
+        return getPropertyOrNull(defaultKey, "");
+      }
       return null;
     }
   }
