@@ -247,3 +247,21 @@ An example configuration might look like this:
 
 If this prefix list is used, only groups that match the prefix will be ever processed, if wildcard it will be managed if the service account is managed by Julie Ops, anything else will be ignored.
 This is useful in a shared cluster, to avoid Julie Ops removing/accidentally managing group acls by other teams with seperate pipelines.
+
+HTTPs configuration (TLS)
+-----------
+
+JulieOps uses internally the new HttpClient provided since the Java 11 version. If you are aiming to connect into a HTTPs protected endpoint
+you should configure the required truststore and keystore, this as with common kafka clients you can do by using this properties.
+
+* ssl.keystore.location - full path for the store
+* ssl.keystore.password - password for the keystore
+* ssl.truststore.location - full path for the truststore
+* ssl.truststore.password - password for the truststore
+* ssl.key.password - password for the certificate, when required.
+
+ksqlDB manager have specific configuration values for truststore and keystore, but if not specified this ones will be used as default.
+
+**NOTE**: As default JulieOps uses PKCS12 stores, JKS stores are not supported.
+
+This feature is available since version 3.0.0, however if you are willing to use an https connection you could as well define global JVM stores, for more details you can see  https://docs.oracle.com/cd/E29585_01/PlatformServices.61x/security/src/csec_ssl_jsp_start_server.html link.
