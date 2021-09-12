@@ -20,11 +20,14 @@ public class ConnectApiClientIT {
 
   KConnectApiClient client;
 
+  private static final String TRUSTSTORE_JKS = "/ksql-ssl/truststore/ksqldb.truststore.jks";
+  private static final String KEYSTORE_JKS = "/ksql-ssl/keystore/ksqldb.keystore.jks";
+
   @BeforeClass
   public static void setup() {
     container = ContainerFactory.fetchSaslKafkaContainer(System.getProperty("cp.version"));
     container.start();
-    connectContainer = new ConnectContainer(container);
+    connectContainer = new ConnectContainer(container, TRUSTSTORE_JKS, KEYSTORE_JKS);
     connectContainer.start();
   }
 
@@ -36,7 +39,7 @@ public class ConnectApiClientIT {
 
   @Before
   public void configure() {
-    client = new KConnectApiClient(connectContainer.getUrl());
+    client = new KConnectApiClient(connectContainer.getHttpUrl());
   }
 
   @Test

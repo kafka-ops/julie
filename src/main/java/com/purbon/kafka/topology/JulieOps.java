@@ -173,7 +173,7 @@ public class JulieOps implements AutoCloseable {
       Configuration config, String topologyFileOrDir) {
     Map<String, KConnectApiClient> clients =
         config.getKafkaConnectServers().entrySet().stream()
-            .map(entry -> new Pair<>(entry.getKey(), new KConnectApiClient(entry.getValue())))
+            .map(entry -> new Pair<>(entry.getKey(), new KConnectApiClient(entry.getValue(), config)))
             .collect(Collectors.toMap(Pair::getKey, Pair::getValue));
 
     if (clients.isEmpty()) {

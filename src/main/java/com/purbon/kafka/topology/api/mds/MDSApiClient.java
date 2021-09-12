@@ -4,6 +4,7 @@ import static com.purbon.kafka.topology.api.mds.RequestScope.RESOURCE_NAME;
 import static com.purbon.kafka.topology.api.mds.RequestScope.RESOURCE_PATTERN_TYPE;
 import static com.purbon.kafka.topology.api.mds.RequestScope.RESOURCE_TYPE;
 
+import com.purbon.kafka.topology.Configuration;
 import com.purbon.kafka.topology.clients.JulieHttpClient;
 import com.purbon.kafka.topology.roles.TopologyAclBinding;
 import com.purbon.kafka.topology.roles.rbac.ClusterLevelRoleBuilder;
@@ -13,6 +14,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
+
 import org.apache.kafka.common.resource.ResourceType;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -25,7 +28,11 @@ public class MDSApiClient extends JulieHttpClient {
   private final ClusterIDs clusterIDs;
 
   public MDSApiClient(String mdsServer) {
-    super(mdsServer);
+    this(mdsServer, Optional.empty());
+  }
+
+  public MDSApiClient(String mdsServer, Optional<Configuration> configOptional) {
+    super(mdsServer, configOptional);
     this.clusterIDs = new ClusterIDs();
   }
 

@@ -36,6 +36,9 @@ public class ConnectorManagerIT {
   private TopologySerdes parser;
   private ExecutionPlan plan;
 
+  private static final String TRUSTSTORE_JKS = "/ksql-ssl/truststore/ksqldb.truststore.jks";
+  private static final String KEYSTORE_JKS = "/ksql-ssl/keystore/ksqldb.keystore.jks";
+
   @After
   public void after() {
     connectContainer.stop();
@@ -46,12 +49,11 @@ public class ConnectorManagerIT {
   public void configure() throws IOException {
     container = ContainerFactory.fetchSaslKafkaContainer(System.getProperty("cp.version"));
     container.start();
-    connectContainer = new ConnectContainer(container);
+    connectContainer = new ConnectContainer(container, TRUSTSTORE_JKS, KEYSTORE_JKS);
     connectContainer.start();
 
     Files.deleteIfExists(Paths.get(".cluster-state"));
 
-    client = new KConnectApiClient(connectContainer.getUrl());
     parser = new TopologySerdes();
 
     this.plan = ExecutionPlan.init(new BackendController(), System.out);
@@ -76,7 +78,7 @@ public class ConnectorManagerIT {
     props.put(TOPOLOGY_STATE_FROM_CLUSTER, "true");
     props.put(TOPOLOGY_TOPIC_STATE_FROM_CLUSTER, "false");
     props.put(ALLOW_DELETE_CONNECT_ARTEFACTS, "true");
-    props.put(PLATFORM_SERVERS_CONNECT + ".0", "connector0:" + client.getServer());
+    props.put(PLATFORM_SERVERS_CONNECT + ".0", "connector0:" + connectContainer.getHttpsUrl());
 
     File file = TestUtils.getResourceFile("/descriptor-connector.yaml");
 
@@ -88,7 +90,15 @@ public class ConnectorManagerIT {
     HashMap<String, String> cliOps = new HashMap<>();
     cliOps.put(BROKERS_OPTION, "");
 
+    props.put(SSL_TRUSTSTORE_LOCATION, TestUtils.getResourceFile(TRUSTSTORE_JKS).getAbsolutePath());
+    props.put(SSL_TRUSTSTORE_PASSWORD, "ksqldb");
+    props.put(SSL_KEYSTORE_LOCATION, TestUtils.getResourceFile(KEYSTORE_JKS).getAbsolutePath());
+    props.put(SSL_KEYSTORE_PASSWORD, "ksqldb");
+    props.put(SSL_KEY_PASSWORD, "ksqldb");
+
     Configuration config = new Configuration(cliOps, props);
+
+    client = new KConnectApiClient(connectContainer.getHttpsUrl(), config);
 
     Topology topology = parser.deserialise(file);
     connectorManager = new KafkaConnectArtefactManager(client, config, file.getAbsolutePath());

@@ -361,6 +361,46 @@ public class Configuration {
     return config.getString(MDS_KC_CLUSTER_ID_CONFIG);
   }
 
+  public Optional<String> getSslTrustStoreLocation() {
+    try {
+      return Optional.of(config.getString(SSL_TRUSTSTORE_LOCATION));
+    } catch (ConfigException.Missing missingEx) {
+      return Optional.empty();
+    }
+  }
+
+  public Optional<String> getSslTrustStorePassword() {
+    try {
+      return Optional.of(config.getString(SSL_TRUSTSTORE_PASSWORD));
+    } catch (ConfigException.Missing missingEx) {
+      return Optional.empty();
+    }
+  }
+
+  public Optional<String> getSslKeyStoreLocation() {
+    try {
+      return Optional.of(config.getString(SSL_KEYSTORE_LOCATION));
+    } catch (ConfigException.Missing missingEx) {
+      return Optional.empty();
+    }
+  }
+
+  public Optional<String> getSslKeyStorePassword() {
+    try {
+      return Optional.of(config.getString(SSL_KEYSTORE_PASSWORD));
+    } catch (ConfigException.Missing missingEx) {
+      return Optional.empty();
+    }
+  }
+
+  public Optional<String> getSslKeyPassword() {
+    try {
+      return Optional.of(config.getString(SSL_KEY_PASSWORD));
+    } catch (ConfigException.Missing missingEx) {
+      return Optional.empty();
+    }
+  }
+
   public Map<String, String> getKafkaConnectServers() {
     List<String> servers = config.getStringList(PLATFORM_SERVERS_CONNECT);
     return servers.stream()

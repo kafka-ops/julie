@@ -3,17 +3,34 @@ package com.purbon.kafka.topology.clients;
 import static java.net.http.HttpRequest.BodyPublishers.noBody;
 import static java.net.http.HttpRequest.BodyPublishers.ofString;
 
+import com.google.cloud.storage.Storage;
+import com.purbon.kafka.topology.Configuration;
 import com.purbon.kafka.topology.api.mds.Response;
 import com.purbon.kafka.topology.utils.BasicAuth;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpRequest.BodyPublisher;
 import java.net.http.HttpResponse;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.security.KeyManagementException;
+import java.security.KeyStore;
+import java.security.KeyStoreException;
+import java.security.NoSuchAlgorithmException;
+import java.security.UnrecoverableKeyException;
+import java.security.cert.CertificateException;
 import java.time.Duration;
+import java.util.Optional;
+
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+
+import javax.net.ssl.KeyManagerFactory;
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.TrustManagerFactory;
 
 public abstract class JulieHttpClient {
 
@@ -21,13 +38,17 @@ public abstract class JulieHttpClient {
 
   private final long DEFAULT_TIMEOUT_MS = 60000;
 
-  private final HttpClient httpClient = HttpClient.newBuilder().build();
+  private HttpClient httpClient;
   protected final String server;
   private String token;
 
   public JulieHttpClient(String server) {
+    this(server, Optional.empty());
+  }
+  public JulieHttpClient(String server, Optional<Configuration> configOptional) {
     this.server = server;
     this.token = "";
+    this.httpClient = configureHttpOrHttpsClient(configOptional);
   }
 
   private HttpRequest.Builder setupARequest(String url, long timeoutMs) {
@@ -40,6 +61,69 @@ public abstract class JulieHttpClient {
       builder = builder.header("Authorization", token);
     }
     return builder;
+  }
+
+  private HttpClient configureHttpOrHttpsClient(Optional<Configuration> configOptional) {
+    if (configOptional.isEmpty()) {
+      return HttpClient.newBuilder().build();
+    }
+    Configuration config = configOptional.get();
+    KeyManagerFactory kmf;
+    TrustManagerFactory tmf;
+    SSLContext sslContext = null;
+
+    try {
+      kmf = KeyManagerFactory.getInstance("PKIX");
+      tmf = TrustManagerFactory.getInstance("PKIX");
+      sslContext = SSLContext.getInstance("TLS");
+
+      KeyStore ks = loadKeyStore(config.getSslKeyStoreLocation(), config.getSslKeyStorePassword());
+      if (ks != null) {
+        try {
+          kmf.init(ks, config.getSslKeyStorePassword().get().toCharArray());
+        } catch ( KeyStoreException | NoSuchAlgorithmException | UnrecoverableKeyException ex) {
+          LOGGER.error(ex);
+          kmf = null;
+        }
+      }
+
+      KeyStore ts = loadKeyStore(config.getSslTrustStoreLocation(), config.getSslTrustStorePassword());
+      if (ts != null) {
+        try {
+          tmf.init(ts);
+        } catch (KeyStoreException ex) {
+          LOGGER.error(ex);
+          tmf = null;
+        }
+      }
+
+      if (kmf != null && tmf != null) {
+        sslContext.init(kmf.getKeyManagers(), tmf.getTrustManagers(), null);
+      }
+
+    } catch (KeyManagementException | NoSuchAlgorithmException e) {
+      LOGGER.error(e);
+    }
+
+    return HttpClient.newBuilder()
+            .sslContext(sslContext)
+            .build();
+  }
+
+  private KeyStore loadKeyStore(Optional<String> sslStoreLocation, Optional<String> sslStorePassword) {
+    if (sslStoreLocation.isPresent() && sslStorePassword.isPresent()) {
+      try {
+        KeyStore ks = KeyStore.getInstance("PKCS12");
+        char[] password = sslStorePassword.get().toCharArray();
+        InputStream is = Files.newInputStream(Path.of(sslStoreLocation.get()));
+        ks.load(is, password);
+        return ks;
+      } catch (KeyStoreException | IOException | NoSuchAlgorithmException | CertificateException ex) {
+        LOGGER.error(ex);
+        return null;
+      }
+    }
+    return null;
   }
 
   public void setBasicAuth(BasicAuth basicAuth) {
