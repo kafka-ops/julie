@@ -270,7 +270,7 @@ public class TopologyCustomDeserializer extends StdDeserializer<Topology> {
           throw new TopologyParsingException(
               "KafkaConnect: Path, name and label are artefact mandatory fields");
         }
-        if (serverLabels.contains(artefact.getServerLabel())) {
+        if (!serverLabels.contains(artefact.getServerLabel())) {
           throw new TopologyParsingException(
               String.format(
                   "KafkaConnect: Server alias label %s does not exist on the provided configuration, please check",
