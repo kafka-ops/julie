@@ -3,6 +3,7 @@ package com.purbon.kafka.topology.api.mds;
 import static com.purbon.kafka.topology.api.mds.RequestScope.RESOURCE_NAME;
 import static com.purbon.kafka.topology.api.mds.RequestScope.RESOURCE_PATTERN_TYPE;
 import static com.purbon.kafka.topology.api.mds.RequestScope.RESOURCE_TYPE;
+import static com.purbon.kafka.topology.roles.rbac.RBACPredefinedRoles.isClusterScopedRole;
 
 import com.purbon.kafka.topology.clients.JulieHttpClient;
 import com.purbon.kafka.topology.roles.TopologyAclBinding;
@@ -78,7 +79,7 @@ public class MDSApiClient extends JulieHttpClient {
     String url = binding.getPrincipal() + "/roles/" + binding.getOperation();
     String jsonEntity;
 
-    if (isBindingWithResources(binding)) {
+    if (isBindingWithResources(binding) && !isClusterScopedRole(binding.getOperation())) {
       url = url + "/bindings";
       jsonEntity = binding.getScope().asJson();
     } else {
