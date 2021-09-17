@@ -64,4 +64,9 @@ public class KConnectApiClient extends JulieHttpClient implements ArtefactClient
   public void pause(String connectorName) throws IOException {
     doPut("/connectors/" + connectorName + "/pause");
   }
+
+  @Override
+  public String toString() {
+    return "KConnectApiClient{" + server + "}";
+  }
 }
