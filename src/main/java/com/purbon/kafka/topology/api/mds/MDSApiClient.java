@@ -3,6 +3,7 @@ package com.purbon.kafka.topology.api.mds;
 import static com.purbon.kafka.topology.api.mds.RequestScope.RESOURCE_NAME;
 import static com.purbon.kafka.topology.api.mds.RequestScope.RESOURCE_PATTERN_TYPE;
 import static com.purbon.kafka.topology.api.mds.RequestScope.RESOURCE_TYPE;
+import static com.purbon.kafka.topology.roles.rbac.RBACPredefinedRoles.isClusterScopedRole;
 
 import com.purbon.kafka.topology.Configuration;
 import com.purbon.kafka.topology.clients.JulieHttpClient;
@@ -77,22 +78,30 @@ public class MDSApiClient extends JulieHttpClient {
     return binding;
   }
 
-  public void bindRequest(TopologyAclBinding binding) throws IOException {
+  private boolean isBindingWithResources(TopologyAclBinding binding) {
+    return !binding.getScope().getResources().isEmpty();
+  }
 
+  MDSRequest buildRequest(TopologyAclBinding binding) {
     String url = binding.getPrincipal() + "/roles/" + binding.getOperation();
-    if (!binding.getResourceType().equals(ResourceType.CLUSTER.name())) {
-      url = url + "/bindings";
-    }
+    String jsonEntity;
 
+    if (isBindingWithResources(binding) && !isClusterScopedRole(binding.getOperation())) {
+      url = url + "/bindings";
+      jsonEntity = binding.getScope().asJson();
+    } else {
+      jsonEntity = binding.getScope().clustersAsJson();
+    }
+    LOGGER.debug("bind.entity: " + jsonEntity);
+
+    return new MDSRequest(url, jsonEntity);
+  }
+
+  public void bindRequest(TopologyAclBinding binding) throws IOException {
+    MDSRequest mdsRequest = buildRequest(binding);
     try {
-      String jsonEntity;
-      if (binding.getResourceType().equals(ResourceType.CLUSTER.name())) {
-        jsonEntity = binding.getScope().clustersAsJson();
-      } else {
-        jsonEntity = binding.getScope().asJson();
-      }
-      LOGGER.debug("bind.entity: " + jsonEntity);
-      doPost("/security/1.0/principals/" + url, jsonEntity);
+      LOGGER.debug("bind.entity: " + mdsRequest.getJsonEntity());
+      doPost("/security/1.0/principals/" + mdsRequest.getUrl(), mdsRequest.getJsonEntity());
     } catch (IOException e) {
       LOGGER.error(e);
       throw e;

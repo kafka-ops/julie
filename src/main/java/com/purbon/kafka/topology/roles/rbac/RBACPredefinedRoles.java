@@ -9,4 +9,10 @@ public class RBACPredefinedRoles {
 
   public static final String SECURITY_ADMIN = "SecurityAdmin";
   public static final String SYSTEM_ADMIN = "SystemAdmin";
+
+  public static boolean isClusterScopedRole(String role) {
+    return !DEVELOPER_READ.equals(role)
+            && !DEVELOPER_WRITE.equals(role)
+            && !RESOURCE_OWNER.equals(role);
+  }
 }
