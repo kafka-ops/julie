@@ -83,6 +83,11 @@ public class BackendState {
     return JSON.asString(this);
   }
 
+  @JsonIgnore
+  public String asPrettyJson() throws JsonProcessingException {
+    return JSON.asPrettyString(this);
+  }
+
   public void clear() {
     bindings.clear();
     accounts.clear();
