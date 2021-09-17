@@ -4,6 +4,8 @@ import static com.purbon.kafka.topology.CommandLineInterface.*;
 import static com.purbon.kafka.topology.Constants.*;
 import static com.purbon.kafka.topology.model.SubjectNameStrategy.TOPIC_NAME_STRATEGY;
 import static com.purbon.kafka.topology.model.SubjectNameStrategy.TOPIC_RECORD_NAME_STRATEGY;
+import static com.purbon.kafka.topology.roles.rbac.RBACPredefinedRoles.DEVELOPER_READ;
+import static com.purbon.kafka.topology.roles.rbac.RBACPredefinedRoles.RESOURCE_OWNER;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -22,6 +24,7 @@ import com.purbon.kafka.topology.model.users.Consumer;
 import com.purbon.kafka.topology.model.users.KSqlApp;
 import com.purbon.kafka.topology.model.users.KStream;
 import com.purbon.kafka.topology.model.users.Producer;
+import com.purbon.kafka.topology.model.users.Schemas;
 import com.purbon.kafka.topology.model.users.platform.ControlCenterInstance;
 import com.purbon.kafka.topology.model.users.platform.KsqlServerInstance;
 import com.purbon.kafka.topology.model.users.platform.SchemaRegistryInstance;
@@ -350,10 +353,25 @@ public class TopologySerdesTest {
     Project myProject = topology.getProjects().get(0);
 
     assertEquals(2, myProject.getRbacRawRoles().size());
-    assertEquals(2, myProject.getSchemas().size());
-    assertEquals("User:App0", myProject.getSchemas().get(0).getPrincipal());
-    assertEquals(1, myProject.getSchemas().get(0).getSubjects().size());
-
+    assertEquals(3, myProject.getSchemas().size());
+    assertSchemas(
+        myProject.getSchemas().get(0),
+        "User:App0",
+        Collections.singletonList("transactions"),
+        RESOURCE_OWNER,
+        false);
+    assertSchemas(
+        myProject.getSchemas().get(1),
+        "User:App1",
+        Collections.singletonList("contracts"),
+        RESOURCE_OWNER,
+        false);
+    assertSchemas(
+        myProject.getSchemas().get(2),
+        "User:App2",
+        Collections.singletonList("myapp"),
+        DEVELOPER_READ,
+        true);
     Connector connector = myProject.getConnectors().get(0);
     assertEquals(true, connector.getConnectors().isPresent());
     assertEquals("jdbc-sync", connector.getConnectors().get().get(0));
@@ -500,5 +518,13 @@ public class TopologySerdesTest {
     consumers.add(new Consumer("app1"));
     consumers.add(new Consumer("app2"));
     return consumers;
+  }
+
+  private void assertSchemas(
+      Schemas schemas, String principal, List<String> subjects, String role, boolean prefixed) {
+    assertEquals("Schemas principal", principal, schemas.getPrincipal());
+    assertEquals("Schemas subjects", subjects, schemas.getSubjects());
+    assertEquals("Schemas role", role, schemas.getRole());
+    assertEquals("Schemas isPrefixed", prefixed, schemas.isPrefixed());
   }
 }

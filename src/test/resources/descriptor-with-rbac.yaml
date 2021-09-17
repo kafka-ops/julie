@@ -36,6 +36,11 @@ projects:
       - principal: "User:App1"
         subjects:
           - "contracts"
+      - principal: "User:App2"
+        subjects:
+          - "myapp"
+        role: "DeveloperRead"
+        prefixed: true
     rbac:
       - ResourceOwner:
           - principal: "User:Foo"
