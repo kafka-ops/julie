@@ -50,4 +50,19 @@ public abstract class Artefact {
       return Objects.hash(getName().toLowerCase());
     }
   }
+
+  @Override
+  public String toString() {
+    return "Artefact{"
+        + "path='"
+        + path
+        + '\''
+        + ", serverLabel='"
+        + serverLabel
+        + '\''
+        + ", name='"
+        + name
+        + '\''
+        + '}';
+  }
 }
