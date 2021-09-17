@@ -5,6 +5,7 @@ import static com.purbon.kafka.topology.api.ksql.KsqlApiClient.TABLE_TYPE;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.purbon.kafka.topology.api.ksql.KsqlApiClient;
+import com.purbon.kafka.topology.api.ksql.KsqlClientConfig;
 import com.purbon.kafka.topology.integration.containerutils.ContainerFactory;
 import com.purbon.kafka.topology.integration.containerutils.KsqlContainer;
 import com.purbon.kafka.topology.integration.containerutils.SaslPlaintextKafkaContainer;
@@ -26,18 +27,18 @@ public class KsqlClientIT {
   }
 
   @Before
-  public void configure() throws InterruptedException {
+  public void configure() {
     container = ContainerFactory.fetchSaslKafkaContainer(System.getProperty("cp.version"));
     container.start();
     ksqlContainer = new KsqlContainer(container);
     ksqlContainer.start();
-    Thread.sleep(3000);
   }
 
   @Test
   public void testStreamTableCreateAndDelete() throws IOException {
 
-    KsqlApiClient client = new KsqlApiClient(ksqlContainer.getHost(), ksqlContainer.getPort());
+    KsqlApiClient client =
+        new KsqlApiClient(KsqlClientConfig.builder().setServer(ksqlContainer.getUrl()).build());
 
     String streamName = "riderLocations";
 

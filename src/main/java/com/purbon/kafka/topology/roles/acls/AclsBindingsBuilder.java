@@ -213,12 +213,29 @@ public class AclsBindingsBuilder implements BindingsBuilderProvider {
   private Stream<AclBinding> schemaRegistryAclsStream(SchemaRegistryInstance schemaRegistry) {
     String principal = translate(schemaRegistry.getPrincipal());
     List<AclBinding> bindings =
-        Stream.of(AclOperation.DESCRIBE_CONFIGS, AclOperation.WRITE, AclOperation.READ)
+        Stream.of(
+                AclOperation.CREATE,
+                AclOperation.DESCRIBE_CONFIGS,
+                AclOperation.DESCRIBE,
+                AclOperation.WRITE,
+                AclOperation.READ)
             .map(
                 aclOperation ->
                     buildTopicLevelAcl(
                         principal, schemaRegistry.topicString(), PatternType.LITERAL, aclOperation))
             .collect(Collectors.toList());
+
+    bindings.add(
+        buildTopicLevelAcl(
+            principal,
+            schemaRegistry.consumerOffsetsTopicString(),
+            PatternType.LITERAL,
+            AclOperation.DESCRIBE));
+
+    bindings.add(
+        buildGroupLevelAcl(
+            principal, schemaRegistry.groupString(), PatternType.LITERAL, AclOperation.READ));
+
     return bindings.stream();
   }
 
@@ -228,6 +245,7 @@ public class AclsBindingsBuilder implements BindingsBuilderProvider {
     bindings.add(buildGroupLevelAcl(principal, appId, PatternType.PREFIXED, AclOperation.READ));
     bindings.add(
         buildGroupLevelAcl(principal, appId + "-command", PatternType.PREFIXED, AclOperation.READ));
+    bindings.add(buildGroupLevelAcl(principal, "*", PatternType.LITERAL, AclOperation.DESCRIBE));
 
     asList(
             config.getConfluentMonitoringTopic(),
@@ -248,8 +266,11 @@ public class AclsBindingsBuilder implements BindingsBuilderProvider {
     Stream.of(AclOperation.WRITE, AclOperation.READ, AclOperation.CREATE, AclOperation.DESCRIBE)
         .map(
             aclOperation ->
-                buildTopicLevelAcl(principal, appId, PatternType.PREFIXED, aclOperation))
+                buildTopicLevelAcl(
+                    principal, "_confluent-controlcenter", PatternType.PREFIXED, aclOperation))
         .forEach(bindings::add);
+
+    bindings.add(buildTopicLevelAcl(principal, "*", PatternType.LITERAL, AclOperation.CREATE));
 
     ResourcePattern resourcePattern =
         new ResourcePattern(ResourceType.CLUSTER, "kafka-cluster", PatternType.LITERAL);

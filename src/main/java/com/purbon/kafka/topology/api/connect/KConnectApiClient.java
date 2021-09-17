@@ -1,5 +1,6 @@
 package com.purbon.kafka.topology.api.connect;
 
+import com.purbon.kafka.topology.Configuration;
 import com.purbon.kafka.topology.api.mds.Response;
 import com.purbon.kafka.topology.clients.ArtefactClient;
 import com.purbon.kafka.topology.clients.JulieHttpClient;
@@ -10,12 +11,17 @@ import java.io.IOException;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 public class KConnectApiClient extends JulieHttpClient implements ArtefactClient {
 
   public KConnectApiClient(String server) {
     super(server);
+  }
+
+  public KConnectApiClient(String server, Configuration config) {
+    super(server, Optional.of(config));
   }
 
   @Override
@@ -57,5 +63,10 @@ public class KConnectApiClient extends JulieHttpClient implements ArtefactClient
 
   public void pause(String connectorName) throws IOException {
     doPut("/connectors/" + connectorName + "/pause");
+  }
+
+  @Override
+  public String toString() {
+    return "KConnectApiClient{" + server + "}";
   }
 }

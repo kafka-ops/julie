@@ -1,0 +1,8 @@
+acls
+'CLUSTER', 'example-cluster', '*', 'IDEMPOTENT_WRITE', 'SPIFFE:spiffe://foo.example.com/ns/foo/sa/bar', 'LITERAL'
+'TOPIC', 'topic1', '*', 'DESCRIBE', 'User:CN=foo.example.com', 'LITERAL'
+'TOPIC', 'topic1', '*', 'READ', 'User:CN=foo.example.com', 'LITERAL'
+ServiceAccounts
+Topics
+topic1
+topic2

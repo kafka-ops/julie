@@ -1,20 +1,18 @@
 package com.purbon.kafka.topology.backend;
 
 import com.purbon.kafka.topology.BackendController.Mode;
-import com.purbon.kafka.topology.roles.TopologyAclBinding;
-import java.io.IOException;
-import java.util.HashSet;
-import java.util.Set;
+import com.purbon.kafka.topology.utils.JSON;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import redis.clients.jedis.Jedis;
 
-public class RedisBackend extends AbstractBackend {
+import java.io.IOException;
+
+public class RedisBackend implements Backend {
 
   private static final Logger LOGGER = LogManager.getLogger(RedisBackend.class);
 
-  static final String JULIE_OPS_BINDINGS = "julie.ops.bindings";
-  static final String JULIE_OPS_TYPE = "julie.ops.type";
+  static final String JULIE_OPS_STATE = "julie.ops.state";
 
   private Jedis jedis;
 
@@ -35,8 +33,7 @@ public class RedisBackend extends AbstractBackend {
   public void createOrOpen(Mode mode) {
     jedis.connect();
     if (mode.equals(Mode.TRUNCATE)) {
-      jedis.del(JULIE_OPS_TYPE);
-      jedis.del(JULIE_OPS_BINDINGS);
+      jedis.del(JULIE_OPS_STATE);
     }
   }
 
@@ -47,35 +44,16 @@ public class RedisBackend extends AbstractBackend {
 
   @Override
   public void save(BackendState state) throws IOException {
-    saveBindings(state.getBindings());
-  }
-
-  private void saveBindings(Set<TopologyAclBinding> bindings) {
-
-    String[] members =
-        bindings.stream().map(TopologyAclBinding::toString).toArray(size -> new String[size]);
-
-    jedis.sadd(JULIE_OPS_BINDINGS, members);
+    jedis.set(JULIE_OPS_STATE, state.asPrettyJson());
   }
 
   @Override
   public BackendState load() throws IOException {
-    BackendState state = new BackendState();
-    state.addBindings(loadBindings());
-    return state;
+    connectIfNeed();
+    String content = jedis.get(JULIE_OPS_STATE);
+    return (BackendState) JSON.toObject(content, BackendState.class);
   }
 
-  private Set<TopologyAclBinding> loadBindings() throws IOException {
-    connectIfNeed();
-    Set<TopologyAclBinding> bindings = new HashSet<>();
-    long count = jedis.scard(JULIE_OPS_BINDINGS);
-    for (long i = 0; i < count; i++) {
-      String elem = jedis.spop(JULIE_OPS_BINDINGS);
-      TopologyAclBinding binding = buildAclBinding(elem);
-      bindings.add(binding);
-    }
-    return bindings;
-  }
 
   private void connectIfNeed() {
     if (!jedis.isConnected()) {
