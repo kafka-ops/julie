@@ -17,6 +17,7 @@ import com.purbon.kafka.topology.model.users.Connector;
 import com.purbon.kafka.topology.model.users.Consumer;
 import com.purbon.kafka.topology.model.users.KSqlApp;
 import com.purbon.kafka.topology.model.users.KStream;
+import com.purbon.kafka.topology.model.users.Other;
 import com.purbon.kafka.topology.model.users.Producer;
 import com.purbon.kafka.topology.model.users.Schemas;
 import com.purbon.kafka.topology.model.users.platform.ControlCenterInstance;
@@ -132,6 +133,10 @@ public class AccessControlManager {
       }
 
       syncRbacRawRoles(project.getRbacRawRoles(), topicPrefix, actions);
+
+      for (Map.Entry<String, List<Other>> other : project.getOthers().entrySet()) {
+        // TODO: process extra ACLs
+      }
     }
     return actions;
   }

@@ -11,10 +11,12 @@ import com.purbon.kafka.topology.model.users.Connector;
 import com.purbon.kafka.topology.model.users.Consumer;
 import com.purbon.kafka.topology.model.users.KSqlApp;
 import com.purbon.kafka.topology.model.users.KStream;
+import com.purbon.kafka.topology.model.users.Other;
 import com.purbon.kafka.topology.model.users.Producer;
 import com.purbon.kafka.topology.model.users.Schemas;
 import com.purbon.kafka.topology.utils.JinjaUtils;
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class ProjectImpl implements Project, Cloneable {
 
@@ -30,6 +32,7 @@ public class ProjectImpl implements Project, Cloneable {
   private PlatformSystem<Connector> connectors;
   private PlatformSystem<Schemas> schemas;
   private Map<String, List<String>> rbacRawRoles;
+  private List<Map.Entry<String, PlatformSystem<Other>>> others;
 
   private List<Topic> topics;
 
@@ -53,7 +56,8 @@ public class ProjectImpl implements Project, Cloneable {
         Optional.empty(),
         Optional.empty(),
         Optional.empty(),
-        new HashMap<>(),
+        Collections.emptyMap(),
+        Collections.emptyList(),
         config);
   }
 
@@ -66,6 +70,7 @@ public class ProjectImpl implements Project, Cloneable {
       Optional<PlatformSystem<Schemas>> schemas,
       Optional<PlatformSystem<KSqlApp>> ksqls,
       Map<String, List<String>> rbacRawRoles,
+      List<Map.Entry<String, PlatformSystem<Other>>> others,
       Configuration config) {
     this(
         name,
@@ -78,6 +83,7 @@ public class ProjectImpl implements Project, Cloneable {
         schemas.orElse(new PlatformSystem<>()),
         ksqls.orElse(new PlatformSystem<>()),
         rbacRawRoles,
+        others,
         config);
   }
 
@@ -92,6 +98,7 @@ public class ProjectImpl implements Project, Cloneable {
       PlatformSystem<Schemas> schemas,
       PlatformSystem<KSqlApp> ksqls,
       Map<String, List<String>> rbacRawRoles,
+      List<Map.Entry<String, PlatformSystem<Other>>> others,
       Configuration config) {
     this.name = name;
     this.topics = topics;
@@ -103,6 +110,7 @@ public class ProjectImpl implements Project, Cloneable {
     this.connectors = connectors;
     this.schemas = schemas;
     this.rbacRawRoles = rbacRawRoles;
+    this.others = others;
     this.config = config;
     this.prefixContext = new HashMap<>();
     this.order = new ArrayList<>();
@@ -162,6 +170,12 @@ public class ProjectImpl implements Project, Cloneable {
 
   public void setConnectors(List<Connector> connectors) {
     this.connectors = new PlatformSystem<>(connectors);
+  }
+
+  public Map<String, List<Other>> getOthers() {
+    return this.others.stream()
+        .map(e -> Map.entry(e.getKey(), e.getValue().getAccessControlLists()))
+        .collect(Collectors.toMap(km -> km.getKey(), vm -> vm.getValue()));
   }
 
   public List<Topic> getTopics() {
@@ -237,6 +251,7 @@ public class ProjectImpl implements Project, Cloneable {
               new PlatformSystem<>(getSchemas()),
               new PlatformSystem<>(getKSqls()),
               getRbacRawRoles(),
+              others,
               config);
       project.setPrefixContextAndOrder(prefixContext, order);
       return project;

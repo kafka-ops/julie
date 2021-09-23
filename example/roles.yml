@@ -1,0 +1,31 @@
+---
+roles:
+  rules:
+    - name: "security"
+      acls:
+        - resourceType: "Topic"
+          resourceName: "{{topic}}"
+          patternType: ""
+          host: ""
+          operation: ""
+          permissionType: ""
+        - resourceType: "Group"
+          resourceName: "{{group}}"
+          patternType: ""
+          host: ""
+          operation: ""
+          permissionType: ""
+    - name: "other"
+      acls:
+        - resourceType: "Topic"
+          resourceName: ""
+          patternType: ""
+          host: ""
+          operation: ""
+          permissionType: ""
+        - resourceType: "Group"
+          resourceName: ""
+          patternType: ""
+          host: ""
+          operation: ""
+          permissionType: ""

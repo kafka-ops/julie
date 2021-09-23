@@ -45,6 +45,7 @@ public class CLITest {
     config.put(VALIDATE_OPTION, "false");
     config.put(CLIENT_CONFIG_OPTION, "topology-builder-sasl-plain.properties");
     config.put(OVERRIDING_CLIENT_CONFIG_OPTION, null);
+    config.put(ROLES_OPTION, null);
     cli.run(args);
 
     verify(cli, times(1)).processTopology(eq("descriptor.yaml"), eq("default"), eq(config));
@@ -69,6 +70,7 @@ public class CLITest {
     config.put(VALIDATE_OPTION, "false");
     config.put(CLIENT_CONFIG_OPTION, "topology-builder-sasl-plain.properties");
     config.put(OVERRIDING_CLIENT_CONFIG_OPTION, null);
+    config.put(ROLES_OPTION, null);
     cli.run(args);
 
     verify(cli, times(1)).processTopology(eq("descriptor.yaml"), eq("default"), eq(config));

@@ -20,6 +20,9 @@ public class CommandLineInterface {
   public static final String PLANS_OPTION = "plans";
   public static final String PLANS_DESC = "File describing the predefined plans";
 
+  public static final String ROLES_OPTION = "roles";
+  public static final String ROLES_DESC = "File describing the predefined roles";
+
   public static final String BROKERS_OPTION = "brokers";
   public static final String BROKERS_DESC = "The Apache Kafka server(s) to connect to.";
 
@@ -173,6 +176,7 @@ public class CommandLineInterface {
     config.put(CLIENT_CONFIG_OPTION, cmd.getOptionValue(CLIENT_CONFIG_OPTION));
     config.put(
         OVERRIDING_CLIENT_CONFIG_OPTION, cmd.getOptionValue(OVERRIDING_CLIENT_CONFIG_OPTION));
+    config.put(ROLES_OPTION, cmd.getOptionValue(ROLES_OPTION));
     return config;
   }
 
