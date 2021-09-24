@@ -9,6 +9,7 @@ import com.purbon.kafka.topology.actions.access.builders.*;
 import com.purbon.kafka.topology.actions.access.builders.rbac.*;
 import com.purbon.kafka.topology.model.Component;
 import com.purbon.kafka.topology.model.DynamicUser;
+import com.purbon.kafka.topology.model.JulieRoles;
 import com.purbon.kafka.topology.model.Platform;
 import com.purbon.kafka.topology.model.Project;
 import com.purbon.kafka.topology.model.Topology;
@@ -38,6 +39,7 @@ public class AccessControlManager {
   private static final Logger LOGGER = LogManager.getLogger(AccessControlManager.class);
 
   private final Configuration config;
+  private final JulieRoles julieRoles;
   private AccessControlProvider controlProvider;
   private BindingsBuilderProvider bindingsBuilder;
   private final List<String> managedServiceAccountPrefixes;
@@ -53,12 +55,21 @@ public class AccessControlManager {
       AccessControlProvider controlProvider,
       BindingsBuilderProvider builderProvider,
       Configuration config) {
+    this(controlProvider, builderProvider, new JulieRoles(), config);
+  }
+
+  public AccessControlManager(
+      AccessControlProvider controlProvider,
+      BindingsBuilderProvider builderProvider,
+      JulieRoles julieRoles,
+      Configuration config) {
     this.controlProvider = controlProvider;
     this.bindingsBuilder = builderProvider;
     this.config = config;
     this.managedServiceAccountPrefixes = config.getServiceAccountManagedPrefixes();
     this.managedTopicPrefixes = config.getTopicManagedPrefixes();
     this.managedGroupPrefixes = config.getGroupManagedPrefixes();
+    this.julieRoles = julieRoles;
   }
 
   /**
@@ -69,6 +80,7 @@ public class AccessControlManager {
    * @param plan An Execution plan
    */
   public void apply(final Topology topology, ExecutionPlan plan) throws IOException {
+    julieRoles.validateTopology(topology);
     List<Action> actions = buildProjectActions(topology);
     actions.addAll(buildPlatformLevelActions(topology));
     buildUpdateBindingsActions(actions, loadActualClusterStateIfAvailable(plan)).forEach(plan::add);
@@ -100,7 +112,7 @@ public class AccessControlManager {
    * @param topology A topology file
    * @return List<Action> A list of actions required based on the parameters
    */
-  public List<Action> buildProjectActions(Topology topology) {
+  public List<Action> buildProjectActions(Topology topology) throws IOException {
     List<Action> actions = new ArrayList<>();
 
     for (Project project : topology.getProjects()) {
@@ -135,7 +147,13 @@ public class AccessControlManager {
       syncRbacRawRoles(project.getRbacRawRoles(), topicPrefix, actions);
 
       for (Map.Entry<String, List<Other>> other : project.getOthers().entrySet()) {
-        // TODO: process extra ACLs
+        if (julieRoles.size() == 0) {
+          throw new IOException(
+              "Custom JulieRoles are being used without providing the required config file.");
+        }
+        actions.add(
+            new BuildBindingsForRole(
+                bindingsBuilder, julieRoles.get(other.getKey()), other.getValue()));
       }
     }
     return actions;

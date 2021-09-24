@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class JulieRoleAcl {
 
+  private String role;
   private String resourceType;
   private String resourceName;
   private String patternType;
@@ -19,13 +20,15 @@ public class JulieRoleAcl {
       @JsonProperty("patternType") String patternType,
       @JsonProperty("host") String host,
       @JsonProperty("operation") String operation,
-      @JsonProperty("permissionType") String permissionType) {
+      @JsonProperty("permissionType") String permissionType,
+      @JsonProperty("role") String role) {
     this.resourceType = resourceType;
     this.resourceName = resourceName;
     this.patternType = patternType;
     this.host = host;
     this.operation = operation;
     this.permissionType = permissionType;
+    this.role = role;
   }
 
   public String getResourceType() {
@@ -50,5 +53,9 @@ public class JulieRoleAcl {
 
   public String getPermissionType() {
     return permissionType;
+  }
+
+  public String getRole() {
+    return role;
   }
 }

@@ -178,6 +178,13 @@ public class ProjectImpl implements Project, Cloneable {
         .collect(Collectors.toMap(km -> km.getKey(), vm -> vm.getValue()));
   }
 
+  public void setOthers(Map<String, List<Other>> others) {
+    this.others =
+        others.entrySet().stream()
+            .map(entry -> Map.entry(entry.getKey(), new PlatformSystem<>(entry.getValue())))
+            .collect(Collectors.toList());
+  }
+
   public List<Topic> getTopics() {
     return topics;
   }

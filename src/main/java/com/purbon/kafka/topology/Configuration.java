@@ -5,9 +5,11 @@ import static com.purbon.kafka.topology.Constants.*;
 
 import com.purbon.kafka.topology.api.ksql.KsqlClientConfig;
 import com.purbon.kafka.topology.exceptions.ConfigurationException;
+import com.purbon.kafka.topology.model.JulieRoles;
 import com.purbon.kafka.topology.model.Project;
 import com.purbon.kafka.topology.model.Topic;
 import com.purbon.kafka.topology.model.Topology;
+import com.purbon.kafka.topology.serdes.JulieRolesSerdes;
 import com.purbon.kafka.topology.serdes.TopologySerdes.FileType;
 import com.purbon.kafka.topology.utils.BasicAuth;
 import com.purbon.kafka.topology.utils.Pair;
@@ -15,13 +17,19 @@ import com.typesafe.config.Config;
 import com.typesafe.config.ConfigException;
 import com.typesafe.config.ConfigFactory;
 import java.io.File;
+import java.io.IOException;
+import java.nio.file.Paths;
 import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.apache.kafka.clients.admin.AdminClientConfig;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 public class Configuration {
+
+  private static final Logger LOGGER = LogManager.getLogger(Configuration.class);
 
   private final Map<String, String> cliParams;
   private final Config config;
@@ -476,5 +484,19 @@ public class Configuration {
       auth = new BasicAuth(getProperty(MDS_USER_CONFIG), getProperty(MDS_PASSWORD_CONFIG));
     }
     return Optional.ofNullable(auth);
+  }
+
+  public JulieRoles getJulieRoles() throws IOException {
+    JulieRolesSerdes serdes = new JulieRolesSerdes();
+    try {
+      String path = config.getString(JULIE_ROLES);
+      return serdes.deserialise(Paths.get(path).toFile());
+    } catch (ConfigException.Missing | ConfigException.WrongType ex) {
+      LOGGER.debug(ex);
+      return new JulieRoles();
+    } catch (IOException e) {
+      LOGGER.error(e);
+      throw e;
+    }
   }
 }

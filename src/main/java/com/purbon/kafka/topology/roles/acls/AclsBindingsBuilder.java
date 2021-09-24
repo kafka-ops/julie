@@ -6,9 +6,11 @@ import com.purbon.kafka.topology.BindingsBuilderProvider;
 import com.purbon.kafka.topology.Configuration;
 import com.purbon.kafka.topology.api.adminclient.AclBuilder;
 import com.purbon.kafka.topology.api.ccloud.CCloudCLI;
+import com.purbon.kafka.topology.model.JulieRoleAcl;
 import com.purbon.kafka.topology.model.users.Connector;
 import com.purbon.kafka.topology.model.users.Consumer;
 import com.purbon.kafka.topology.model.users.KSqlApp;
+import com.purbon.kafka.topology.model.users.Other;
 import com.purbon.kafka.topology.model.users.Producer;
 import com.purbon.kafka.topology.model.users.platform.KsqlServerInstance;
 import com.purbon.kafka.topology.model.users.platform.SchemaRegistryInstance;
@@ -131,6 +133,26 @@ public class AclsBindingsBuilder implements BindingsBuilderProvider {
   @Override
   public Collection<TopologyAclBinding> buildBindingsForKSqlApp(KSqlApp app, String prefix) {
     return toList(ksqlAppStream(app, prefix));
+  }
+
+  @Override
+  public Collection<TopologyAclBinding> buildBindingsForJulieRole(
+      Other other, String name, List<JulieRoleAcl> acls) {
+
+    var stream =
+        acls.stream()
+            .map(
+                acl -> {
+                  var resourceType = ResourceType.valueOf(acl.getResourceType().toUpperCase());
+                  var patternType = PatternType.valueOf(acl.getPatternType().toUpperCase());
+                  var aclOperation = AclOperation.valueOf(acl.getOperation().toUpperCase());
+                  return new AclBuilder(other.getPrincipal())
+                      .addResource(resourceType, acl.getResourceName(), patternType)
+                      .addControlEntry(acl.getHost(), aclOperation, AclPermissionType.ALLOW)
+                      .build();
+                });
+
+    return toList(stream);
   }
 
   private List<TopologyAclBinding> toList(Stream<AclBinding> bindingStream) {

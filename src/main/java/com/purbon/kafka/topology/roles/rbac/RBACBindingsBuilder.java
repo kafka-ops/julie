@@ -9,9 +9,11 @@ import static com.purbon.kafka.topology.roles.rbac.RBACPredefinedRoles.SYSTEM_AD
 import com.purbon.kafka.topology.BindingsBuilderProvider;
 import com.purbon.kafka.topology.api.mds.MDSApiClient;
 import com.purbon.kafka.topology.model.Component;
+import com.purbon.kafka.topology.model.JulieRoleAcl;
 import com.purbon.kafka.topology.model.users.Connector;
 import com.purbon.kafka.topology.model.users.Consumer;
 import com.purbon.kafka.topology.model.users.KSqlApp;
+import com.purbon.kafka.topology.model.users.Other;
 import com.purbon.kafka.topology.model.users.Producer;
 import com.purbon.kafka.topology.model.users.platform.KsqlServerInstance;
 import com.purbon.kafka.topology.model.users.platform.SchemaRegistryInstance;
@@ -340,6 +342,24 @@ public class RBACBindingsBuilder implements BindingsBuilderProvider {
     bindings.add(binding);
 
     return bindings;
+  }
+
+  @Override
+  public Collection<TopologyAclBinding> buildBindingsForJulieRole(
+      Other other, String name, List<JulieRoleAcl> acls) {
+
+    var stream =
+        acls.stream()
+            .map(
+                acl ->
+                    apiClient.bind(
+                        other.getPrincipal(),
+                        acl.getRole(),
+                        acl.getResourceName(),
+                        acl.getResourceType(),
+                        acl.getPatternType()));
+
+    return stream.collect(Collectors.toList());
   }
 
   @Override

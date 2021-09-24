@@ -116,4 +116,6 @@ public class Constants {
   public static final String SSL_KEYSTORE_LOCATION = "ssl.keystore.location";
   public static final String SSL_KEYSTORE_PASSWORD = "ssl.keystore.password";
   public static final String SSL_KEY_PASSWORD = "ssl.key.password";
+
+  public static final String JULIE_ROLES = "julie.roles";
 }

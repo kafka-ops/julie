@@ -1,6 +1,8 @@
 package com.purbon.kafka.topology.model.users;
 
 import com.purbon.kafka.topology.model.User;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 
@@ -17,6 +19,16 @@ public class Other extends User {
     group = Optional.empty();
     transactionId = Optional.empty();
     idempotence = Optional.empty();
+  }
+
+  public Map<String, Object> asMap() {
+    Map<String, Object> map = new HashMap<>();
+    map.put("topic", topicString());
+    map.put("group", groupString());
+    if (transactionId.isPresent()) {
+      map.put("transactionId", transactionId.get());
+    }
+    return map;
   }
 
   public String groupString() {

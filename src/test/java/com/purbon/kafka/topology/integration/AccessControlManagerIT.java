@@ -11,6 +11,7 @@ import com.purbon.kafka.topology.AccessControlManager;
 import com.purbon.kafka.topology.BackendController;
 import com.purbon.kafka.topology.Configuration;
 import com.purbon.kafka.topology.ExecutionPlan;
+import com.purbon.kafka.topology.TestTopologyBuilder;
 import com.purbon.kafka.topology.api.adminclient.AclBuilder;
 import com.purbon.kafka.topology.api.adminclient.TopologyBuilderAdminClient;
 import com.purbon.kafka.topology.integration.containerutils.ContainerFactory;
@@ -448,6 +449,36 @@ public class AccessControlManagerIT {
     plan.run();
 
     verifyConnectAcls(connector);
+  }
+
+  @Test
+  public void testJulieRoleAclCreation()
+      throws IOException, ExecutionException, InterruptedException {
+    Topic topicA = new TopicImpl("topicA");
+    Topology topology =
+        TestTopologyBuilder.createProject()
+            .addTopic(topicA)
+            .addConsumer("User:app1")
+            .addOther("app", "User:app1", "foo")
+            .buildTopology();
+
+    Map<String, String> cliOps = new HashMap<>();
+    cliOps.put(BROKERS_OPTION, "");
+
+    Properties props = new Properties();
+    props.put(JULIE_ROLES, TestUtils.getResourceFilename("/roles.yaml"));
+
+    Configuration config = new Configuration(cliOps, props);
+
+    accessControlManager =
+        new AccessControlManager(
+            aclsProvider, new AclsBindingsBuilder(config), config.getJulieRoles(), config);
+
+    accessControlManager.apply(topology, plan);
+
+    plan.run();
+
+    verifyAclsOfSize(7);
   }
 
   private void verifyAclsOfSize(int size) throws ExecutionException, InterruptedException {

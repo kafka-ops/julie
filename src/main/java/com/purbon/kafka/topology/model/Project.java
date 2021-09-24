@@ -39,6 +39,8 @@ public interface Project {
 
   Map<String, List<Other>> getOthers();
 
+  void setOthers(Map<String, List<Other>> others);
+
   List<Connector> getConnectors();
 
   KConnectArtefacts getConnectorArtefacts();
