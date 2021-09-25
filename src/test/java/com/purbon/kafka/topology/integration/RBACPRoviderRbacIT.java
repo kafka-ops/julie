@@ -16,6 +16,7 @@ import com.purbon.kafka.topology.AccessControlManager;
 import com.purbon.kafka.topology.BackendController;
 import com.purbon.kafka.topology.Configuration;
 import com.purbon.kafka.topology.ExecutionPlan;
+import com.purbon.kafka.topology.TestTopologyBuilder;
 import com.purbon.kafka.topology.api.mds.MDSApiClient;
 import com.purbon.kafka.topology.model.Impl.ProjectImpl;
 import com.purbon.kafka.topology.model.Impl.TopicImpl;
@@ -38,6 +39,7 @@ import com.purbon.kafka.topology.model.users.platform.SchemaRegistry;
 import com.purbon.kafka.topology.model.users.platform.SchemaRegistryInstance;
 import com.purbon.kafka.topology.roles.RBACProvider;
 import com.purbon.kafka.topology.roles.TopologyAclBinding;
+import com.purbon.kafka.topology.roles.acls.AclsBindingsBuilder;
 import com.purbon.kafka.topology.roles.rbac.RBACBindingsBuilder;
 import com.purbon.kafka.topology.utils.BasicAuth;
 import com.purbon.kafka.topology.utils.TestUtils;
@@ -384,6 +386,43 @@ public class RBACPRoviderRbacIT extends MDSBaseTest {
     bindings = getBindings(rbacProvider);
     // only one group and one topic as we removed one of principles
     assertThat(bindings).hasSize(2);
+  }
+
+  @Test
+  public void testJulieRoleAclCreation() throws IOException {
+
+    BackendController cs = new BackendController();
+    ExecutionPlan plan = ExecutionPlan.init(cs, System.out);
+    RBACProvider rbacProvider = Mockito.spy(new RBACProvider(apiClient));
+    RBACBindingsBuilder bindingsBuilder = new RBACBindingsBuilder(apiClient);
+
+    Topology topology =
+            TestTopologyBuilder.createProject()
+                    .addOther("app", "User:app1", "foo")
+                    .buildTopology();
+
+    Map<String, String> cliOps = new HashMap<>();
+    cliOps.put(BROKERS_OPTION, "");
+
+    Properties props = new Properties();
+    props.put(JULIE_ROLES, TestUtils.getResourceFilename("/roles-rbac.yaml"));
+
+    Configuration config = new Configuration(cliOps, props);
+
+    accessControlManager =
+            new AccessControlManager(
+                    rbacProvider, bindingsBuilder, config.getJulieRoles(), config);
+
+    accessControlManager.apply(topology, plan);
+
+    plan.run();
+
+    List<TopologyAclBinding> bindings = getBindings(rbacProvider);
+    assertThat(bindings).hasSize(4);
+
+    List<String> roles = apiClient.lookupRoles("User:app1");
+    assertTrue(roles.contains(DEVELOPER_READ));
+
   }
 
   private List<TopologyAclBinding> getBindings(RBACProvider rbacProvider) {

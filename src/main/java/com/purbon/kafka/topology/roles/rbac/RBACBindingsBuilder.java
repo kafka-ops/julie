@@ -10,6 +10,7 @@ import com.purbon.kafka.topology.BindingsBuilderProvider;
 import com.purbon.kafka.topology.api.mds.MDSApiClient;
 import com.purbon.kafka.topology.model.Component;
 import com.purbon.kafka.topology.model.JulieRoleAcl;
+import com.purbon.kafka.topology.model.Topology;
 import com.purbon.kafka.topology.model.users.Connector;
 import com.purbon.kafka.topology.model.users.Consumer;
 import com.purbon.kafka.topology.model.users.KSqlApp;
@@ -350,16 +351,29 @@ public class RBACBindingsBuilder implements BindingsBuilderProvider {
 
     var stream =
         acls.stream()
-            .map(
-                acl ->
-                    apiClient.bind(
-                        other.getPrincipal(),
-                        acl.getRole(),
-                        acl.getResourceName(),
-                        acl.getResourceType(),
-                        acl.getPatternType()));
+            .map(acl -> julieRoleToBinding(other, acl));
 
-    return stream.collect(Collectors.toList());
+   return stream.collect(Collectors.toList());
+  }
+
+  private TopologyAclBinding julieRoleToBinding(Other other, JulieRoleAcl acl) {
+
+    String resourceType = acl.getResourceType();
+
+    if (resourceType.equalsIgnoreCase("Subject")) {
+      String subjectName = acl.getResourceName().replaceFirst("Subject:","").trim();
+      return apiClient
+              .bind(other.getPrincipal(), acl.getRole())
+              .forSchemaSubject(subjectName)
+              .apply("Subject", subjectName);
+    }
+
+    return apiClient.bind(
+            other.getPrincipal(),
+            acl.getRole(),
+            acl.getResourceName(),
+            acl.getResourceType(),
+            acl.getPatternType());
   }
 
   @Override
