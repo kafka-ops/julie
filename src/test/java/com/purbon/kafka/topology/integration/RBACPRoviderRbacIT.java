@@ -39,7 +39,6 @@ import com.purbon.kafka.topology.model.users.platform.SchemaRegistry;
 import com.purbon.kafka.topology.model.users.platform.SchemaRegistryInstance;
 import com.purbon.kafka.topology.roles.RBACProvider;
 import com.purbon.kafka.topology.roles.TopologyAclBinding;
-import com.purbon.kafka.topology.roles.acls.AclsBindingsBuilder;
 import com.purbon.kafka.topology.roles.rbac.RBACBindingsBuilder;
 import com.purbon.kafka.topology.utils.BasicAuth;
 import com.purbon.kafka.topology.utils.TestUtils;
@@ -398,9 +397,7 @@ public class RBACPRoviderRbacIT extends MDSBaseTest {
     RBACBindingsBuilder bindingsBuilder = new RBACBindingsBuilder(apiClient);
 
     Topology topology =
-            TestTopologyBuilder.createProject()
-                    .addOther("app", "User:app1", "foo")
-                    .buildTopology();
+        TestTopologyBuilder.createProject().addOther("app", "User:app1", "foo").buildTopology();
 
     Map<String, String> cliOps = new HashMap<>();
     cliOps.put(BROKERS_OPTION, "");
@@ -411,8 +408,7 @@ public class RBACPRoviderRbacIT extends MDSBaseTest {
     Configuration config = new Configuration(cliOps, props);
 
     accessControlManager =
-            new AccessControlManager(
-                    rbacProvider, bindingsBuilder, config.getJulieRoles(), config);
+        new AccessControlManager(rbacProvider, bindingsBuilder, config.getJulieRoles(), config);
 
     accessControlManager.apply(topology, plan);
 
@@ -424,13 +420,14 @@ public class RBACPRoviderRbacIT extends MDSBaseTest {
     List<String> roles = apiClient.lookupRoles("User:app1");
     assertTrue(roles.contains(DEVELOPER_READ));
 
-    roles = apiClient.lookupRoles("User:app1", apiClient.withClusterIDs().forKafka().forKafkaConnect().asMap());
+    roles =
+        apiClient.lookupRoles(
+            "User:app1", apiClient.withClusterIDs().forKafka().forKafkaConnect().asMap());
     assertTrue(roles.contains(SECURITY_ADMIN));
 
     var clusters = apiClient.withClusterIDs().forKafka().forKsql().asMap();
     roles = apiClient.lookupRoles("User:app1", clusters);
     assertTrue(roles.contains(RESOURCE_OWNER));
-
   }
 
   private List<TopologyAclBinding> getBindings(RBACProvider rbacProvider) {

@@ -11,7 +11,6 @@ import com.purbon.kafka.topology.BindingsBuilderProvider;
 import com.purbon.kafka.topology.api.mds.MDSApiClient;
 import com.purbon.kafka.topology.model.Component;
 import com.purbon.kafka.topology.model.JulieRoleAcl;
-import com.purbon.kafka.topology.model.Topology;
 import com.purbon.kafka.topology.model.users.Connector;
 import com.purbon.kafka.topology.model.users.Consumer;
 import com.purbon.kafka.topology.model.users.KSqlApp;
@@ -350,11 +349,9 @@ public class RBACBindingsBuilder implements BindingsBuilderProvider {
   public Collection<TopologyAclBinding> buildBindingsForJulieRole(
       Other other, String name, List<JulieRoleAcl> acls) {
 
-    var stream =
-        acls.stream()
-            .map(acl -> julieRoleToBinding(other, acl));
+    var stream = acls.stream().map(acl -> julieRoleToBinding(other, acl));
 
-   return stream.collect(Collectors.toList());
+    return stream.collect(Collectors.toList());
   }
 
   private TopologyAclBinding julieRoleToBinding(Other other, JulieRoleAcl acl) {
@@ -362,39 +359,39 @@ public class RBACBindingsBuilder implements BindingsBuilderProvider {
     String resourceType = acl.getResourceType();
 
     if (resourceType.equalsIgnoreCase("Subject")) {
-      String subjectName = acl.getResourceName().replaceFirst("Subject:","").trim();
+      String subjectName = acl.getResourceName().replaceFirst("Subject:", "").trim();
       return apiClient
-              .bind(other.getPrincipal(), acl.getRole())
-              .forSchemaSubject(subjectName)
-              .apply("Subject", subjectName);
-    }
-    else if (resourceType.equalsIgnoreCase("Connector")) {
-      String connectorName = acl.getResourceName().replaceFirst("Connector:","").trim();
-      return apiClient.bind(other.getPrincipal(), acl.getRole())
-              .forAKafkaConnector(connectorName)
-              .apply(acl.getResourceType(), connectorName);
-    }
-    else if (resourceType.equalsIgnoreCase("KsqlCluster")) {
+          .bind(other.getPrincipal(), acl.getRole())
+          .forSchemaSubject(subjectName)
+          .apply("Subject", subjectName);
+    } else if (resourceType.equalsIgnoreCase("Connector")) {
+      String connectorName = acl.getResourceName().replaceFirst("Connector:", "").trim();
+      return apiClient
+          .bind(other.getPrincipal(), acl.getRole())
+          .forAKafkaConnector(connectorName)
+          .apply(acl.getResourceType(), connectorName);
+    } else if (resourceType.equalsIgnoreCase("KsqlCluster")) {
       var clusterIds = apiClient.withClusterIDs().forKsql().asMap();
       var clusterId = clusterIds.get("clusters").get(KSQL_CLUSTER_ID_LABEL);
-      String resourceName = acl.getResourceName().replaceFirst("KsqlCluster:","").trim();
-      return apiClient.bind(other.getPrincipal(), acl.getRole())
-              .forKSqlServer(clusterId)
-              .apply(acl.getResourceType(), resourceName);
+      String resourceName = acl.getResourceName().replaceFirst("KsqlCluster:", "").trim();
+      return apiClient
+          .bind(other.getPrincipal(), acl.getRole())
+          .forKSqlServer(clusterId)
+          .apply(acl.getResourceType(), resourceName);
     }
 
     String resourceName = acl.getResourceName();
     if (resourceName.contains(":")) {
-        var pos = resourceName.indexOf(":");
-        resourceName = resourceName.substring(pos+1);
+      var pos = resourceName.indexOf(":");
+      resourceName = resourceName.substring(pos + 1);
     }
 
     return apiClient.bind(
-            other.getPrincipal(),
-            acl.getRole(),
-            resourceName,
-            acl.getResourceType(),
-            acl.getPatternType());
+        other.getPrincipal(),
+        acl.getRole(),
+        resourceName,
+        acl.getResourceType(),
+        acl.getPatternType());
   }
 
   @Override

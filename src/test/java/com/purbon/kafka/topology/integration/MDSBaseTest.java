@@ -35,7 +35,7 @@ public class MDSBaseTest {
     return "connect-cluster";
   }
 
-  protected  String getKSqlClusterID() {
+  protected String getKSqlClusterID() {
     return "ksqldb";
   }
 }

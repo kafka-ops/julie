@@ -60,5 +60,5 @@ public interface BindingsBuilderProvider {
   Collection<TopologyAclBinding> buildBindingsForKSqlApp(KSqlApp app, String prefix);
 
   Collection<TopologyAclBinding> buildBindingsForJulieRole(
-      Other other, String name, List<JulieRoleAcl> acls);
+      Other other, String name, List<JulieRoleAcl> acls) throws IOException;
 }
