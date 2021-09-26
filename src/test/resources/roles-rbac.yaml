@@ -27,3 +27,8 @@ roles:
         patternType: "LITERAL"
         host: "*"
         role: "DeveloperRead"
+      - resourceType: "Connector"
+        resourceName: "Connector:con"
+        patternType: "LITERAL"
+        host: "*"
+        role: "SecurityAdmin"

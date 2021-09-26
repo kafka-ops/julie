@@ -423,6 +423,9 @@ public class RBACPRoviderRbacIT extends MDSBaseTest {
     List<String> roles = apiClient.lookupRoles("User:app1");
     assertTrue(roles.contains(DEVELOPER_READ));
 
+    roles = apiClient.lookupRoles("User:app1", apiClient.withClusterIDs().forKafka().forKafkaConnect().asMap());
+    assertTrue(roles.contains(SECURITY_ADMIN));
+
   }
 
   private List<TopologyAclBinding> getBindings(RBACProvider rbacProvider) {

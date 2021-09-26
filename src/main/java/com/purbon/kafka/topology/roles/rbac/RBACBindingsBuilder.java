@@ -367,6 +367,12 @@ public class RBACBindingsBuilder implements BindingsBuilderProvider {
               .forSchemaSubject(subjectName)
               .apply("Subject", subjectName);
     }
+    else if (resourceType.equalsIgnoreCase("Connector")) {
+      String connectorName = acl.getResourceName().replaceFirst("Connector:","").trim();
+      return apiClient.bind(other.getPrincipal(), acl.getRole())
+              .forKafkaConnect()
+              .apply(acl.getResourceType(), connectorName);
+    }
 
     return apiClient.bind(
             other.getPrincipal(),
