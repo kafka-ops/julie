@@ -143,9 +143,9 @@ public class AclsBindingsBuilder implements BindingsBuilderProvider {
         acls.stream()
             .map(
                 acl -> {
-                  var resourceType = ResourceType.valueOf(acl.getResourceType().toUpperCase());
-                  var patternType = PatternType.valueOf(acl.getPatternType().toUpperCase());
-                  var aclOperation = AclOperation.valueOf(acl.getOperation().toUpperCase());
+                  var resourceType = ResourceType.fromString(acl.getResourceType());
+                  var patternType = PatternType.fromString(acl.getPatternType());
+                  var aclOperation = AclOperation.fromString(acl.getOperation());
                   return new AclBuilder(other.getPrincipal())
                       .addResource(resourceType, acl.getResourceName(), patternType)
                       .addControlEntry(acl.getHost(), aclOperation, AclPermissionType.ALLOW)
