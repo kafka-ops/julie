@@ -43,7 +43,7 @@ public class JulieRolesTest {
     assertThat(resources).contains("Topic", "Group");
     assertThat(role.getName()).isEqualTo("app");
     assertThat(role.getAcls()).hasSize(4);
-    assertThat(role.getAcls().get(0).getRole()).isEqualTo("RBAC");
+    assertThat(role.getAcls().get(0).getRole()).isEqualTo("ALL");
 
     role = roles.get("other");
     resources =

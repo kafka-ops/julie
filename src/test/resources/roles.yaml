@@ -8,7 +8,6 @@ roles:
         host: "*"
         operation: "ALL"
         permissionType: "ALLOW"
-        role: "RBAC"
       - resourceType: "Topic"
         resourceName: "sourceTopic"
         patternType: "LITERAL"

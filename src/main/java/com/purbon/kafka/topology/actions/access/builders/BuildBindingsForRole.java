@@ -40,8 +40,7 @@ public class BuildBindingsForRole extends BaseAccessControlAction {
                         acl.getPatternType(),
                         acl.getHost(),
                         acl.getOperation(),
-                        acl.getPermissionType(),
-                        acl.getRole());
+                        acl.getPermissionType());
                   })
               .collect(Collectors.toList());
       var instanceBindings =
