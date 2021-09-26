@@ -395,9 +395,10 @@ public class RBACPRoviderRbacIT extends MDSBaseTest {
     ExecutionPlan plan = ExecutionPlan.init(cs, System.out);
     RBACProvider rbacProvider = Mockito.spy(new RBACProvider(apiClient));
     RBACBindingsBuilder bindingsBuilder = new RBACBindingsBuilder(apiClient);
+    String principal = "User:app" + System.currentTimeMillis();
 
     Topology topology =
-        TestTopologyBuilder.createProject().addOther("app", "User:app1", "foo").buildTopology();
+        TestTopologyBuilder.createProject().addOther("app", principal, "foo").buildTopology();
 
     Map<String, String> cliOps = new HashMap<>();
     cliOps.put(BROKERS_OPTION, "");
@@ -414,19 +415,23 @@ public class RBACPRoviderRbacIT extends MDSBaseTest {
 
     plan.run();
 
-    List<TopologyAclBinding> bindings = getBindings(rbacProvider);
+    List<TopologyAclBinding> bindings =
+        getBindings(rbacProvider).stream()
+            .filter(binding -> binding.getPrincipal().equalsIgnoreCase(principal))
+            .collect(Collectors.toList());
+
     assertThat(bindings).hasSize(4);
 
-    List<String> roles = apiClient.lookupRoles("User:app1");
+    List<String> roles = apiClient.lookupRoles(principal);
     assertTrue(roles.contains(DEVELOPER_READ));
 
     roles =
         apiClient.lookupRoles(
-            "User:app1", apiClient.withClusterIDs().forKafka().forKafkaConnect().asMap());
+            principal, apiClient.withClusterIDs().forKafka().forKafkaConnect().asMap());
     assertTrue(roles.contains(SECURITY_ADMIN));
 
     var clusters = apiClient.withClusterIDs().forKafka().forKsql().asMap();
-    roles = apiClient.lookupRoles("User:app1", clusters);
+    roles = apiClient.lookupRoles(principal, clusters);
     assertTrue(roles.contains(RESOURCE_OWNER));
   }
 
