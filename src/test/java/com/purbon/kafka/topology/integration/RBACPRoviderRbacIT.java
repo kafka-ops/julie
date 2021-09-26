@@ -85,6 +85,7 @@ public class RBACPRoviderRbacIT extends MDSBaseTest {
     apiClient.setKafkaClusterId(getKafkaClusterID());
     apiClient.setSchemaRegistryClusterID(getSchemaRegistryClusterID());
     apiClient.setConnectClusterID(getKafkaConnectClusterID());
+    apiClient.setKSqlClusterID(getKSqlClusterID());
 
     plan = ExecutionPlan.init(cs, System.out);
     RBACProvider rbacProvider = new RBACProvider(apiClient);
@@ -425,6 +426,10 @@ public class RBACPRoviderRbacIT extends MDSBaseTest {
 
     roles = apiClient.lookupRoles("User:app1", apiClient.withClusterIDs().forKafka().forKafkaConnect().asMap());
     assertTrue(roles.contains(SECURITY_ADMIN));
+
+    var clusters = apiClient.withClusterIDs().forKafka().forKsql().asMap();
+    roles = apiClient.lookupRoles("User:app1", clusters);
+    assertTrue(roles.contains(RESOURCE_OWNER));
 
   }
 

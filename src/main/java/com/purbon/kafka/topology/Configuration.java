@@ -369,6 +369,10 @@ public class Configuration {
     return config.getString(MDS_KC_CLUSTER_ID_CONFIG);
   }
 
+  public String getKsqlDBClusterID() {
+    return config.getString(MDS_KSQLDB_CLUSTER_ID_CONFIG);
+  }
+
   public Optional<String> getSslTrustStoreLocation() {
     try {
       return Optional.of(config.getString(SSL_TRUSTSTORE_LOCATION));

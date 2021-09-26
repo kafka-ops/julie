@@ -32,3 +32,8 @@ roles:
         patternType: "LITERAL"
         host: "*"
         role: "SecurityAdmin"
+      - resourceType: "KsqlCluster"
+        resourceName: "KsqlCluster:ksql-cluster"
+        patternType: "LITERAL"
+        host: "*"
+        role: "ResourceOwner"

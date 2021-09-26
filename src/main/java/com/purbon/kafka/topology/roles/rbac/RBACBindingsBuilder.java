@@ -1,5 +1,6 @@
 package com.purbon.kafka.topology.roles.rbac;
 
+import static com.purbon.kafka.topology.api.mds.ClusterIDs.KSQL_CLUSTER_ID_LABEL;
 import static com.purbon.kafka.topology.roles.rbac.RBACPredefinedRoles.DEVELOPER_READ;
 import static com.purbon.kafka.topology.roles.rbac.RBACPredefinedRoles.DEVELOPER_WRITE;
 import static com.purbon.kafka.topology.roles.rbac.RBACPredefinedRoles.RESOURCE_OWNER;
@@ -370,14 +371,28 @@ public class RBACBindingsBuilder implements BindingsBuilderProvider {
     else if (resourceType.equalsIgnoreCase("Connector")) {
       String connectorName = acl.getResourceName().replaceFirst("Connector:","").trim();
       return apiClient.bind(other.getPrincipal(), acl.getRole())
-              .forKafkaConnect()
+              .forAKafkaConnector(connectorName)
               .apply(acl.getResourceType(), connectorName);
+    }
+    else if (resourceType.equalsIgnoreCase("KsqlCluster")) {
+      var clusterIds = apiClient.withClusterIDs().forKsql().asMap();
+      var clusterId = clusterIds.get("clusters").get(KSQL_CLUSTER_ID_LABEL);
+      String resourceName = acl.getResourceName().replaceFirst("KsqlCluster:","").trim();
+      return apiClient.bind(other.getPrincipal(), acl.getRole())
+              .forKSqlServer(clusterId)
+              .apply(acl.getResourceType(), resourceName);
+    }
+
+    String resourceName = acl.getResourceName();
+    if (resourceName.contains(":")) {
+        var pos = resourceName.indexOf(":");
+        resourceName = resourceName.substring(pos+1);
     }
 
     return apiClient.bind(
             other.getPrincipal(),
             acl.getRole(),
-            acl.getResourceName(),
+            resourceName,
             acl.getResourceType(),
             acl.getPatternType());
   }
