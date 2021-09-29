@@ -1,3 +1,9 @@
+
+v3.0.1 / 2021-09-29
+===================
+
+  * Fix Kerberos library in the docker image, use full jvm in order to avoid missing values (#338)
+
 v3.0.0 / 2021-09-17
 ===================
 
