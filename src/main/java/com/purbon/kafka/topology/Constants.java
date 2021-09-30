@@ -83,6 +83,8 @@ public class Constants {
   public static final String GROUP_MANAGED_PREFIXES = "topology.group.managed.prefixes";
 
   public static final String PLATFORM_SERVERS_CONNECT = "platform.servers.connect";
+  public static final String PLATFORM_SERVERS_BASIC_AUTH = "platform.servers.basic.auth";
+
   public static final String PLATFORM_SERVER_KSQL_URL = "platform.server.ksql.url";
   // XXX: consider re-using properties as they are used in ksql cli with --config-file
   public static final String PLATFORM_SERVER_KSQL_ALPN = "platform.server.ksql.useAlpn";
@@ -114,5 +116,4 @@ public class Constants {
   public static final String SSL_KEYSTORE_LOCATION = "ssl.keystore.location";
   public static final String SSL_KEYSTORE_PASSWORD = "ssl.keystore.password";
   public static final String SSL_KEY_PASSWORD = "ssl.key.password";
-
 }

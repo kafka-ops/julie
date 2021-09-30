@@ -16,7 +16,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-
 import org.apache.kafka.common.resource.ResourceType;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;

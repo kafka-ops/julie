@@ -6,6 +6,7 @@ import com.purbon.kafka.topology.clients.ArtefactClient;
 import com.purbon.kafka.topology.clients.JulieHttpClient;
 import com.purbon.kafka.topology.model.Artefact;
 import com.purbon.kafka.topology.model.artefact.KafkaConnectArtefact;
+import com.purbon.kafka.topology.utils.BasicAuth;
 import com.purbon.kafka.topology.utils.JSON;
 import java.io.IOException;
 import java.util.Collection;
@@ -16,12 +17,18 @@ import java.util.stream.Collectors;
 
 public class KConnectApiClient extends JulieHttpClient implements ArtefactClient {
 
-  public KConnectApiClient(String server) {
-    super(server);
+  public KConnectApiClient(String server, Configuration config) {
+    this(server, "", config);
   }
 
-  public KConnectApiClient(String server, Configuration config) {
+  public KConnectApiClient(String server, String label, Configuration config) {
     super(server, Optional.of(config));
+    // configure basic authentication if available
+    var basicAuths = config.getServersBasicAuthMap();
+    if (basicAuths.containsKey(label)) {
+      String[] values = basicAuths.get(label).split(":");
+      setBasicAuth(new BasicAuth(values[0], values[1]));
+    }
   }
 
   @Override

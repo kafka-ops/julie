@@ -3,7 +3,6 @@ package com.purbon.kafka.topology.clients;
 import static java.net.http.HttpRequest.BodyPublishers.noBody;
 import static java.net.http.HttpRequest.BodyPublishers.ofString;
 
-import com.google.cloud.storage.Storage;
 import com.purbon.kafka.topology.Configuration;
 import com.purbon.kafka.topology.api.mds.Response;
 import com.purbon.kafka.topology.utils.BasicAuth;
@@ -24,13 +23,11 @@ import java.security.UnrecoverableKeyException;
 import java.security.cert.CertificateException;
 import java.time.Duration;
 import java.util.Optional;
-
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-
 import javax.net.ssl.KeyManagerFactory;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.TrustManagerFactory;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 public abstract class JulieHttpClient {
 
@@ -45,6 +42,7 @@ public abstract class JulieHttpClient {
   public JulieHttpClient(String server) {
     this(server, Optional.empty());
   }
+
   public JulieHttpClient(String server, Optional<Configuration> configOptional) {
     this.server = server;
     this.token = "";
@@ -81,13 +79,14 @@ public abstract class JulieHttpClient {
       if (ks != null) {
         try {
           kmf.init(ks, config.getSslKeyStorePassword().get().toCharArray());
-        } catch ( KeyStoreException | NoSuchAlgorithmException | UnrecoverableKeyException ex) {
+        } catch (KeyStoreException | NoSuchAlgorithmException | UnrecoverableKeyException ex) {
           LOGGER.error(ex);
           kmf = null;
         }
       }
 
-      KeyStore ts = loadKeyStore(config.getSslTrustStoreLocation(), config.getSslTrustStorePassword());
+      KeyStore ts =
+          loadKeyStore(config.getSslTrustStoreLocation(), config.getSslTrustStorePassword());
       if (ts != null) {
         try {
           tmf.init(ts);
@@ -109,12 +108,11 @@ public abstract class JulieHttpClient {
       LOGGER.error(e);
     }
 
-    return HttpClient.newBuilder()
-            .sslContext(sslContext)
-            .build();
+    return HttpClient.newBuilder().sslContext(sslContext).build();
   }
 
-  private KeyStore loadKeyStore(Optional<String> sslStoreLocation, Optional<String> sslStorePassword) {
+  private KeyStore loadKeyStore(
+      Optional<String> sslStoreLocation, Optional<String> sslStorePassword) {
     if (sslStoreLocation.isPresent() && sslStorePassword.isPresent()) {
       try {
         KeyStore ks = KeyStore.getInstance("PKCS12");
@@ -122,7 +120,10 @@ public abstract class JulieHttpClient {
         InputStream is = Files.newInputStream(Path.of(sslStoreLocation.get()));
         ks.load(is, password);
         return ks;
-      } catch (KeyStoreException | IOException | NoSuchAlgorithmException | CertificateException ex) {
+      } catch (KeyStoreException
+          | IOException
+          | NoSuchAlgorithmException
+          | CertificateException ex) {
         LOGGER.error(ex);
         return null;
       }
