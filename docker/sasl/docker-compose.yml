@@ -74,6 +74,8 @@ services:
       CONNECT_STATUS_STORAGE_REPLICATION_FACTOR: "1"
       CONNECT_REST_ADVERTISED_HOST_NAME: "kafka-connect"
       CONNECT_PLUGIN_PATH: /usr/share/confluent-hub-components
+      CONNECT_REST_EXTENSION_CLASSES: org.apache.kafka.connect.rest.basic.auth.extension.BasicAuthSecurityRestExtension
+      KAFKA_OPTS: -Djava.security.auth.login.config=/tmp/connect.jaas
     volumes:
       - $PWD/scripts:/scripts
       - $PWD/connect-plugins:/usr/share/confluent-hub-components

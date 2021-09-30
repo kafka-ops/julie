@@ -414,14 +414,30 @@ public class Configuration {
         .collect(Collectors.toMap(Pair::getKey, Pair::getValue));
   }
 
+  public Map<String, String> getServersBasicAuthMap() {
+    List<String> basicAuths = config.getStringList(PLATFORM_SERVERS_BASIC_AUTH);
+    return basicAuths.stream()
+        .map(s -> s.split("@"))
+        .map(
+            strings -> {
+              String key = strings[0].strip(); // label
+              String value = String.join(":", Arrays.copyOfRange(strings, 1, strings.length));
+              return new Pair<>(key, value);
+            })
+        .collect(Collectors.toMap(Pair::getKey, Pair::getValue));
+  }
+
   public KsqlClientConfig getKSQLClientConfig() {
     KsqlClientConfig.Builder ksqlConf =
         new KsqlClientConfig.Builder()
             .setServer(getProperty(PLATFORM_SERVER_KSQL_URL))
-            .setTrustStore(getPropertyOrNull(PLATFORM_SERVER_KSQL_TRUSTSTORE, SSL_TRUSTSTORE_LOCATION))
-            .setTrustStorePassword(getPropertyOrNull(PLATFORM_SERVER_KSQL_TRUSTSTORE_PW, SSL_TRUSTSTORE_PASSWORD))
+            .setTrustStore(
+                getPropertyOrNull(PLATFORM_SERVER_KSQL_TRUSTSTORE, SSL_TRUSTSTORE_LOCATION))
+            .setTrustStorePassword(
+                getPropertyOrNull(PLATFORM_SERVER_KSQL_TRUSTSTORE_PW, SSL_TRUSTSTORE_PASSWORD))
             .setKeyStore(getPropertyOrNull(PLATFORM_SERVER_KSQL_KEYSTORE, SSL_KEYSTORE_LOCATION))
-            .setKeyStorePassword(getPropertyOrNull(PLATFORM_SERVER_KSQL_KEYSTORE_PW, SSL_KEYSTORE_PASSWORD));
+            .setKeyStorePassword(
+                getPropertyOrNull(PLATFORM_SERVER_KSQL_KEYSTORE_PW, SSL_KEYSTORE_PASSWORD));
     if (hasProperty(PLATFORM_SERVER_KSQL_ALPN)) {
       ksqlConf.setUseAlpn(config.getBoolean(PLATFORM_SERVER_KSQL_ALPN));
     }

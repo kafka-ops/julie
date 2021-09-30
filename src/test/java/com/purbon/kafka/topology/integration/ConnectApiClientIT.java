@@ -12,7 +12,6 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Properties;
-
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
