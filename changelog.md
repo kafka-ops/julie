@@ -1,3 +1,7 @@
+v3.0.2 / 2021-09-30
+===================
+
+  * Configure basic auch for Kafka Connect REST api operations (#339)
 
 v3.0.1 / 2021-09-29
 ===================
