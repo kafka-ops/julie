@@ -2,11 +2,10 @@ package com.purbon.kafka.topology.backend;
 
 import com.purbon.kafka.topology.BackendController.Mode;
 import com.purbon.kafka.topology.utils.JSON;
+import java.io.IOException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import redis.clients.jedis.Jedis;
-
-import java.io.IOException;
 
 public class RedisBackend implements Backend {
 
@@ -53,7 +52,6 @@ public class RedisBackend implements Backend {
     String content = jedis.get(JULIE_OPS_STATE);
     return (BackendState) JSON.toObject(content, BackendState.class);
   }
-
 
   private void connectIfNeed() {
     if (!jedis.isConnected()) {

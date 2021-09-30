@@ -1,5 +1,7 @@
 package com.purbon.kafka.topology.integration.backend;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import com.purbon.kafka.topology.backend.BackendState;
 import com.purbon.kafka.topology.backend.RedisBackend;
 import com.purbon.kafka.topology.model.artefact.KafkaConnectArtefact;
@@ -8,15 +10,12 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-
 import org.apache.kafka.common.resource.ResourceType;
 import org.junit.Assert;
 import org.junit.Rule;
 import org.junit.Test;
 import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.utility.DockerImageName;
-
-import static org.assertj.core.api.Assertions.assertThat;
 
 public class RedisBackendIT {
 
@@ -45,7 +44,6 @@ public class RedisBackendIT {
     state.addConnectors(connectors);
 
     rsp.save(state);
-
 
     BackendState recoveredState = rsp.load();
 

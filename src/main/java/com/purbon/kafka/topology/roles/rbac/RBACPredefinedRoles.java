@@ -12,7 +12,7 @@ public class RBACPredefinedRoles {
 
   public static boolean isClusterScopedRole(String role) {
     return !DEVELOPER_READ.equals(role)
-            && !DEVELOPER_WRITE.equals(role)
-            && !RESOURCE_OWNER.equals(role);
+        && !DEVELOPER_WRITE.equals(role)
+        && !RESOURCE_OWNER.equals(role);
   }
 }
