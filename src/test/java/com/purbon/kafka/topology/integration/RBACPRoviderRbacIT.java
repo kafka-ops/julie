@@ -16,6 +16,7 @@ import com.purbon.kafka.topology.AccessControlManager;
 import com.purbon.kafka.topology.BackendController;
 import com.purbon.kafka.topology.Configuration;
 import com.purbon.kafka.topology.ExecutionPlan;
+import com.purbon.kafka.topology.TestTopologyBuilder;
 import com.purbon.kafka.topology.api.mds.MDSApiClient;
 import com.purbon.kafka.topology.model.Impl.ProjectImpl;
 import com.purbon.kafka.topology.model.Impl.TopicImpl;
@@ -83,6 +84,7 @@ public class RBACPRoviderRbacIT extends MDSBaseTest {
     apiClient.setKafkaClusterId(getKafkaClusterID());
     apiClient.setSchemaRegistryClusterID(getSchemaRegistryClusterID());
     apiClient.setConnectClusterID(getKafkaConnectClusterID());
+    apiClient.setKSqlClusterID(getKSqlClusterID());
 
     plan = ExecutionPlan.init(cs, System.out);
     RBACProvider rbacProvider = new RBACProvider(apiClient);
@@ -384,6 +386,53 @@ public class RBACPRoviderRbacIT extends MDSBaseTest {
     bindings = getBindings(rbacProvider);
     // only one group and one topic as we removed one of principles
     assertThat(bindings).hasSize(2);
+  }
+
+  @Test
+  public void testJulieRoleAclCreation() throws IOException {
+
+    BackendController cs = new BackendController();
+    ExecutionPlan plan = ExecutionPlan.init(cs, System.out);
+    RBACProvider rbacProvider = Mockito.spy(new RBACProvider(apiClient));
+    RBACBindingsBuilder bindingsBuilder = new RBACBindingsBuilder(apiClient);
+    String principal = "User:app" + System.currentTimeMillis();
+
+    Topology topology =
+        TestTopologyBuilder.createProject().addOther("app", principal, "foo").buildTopology();
+
+    Map<String, String> cliOps = new HashMap<>();
+    cliOps.put(BROKERS_OPTION, "");
+
+    Properties props = new Properties();
+    props.put(JULIE_ROLES, TestUtils.getResourceFilename("/roles-rbac.yaml"));
+
+    Configuration config = new Configuration(cliOps, props);
+
+    accessControlManager =
+        new AccessControlManager(rbacProvider, bindingsBuilder, config.getJulieRoles(), config);
+
+    accessControlManager.apply(topology, plan);
+
+    plan.run();
+
+    List<TopologyAclBinding> bindings =
+        getBindings(rbacProvider).stream()
+            .filter(binding -> binding.getPrincipal().equalsIgnoreCase(principal))
+            .collect(Collectors.toList());
+
+    assertThat(bindings).hasSize(4);
+
+    List<String> roles = apiClient.lookupRoles(principal);
+    assertTrue(roles.contains(DEVELOPER_READ));
+
+    roles =
+        apiClient.lookupRoles(
+            principal, apiClient.withClusterIDs().forKafka().forKafkaConnect().asMap());
+    assertTrue(roles.contains(SECURITY_ADMIN));
+
+    var clusters = apiClient.withClusterIDs().forKafka().forKsql().asMap();
+    roles = apiClient.lookupRoles(principal, clusters);
+    assertTrue(roles.contains(RESOURCE_OWNER));
   }
 
   private List<TopologyAclBinding> getBindings(RBACProvider rbacProvider) {

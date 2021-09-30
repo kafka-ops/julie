@@ -261,6 +261,21 @@ public class TopologySerdesTest {
   }
 
   @Test
+  public void testOtherSerdes() {
+    Topology topology = parser.deserialise(TestUtils.getResourceFile("/descriptor.yaml"));
+    Project project = topology.getProjects().get(0);
+
+    var others = project.getOthers();
+    assertThat(others).hasSize(2);
+    var foos = others.get("foo");
+    assertThat(foos.get(0).getPrincipal()).isEqualTo("User:banana");
+    assertThat(foos.get(0).groupString()).isEqualTo("foo");
+    var bars = others.get("bar");
+    assertThat(bars.get(0).getPrincipal()).isEqualTo("User:banana");
+    assertThat(bars.get(0).groupString()).isEqualTo("bar");
+  }
+
+  @Test
   public void testKsqlSerdes() {
     Topology topology = parser.deserialise(TestUtils.getResourceFile("/descriptor.yaml"));
     Project project = topology.getProjects().get(0);

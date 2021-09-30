@@ -6,9 +6,11 @@ import com.purbon.kafka.topology.BindingsBuilderProvider;
 import com.purbon.kafka.topology.Configuration;
 import com.purbon.kafka.topology.api.adminclient.AclBuilder;
 import com.purbon.kafka.topology.api.ccloud.CCloudCLI;
+import com.purbon.kafka.topology.model.JulieRoleAcl;
 import com.purbon.kafka.topology.model.users.Connector;
 import com.purbon.kafka.topology.model.users.Consumer;
 import com.purbon.kafka.topology.model.users.KSqlApp;
+import com.purbon.kafka.topology.model.users.Other;
 import com.purbon.kafka.topology.model.users.Producer;
 import com.purbon.kafka.topology.model.users.platform.KsqlServerInstance;
 import com.purbon.kafka.topology.model.users.platform.SchemaRegistryInstance;
@@ -131,6 +133,43 @@ public class AclsBindingsBuilder implements BindingsBuilderProvider {
   @Override
   public Collection<TopologyAclBinding> buildBindingsForKSqlApp(KSqlApp app, String prefix) {
     return toList(ksqlAppStream(app, prefix));
+  }
+
+  @Override
+  public Collection<TopologyAclBinding> buildBindingsForJulieRole(
+      Other other, String name, List<JulieRoleAcl> acls) throws IOException {
+
+    List<TopologyAclBinding> bindings = new ArrayList<>();
+    for (JulieRoleAcl acl : acls) {
+      var resourceType = ResourceType.fromString(acl.getResourceType());
+      var patternType = PatternType.fromString(acl.getPatternType());
+      var aclOperation = AclOperation.fromString(acl.getOperation());
+      if (resourceType.isUnknown() || patternType.isUnknown() || aclOperation.isUnknown()) {
+        throw new IOException(
+            "Unknown ACL setting being used resourceType="
+                + acl.getResourceType()
+                + " ("
+                + resourceType
+                + ")"
+                + ", patternType="
+                + acl.getPatternType()
+                + " ("
+                + patternType
+                + ")"
+                + ", aclOperation="
+                + acl.getOperation()
+                + " ("
+                + aclOperation
+                + ")");
+      }
+      var binding =
+          new AclBuilder(other.getPrincipal())
+              .addResource(resourceType, acl.getResourceName(), patternType)
+              .addControlEntry(acl.getHost(), aclOperation, AclPermissionType.ALLOW)
+              .build();
+      bindings.add(new TopologyAclBinding(binding));
+    }
+    return bindings;
   }
 
   private List<TopologyAclBinding> toList(Stream<AclBinding> bindingStream) {

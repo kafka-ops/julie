@@ -131,7 +131,8 @@ public class JulieOps implements AutoCloseable {
     config.validateWith(topology);
 
     AccessControlManager accessControlManager =
-        new AccessControlManager(accessControlProvider, bindingsBuilderProvider, config);
+        new AccessControlManager(
+            accessControlProvider, bindingsBuilderProvider, config.getJulieRoles(), config);
 
     RestService restService = new RestService(config.getConfluentSchemaRegistryUrl());
     Map<String, ?> schemaRegistryConfig = config.asMap();

@@ -25,6 +25,7 @@ import com.purbon.kafka.topology.model.users.Connector;
 import com.purbon.kafka.topology.model.users.Consumer;
 import com.purbon.kafka.topology.model.users.KSqlApp;
 import com.purbon.kafka.topology.model.users.KStream;
+import com.purbon.kafka.topology.model.users.Other;
 import com.purbon.kafka.topology.model.users.Producer;
 import com.purbon.kafka.topology.model.users.Schemas;
 import com.purbon.kafka.topology.model.users.platform.ControlCenter;
@@ -37,6 +38,7 @@ import java.io.IOException;
 import java.util.*;
 import java.util.function.Function;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 import org.apache.logging.log4j.LogManager;
@@ -71,6 +73,17 @@ public class TopologyCustomDeserializer extends StdDeserializer<Topology> {
   private static final String ARTIFACTS = "artifacts";
   private static final String STREAMS_NODE = "streams";
   private static final String TABLES_NODE = "tables";
+
+  private static List<String> projectCoreKeys =
+      Arrays.asList(
+          NAME_KEY,
+          CONSUMERS_KEY,
+          PRODUCERS_KEY,
+          CONNECTORS_KEY,
+          STREAMS_KEY,
+          SCHEMAS_KEY,
+          KSQL_KEY,
+          RBAC_KEY);
 
   private final Configuration config;
 
@@ -163,23 +176,18 @@ public class TopologyCustomDeserializer extends StdDeserializer<Topology> {
       JsonParser parser, JsonNode rootNode, Topology topology, Configuration config)
       throws IOException {
 
+    Iterable<String> it = () -> rootNode.fieldNames();
     List<String> keys =
-        Arrays.asList(
-            CONSUMERS_KEY,
-            PROJECTS_KEY,
-            PRODUCERS_KEY,
-            CONNECTORS_KEY,
-            STREAMS_KEY,
-            SCHEMAS_KEY,
-            KSQL_KEY);
-
+        StreamSupport.stream(it.spliterator(), false)
+            .filter(key -> !Arrays.asList(TOPICS_KEY, NAME_KEY).contains(key))
+            .collect(Collectors.toList());
     Map<String, JsonNode> rootNodes = Maps.asMap(new HashSet<>(keys), (key) -> rootNode.get(key));
 
     Map<String, PlatformSystem> mapOfValues = new HashMap<>();
     for (String key : rootNodes.keySet()) {
       JsonNode keyNode = rootNodes.get(key);
       if (keyNode != null) {
-        Optional<PlatformSystem> optionalPlatformSystem = Optional.empty();
+        Optional<PlatformSystem> optionalPlatformSystem;
         switch (key) {
           case CONSUMERS_KEY:
             optionalPlatformSystem = doConsumerElements(parser, keyNode);
@@ -199,6 +207,11 @@ public class TopologyCustomDeserializer extends StdDeserializer<Topology> {
           case KSQL_KEY:
             optionalPlatformSystem = doKSqlElements(parser, keyNode);
             break;
+          default:
+            optionalPlatformSystem = Optional.empty();
+            if (!key.equalsIgnoreCase(RBAC_KEY)) {
+              optionalPlatformSystem = doOtherElements(parser, keyNode);
+            }
         }
         optionalPlatformSystem.ifPresent(ps -> mapOfValues.put(key, ps));
       }
@@ -214,6 +227,7 @@ public class TopologyCustomDeserializer extends StdDeserializer<Topology> {
             Optional.ofNullable(mapOfValues.get(SCHEMAS_KEY)),
             Optional.ofNullable(mapOfValues.get(KSQL_KEY)),
             parseOptionalRbacRoles(rootNode.get(RBAC_KEY)),
+            filterOthers(mapOfValues),
             config);
 
     project.setPrefixContextAndOrder(topology.asFullContext(), topology.getOrder());
@@ -231,6 +245,21 @@ public class TopologyCustomDeserializer extends StdDeserializer<Topology> {
         .forEach(project::addTopic);
 
     return project;
+  }
+
+  private List<Map.Entry<String, PlatformSystem<Other>>> filterOthers(
+      Map<String, PlatformSystem> mapOfValues) {
+    return mapOfValues.entrySet().stream()
+        .filter(entry -> !projectCoreKeys.contains(entry.getKey()))
+        .map(entry -> Map.entry(entry.getKey(), (PlatformSystem<Other>) entry.getValue()))
+        .collect(Collectors.toList());
+  }
+
+  private Optional<PlatformSystem> doOtherElements(JsonParser parser, JsonNode node)
+      throws JsonProcessingException {
+    List<Other> others =
+        new JsonSerdesUtils<Other>().parseApplicationUser(parser, node, Other.class);
+    return Optional.of(new PlatformSystem(others));
   }
 
   private Optional<PlatformSystem> doConsumerElements(JsonParser parser, JsonNode node)

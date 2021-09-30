@@ -41,6 +41,7 @@ public class Constants {
   public static final String MDS_KAFKA_CLUSTER_ID_CONFIG = "topology.builder.mds.kafka.cluster.id";
   static final String MDS_SR_CLUSTER_ID_CONFIG = "topology.builder.mds.schema.registry.cluster.id";
   static final String MDS_KC_CLUSTER_ID_CONFIG = "topology.builder.mds.kafka.connect.cluster.id";
+  static final String MDS_KSQLDB_CLUSTER_ID_CONFIG = "topology.builder.mds.ksqldb.cluster.id";
 
   public static final String CONFLUENT_SCHEMA_REGISTRY_URL_CONFIG = "schema.registry.url";
   static final String CONFLUENT_MONITORING_TOPIC_CONFIG = "confluent.monitoring.topic";
@@ -116,4 +117,6 @@ public class Constants {
   public static final String SSL_KEYSTORE_LOCATION = "ssl.keystore.location";
   public static final String SSL_KEYSTORE_PASSWORD = "ssl.keystore.password";
   public static final String SSL_KEY_PASSWORD = "ssl.key.password";
+
+  public static final String JULIE_ROLES = "julie.roles";
 }

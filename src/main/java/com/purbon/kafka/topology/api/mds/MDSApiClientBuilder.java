@@ -23,6 +23,7 @@ public class MDSApiClientBuilder {
     apiClient.setKafkaClusterId(config.getKafkaClusterId());
     apiClient.setSchemaRegistryClusterID(config.getSchemaRegistryClusterId());
     apiClient.setConnectClusterID(config.getKafkaConnectClusterId());
+    apiClient.setKSqlClusterID(config.getKsqlDBClusterID());
 
     LOGGER.debug(String.format("Connecting to an MDS server at %s", mdsServer));
     return apiClient;

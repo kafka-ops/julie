@@ -3,6 +3,12 @@ context: "contextOrg"
 source: "source"
 projects:
   - name: "foo"
+    foo:
+      - principal: "User:banana"
+        group: "foo"
+    bar:
+      - principal: "User:banana"
+        group: "bar"
     consumers:
       - principal: "User:App0"
         group: "foo"

@@ -739,4 +739,74 @@ public class AccessControlManagerTest {
                         && b.getPrincipal().equals("User:NamespaceB_app2"))
             .count());
   }
+
+  @Test
+  public void testJulieRoleAclCreation() throws IOException {
+    Topic topicA = new TopicImpl("topicA");
+    Topology topology =
+        TestTopologyBuilder.createProject()
+            .addTopic(topicA)
+            .addConsumer("User:app1")
+            .addOther("app", "User:app1", "foo")
+            .buildTopology();
+
+    Map<String, String> cliOps = new HashMap<>();
+    cliOps.put(BROKERS_OPTION, "");
+
+    Properties props = new Properties();
+    props.put(JULIE_ROLES, TestUtils.getResourceFilename("/roles.yaml"));
+
+    Configuration config = new Configuration(cliOps, props);
+
+    accessControlManager =
+        new AccessControlManager(
+            aclsProvider, new AclsBindingsBuilder(config), config.getJulieRoles(), config);
+
+    accessControlManager.apply(topology, plan);
+
+    assertEquals(
+        1,
+        plan.getActions().get(0).getBindings().stream()
+            .filter(
+                b ->
+                    b.getResourceType().equals(ResourceType.TOPIC.name())
+                        && b.getResourceName().equals("foo")
+                        && b.getPrincipal().equals("User:app1"))
+            .count());
+
+    assertEquals(
+        1,
+        plan.getActions().get(0).getBindings().stream()
+            .filter(
+                b ->
+                    b.getResourceType().equals(ResourceType.TOPIC.name())
+                        && b.getResourceName().equals("sourceTopic")
+                        && b.getPrincipal().equals("User:app1"))
+            .count());
+  }
+
+  @Test(expected = IOException.class)
+  public void testWrongJulieRoleAclCreation() throws IOException {
+    Topic topicA = new TopicImpl("topicA");
+    Topology topology =
+        TestTopologyBuilder.createProject()
+            .addTopic(topicA)
+            .addConsumer("User:app1")
+            .addOther("app", "User:app1", "foo")
+            .buildTopology();
+
+    Map<String, String> cliOps = new HashMap<>();
+    cliOps.put(BROKERS_OPTION, "");
+
+    Properties props = new Properties();
+    props.put(JULIE_ROLES, TestUtils.getResourceFilename("/roles-wrong.yaml"));
+
+    Configuration config = new Configuration(cliOps, props);
+
+    accessControlManager =
+        new AccessControlManager(
+            aclsProvider, new AclsBindingsBuilder(config), config.getJulieRoles(), config);
+
+    accessControlManager.apply(topology, plan);
+  }
 }

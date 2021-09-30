@@ -11,12 +11,16 @@ import com.purbon.kafka.topology.exceptions.ConfigurationException;
 import com.purbon.kafka.topology.model.Impl.ProjectImpl;
 import com.purbon.kafka.topology.model.Impl.TopicImpl;
 import com.purbon.kafka.topology.model.Impl.TopologyImpl;
+import com.purbon.kafka.topology.model.JulieRole;
+import com.purbon.kafka.topology.model.JulieRoleAcl;
 import com.purbon.kafka.topology.model.Project;
 import com.purbon.kafka.topology.model.Topic;
 import com.purbon.kafka.topology.model.Topology;
 import com.purbon.kafka.topology.model.schema.TopicSchemas;
 import com.purbon.kafka.topology.utils.TestUtils;
+import java.io.IOException;
 import java.util.*;
+import java.util.stream.Collectors;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -205,5 +209,42 @@ public class ConfigurationTest {
     assertThatThrownBy(config::getKSQLClientConfig)
         .hasMessageContaining("example.com:8083")
         .isInstanceOf(IllegalArgumentException.class);
+  }
+
+  @Test
+  public void testJulieRolesFetch() throws IOException {
+
+    String rolesFile = TestUtils.getResourceFilename("/roles.yaml");
+    props.put(JULIE_ROLES, rolesFile);
+    Configuration config = new Configuration(cliOps, props);
+
+    var roles = config.getJulieRoles();
+    assertThat(roles).isNotNull();
+    assertThat(roles.getRoles()).hasSize(2);
+    for (JulieRole role : roles.getRoles()) {
+      assertThat(role.getName()).isIn("app", "other");
+    }
+
+    JulieRole role = roles.get("app");
+    List<String> resources =
+        role.getAcls().stream().map(JulieRoleAcl::getResourceType).collect(Collectors.toList());
+    assertThat(resources).contains("Topic", "Group");
+    assertThat(role.getName()).isEqualTo("app");
+    assertThat(role.getAcls()).hasSize(4);
+
+    role = roles.get("other");
+    resources =
+        role.getAcls().stream().map(JulieRoleAcl::getResourceType).collect(Collectors.toList());
+    assertThat(resources).contains("Topic");
+    assertThat(role.getName()).isEqualTo("other");
+    assertThat(role.getAcls()).hasSize(2);
+  }
+
+  @Test(expected = IOException.class)
+  public void testWrongFileJulieRoles() throws IOException {
+    String rolesFile = TestUtils.getResourceFilename("/descriptor.yaml");
+    props.put(JULIE_ROLES, rolesFile);
+    Configuration config = new Configuration(cliOps, props);
+    config.getJulieRoles();
   }
 }
