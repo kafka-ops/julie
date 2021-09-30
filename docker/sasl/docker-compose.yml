@@ -67,13 +67,15 @@ services:
       CONNECT_KEY_CONVERTER_SCHEMA_REGISTRY_URL: 'http://schema-registry:8081'
       CONNECT_VALUE_CONVERTER: io.confluent.connect.avro.AvroConverter
       CONNECT_VALUE_CONVERTER_SCHEMA_REGISTRY_URL: 'http://schema-registry:8081'
-      CONNECT_LOG4J_ROOT_LOGLEVEL: "INFO"
+      CONNECT_LOG4J_ROOT_LOGLEVEL: "DEBUG"
       CONNECT_LOG4J_LOGGERS: "org.apache.kafka.connect.runtime.rest=WARN,org.reflections=ERROR"
       CONNECT_CONFIG_STORAGE_REPLICATION_FACTOR: "1"
       CONNECT_OFFSET_STORAGE_REPLICATION_FACTOR: "1"
       CONNECT_STATUS_STORAGE_REPLICATION_FACTOR: "1"
       CONNECT_REST_ADVERTISED_HOST_NAME: "kafka-connect"
       CONNECT_PLUGIN_PATH: /usr/share/confluent-hub-components
+      CONNECT_REST_EXTENSION_CLASSES: org.apache.kafka.connect.rest.basic.auth.extension.BasicAuthSecurityRestExtension
+      KAFKA_OPTS: -Djava.security.auth.login.config=/tmp/connect.jaas
     volumes:
       - $PWD/scripts:/scripts
       - $PWD/connect-plugins:/usr/share/confluent-hub-components
