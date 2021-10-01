@@ -39,19 +39,19 @@ public class JulieOps implements AutoCloseable {
   private AccessControlManager accessControlManager;
   private KafkaConnectArtefactManager connectorManager;
   private KSqlArtefactManager kSqlArtefactManager;
-  private final Topology topology;
+  private final Map<String, Topology> topologies;
   private final Configuration config;
   private final PrintStream outputStream;
 
   private JulieOps(
-      Topology topology,
+      Map<String, Topology> topologies,
       Configuration config,
       TopicManager topicManager,
       AccessControlManager accessControlManager,
       PrincipalManager principalManager,
       KafkaConnectArtefactManager connectorManager,
       KSqlArtefactManager kSqlArtefactManager) {
-    this.topology = topology;
+    this.topologies = topologies;
     this.config = config;
     this.topicManager = topicManager;
     this.accessControlManager = accessControlManager;
@@ -115,20 +115,23 @@ public class JulieOps implements AutoCloseable {
       PrincipalProvider principalProvider)
       throws Exception {
 
-    Topology topology;
+    Map<String, Topology> topologies;
     if (plansFile.equals("default")) {
-      topology = TopologyObjectBuilder.build(topologyFileOrDir, config);
+      topologies = TopologyObjectBuilder.build(topologyFileOrDir, config);
     } else {
-      topology = TopologyObjectBuilder.build(topologyFileOrDir, plansFile, config);
+      topologies = TopologyObjectBuilder.build(topologyFileOrDir, plansFile, config);
     }
 
     TopologyValidator validator = new TopologyValidator(config);
-    List<String> validationResults = validator.validate(topology);
-    if (!validationResults.isEmpty()) {
-      String resultsMessage = String.join("\n", validationResults);
-      throw new ValidationException(resultsMessage);
+
+    for (Topology topology : topologies.values()) {
+      List<String> validationResults = validator.validate(topology);
+      if (!validationResults.isEmpty()) {
+        String resultsMessage = String.join("\n", validationResults);
+        throw new ValidationException(resultsMessage);
+      }
+      config.validateWith(topology);
     }
-    config.validateWith(topology);
 
     AccessControlManager accessControlManager =
         new AccessControlManager(
@@ -161,7 +164,7 @@ public class JulieOps implements AutoCloseable {
         configureKSqlArtefactManager(config, topologyFileOrDir);
 
     return new JulieOps(
-        topology,
+        topologies,
         config,
         topicManager,
         accessControlManager,
@@ -224,19 +227,25 @@ public class JulieOps implements AutoCloseable {
             "Running topology builder with TopicManager=[%s], accessControlManager=[%s], dryRun=[%s], isQuite=[%s]",
             topicManager, accessControlManager, config.isDryRun(), config.isQuiet()));
 
-    // Create users should always be first, so user exists when making acl link
-    principalManager.applyCreate(topology, plan);
+    for (Topology topology : topologies.values()) {
+      // Create users should always be first, so user exists when making acl link
+      principalManager.applyCreate(topology, plan);
+    }
 
-    topicManager.apply(topology, plan);
-    accessControlManager.apply(topology, plan);
+    for(Topology topology : topologies.values()) {
+      topicManager.apply(topology, plan);
+      accessControlManager.apply(topology, plan);
 
-    connectorManager.apply(topology, plan);
-    kSqlArtefactManager.apply(topology, plan);
+      connectorManager.apply(topology, plan);
+      kSqlArtefactManager.apply(topology, plan);
+    }
 
-    // Delete users should always be last,
-    // avoids any unlinked acls, e.g. if acl delete or something errors then there is a link still
-    // from the account, and can be re-run or manually fixed more easily
-    principalManager.applyDelete(topology, plan);
+    for(Topology topology : topologies.values()) {
+      // Delete users should always be last,
+      // avoids any unlinked acls, e.g. if acl delete or something errors then there is a link still
+      // from the account, and can be re-run or manually fixed more easily
+      principalManager.applyDelete(topology, plan);
+    }
 
     plan.run(config.isDryRun());
 

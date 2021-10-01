@@ -1,7 +1,6 @@
 package com.purbon.kafka.topology;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.assertEquals;
 
 import com.purbon.kafka.topology.exceptions.TopologyParsingException;
 import com.purbon.kafka.topology.model.Topic;
@@ -20,9 +19,21 @@ public class TopologyObjectBuilderTest {
   public void buildTopicNameTest() throws IOException {
     String fileOrDirPath = TestUtils.getResourceFilename("/dir");
 
-    Topology topology = TopologyObjectBuilder.build(fileOrDirPath);
+    var map = TopologyObjectBuilder.build(fileOrDirPath);
+    assertThat(map).hasSize(1);
+    for (var entry : map.entrySet()) {
+      assertThat(entry.getValue().getProjects()).hasSize(4);
+    }
+  }
 
-    assertEquals(4, topology.getProjects().size());
+  @Test
+  public void buildOutOfMultipleTopos() throws IOException {
+    String fileOrDirPath = TestUtils.getResourceFilename("/dir_with_multiple");
+    var map = TopologyObjectBuilder.build(fileOrDirPath);
+    assertThat(map).hasSize(2);
+    for (var entry : map.entrySet()) {
+      assertThat(entry.getValue().getProjects()).hasSize(4);
+    }
   }
 
   @Test
@@ -30,7 +41,8 @@ public class TopologyObjectBuilderTest {
     String descriptorFile = TestUtils.getResourceFilename("/descriptor-with-plans.yaml");
     String plansFile = TestUtils.getResourceFilename("/plans.yaml");
 
-    Topology topology = TopologyObjectBuilder.build(descriptorFile, plansFile);
+    Map<String, Topology> topologies = TopologyObjectBuilder.build(descriptorFile, plansFile);
+    var topology = topologies.values().stream().findFirst().get();
     assertThat(topology).isNotNull();
 
     List<Topic> topics = topology.getProjects().get(0).getTopics();

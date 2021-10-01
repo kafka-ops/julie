@@ -9,37 +9,42 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class TopologyObjectBuilder {
 
-  public static Topology build(String fileOrDir) throws IOException {
+  public static Map<String, Topology> build(String fileOrDir) throws IOException {
     return build(fileOrDir, "", new Configuration());
   }
 
-  public static Topology build(String fileOrDir, String plansFile) throws IOException {
+  public static Map<String, Topology> build(String fileOrDir, String plansFile) throws IOException {
     return build(fileOrDir, plansFile, new Configuration());
   }
 
-  public static Topology build(String fileOrDir, Configuration config) throws IOException {
+  public static Map<String, Topology> build(String fileOrDir, Configuration config)
+      throws IOException {
     return build(fileOrDir, "", config);
   }
 
-  public static Topology build(String fileOrDir, String plansFile, Configuration config)
-      throws IOException {
+  public static Map<String, Topology> build(
+      String fileOrDir, String plansFile, Configuration config) throws IOException {
     PlanMap plans = buildPlans(plansFile);
     List<Topology> topologies = parseListOfTopologies(fileOrDir, config, plans);
-    Topology topology = topologies.get(0);
-    if (topologies.size() > 1) {
-      List<Topology> subTopologies = topologies.subList(1, topologies.size());
-      for (Topology subTopology : subTopologies) {
-        if (!topology.getContext().equalsIgnoreCase(subTopology.getContext())) {
-          throw new IOException("Topologies from different contexts are not allowed");
-        }
-        subTopology.getProjects().forEach(project -> topology.addProject(project));
+    Map<String, Topology> collection = new HashMap<>();
+
+    for (Topology topology : topologies) {
+      String context = topology.getContext();
+      if (!collection.containsKey(context)) {
+        collection.put(context, topology);
+      } else {
+        Topology mainTopology = collection.get(context);
+        topology.getProjects().forEach(p -> mainTopology.addProject(p));
+        collection.put(context, mainTopology);
       }
     }
-    return topology;
+    return collection;
   }
 
   private static PlanMap buildPlans(String plansFile) throws IOException {
