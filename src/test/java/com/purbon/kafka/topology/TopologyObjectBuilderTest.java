@@ -46,6 +46,11 @@ public class TopologyObjectBuilderTest {
     assertThat(context.getOrder().get(0)).isEqualTo("source2");
     assertThat(context.getOrder().get(1)).isEqualTo("foo2");
     assertThat(context.getOrder().get(2)).isEqualTo("bar2");
+
+    var proj = context.getProjects().get(0);
+    assertThat(proj.namePrefix()).isEqualTo("context2.source2.foo.bar.projectFoo");
+    proj = context.getProjects().get(1);
+    assertThat(proj.namePrefix()).isEqualTo("context2.source2.foo.bar.projectBar");
   }
 
   @Test
