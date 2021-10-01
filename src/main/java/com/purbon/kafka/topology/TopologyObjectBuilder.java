@@ -41,6 +41,14 @@ public class TopologyObjectBuilder {
       } else {
         Topology mainTopology = collection.get(context);
         topology.getProjects().forEach(p -> mainTopology.addProject(p));
+
+        for (String other : topology.getOrder()) {
+          var topologyContext = topology.asFullContext();
+          if (!mainTopology.getOrder().contains(other)) {
+            String value = String.valueOf(topologyContext.get(other));
+            mainTopology.addOther(other, value);
+          }
+        }
         collection.put(context, mainTopology);
       }
     }

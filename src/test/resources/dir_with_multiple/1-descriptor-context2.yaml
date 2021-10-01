@@ -1,9 +1,6 @@
 ---
 context: "context2"
-source: "source"
-foo: "foo"
-bar: "bar"
-zet: "zet"
+source2: "source2"
 projects:
   - name: "foo"
     zookeepers: []
@@ -53,3 +50,12 @@ projects:
         config:
           replication.factor: "1"
           num.partitions: "1"
+platform:
+  schema_registry:
+    instances:
+      - principal: "User:SchemaRegistry01"
+      - principal: "User:SchemaRegistry02"
+  control_center:
+    instances:
+      - principal: "User:ControlCenter"
+        appId: "controlcenter"

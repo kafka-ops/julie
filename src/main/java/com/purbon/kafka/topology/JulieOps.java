@@ -232,15 +232,13 @@ public class JulieOps implements AutoCloseable {
       principalManager.applyCreate(topology, plan);
     }
 
-    for(Topology topology : topologies.values()) {
-      topicManager.apply(topology, plan);
-      accessControlManager.apply(topology, plan);
+    topicManager.apply(topologies, plan);
+    accessControlManager.apply(topologies, plan);
 
-      connectorManager.apply(topology, plan);
-      kSqlArtefactManager.apply(topology, plan);
-    }
+    connectorManager.apply(topologies, plan);
+    kSqlArtefactManager.apply(topologies, plan);
 
-    for(Topology topology : topologies.values()) {
+    for (Topology topology : topologies.values()) {
       // Delete users should always be last,
       // avoids any unlinked acls, e.g. if acl delete or something errors then there is a link still
       // from the account, and can be re-run or manually fixed more easily

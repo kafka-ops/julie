@@ -34,6 +34,18 @@ public class TopologyObjectBuilderTest {
     for (var entry : map.entrySet()) {
       assertThat(entry.getValue().getProjects()).hasSize(4);
     }
+
+    var contextTopology = map.get("contextOrg");
+    assertThat(contextTopology.getOrder().get(0)).isEqualTo("source");
+    assertThat(contextTopology.getOrder().get(1)).isEqualTo("foo");
+    assertThat(contextTopology.getOrder().get(2)).isEqualTo("bar");
+    assertThat(contextTopology.getOrder().get(3)).isEqualTo("zet");
+
+    var context = map.get("context2");
+    assertThat(context.getOrder()).hasSize(3);
+    assertThat(context.getOrder().get(0)).isEqualTo("source2");
+    assertThat(context.getOrder().get(1)).isEqualTo("foo2");
+    assertThat(context.getOrder().get(2)).isEqualTo("bar2");
   }
 
   @Test
