@@ -104,10 +104,10 @@ public class TopologyCustomDeserializer extends StdDeserializer<Topology> {
     validateRequiresKeys(rootNode, CONTEXT_KEY);
     if (rootNode.get(PROJECTS_KEY) == null) {
       LOGGER.warn(
-              PROJECTS_KEY
-                      + " is missing for topology: "
-                      + rootNode.get(CONTEXT_KEY).asText()
-                      + ", this might be a required field, be aware.");
+          PROJECTS_KEY
+              + " is missing for topology: "
+              + rootNode.get(CONTEXT_KEY).asText()
+              + ", this might be a required field, be aware.");
     }
 
     Topology topology = new TopologyImpl(config);
@@ -142,7 +142,7 @@ public class TopologyCustomDeserializer extends StdDeserializer<Topology> {
     topology.setPlatform(platform);
     if (rootNode.get(PROJECTS_KEY) != null) {
       parseProjects(parser, rootNode.get(PROJECTS_KEY), topology, config)
-              .forEach(topology::addProject);
+          .forEach(topology::addProject);
 
       // validate the generated full topics names for valid encoding
       for (Project project : topology.getProjects()) {
