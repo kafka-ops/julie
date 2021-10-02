@@ -79,7 +79,8 @@ public class TopologyObjectBuilderTest {
 
     Configuration config = new Configuration(cliOps, props);
     String fileOrDirPath = TestUtils.getResourceFilename("/descriptor-only-conn.yaml");
-    Topology topology = TopologyObjectBuilder.build(fileOrDirPath, config);
+    var topologies = TopologyObjectBuilder.build(fileOrDirPath, config);
+    var topology = topologies.values().stream().findFirst().get();
 
     var proj = topology.getProjects().get(0);
     assertThat(proj.getConnectorArtefacts().getConnectors()).hasSize(2);
@@ -88,7 +89,8 @@ public class TopologyObjectBuilderTest {
   @Test
   public void buildTopoOnlyPlatform() throws IOException {
     String fileOrDirPath = TestUtils.getResourceFilename("/descriptor-only-platform.yaml");
-    Topology topology = TopologyObjectBuilder.build(fileOrDirPath);
+    var topologies = TopologyObjectBuilder.build(fileOrDirPath);
+    var topology = topologies.values().stream().findFirst().get();
     assertThat(topology.getProjects()).hasSize(0);
     assertThat(topology.getPlatform().getKafka().getRbac()).isPresent();
     assertThat(topology.getPlatform().getKafka().getRbac().get()).hasSize(2);
