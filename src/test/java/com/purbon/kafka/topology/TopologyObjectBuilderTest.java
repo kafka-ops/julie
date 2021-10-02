@@ -30,7 +30,6 @@ public class TopologyObjectBuilderTest {
 
   @Test
   public void buildOnlyConnectorTopo() throws IOException {
-
     HashMap<String, String> cliOps = new HashMap<>();
     cliOps.put(BROKERS_OPTION, "");
     Properties props = new Properties();
@@ -42,6 +41,15 @@ public class TopologyObjectBuilderTest {
 
     var proj = topology.getProjects().get(0);
     assertThat(proj.getConnectorArtefacts().getConnectors()).hasSize(2);
+  }
+
+  @Test
+  public void buildTopoOnlyPlatform() throws IOException {
+    String fileOrDirPath = TestUtils.getResourceFilename("/descriptor-only-platform.yaml");
+    Topology topology = TopologyObjectBuilder.build(fileOrDirPath);
+    assertThat(topology.getProjects()).hasSize(0);
+    assertThat(topology.getPlatform().getKafka().getRbac()).isPresent();
+    assertThat(topology.getPlatform().getKafka().getRbac().get()).hasSize(2);
   }
 
   @Test

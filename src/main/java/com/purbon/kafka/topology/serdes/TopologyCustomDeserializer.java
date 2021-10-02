@@ -88,7 +88,14 @@ public class TopologyCustomDeserializer extends StdDeserializer<Topology> {
       throws IOException {
 
     JsonNode rootNode = parser.getCodec().readTree(parser);
-    validateRequiresKeys(rootNode, CONTEXT_KEY, PROJECTS_KEY);
+    validateRequiresKeys(rootNode, CONTEXT_KEY);
+    if (rootNode.get(PROJECTS_KEY) == null) {
+      LOGGER.warn(
+          PROJECTS_KEY
+              + " is missing for topology: "
+              + rootNode.get(CONTEXT_KEY).asText()
+              + ", this might be a required field, be aware.");
+    }
 
     Topology topology = new TopologyImpl(config);
     List<String> excludeAttributes = Arrays.asList(PROJECTS_KEY, CONTEXT_KEY, PLATFORM_KEY);
@@ -120,13 +127,15 @@ public class TopologyCustomDeserializer extends StdDeserializer<Topology> {
     }
 
     topology.setPlatform(platform);
-    parseProjects(parser, rootNode.get(PROJECTS_KEY), topology, config)
-        .forEach(topology::addProject);
+    if (rootNode.get(PROJECTS_KEY) != null) {
+      parseProjects(parser, rootNode.get(PROJECTS_KEY), topology, config)
+          .forEach(topology::addProject);
 
-    // validate the generated full topics names for valid encoding
-    for (Project project : topology.getProjects()) {
-      for (Topic topic : project.getTopics()) {
-        validateEncodingForTopicName(topic.toString());
+      // validate the generated full topics names for valid encoding
+      for (Project project : topology.getProjects()) {
+        for (Topic topic : project.getTopics()) {
+          validateEncodingForTopicName(topic.toString());
+        }
       }
     }
 
