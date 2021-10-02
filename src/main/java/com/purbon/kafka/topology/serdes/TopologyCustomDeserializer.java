@@ -218,17 +218,19 @@ public class TopologyCustomDeserializer extends StdDeserializer<Topology> {
 
     project.setPrefixContextAndOrder(topology.asFullContext(), topology.getOrder());
 
-    if (rootNode.get(TOPICS_KEY) == null) {
-      throw new IOException(
-          TOPICS_KEY
-              + "is missing for project: "
-              + project.getName()
-              + ", this is a required field.");
+    var topicsNode = rootNode.get(TOPICS_KEY);
+    if (topicsNode == null) {
+      LOGGER.warn(
+              TOPICS_KEY
+                      + " is missing for project: "
+                      + project.getName()
+                      + ", this might be a required field, be aware.");
     }
-
-    new JsonSerdesUtils<Topic>()
-        .parseApplicationUser(parser, rootNode.get(TOPICS_KEY), Topic.class)
-        .forEach(project::addTopic);
+    else {
+      new JsonSerdesUtils<Topic>()
+              .parseApplicationUser(parser, topicsNode, Topic.class)
+              .forEach(project::addTopic);
+    }
 
     return project;
   }
