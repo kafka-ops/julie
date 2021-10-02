@@ -3,10 +3,13 @@ package com.purbon.kafka.topology;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.purbon.kafka.topology.exceptions.TopologyParsingException;
+import com.purbon.kafka.topology.model.Project;
 import com.purbon.kafka.topology.model.Topic;
 import com.purbon.kafka.topology.model.Topology;
 import com.purbon.kafka.topology.utils.TestUtils;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -47,10 +50,20 @@ public class TopologyObjectBuilderTest {
     assertThat(context.getOrder().get(1)).isEqualTo("foo2");
     assertThat(context.getOrder().get(2)).isEqualTo("bar2");
 
-    var proj = context.getProjects().get(0);
-    assertThat(proj.namePrefix()).isEqualTo("context2.source2.foo.bar.projectFoo");
-    proj = context.getProjects().get(1);
-    assertThat(proj.namePrefix()).isEqualTo("context2.source2.foo.bar.projectBar");
+    var projects = Arrays.asList("context2.source2.foo.bar.projectFoo",
+            "context2.source2.foo.bar.projectBar",
+            "context2.source2.foo.bar.projectZet",
+            "context2.source2.foo.bar.projectBear");
+    assertThat(context.getProjects()).hasSize(4);
+    for(Project proj : context.getProjects()) {
+      assertThat(projects).contains(proj.namePrefix());
+    }
+  }
+
+  @Test(expected = IOException.class)
+  public void buildOutOfMultipleProbTopos() throws IOException {
+    String fileOrDirPath = TestUtils.getResourceFilename("/dir_with_prob");
+    TopologyObjectBuilder.build(fileOrDirPath);
   }
 
   @Test

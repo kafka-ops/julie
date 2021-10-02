@@ -2,7 +2,7 @@
 context: "context2"
 source2: "source2"
 projects:
-  - name: "projectZet"
+  - name: "projectBar"
     zookeepers: []
     consumers:
       - principal: "User:App0"

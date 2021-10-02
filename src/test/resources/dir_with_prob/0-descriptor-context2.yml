@@ -1,8 +1,10 @@
 ---
 context: "context2"
 source2: "source2"
+foo2: "foo"
+bar2: "bar"
 projects:
-  - name: "projectZet"
+  - name: "projectFoo"
     zookeepers: []
     consumers:
       - principal: "User:App0"
@@ -38,7 +40,7 @@ projects:
         config:
           replication.factor: "1"
           num.partitions: "1"
-  - name: "projectBear"
+  - name: "projectBar"
     zookeepers: []
     consumers: []
     producers: []
@@ -50,12 +52,3 @@ projects:
         config:
           replication.factor: "1"
           num.partitions: "1"
-platform:
-  schema_registry:
-    instances:
-      - principal: "User:SchemaRegistry01"
-      - principal: "User:SchemaRegistry02"
-  control_center:
-    instances:
-      - principal: "User:ControlCenter"
-        appId: "controlcenter"

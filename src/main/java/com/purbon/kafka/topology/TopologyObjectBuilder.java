@@ -1,6 +1,7 @@
 package com.purbon.kafka.topology;
 
 import com.purbon.kafka.topology.model.PlanMap;
+import com.purbon.kafka.topology.model.Project;
 import com.purbon.kafka.topology.model.Topology;
 import com.purbon.kafka.topology.serdes.PlanMapSerdes;
 import com.purbon.kafka.topology.serdes.TopologySerdes;
@@ -12,6 +13,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 public class TopologyObjectBuilder {
 
@@ -40,7 +42,18 @@ public class TopologyObjectBuilder {
         collection.put(context, topology);
       } else {
         Topology mainTopology = collection.get(context);
-        topology.getProjects().forEach(p -> mainTopology.addProject(p));
+        List<String> projectNames = mainTopology.getProjects().stream()
+                .map(p -> p.getName().toLowerCase())
+                .collect(Collectors.toList());
+
+        for(Project project : topology.getProjects()) {
+          if (projectNames.contains(project.getName().toLowerCase())) {
+            throw new IOException("Trying to add a project with name "+project.getName()+
+                    " in a sub topology (context: "+mainTopology.getContext()+
+                    ") that already contain the same project. Merging projects is not yet supported");
+          }
+          mainTopology.addProject(project);
+        }
 
         for (String other : topology.getOrder()) {
           var topologyContext = topology.asFullContext();
