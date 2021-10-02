@@ -195,8 +195,8 @@ public class TopologySerdesTest {
     parser.deserialise(TestUtils.getResourceFile("/descriptor-with-no-context.yaml"));
   }
 
-  @Test(expected = TopologyParsingException.class)
-  public void testTopologyWithNoProject() {
+  @Test
+  public void testTopologyWithNoProjectShouldNotError() {
     parser.deserialise(TestUtils.getResourceFile("/descriptor-with-no-project.yaml"));
   }
 
