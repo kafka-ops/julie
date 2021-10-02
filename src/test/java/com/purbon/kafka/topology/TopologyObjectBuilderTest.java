@@ -1,5 +1,7 @@
 package com.purbon.kafka.topology;
 
+import static com.purbon.kafka.topology.CommandLineInterface.BROKERS_OPTION;
+import static com.purbon.kafka.topology.Constants.PLATFORM_SERVERS_CONNECT;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertEquals;
 
@@ -11,6 +13,7 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 import java.util.stream.Collectors;
 import org.junit.Test;
 
@@ -23,6 +26,22 @@ public class TopologyObjectBuilderTest {
     Topology topology = TopologyObjectBuilder.build(fileOrDirPath);
 
     assertEquals(4, topology.getProjects().size());
+  }
+
+  @Test
+  public void buildOnlyConnectorTopo() throws IOException {
+
+    HashMap<String, String> cliOps = new HashMap<>();
+    cliOps.put(BROKERS_OPTION, "");
+    Properties props = new Properties();
+    props.put(PLATFORM_SERVERS_CONNECT + ".0", "connector0:http://foo:8083");
+
+    Configuration config = new Configuration(cliOps, props);
+    String fileOrDirPath = TestUtils.getResourceFilename("/descriptor-only-conn.yaml");
+    Topology topology = TopologyObjectBuilder.build(fileOrDirPath, config);
+
+    var proj = topology.getProjects().get(0);
+    assertThat(proj.getConnectorArtefacts().getConnectors()).hasSize(2);
   }
 
   @Test
