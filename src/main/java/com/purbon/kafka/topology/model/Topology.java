@@ -17,6 +17,8 @@ public interface Topology {
 
   void addOther(String fieldName, String value);
 
+  void addOther(String fieldName, String value, int index);
+
   void setPlatform(Platform platform);
 
   Platform getPlatform();

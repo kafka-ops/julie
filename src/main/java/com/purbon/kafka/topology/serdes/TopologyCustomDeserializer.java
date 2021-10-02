@@ -244,15 +244,14 @@ public class TopologyCustomDeserializer extends StdDeserializer<Topology> {
     var topicsNode = rootNode.get(TOPICS_KEY);
     if (topicsNode == null) {
       LOGGER.warn(
-              TOPICS_KEY
-                      + " is missing for project: "
-                      + project.getName()
-                      + ", this might be a required field, be aware.");
-    }
-    else {
+          TOPICS_KEY
+              + " is missing for project: "
+              + project.getName()
+              + ", this might be a required field, be aware.");
+    } else {
       new JsonSerdesUtils<Topic>()
-              .parseApplicationUser(parser, topicsNode, Topic.class)
-              .forEach(project::addTopic);
+          .parseApplicationUser(parser, topicsNode, Topic.class)
+          .forEach(project::addTopic);
     }
 
     return project;

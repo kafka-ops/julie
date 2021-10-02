@@ -43,19 +43,22 @@ public class TopicManager implements ManagerOfThings {
     this.managedPrefixes = config.getTopicManagedPrefixes();
   }
 
-  public void apply(Topology topology, ExecutionPlan plan) throws IOException {
+  @Override
+  public void apply(Map<String, Topology> topologies, ExecutionPlan plan) throws IOException {
 
     Set<String> listOfTopics = loadActualClusterStateIfAvailable(plan);
-    // Foreach topic in the topology, sync it's content
-    // if topics does not exist already it's created
+    Map<String, Topic> topics = new HashMap<>();
 
-    Map<String, Topic> topics = parseMapOfTopics(topology);
-    topics.forEach(
-        (topicName, topic) -> {
-          plan.add(
-              new SyncTopicAction(
-                  adminClient, schemaRegistryManager, topic, topicName, listOfTopics));
-        });
+    for (Topology topology : topologies.values()) {
+      var entryTopics = parseMapOfTopics(topology);
+      entryTopics.forEach(
+          (topicName, topic) -> {
+            plan.add(
+                new SyncTopicAction(
+                    adminClient, schemaRegistryManager, topic, topicName, listOfTopics));
+            topics.put(topicName, topic);
+          });
+    }
 
     if (config.isAllowDeleteTopics()) {
       // Handle topic delete: Topics in the initial list, but not present anymore after a
