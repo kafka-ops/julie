@@ -61,6 +61,11 @@ public class TopologyImpl implements Topology, Cloneable {
     others.put(fieldName, value);
   }
 
+  public void addOther(String fieldName, String value, int index) {
+    order.add(index, fieldName);
+    others.put(fieldName, value);
+  }
+
   public void setPlatform(Platform platform) {
     this.platform = platform;
   }

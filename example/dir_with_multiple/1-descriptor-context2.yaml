@@ -1,12 +1,8 @@
 ---
-context: "contextOrg"
-source: "source"
-foo: "foo"
-bar: "bar"
-zet: "zet"
+context: "context2"
+source2: "source2"
 projects:
-  - name: "zet"
-    zookeepers: []
+  - name: "projectZet"
     consumers:
       - principal: "User:App0"
       - principal: "User:App1"
@@ -41,8 +37,7 @@ projects:
         config:
           replication.factor: "1"
           num.partitions: "1"
-  - name: "bear"
-    zookeepers: []
+  - name: "projectBear"
     consumers: []
     producers: []
     streams: []
@@ -53,3 +48,12 @@ projects:
         config:
           replication.factor: "1"
           num.partitions: "1"
+platform:
+  schema_registry:
+    instances:
+      - principal: "User:SchemaRegistry01"
+      - principal: "User:SchemaRegistry02"
+  control_center:
+    instances:
+      - principal: "User:ControlCenter"
+        appId: "controlcenter"

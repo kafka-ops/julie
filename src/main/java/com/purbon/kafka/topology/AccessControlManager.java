@@ -34,7 +34,7 @@ import java.util.stream.Stream;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-public class AccessControlManager {
+public class AccessControlManager implements ManagerOfThings {
 
   private static final Logger LOGGER = LogManager.getLogger(AccessControlManager.class);
 
@@ -72,17 +72,14 @@ public class AccessControlManager {
     this.julieRoles = julieRoles;
   }
 
-  /**
-   * Main apply method, append to the execution plan the necessary bindings to update the access
-   * control
-   *
-   * @param topology A topology file descriptor
-   * @param plan An Execution plan
-   */
-  public void apply(final Topology topology, ExecutionPlan plan) throws IOException {
-    julieRoles.validateTopology(topology);
-    List<Action> actions = buildProjectActions(topology);
-    actions.addAll(buildPlatformLevelActions(topology));
+  @Override
+  public void apply(Map<String, Topology> topologies, ExecutionPlan plan) throws IOException {
+    List<Action> actions = new ArrayList<>();
+    for (Topology topology : topologies.values()) {
+      julieRoles.validateTopology(topology);
+      actions.addAll(buildProjectActions(topology));
+      actions.addAll(buildPlatformLevelActions(topology));
+    }
     buildUpdateBindingsActions(actions, loadActualClusterStateIfAvailable(plan)).forEach(plan::add);
   }
 
