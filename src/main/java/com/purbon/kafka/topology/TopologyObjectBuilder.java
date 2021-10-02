@@ -42,15 +42,19 @@ public class TopologyObjectBuilder {
         collection.put(context, topology);
       } else {
         Topology mainTopology = collection.get(context);
-        List<String> projectNames = mainTopology.getProjects().stream()
+        List<String> projectNames =
+            mainTopology.getProjects().stream()
                 .map(p -> p.getName().toLowerCase())
                 .collect(Collectors.toList());
 
-        for(Project project : topology.getProjects()) {
+        for (Project project : topology.getProjects()) {
           if (projectNames.contains(project.getName().toLowerCase())) {
-            throw new IOException("Trying to add a project with name "+project.getName()+
-                    " in a sub topology (context: "+mainTopology.getContext()+
-                    ") that already contain the same project. Merging projects is not yet supported");
+            throw new IOException(
+                "Trying to add a project with name "
+                    + project.getName()
+                    + " in a sub topology (context: "
+                    + mainTopology.getContext()
+                    + ") that already contain the same project. Merging projects is not yet supported");
           }
           mainTopology.addProject(project);
         }
