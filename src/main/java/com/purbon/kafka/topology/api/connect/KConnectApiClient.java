@@ -36,6 +36,11 @@ public class KConnectApiClient extends JulieHttpClient implements ArtefactClient
     return server;
   }
 
+  @Override
+  public Map<String, Object> add(String content) throws IOException {
+    throw new IOException("Not implemented in this context");
+  }
+
   public List<String> list() throws IOException {
     Response response = doGet("/connectors");
     return JSON.toArray(response.getResponseAsString());
@@ -48,8 +53,10 @@ public class KConnectApiClient extends JulieHttpClient implements ArtefactClient
         .collect(Collectors.toList());
   }
 
-  public Map<String, Object> add(String config) throws IOException {
-    String response = doPost("/connectors", config);
+  @Override
+  public Map<String, Object> add(String name, String config) throws IOException {
+    String url = String.format("/connectors/%s/config", name);
+    String response = doPut(url, config);
     return JSON.toMap(response);
   }
 

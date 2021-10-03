@@ -1,9 +1,6 @@
 {
-  "name": "sink-jdbc",
-  "config": {
     "connector.class": "FileStreamSource",
     "tasks.max": "1",
     "file": "/tmp/test.txt",
     "topic": "connect-test"
-  }
 }

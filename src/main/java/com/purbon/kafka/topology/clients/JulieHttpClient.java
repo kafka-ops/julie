@@ -172,8 +172,18 @@ public abstract class JulieHttpClient {
     doRequest(request);
   }
 
+  protected String doPut(String url, String body) throws IOException {
+    LOGGER.debug("doPut: " + url + " body: " + body);
+    HttpRequest request = putRequest(url, ofString(body), DEFAULT_TIMEOUT_MS);
+    return doRequest(request);
+  }
+
   private HttpRequest putRequest(String url, long timeoutMs) {
-    return setupARequest(url, timeoutMs).PUT(noBody()).build();
+    return putRequest(url, noBody(), timeoutMs);
+  }
+
+  private HttpRequest putRequest(String url, BodyPublisher bodyPublisher, long timeoutMs) {
+    return setupARequest(url, timeoutMs).PUT(bodyPublisher).build();
   }
 
   protected void doDelete(String url, String body) throws IOException {

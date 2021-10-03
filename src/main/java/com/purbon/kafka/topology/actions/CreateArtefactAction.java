@@ -38,7 +38,7 @@ public class CreateArtefactAction extends BaseAction {
       LOGGER.info(
           String.format(
               "Creating artefact %s for client %s", artefact.getName(), client.getClass()));
-      client.add(content());
+      client.add(artefact.getName(), content());
     }
   }
 
