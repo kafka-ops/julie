@@ -1,3 +1,9 @@
+v3.0.3 / 2021-10-03
+===================
+
+  * Make projects an optional field, so platform only topologies are easier possible (#343)
+  * Make topics an optional parameters, so only connector topologies can easier exist (#342)
+
 v3.0.2 / 2021-09-30
 ===================
 
