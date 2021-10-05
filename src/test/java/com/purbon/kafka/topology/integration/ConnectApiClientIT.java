@@ -54,18 +54,13 @@ public class ConnectApiClientIT {
     String connectorName = "file-source-connector";
     String connectorConfig =
         "{\n"
-            + "    \"name\": \""
-            + connectorName
-            + "\",\n"
-            + "    \"config\": {\n"
             + "        \"connector.class\": \"FileStreamSource\",\n"
             + "        \"tasks.max\": \"1\",\n"
             + "        \"file\": \"/tmp/test.txt\",\n"
             + "        \"topic\": \"connect-test\"\n"
-            + "    }\n"
             + "}";
 
-    client.add(connectorConfig);
+    client.add(connectorName, connectorConfig);
 
     List<String> connectors = client.list();
     assertThat(connectors).contains(connectorName);
@@ -81,18 +76,13 @@ public class ConnectApiClientIT {
     String connectorName = "file-source-connector";
     String connectorConfig =
         "{\n"
-            + "    \"name\": \""
-            + connectorName
-            + "\",\n"
-            + "    \"config\": {\n"
             + "        \"connector.class\": \"FileStreamSource\",\n"
             + "        \"tasks.max\": \"1\",\n"
             + "        \"file\": \"/tmp/test.txt\",\n"
             + "        \"topic\": \"connect-test\"\n"
-            + "    }\n"
             + "}";
 
-    client.add(connectorConfig);
+    client.add(connectorName, connectorConfig);
     Thread.sleep(1000);
 
     String status = client.status(connectorName);
