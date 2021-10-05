@@ -6,7 +6,7 @@
 
   <groupId>com.purbon.kafka</groupId>
   <artifactId>julie-ops</artifactId>
-  <version>edge</version>
+  <version>3.1.0</version>
 
   <name>A Kafka operations manager, julie ops</name>
   <description>

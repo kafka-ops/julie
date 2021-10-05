@@ -1,23 +1,202 @@
-v1.0.0:
+v3.1.0 / 2021-10-05
+===================
+
+  * Restructure multiple topology loading policy to prevent the restriction of a single context per directory (#341)
+  * Add a possibility to add custom roles definitions for julieops (#336)
+
+v3.0.4 / 2021-10-05
+===================
+
+* Use put method in connector creation, so the operation is idempotent, createOrUpdate (#345)
+
+v3.0.3 / 2021-10-03
+===================
+
+* Make projects an optional field, so platform only topologies are easier possible (#343)
+* Make topics an optional parameters, so only connector topologies can easier exist (#342)
+
+v3.0.2 / 2021-09-30
+===================
+
+* Configure basic auch for Kafka Connect REST api operations (#339)
+
+v3.0.1 / 2021-09-29
+===================
+
+* Fix Kerberos library in the docker image, use full jvm in order to avoid missing values (#338)
+
+v3.0.0 / 2021-09-17
+===================
+
+* Configurable RBAC role bindings for schema registry subjects (#283) (#284)
+* Add missing Schema Registry ACLs (#297)
+* Fix: RBAC Subject and Cluster level binding (#301)
+* extends RedisBackend to store a full state copy (the new json)  (#333)
+* Add a connector management to the sasl example (#332)
+* Make FileBackend VCS diff friendly (#317)
+* Fix: ssl context contruction when no ssl configuration is provided. (#327)
+* Fix: stupid error in checking server labels when creating a connector (#325)
+* Enable the option to pass custom truststore and keystore with custom http clients (#324)
+* Add missing ACLS for Control Center to work properly (#322)
+* Enable group acls for consumers within the rbac bindings api (#321)
+* Ammend docker example test ports for openldap image that changed over time (#320)
+* Ksql: Add SSL support and  bugfixes (#308)
+* Fix problem with legacy release build identation
+* Fix build job to sign rpms for release and nightly builds (#318)
+* Allow reading of old-style state files. backwards compatible file backend (#315)
+* add manual dispatch for nightly build artifacts
+* docs: add producer example with transactionID (#311)
+* Upgrade to latest version of JDK11 (#316)
+* Add automated signing of packages in pipeline and amend docs (#302)
+* Fix: Unrecognized field "resource_id" (#307) (#309)
+* Add kerberos example for julieops (#310)
+* Add support for KSQL queries (#275)
+* support prefix for producer transaction id and consumer group (#279)
+* avoid connection to mds when running in validate mode
+* fix issue when listing transactionId resourceType in the RBAC provider as name is transient from the ACLs default one
+* Support Connector deployment for Kafka Connect (#234)
+* Add a validate only flag process to facilitate descriptor testing in feature branches and add ConfigurationKeyValidation and TopicNameRegexValidation validations (#274)
+
+v2.1.2 / 2021-04-30
+===================
+* Bump version for httpclient.version to avoid regression in internal domain validation HTTPCLIENT-2047 (a18ea2d81f8074ca0844582c62b646323b19db02)
+
+v2.1.1 / 2021-04-30
+===================
+
+* Amend dependencies to be fully supporting Confluent RBAC implementation  (#272)
+* Fix problem with passing a dir that containts another dir for topologies (#269)
+* Amend listAcls function for rbac providers so delete and listing after execution works as well when using RBAC (#266)
+* Sync integration test Kafka version with the version in the pom. (#260)
+* Add overridingClientConfig parameter to allow override and fallbacks ot the original configuration. This would be useful when passing parameters that need to be adapted in some execution scenarios like deployments or CI/CD.
+* verify CLI parameters as first thing in the process before creating the main handler object  (#253)
+
+v2.1.0 / 2021-04-03
+===================
+
+* Use Set as internal datastructure for 'principals to be created' instead of List.
+* Add gcp backend and general cleanup
+* Introduce an s3 backend
+* Add control center and schema registry principals on the platform level to be handled by the service account manager as well (#247)
+* Add error handling when building acls and specially when the group prefix is empty (#245)
+* Update topic partition and replication factor to use cluster defaults  if nothing is available in the topology (#244)
+* Skip Julie principal when dealing with ACLs, if present (#246)
+
+v2.0.1 / 2021-03-16
+===================
+
+* Upgrade dependencies to Kafka 2.7 and Confluent 6.1, plus some other minor ones
+* Add support and checks for non ascii characters in schema content (#230)
+* Add integration test for SchemaRegistry Management in multiple formats (#229)
+* Add more clear error for descriptor files without the topics section in the serdes (#227)
+* Fix FileBackend bug in windows to use FileWriter due to closing problems with RandomAccessFile (#222)
+* Add support for JsonSchema and Protobuf when working with Schema Registry (#216)
+
+v2.0.0 / 2021-02-27
+===================
+
+* Entity rename to JulieOps as a new project name (#213)
+* [Sonar 2095] Fix, resources should be closed (#207)
+
+v1.5.1 / 2021-02-25
+===================
+
+* Bump jackson.version from 2.10.3 to 2.12.1 (#211)
+* File backend fix (#210)
+* Support topology validations with fully qualified class names as configuration values (backwards compatible) (#204)
+* Add topology metadata support for topics and users (#200)
+* README update
+* updated github action to take into account the new version branches
+
+v1.5.0 / 2021-01-16
+===================
+
+* Add ability to use the name as the end topic name (#194)
+* Support ACLs from Cluster (#188)
+* Enable to run integration test parametrised vs multiple cp versions (#189)
+
+v1.4.0 / 2021-01-03
+===================
+
+* [PrincipalManager] Improved error handling when using Confluent Cloud  (#186)
+* Add support for a prefix list to filter which principals are allowed to be managed (#185)
+* Enable remote state fetching from the cluster for the principals (#187)
+* Add support for absolute paths when fetching schemas from disk (#184)
+* Add support for custom SchemaTypes and Compatibility level when managing schemas (#182)
+* Support multiple schema per topic (#183)
+* Adding ability to pass KTB options for the jvm or the KTB itself via an environment variable (#177)
+* Allow topic state bookkeeping from the cluster backend state system   (#180)
+* Fix that principle manager was not adding principles defined within consumers/producers at topic levels (#179)
+* Improve AccessControlManagerTest (#168)
+* Option to disable creation of the CLUSTER CREATE ACL for connectors (#173)
+* Add Kafka Streams integration test bed (#169)
+
+v1.3.0 / 2020-12-14
+===================
+
+* Fix RPM/DEB packaging update   (#172)
+* Managed principals using topology Builder, include support for ccloud CLI (#135)
+* Add an action to build and push artifacts for KTB (#166)
+* Introduced to detailed allow delete options to be used from the config files.
+  One for now dedicated to topics and one for the bindings (#163)
+* Keep order in file backend for generated items (#161)
+* Nightly docker image build, regular push to docker hub (#153)
+* Add workflows with github actions (#152)
+* Integration test verifying that producers can produce and consumers can consume (#150)
+* Fail on parsing of invalid topologies (#149)
+* ACL integration tests using testcontainers (#131)
+* Test cleanup (#145)
+* Add streams acls for consumer group and support for applicationId (#144)
+* Fix bug with a topology/config not using schemas (#143)
+
+1.2.2 / 2020-11-24
+==================
+
+* fix path of topology builder gen jar in the deb package mapping (#140)
+* Add schema.registry.url to docs and examples (#139)
+* make usage of key schemas optional, but throw an exception if key is present but not value schemas (#128)
+
+
+1.2.0 / 2020-11-16
+==================
+
+* Add custom plans to help standardise topic config (#129)
+* mockito-all was abandoned in 2015. Using mockito-core instead. (#130)
+* fix bug with state management for acls and deletion of removed rules (#127)
+* Add topic level Access Control Rules (ACLs/RBAC) (#124)
+* Upgrade testcontainers to support recent Docker for Mac. (#121)
+
+1.1.0 / 2020-10-30
+==================
+
+* Grouping acls for consumers and producers when the function is selected via configuration (#120)
+* Enable JSON and YAML as Topology descriptor file formats. (#108)
+* Add support for Transactional and Idempotence producing and consuming in KTB (#119)
+* Fix missing key in the deserializer for project causing projects to not properly extract the producers and perse not create the necessary acls
+* ammend deb sign script
+
+1.0.0 / 2020-10-23
+==================
+
 * Extended the logging support to many components and classes in the KTB with the idea to support better troubleshooting. (Closes #101)
 * Add a filter to delete only topic configurations that are explicitly set, not the ones that use default values. (closes #99)
 * Fix a bug with wrongly set PatternType for Consumer group acls level. (closes #111)
 * Add test and documentation for list type config values as handled using the new config library.
 * Add a Health Check function used during the creation of the internal admin client. This function will describe the cluster and perse test if the setup credentials are ok.
-This fixes (#112)
- 
+  This fixes (#112)
+
 v1.0.0-rc2:
 * Check for required configuration values for the configuration of RBAC, if not present it raises a Configuration error
 * Update Log4j version to 2.13.3 to prevent CVE-2020-9488
 * Add an option to not delete internal topics, including an option configure rules to filter internal topics that can't not be removed config with  _kafka.internal.topic.prefixes_,
-by default this filters all topics starting with underscore. Users can configure more than one filter in the property file.
+  by default this filters all topics starting with underscore. Users can configure more than one filter in the property file.
 * Made internal topics for Kafka Connect, Schema Registry and Confluent Control Center configurable.
-By introducing this, users can now handle non-standard instances of Schema Registry or having for example more than
-a single Kafka Connect cluster (situation more than common).
-* Add a rest api component, available under server-api and created using the Micronaut Framework. This component is an independent artifact, that wrap the 
-Kafka Topology Builder library in a single and uniform web application that can be used to automate and centralise the configuration management for clusters.
+  By introducing this, users can now handle non-standard instances of Schema Registry or having for example more than
+  a single Kafka Connect cluster (situation more than common).
+* Add a rest api component, available under server-api and created using the Micronaut Framework. This component is an independent artifact, that wrap the
+  Kafka Topology Builder library in a single and uniform web application that can be used to automate and centralise the configuration management for clusters.
 * Remove the requirement of writing in the configuration file the access control method, as of now will be ACLs as default value and if other (like RBAC) is required
-it will have to be properly configured.
+  it will have to be properly configured.
 * Merge #22 to provide the initial support for schema management. Now you can manage schemas with Confluent Schema Registry using the Kafka Topology Builder. Thanks Kiril.
 * Add an option to specify custom consumer groups in the topology descriptor
 * Add option to increase the partition count in an already created topic.
@@ -38,14 +217,14 @@ it will have to be properly configured.
 v1.0.0-rc1:
 * Add support for platform wide acls for control center in teh topology description file.
 * Port support for schema registry and confluent control center roles in the rbac provider. Now the two providers are future pair.
-* Fix the usage of the source field, it should not be mandatory as the others list and the custom topology serdes can cover a dynamic list 
-of fields between the team and the first project separator. 
+* Fix the usage of the source field, it should not be mandatory as the others list and the custom topology serdes can cover a dynamic list
+  of fields between the team and the first project separator.
 * Add code to support passing a directory, only topologies for a single team are supported for now.
 * Add support for passing a directory, instead of a single file as topology. If a directory is passed, all topologies are expected to be from
-the same team and all subsequent projects will be at append one after the other.
+  the same team and all subsequent projects will be at append one after the other.
 * Implement the necessary methods to pass back the status from the rbac modules, so the reply and clean up is possible with multiple runs
 * Added an option to use redis as external system to keep the acls status list. Now people can use either files or redis.
-Note in the future this subsystem should be externalised as plugins
+  Note in the future this subsystem should be externalised as plugins
 * raise up error handling in case of non available cluster
 * Make usage of the maven jdeb plugin to build a deb package to use in distributions such as Debian and relative like the Ubuntu family
 * Fix parser problem with non required parameters, such as the ones for the acls where an empty array had to be in place, now all principals for acls if not required can be ignored and will have no effect
@@ -60,16 +239,16 @@ v0.11:
 * Add version number to maven-compiler-plugin (#16)
 * Add support to keeping notes of generated acls (#15)
 * Add support for storing the current generated acls within a state file. This is useful to delete
-acls that are known and generated previously by the topology builder.
+  acls that are known and generated previously by the topology builder.
 
 v0.10.3:
 * updated ACLs for producers and consumers to include the describe permission in order to properly
-allow for metadata recollection.
+  allow for metadata recollection.
 * Fix wrong verification for parameters in the CLI.
 
 v0.10.2:
 * Add improved connection handling when talking with the RBAC MDS server
-* Extended the test suite for rbac and isoleted test with the SASL plain suit. 
+* Extended the test suite for rbac and isoleted test with the SASL plain suit.
 
 v0.10.1:
 * Fix the RPM builder script, build an rpm that create proper users for running the application.
