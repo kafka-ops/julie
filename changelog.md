@@ -1,3 +1,8 @@
+v3.0.4 / 2021-10-05
+===================
+
+  * Use put method in connector creation, so the operation is idempotent, createOrUpdate (#345)
+
 v3.0.3 / 2021-10-03
 ===================
 
