@@ -56,8 +56,23 @@ public class KConnectApiClient extends JulieHttpClient implements ArtefactClient
   @Override
   public Map<String, Object> add(String name, String config) throws IOException {
     String url = String.format("/connectors/%s/config", name);
+
+    var map = JSON.toMap(config);
+    if (mayBeAConfigRecord(map)) {
+      var content = map.get("config");
+      if (!name.equalsIgnoreCase(map.get("name").toString())) {
+        throw new IOException("Trying to add a connector with a different name as in the topology");
+      }
+      config = JSON.asString(content);
+    }
+
     String response = doPut(url, config);
     return JSON.toMap(response);
+  }
+
+  private boolean mayBeAConfigRecord(Map<String, Object> map) {
+    var keySet = map.keySet();
+    return keySet.contains("config") && keySet.contains("name") && keySet.size() == 2;
   }
 
   public void delete(String connector) throws IOException {
