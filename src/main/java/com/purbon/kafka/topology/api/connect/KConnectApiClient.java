@@ -36,6 +36,11 @@ public class KConnectApiClient extends JulieHttpClient implements ArtefactClient
     return server;
   }
 
+  @Override
+  public Map<String, Object> add(String content) throws IOException {
+    throw new IOException("Not implemented in this context");
+  }
+
   public List<String> list() throws IOException {
     Response response = doGet("/connectors");
     return JSON.toArray(response.getResponseAsString());
@@ -48,9 +53,26 @@ public class KConnectApiClient extends JulieHttpClient implements ArtefactClient
         .collect(Collectors.toList());
   }
 
-  public Map<String, Object> add(String config) throws IOException {
-    String response = doPost("/connectors", config);
+  @Override
+  public Map<String, Object> add(String name, String config) throws IOException {
+    String url = String.format("/connectors/%s/config", name);
+
+    var map = JSON.toMap(config);
+    if (mayBeAConfigRecord(map)) {
+      var content = map.get("config");
+      if (!name.equalsIgnoreCase(map.get("name").toString())) {
+        throw new IOException("Trying to add a connector with a different name as in the topology");
+      }
+      config = JSON.asString(content);
+    }
+
+    String response = doPut(url, config);
     return JSON.toMap(response);
+  }
+
+  private boolean mayBeAConfigRecord(Map<String, Object> map) {
+    var keySet = map.keySet();
+    return keySet.contains("config") && keySet.contains("name") && keySet.size() == 2;
   }
 
   public void delete(String connector) throws IOException {

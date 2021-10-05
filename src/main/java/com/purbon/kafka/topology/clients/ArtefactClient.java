@@ -12,6 +12,10 @@ public interface ArtefactClient {
 
   Map<String, Object> add(String content) throws IOException;
 
+  default Map<String, Object> add(String name, String config) throws IOException {
+    throw new IOException("Not implemented");
+  }
+
   default void delete(String label) throws IOException {
     throw new IOException("Not implemented");
   }

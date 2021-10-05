@@ -64,6 +64,11 @@ public class KsqlApiClient implements ArtefactClient {
   }
 
   @Override
+  public Map<String, Object> add(String name, String sql) throws IOException {
+    return add(sql);
+  }
+
+  @Override
   public void delete(String id) throws IOException {
     delete(id, "STREAM");
     delete(id, "TABLE");
