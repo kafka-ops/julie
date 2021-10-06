@@ -106,6 +106,8 @@ public class Constants {
 
   public static final String JULIE_S3_REGION = "julie.s3.region";
   public static final String JULIE_S3_BUCKET = "julie.s3.bucket";
+  public static final String JULIE_S3_ENDPOINT = "julie.s3.endpoint";
+
   public static final String JULIE_GCP_PROJECT_ID = "julie.gcp.project.id";
   public static final String JULIE_GCP_BUCKET = "julie.gcp.bucket";
 

@@ -341,6 +341,10 @@ public class Configuration {
     return config.getString(JULIE_S3_BUCKET);
   }
 
+  public String getS3Endpoint() {
+    return config.getString(JULIE_S3_ENDPOINT);
+  }
+
   public String getS3Region() {
     return config.getString(JULIE_S3_REGION);
   }
