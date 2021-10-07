@@ -60,9 +60,10 @@ public class S3BackendIT {
     Properties props = new Properties();
     props.put(JULIE_S3_REGION, "us-west-2");
     props.put(JULIE_S3_BUCKET, TEST_BUCKET);
+    props.put(JULIE_S3_ENDPOINT, TEST_ENDPOINT);
 
     Configuration config = new Configuration(cliOps, props);
-    backend.configure(config, URI.create(TEST_ENDPOINT), true);
+    backend.configure(config, true);
 
     TopologyAclBinding binding =
         TopologyAclBinding.build(
@@ -74,7 +75,7 @@ public class S3BackendIT {
     backend.close();
 
     S3Backend newBackend = new S3Backend();
-    newBackend.configure(config, URI.create(TEST_ENDPOINT), true);
+    newBackend.configure(config, true);
 
     BackendState newState = newBackend.load();
     assertThat(newState.size()).isEqualTo(1);

@@ -26,19 +26,21 @@ public class S3Backend implements Backend {
 
   @Override
   public void configure(Configuration config) {
-    configure(config, null, false);
+    configure(config, false);
   }
 
   // Visible and used for tests
-  public void configure(Configuration config, URI endpoint, boolean anonymous) {
+  public void configure(Configuration config, boolean anonymous) {
     this.config = config;
     S3ClientBuilder builder = S3Client.builder().region(Region.of(config.getS3Region()));
-    if (endpoint != null) {
-      builder = builder.endpointOverride(endpoint);
+    String endpoint = config.getS3Endpoint();
+    if (!endpoint.isBlank()) {
+      builder = builder.endpointOverride(URI.create(endpoint));
     }
     if (anonymous) {
       builder = builder.credentialsProvider(AnonymousCredentialsProvider.create());
     }
+
     this.s3 = builder.build();
   }
 
