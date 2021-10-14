@@ -1,0 +1,8 @@
+---
+context: "context"
+projects:
+  - name: "foo"
+    topics:
+      - name: "foo"
+      - dataType: "avro"
+        name: "bar"
