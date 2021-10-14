@@ -482,6 +482,7 @@ public class TopologySerdesTest {
     assertEquals("source.contextOrg.foo.bar", p.getTopics().get(1).toString());
   }
 
+
   @Test
   public void testTopologyWithRepeatedAndMissingDataType() {
     Map<String, String> cliOps = new HashMap<>();
@@ -490,14 +491,14 @@ public class TopologySerdesTest {
 
     Properties props = new Properties();
     props.put(
-        TOPIC_PREFIX_FORMAT_CONFIG,
-        "{{context}}.{{project}}.{{topic}}{% if dataType is defined %}.{{dataType}}{% endif %}");
+            TOPIC_PREFIX_FORMAT_CONFIG,
+            "{{context}}.{{project}}.{{topic}}{% if dataType is defined %}.{{dataType}}{% endif %}");
     Configuration config = new Configuration(cliOps, props);
 
     TopologySerdes parser = new TopologySerdes(config, new PlanMap());
 
     Topology topology =
-        parser.deserialise(TestUtils.getResourceFile("/descriptor-only-topics-datatype.yaml"));
+            parser.deserialise(TestUtils.getResourceFile("/descriptor-only-topics-datatype.yaml"));
 
     assertEquals("context", topology.getContext());
 
@@ -507,6 +508,162 @@ public class TopologySerdesTest {
     assertEquals("context.foo.foo", p.getTopics().get(0).toString());
     assertEquals("context.foo.bar.avro", p.getTopics().get(1).toString());
   }
+
+  @Test
+  public void testTopicsWithDLQNoFilter() {
+    Map<String, String> cliOps = new HashMap<>();
+    cliOps.put(BROKERS_OPTION, "");
+    cliOps.put(CLIENT_CONFIG_OPTION, "/fooBar");
+
+    Properties props = new Properties();
+    props.put(TOPOLOGY_DLQ_TOPICS_GENERATE, "true");
+
+    Configuration config = new Configuration(cliOps, props);
+
+    TopologySerdes parser = new TopologySerdes(config, new PlanMap());
+
+    Topology topology =
+            parser.deserialise(TestUtils.getResourceFile("/descriptor-only-topics.yaml"));
+    Project p = topology.getProjects().get(0);
+
+    assertThat(p.getTopics()).hasSize(4);
+    assertEquals("contextOrg.source.foo.foo", p.getTopics().get(0).toString());
+    assertEquals("contextOrg.source.foo.foo.dlq", p.getTopics().get(1).toString());
+    assertEquals("contextOrg.source.foo.bar.avro", p.getTopics().get(2).toString());
+    assertEquals("contextOrg.source.foo.bar.avro.dlq", p.getTopics().get(3).toString());
+  }
+
+  @Test
+  public void testTopicsWithDLQWithDenyList() {
+    Map<String, String> cliOps = new HashMap<>();
+    cliOps.put(BROKERS_OPTION, "");
+    cliOps.put(CLIENT_CONFIG_OPTION, "/fooBar");
+
+    Properties props = new Properties();
+    props.put(TOPOLOGY_DLQ_TOPICS_GENERATE, "true");
+    props.put(TOPOLOGY_DQL_TOPICS_DENY_LIST + ".0", "contextOrg.source.foo.bar.avro");
+
+    Configuration config = new Configuration(cliOps, props);
+
+    TopologySerdes parser = new TopologySerdes(config, new PlanMap());
+
+    Topology topology =
+            parser.deserialise(TestUtils.getResourceFile("/descriptor-only-topics.yaml"));
+    Project p = topology.getProjects().get(0);
+
+    assertThat(p.getTopics()).hasSize(3);
+    assertEquals("contextOrg.source.foo.foo", p.getTopics().get(0).toString());
+    assertEquals("contextOrg.source.foo.foo.dlq", p.getTopics().get(1).toString());
+    assertEquals("contextOrg.source.foo.bar.avro", p.getTopics().get(2).toString());
+  }
+
+  @Test
+  public void testTopicsWithDLQWithTopicPattern() {
+    Map<String, String> cliOps = new HashMap<>();
+    cliOps.put(BROKERS_OPTION, "");
+    cliOps.put(CLIENT_CONFIG_OPTION, "/fooBar");
+
+    Properties props = new Properties();
+    props.put(DLQ_TOPIC_PREFIX_FORMAT_CONFIG, "{{dlq}}.{{context}}.{{project}}");
+    props.put(TOPOLOGY_DLQ_TOPICS_GENERATE, "true");
+    props.put(TOPOLOGY_DQL_TOPICS_ALLOW_LIST + ".0", "contextOrg.source.foo.bar.avro");
+
+    Configuration config = new Configuration(cliOps, props);
+
+    TopologySerdes parser = new TopologySerdes(config, new PlanMap());
+
+    Topology topology =
+            parser.deserialise(TestUtils.getResourceFile("/descriptor-only-topics.yaml"));
+    Project p = topology.getProjects().get(0);
+
+    assertThat(p.getTopics()).hasSize(3);
+    assertEquals("contextOrg.source.foo.foo", p.getTopics().get(0).toString());
+    assertEquals("contextOrg.source.foo.bar.avro", p.getTopics().get(1).toString());
+    assertEquals("dlq.contextOrg.foo", p.getTopics().get(2).toString());
+  }
+
+  @Test
+  public void testTopicsWithDLQConfigVerify() {
+    Map<String, String> cliOps = new HashMap<>();
+    cliOps.put(BROKERS_OPTION, "");
+    cliOps.put(CLIENT_CONFIG_OPTION, "/fooBar");
+
+    Properties props = new Properties();
+    props.put(TOPOLOGY_DLQ_TOPICS_GENERATE, "true");
+    props.put(TOPOLOGY_DQL_TOPICS_ALLOW_LIST + ".0", "contextOrg.source.foo.bar.avro");
+
+    Configuration config = new Configuration(cliOps, props);
+
+    TopologySerdes parser = new TopologySerdes(config, new PlanMap());
+
+    Topology topology =
+            parser.deserialise(TestUtils.getResourceFile("/descriptor-only-topics.yaml"));
+    Project p = topology.getProjects().get(0);
+
+    assertThat(p.getTopics()).hasSize(3);
+
+    Topic mainTopic = p.getTopics().get(1);
+    Topic dlqTopic = p.getTopics().get(2);
+
+    assertEquals("contextOrg.source.foo.bar.avro", mainTopic.toString());
+    assertEquals("contextOrg.source.foo.bar.avro.dlq", dlqTopic.toString());
+    assertThat(mainTopic.getConfig()).isEqualToComparingFieldByField(dlqTopic.getConfig());
+  }
+
+  @Test
+  public void testTopicsWithDLQWithAllowList() {
+    Map<String, String> cliOps = new HashMap<>();
+    cliOps.put(BROKERS_OPTION, "");
+    cliOps.put(CLIENT_CONFIG_OPTION, "/fooBar");
+
+    Properties props = new Properties();
+    props.put(TOPOLOGY_DLQ_TOPICS_GENERATE, "true");
+    props.put(TOPOLOGY_DQL_TOPICS_ALLOW_LIST + ".0", "contextOrg.source.foo.bar.avro");
+
+    Configuration config = new Configuration(cliOps, props);
+
+    TopologySerdes parser = new TopologySerdes(config, new PlanMap());
+
+    Topology topology =
+            parser.deserialise(TestUtils.getResourceFile("/descriptor-only-topics.yaml"));
+    Project p = topology.getProjects().get(0);
+
+    assertThat(p.getTopics()).hasSize(3);
+    assertEquals("contextOrg.source.foo.foo", p.getTopics().get(0).toString());
+    assertEquals("contextOrg.source.foo.bar.avro", p.getTopics().get(1).toString());
+    assertEquals("contextOrg.source.foo.bar.avro.dlq", p.getTopics().get(2).toString());
+  }
+
+  @Test
+  public void testTopicsWithDLQWithAllowAndDenyList() {
+    Map<String, String> cliOps = new HashMap<>();
+    cliOps.put(BROKERS_OPTION, "");
+    cliOps.put(CLIENT_CONFIG_OPTION, "/fooBar");
+
+    Properties props = new Properties();
+    props.put(TOPOLOGY_DLQ_TOPICS_GENERATE, "true");
+    props.put(TOPOLOGY_DQL_TOPICS_ALLOW_LIST + ".0", "contextOrg.source.foo.bar.avro");
+    props.put(TOPOLOGY_DQL_TOPICS_DENY_LIST + ".0", "contextOrg.source.bar.bar.avro");
+
+    Configuration config = new Configuration(cliOps, props);
+
+    TopologySerdes parser = new TopologySerdes(config, new PlanMap());
+
+    Topology topology =
+            parser.deserialise(TestUtils.getResourceFile("/descriptor-only-topics.yaml"));
+    Project p = topology.getProjects().get(0);
+
+    assertThat(p.getTopics()).hasSize(3);
+    assertEquals("contextOrg.source.foo.foo", p.getTopics().get(0).toString());
+    assertEquals("contextOrg.source.foo.bar.avro", p.getTopics().get(1).toString());
+    assertEquals("contextOrg.source.foo.bar.avro.dlq", p.getTopics().get(2).toString());
+
+    p = topology.getProjects().get(1);
+
+    assertThat(p.getTopics()).hasSize(1);
+    assertEquals("contextOrg.source.bar.bar.avro", p.getTopics().get(0).toString());
+  }
+
 
   @Test(expected = TopologyParsingException.class)
   public void testTopicNameWithUTFCharacters() {

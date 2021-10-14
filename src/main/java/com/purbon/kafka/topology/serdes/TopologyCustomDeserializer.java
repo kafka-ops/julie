@@ -15,6 +15,7 @@ import com.purbon.kafka.topology.Configuration;
 import com.purbon.kafka.topology.exceptions.TopologyParsingException;
 import com.purbon.kafka.topology.model.*;
 import com.purbon.kafka.topology.model.Impl.ProjectImpl;
+import com.purbon.kafka.topology.model.Impl.TopicImpl;
 import com.purbon.kafka.topology.model.Impl.TopologyImpl;
 import com.purbon.kafka.topology.model.artefact.KConnectArtefacts;
 import com.purbon.kafka.topology.model.artefact.KafkaConnectArtefact;
@@ -251,10 +252,34 @@ public class TopologyCustomDeserializer extends StdDeserializer<Topology> {
     } else {
       new JsonSerdesUtils<Topic>()
           .parseApplicationUser(parser, topicsNode, Topic.class)
-          .forEach(project::addTopic);
+          .forEach(
+              topic -> {
+                project.addTopic(topic); // add normal topic and evaluate
+                if (config.shouldGenerateDlqTopics()) {
+                  String name = topic.toString();
+                  if (shouldGenerateDlqTopic().apply(name)) {
+                    Topic dlqTopic = ((TopicImpl) topic).clone();
+                    dlqTopic.setDlqPrefix(config.getDlqTopicLabel());
+                    dlqTopic.setTopicNamePattern(config.getDlqTopicPrefixFormat());
+                    project.addTopic(dlqTopic);
+                  }
+                }
+              });
     }
 
     return project;
+  }
+
+  private Function<String, Boolean> shouldGenerateDlqTopic() {
+    return name -> {
+      var allowList = config.getDlqTopicsAllowList();
+      var denyList = config.getDlqTopicsDenyList();
+      boolean isAllowedOrEmpty =
+          allowList.isEmpty() || (!allowList.isEmpty() && allowList.contains(name));
+      boolean isNotDeniedOrEmpty =
+          denyList.isEmpty() || (!denyList.isEmpty() && !denyList.contains(name));
+      return isAllowedOrEmpty && isNotDeniedOrEmpty;
+    };
   }
 
   private List<Map.Entry<String, PlatformSystem<Other>>> filterOthers(

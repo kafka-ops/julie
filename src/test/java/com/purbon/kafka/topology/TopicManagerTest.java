@@ -110,7 +110,12 @@ public class TopicManagerTest {
 
     topicA = new TopicImpl("topicA");
     project.addTopic(topicA);
-    topicB = new TopicImpl("topicB", Collections.singletonMap(NUM_PARTITIONS, "12"));
+    topicB =
+        new TopicImpl(
+            "topicB",
+            Optional.empty(),
+            Collections.singletonMap(NUM_PARTITIONS, "12"),
+            new Configuration());
     project.addTopic(topicB);
 
     topicManager.apply(topology, plan);
@@ -319,7 +324,13 @@ public class TopicManagerTest {
     Project project = new ProjectImpl("project");
     Topic topicA = new TopicImpl("topicA");
     project.addTopic(topicA);
-    Topic topicB = new TopicImpl("topicB", Collections.singletonMap(NUM_PARTITIONS, "12"));
+    Topic topicB =
+        new TopicImpl(
+            "topicB",
+            Optional.empty(),
+            Collections.singletonMap(NUM_PARTITIONS, "12"),
+            new Configuration());
+
     project.addTopic(topicB);
     Topology topology = new TopologyImpl();
     topology.addProject(project);

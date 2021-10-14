@@ -106,6 +106,43 @@ An example configuration might look like this:
     kafka.internal.topic.prefixes.1=topicPrefixA
     kafka.internal.topic.prefixes.2=topicPrefixB
 
+
+Managed DLQ topics with JulieOps
+-----------
+
+It is possible in JulieOps to generate DLQ topics automatically, this feature is available if the reader configure this property.
+
+**Property**: *topology.dlq.topics.generate*
+**Default value**: "false"
+
+As well it is possible to select for which topics this DLQ equivalents are going to be created, the most important properties here are.
+
+**Property**: *topology.dlq.topics.allow.list*
+**Default value**: "[]"
+
+**Property**: *topology.dlq.topics.deny.list*
+**Default value**: "[]"
+
+that as the name indicate are lists that could be used to either only allow this topics or deny certain ones.
+If no list is specified and DLQ topics are activated there is going to be one generated for each "normal" topic.
+
+DLQ topic naming format
+-----------
+
+It is possible to customize the naming format for DLQ topics, this can be achived by using a Jinja pattern within this property.
+
+**Property**: *topology.topic.dlq.prefix.format*
+**Default value**: "default"
+
+if specified, DLQ topics are going to be generated using this format.
+
+In order to customize the DLQ topic naming, the reader could as well select which label is used to flag this topics.
+The relevant config property for this is.
+
+**Property**: *topology.topic.dlq.label*
+**Default value**: "dlq"
+
+
 Topology validations
 -----------
 
