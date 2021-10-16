@@ -531,4 +531,38 @@ public class Configuration {
   public boolean areMultipleContextPerDirEnabled() {
     return config.getBoolean(JULIE_ENABLE_MULTIPLE_CONTEXT_PER_DIR);
   }
+
+  public String getJulieKafkaConfigTopic() {
+    return config.getString(JULIE_KAFKA_CONFIG_TOPIC);
+  }
+
+  public String getJulieInstanceId() {
+    if (!julieInstanceId.isEmpty()) {
+      return julieInstanceId;
+    }
+    try {
+      julieInstanceId = config.getString(JULIE_INSTANCE_ID);
+    } catch (ConfigException.Missing | ConfigException.WrongType errorType) {
+      generateRandomJulieInstanceId();
+    }
+    return julieInstanceId;
+  }
+
+  private String julieInstanceId = "";
+  private static final int defaultJulieInstanceIDLength = 10;
+
+  private void generateRandomJulieInstanceId() {
+    if (julieInstanceId.isEmpty()) {
+      int leftLimit = 97; // letter 'a'
+      int rightLimit = 122; // letter 'z'
+      Random random = new Random();
+
+      julieInstanceId =
+          random
+              .ints(leftLimit, rightLimit + 1)
+              .limit(defaultJulieInstanceIDLength)
+              .collect(StringBuilder::new, StringBuilder::appendCodePoint, StringBuilder::append)
+              .toString();
+    }
+  }
 }

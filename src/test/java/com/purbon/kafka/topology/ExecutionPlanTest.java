@@ -11,7 +11,6 @@ import com.purbon.kafka.topology.actions.topics.DeleteTopics;
 import com.purbon.kafka.topology.actions.topics.SyncTopicAction;
 import com.purbon.kafka.topology.api.adminclient.TopologyBuilderAdminClient;
 import com.purbon.kafka.topology.model.Impl.ProjectImpl;
-import com.purbon.kafka.topology.model.Impl.TopicImpl;
 import com.purbon.kafka.topology.model.Impl.TopologyImpl;
 import com.purbon.kafka.topology.model.Project;
 import com.purbon.kafka.topology.model.Topic;
@@ -179,8 +178,8 @@ public class ExecutionPlanTest {
     Project project = new ProjectImpl("project");
     topology.setProjects(singletonList(project));
 
-    Topic topic = new TopicImpl("foo");
-    Topic topicBar = new TopicImpl("bar");
+    Topic topic = new Topic("foo");
+    Topic topicBar = new Topic("bar");
     project.setTopics(Arrays.asList(topic, topicBar));
     return topology;
   }

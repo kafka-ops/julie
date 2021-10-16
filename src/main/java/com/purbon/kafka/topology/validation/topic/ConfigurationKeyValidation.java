@@ -1,7 +1,6 @@
 package com.purbon.kafka.topology.validation.topic;
 
 import com.purbon.kafka.topology.exceptions.ValidationException;
-import com.purbon.kafka.topology.model.Impl.TopicImpl;
 import com.purbon.kafka.topology.model.Topic;
 import com.purbon.kafka.topology.validation.TopicValidation;
 import java.lang.reflect.Field;
@@ -44,7 +43,7 @@ public class ConfigurationKeyValidation implements TopicValidation {
   }
 
   private Map<String, String> getTopicConfig(Topic topic) {
-    Topic clonedTopic = ((TopicImpl) topic).clone();
+    Topic clonedTopic = ((Topic) topic).clone();
     return clonedTopic.getRawConfig();
   }
 }

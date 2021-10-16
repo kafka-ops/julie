@@ -13,8 +13,8 @@ import static org.junit.Assert.assertTrue;
 import com.purbon.kafka.topology.exceptions.TopologyParsingException;
 import com.purbon.kafka.topology.model.*;
 import com.purbon.kafka.topology.model.Impl.ProjectImpl;
-import com.purbon.kafka.topology.model.Impl.TopicImpl;
 import com.purbon.kafka.topology.model.Impl.TopologyImpl;
+import com.purbon.kafka.topology.model.Topic;
 import com.purbon.kafka.topology.model.artefact.KafkaConnectArtefact;
 import com.purbon.kafka.topology.model.artefact.KsqlArtefacts;
 import com.purbon.kafka.topology.model.artefact.KsqlStreamArtefact;
@@ -109,12 +109,12 @@ public class TopologySerdesTest {
     HashMap<String, String> topicConfig = new HashMap<>();
     topicConfig.put("num.partitions", "1");
     topicConfig.put("replication.factor", "1");
-    Topic topic = new TopicImpl("foo", topicConfig);
+    Topic topic = new Topic("foo", topicConfig);
 
     HashMap<String, String> topicBarConfig = new HashMap<>();
     topicBarConfig.put("num.partitions", "1");
     topicBarConfig.put("replication.factor", "1");
-    Topic topicBar = new TopicImpl("bar", "avro", topicBarConfig);
+    Topic topicBar = new Topic("bar", "avro", topicBarConfig);
 
     Project project = new ProjectImpl("foo");
 
@@ -171,10 +171,10 @@ public class TopologySerdesTest {
     HashMap<String, String> topicConfig = new HashMap<>();
     topicConfig.put("num.partitions", "3");
     topicConfig.put("replication.factor", "2");
-    Topic topic = new TopicImpl("foo", "json", topicConfig);
+    Topic topic = new Topic("foo", "json", topicConfig);
     project.addTopic(topic);
 
-    Topic topic2 = new TopicImpl("topic2", topicConfig);
+    Topic topic2 = new Topic("topic2", topicConfig);
     project.addTopic(topic2);
 
     String topologyYamlString = parser.serialise(topology);

@@ -19,8 +19,8 @@ import com.purbon.kafka.topology.integration.containerutils.ContainerTestUtils;
 import com.purbon.kafka.topology.integration.containerutils.SaslPlaintextKafkaContainer;
 import com.purbon.kafka.topology.model.*;
 import com.purbon.kafka.topology.model.Impl.ProjectImpl;
-import com.purbon.kafka.topology.model.Impl.TopicImpl;
 import com.purbon.kafka.topology.model.Impl.TopologyImpl;
+import com.purbon.kafka.topology.model.Topic;
 import com.purbon.kafka.topology.model.users.*;
 import com.purbon.kafka.topology.model.users.platform.*;
 import com.purbon.kafka.topology.roles.SimpleAclsProvider;
@@ -107,7 +107,7 @@ public class AccessControlManagerIT {
 
     Project project = new ProjectImpl("project");
     project.setConsumers(consumers);
-    Topic topicA = new TopicImpl("topicA");
+    Topic topicA = new Topic("topicA");
     project.addTopic(topicA);
 
     Topology topology = new TopologyImpl();
@@ -181,7 +181,7 @@ public class AccessControlManagerIT {
 
     Project project = new ProjectImpl("project");
     project.setConsumers(consumers);
-    Topic topicA = new TopicImpl("topicA");
+    Topic topicA = new Topic("topicA");
     project.addTopic(topicA);
 
     Topology topology = new TopologyImpl();
@@ -204,7 +204,7 @@ public class AccessControlManagerIT {
 
     Project project = new ProjectImpl("project");
     project.setProducers(producers);
-    Topic topicA = new TopicImpl("topicA");
+    Topic topicA = new Topic("topicA");
     project.addTopic(topicA);
 
     Topology topology = new TopologyImpl();
@@ -228,7 +228,7 @@ public class AccessControlManagerIT {
 
     Project project = new ProjectImpl("project");
     project.setProducers(producers);
-    Topic topicA = new TopicImpl("topicA");
+    Topic topicA = new Topic("topicA");
     project.addTopic(topicA);
 
     Topology topology = new TopologyImpl();
@@ -252,7 +252,7 @@ public class AccessControlManagerIT {
 
     Project project = new ProjectImpl("project");
     project.setProducers(producers);
-    Topic topicA = new TopicImpl("topicA2");
+    Topic topicA = new Topic("topicA2");
     project.addTopic(topicA);
 
     Topology topology = new TopologyImpl();
@@ -362,7 +362,7 @@ public class AccessControlManagerIT {
     }
     Project project = new ProjectImpl("project");
     project.setConsumers(consumers);
-    Topic topicA = new TopicImpl(topic);
+    Topic topicA = new Topic(topic);
     project.addTopic(topicA);
     topology.addProject(project);
 
@@ -454,7 +454,7 @@ public class AccessControlManagerIT {
   @Test
   public void testJulieRoleAclCreation()
       throws IOException, ExecutionException, InterruptedException {
-    Topic topicA = new TopicImpl("topicA");
+    Topic topicA = new Topic("topicA");
     Topology topology =
         TestTopologyBuilder.createProject()
             .addTopic(topicA)

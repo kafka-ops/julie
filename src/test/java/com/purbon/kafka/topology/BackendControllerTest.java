@@ -9,7 +9,6 @@ import static org.mockito.Mockito.when;
 import com.purbon.kafka.topology.backend.BackendState;
 import com.purbon.kafka.topology.backend.FileBackend;
 import com.purbon.kafka.topology.model.Impl.ProjectImpl;
-import com.purbon.kafka.topology.model.Impl.TopicImpl;
 import com.purbon.kafka.topology.model.Impl.TopologyImpl;
 import com.purbon.kafka.topology.model.Project;
 import com.purbon.kafka.topology.model.Topic;
@@ -80,7 +79,7 @@ public class BackendControllerTest {
   public void testStoreBindingsAndTopics() throws IOException {
     BackendController backend = new BackendController(fileStateProcessor);
 
-    Topic topic = new TopicImpl("foo");
+    Topic topic = new Topic("foo");
     Project project = new ProjectImpl("project");
     project.addTopic(topic);
     Topology topology = new TopologyImpl();

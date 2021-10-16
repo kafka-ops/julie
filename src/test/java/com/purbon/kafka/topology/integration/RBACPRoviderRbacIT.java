@@ -19,7 +19,6 @@ import com.purbon.kafka.topology.ExecutionPlan;
 import com.purbon.kafka.topology.TestTopologyBuilder;
 import com.purbon.kafka.topology.api.mds.MDSApiClient;
 import com.purbon.kafka.topology.model.Impl.ProjectImpl;
-import com.purbon.kafka.topology.model.Impl.TopicImpl;
 import com.purbon.kafka.topology.model.Impl.TopologyImpl;
 import com.purbon.kafka.topology.model.Platform;
 import com.purbon.kafka.topology.model.Project;
@@ -109,7 +108,7 @@ public class RBACPRoviderRbacIT extends MDSBaseTest {
 
     Project project = new ProjectImpl("project");
     project.setConsumers(consumers);
-    Topic topicA = new TopicImpl("topicA");
+    Topic topicA = new Topic("topicA");
     project.addTopic(topicA);
 
     Topology topology = new TopologyImpl();
@@ -133,7 +132,7 @@ public class RBACPRoviderRbacIT extends MDSBaseTest {
 
     Project project = new ProjectImpl("project");
     project.setProducers(producers);
-    Topic topicA = new TopicImpl("topicA");
+    Topic topicA = new Topic("topicA");
     project.addTopic(topicA);
 
     Topology topology = new TopologyImpl();
@@ -366,7 +365,7 @@ public class RBACPRoviderRbacIT extends MDSBaseTest {
     project.setConsumers(consumers);
     topology.setProjects(Collections.singletonList(project));
 
-    Topic topicA = new TopicImpl("topicA");
+    Topic topicA = new Topic("topicA");
     project.addTopic(topicA);
 
     accessControlManager.apply(topology, plan);

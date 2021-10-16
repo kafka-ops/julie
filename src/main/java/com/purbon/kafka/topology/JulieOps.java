@@ -298,6 +298,8 @@ public class JulieOps implements AutoCloseable {
         backend = new S3Backend();
       } else if (backendClass.equalsIgnoreCase(GCP_STATE_PROCESSOR_CLASS)) {
         backend = new GCPBackend();
+      } else if (backendClass.equalsIgnoreCase(KAFKA_STATE_PROCESSOR_CLASS)) {
+        backend = new KafkaBackend();
       } else {
         throw new IOException(backendClass + " Unknown state processor provided.");
       }

@@ -15,7 +15,6 @@ import com.purbon.kafka.topology.Configuration;
 import com.purbon.kafka.topology.exceptions.TopologyParsingException;
 import com.purbon.kafka.topology.model.*;
 import com.purbon.kafka.topology.model.Impl.ProjectImpl;
-import com.purbon.kafka.topology.model.Impl.TopicImpl;
 import com.purbon.kafka.topology.model.Impl.TopologyImpl;
 import com.purbon.kafka.topology.model.artefact.KConnectArtefacts;
 import com.purbon.kafka.topology.model.artefact.KafkaConnectArtefact;
@@ -258,7 +257,7 @@ public class TopologyCustomDeserializer extends StdDeserializer<Topology> {
                 if (config.shouldGenerateDlqTopics()) {
                   String name = topic.toString();
                   if (shouldGenerateDlqTopic().apply(name)) {
-                    Topic dlqTopic = ((TopicImpl) topic).clone();
+                    Topic dlqTopic = topic.clone();
                     dlqTopic.setDlqPrefix(config.getDlqTopicLabel());
                     dlqTopic.setTopicNamePattern(config.getDlqTopicPrefixFormat());
                     project.addTopic(dlqTopic);
