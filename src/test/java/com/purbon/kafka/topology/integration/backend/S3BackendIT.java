@@ -12,7 +12,6 @@ import com.purbon.kafka.topology.backend.S3Backend;
 import com.purbon.kafka.topology.roles.TopologyAclBinding;
 import io.findify.s3mock.S3Mock;
 import java.io.IOException;
-import java.net.URI;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Collections;

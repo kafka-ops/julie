@@ -482,6 +482,32 @@ public class TopologySerdesTest {
     assertEquals("source.contextOrg.foo.bar", p.getTopics().get(1).toString());
   }
 
+  @Test
+  public void testTopologyWithRepeatedAndMissingDataType() {
+    Map<String, String> cliOps = new HashMap<>();
+    cliOps.put(BROKERS_OPTION, "");
+    cliOps.put(CLIENT_CONFIG_OPTION, "/fooBar");
+
+    Properties props = new Properties();
+    props.put(
+        TOPIC_PREFIX_FORMAT_CONFIG,
+        "{{context}}.{{project}}.{{topic}}{% if dataType is defined %}.{{dataType}}{% endif %}");
+    Configuration config = new Configuration(cliOps, props);
+
+    TopologySerdes parser = new TopologySerdes(config, new PlanMap());
+
+    Topology topology =
+        parser.deserialise(TestUtils.getResourceFile("/descriptor-only-topics-datatype.yaml"));
+
+    assertEquals("context", topology.getContext());
+
+    Project p = topology.getProjects().get(0);
+
+    assertEquals(2, p.getTopics().size());
+    assertEquals("context.foo.foo", p.getTopics().get(0).toString());
+    assertEquals("context.foo.bar.avro", p.getTopics().get(1).toString());
+  }
+
   @Test(expected = TopologyParsingException.class)
   public void testTopicNameWithUTFCharacters() {
     parser.deserialise(TestUtils.getResourceFile("/descriptor-only-topics-utf.yaml"));
