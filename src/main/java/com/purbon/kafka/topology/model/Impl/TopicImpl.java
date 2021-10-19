@@ -148,7 +148,7 @@ public class TopicImpl implements Topic, Cloneable {
 
   private String patternBasedTopicNameStructureString() {
     context.put("topic", name);
-    dataType.ifPresent(s -> context.put("dataType", s));
+    dataType.ifPresentOrElse(s -> context.put("dataType", s), () -> context.remove("dataType"));
     return JinjaUtils.serialise(appConfig.getTopicPrefixFormat(), context);
   }
 
