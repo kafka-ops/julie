@@ -241,6 +241,14 @@ public class Configuration {
     return config.getString(TOPIC_PREFIX_FORMAT_CONFIG);
   }
 
+  public String getDlqTopicPrefixFormat() {
+    return config.getString(DLQ_TOPIC_PREFIX_FORMAT_CONFIG);
+  }
+
+  public String getDlqTopicLabel() {
+    return config.getString(DLQ_TOPIC_LABEL_CONFIG);
+  }
+
   public String getProjectPrefixFormat() {
     return config.getString(PROJECT_PREFIX_FORMAT_CONFIG);
   }
@@ -506,5 +514,17 @@ public class Configuration {
       LOGGER.error(e);
       throw e;
     }
+  }
+
+  public boolean shouldGenerateDlqTopics() {
+    return config.getBoolean(TOPOLOGY_DLQ_TOPICS_GENERATE);
+  }
+
+  public List<String> getDlqTopicsAllowList() {
+    return config.getStringList(TOPOLOGY_DQL_TOPICS_ALLOW_LIST);
+  }
+
+  public List<String> getDlqTopicsDenyList() {
+    return config.getStringList(TOPOLOGY_DQL_TOPICS_DENY_LIST);
   }
 }

@@ -28,6 +28,7 @@ public class TopicImpl implements Topic, Cloneable {
   private List<TopicSchemas> schemas;
 
   private String name;
+  private String dlqPrefix;
 
   private List<Producer> producers;
   private List<Consumer> consumers;
@@ -45,8 +46,8 @@ public class TopicImpl implements Topic, Cloneable {
   private Optional<Short> replicationFactor;
 
   @JsonIgnore private String projectPrefix;
-  private static String DEFAULT_PARTITION_COUNT = "3";
-  private static String DEFAULT_REPLICATION_FACTOR = "2";
+
+  @JsonIgnore private String topicNamePattern;
 
   @JsonInclude(Include.NON_EMPTY)
   private Optional<SubjectNameStrategy> subjectNameStrategy;
@@ -57,10 +58,6 @@ public class TopicImpl implements Topic, Cloneable {
 
   public TopicImpl(String name) {
     this(name, Optional.empty(), new HashMap<>(), new Configuration());
-  }
-
-  public TopicImpl(String name, Map<String, String> config) {
-    this(name, Optional.empty(), config, new Configuration());
   }
 
   public TopicImpl(String name, Configuration config) {
@@ -81,7 +78,14 @@ public class TopicImpl implements Topic, Cloneable {
 
   public TopicImpl(
       String name, Optional<String> dataType, Map<String, String> config, Configuration appConfig) {
-    this(name, new ArrayList<>(), new ArrayList<>(), dataType, config, appConfig);
+    this(
+        name,
+        new ArrayList<>(),
+        new ArrayList<>(),
+        dataType,
+        config,
+        appConfig,
+        appConfig.getTopicPrefixFormat());
   }
 
   public TopicImpl(
@@ -91,7 +95,19 @@ public class TopicImpl implements Topic, Cloneable {
       Optional<String> dataType,
       Map<String, String> config,
       Configuration appConfig) {
+    this(name, producers, consumers, dataType, config, appConfig, appConfig.getTopicPrefixFormat());
+  }
+
+  public TopicImpl(
+      String name,
+      List<Producer> producers,
+      List<Consumer> consumers,
+      Optional<String> dataType,
+      Map<String, String> config,
+      Configuration appConfig,
+      String topicNamePattern) {
     this.name = name;
+    this.dlqPrefix = ""; // this topic is not a dlq topic
     this.producers = producers;
     this.consumers = consumers;
     this.dataType = dataType;
@@ -108,10 +124,21 @@ public class TopicImpl implements Topic, Cloneable {
       replicationFactor = Optional.of(Short.valueOf(config.get(TopicManager.REPLICATION_FACTOR)));
     }
     subjectNameStrategy = Optional.empty();
+    this.topicNamePattern = topicNamePattern;
   }
 
   public String getName() {
     return name;
+  }
+
+  @Override
+  public void setDlqPrefix(String dlqPrefix) {
+    this.dlqPrefix = dlqPrefix;
+  }
+
+  @Override
+  public void setTopicNamePattern(String topicNamePattern) {
+    this.topicNamePattern = topicNamePattern;
   }
 
   @Override
@@ -136,7 +163,7 @@ public class TopicImpl implements Topic, Cloneable {
   }
 
   private String toString(String projectPrefix) {
-    switch (appConfig.getTopicPrefixFormat()) {
+    switch (topicNamePattern) {
       case "default":
         return defaultTopicStructureString(projectPrefix);
       case "name":
@@ -148,8 +175,13 @@ public class TopicImpl implements Topic, Cloneable {
 
   private String patternBasedTopicNameStructureString() {
     context.put("topic", name);
+    if (dlqPrefix.isBlank()) {
+      context.remove("dlq");
+    } else {
+      context.put("dlq", dlqPrefix);
+    }
     dataType.ifPresentOrElse(s -> context.put("dataType", s), () -> context.remove("dataType"));
-    return JinjaUtils.serialise(appConfig.getTopicPrefixFormat(), context);
+    return JinjaUtils.serialise(topicNamePattern, context);
   }
 
   private String defaultTopicStructureString(String projectPrefix) {
@@ -158,6 +190,10 @@ public class TopicImpl implements Topic, Cloneable {
 
     if (getDataType().isPresent()) {
       sb.append(appConfig.getTopicPrefixSeparator()).append(getDataType().get());
+    }
+
+    if (!dlqPrefix.isBlank()) {
+      sb.append(appConfig.getTopicPrefixSeparator()).append(dlqPrefix);
     }
 
     return sb.toString();
@@ -254,7 +290,13 @@ public class TopicImpl implements Topic, Cloneable {
       return (Topic) super.clone();
     } catch (CloneNotSupportedException e) {
       return new TopicImpl(
-          getName(), getProducers(), getConsumers(), getDataType(), getConfig(), getAppConfig());
+          getName(),
+          getProducers(),
+          getConsumers(),
+          getDataType(),
+          getConfig(),
+          getAppConfig(),
+          topicNamePattern);
     }
   }
 }

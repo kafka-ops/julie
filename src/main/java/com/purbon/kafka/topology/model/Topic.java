@@ -16,6 +16,10 @@ public interface Topic {
 
   String getName();
 
+  void setDlqPrefix(String dlqPrefix);
+
+  void setTopicNamePattern(String topicNamePattern);
+
   List<TopicSchemas> getSchemas();
 
   String getPlan();

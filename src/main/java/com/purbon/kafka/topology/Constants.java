@@ -49,8 +49,15 @@ public class Constants {
   static final String CONFLUENT_METRICS_TOPIC_CONFIG = "confluent.metrics.topic";
 
   public static final String TOPIC_PREFIX_FORMAT_CONFIG = "topology.topic.prefix.format";
+  public static final String DLQ_TOPIC_PREFIX_FORMAT_CONFIG = "topology.topic.dlq.prefix.format";
+  public static final String DLQ_TOPIC_LABEL_CONFIG = "topology.topic.dlq.label";
   public static final String PROJECT_PREFIX_FORMAT_CONFIG = "topology.project.prefix.format";
   public static final String TOPIC_PREFIX_SEPARATOR_CONFIG = "topology.topic.prefix.separator";
+
+  public static final String TOPOLOGY_DLQ_TOPICS_GENERATE = "topology.dlq.topics.generate";
+  public static final String TOPOLOGY_DQL_TOPICS_ALLOW_LIST = "topology.dlq.topics.allow.list";
+  public static final String TOPOLOGY_DQL_TOPICS_DENY_LIST = "topology.dlq.topics.deny.list";
+
   public static final String TOPOLOGY_VALIDATIONS_CONFIG = "topology.validations";
   public static final String CONNECTOR_ALLOW_TOPIC_CREATE = "topology.connector.allow.topic.create";
 
