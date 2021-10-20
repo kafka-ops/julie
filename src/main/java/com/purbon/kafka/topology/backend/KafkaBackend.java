@@ -43,7 +43,7 @@ public class KafkaBackend implements Backend, RecordReceivedCallback {
       try {
         consumer.retrieve(callback);
       } catch (WakeupException ex) {
-        LOGGER.error(ex);
+        LOGGER.trace(ex);
       }
     }
   }
@@ -97,6 +97,11 @@ public class KafkaBackend implements Backend, RecordReceivedCallback {
   public void close() {
     consumer.stop();
     producer.stop();
+    try {
+      thread.join();
+    } catch (InterruptedException e) {
+      LOGGER.error(e);
+    }
     latest = null;
     thread = null;
   }
