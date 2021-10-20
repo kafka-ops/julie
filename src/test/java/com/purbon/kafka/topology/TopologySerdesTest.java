@@ -482,7 +482,6 @@ public class TopologySerdesTest {
     assertEquals("source.contextOrg.foo.bar", p.getTopics().get(1).toString());
   }
 
-
   @Test
   public void testTopologyWithRepeatedAndMissingDataType() {
     Map<String, String> cliOps = new HashMap<>();
@@ -491,14 +490,14 @@ public class TopologySerdesTest {
 
     Properties props = new Properties();
     props.put(
-            TOPIC_PREFIX_FORMAT_CONFIG,
-            "{{context}}.{{project}}.{{topic}}{% if dataType is defined %}.{{dataType}}{% endif %}");
+        TOPIC_PREFIX_FORMAT_CONFIG,
+        "{{context}}.{{project}}.{{topic}}{% if dataType is defined %}.{{dataType}}{% endif %}");
     Configuration config = new Configuration(cliOps, props);
 
     TopologySerdes parser = new TopologySerdes(config, new PlanMap());
 
     Topology topology =
-            parser.deserialise(TestUtils.getResourceFile("/descriptor-only-topics-datatype.yaml"));
+        parser.deserialise(TestUtils.getResourceFile("/descriptor-only-topics-datatype.yaml"));
 
     assertEquals("context", topology.getContext());
 
@@ -523,7 +522,7 @@ public class TopologySerdesTest {
     TopologySerdes parser = new TopologySerdes(config, new PlanMap());
 
     Topology topology =
-            parser.deserialise(TestUtils.getResourceFile("/descriptor-only-topics.yaml"));
+        parser.deserialise(TestUtils.getResourceFile("/descriptor-only-topics.yaml"));
     Project p = topology.getProjects().get(0);
 
     assertThat(p.getTopics()).hasSize(4);
@@ -548,7 +547,7 @@ public class TopologySerdesTest {
     TopologySerdes parser = new TopologySerdes(config, new PlanMap());
 
     Topology topology =
-            parser.deserialise(TestUtils.getResourceFile("/descriptor-only-topics.yaml"));
+        parser.deserialise(TestUtils.getResourceFile("/descriptor-only-topics.yaml"));
     Project p = topology.getProjects().get(0);
 
     assertThat(p.getTopics()).hasSize(3);
@@ -573,7 +572,7 @@ public class TopologySerdesTest {
     TopologySerdes parser = new TopologySerdes(config, new PlanMap());
 
     Topology topology =
-            parser.deserialise(TestUtils.getResourceFile("/descriptor-only-topics.yaml"));
+        parser.deserialise(TestUtils.getResourceFile("/descriptor-only-topics.yaml"));
     Project p = topology.getProjects().get(0);
 
     assertThat(p.getTopics()).hasSize(3);
@@ -597,7 +596,7 @@ public class TopologySerdesTest {
     TopologySerdes parser = new TopologySerdes(config, new PlanMap());
 
     Topology topology =
-            parser.deserialise(TestUtils.getResourceFile("/descriptor-only-topics.yaml"));
+        parser.deserialise(TestUtils.getResourceFile("/descriptor-only-topics.yaml"));
     Project p = topology.getProjects().get(0);
 
     assertThat(p.getTopics()).hasSize(3);
@@ -625,7 +624,7 @@ public class TopologySerdesTest {
     TopologySerdes parser = new TopologySerdes(config, new PlanMap());
 
     Topology topology =
-            parser.deserialise(TestUtils.getResourceFile("/descriptor-only-topics.yaml"));
+        parser.deserialise(TestUtils.getResourceFile("/descriptor-only-topics.yaml"));
     Project p = topology.getProjects().get(0);
 
     assertThat(p.getTopics()).hasSize(3);
@@ -650,7 +649,7 @@ public class TopologySerdesTest {
     TopologySerdes parser = new TopologySerdes(config, new PlanMap());
 
     Topology topology =
-            parser.deserialise(TestUtils.getResourceFile("/descriptor-only-topics.yaml"));
+        parser.deserialise(TestUtils.getResourceFile("/descriptor-only-topics.yaml"));
     Project p = topology.getProjects().get(0);
 
     assertThat(p.getTopics()).hasSize(3);
@@ -663,7 +662,6 @@ public class TopologySerdesTest {
     assertThat(p.getTopics()).hasSize(1);
     assertEquals("contextOrg.source.bar.bar.avro", p.getTopics().get(0).toString());
   }
-
 
   @Test(expected = TopologyParsingException.class)
   public void testTopicNameWithUTFCharacters() {

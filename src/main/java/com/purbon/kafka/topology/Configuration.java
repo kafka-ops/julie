@@ -527,4 +527,8 @@ public class Configuration {
   public List<String> getDlqTopicsDenyList() {
     return config.getStringList(TOPOLOGY_DQL_TOPICS_DENY_LIST);
   }
+
+  public boolean areMultipleContextPerDirEnabled() {
+    return config.getBoolean(JULIE_ENABLE_MULTIPLE_CONTEXT_PER_DIR);
+  }
 }

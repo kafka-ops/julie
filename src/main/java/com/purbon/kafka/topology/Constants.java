@@ -118,6 +118,9 @@ public class Constants {
   public static final String JULIE_GCP_PROJECT_ID = "julie.gcp.project.id";
   public static final String JULIE_GCP_BUCKET = "julie.gcp.bucket";
 
+  public static final String JULIE_ENABLE_MULTIPLE_CONTEXT_PER_DIR =
+      "julie.multiple.context.per.dir.enabled";
+
   public static final String TOPOLOGY_VALIDATIONS_TOPIC_NAME_REGEXP =
       "topology.validations.topic.name.regexp";
 
