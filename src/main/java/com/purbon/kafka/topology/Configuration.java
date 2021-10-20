@@ -507,4 +507,8 @@ public class Configuration {
       throw e;
     }
   }
+
+  public boolean areMultipleContextPerDirEnabled() {
+    return config.getBoolean(JULIE_ENABLE_MULTIPLE_CONTEXT_PER_DIR);
+  }
 }

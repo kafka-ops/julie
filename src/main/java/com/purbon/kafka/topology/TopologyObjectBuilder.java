@@ -38,6 +38,12 @@ public class TopologyObjectBuilder {
 
     for (Topology topology : topologies) {
       String context = topology.getContext();
+      if (!config.areMultipleContextPerDirEnabled()
+          && (!collection.containsKey(context) && collection.size() == 1)) {
+        // the parsing found a new topology with a different context, as it is not enabled
+        // it should be flag as error
+        throw new IOException("Topologies from different contexts are not allowed");
+      }
       if (!collection.containsKey(context)) {
         collection.put(context, topology);
       } else {
