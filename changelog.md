@@ -1,3 +1,12 @@
+
+v3.1.1 / 2021-10-20
+===================
+
+  * Enable a feature flag to activate multiple topologies with different context parsing feature, by default only single context will be possible (#360)
+  * Fix bug that optional values are clean up from the jinja context in case of not being present (#354)
+  * Feat: add developer manage rbac (#351)
+  * Add the S3 endpoint as direct config for JulieOps  (#347)
+
 v3.1.0 / 2021-10-05
 ===================
 
