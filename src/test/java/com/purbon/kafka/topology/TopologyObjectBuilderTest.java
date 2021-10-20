@@ -1,6 +1,7 @@
 package com.purbon.kafka.topology;
 
 import static com.purbon.kafka.topology.CommandLineInterface.BROKERS_OPTION;
+import static com.purbon.kafka.topology.Constants.JULIE_ENABLE_MULTIPLE_CONTEXT_PER_DIR;
 import static com.purbon.kafka.topology.Constants.PLATFORM_SERVERS_CONNECT;
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -33,8 +34,14 @@ public class TopologyObjectBuilderTest {
 
   @Test
   public void buildOutOfMultipleTopos() throws IOException {
+    Map<String, String> cliOps = new HashMap<>();
+    cliOps.put(BROKERS_OPTION, "");
+    var props = new Properties();
+    props.put(JULIE_ENABLE_MULTIPLE_CONTEXT_PER_DIR, "true");
+    Configuration config = new Configuration(cliOps, props);
+
     String fileOrDirPath = TestUtils.getResourceFilename("/dir_with_multiple");
-    var map = TopologyObjectBuilder.build(fileOrDirPath);
+    var map = TopologyObjectBuilder.build(fileOrDirPath, config);
     assertThat(map).hasSize(2);
     for (var entry : map.entrySet()) {
       assertThat(entry.getValue().getProjects()).hasSize(4);
@@ -65,7 +72,14 @@ public class TopologyObjectBuilderTest {
   }
 
   @Test(expected = IOException.class)
-  public void buildOutOfMultipleProbTopos() throws IOException {
+  public void buildOutOfMultipleToposIfNotEnabled() throws IOException {
+    String fileOrDirPath = TestUtils.getResourceFilename("/dir_with_multiple");
+    TopologyObjectBuilder.build(fileOrDirPath);
+  }
+
+  @Test(expected = IOException.class)
+  public void shouldRaiseAnExceptionIfTryingToParseMultipleTopologiesWithSharedProjects()
+      throws IOException {
     String fileOrDirPath = TestUtils.getResourceFilename("/dir_with_prob");
     TopologyObjectBuilder.build(fileOrDirPath);
   }
