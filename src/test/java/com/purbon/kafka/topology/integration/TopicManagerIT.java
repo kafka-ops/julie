@@ -14,7 +14,6 @@ import com.purbon.kafka.topology.integration.containerutils.ContainerFactory;
 import com.purbon.kafka.topology.integration.containerutils.ContainerTestUtils;
 import com.purbon.kafka.topology.integration.containerutils.SaslPlaintextKafkaContainer;
 import com.purbon.kafka.topology.model.Impl.ProjectImpl;
-import com.purbon.kafka.topology.model.Impl.TopicImpl;
 import com.purbon.kafka.topology.model.Impl.TopologyImpl;
 import com.purbon.kafka.topology.model.Project;
 import com.purbon.kafka.topology.model.Topic;
@@ -107,14 +106,14 @@ public class TopicManagerIT {
     config.put(TopicManager.NUM_PARTITIONS, "1");
     config.put(TopicManager.REPLICATION_FACTOR, "1");
 
-    Topic topicA = new TopicImpl("topicA", config);
+    Topic topicA = new Topic("topicA", config);
     project.addTopic(topicA);
 
     config = new HashMap<>();
     config.put(TopicManager.NUM_PARTITIONS, "1");
     config.put(TopicManager.REPLICATION_FACTOR, "1");
 
-    Topic topicB = new TopicImpl("topicB", config);
+    Topic topicB = new Topic("topicB", config);
     project.addTopic(topicB);
 
     topicManager.apply(topology, plan);
@@ -132,9 +131,9 @@ public class TopicManagerIT {
     Project project = new ProjectImpl("project");
     topology.addProject(project);
 
-    Topic topicA = new TopicImpl("topicA");
+    Topic topicA = new Topic("topicA");
     project.addTopic(topicA);
-    Topic topicB = new TopicImpl("topicB");
+    Topic topicB = new Topic("topicB");
     project.addTopic(topicB);
 
     topicManager.apply(topology, plan);
@@ -155,7 +154,7 @@ public class TopicManagerIT {
     topology.setContext("testTopicCreationWithFalseConfig");
     topology.addProject(project);
 
-    Topic topicA = new TopicImpl("topicA", config);
+    Topic topicA = new Topic("topicA", config);
     project.addTopic(topicA);
 
     topicManager.apply(topology, plan);
@@ -174,14 +173,14 @@ public class TopicManagerIT {
     Project project = new ProjectImpl("project");
     topology.addProject(project);
 
-    Topic topicA = new TopicImpl("topicA", config);
+    Topic topicA = new Topic("topicA", config);
     project.addTopic(topicA);
 
     config = new HashMap<>();
     config.put(TopicManager.NUM_PARTITIONS, "1");
     config.put(TopicManager.REPLICATION_FACTOR, "1");
 
-    Topic topicB = new TopicImpl("topicB", config);
+    Topic topicB = new Topic("topicB", config);
     project.addTopic(topicB);
 
     topicManager.apply(topology, plan);
@@ -198,14 +197,14 @@ public class TopicManagerIT {
     config.put(TopicManager.NUM_PARTITIONS, "1");
     config.put(TopicManager.REPLICATION_FACTOR, "1");
 
-    topicA = new TopicImpl("topicA", config);
+    topicA = new Topic("topicA", config);
     upProject.addTopic(topicA);
 
     config = new HashMap<>();
     config.put(TopicManager.NUM_PARTITIONS, "1");
     config.put(TopicManager.REPLICATION_FACTOR, "1");
 
-    topicB = new TopicImpl("topicB", config);
+    topicB = new Topic("topicB", config);
     upProject.addTopic(topicB);
 
     plan.getActions().clear();
@@ -219,10 +218,10 @@ public class TopicManagerIT {
   public void testTopicDelete() throws ExecutionException, InterruptedException, IOException {
 
     Project project = new ProjectImpl("project");
-    Topic topicA = new TopicImpl("topicA", buildDummyTopicConfig());
+    Topic topicA = new Topic("topicA", buildDummyTopicConfig());
     project.addTopic(topicA);
 
-    Topic topicB = new TopicImpl("topicB", buildDummyTopicConfig());
+    Topic topicB = new Topic("topicB", buildDummyTopicConfig());
     project.addTopic(topicB);
 
     String internalTopic = createInternalTopic();
@@ -234,7 +233,7 @@ public class TopicManagerIT {
     topicManager.apply(topology, plan);
     plan.run();
 
-    Topic topicC = new TopicImpl("topicC", buildDummyTopicConfig());
+    Topic topicC = new Topic("topicC", buildDummyTopicConfig());
 
     topology = new TopologyImpl();
     topology.setContext("testTopicDelete-test");
@@ -277,7 +276,7 @@ public class TopicManagerIT {
 
     HashMap<String, String> config = buildDummyTopicConfig();
     config.put("retention.bytes", "104857600"); // set the retention.bytes per partition to 100mb
-    Topic topicA = new TopicImpl("topicA", config);
+    Topic topicA = new Topic("topicA", config);
     project.addTopic(topicA);
 
     topicManager.apply(topology, plan);
@@ -298,7 +297,7 @@ public class TopicManagerIT {
     Project project = new ProjectImpl("project");
     topology.addProject(project);
 
-    Topic topicA = new TopicImpl("topicA", config);
+    Topic topicA = new Topic("topicA", config);
     project.addTopic(topicA);
 
     topicManager.apply(topology, plan);
@@ -308,7 +307,7 @@ public class TopicManagerIT {
 
     config = buildDummyTopicConfig();
     config.put("retention.bytes", "104");
-    topicA = new TopicImpl("topicA", config);
+    topicA = new Topic("topicA", config);
     project.setTopics(Collections.singletonList(topicA));
     topology.setContext("testTopicConfigUpdate-test");
     topology.setProjects(Collections.singletonList(project));

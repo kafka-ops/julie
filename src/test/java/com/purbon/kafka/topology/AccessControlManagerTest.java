@@ -18,8 +18,8 @@ import com.purbon.kafka.topology.actions.Action;
 import com.purbon.kafka.topology.api.adminclient.AclBuilder;
 import com.purbon.kafka.topology.model.*;
 import com.purbon.kafka.topology.model.Impl.ProjectImpl;
-import com.purbon.kafka.topology.model.Impl.TopicImpl;
 import com.purbon.kafka.topology.model.Impl.TopologyImpl;
+import com.purbon.kafka.topology.model.Topic;
 import com.purbon.kafka.topology.model.users.*;
 import com.purbon.kafka.topology.model.users.platform.*;
 import com.purbon.kafka.topology.roles.SimpleAclsProvider;
@@ -72,7 +72,7 @@ public class AccessControlManagerTest {
 
   @Test
   public void newConsumerACLsCreation() throws IOException {
-    Topic topicA = new TopicImpl("topicA");
+    Topic topicA = new Topic("topicA");
     TestTopologyBuilder builder =
         TestTopologyBuilder.createProject().addTopic(topicA).addConsumer("User:app1");
     List<Consumer> users = newArrayList(builder.getConsumers());
@@ -121,7 +121,7 @@ public class AccessControlManagerTest {
 
     Project project = new ProjectImpl("project");
     project.setConsumers(projectConsumers);
-    Topic topic = new TopicImpl("foo");
+    Topic topic = new Topic("foo");
 
     List<Consumer> topicConsumers = Arrays.asList(projectConsumer, topicConsumer);
     topic.setConsumers(topicConsumers);
@@ -148,7 +148,7 @@ public class AccessControlManagerTest {
 
   @Test
   public void newProducerACLsCreation() throws IOException {
-    Topic topicA = new TopicImpl("topicA");
+    Topic topicA = new Topic("topicA");
     TestTopologyBuilder builder =
         TestTopologyBuilder.createProject().addTopic(topicA).addProducer("User:app1");
     List<Producer> producers = newArrayList(builder.getProducers());
@@ -197,7 +197,7 @@ public class AccessControlManagerTest {
 
     Project project = new ProjectImpl("project");
     project.setProducers(projectProducers);
-    Topic topic = new TopicImpl("foo");
+    Topic topic = new Topic("foo");
 
     List<Producer> topicProducers = Arrays.asList(projectProducer, topicProducer);
     topic.setProducers(topicProducers);
@@ -462,7 +462,7 @@ public class AccessControlManagerTest {
     accessControlManager =
         new AccessControlManager(aclsProvider, new AclsBindingsBuilder(config), config);
 
-    Topic topicA = new TopicImpl("topicA");
+    Topic topicA = new Topic("topicA");
     TestTopologyBuilder builder =
         TestTopologyBuilder.createProject("foo", "project")
             .addTopic(topicA)
@@ -742,7 +742,7 @@ public class AccessControlManagerTest {
 
   @Test
   public void testJulieRoleAclCreation() throws IOException {
-    Topic topicA = new TopicImpl("topicA");
+    Topic topicA = new Topic("topicA");
     Topology topology =
         TestTopologyBuilder.createProject()
             .addTopic(topicA)
@@ -787,7 +787,7 @@ public class AccessControlManagerTest {
 
   @Test(expected = IOException.class)
   public void testWrongJulieRoleAclCreation() throws IOException {
-    Topic topicA = new TopicImpl("topicA");
+    Topic topicA = new Topic("topicA");
     Topology topology =
         TestTopologyBuilder.createProject()
             .addTopic(topicA)

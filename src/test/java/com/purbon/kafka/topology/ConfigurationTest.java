@@ -9,7 +9,6 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import com.purbon.kafka.topology.api.ksql.KsqlClientConfig;
 import com.purbon.kafka.topology.exceptions.ConfigurationException;
 import com.purbon.kafka.topology.model.Impl.ProjectImpl;
-import com.purbon.kafka.topology.model.Impl.TopicImpl;
 import com.purbon.kafka.topology.model.Impl.TopologyImpl;
 import com.purbon.kafka.topology.model.JulieRole;
 import com.purbon.kafka.topology.model.JulieRoleAcl;
@@ -21,6 +20,7 @@ import com.purbon.kafka.topology.utils.TestUtils;
 import java.io.IOException;
 import java.util.*;
 import java.util.stream.Collectors;
+import org.assertj.core.api.Condition;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -54,7 +54,7 @@ public class ConfigurationTest {
   public void testSchemaRegistryConfigFields() throws ConfigurationException {
     Topology topology = new TopologyImpl();
     Project project = new ProjectImpl();
-    Topic topic = new TopicImpl();
+    Topic topic = new Topic();
     TopicSchemas schema = new TopicSchemas("foo", "bar");
     topic.setSchemas(Collections.singletonList(schema));
     project.addTopic(topic);
@@ -69,7 +69,7 @@ public class ConfigurationTest {
   public void testSchemaRegistryValidConfigFields() throws ConfigurationException {
     Topology topology = new TopologyImpl();
     Project project = new ProjectImpl();
-    Topic topic = new TopicImpl();
+    Topic topic = new Topic();
     TopicSchemas schema = new TopicSchemas("foo", "bar");
     topic.setSchemas(Collections.singletonList(schema));
     project.addTopic(topic);
@@ -85,7 +85,7 @@ public class ConfigurationTest {
   public void testSchemaRegistryValidConfigButNoSchemas() throws ConfigurationException {
     Topology topology = new TopologyImpl();
     Project project = new ProjectImpl();
-    Topic topic = new TopicImpl();
+    Topic topic = new Topic();
     project.addTopic(topic);
     topology.addProject(project);
 
@@ -99,7 +99,7 @@ public class ConfigurationTest {
   public void testNoSchemaRegistry() throws ConfigurationException {
     Topology topology = new TopologyImpl();
     Project project = new ProjectImpl("project");
-    Topic topic = new TopicImpl("topic", "json");
+    Topic topic = new Topic("topic", "json");
     project.addTopic(topic);
     topology.addProject(project);
 
@@ -111,7 +111,7 @@ public class ConfigurationTest {
   public void testPrefixValidConfigFields() throws ConfigurationException {
     Topology topology = new TopologyImpl();
     Project project = new ProjectImpl();
-    Topic topic = new TopicImpl();
+    Topic topic = new Topic();
     project.addTopic(topic);
     topology.addProject(project);
 
@@ -126,7 +126,7 @@ public class ConfigurationTest {
   public void testMissingPrefixValidConfigFields() throws ConfigurationException {
     Topology topology = new TopologyImpl();
     Project project = new ProjectImpl();
-    Topic topic = new TopicImpl();
+    Topic topic = new Topic();
     project.addTopic(topic);
     topology.addProject(project);
 
@@ -140,7 +140,7 @@ public class ConfigurationTest {
   public void testMissingTopicPrefixValidConfigFields() throws ConfigurationException {
     Topology topology = new TopologyImpl();
     Project project = new ProjectImpl();
-    Topic topic = new TopicImpl();
+    Topic topic = new Topic();
     project.addTopic(topic);
     topology.addProject(project);
 
@@ -154,7 +154,7 @@ public class ConfigurationTest {
   public void testIncompatiblePrefixValidConfigFields() throws ConfigurationException {
     Topology topology = new TopologyImpl();
     Project project = new ProjectImpl();
-    Topic topic = new TopicImpl();
+    Topic topic = new Topic();
     project.addTopic(topic);
     topology.addProject(project);
 
@@ -246,5 +246,26 @@ public class ConfigurationTest {
     props.put(JULIE_ROLES, rolesFile);
     Configuration config = new Configuration(cliOps, props);
     config.getJulieRoles();
+  }
+
+  @Test
+  public void testJulieOpsInstanceIdGeneration() {
+    props.put(JULIE_INSTANCE_ID, "12345");
+    Configuration config = new Configuration(cliOps, props);
+    assertThat(config.getJulieInstanceId()).isEqualTo("12345");
+  }
+
+  @Test
+  public void testRandomJulieOpsInstanceIdGeneration() {
+    Configuration config = new Configuration(cliOps, props);
+    assertThat(config.getJulieInstanceId()).hasSize(10);
+    assertThat(config.getJulieInstanceId())
+        .has(
+            new Condition<>() {
+              @Override
+              public boolean matches(String value) {
+                return value.chars().allMatch(value1 -> (97 <= value1) && (value1 <= 122));
+              }
+            });
   }
 }

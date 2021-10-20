@@ -31,6 +31,9 @@ public class Constants {
   public static final String GCP_STATE_PROCESSOR_CLASS =
       "com.purbon.kafka.topology.backend.GCPBackend";
 
+  public static final String KAFKA_STATE_PROCESSOR_CLASS =
+      "com.purbon.kafka.topology.backend.KafkaBackend";
+
   public static final String REDIS_HOST_CONFIG = "topology.builder.redis.host";
   public static final String REDIS_PORT_CONFIG = "topology.builder.redis.port";
 
@@ -131,4 +134,7 @@ public class Constants {
   public static final String SSL_KEY_PASSWORD = "ssl.key.password";
 
   public static final String JULIE_ROLES = "julie.roles";
+
+  public static final String JULIE_KAFKA_CONFIG_TOPIC = "julie.kafka.config.topic";
+  public static final String JULIE_INSTANCE_ID = "julie.instance.id";
 }

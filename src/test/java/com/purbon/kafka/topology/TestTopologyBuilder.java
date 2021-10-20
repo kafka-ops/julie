@@ -1,7 +1,6 @@
 package com.purbon.kafka.topology;
 
 import com.purbon.kafka.topology.model.Impl.ProjectImpl;
-import com.purbon.kafka.topology.model.Impl.TopicImpl;
 import com.purbon.kafka.topology.model.Impl.TopologyImpl;
 import com.purbon.kafka.topology.model.Project;
 import com.purbon.kafka.topology.model.Topic;
@@ -62,7 +61,7 @@ public class TestTopologyBuilder {
   }
 
   public TestTopologyBuilder addTopic(String topicName) {
-    addTopic(new TopicImpl(topicName, configuration));
+    addTopic(new Topic(topicName, configuration));
     return this;
   }
 

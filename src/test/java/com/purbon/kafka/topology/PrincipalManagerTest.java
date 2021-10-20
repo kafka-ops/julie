@@ -14,7 +14,6 @@ import com.purbon.kafka.topology.actions.Action;
 import com.purbon.kafka.topology.actions.accounts.ClearAccounts;
 import com.purbon.kafka.topology.actions.accounts.CreateAccounts;
 import com.purbon.kafka.topology.model.Impl.ProjectImpl;
-import com.purbon.kafka.topology.model.Impl.TopicImpl;
 import com.purbon.kafka.topology.model.Impl.TopologyImpl;
 import com.purbon.kafka.topology.model.Project;
 import com.purbon.kafka.topology.model.Topic;
@@ -106,7 +105,7 @@ public class PrincipalManagerTest {
     Topology topology = new TopologyImpl();
     topology.setContext("context");
     Project project = new ProjectImpl("foo");
-    Topic topic = new TopicImpl("baa");
+    Topic topic = new Topic("baa");
     topic.setConsumers(Collections.singletonList(new Consumer("topicConsumer-principal")));
     topic.setProducers(Collections.singletonList(new Producer("topicProducer-principal")));
 

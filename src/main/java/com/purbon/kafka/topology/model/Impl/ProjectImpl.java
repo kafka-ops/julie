@@ -190,9 +190,9 @@ public class ProjectImpl implements Project, Cloneable {
   }
 
   public void addTopic(Topic topic) {
-    topic.setDefaultProjectPrefix(namePrefix());
+    topic.setProjectPrefix(namePrefix());
     prefixContext.put("project", getName());
-    topic.setPrefixContext(prefixContext);
+    topic.setContext(prefixContext);
     this.topics.add(topic);
   }
 
