@@ -24,6 +24,8 @@ To get you started we recommend:
 * New to gitops and kafka, check the :doc:`core-concepts` page.
 * If you are ready to jump in, start with the :doc:`workflow-setup`.
 
+To learn more about JulieOps listen to `this podcast <https://developer.confluent.io/podcast/automating-devops-for-apache-kafka-and-confluent-ft-pere-urbon-bayes>`_ with Pere Urbón-Bayes.
+
 Installation
 -----------
 
