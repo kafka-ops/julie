@@ -2,7 +2,6 @@ package com.purbon.kafka.topology.api.ksql;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.purbon.kafka.topology.Constants;
-import com.purbon.kafka.topology.api.mds.MDSApiClient;
 import com.purbon.kafka.topology.clients.ArtefactClient;
 import com.purbon.kafka.topology.model.Artefact;
 import com.purbon.kafka.topology.model.artefact.KsqlArtefact;
@@ -13,15 +12,19 @@ import io.confluent.ksql.api.client.Client;
 import io.confluent.ksql.api.client.ClientOptions;
 import io.confluent.ksql.api.client.StreamInfo;
 import io.confluent.ksql.api.client.TableInfo;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-
 import java.io.IOException;
 import java.net.URL;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 public class KsqlApiClient implements ArtefactClient {
 
@@ -63,9 +66,11 @@ public class KsqlApiClient implements ArtefactClient {
   public Map<String, Object> add(String sql) throws IOException {
     try {
       if (isCreateWithoutReplace(sql)) {
-        LOGGER.warn("Are you trying to archive idempotency? if yes, please make sure that your statement" +
-                "starts with CREATE OR REPLACE. Currently sour ksql statement does not, " +
-                "- " + sql.substring(0, 40));
+        LOGGER.warn(
+            "Are you trying to archive idempotency? if yes, please make sure that your statement"
+                + "starts with CREATE OR REPLACE. Currently sour ksql statement does not, "
+                + "- "
+                + sql.substring(0, 40));
       }
       var result = client.executeStatement(sql).get();
       return new QueryResponse(result).asMap();
