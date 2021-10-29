@@ -63,7 +63,7 @@ public class KsqlApiClient implements ArtefactClient {
   public Map<String, Object> add(String sql) throws IOException {
     try {
       if (isCreateWithoutReplace(sql)) {
-        LOGGER.warn("Are you trying to achive idempotency? if yes, please make sure that your statement" +
+        LOGGER.warn("Are you trying to archive idempotency? if yes, please make sure that your statement" +
                 "starts with CREATE OR REPLACE. Currently sour ksql statement does not, " +
                 "- " + sql.substring(0, 40));
       }
