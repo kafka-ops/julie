@@ -1,5 +1,12 @@
 ---
 roles:
+  - name: "other"
+    acls:
+     - resourceType: "Topic"
+       resourceName: "{{topic}}"
+       patternType: "PREFIXED"
+       host: "*"
+       role: "DeveloperManage"
   - name: "app"
     acls:
       - resourceType: "Topic"

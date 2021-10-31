@@ -397,7 +397,10 @@ public class RBACPRoviderRbacIT extends MDSBaseTest {
     String principal = "User:app" + System.currentTimeMillis();
 
     Topology topology =
-        TestTopologyBuilder.createProject().addOther("app", principal, "foo").buildTopology();
+        TestTopologyBuilder.createProject()
+            .addOther("app", principal, "foo")
+            .addOther("other", principal, "bar")
+            .buildTopology();
 
     Map<String, String> cliOps = new HashMap<>();
     cliOps.put(BROKERS_OPTION, "");
@@ -419,10 +422,11 @@ public class RBACPRoviderRbacIT extends MDSBaseTest {
             .filter(binding -> binding.getPrincipal().equalsIgnoreCase(principal))
             .collect(Collectors.toList());
 
-    assertThat(bindings).hasSize(4);
+    assertThat(bindings).hasSize(5);
 
     List<String> roles = apiClient.lookupRoles(principal);
     assertTrue(roles.contains(DEVELOPER_READ));
+    assertTrue(roles.contains(DEVELOPER_MANAGE));
 
     roles =
         apiClient.lookupRoles(
