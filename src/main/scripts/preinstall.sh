@@ -24,6 +24,7 @@ default_user_creation_if_required
 # Verify the existence of java command, if not there verification should exit already
 type -P java &> /dev/null || { echo "java not found"; exit 1; }
 
-exit_code=$(verify_java_version_min_11)
+verify_java_version_min_11
+exit_code=$?
 
 exit $exit_code
