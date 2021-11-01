@@ -14,6 +14,7 @@ import java.io.PrintStream;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.Collection;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -105,7 +106,8 @@ public class KSqlArtefactManager extends ArtefactManager {
                   KsqlArtefacts kSql = project.getKsqlArtefacts();
                   return Stream.concat(kSql.getStreams().stream(), kSql.getTables().stream());
                 })
-        .collect(Collectors.toSet());
+        .sorted()
+        .collect(Collectors.toCollection(LinkedHashSet::new));
   }
 
   @Override

@@ -14,12 +14,21 @@ import io.confluent.ksql.api.client.StreamInfo;
 import io.confluent.ksql.api.client.TableInfo;
 import java.io.IOException;
 import java.net.URL;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 public class KsqlApiClient implements ArtefactClient {
+
+  private static final Logger LOGGER = LogManager.getLogger(KsqlApiClient.class);
 
   private final URL server;
   private final Client client;
@@ -56,11 +65,22 @@ public class KsqlApiClient implements ArtefactClient {
   @Override
   public Map<String, Object> add(String sql) throws IOException {
     try {
+      if (isCreateWithoutReplace(sql)) {
+        LOGGER.warn(
+            "Are you trying to archive idempotency? if yes, please make sure that your statement"
+                + "starts with CREATE OR REPLACE. Currently sour ksql statement does not, "
+                + "- "
+                + sql.substring(0, 40));
+      }
       var result = client.executeStatement(sql).get();
       return new QueryResponse(result).asMap();
     } catch (InterruptedException | ExecutionException e) {
       throw new IOException(e);
     }
+  }
+
+  private boolean isCreateWithoutReplace(String sql) {
+    return sql.toLowerCase(Locale.ROOT).trim().matches("create\\s+(stream|table)");
   }
 
   @Override
