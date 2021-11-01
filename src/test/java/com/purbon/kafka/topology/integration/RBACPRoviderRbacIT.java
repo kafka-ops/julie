@@ -18,6 +18,7 @@ import com.purbon.kafka.topology.Configuration;
 import com.purbon.kafka.topology.ExecutionPlan;
 import com.purbon.kafka.topology.TestTopologyBuilder;
 import com.purbon.kafka.topology.api.mds.MDSApiClient;
+import com.purbon.kafka.topology.api.mds.RbacResourceType;
 import com.purbon.kafka.topology.model.Impl.ProjectImpl;
 import com.purbon.kafka.topology.model.Impl.TopologyImpl;
 import com.purbon.kafka.topology.model.Platform;
@@ -146,6 +147,32 @@ public class RBACPRoviderRbacIT extends MDSBaseTest {
     verify(cs, times(1)).addBindings(anyList());
     verify(cs, times(1)).flushAndClose();
     verifyProducerAcls(producers, topicA.toString());
+  }
+
+  @Test
+  public void producerAclsWithExtraPropertiesShouldNotBreak() throws IOException {
+
+    List<Producer> producers = new ArrayList<>();
+    var producer = new Producer("User:app3");
+    producer.setTransactionId(Optional.of("12345"));
+    producers.add(producer);
+
+    Project project = new ProjectImpl("project");
+    project.setProducers(producers);
+    Topic topicA = new Topic("topicA");
+    project.addTopic(topicA);
+
+    Topology topology = new TopologyImpl();
+    topology.setContext("producerAclsWithExtraPropertiesShouldNotBreak-test");
+    topology.addProject(project);
+
+    accessControlManager.apply(topology, plan);
+    plan.run();
+
+    // this method is call twice, once for consumers and one for consumers
+    verify(cs, times(1)).addBindings(anyList());
+    verify(cs, times(1)).flushAndClose();
+    verifyProducerAcls(producers, topicA.toString(), 2);
   }
 
   @Test
@@ -513,11 +540,19 @@ public class RBACPRoviderRbacIT extends MDSBaseTest {
   }
 
   private void verifyProducerAcls(List<Producer> producers, String topic) {
+    verifyProducerAcls(producers, topic, 1);
+  }
+
+  private void verifyProducerAcls(List<Producer> producers, String topic, int resourcesCount) {
     producers.forEach(
         producer -> {
           List<String> roles = apiClient.lookupRoles(producer.getPrincipal());
           assertEquals(1, roles.size());
           assertTrue(roles.contains(DEVELOPER_WRITE));
+
+          List<RbacResourceType> resources =
+              apiClient.lookupResourcesForKafka(producer.getPrincipal(), DEVELOPER_WRITE);
+          assertEquals(resourcesCount, resources.size());
         });
   }
 
