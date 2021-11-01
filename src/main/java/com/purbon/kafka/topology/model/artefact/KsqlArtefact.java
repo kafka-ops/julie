@@ -17,6 +17,8 @@ public class KsqlArtefact extends Artefact implements Comparable<KsqlArtefact> {
 
   @Override
   public int compareTo(@NotNull KsqlArtefact o) {
+    // Streams get precedence over Tables, if within the same type they are equal so order
+    // during deserialization will be based on the position in the yaml
     if ((this instanceof KsqlStreamArtefact) && (o instanceof KsqlTableArtefact)) {
       return -1;
     } else if ((this instanceof KsqlTableArtefact) && (o instanceof KsqlStreamArtefact)) {
