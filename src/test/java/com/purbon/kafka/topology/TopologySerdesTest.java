@@ -86,20 +86,9 @@ public class TopologySerdesTest {
     }
   }
 
-  @Test
-  public void testStreamsParsingOnlyWriteTopicsShouldNotParseAsNull() {
-    Topology topology =
-            parser.deserialise(TestUtils.getResourceFile("/descriptor-streams-only-write.yaml"));
-
-    Project p = topology.getProjects().get(0);
-
-    for(KStream s : p.getStreams()) {
-      assertThat(s.getTopics().get(KStream.WRITE_TOPICS)).isNotNull();
-      assertThat(s.getTopics().get(KStream.WRITE_TOPICS)).isInstanceOf(List.class);
-      assertThat(s.getTopics().get(KStream.WRITE_TOPICS)).contains("topicA", "topicB");
-      assertThat(s.getTopics().get(KStream.READ_TOPICS)).isNotNull();
-      assertThat(s.getTopics().get(KStream.READ_TOPICS)).isInstanceOf(List.class);
-    }
+  @Test(expected = TopologyParsingException.class)
+  public void testStreamsParsingOnlyWriteTopicsShoulRaiseAnException() {
+    parser.deserialise(TestUtils.getResourceFile("/descriptor-streams-only-write.yaml"));
   }
 
   @Test
