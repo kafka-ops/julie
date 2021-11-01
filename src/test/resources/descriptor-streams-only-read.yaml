@@ -1,0 +1,11 @@
+---
+context: "contextOrg"
+source: "source"
+projects:
+  - name: "foo"
+    streams:
+      - principal: "User:App0"
+        topics:
+          read:
+            - "topicA"
+            - "topicB"

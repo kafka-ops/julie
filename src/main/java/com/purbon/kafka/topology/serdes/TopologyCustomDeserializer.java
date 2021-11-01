@@ -379,9 +379,42 @@ public class TopologyCustomDeserializer extends StdDeserializer<Topology> {
   }
 
   private Optional<PlatformSystem> doStreamsElements(JsonParser parser, JsonNode node)
-      throws JsonProcessingException {
+      throws IOException {
     List<KStream> streams =
-        new JsonSerdesUtils<KStream>().parseApplicationUser(parser, node, KStream.class);
+        new JsonSerdesUtils<KStream>()
+            .parseApplicationUser(parser, node, KStream.class).stream()
+                .map(
+                    ks -> {
+                      ks.getTopics().putIfAbsent(KStream.READ_TOPICS, Collections.emptyList());
+                      ks.getTopics().putIfAbsent(KStream.WRITE_TOPICS, Collections.emptyList());
+                      return ks;
+                    })
+                .collect(Collectors.toList());
+
+    for (KStream ks : streams) {
+      var topics = ks.getTopics();
+      if (topics.get(KStream.READ_TOPICS).isEmpty() || topics.get(KStream.WRITE_TOPICS).isEmpty()) {
+        LOGGER.warn(
+            "A Kafka Streams application with Id ("
+                + ks.getApplicationId()
+                + ") and Principal ("
+                + ks.getPrincipal()
+                + ")"
+                + " might require both read and write topics as per its "
+                + "nature it is always reading and writing into Apache Kafka, be aware if you notice problems.");
+      }
+      if (topics.get(KStream.READ_TOPICS).isEmpty()) {
+        // should have at minimum read topics defined as we could think of write topics as internal
+        // topics being
+        // auto created.
+        throw new IOException(
+            "Kafka Streams application with Id "
+                + ks.getApplicationId()
+                + " and principal "
+                + ks.getPrincipal()
+                + " have missing read topics. This field is required.");
+      }
+    }
     return Optional.of(new PlatformSystem(streams));
   }
 
