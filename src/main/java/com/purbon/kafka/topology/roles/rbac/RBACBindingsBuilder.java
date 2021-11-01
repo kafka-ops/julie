@@ -170,6 +170,17 @@ public class RBACBindingsBuilder implements BindingsBuilderProvider {
           TopologyAclBinding binding =
               apiClient.bind(producer.getPrincipal(), DEVELOPER_WRITE, resource, patternType);
           bindings.add(binding);
+
+          if (producer.getTransactionId().isPresent()) {
+            binding =
+                apiClient.bind(
+                    producer.getPrincipal(),
+                    DEVELOPER_WRITE,
+                    producer.getTransactionId().get(),
+                    "TransactionalId",
+                    LITERAL);
+            bindings.add(binding);
+          }
         });
     return bindings;
   }
