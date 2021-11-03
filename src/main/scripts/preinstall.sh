@@ -13,7 +13,7 @@ function default_user_creation_if_required {
 
 function verify_java_version_min_11 {
     current_version=$(java -version 2>&1 | tr "\n" " " | cut -d " " -f 3  | tr -d '"' | cut -d "." -f 1)
-    if (( $current_version < 11 ))
+    if (( current_version < 11 ))
     then
       return 1;
     fi
