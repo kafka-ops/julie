@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
-
+set -o errexit
+set -o nounset
+set -o pipefail
 function default_user_creation_if_required {
   if id "julie-kafka" &>/dev/null;
   then
