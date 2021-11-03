@@ -73,11 +73,11 @@ public class TopologySerdesTest {
   @Test
   public void testStreamsParsingOnlyReadTopicsShouldNotParseAsNull() {
     Topology topology =
-        parser.deserialise(TestUtils.getResourceFile("/descriptor-streams-only-read.yaml"));
+            parser.deserialise(TestUtils.getResourceFile("/descriptor-streams-only-read.yaml"));
 
     Project p = topology.getProjects().get(0);
 
-    for (KStream s : p.getStreams()) {
+    for(KStream s : p.getStreams()) {
       assertThat(s.getTopics().get(KStream.READ_TOPICS)).isNotNull();
       assertThat(s.getTopics().get(KStream.READ_TOPICS)).isInstanceOf(List.class);
       assertThat(s.getTopics().get(KStream.READ_TOPICS)).contains("topicA", "topicB");
