@@ -1,7 +1,7 @@
 How can you install Julie Ops
 *******************************
 
-Julie Ops is available to be integrated using different artifacts:
+Julie Ops is available to be integrated using different artefacts:
 
 * As a **CLI tool**, available to be installed using rpm, deb and tar.gz packages from `github <https://github.com/kafka-ops/kafka-topology-builder/releases>`_.
 The rpm and deb releases are signed - if you are interested in importing the matching public key - you can download it here: `public key <https://github.com/kafka-ops/julie/blob/master/release/keys/public.key>`_.
