@@ -1,4 +1,4 @@
-Managing KSQL artifacts
+Managing KSQL artefacts
 *******************************
 
 As a Kafka deployment is growing it becomes natural to start processing streaming data, and we like to do it in an structured way.
