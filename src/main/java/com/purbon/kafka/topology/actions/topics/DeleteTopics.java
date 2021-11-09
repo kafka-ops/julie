@@ -4,6 +4,7 @@ import com.purbon.kafka.topology.actions.BaseAction;
 import com.purbon.kafka.topology.api.adminclient.TopologyBuilderAdminClient;
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import org.apache.logging.log4j.LogManager;
@@ -29,7 +30,7 @@ public class DeleteTopics extends BaseAction {
 
   @Override
   protected Map<String, Object> props() {
-    Map<String, Object> map = new HashMap<>();
+    Map<String, Object> map = new LinkedHashMap<>();
     map.put("Operation", getClass().getName());
     map.put("topics", topicsToBeDeleted);
     return map;
