@@ -50,7 +50,7 @@ public class S3Backend implements Backend {
   }
 
   @Override
-  public BackendState load() throws IOException {
+  public BackendState load() {
     try {
       String content = getRemoteStateContent(STATE_FILE_NAME);
       return (BackendState) JSON.toObject(content, BackendState.class);

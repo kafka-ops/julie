@@ -93,7 +93,7 @@ public class KsqlManagerIT {
 
     KSqlArtefactManager kam = new KSqlArtefactManager(client, config, file.getAbsolutePath());
 
-    kam.apply(topology, plan);
+    kam.updatePlan(topology, plan);
     plan.run();
 
     List<String> streams = client.listStreams();
@@ -106,7 +106,7 @@ public class KsqlManagerIT {
 
     ExecutionPlan newPlan = ExecutionPlan.init(new BackendController(), System.out);
 
-    kam.apply(topology, newPlan);
+    kam.updatePlan(topology, newPlan);
     newPlan.run();
 
     streams = client.listStreams();

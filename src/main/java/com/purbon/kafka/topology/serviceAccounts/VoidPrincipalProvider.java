@@ -14,7 +14,7 @@ public class VoidPrincipalProvider implements PrincipalProvider {
   }
 
   @Override
-  public Set<ServiceAccount> listServiceAccounts() throws IOException {
+  public Set<ServiceAccount> listServiceAccounts() {
     return Collections.emptySet();
   }
 

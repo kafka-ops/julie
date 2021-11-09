@@ -379,7 +379,7 @@ public class AclsBindingsBuilder implements BindingsBuilderProvider {
   }
 
   private String translate(String namedPrincipal) {
-    if (config.useConfuentCloud()
+    if (config.useConfluentCloud()
         && config.enabledExperimental()
         && config.enabledPrincipalTranslation()) {
       try {

@@ -134,7 +134,7 @@ public class MDSApiClient extends JulieHttpClient {
 
   /**
    * Remove the role (cluster or resource scoped) from the principal at the given scope/cluster.
-   * No-op if the user doesn’t have the role. Callable by Admins.
+   * No-op if the user doesn't have the role. Callable by Admins.
    *
    * @param principal Fully-qualified KafkaPrincipal string for a user or group.
    * @param role The name of the role.
@@ -266,11 +266,6 @@ public class MDSApiClient extends JulieHttpClient {
    * @return ClusterIDs
    */
   public ClusterIDs withClusterIDs() {
-    try {
-      return clusterIDs.clone().clear();
-    } catch (CloneNotSupportedException e) {
-      e.printStackTrace();
-      return null;
-    }
+    return clusterIDs.clone().clear();
   }
 }

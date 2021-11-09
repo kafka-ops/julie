@@ -1,6 +1,6 @@
 package com.purbon.kafka.topology.integration;
 
-import static com.purbon.kafka.topology.CommandLineInterface.*;
+import static com.purbon.kafka.topology.CommandLineInterface.BROKERS_OPTION;
 import static com.purbon.kafka.topology.Constants.*;
 import static com.purbon.kafka.topology.roles.rbac.RBACPredefinedRoles.*;
 import static java.util.Arrays.asList;
@@ -8,7 +8,7 @@ import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
-import static org.mockito.Matchers.anyList;
+import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
@@ -19,46 +19,25 @@ import com.purbon.kafka.topology.ExecutionPlan;
 import com.purbon.kafka.topology.TestTopologyBuilder;
 import com.purbon.kafka.topology.api.mds.MDSApiClient;
 import com.purbon.kafka.topology.api.mds.RbacResourceType;
+import com.purbon.kafka.topology.model.*;
 import com.purbon.kafka.topology.model.Impl.ProjectImpl;
 import com.purbon.kafka.topology.model.Impl.TopologyImpl;
-import com.purbon.kafka.topology.model.Platform;
-import com.purbon.kafka.topology.model.Project;
-import com.purbon.kafka.topology.model.Topic;
-import com.purbon.kafka.topology.model.Topology;
-import com.purbon.kafka.topology.model.User;
-import com.purbon.kafka.topology.model.users.Connector;
-import com.purbon.kafka.topology.model.users.Consumer;
-import com.purbon.kafka.topology.model.users.KSqlApp;
-import com.purbon.kafka.topology.model.users.KStream;
-import com.purbon.kafka.topology.model.users.Producer;
-import com.purbon.kafka.topology.model.users.platform.ControlCenter;
-import com.purbon.kafka.topology.model.users.platform.ControlCenterInstance;
-import com.purbon.kafka.topology.model.users.platform.Kafka;
-import com.purbon.kafka.topology.model.users.platform.KafkaConnect;
-import com.purbon.kafka.topology.model.users.platform.SchemaRegistry;
-import com.purbon.kafka.topology.model.users.platform.SchemaRegistryInstance;
+import com.purbon.kafka.topology.model.users.*;
+import com.purbon.kafka.topology.model.users.platform.*;
 import com.purbon.kafka.topology.roles.RBACProvider;
 import com.purbon.kafka.topology.roles.TopologyAclBinding;
 import com.purbon.kafka.topology.roles.rbac.RBACBindingsBuilder;
 import com.purbon.kafka.topology.utils.BasicAuth;
 import com.purbon.kafka.topology.utils.TestUtils;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Properties;
+import java.util.*;
 import java.util.stream.Collectors;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 
 @RunWith(MockitoJUnitRunner.class)
 public class RBACPRoviderRbacIT extends MDSBaseTest {
@@ -116,7 +95,7 @@ public class RBACPRoviderRbacIT extends MDSBaseTest {
     topology.setContext("testConsumerAclsCreation-test");
     topology.addProject(project);
 
-    accessControlManager.apply(topology, plan);
+    accessControlManager.updatePlan(topology, plan);
     plan.run();
 
     // this method is call twice, once for consumers and one for producers
@@ -129,7 +108,7 @@ public class RBACPRoviderRbacIT extends MDSBaseTest {
   public void producerAclsCreation() throws IOException {
 
     List<Producer> producers = new ArrayList<>();
-    producers.add(new Producer("User:appp2"));
+    producers.add(new Producer("User:app2"));
 
     Project project = new ProjectImpl("project");
     project.setProducers(producers);
@@ -140,7 +119,7 @@ public class RBACPRoviderRbacIT extends MDSBaseTest {
     topology.setContext("producerAclsCreation-test");
     topology.addProject(project);
 
-    accessControlManager.apply(topology, plan);
+    accessControlManager.updatePlan(topology, plan);
     plan.run();
 
     // this method is call twice, once for consumers and one for consumers
@@ -166,7 +145,7 @@ public class RBACPRoviderRbacIT extends MDSBaseTest {
     topology.setContext("producerAclsWithExtraPropertiesShouldNotBreak-test");
     topology.addProject(project);
 
-    accessControlManager.apply(topology, plan);
+    accessControlManager.updatePlan(topology, plan);
     plan.run();
 
     // this method is call twice, once for consumers and one for consumers
@@ -191,7 +170,7 @@ public class RBACPRoviderRbacIT extends MDSBaseTest {
     topology.setContext("kstreamsAclsCreation-test");
     topology.addProject(project);
 
-    accessControlManager.apply(topology, plan);
+    accessControlManager.updatePlan(topology, plan);
     plan.run();
 
     verify(cs, times(1)).addBindings(anyList());
@@ -217,7 +196,7 @@ public class RBACPRoviderRbacIT extends MDSBaseTest {
     topology.addOther("source", "ksqlAppAclsCreation-test");
     topology.addProject(project);
 
-    accessControlManager.apply(topology, plan);
+    accessControlManager.updatePlan(topology, plan);
     plan.run();
 
     verify(cs, times(1)).addBindings(anyList());
@@ -241,7 +220,7 @@ public class RBACPRoviderRbacIT extends MDSBaseTest {
     topology.setContext("connectAclsCreation-test");
     topology.addProject(project);
 
-    accessControlManager.apply(topology, plan);
+    accessControlManager.updatePlan(topology, plan);
     plan.run();
 
     verify(cs, times(1)).addBindings(anyList());
@@ -275,7 +254,7 @@ public class RBACPRoviderRbacIT extends MDSBaseTest {
     platform.setSchemaRegistry(sr);
     topology.setPlatform(platform);
 
-    accessControlManager.apply(topology, plan);
+    accessControlManager.updatePlan(topology, plan);
     plan.run();
 
     verify(cs, times(1)).addBindings(anyList());
@@ -301,7 +280,7 @@ public class RBACPRoviderRbacIT extends MDSBaseTest {
 
     topology.setPlatform(platform);
 
-    accessControlManager.apply(topology, plan);
+    accessControlManager.updatePlan(topology, plan);
     plan.run();
 
     verify(cs, times(1)).addBindings(anyList());
@@ -326,7 +305,7 @@ public class RBACPRoviderRbacIT extends MDSBaseTest {
     platform.setKafka(kafka);
     topology.setPlatform(platform);
 
-    accessControlManager.apply(topology, plan);
+    accessControlManager.updatePlan(topology, plan);
     plan.run();
 
     verify(cs, times(1)).addBindings(anyList());
@@ -352,7 +331,7 @@ public class RBACPRoviderRbacIT extends MDSBaseTest {
     platform.setKafkaConnect(connect);
     topology.setPlatform(platform);
 
-    accessControlManager.apply(topology, plan);
+    accessControlManager.updatePlan(topology, plan);
     plan.run();
 
     verify(cs, times(1)).addBindings(anyList());
@@ -395,7 +374,7 @@ public class RBACPRoviderRbacIT extends MDSBaseTest {
     Topic topicA = new Topic("topicA");
     project.addTopic(topicA);
 
-    accessControlManager.apply(topology, plan);
+    accessControlManager.updatePlan(topology, plan);
     plan.run();
 
     // two group and two topics as we have one topic and two principles
@@ -406,7 +385,7 @@ public class RBACPRoviderRbacIT extends MDSBaseTest {
     cs = new BackendController();
     plan = ExecutionPlan.init(cs, System.out);
 
-    accessControlManager.apply(topology, plan);
+    accessControlManager.updatePlan(topology, plan);
     plan.run();
 
     bindings = getBindings(rbacProvider);
@@ -437,7 +416,7 @@ public class RBACPRoviderRbacIT extends MDSBaseTest {
     accessControlManager =
         new AccessControlManager(rbacProvider, bindingsBuilder, config.getJulieRoles(), config);
 
-    accessControlManager.apply(topology, plan);
+    accessControlManager.updatePlan(topology, plan);
 
     plan.run();
 

@@ -11,7 +11,7 @@ public class RedisBackend implements Backend {
 
   private static final Logger LOGGER = LogManager.getLogger(RedisBackend.class);
 
-  static final String JULIE_OPS_STATE = "julie.ops.state";
+  public static final String JULIE_OPS_STATE = "julie.ops.state";
 
   private Jedis jedis;
 

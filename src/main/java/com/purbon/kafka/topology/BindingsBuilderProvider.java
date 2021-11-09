@@ -1,6 +1,5 @@
 package com.purbon.kafka.topology;
 
-import com.purbon.kafka.topology.exceptions.ConfigurationException;
 import com.purbon.kafka.topology.model.Component;
 import com.purbon.kafka.topology.model.JulieRoleAcl;
 import com.purbon.kafka.topology.model.users.Connector;
@@ -35,8 +34,7 @@ public interface BindingsBuilderProvider {
     return null;
   }
 
-  List<TopologyAclBinding> buildBindingsForSchemaRegistry(SchemaRegistryInstance schemaRegistry)
-      throws ConfigurationException;
+  List<TopologyAclBinding> buildBindingsForSchemaRegistry(SchemaRegistryInstance schemaRegistry);
 
   List<TopologyAclBinding> buildBindingsForControlCenter(String principal, String appId);
 

@@ -115,7 +115,7 @@ public class AccessControlManagerIT {
     topology.addOther("source", "testAclsRemoval");
     topology.addProject(project);
 
-    accessControlManager.apply(topology, plan);
+    accessControlManager.updatePlan(topology, plan);
     plan.run();
 
     assertEquals(6, cs.size());
@@ -125,7 +125,7 @@ public class AccessControlManagerIT {
     project.setConsumers(consumers);
 
     plan.getActions().clear();
-    accessControlManager.apply(topology, plan);
+    accessControlManager.updatePlan(topology, plan);
     plan.run();
 
     assertEquals(3, cs.size());
@@ -153,7 +153,7 @@ public class AccessControlManagerIT {
             "User:testAclsRemovalUser1",
             "User:testAclsRemovalUser2");
 
-    accessControlManager.apply(topology, plan);
+    accessControlManager.updatePlan(topology, plan);
     plan.run();
     assertEquals(6, cs.size());
 
@@ -166,7 +166,7 @@ public class AccessControlManagerIT {
         buildTopologyForConsumers(
             "aclsRemovedTest-Integration", "", "topicA", "User:testAclsRemovalUser1");
 
-    accessControlManager.apply(topology, plan);
+    accessControlManager.updatePlan(topology, plan);
     plan.run();
 
     assertEquals(3, cs.size());
@@ -189,10 +189,10 @@ public class AccessControlManagerIT {
     topology.addOther("source", "testConsumerAclsCreation");
     topology.addProject(project);
 
-    accessControlManager.apply(topology, plan);
+    accessControlManager.updatePlan(topology, plan);
     plan.run(false);
 
-    verifyConsumerAcls(consumers, topicA.toString());
+    verifyConsumerAcls(consumers);
   }
 
   @Test
@@ -212,10 +212,10 @@ public class AccessControlManagerIT {
     topology.addOther("source", "producerAclsCreation");
     topology.addProject(project);
 
-    accessControlManager.apply(topology, plan);
+    accessControlManager.updatePlan(topology, plan);
     plan.run(false);
 
-    verifyProducerAcls(producers, topicA.toString(), 2);
+    verifyProducerAcls(producers, 2);
   }
 
   @Test
@@ -236,10 +236,10 @@ public class AccessControlManagerIT {
     topology.addOther("source", "producerAclsCreation");
     topology.addProject(project);
 
-    accessControlManager.apply(topology, plan);
+    accessControlManager.updatePlan(topology, plan);
     plan.run(false);
 
-    verifyProducerAcls(producers, topicA.toString(), 5);
+    verifyProducerAcls(producers, 5);
   }
 
   @Test
@@ -260,10 +260,10 @@ public class AccessControlManagerIT {
     topology.addOther("source", "producerAclsCreation");
     topology.addProject(project);
 
-    accessControlManager.apply(topology, plan);
+    accessControlManager.updatePlan(topology, plan);
     plan.run(false);
 
-    verifyProducerAcls(producers, topicA.toString(), 3);
+    verifyProducerAcls(producers, 3);
   }
 
   @Test
@@ -283,7 +283,7 @@ public class AccessControlManagerIT {
     topology.addOther("source", "kstreamsAclsCreation");
     topology.addProject(project);
 
-    accessControlManager.apply(topology, plan);
+    accessControlManager.updatePlan(topology, plan);
     plan.run();
 
     verifyKStreamsAcls(app);
@@ -306,7 +306,7 @@ public class AccessControlManagerIT {
     topology.addOther("source", "ksqlAppAclsCreation");
     topology.addProject(project);
 
-    accessControlManager.apply(topology, plan);
+    accessControlManager.updatePlan(topology, plan);
     plan.run();
 
     verifyKSqlAppAcls(app);
@@ -344,7 +344,7 @@ public class AccessControlManagerIT {
             "topicA",
             "User:User1",
             "User:User2");
-    accessControlManager.apply(topology, plan);
+    accessControlManager.updatePlan(topology, plan);
     plan.run();
     verifyAclsOfSize(7); // should have the acls for julie included
   }
@@ -392,7 +392,7 @@ public class AccessControlManagerIT {
 
     topology.setPlatform(platform);
 
-    accessControlManager.apply(topology, plan);
+    accessControlManager.updatePlan(topology, plan);
     plan.run();
 
     verifySchemaRegistryAcls(platform);
@@ -423,7 +423,7 @@ public class AccessControlManagerIT {
 
     topology.setPlatform(platform);
 
-    accessControlManager.apply(topology, plan);
+    accessControlManager.updatePlan(topology, plan);
     plan.run();
 
     verifyControlCenterAcls(platform);
@@ -445,7 +445,7 @@ public class AccessControlManagerIT {
     topology.addOther("source", "connectAclsCreation");
     topology.addProject(project);
 
-    accessControlManager.apply(topology, plan);
+    accessControlManager.updatePlan(topology, plan);
     plan.run();
 
     verifyConnectAcls(connector);
@@ -474,7 +474,7 @@ public class AccessControlManagerIT {
         new AccessControlManager(
             aclsProvider, new AclsBindingsBuilder(config), config.getJulieRoles(), config);
 
-    accessControlManager.apply(topology, plan);
+    accessControlManager.updatePlan(topology, plan);
 
     plan.run();
 
@@ -650,7 +650,7 @@ public class AccessControlManagerIT {
     assertEquals(2, acls.size());
   }
 
-  private void verifyProducerAcls(List<Producer> producers, String topic, int aclsCount)
+  private void verifyProducerAcls(List<Producer> producers, int aclsCount)
       throws InterruptedException, ExecutionException {
 
     for (Producer producer : producers) {
@@ -681,7 +681,7 @@ public class AccessControlManagerIT {
     }
   }
 
-  private void verifyConsumerAcls(List<Consumer> consumers, String topic)
+  private void verifyConsumerAcls(List<Consumer> consumers)
       throws InterruptedException, ExecutionException {
 
     for (Consumer consumer : consumers) {
