@@ -428,7 +428,7 @@
     <commons.version>1.4</commons.version>
     <mockito.version>3.6.0</mockito.version>
     <junit.version>4.13.1</junit.version>
-    <testcontainers.version>1.15.2</testcontainers.version>
+    <testcontainers.version>1.16.2</testcontainers.version>
     <jedis.version>3.2.0</jedis.version>
     <confluent.version>6.1.0</confluent.version>
     <confluent-ce.version>6.1.0-ce</confluent-ce.version>
@@ -440,13 +440,21 @@
     <aws.java.sdk.version>2.16.31</aws.java.sdk.version>
     <gcp.java.sdk.version>19.2.1</gcp.java.sdk.version>
     <ksqldb.version>0.17.0</ksqldb.version>
+    <typesafe.version>1.4.0</typesafe.version>
+    <lombok.version>1.18.22</lombok.version>
   </properties>
 
   <dependencies>
     <dependency>
+      <groupId>org.projectlombok</groupId>
+      <artifactId>lombok</artifactId>
+      <version>${lombok.version}</version>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
       <groupId>com.typesafe</groupId>
       <artifactId>config</artifactId>
-      <version>1.4.0</version>
+      <version>${typesafe.version}</version>
     </dependency>
     <dependency>
       <groupId>com.hubspot.jinjava</groupId>

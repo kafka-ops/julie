@@ -4,6 +4,8 @@ import static com.purbon.kafka.topology.CommandLineInterface.*;
 import static com.purbon.kafka.topology.Constants.*;
 import static com.purbon.kafka.topology.model.SubjectNameStrategy.TOPIC_NAME_STRATEGY;
 import static com.purbon.kafka.topology.model.SubjectNameStrategy.TOPIC_RECORD_NAME_STRATEGY;
+import static com.purbon.kafka.topology.roles.rbac.RBACPredefinedRoles.DEVELOPER_READ;
+import static com.purbon.kafka.topology.roles.rbac.RBACPredefinedRoles.RESOURCE_OWNER;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -11,8 +13,8 @@ import static org.junit.Assert.assertTrue;
 import com.purbon.kafka.topology.exceptions.TopologyParsingException;
 import com.purbon.kafka.topology.model.*;
 import com.purbon.kafka.topology.model.Impl.ProjectImpl;
-import com.purbon.kafka.topology.model.Impl.TopicImpl;
 import com.purbon.kafka.topology.model.Impl.TopologyImpl;
+import com.purbon.kafka.topology.model.Topic;
 import com.purbon.kafka.topology.model.artefact.KafkaConnectArtefact;
 import com.purbon.kafka.topology.model.artefact.KsqlArtefacts;
 import com.purbon.kafka.topology.model.artefact.KsqlStreamArtefact;
@@ -22,6 +24,7 @@ import com.purbon.kafka.topology.model.users.Consumer;
 import com.purbon.kafka.topology.model.users.KSqlApp;
 import com.purbon.kafka.topology.model.users.KStream;
 import com.purbon.kafka.topology.model.users.Producer;
+import com.purbon.kafka.topology.model.users.Schemas;
 import com.purbon.kafka.topology.model.users.platform.ControlCenterInstance;
 import com.purbon.kafka.topology.model.users.platform.KsqlServerInstance;
 import com.purbon.kafka.topology.model.users.platform.SchemaRegistryInstance;
@@ -40,7 +43,14 @@ public class TopologySerdesTest {
 
   @Before
   public void setup() {
-    parser = new TopologySerdes();
+    Properties props = new Properties();
+    props.put(PLATFORM_SERVERS_CONNECT + ".0", "connector0:foo");
+    HashMap<String, String> cliOps = new HashMap<>();
+    cliOps.put(BROKERS_OPTION, "");
+
+    Configuration config = new Configuration(cliOps, props);
+
+    parser = new TopologySerdes(config, new PlanMap());
   }
 
   @Test
@@ -61,6 +71,27 @@ public class TopologySerdesTest {
   }
 
   @Test
+  public void testStreamsParsingOnlyReadTopicsShouldNotParseAsNull() {
+    Topology topology =
+        parser.deserialise(TestUtils.getResourceFile("/descriptor-streams-only-read.yaml"));
+
+    Project p = topology.getProjects().get(0);
+
+    for (KStream s : p.getStreams()) {
+      assertThat(s.getTopics().get(KStream.READ_TOPICS)).isNotNull();
+      assertThat(s.getTopics().get(KStream.READ_TOPICS)).isInstanceOf(List.class);
+      assertThat(s.getTopics().get(KStream.READ_TOPICS)).contains("topicA", "topicB");
+      assertThat(s.getTopics().get(KStream.WRITE_TOPICS)).isNotNull();
+      assertThat(s.getTopics().get(KStream.WRITE_TOPICS)).isInstanceOf(List.class);
+    }
+  }
+
+  @Test(expected = TopologyParsingException.class)
+  public void testStreamsParsingOnlyWriteTopicsShoulRaiseAnException() {
+    parser.deserialise(TestUtils.getResourceFile("/descriptor-streams-only-write.yaml"));
+  }
+
+  @Test
   public void testDynamicFirstLevelAttributes() {
     Topology topology =
         parser.deserialise(TestUtils.getResourceFile("/descriptor-with-others.yml"));
@@ -73,8 +104,8 @@ public class TopologySerdesTest {
     assertEquals("contextOrg.source.foo", anotherProject.namePrefix());
   }
 
-  @Test(expected = TopologyParsingException.class)
-  public void testFileWithoutTopicsError() {
+  @Test
+  public void testFileWithoutTopicsShouldNotError() {
     parser.deserialise(TestUtils.getResourceFile("/descriptor-without-topics.yml"));
   }
 
@@ -99,12 +130,12 @@ public class TopologySerdesTest {
     HashMap<String, String> topicConfig = new HashMap<>();
     topicConfig.put("num.partitions", "1");
     topicConfig.put("replication.factor", "1");
-    Topic topic = new TopicImpl("foo", topicConfig);
+    Topic topic = new Topic("foo", topicConfig);
 
     HashMap<String, String> topicBarConfig = new HashMap<>();
     topicBarConfig.put("num.partitions", "1");
     topicBarConfig.put("replication.factor", "1");
-    Topic topicBar = new TopicImpl("bar", "avro", topicBarConfig);
+    Topic topicBar = new Topic("bar", "avro", topicBarConfig);
 
     Project project = new ProjectImpl("foo");
 
@@ -161,10 +192,10 @@ public class TopologySerdesTest {
     HashMap<String, String> topicConfig = new HashMap<>();
     topicConfig.put("num.partitions", "3");
     topicConfig.put("replication.factor", "2");
-    Topic topic = new TopicImpl("foo", "json", topicConfig);
+    Topic topic = new Topic("foo", "json", topicConfig);
     project.addTopic(topic);
 
-    Topic topic2 = new TopicImpl("topic2", topicConfig);
+    Topic topic2 = new Topic("topic2", topicConfig);
     project.addTopic(topic2);
 
     String topologyYamlString = parser.serialise(topology);
@@ -185,8 +216,8 @@ public class TopologySerdesTest {
     parser.deserialise(TestUtils.getResourceFile("/descriptor-with-no-context.yaml"));
   }
 
-  @Test(expected = TopologyParsingException.class)
-  public void testTopologyWithNoProject() {
+  @Test
+  public void testTopologyWithNoProjectShouldNotError() {
     parser.deserialise(TestUtils.getResourceFile("/descriptor-with-no-project.yaml"));
   }
 
@@ -248,6 +279,21 @@ public class TopologySerdesTest {
     assertThat(topicCat.get().getSchemas().get(0).getValueSubject().hasSchemaFile()).isTrue();
     assertThat(topicCat.get().getSchemas().get(1).getValueSubject().hasSchemaFile()).isTrue();
     assertThat(topicCat.get().getSubjectNameStrategy()).isEqualTo(TOPIC_RECORD_NAME_STRATEGY);
+  }
+
+  @Test
+  public void testOtherSerdes() {
+    Topology topology = parser.deserialise(TestUtils.getResourceFile("/descriptor.yaml"));
+    Project project = topology.getProjects().get(0);
+
+    var others = project.getOthers();
+    assertThat(others).hasSize(2);
+    var foos = others.get("foo");
+    assertThat(foos.get(0).getPrincipal()).isEqualTo("User:banana");
+    assertThat(foos.get(0).groupString()).isEqualTo("foo");
+    var bars = others.get("bar");
+    assertThat(bars.get(0).getPrincipal()).isEqualTo("User:banana");
+    assertThat(bars.get(0).groupString()).isEqualTo("bar");
   }
 
   @Test
@@ -343,10 +389,25 @@ public class TopologySerdesTest {
     Project myProject = topology.getProjects().get(0);
 
     assertEquals(2, myProject.getRbacRawRoles().size());
-    assertEquals(2, myProject.getSchemas().size());
-    assertEquals("User:App0", myProject.getSchemas().get(0).getPrincipal());
-    assertEquals(1, myProject.getSchemas().get(0).getSubjects().size());
-
+    assertEquals(3, myProject.getSchemas().size());
+    assertSchemas(
+        myProject.getSchemas().get(0),
+        "User:App0",
+        Collections.singletonList("transactions"),
+        RESOURCE_OWNER,
+        false);
+    assertSchemas(
+        myProject.getSchemas().get(1),
+        "User:App1",
+        Collections.singletonList("contracts"),
+        RESOURCE_OWNER,
+        false);
+    assertSchemas(
+        myProject.getSchemas().get(2),
+        "User:App2",
+        Collections.singletonList("myapp"),
+        DEVELOPER_READ,
+        true);
     Connector connector = myProject.getConnectors().get(0);
     assertEquals(true, connector.getConnectors().isPresent());
     assertEquals("jdbc-sync", connector.getConnectors().get().get(0));
@@ -372,13 +433,13 @@ public class TopologySerdesTest {
 
   @Test
   public void testConnectorArtefactsRetrieval() {
-    Topology topology = parser.deserialise(TestUtils.getResourceFile("/descriptor.yaml"));
+    Topology topology = parser.deserialise(TestUtils.getResourceFile("/descriptor-connector.yaml"));
     Project project = topology.getProjects().get(0);
     List<KafkaConnectArtefact> artefacts = project.getConnectorArtefacts().getConnectors();
     assertEquals(2, artefacts.size());
-    assertThat(artefacts.get(0)).hasFieldOrPropertyWithValue("path", "connectors/sink-jdbc.json");
+    assertThat(artefacts.get(0)).hasFieldOrPropertyWithValue("path", "connectors/source-jdbc.json");
     assertThat(artefacts.get(0)).hasFieldOrPropertyWithValue("serverLabel", "connector0");
-    assertThat(artefacts.get(1)).hasFieldOrPropertyWithValue("path", "connectors/source-jdbc.json");
+    assertThat(artefacts.get(1)).hasFieldOrPropertyWithValue("path", "connectors/sink-jdbc.json");
     assertThat(artefacts.get(1)).hasFieldOrPropertyWithValue("serverLabel", "connector0");
   }
 
@@ -442,6 +503,187 @@ public class TopologySerdesTest {
     assertEquals("source.contextOrg.foo.bar", p.getTopics().get(1).toString());
   }
 
+  @Test
+  public void testTopologyWithRepeatedAndMissingDataType() {
+    Map<String, String> cliOps = new HashMap<>();
+    cliOps.put(BROKERS_OPTION, "");
+    cliOps.put(CLIENT_CONFIG_OPTION, "/fooBar");
+
+    Properties props = new Properties();
+    props.put(
+        TOPIC_PREFIX_FORMAT_CONFIG,
+        "{{context}}.{{project}}.{{topic}}{% if dataType is defined %}.{{dataType}}{% endif %}");
+    Configuration config = new Configuration(cliOps, props);
+
+    TopologySerdes parser = new TopologySerdes(config, new PlanMap());
+
+    Topology topology =
+        parser.deserialise(TestUtils.getResourceFile("/descriptor-only-topics-datatype.yaml"));
+
+    assertEquals("context", topology.getContext());
+
+    Project p = topology.getProjects().get(0);
+
+    assertEquals(2, p.getTopics().size());
+    assertEquals("context.foo.foo", p.getTopics().get(0).toString());
+    assertEquals("context.foo.bar.avro", p.getTopics().get(1).toString());
+  }
+
+  @Test
+  public void testTopicsWithDLQNoFilter() {
+    Map<String, String> cliOps = new HashMap<>();
+    cliOps.put(BROKERS_OPTION, "");
+    cliOps.put(CLIENT_CONFIG_OPTION, "/fooBar");
+
+    Properties props = new Properties();
+    props.put(TOPOLOGY_DLQ_TOPICS_GENERATE, "true");
+
+    Configuration config = new Configuration(cliOps, props);
+
+    TopologySerdes parser = new TopologySerdes(config, new PlanMap());
+
+    Topology topology =
+        parser.deserialise(TestUtils.getResourceFile("/descriptor-only-topics.yaml"));
+    Project p = topology.getProjects().get(0);
+
+    assertThat(p.getTopics()).hasSize(4);
+    assertEquals("contextOrg.source.foo.foo", p.getTopics().get(0).toString());
+    assertEquals("contextOrg.source.foo.foo.dlq", p.getTopics().get(1).toString());
+    assertEquals("contextOrg.source.foo.bar.avro", p.getTopics().get(2).toString());
+    assertEquals("contextOrg.source.foo.bar.avro.dlq", p.getTopics().get(3).toString());
+  }
+
+  @Test
+  public void testTopicsWithDLQWithDenyList() {
+    Map<String, String> cliOps = new HashMap<>();
+    cliOps.put(BROKERS_OPTION, "");
+    cliOps.put(CLIENT_CONFIG_OPTION, "/fooBar");
+
+    Properties props = new Properties();
+    props.put(TOPOLOGY_DLQ_TOPICS_GENERATE, "true");
+    props.put(TOPOLOGY_DQL_TOPICS_DENY_LIST + ".0", "contextOrg.source.foo.bar.avro");
+
+    Configuration config = new Configuration(cliOps, props);
+
+    TopologySerdes parser = new TopologySerdes(config, new PlanMap());
+
+    Topology topology =
+        parser.deserialise(TestUtils.getResourceFile("/descriptor-only-topics.yaml"));
+    Project p = topology.getProjects().get(0);
+
+    assertThat(p.getTopics()).hasSize(3);
+    assertEquals("contextOrg.source.foo.foo", p.getTopics().get(0).toString());
+    assertEquals("contextOrg.source.foo.foo.dlq", p.getTopics().get(1).toString());
+    assertEquals("contextOrg.source.foo.bar.avro", p.getTopics().get(2).toString());
+  }
+
+  @Test
+  public void testTopicsWithDLQWithTopicPattern() {
+    Map<String, String> cliOps = new HashMap<>();
+    cliOps.put(BROKERS_OPTION, "");
+    cliOps.put(CLIENT_CONFIG_OPTION, "/fooBar");
+
+    Properties props = new Properties();
+    props.put(DLQ_TOPIC_PREFIX_FORMAT_CONFIG, "{{dlq}}.{{context}}.{{project}}");
+    props.put(TOPOLOGY_DLQ_TOPICS_GENERATE, "true");
+    props.put(TOPOLOGY_DQL_TOPICS_ALLOW_LIST + ".0", "contextOrg.source.foo.bar.avro");
+
+    Configuration config = new Configuration(cliOps, props);
+
+    TopologySerdes parser = new TopologySerdes(config, new PlanMap());
+
+    Topology topology =
+        parser.deserialise(TestUtils.getResourceFile("/descriptor-only-topics.yaml"));
+    Project p = topology.getProjects().get(0);
+
+    assertThat(p.getTopics()).hasSize(3);
+    assertEquals("contextOrg.source.foo.foo", p.getTopics().get(0).toString());
+    assertEquals("contextOrg.source.foo.bar.avro", p.getTopics().get(1).toString());
+    assertEquals("dlq.contextOrg.foo", p.getTopics().get(2).toString());
+  }
+
+  @Test
+  public void testTopicsWithDLQConfigVerify() {
+    Map<String, String> cliOps = new HashMap<>();
+    cliOps.put(BROKERS_OPTION, "");
+    cliOps.put(CLIENT_CONFIG_OPTION, "/fooBar");
+
+    Properties props = new Properties();
+    props.put(TOPOLOGY_DLQ_TOPICS_GENERATE, "true");
+    props.put(TOPOLOGY_DQL_TOPICS_ALLOW_LIST + ".0", "contextOrg.source.foo.bar.avro");
+
+    Configuration config = new Configuration(cliOps, props);
+
+    TopologySerdes parser = new TopologySerdes(config, new PlanMap());
+
+    Topology topology =
+        parser.deserialise(TestUtils.getResourceFile("/descriptor-only-topics.yaml"));
+    Project p = topology.getProjects().get(0);
+
+    assertThat(p.getTopics()).hasSize(3);
+
+    Topic mainTopic = p.getTopics().get(1);
+    Topic dlqTopic = p.getTopics().get(2);
+
+    assertEquals("contextOrg.source.foo.bar.avro", mainTopic.toString());
+    assertEquals("contextOrg.source.foo.bar.avro.dlq", dlqTopic.toString());
+    assertThat(mainTopic.getConfig()).isEqualToComparingFieldByField(dlqTopic.getConfig());
+  }
+
+  @Test
+  public void testTopicsWithDLQWithAllowList() {
+    Map<String, String> cliOps = new HashMap<>();
+    cliOps.put(BROKERS_OPTION, "");
+    cliOps.put(CLIENT_CONFIG_OPTION, "/fooBar");
+
+    Properties props = new Properties();
+    props.put(TOPOLOGY_DLQ_TOPICS_GENERATE, "true");
+    props.put(TOPOLOGY_DQL_TOPICS_ALLOW_LIST + ".0", "contextOrg.source.foo.bar.avro");
+
+    Configuration config = new Configuration(cliOps, props);
+
+    TopologySerdes parser = new TopologySerdes(config, new PlanMap());
+
+    Topology topology =
+        parser.deserialise(TestUtils.getResourceFile("/descriptor-only-topics.yaml"));
+    Project p = topology.getProjects().get(0);
+
+    assertThat(p.getTopics()).hasSize(3);
+    assertEquals("contextOrg.source.foo.foo", p.getTopics().get(0).toString());
+    assertEquals("contextOrg.source.foo.bar.avro", p.getTopics().get(1).toString());
+    assertEquals("contextOrg.source.foo.bar.avro.dlq", p.getTopics().get(2).toString());
+  }
+
+  @Test
+  public void testTopicsWithDLQWithAllowAndDenyList() {
+    Map<String, String> cliOps = new HashMap<>();
+    cliOps.put(BROKERS_OPTION, "");
+    cliOps.put(CLIENT_CONFIG_OPTION, "/fooBar");
+
+    Properties props = new Properties();
+    props.put(TOPOLOGY_DLQ_TOPICS_GENERATE, "true");
+    props.put(TOPOLOGY_DQL_TOPICS_ALLOW_LIST + ".0", "contextOrg.source.foo.bar.avro");
+    props.put(TOPOLOGY_DQL_TOPICS_DENY_LIST + ".0", "contextOrg.source.bar.bar.avro");
+
+    Configuration config = new Configuration(cliOps, props);
+
+    TopologySerdes parser = new TopologySerdes(config, new PlanMap());
+
+    Topology topology =
+        parser.deserialise(TestUtils.getResourceFile("/descriptor-only-topics.yaml"));
+    Project p = topology.getProjects().get(0);
+
+    assertThat(p.getTopics()).hasSize(3);
+    assertEquals("contextOrg.source.foo.foo", p.getTopics().get(0).toString());
+    assertEquals("contextOrg.source.foo.bar.avro", p.getTopics().get(1).toString());
+    assertEquals("contextOrg.source.foo.bar.avro.dlq", p.getTopics().get(2).toString());
+
+    p = topology.getProjects().get(1);
+
+    assertThat(p.getTopics()).hasSize(1);
+    assertEquals("contextOrg.source.bar.bar.avro", p.getTopics().get(0).toString());
+  }
+
   @Test(expected = TopologyParsingException.class)
   public void testTopicNameWithUTFCharacters() {
     parser.deserialise(TestUtils.getResourceFile("/descriptor-only-topics-utf.yaml"));
@@ -493,5 +735,13 @@ public class TopologySerdesTest {
     consumers.add(new Consumer("app1"));
     consumers.add(new Consumer("app2"));
     return consumers;
+  }
+
+  private void assertSchemas(
+      Schemas schemas, String principal, List<String> subjects, String role, boolean prefixed) {
+    assertEquals("Schemas principal", principal, schemas.getPrincipal());
+    assertEquals("Schemas subjects", subjects, schemas.getSubjects());
+    assertEquals("Schemas role", role, schemas.getRole());
+    assertEquals("Schemas isPrefixed", prefixed, schemas.isPrefixed());
   }
 }

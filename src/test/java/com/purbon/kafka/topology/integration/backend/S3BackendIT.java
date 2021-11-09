@@ -2,6 +2,7 @@ package com.purbon.kafka.topology.integration.backend;
 
 import static com.purbon.kafka.topology.CommandLineInterface.BROKERS_OPTION;
 import static com.purbon.kafka.topology.Constants.JULIE_S3_BUCKET;
+import static com.purbon.kafka.topology.Constants.JULIE_S3_ENDPOINT;
 import static com.purbon.kafka.topology.Constants.JULIE_S3_REGION;
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -17,7 +18,6 @@ import com.purbon.kafka.topology.backend.S3Backend;
 import com.purbon.kafka.topology.roles.TopologyAclBinding;
 import io.findify.s3mock.S3Mock;
 import java.io.IOException;
-import java.net.URI;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Collections;
@@ -72,9 +72,10 @@ public class S3BackendIT {
     Properties props = new Properties();
     props.put(JULIE_S3_REGION, "us-west-2");
     props.put(JULIE_S3_BUCKET, TEST_BUCKET);
+    props.put(JULIE_S3_ENDPOINT, TEST_ENDPOINT);
 
     Configuration config = new Configuration(cliOps, props);
-    backend.configure(config, URI.create(TEST_ENDPOINT), true);
+    backend.configure(config, true);
 
     TopologyAclBinding binding =
         TopologyAclBinding.build(
@@ -86,7 +87,7 @@ public class S3BackendIT {
     backend.close();
 
     S3Backend newBackend = new S3Backend();
-    newBackend.configure(config, URI.create(TEST_ENDPOINT), true);
+    newBackend.configure(config, true);
 
     BackendState newState = newBackend.load();
     assertThat(newState.size()).isEqualTo(1);

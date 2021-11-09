@@ -9,6 +9,7 @@ import com.purbon.kafka.topology.actions.access.builders.*;
 import com.purbon.kafka.topology.actions.access.builders.rbac.*;
 import com.purbon.kafka.topology.model.Component;
 import com.purbon.kafka.topology.model.DynamicUser;
+import com.purbon.kafka.topology.model.JulieRoles;
 import com.purbon.kafka.topology.model.Platform;
 import com.purbon.kafka.topology.model.Project;
 import com.purbon.kafka.topology.model.Topology;
@@ -17,6 +18,7 @@ import com.purbon.kafka.topology.model.users.Connector;
 import com.purbon.kafka.topology.model.users.Consumer;
 import com.purbon.kafka.topology.model.users.KSqlApp;
 import com.purbon.kafka.topology.model.users.KStream;
+import com.purbon.kafka.topology.model.users.Other;
 import com.purbon.kafka.topology.model.users.Producer;
 import com.purbon.kafka.topology.model.users.Schemas;
 import com.purbon.kafka.topology.model.users.platform.ControlCenterInstance;
@@ -35,6 +37,7 @@ public class AccessControlManager implements ExecutionPlanUpdater {
   private static final Logger LOGGER = LogManager.getLogger(AccessControlManager.class);
 
   private final Configuration config;
+  private final JulieRoles julieRoles;
   private AccessControlProvider controlProvider;
   private BindingsBuilderProvider bindingsBuilder;
   private final List<String> managedServiceAccountPrefixes;
@@ -50,25 +53,33 @@ public class AccessControlManager implements ExecutionPlanUpdater {
       AccessControlProvider controlProvider,
       BindingsBuilderProvider builderProvider,
       Configuration config) {
+    this(controlProvider, builderProvider, new JulieRoles(), config);
+  }
+
+  public AccessControlManager(
+      AccessControlProvider controlProvider,
+      BindingsBuilderProvider builderProvider,
+      JulieRoles julieRoles,
+      Configuration config) {
     this.controlProvider = controlProvider;
     this.bindingsBuilder = builderProvider;
     this.config = config;
     this.managedServiceAccountPrefixes = config.getServiceAccountManagedPrefixes();
     this.managedTopicPrefixes = config.getTopicManagedPrefixes();
     this.managedGroupPrefixes = config.getGroupManagedPrefixes();
+    this.julieRoles = julieRoles;
   }
 
-  /**
-   * Main apply method, append to the execution plan the necessary bindings to update the access
-   * control
-   *
-   * @param plan An Execution plan
-   * @param topology A topology file descriptor
-   */
   @Override
-  public void updatePlan(ExecutionPlan plan, final Topology topology) throws IOException {
-    List<AclBindingsResult> aclBindingsResults = buildProjectAclBindings(topology);
-    aclBindingsResults.addAll(buildPlatformLevelActions(topology));
+  public void updatePlan(ExecutionPlan plan, final Map<String, Topology> topologies)
+      throws IOException {
+    List<AclBindingsResult> aclBindingsResults = new ArrayList<>();
+    for (Topology topology : topologies.values()) {
+      julieRoles.validateTopology(topology);
+      aclBindingsResults.addAll(buildProjectAclBindings(topology));
+      aclBindingsResults.addAll(buildPlatformLevelActions(topology));
+    }
+
     buildUpdateBindingsActions(aclBindingsResults, loadActualClusterStateIfAvailable(plan))
         .forEach(plan::add);
   }
@@ -130,11 +141,29 @@ public class AccessControlManager implements ExecutionPlanUpdater {
 
       for (Schemas schemaAuthorization : project.getSchemas()) {
         aclBindingsResults.add(
-            new SchemaAuthorizationAclBindingsBuilder(bindingsBuilder, schemaAuthorization)
+            new SchemaAuthorizationAclBindingsBuilder(
+                    new BuildBindingsForSchemaAuthorization(bindingsBuilder, schemaAuthorization))
                 .getAclBindings());
       }
 
       syncRbacRawRoles(project.getRbacRawRoles(), topicPrefix, aclBindingsResults);
+
+      for (Map.Entry<String, List<Other>> other : project.getOthers().entrySet()) {
+        if (julieRoles.size() == 0) {
+          throw new IllegalStateException(
+              "Custom JulieRoles are being used without providing the required config file.");
+        }
+        BuildBindingsForRole buildBindingsForRole =
+            new BuildBindingsForRole(
+                bindingsBuilder, julieRoles.get(other.getKey()), other.getValue());
+        try {
+          buildBindingsForRole.run();
+        } catch (IOException e) {
+          throw new IllegalStateException(e);
+        }
+        aclBindingsResults.add(
+            AclBindingsResult.forAclBindings(buildBindingsForRole.getAclBindings()));
+      }
     }
     return aclBindingsResults;
   }

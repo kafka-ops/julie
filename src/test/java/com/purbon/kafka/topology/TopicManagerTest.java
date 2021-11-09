@@ -8,7 +8,6 @@ import static org.mockito.Mockito.*;
 import com.purbon.kafka.topology.actions.Action;
 import com.purbon.kafka.topology.api.adminclient.TopologyBuilderAdminClient;
 import com.purbon.kafka.topology.model.Impl.ProjectImpl;
-import com.purbon.kafka.topology.model.Impl.TopicImpl;
 import com.purbon.kafka.topology.model.Impl.TopologyImpl;
 import com.purbon.kafka.topology.model.Project;
 import com.purbon.kafka.topology.model.Topic;
@@ -68,15 +67,15 @@ public class TopicManagerTest {
   public void newTopicCreationTest() throws IOException {
 
     Project project = new ProjectImpl("project");
-    Topic topicA = new TopicImpl("topicA");
+    Topic topicA = new Topic("topicA");
     project.addTopic(topicA);
-    Topic topicB = new TopicImpl("topicB");
+    Topic topicB = new Topic("topicB");
     project.addTopic(topicB);
     Topology topology = new TopologyImpl();
     topology.addProject(project);
 
     when(adminClient.listApplicationTopics()).thenReturn(new HashSet<>());
-    topicManager.updatePlan(plan, topology);
+    topicManager.updatePlan(topology, plan);
     plan.run();
 
     verify(adminClient, times(1)).createTopic(topicA, topicA.toString());
@@ -90,12 +89,12 @@ public class TopicManagerTest {
     Project project = new ProjectImpl("project");
     topology.addProject(project);
 
-    Topic topicA = new TopicImpl("topicA");
+    Topic topicA = new Topic("topicA");
     project.addTopic(topicA);
-    Topic topicB = new TopicImpl("topicB");
+    Topic topicB = new Topic("topicB");
     project.addTopic(topicB);
 
-    topicManager.updatePlan(plan, topology);
+    topicManager.updatePlan(topology, plan);
     plan.run();
 
     verify(adminClient, times(1)).createTopic(topicA, topicA.toString());
@@ -110,13 +109,14 @@ public class TopicManagerTest {
     project = new ProjectImpl("project");
     topology.addProject(project);
 
-    topicA = new TopicImpl("topicA");
+    topicA = new Topic("topicA");
     project.addTopic(topicA);
-    topicB = new TopicImpl("topicB", Collections.singletonMap(NUM_PARTITIONS, "12"));
+
+    topicB = new Topic("topicB", Collections.singletonMap(NUM_PARTITIONS, "12"));
     project.addTopic(topicB);
 
     doReturn(new Config(Collections.emptyList())).when(adminClient).getActualTopicConfig(any());
-    topicManager.updatePlan(plan, topology);
+    topicManager.updatePlan(topology, plan);
     plan.run();
 
     verify(adminClient, times(0)).createTopic(topicA, topicA.toString());
@@ -144,7 +144,7 @@ public class TopicManagerTest {
     Project project0 = new ProjectImpl("project");
     topology0.addProject(project0);
 
-    Topic topicC = new TopicImpl("topicC");
+    Topic topicC = new Topic("topicC");
     project0.addTopic(topicC);
 
     // Topology after delete action
@@ -152,9 +152,9 @@ public class TopicManagerTest {
     Project project = new ProjectImpl("project");
     topology.addProject(project);
 
-    Topic topicA = new TopicImpl("topicA");
+    Topic topicA = new Topic("topicA");
     project.addTopic(topicA);
-    Topic topicB = new TopicImpl("topicB");
+    Topic topicB = new Topic("topicB");
     project.addTopic(topicB);
 
     Set<String> dummyTopicList = new HashSet<>();
@@ -164,7 +164,7 @@ public class TopicManagerTest {
         "_my-internal-topic"); // return an internal topic using the default config values
     when(adminClient.listApplicationTopics()).thenReturn(dummyTopicList);
 
-    topicManager.updatePlan(plan, topology);
+    topicManager.updatePlan(topology, plan);
     plan.run();
 
     verify(adminClient, times(1)).createTopic(topicA, topicA.toString());
@@ -191,9 +191,9 @@ public class TopicManagerTest {
     Project project = new ProjectImpl("project");
     topology.addProject(project);
 
-    Topic topicA = new TopicImpl("topicA");
+    Topic topicA = new Topic("topicA");
     project.addTopic(topicA);
-    Topic topicB = new TopicImpl("topicB");
+    Topic topicB = new Topic("topicB");
     project.addTopic(topicB);
 
     String topicC = "team.project.topicC";
@@ -203,7 +203,7 @@ public class TopicManagerTest {
     Set<String> appTopics = Stream.of(topicC, topicI1, topicI2).collect(Collectors.toSet());
     when(adminClient.listApplicationTopics()).thenReturn(appTopics);
 
-    topicManager.updatePlan(plan, topology);
+    topicManager.updatePlan(topology, plan);
     plan.run();
 
     verify(adminClient, times(1)).createTopic(topicA, topicA.toString());
@@ -229,9 +229,9 @@ public class TopicManagerTest {
     Project project = new ProjectImpl("project");
     topology.addProject(project);
 
-    Topic topicA = new TopicImpl("topicA");
+    Topic topicA = new Topic("topicA");
     project.addTopic(topicA);
-    Topic topicB = new TopicImpl("topicB");
+    Topic topicB = new Topic("topicB");
     project.addTopic(topicB);
 
     String topicC = "team.project.topicC";
@@ -239,7 +239,7 @@ public class TopicManagerTest {
     Set<String> appTopics = Stream.of(topicC).collect(Collectors.toSet());
     when(adminClient.listApplicationTopics()).thenReturn(appTopics);
 
-    topicManager.updatePlan(plan, topology);
+    topicManager.updatePlan(topology, plan);
     plan.run();
 
     verify(adminClient, times(0)).deleteTopics(Collections.singletonList(topicC));
@@ -263,9 +263,9 @@ public class TopicManagerTest {
     Project project = new ProjectImpl("project");
     topology.addProject(project);
 
-    Topic topicA = new TopicImpl("topicA");
+    Topic topicA = new Topic("topicA");
     project.addTopic(topicA);
-    Topic topicB = new TopicImpl("topicB");
+    Topic topicB = new Topic("topicB");
     project.addTopic(topicB);
 
     String topicC = "team.project.topicC";
@@ -273,7 +273,7 @@ public class TopicManagerTest {
     Set<String> appTopics = Collections.singleton(topicC);
     when(adminClient.listApplicationTopics()).thenReturn(appTopics);
 
-    topicManager.updatePlan(plan, topology);
+    topicManager.updatePlan(topology, plan);
     plan.run();
 
     verify(adminClient, times(1)).deleteTopics(Collections.singletonList(topicC));
@@ -297,9 +297,9 @@ public class TopicManagerTest {
     Project project = new ProjectImpl("project");
     topology.addProject(project);
 
-    Topic topicA = new TopicImpl("topicA");
+    Topic topicA = new Topic("topicA");
     project.addTopic(topicA);
-    Topic topicB = new TopicImpl("topicB");
+    Topic topicB = new Topic("topicB");
     project.addTopic(topicB);
 
     String topicC = "team.project.topicC";
@@ -307,7 +307,7 @@ public class TopicManagerTest {
     Set<String> appTopics = Collections.singleton(topicC);
     when(adminClient.listApplicationTopics()).thenReturn(appTopics);
 
-    topicManager.updatePlan(plan, topology);
+    topicManager.updatePlan(topology, plan);
     plan.run();
 
     verify(adminClient, times(0)).deleteTopics(Collections.singletonList(topicC));
@@ -318,9 +318,9 @@ public class TopicManagerTest {
 
     plan = ExecutionPlan.init(backendController, outputStream);
     Project project = new ProjectImpl("project");
-    Topic topicA = new TopicImpl("topicA");
+    Topic topicA = new Topic("topicA");
     project.addTopic(topicA);
-    Topic topicB = new TopicImpl("topicB", Collections.singletonMap(NUM_PARTITIONS, "12"));
+    Topic topicB = new Topic("topicB", Collections.singletonMap(NUM_PARTITIONS, "12"));
     project.addTopic(topicB);
     Topology topology = new TopologyImpl();
     topology.addProject(project);
@@ -329,7 +329,7 @@ public class TopicManagerTest {
     dummyTopicList.add(topicB.toString());
     when(adminClient.listApplicationTopics()).thenReturn(dummyTopicList);
 
-    topicManager.updatePlan(plan, topology);
+    topicManager.updatePlan(topology, plan);
     plan.run(true);
 
     verify(outputStream, times(4)).println(any(Action.class));
@@ -346,15 +346,15 @@ public class TopicManagerTest {
     TopicManager topicManager = new TopicManager(adminClient, schemaRegistryManager, config);
 
     Project project = new ProjectImpl("project");
-    Topic topicA = new TopicImpl("NamespaceA_TopicA", config);
+    Topic topicA = new Topic("NamespaceA_TopicA", config);
     project.addTopic(topicA);
-    Topic topicB = new TopicImpl("NamespaceB_TopicB", config);
+    Topic topicB = new Topic("NamespaceB_TopicB", config);
     project.addTopic(topicB);
     Topology topology = new TopologyImpl(config);
     topology.addProject(project);
 
     when(adminClient.listApplicationTopics()).thenReturn(new HashSet<>());
-    topicManager.updatePlan(plan, topology);
+    topicManager.updatePlan(topology, plan);
     plan.run();
 
     verify(adminClient, times(1)).createTopic(topicA, topicA.toString());

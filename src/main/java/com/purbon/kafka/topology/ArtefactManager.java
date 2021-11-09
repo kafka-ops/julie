@@ -35,21 +35,25 @@ public abstract class ArtefactManager implements ExecutionPlanUpdater {
   }
 
   @Override
-  public void updatePlan(ExecutionPlan plan, Topology topology) throws IOException {
-
+  public void updatePlan(ExecutionPlan plan, Map<String, Topology> topologies) throws IOException {
     Collection<? extends Artefact> currentArtefacts = loadActualClusterStateIfAvailable(plan);
 
-    Set<? extends Artefact> artefacts = parseNewArtefacts(topology);
-    for (Artefact artefact : artefacts) {
-      if (!currentArtefacts.contains(artefact)) {
-        ArtefactClient client = selectClient(artefact);
-        if (client == null) {
-          throw new IOException(
-              "The Artefact "
-                  + artefact.getName()
-                  + " require a non configured client, please check our configuration");
+    Set<Artefact> artefacts = new HashSet<>();
+
+    for (Topology topology : topologies.values()) {
+      Set<? extends Artefact> entryArtefacts = parseNewArtefacts(topology);
+      for (Artefact artefact : entryArtefacts) {
+        if (!currentArtefacts.contains(artefact)) {
+          ArtefactClient client = selectClient(artefact);
+          if (client == null) {
+            throw new IOException(
+                "The Artefact "
+                    + artefact.getName()
+                    + " require a non configured client, please check our configuration");
+          }
+          plan.add(new CreateArtefactAction(client, rootPath(), currentArtefacts, artefact));
         }
-        plan.add(new CreateArtefactAction(client, rootPath(), currentArtefacts, artefact));
+        artefacts.add(artefact);
       }
     }
 

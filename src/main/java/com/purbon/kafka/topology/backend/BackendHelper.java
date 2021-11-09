@@ -5,17 +5,15 @@ import java.io.IOException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public abstract class AbstractBackend implements Backend {
+class BackendHelper {
 
-  private final String expression =
+  private static final String expression =
       "^\"?\\'(\\S+)\\',\\s*\\'(\\S+)\\',\\s*\\'(\\S+)\\',\\s*\\'(\\S+)\\',\\s*\\'(.+)\\',\\s*\\'(\\S+)\\'\"?$";
-  private Pattern regexp;
+  private static Pattern regexp = Pattern.compile(expression);
 
-  public AbstractBackend() {
-    this.regexp = Pattern.compile(expression);
-  }
+  private BackendHelper() {}
 
-  protected TopologyAclBinding buildAclBinding(String line) throws IOException {
+  static TopologyAclBinding buildAclBinding(String line) throws IOException {
     // 'TOPIC', 'topicB', '*', 'READ', 'User:Connect1', 'LITERAL'
     Matcher matches = regexp.matcher(line);
 

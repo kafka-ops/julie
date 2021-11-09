@@ -12,7 +12,6 @@ import com.purbon.kafka.topology.api.mds.MDSApiClient;
 import com.purbon.kafka.topology.api.mds.RequestScope;
 import com.purbon.kafka.topology.model.*;
 import com.purbon.kafka.topology.model.Impl.ProjectImpl;
-import com.purbon.kafka.topology.model.Impl.TopicImpl;
 import com.purbon.kafka.topology.model.Impl.TopologyImpl;
 import com.purbon.kafka.topology.model.users.Connector;
 import com.purbon.kafka.topology.model.users.Consumer;
@@ -68,7 +67,7 @@ public class RbacProviderTest {
     Project project = new ProjectImpl();
     project.setConsumers(consumers);
 
-    Topic topicA = new TopicImpl("topicA");
+    Topic topicA = new Topic("topicA");
     project.addTopic(topicA);
 
     Topology topology = new TopologyImpl();
@@ -78,7 +77,7 @@ public class RbacProviderTest {
         .when(apiClient)
         .bind("User:app1", DEVELOPER_READ, topicA.toString(), LITERAL);
 
-    accessControlManager.updatePlan(plan, topology);
+    accessControlManager.updatePlan(topology, plan);
 
     verify(apiClient, times(1))
         .bind(eq("User:app1"), anyString(), eq(topicA.toString()), anyString());
@@ -100,7 +99,7 @@ public class RbacProviderTest {
     Project project = new ProjectImpl();
     project.setConsumers(consumers);
 
-    Topic topicA = new TopicImpl("topicA");
+    Topic topicA = new Topic("topicA");
     project.addTopic(topicA);
 
     Topology topology = new TopologyImpl();
@@ -110,7 +109,7 @@ public class RbacProviderTest {
         .when(apiClient)
         .bind("User:app1", DEVELOPER_READ, project.namePrefix(), PREFIX);
 
-    accessControlManager.updatePlan(plan, topology);
+    accessControlManager.updatePlan(topology, plan);
 
     verify(apiClient, times(1))
         .bind(eq("User:app1"), eq(DEVELOPER_READ), eq(project.namePrefix()), eq(PREFIX));
@@ -124,7 +123,7 @@ public class RbacProviderTest {
     Project project = new ProjectImpl();
     project.setProducers(producers);
 
-    Topic topicA = new TopicImpl("topicA");
+    Topic topicA = new Topic("topicA");
     project.addTopic(topicA);
 
     Topology topology = new TopologyImpl();
@@ -134,7 +133,7 @@ public class RbacProviderTest {
         .when(apiClient)
         .bind("User:app1", DEVELOPER_WRITE, topicA.toString(), LITERAL);
 
-    accessControlManager.updatePlan(plan, topology);
+    accessControlManager.updatePlan(topology, plan);
 
     verify(apiClient, times(1))
         .bind(eq("User:app1"), anyString(), eq(topicA.toString()), anyString());
@@ -155,7 +154,7 @@ public class RbacProviderTest {
     Project project = new ProjectImpl();
     project.setProducers(producers);
 
-    Topic topicA = new TopicImpl("topicA");
+    Topic topicA = new Topic("topicA");
     project.addTopic(topicA);
 
     Topology topology = new TopologyImpl();
@@ -165,7 +164,7 @@ public class RbacProviderTest {
         .when(apiClient)
         .bind("User:app1", DEVELOPER_WRITE, project.namePrefix(), PREFIX);
 
-    accessControlManager.updatePlan(plan, topology);
+    accessControlManager.updatePlan(topology, plan);
 
     verify(apiClient, times(1))
         .bind(eq("User:app1"), eq(DEVELOPER_WRITE), eq(project.namePrefix()), eq(PREFIX));
@@ -191,7 +190,7 @@ public class RbacProviderTest {
         .when(apiClient)
         .bind(anyString(), anyString(), anyString(), anyString());
 
-    accessControlManager.updatePlan(plan, topology);
+    accessControlManager.updatePlan(topology, plan);
 
     verify(apiClient, times(6)).bind(eq("User:App0"), anyString(), anyString(), anyString());
   }
@@ -225,7 +224,7 @@ public class RbacProviderTest {
         .when(apiClient)
         .bindClusterRole(anyString(), anyString(), any(RequestScope.class));
 
-    accessControlManager.updatePlan(plan, topology);
+    accessControlManager.updatePlan(topology, plan);
 
     verify(apiClient, times(1))
         .bind(anyString(), anyString(), anyString(), anyString(), anyString());
@@ -255,7 +254,7 @@ public class RbacProviderTest {
         .when(apiClient)
         .bindClusterRole(anyString(), anyString(), any(RequestScope.class));
 
-    accessControlManager.updatePlan(plan, topology);
+    accessControlManager.updatePlan(topology, plan);
 
     verify(apiClient, times(1)).bind(anyString(), anyString());
   }
@@ -284,7 +283,7 @@ public class RbacProviderTest {
         .when(apiClient)
         .bindClusterRole(anyString(), anyString(), any(RequestScope.class));
 
-    accessControlManager.updatePlan(plan, topology);
+    accessControlManager.updatePlan(topology, plan);
 
     verify(apiClient, times(1)).bind(anyString(), anyString());
     verify(apiClient, times(6))

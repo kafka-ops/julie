@@ -5,7 +5,6 @@ import static org.mockito.Mockito.*;
 import com.purbon.kafka.topology.api.adminclient.TopologyBuilderAdminClient;
 import com.purbon.kafka.topology.model.*;
 import com.purbon.kafka.topology.model.Impl.ProjectImpl;
-import com.purbon.kafka.topology.model.Impl.TopicImpl;
 import com.purbon.kafka.topology.model.Impl.TopologyImpl;
 import com.purbon.kafka.topology.model.users.Connector;
 import com.purbon.kafka.topology.model.users.Consumer;
@@ -79,13 +78,13 @@ public class TopologyBuilderAdminClientTest {
     Project project = new ProjectImpl();
     project.setConsumers(consumers);
 
-    Topic topicA = new TopicImpl("topicA");
+    Topic topicA = new Topic("topicA");
     project.addTopic(topicA);
 
     Topology topology = new TopologyImpl();
     topology.addProject(project);
 
-    accessControlManager.updatePlan(plan, topology);
+    accessControlManager.updatePlan(topology, plan);
     plan.run();
 
     verify(kafkaAdminClient, times(1)).createAcls(anyCollection());
@@ -99,13 +98,13 @@ public class TopologyBuilderAdminClientTest {
     Project project = new ProjectImpl();
     project.setProducers(producers);
 
-    Topic topicA = new TopicImpl("topicA");
+    Topic topicA = new Topic("topicA");
     project.addTopic(topicA);
 
     Topology topology = new TopologyImpl();
     topology.addProject(project);
 
-    accessControlManager.updatePlan(plan, topology);
+    accessControlManager.updatePlan(topology, plan);
     plan.run();
 
     verify(kafkaAdminClient, times(1)).createAcls(anyCollection());
@@ -127,7 +126,7 @@ public class TopologyBuilderAdminClientTest {
     Topology topology = new TopologyImpl();
     topology.addProject(project);
 
-    accessControlManager.updatePlan(plan, topology);
+    accessControlManager.updatePlan(topology, plan);
     plan.run();
 
     verify(kafkaAdminClient, times(1)).createAcls(anyCollection());
@@ -155,7 +154,7 @@ public class TopologyBuilderAdminClientTest {
     platform.setSchemaRegistry(sr);
     topology.setPlatform(platform);
 
-    accessControlManager.updatePlan(plan, topology);
+    accessControlManager.updatePlan(topology, plan);
     plan.run();
 
     verify(kafkaAdminClient, times(1)).createAcls(anyCollection());
@@ -177,7 +176,7 @@ public class TopologyBuilderAdminClientTest {
     platform.setControlCenter(c3);
     topology.setPlatform(platform);
 
-    accessControlManager.updatePlan(plan, topology);
+    accessControlManager.updatePlan(topology, plan);
     plan.run();
 
     verify(kafkaAdminClient, times(1)).createAcls(anyCollection());
@@ -199,7 +198,7 @@ public class TopologyBuilderAdminClientTest {
     Topology topology = new TopologyImpl();
     topology.addProject(project);
 
-    accessControlManager.updatePlan(plan, topology);
+    accessControlManager.updatePlan(topology, plan);
     plan.run();
 
     verify(kafkaAdminClient, times(1)).createAcls(anyCollection());

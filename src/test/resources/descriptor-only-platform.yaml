@@ -1,0 +1,9 @@
+---
+context: "context"
+platform:
+  kafka:
+    rbac:
+      SecurityAdmin:
+        - principal: "User:Foo"
+      ClusterAdmin:
+        - principal: "User:Boo"

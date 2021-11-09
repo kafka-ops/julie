@@ -4,17 +4,14 @@ import static com.purbon.kafka.topology.BackendController.STATE_FILE_NAME;
 
 import com.purbon.kafka.topology.BackendController.Mode;
 import com.purbon.kafka.topology.utils.JSON;
-import java.io.BufferedReader;
-import java.io.FileReader;
-import java.io.FileWriter;
-import java.io.IOException;
+import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-public class FileBackend extends AbstractBackend {
+public class FileBackend implements Backend {
 
   private static final Logger LOGGER = LogManager.getLogger(FileBackend.class);
 
@@ -43,7 +40,7 @@ public class FileBackend extends AbstractBackend {
 
   @Override
   public void save(BackendState state) throws IOException {
-    writeLine(state.asJson());
+    writeText(state.asPrettyJson());
   }
 
   @Override
@@ -52,16 +49,20 @@ public class FileBackend extends AbstractBackend {
     if (Files.size(filePath) == 0) { // if we are loading when there is no file or is empty.
       return new BackendState();
     }
-    try (BufferedReader reader = new BufferedReader(new FileReader(filePath.toFile()))) {
-      String backendStateAsJsonString = reader.readLine();
-      return (BackendState) JSON.toObject(backendStateAsJsonString, BackendState.class);
-    }
+    return load(filePath);
   }
 
-  private void writeLine(String line) throws IOException {
+  BackendState load(Path stateFilePath) throws IOException {
+    String backendStateAsJsonString = Files.readString(stateFilePath);
+    if (OldFileBackendLoader.isControlTag(backendStateAsJsonString.split("\\r?\\n")[0])) {
+      return new OldFileBackendLoader().load(stateFilePath.toFile());
+    }
+    return (BackendState) JSON.toObject(backendStateAsJsonString, BackendState.class);
+  }
+
+  private void writeText(String text) throws IOException {
     try {
-      writer.write(line);
-      writer.write("\n");
+      writer.write(text);
     } catch (IOException e) {
       LOGGER.error(e);
       throw e;

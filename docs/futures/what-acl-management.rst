@@ -5,14 +5,14 @@ ACLs
 -----------
 
 In the topology descriptor files users can create permissions for different types of applications, Consumers, Producers, Kafka streams apps or Kafka Connectors.
-With this roles, users can easily create the permissions that map directly to their needs.
+With these roles, users can easily create the permissions that map directly to their needs.
 
-If desired by organisational purposes e.g. shared cluster a user can decide to filter which ACLS will be managed by prefix, this is done using the managed prefixes config.
+If desired by organisational purposes, e.g. shared cluster a user can decide to filter which ACLs will be managed by prefix, this is done using the managed prefixes config.
 
-Topic acls will be managed if the topic matches
+Topic ACLs will be managed if the topic matches
 *topology.topic.managed.prefixes* configuration setting. Check :ref:`config` for details.
 
-Group acls will be managed if the group matches
+Group ACLs will be managed if the group matches
 *topology.group.managed.prefixes* configuration setting. Check :ref:`config` for details.
 
 All others currently and for the above if a global wildcard, will be managed if principle matches
@@ -72,6 +72,21 @@ Producers have a principal.
       - name: "foo"
         producers:
           - principal: "User:App0"
+
+Producers may also have a transactional ID, which can be specified as either literal value or prefix pattern (when ending with a `*`):
+
+.. code-block:: YAML
+
+  ---
+    context: "context"
+    source: "source"
+    projects:
+      - name: "foo"
+        producers:
+          - principal: "User:App0"
+            transactionId: "App0"
+          - principal: "User:App1"
+            transactionId: "my-app*"
 
 In the default mode Julie Ops will create dedicated ACL for each user and topic pair. For organisations that aim not to have dedicated pair of rules Julie Ops offer the option
 to optimise the number of ACLs using prefixed rules.
@@ -241,7 +256,7 @@ Julie Ops will assign the following ACLs:
 
 * each principal in the `consumers` list will get `READ` and `DESCRIBE` permissions on each topic. In addition `READ` access on every consumer group (by default) or the group specified in the topology.
 
-* each principal in the `producers` list will get `WRITE` and `DESCRIBE` permissions on each topic. In addition if a *transactionId* is specified a WRITE and DESCRIBE ACL is created on the transactionId resource. And if either *transactionId* or *idempotence* is specified for the producer the IDEMPOTENT_WRITE ALLOW acl is created.
+* each principal in the `producers` list will get `WRITE` and `DESCRIBE` permissions on each topic. In addition if a *transactionId* is specified, a WRITE and DESCRIBE ACL is created on the *transactionId* resource. And if either *transactionId* or *idempotence* is specified for the producer the IDEMPOTENT_WRITE ALLOW acl is created.
 
 * each principal in the `streams` list will get
 
@@ -376,6 +391,10 @@ It is possible in RBAC to assign permission for a given principal to access a gi
 This is possible with Julie Ops with a topology like the one below, where *User:App0* will
 have access to schemas in subjects *transactions* and *User:App1* to subject *contracts*.
 
+By default, Julie Ops grants `ResourceOwner` role for subjects, and creates non-prefixed (literal) role bindings.
+It's possible to specify different role, and create prefixed role bindings for subjects,
+as shown in the example below for *User:App2*.
+
 .. code-block:: YAML
 
   ---
@@ -402,7 +421,11 @@ have access to schemas in subjects *transactions* and *User:App1* to subject *co
           - principal: "User:App1"
             subjects:
               - "contracts"
-
+          - principal: "User:App2"
+            subjects:
+              - "myapp"
+            role: "DeveloperRead"
+            prefixed: true
 
 Cluster wide roles
 ^^^^^^^^^^^

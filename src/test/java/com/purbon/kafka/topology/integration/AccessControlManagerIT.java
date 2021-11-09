@@ -11,6 +11,7 @@ import com.purbon.kafka.topology.AccessControlManager;
 import com.purbon.kafka.topology.BackendController;
 import com.purbon.kafka.topology.Configuration;
 import com.purbon.kafka.topology.ExecutionPlan;
+import com.purbon.kafka.topology.TestTopologyBuilder;
 import com.purbon.kafka.topology.api.adminclient.AclBuilder;
 import com.purbon.kafka.topology.api.adminclient.TopologyBuilderAdminClient;
 import com.purbon.kafka.topology.integration.containerutils.ContainerFactory;
@@ -18,8 +19,8 @@ import com.purbon.kafka.topology.integration.containerutils.ContainerTestUtils;
 import com.purbon.kafka.topology.integration.containerutils.SaslPlaintextKafkaContainer;
 import com.purbon.kafka.topology.model.*;
 import com.purbon.kafka.topology.model.Impl.ProjectImpl;
-import com.purbon.kafka.topology.model.Impl.TopicImpl;
 import com.purbon.kafka.topology.model.Impl.TopologyImpl;
+import com.purbon.kafka.topology.model.Topic;
 import com.purbon.kafka.topology.model.users.*;
 import com.purbon.kafka.topology.model.users.platform.*;
 import com.purbon.kafka.topology.roles.SimpleAclsProvider;
@@ -106,7 +107,7 @@ public class AccessControlManagerIT {
 
     Project project = new ProjectImpl("project");
     project.setConsumers(consumers);
-    Topic topicA = new TopicImpl("topicA");
+    Topic topicA = new Topic("topicA");
     project.addTopic(topicA);
 
     Topology topology = new TopologyImpl();
@@ -114,7 +115,7 @@ public class AccessControlManagerIT {
     topology.addOther("source", "testAclsRemoval");
     topology.addProject(project);
 
-    accessControlManager.updatePlan(plan, topology);
+    accessControlManager.updatePlan(topology, plan);
     plan.run();
 
     assertEquals(6, cs.size());
@@ -124,7 +125,7 @@ public class AccessControlManagerIT {
     project.setConsumers(consumers);
 
     plan.getActions().clear();
-    accessControlManager.updatePlan(plan, topology);
+    accessControlManager.updatePlan(topology, plan);
     plan.run();
 
     assertEquals(3, cs.size());
@@ -152,7 +153,7 @@ public class AccessControlManagerIT {
             "User:testAclsRemovalUser1",
             "User:testAclsRemovalUser2");
 
-    accessControlManager.updatePlan(plan, topology);
+    accessControlManager.updatePlan(topology, plan);
     plan.run();
     assertEquals(6, cs.size());
 
@@ -165,7 +166,7 @@ public class AccessControlManagerIT {
         buildTopologyForConsumers(
             "aclsRemovedTest-Integration", "", "topicA", "User:testAclsRemovalUser1");
 
-    accessControlManager.updatePlan(plan, topology);
+    accessControlManager.updatePlan(topology, plan);
     plan.run();
 
     assertEquals(3, cs.size());
@@ -180,7 +181,7 @@ public class AccessControlManagerIT {
 
     Project project = new ProjectImpl("project");
     project.setConsumers(consumers);
-    Topic topicA = new TopicImpl("topicA");
+    Topic topicA = new Topic("topicA");
     project.addTopic(topicA);
 
     Topology topology = new TopologyImpl();
@@ -188,7 +189,7 @@ public class AccessControlManagerIT {
     topology.addOther("source", "testConsumerAclsCreation");
     topology.addProject(project);
 
-    accessControlManager.updatePlan(plan, topology);
+    accessControlManager.updatePlan(topology, plan);
     plan.run(false);
 
     verifyConsumerAcls(consumers);
@@ -203,7 +204,7 @@ public class AccessControlManagerIT {
 
     Project project = new ProjectImpl("project");
     project.setProducers(producers);
-    Topic topicA = new TopicImpl("topicA");
+    Topic topicA = new Topic("topicA");
     project.addTopic(topicA);
 
     Topology topology = new TopologyImpl();
@@ -211,7 +212,7 @@ public class AccessControlManagerIT {
     topology.addOther("source", "producerAclsCreation");
     topology.addProject(project);
 
-    accessControlManager.updatePlan(plan, topology);
+    accessControlManager.updatePlan(topology, plan);
     plan.run(false);
 
     verifyProducerAcls(producers, 2);
@@ -227,7 +228,7 @@ public class AccessControlManagerIT {
 
     Project project = new ProjectImpl("project");
     project.setProducers(producers);
-    Topic topicA = new TopicImpl("topicA");
+    Topic topicA = new Topic("topicA");
     project.addTopic(topicA);
 
     Topology topology = new TopologyImpl();
@@ -235,7 +236,7 @@ public class AccessControlManagerIT {
     topology.addOther("source", "producerAclsCreation");
     topology.addProject(project);
 
-    accessControlManager.updatePlan(plan, topology);
+    accessControlManager.updatePlan(topology, plan);
     plan.run(false);
 
     verifyProducerAcls(producers, 5);
@@ -251,7 +252,7 @@ public class AccessControlManagerIT {
 
     Project project = new ProjectImpl("project");
     project.setProducers(producers);
-    Topic topicA = new TopicImpl("topicA2");
+    Topic topicA = new Topic("topicA2");
     project.addTopic(topicA);
 
     Topology topology = new TopologyImpl();
@@ -259,7 +260,7 @@ public class AccessControlManagerIT {
     topology.addOther("source", "producerAclsCreation");
     topology.addProject(project);
 
-    accessControlManager.updatePlan(plan, topology);
+    accessControlManager.updatePlan(topology, plan);
     plan.run(false);
 
     verifyProducerAcls(producers, 3);
@@ -282,7 +283,7 @@ public class AccessControlManagerIT {
     topology.addOther("source", "kstreamsAclsCreation");
     topology.addProject(project);
 
-    accessControlManager.updatePlan(plan, topology);
+    accessControlManager.updatePlan(topology, plan);
     plan.run();
 
     verifyKStreamsAcls(app);
@@ -305,7 +306,7 @@ public class AccessControlManagerIT {
     topology.addOther("source", "ksqlAppAclsCreation");
     topology.addProject(project);
 
-    accessControlManager.updatePlan(plan, topology);
+    accessControlManager.updatePlan(topology, plan);
     plan.run();
 
     verifyKSqlAppAcls(app);
@@ -343,7 +344,7 @@ public class AccessControlManagerIT {
             "topicA",
             "User:User1",
             "User:User2");
-    accessControlManager.updatePlan(plan, topology);
+    accessControlManager.updatePlan(topology, plan);
     plan.run();
     verifyAclsOfSize(7); // should have the acls for julie included
   }
@@ -361,7 +362,7 @@ public class AccessControlManagerIT {
     }
     Project project = new ProjectImpl("project");
     project.setConsumers(consumers);
-    Topic topicA = new TopicImpl(topic);
+    Topic topicA = new Topic(topic);
     project.addTopic(topicA);
     topology.addProject(project);
 
@@ -391,7 +392,7 @@ public class AccessControlManagerIT {
 
     topology.setPlatform(platform);
 
-    accessControlManager.updatePlan(plan, topology);
+    accessControlManager.updatePlan(topology, plan);
     plan.run();
 
     verifySchemaRegistryAcls(platform);
@@ -422,7 +423,7 @@ public class AccessControlManagerIT {
 
     topology.setPlatform(platform);
 
-    accessControlManager.updatePlan(plan, topology);
+    accessControlManager.updatePlan(topology, plan);
     plan.run();
 
     verifyControlCenterAcls(platform);
@@ -444,10 +445,40 @@ public class AccessControlManagerIT {
     topology.addOther("source", "connectAclsCreation");
     topology.addProject(project);
 
-    accessControlManager.updatePlan(plan, topology);
+    accessControlManager.updatePlan(topology, plan);
     plan.run();
 
     verifyConnectAcls(connector);
+  }
+
+  @Test
+  public void testJulieRoleAclCreation()
+      throws IOException, ExecutionException, InterruptedException {
+    Topic topicA = new Topic("topicA");
+    Topology topology =
+        TestTopologyBuilder.createProject()
+            .addTopic(topicA)
+            .addConsumer("User:app1")
+            .addOther("app", "User:app1", "foo")
+            .buildTopology();
+
+    Map<String, String> cliOps = new HashMap<>();
+    cliOps.put(BROKERS_OPTION, "");
+
+    Properties props = new Properties();
+    props.put(JULIE_ROLES, TestUtils.getResourceFilename("/roles.yaml"));
+
+    Configuration config = new Configuration(cliOps, props);
+
+    accessControlManager =
+        new AccessControlManager(
+            aclsProvider, new AclsBindingsBuilder(config), config.getJulieRoles(), config);
+
+    accessControlManager.updatePlan(topology, plan);
+
+    plan.run();
+
+    verifyAclsOfSize(7);
   }
 
   private void verifyAclsOfSize(int size) throws ExecutionException, InterruptedException {
@@ -509,7 +540,18 @@ public class AccessControlManagerIT {
 
       Collection<AclBinding> acls = kafkaAdminClient.describeAcls(filter).values().get();
 
-      assertEquals(3, acls.size());
+      ResourcePatternFilter groupResourceFilter =
+          new ResourcePatternFilter(ResourceType.GROUP, null, PatternType.ANY);
+
+      AccessControlEntryFilter groupEntryFilter =
+          new AccessControlEntryFilter(
+              sr.getPrincipal(), null, AclOperation.ANY, AclPermissionType.ALLOW);
+      AclBindingFilter groupFilter = new AclBindingFilter(groupResourceFilter, groupEntryFilter);
+
+      Collection<AclBinding> groupAcls = kafkaAdminClient.describeAcls(groupFilter).values().get();
+
+      assertEquals(6, acls.size());
+      assertEquals(1, groupAcls.size());
     }
   }
 
@@ -530,7 +572,7 @@ public class AccessControlManagerIT {
 
       Collection<AclBinding> acls = kafkaAdminClient.describeAcls(filter).values().get();
 
-      assertEquals(16, acls.size());
+      assertEquals(17, acls.size());
     }
   }
 

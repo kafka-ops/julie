@@ -31,7 +31,8 @@ abstract class AbstractPrincipalManager implements ExecutionPlanUpdater {
   }
 
   @Override
-  public final void updatePlan(ExecutionPlan plan, Topology topology) throws IOException {
+  public final void updatePlan(ExecutionPlan plan, Map<String, Topology> topologies)
+      throws IOException {
     if (!config.enabledExperimental()) {
       LOGGER.debug("Not running the PrincipalsManager as this is an experimental feature.");
       return;
@@ -42,9 +43,12 @@ abstract class AbstractPrincipalManager implements ExecutionPlanUpdater {
       return;
     }
     provider.configure();
-    List<String> principals = parseListOfPrincipals(topology);
+
     Map<String, ServiceAccount> accounts = loadActualClusterStateIfAvailable(plan);
-    doUpdatePlan(plan, topology, principals, accounts);
+    for (Topology topology : topologies.values()) {
+      List<String> principals = parseListOfPrincipals(topology);
+      doUpdatePlan(plan, topology, principals, accounts);
+    }
   }
 
   protected abstract void doUpdatePlan(

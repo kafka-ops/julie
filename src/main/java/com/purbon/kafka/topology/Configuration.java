@@ -3,22 +3,33 @@ package com.purbon.kafka.topology;
 import static com.purbon.kafka.topology.CommandLineInterface.*;
 import static com.purbon.kafka.topology.Constants.*;
 
+import com.purbon.kafka.topology.api.ksql.KsqlClientConfig;
 import com.purbon.kafka.topology.exceptions.ConfigurationException;
+import com.purbon.kafka.topology.model.JulieRoles;
 import com.purbon.kafka.topology.model.Project;
 import com.purbon.kafka.topology.model.Topic;
 import com.purbon.kafka.topology.model.Topology;
+import com.purbon.kafka.topology.serdes.JulieRolesSerdes;
 import com.purbon.kafka.topology.serdes.TopologySerdes.FileType;
+import com.purbon.kafka.topology.utils.BasicAuth;
 import com.purbon.kafka.topology.utils.Pair;
 import com.typesafe.config.Config;
+import com.typesafe.config.ConfigException;
 import com.typesafe.config.ConfigFactory;
 import java.io.File;
+import java.io.IOException;
+import java.nio.file.Paths;
 import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.apache.kafka.clients.admin.AdminClientConfig;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 public class Configuration {
+
+  private static final Logger LOGGER = LogManager.getLogger(Configuration.class);
 
   private final Map<String, String> cliParams;
   private final Config config;
@@ -230,6 +241,14 @@ public class Configuration {
     return config.getString(TOPIC_PREFIX_FORMAT_CONFIG);
   }
 
+  public String getDlqTopicPrefixFormat() {
+    return config.getString(DLQ_TOPIC_PREFIX_FORMAT_CONFIG);
+  }
+
+  public String getDlqTopicLabel() {
+    return config.getString(DLQ_TOPIC_LABEL_CONFIG);
+  }
+
   public String getProjectPrefixFormat() {
     return config.getString(PROJECT_PREFIX_FORMAT_CONFIG);
   }
@@ -330,6 +349,10 @@ public class Configuration {
     return config.getString(JULIE_S3_BUCKET);
   }
 
+  public String getS3Endpoint() {
+    return config.getString(JULIE_S3_ENDPOINT);
+  }
+
   public String getS3Region() {
     return config.getString(JULIE_S3_REGION);
   }
@@ -358,27 +381,188 @@ public class Configuration {
     return config.getString(MDS_KC_CLUSTER_ID_CONFIG);
   }
 
+  public String getKsqlDBClusterID() {
+    return config.getString(MDS_KSQLDB_CLUSTER_ID_CONFIG);
+  }
+
+  public Optional<String> getSslTrustStoreLocation() {
+    try {
+      return Optional.of(config.getString(SSL_TRUSTSTORE_LOCATION));
+    } catch (ConfigException.Missing missingEx) {
+      return Optional.empty();
+    }
+  }
+
+  public Optional<String> getSslTrustStorePassword() {
+    try {
+      return Optional.of(config.getString(SSL_TRUSTSTORE_PASSWORD));
+    } catch (ConfigException.Missing missingEx) {
+      return Optional.empty();
+    }
+  }
+
+  public Optional<String> getSslKeyStoreLocation() {
+    try {
+      return Optional.of(config.getString(SSL_KEYSTORE_LOCATION));
+    } catch (ConfigException.Missing missingEx) {
+      return Optional.empty();
+    }
+  }
+
+  public Optional<String> getSslKeyStorePassword() {
+    try {
+      return Optional.of(config.getString(SSL_KEYSTORE_PASSWORD));
+    } catch (ConfigException.Missing missingEx) {
+      return Optional.empty();
+    }
+  }
+
+  public Optional<String> getSslKeyPassword() {
+    try {
+      return Optional.of(config.getString(SSL_KEY_PASSWORD));
+    } catch (ConfigException.Missing missingEx) {
+      return Optional.empty();
+    }
+  }
+
   public Map<String, String> getKafkaConnectServers() {
     List<String> servers = config.getStringList(PLATFORM_SERVERS_CONNECT);
     return servers.stream()
         .map(server -> server.split(":"))
         .map(
-            new Function<String[], Pair<String, String>>() {
-              @Override
-              public Pair<String, String> apply(String[] strings) {
-                String key = strings[0].strip();
-                String value = String.join(":", Arrays.copyOfRange(strings, 1, strings.length));
-                return new Pair<>(key, value);
-              }
+            strings -> {
+              String key = strings[0].strip();
+              String value = String.join(":", Arrays.copyOfRange(strings, 1, strings.length));
+              return new Pair<>(key, value);
             })
         .collect(Collectors.toMap(Pair::getKey, Pair::getValue));
   }
 
-  public String getKSQLServer() {
-    return config.getString(PLATFORM_SERVER_KSQL);
+  public Map<String, String> getServersBasicAuthMap() {
+    List<String> basicAuths = config.getStringList(PLATFORM_SERVERS_BASIC_AUTH);
+    return basicAuths.stream()
+        .map(s -> s.split("@"))
+        .map(
+            strings -> {
+              String key = strings[0].strip(); // label
+              String value = String.join(":", Arrays.copyOfRange(strings, 1, strings.length));
+              return new Pair<>(key, value);
+            })
+        .collect(Collectors.toMap(Pair::getKey, Pair::getValue));
+  }
+
+  public KsqlClientConfig getKSQLClientConfig() {
+    KsqlClientConfig.Builder ksqlConf =
+        new KsqlClientConfig.Builder()
+            .setServer(getProperty(PLATFORM_SERVER_KSQL_URL))
+            .setTrustStore(
+                getPropertyOrNull(PLATFORM_SERVER_KSQL_TRUSTSTORE, SSL_TRUSTSTORE_LOCATION))
+            .setTrustStorePassword(
+                getPropertyOrNull(PLATFORM_SERVER_KSQL_TRUSTSTORE_PW, SSL_TRUSTSTORE_PASSWORD))
+            .setKeyStore(getPropertyOrNull(PLATFORM_SERVER_KSQL_KEYSTORE, SSL_KEYSTORE_LOCATION))
+            .setKeyStorePassword(
+                getPropertyOrNull(PLATFORM_SERVER_KSQL_KEYSTORE_PW, SSL_KEYSTORE_PASSWORD));
+    if (hasProperty(PLATFORM_SERVER_KSQL_ALPN)) {
+      ksqlConf.setUseAlpn(config.getBoolean(PLATFORM_SERVER_KSQL_ALPN));
+    }
+    if (hasProperty(PLATFORM_SERVER_KSQL_BASIC_AUTH_PASSWORD)
+        && hasProperty(PLATFORM_SERVER_KSQL_BASIC_AUTH_USER)) {
+      ksqlConf.setBasicAuth(
+          new BasicAuth(
+              getProperty(PLATFORM_SERVER_KSQL_BASIC_AUTH_USER),
+              getProperty(PLATFORM_SERVER_KSQL_BASIC_AUTH_PASSWORD)));
+    }
+
+    if (hasProperty(PLATFORM_SERVER_KSQL_VERIFY_HOST)) {
+      ksqlConf.setVerifyHost(config.getBoolean(PLATFORM_SERVER_KSQL_VERIFY_HOST));
+    }
+    return ksqlConf.build();
   }
 
   public boolean hasKSQLServer() {
-    return config.hasPath(PLATFORM_SERVER_KSQL);
+    return config.hasPath(PLATFORM_SERVER_KSQL_URL);
+  }
+
+  private String getPropertyOrNull(String key, String defaultKey) {
+    try {
+      return config.getString(key);
+    } catch (ConfigException.Missing e) {
+      if (!defaultKey.isBlank()) {
+        return getPropertyOrNull(defaultKey, "");
+      }
+      return null;
+    }
+  }
+
+  public Optional<BasicAuth> getMdsBasicAuth() {
+    BasicAuth auth = null;
+    if (hasProperty(MDS_USER_CONFIG) && hasProperty(MDS_PASSWORD_CONFIG)) {
+      auth = new BasicAuth(getProperty(MDS_USER_CONFIG), getProperty(MDS_PASSWORD_CONFIG));
+    }
+    return Optional.ofNullable(auth);
+  }
+
+  public JulieRoles getJulieRoles() throws IOException {
+    JulieRolesSerdes serdes = new JulieRolesSerdes();
+    try {
+      String path = config.getString(JULIE_ROLES);
+      return serdes.deserialise(Paths.get(path).toFile());
+    } catch (ConfigException.Missing | ConfigException.WrongType ex) {
+      LOGGER.debug(ex);
+      return new JulieRoles();
+    } catch (IOException e) {
+      LOGGER.error(e);
+      throw e;
+    }
+  }
+
+  public boolean shouldGenerateDlqTopics() {
+    return config.getBoolean(TOPOLOGY_DLQ_TOPICS_GENERATE);
+  }
+
+  public List<String> getDlqTopicsAllowList() {
+    return config.getStringList(TOPOLOGY_DQL_TOPICS_ALLOW_LIST);
+  }
+
+  public List<String> getDlqTopicsDenyList() {
+    return config.getStringList(TOPOLOGY_DQL_TOPICS_DENY_LIST);
+  }
+
+  public boolean areMultipleContextPerDirEnabled() {
+    return config.getBoolean(JULIE_ENABLE_MULTIPLE_CONTEXT_PER_DIR);
+  }
+
+  public String getJulieKafkaConfigTopic() {
+    return config.getString(JULIE_KAFKA_CONFIG_TOPIC);
+  }
+
+  public String getJulieInstanceId() {
+    if (!julieInstanceId.isEmpty()) {
+      return julieInstanceId;
+    }
+    try {
+      julieInstanceId = config.getString(JULIE_INSTANCE_ID);
+    } catch (ConfigException.Missing | ConfigException.WrongType errorType) {
+      generateRandomJulieInstanceId();
+    }
+    return julieInstanceId;
+  }
+
+  private String julieInstanceId = "";
+  private static final int defaultJulieInstanceIDLength = 10;
+
+  private void generateRandomJulieInstanceId() {
+    if (julieInstanceId.isEmpty()) {
+      int leftLimit = 97; // letter 'a'
+      int rightLimit = 122; // letter 'z'
+      Random random = new Random();
+
+      julieInstanceId =
+          random
+              .ints(leftLimit, rightLimit + 1)
+              .limit(defaultJulieInstanceIDLength)
+              .collect(StringBuilder::new, StringBuilder::appendCodePoint, StringBuilder::append)
+              .toString();
+    }
   }
 }

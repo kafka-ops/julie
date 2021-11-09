@@ -6,9 +6,11 @@ import com.purbon.kafka.topology.BindingsBuilderProvider;
 import com.purbon.kafka.topology.Configuration;
 import com.purbon.kafka.topology.api.adminclient.AclBuilder;
 import com.purbon.kafka.topology.api.ccloud.CCloudCLI;
+import com.purbon.kafka.topology.model.JulieRoleAcl;
 import com.purbon.kafka.topology.model.users.Connector;
 import com.purbon.kafka.topology.model.users.Consumer;
 import com.purbon.kafka.topology.model.users.KSqlApp;
+import com.purbon.kafka.topology.model.users.Other;
 import com.purbon.kafka.topology.model.users.Producer;
 import com.purbon.kafka.topology.model.users.platform.KsqlServerInstance;
 import com.purbon.kafka.topology.model.users.platform.SchemaRegistryInstance;
@@ -133,6 +135,43 @@ public class AclsBindingsBuilder implements BindingsBuilderProvider {
     return toList(ksqlAppStream(app, prefix));
   }
 
+  @Override
+  public Collection<TopologyAclBinding> buildBindingsForJulieRole(
+      Other other, String name, List<JulieRoleAcl> acls) throws IOException {
+
+    List<TopologyAclBinding> bindings = new ArrayList<>();
+    for (JulieRoleAcl acl : acls) {
+      var resourceType = ResourceType.fromString(acl.getResourceType());
+      var patternType = PatternType.fromString(acl.getPatternType());
+      var aclOperation = AclOperation.fromString(acl.getOperation());
+      if (resourceType.isUnknown() || patternType.isUnknown() || aclOperation.isUnknown()) {
+        throw new IOException(
+            "Unknown ACL setting being used resourceType="
+                + acl.getResourceType()
+                + " ("
+                + resourceType
+                + ")"
+                + ", patternType="
+                + acl.getPatternType()
+                + " ("
+                + patternType
+                + ")"
+                + ", aclOperation="
+                + acl.getOperation()
+                + " ("
+                + aclOperation
+                + ")");
+      }
+      var binding =
+          new AclBuilder(other.getPrincipal())
+              .addResource(resourceType, acl.getResourceName(), patternType)
+              .addControlEntry(acl.getHost(), aclOperation, AclPermissionType.ALLOW)
+              .build();
+      bindings.add(new TopologyAclBinding(binding));
+    }
+    return bindings;
+  }
+
   private List<TopologyAclBinding> toList(Stream<AclBinding> bindingStream) {
     return bindingStream.map(TopologyAclBinding::new).collect(Collectors.toList());
   }
@@ -213,12 +252,29 @@ public class AclsBindingsBuilder implements BindingsBuilderProvider {
   private Stream<AclBinding> schemaRegistryAclsStream(SchemaRegistryInstance schemaRegistry) {
     String principal = translate(schemaRegistry.getPrincipal());
     List<AclBinding> bindings =
-        Stream.of(AclOperation.DESCRIBE_CONFIGS, AclOperation.WRITE, AclOperation.READ)
+        Stream.of(
+                AclOperation.CREATE,
+                AclOperation.DESCRIBE_CONFIGS,
+                AclOperation.DESCRIBE,
+                AclOperation.WRITE,
+                AclOperation.READ)
             .map(
                 aclOperation ->
                     buildTopicLevelAcl(
                         principal, schemaRegistry.topicString(), PatternType.LITERAL, aclOperation))
             .collect(Collectors.toList());
+
+    bindings.add(
+        buildTopicLevelAcl(
+            principal,
+            schemaRegistry.consumerOffsetsTopicString(),
+            PatternType.LITERAL,
+            AclOperation.DESCRIBE));
+
+    bindings.add(
+        buildGroupLevelAcl(
+            principal, schemaRegistry.groupString(), PatternType.LITERAL, AclOperation.READ));
+
     return bindings.stream();
   }
 
@@ -228,6 +284,7 @@ public class AclsBindingsBuilder implements BindingsBuilderProvider {
     bindings.add(buildGroupLevelAcl(principal, appId, PatternType.PREFIXED, AclOperation.READ));
     bindings.add(
         buildGroupLevelAcl(principal, appId + "-command", PatternType.PREFIXED, AclOperation.READ));
+    bindings.add(buildGroupLevelAcl(principal, "*", PatternType.LITERAL, AclOperation.DESCRIBE));
 
     asList(
             config.getConfluentMonitoringTopic(),
@@ -248,8 +305,11 @@ public class AclsBindingsBuilder implements BindingsBuilderProvider {
     Stream.of(AclOperation.WRITE, AclOperation.READ, AclOperation.CREATE, AclOperation.DESCRIBE)
         .map(
             aclOperation ->
-                buildTopicLevelAcl(principal, appId, PatternType.PREFIXED, aclOperation))
+                buildTopicLevelAcl(
+                    principal, "_confluent-controlcenter", PatternType.PREFIXED, aclOperation))
         .forEach(bindings::add);
+
+    bindings.add(buildTopicLevelAcl(principal, "*", PatternType.LITERAL, AclOperation.CREATE));
 
     ResourcePattern resourcePattern =
         new ResourcePattern(ResourceType.CLUSTER, "kafka-cluster", PatternType.LITERAL);

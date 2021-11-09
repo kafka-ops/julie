@@ -3,7 +3,6 @@ package com.purbon.kafka.topology;
 import static org.mockito.Mockito.*;
 
 import com.purbon.kafka.topology.model.Impl.ProjectImpl;
-import com.purbon.kafka.topology.model.Impl.TopicImpl;
 import com.purbon.kafka.topology.model.Impl.TopologyImpl;
 import com.purbon.kafka.topology.model.Project;
 import com.purbon.kafka.topology.model.Topic;
@@ -49,7 +48,7 @@ public class AccessControlWithRBACTest {
     Project project = new ProjectImpl();
     project.setRbacRawRoles(predefinedRoles);
 
-    Topic topicA = new TopicImpl("topicA");
+    Topic topicA = new Topic("topicA");
     project.addTopic(topicA);
 
     Topology topology = new TopologyImpl();
@@ -66,7 +65,7 @@ public class AccessControlWithRBACTest {
     when(bindingsBuilder.setPredefinedRole("User:Foo", "ResourceOwner", project.namePrefix()))
         .thenReturn(binding);
 
-    accessControlManager.updatePlan(plan, topology);
+    accessControlManager.updatePlan(topology, plan);
 
     verify(bindingsBuilder, times(1))
         .setPredefinedRole(eq("User:Foo"), eq("ResourceOwner"), eq(project.namePrefix()));

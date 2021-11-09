@@ -16,8 +16,8 @@ import com.purbon.kafka.topology.actions.BaseAccessControlAction;
 import com.purbon.kafka.topology.api.adminclient.AclBuilder;
 import com.purbon.kafka.topology.model.*;
 import com.purbon.kafka.topology.model.Impl.ProjectImpl;
-import com.purbon.kafka.topology.model.Impl.TopicImpl;
 import com.purbon.kafka.topology.model.Impl.TopologyImpl;
+import com.purbon.kafka.topology.model.Topic;
 import com.purbon.kafka.topology.model.users.*;
 import com.purbon.kafka.topology.model.users.platform.*;
 import com.purbon.kafka.topology.roles.SimpleAclsProvider;
@@ -70,7 +70,7 @@ public class AccessControlManagerTest {
 
   @Test
   public void newConsumerACLsCreation() throws IOException {
-    Topic topicA = new TopicImpl("topicA");
+    Topic topicA = new Topic("topicA");
     TestTopologyBuilder builder =
         TestTopologyBuilder.createProject().addTopic(topicA).addConsumer("User:app1");
     List<Consumer> users = newArrayList(builder.getConsumers());
@@ -78,7 +78,7 @@ public class AccessControlManagerTest {
     doReturn(new ArrayList<TopologyAclBinding>())
         .when(aclsBuilder)
         .buildBindingsForConsumers(users, topicA.toString(), false);
-    accessControlManager.updatePlan(plan, builder.buildTopology());
+    accessControlManager.updatePlan(builder.buildTopology(), plan);
     verify(aclsBuilder, times(1))
         .buildBindingsForConsumers(eq(users), eq(topicA.toString()), eq(false));
   }
@@ -101,7 +101,7 @@ public class AccessControlManagerTest {
     doReturn(new ArrayList<TopologyAclBinding>())
         .when(aclsBuilder)
         .buildBindingsForConsumers(users, builder.getProject().namePrefix(), true);
-    accessControlManager.updatePlan(plan, builder.buildTopology());
+    accessControlManager.updatePlan(builder.buildTopology(), plan);
     verify(aclsBuilder, times(1))
         .buildBindingsForConsumers(eq(users), eq(builder.getProject().namePrefix()), eq(true));
   }
@@ -119,7 +119,7 @@ public class AccessControlManagerTest {
 
     Project project = new ProjectImpl("project");
     project.setConsumers(projectConsumers);
-    Topic topic = new TopicImpl("foo");
+    Topic topic = new Topic("foo");
 
     List<Consumer> topicConsumers = Arrays.asList(projectConsumer, topicConsumer);
     topic.setConsumers(topicConsumers);
@@ -131,7 +131,7 @@ public class AccessControlManagerTest {
         .when(aclsBuilder)
         .buildBindingsForConsumers(any(), eq(topic.toString()), eq(false));
 
-    accessControlManager.updatePlan(plan, topology);
+    accessControlManager.updatePlan(topology, plan);
 
     ArgumentCaptor<List> argumentCaptor = ArgumentCaptor.forClass(List.class);
 
@@ -146,7 +146,7 @@ public class AccessControlManagerTest {
 
   @Test
   public void newProducerACLsCreation() throws IOException {
-    Topic topicA = new TopicImpl("topicA");
+    Topic topicA = new Topic("topicA");
     TestTopologyBuilder builder =
         TestTopologyBuilder.createProject().addTopic(topicA).addProducer("User:app1");
     List<Producer> producers = newArrayList(builder.getProducers());
@@ -155,7 +155,7 @@ public class AccessControlManagerTest {
         .when(aclsBuilder)
         .buildBindingsForProducers(producers, topicA.toString(), false);
 
-    accessControlManager.updatePlan(plan, builder.buildTopology());
+    accessControlManager.updatePlan(builder.buildTopology(), plan);
     verify(aclsBuilder, times(1))
         .buildBindingsForProducers(eq(producers), eq(topicA.toString()), eq(false));
   }
@@ -177,7 +177,7 @@ public class AccessControlManagerTest {
     doReturn(new ArrayList<TopologyAclBinding>())
         .when(aclsBuilder)
         .buildBindingsForProducers(producers, builder.getProject().namePrefix(), true);
-    accessControlManager.updatePlan(plan, builder.buildTopology());
+    accessControlManager.updatePlan(builder.buildTopology(), plan);
     verify(aclsBuilder, times(1))
         .buildBindingsForProducers(eq(producers), eq(builder.getProject().namePrefix()), eq(true));
   }
@@ -195,7 +195,7 @@ public class AccessControlManagerTest {
 
     Project project = new ProjectImpl("project");
     project.setProducers(projectProducers);
-    Topic topic = new TopicImpl("foo");
+    Topic topic = new Topic("foo");
 
     List<Producer> topicProducers = Arrays.asList(projectProducer, topicProducer);
     topic.setProducers(topicProducers);
@@ -207,7 +207,7 @@ public class AccessControlManagerTest {
         .when(aclsBuilder)
         .buildBindingsForProducers(any(), eq(topic.toString()), eq(false));
 
-    accessControlManager.updatePlan(plan, topology);
+    accessControlManager.updatePlan(topology, plan);
 
     ArgumentCaptor<List> argumentCaptor = ArgumentCaptor.forClass(List.class);
 
@@ -236,7 +236,7 @@ public class AccessControlManagerTest {
     Topology topology = new TopologyImpl();
     topology.addProject(project);
 
-    accessControlManager.updatePlan(plan, topology);
+    accessControlManager.updatePlan(topology, plan);
 
     doReturn(new ArrayList<TopologyAclBinding>())
         .when(aclsBuilder)
@@ -267,7 +267,7 @@ public class AccessControlManagerTest {
     Topology topology = new TopologyImpl();
     topology.addProject(project);
 
-    accessControlManager.updatePlan(plan, topology);
+    accessControlManager.updatePlan(topology, plan);
 
     doReturn(new ArrayList<TopologyAclBinding>())
         .when(aclsBuilder)
@@ -311,7 +311,7 @@ public class AccessControlManagerTest {
     topology.addOther("source", "kstreamsAclsCreation");
     topology.addProject(project);
 
-    accessControlManager.updatePlan(plan, topology);
+    accessControlManager.updatePlan(topology, plan);
   }
 
   @Test
@@ -336,7 +336,7 @@ public class AccessControlManagerTest {
     platform.setSchemaRegistry(sr);
     topology.setPlatform(platform);
 
-    accessControlManager.updatePlan(plan, topology);
+    accessControlManager.updatePlan(topology, plan);
 
     doReturn(new ArrayList<TopologyAclBinding>())
         .when(aclsBuilder)
@@ -369,7 +369,7 @@ public class AccessControlManagerTest {
     platform.setControlCenter(c3);
     topology.setPlatform(platform);
 
-    accessControlManager.updatePlan(plan, topology);
+    accessControlManager.updatePlan(topology, plan);
 
     doReturn(new ArrayList<TopologyAclBinding>())
         .when(aclsBuilder)
@@ -393,7 +393,7 @@ public class AccessControlManagerTest {
     platform.setKafka(kafka);
     topology.setPlatform(platform);
 
-    accessControlManager.updatePlan(plan, topology);
+    accessControlManager.updatePlan(topology, plan);
 
     doReturn(new ArrayList<TopologyAclBinding>())
         .when(aclsBuilder)
@@ -418,7 +418,7 @@ public class AccessControlManagerTest {
     platform.setKafkaConnect(connect);
     topology.setPlatform(platform);
 
-    accessControlManager.updatePlan(plan, topology);
+    accessControlManager.updatePlan(topology, plan);
 
     doReturn(new ArrayList<TopologyAclBinding>())
         .when(aclsBuilder)
@@ -445,7 +445,7 @@ public class AccessControlManagerTest {
     Topology topology = new TopologyImpl();
     topology.addProject(project);
 
-    accessControlManager.updatePlan(plan, topology);
+    accessControlManager.updatePlan(topology, plan);
 
     doReturn(new ArrayList<TopologyAclBinding>())
         .when(aclsBuilder)
@@ -460,7 +460,7 @@ public class AccessControlManagerTest {
     accessControlManager =
         new AccessControlManager(aclsProvider, new AclsBindingsBuilder(config), config);
 
-    Topic topicA = new TopicImpl("topicA");
+    Topic topicA = new Topic("topicA");
     TestTopologyBuilder builder =
         TestTopologyBuilder.createProject("foo", "project")
             .addTopic(topicA)
@@ -471,7 +471,7 @@ public class AccessControlManagerTest {
         .when(aclsBuilder)
         .buildBindingsForConsumers(users, topicA.toString(), false);
 
-    accessControlManager.updatePlan(plan, builder.buildTopology());
+    accessControlManager.updatePlan(builder.buildTopology(), plan);
 
     plan.run(true);
 
@@ -506,7 +506,7 @@ public class AccessControlManagerTest {
             .addConsumer("User:app1")
             .addConsumer("User:app2");
 
-    accessControlManager.updatePlan(plan, builder.buildTopology());
+    accessControlManager.updatePlan(builder.buildTopology(), plan);
     plan.run();
 
     verify(aclsProvider, times(1)).createBindings(any());
@@ -515,7 +515,7 @@ public class AccessControlManagerTest {
 
     Mockito.reset(aclsProvider);
     plan = ExecutionPlan.init(backendController, mockPrintStream);
-    accessControlManager.updatePlan(plan, builder.buildTopology());
+    accessControlManager.updatePlan(builder.buildTopology(), plan);
     plan.run();
 
     verify(aclsProvider, times(0)).clearBindings(any());
@@ -533,7 +533,7 @@ public class AccessControlManagerTest {
             .addConsumer("User:app1")
             .addConsumer("User:app2");
 
-    accessControlManager.updatePlan(plan, builder.buildTopology());
+    accessControlManager.updatePlan(builder.buildTopology(), plan);
     plan.run();
 
     verify(aclsProvider, times(1)).createBindings(any());
@@ -543,7 +543,7 @@ public class AccessControlManagerTest {
     Mockito.reset(aclsProvider);
     plan = ExecutionPlan.init(backendController, mockPrintStream);
     Topology topology = builder.buildTopology();
-    accessControlManager.updatePlan(plan, topology);
+    accessControlManager.updatePlan(topology, plan);
     plan.run();
 
     List<TopologyAclBinding> bindingsToDelete =
@@ -617,7 +617,7 @@ public class AccessControlManagerTest {
             .addTopic("NamespaceA_topicA")
             .addConsumer("User:app1");
 
-    accessControlManager.updatePlan(plan, builder.buildTopology());
+    accessControlManager.updatePlan(builder.buildTopology(), plan);
 
     // Check that we only have one action not 2
     assertEquals(1, plan.getActions().size());
@@ -660,7 +660,7 @@ public class AccessControlManagerTest {
             .addConsumer("User:app2", "NamespaceB_ConsumerGroupB")
             .addConsumer("User:app3", "*");
 
-    accessControlManager.updatePlan(plan, builder.buildTopology());
+    accessControlManager.updatePlan(builder.buildTopology(), plan);
 
     // Check that we only have one action
     assertEquals(1, plan.getActions().size());
@@ -710,7 +710,7 @@ public class AccessControlManagerTest {
             .addConsumer("User:NamespaceA_app1", "*")
             .addConsumer("User:NamespaceB_app2", "*");
 
-    accessControlManager.updatePlan(plan, builder.buildTopology());
+    accessControlManager.updatePlan(builder.buildTopology(), plan);
 
     // Check that we only have one action
     assertEquals(1, plan.getActions().size());
@@ -734,6 +734,77 @@ public class AccessControlManagerTest {
                         && b.getResourceName().equals("*")
                         && b.getPrincipal().equals("User:NamespaceB_app2"))
             .count());
+  }
+
+  @Test
+  public void testJulieRoleAclCreation() throws IOException {
+    Topic topicA = new Topic("topicA");
+    Topology topology =
+        TestTopologyBuilder.createProject()
+            .addTopic(topicA)
+            .addConsumer("User:app1")
+            .addOther("app", "User:app1", "foo")
+            .buildTopology();
+
+    Map<String, String> cliOps = new HashMap<>();
+    cliOps.put(BROKERS_OPTION, "");
+
+    Properties props = new Properties();
+    props.put(JULIE_ROLES, TestUtils.getResourceFilename("/roles.yaml"));
+
+    Configuration config = new Configuration(cliOps, props);
+
+    accessControlManager =
+        new AccessControlManager(
+            aclsProvider, new AclsBindingsBuilder(config), config.getJulieRoles(), config);
+
+    accessControlManager.updatePlan(topology, plan);
+
+    plan.run();
+    assertEquals(
+        1,
+        plan.getBindings().stream()
+            .filter(
+                b ->
+                    b.getResourceType().equals(ResourceType.TOPIC.name())
+                        && b.getResourceName().equals("foo")
+                        && b.getPrincipal().equals("User:app1"))
+            .count());
+
+    assertEquals(
+        1,
+        plan.getBindings().stream()
+            .filter(
+                b ->
+                    b.getResourceType().equals(ResourceType.TOPIC.name())
+                        && b.getResourceName().equals("sourceTopic")
+                        && b.getPrincipal().equals("User:app1"))
+            .count());
+  }
+
+  @Test(expected = IllegalStateException.class)
+  public void testWrongJulieRoleAclCreation() throws IOException {
+    Topic topicA = new Topic("topicA");
+    Topology topology =
+        TestTopologyBuilder.createProject()
+            .addTopic(topicA)
+            .addConsumer("User:app1")
+            .addOther("app", "User:app1", "foo")
+            .buildTopology();
+
+    Map<String, String> cliOps = new HashMap<>();
+    cliOps.put(BROKERS_OPTION, "");
+
+    Properties props = new Properties();
+    props.put(JULIE_ROLES, TestUtils.getResourceFilename("/roles-wrong.yaml"));
+
+    Configuration config = new Configuration(cliOps, props);
+
+    accessControlManager =
+        new AccessControlManager(
+            aclsProvider, new AclsBindingsBuilder(config), config.getJulieRoles(), config);
+
+    accessControlManager.updatePlan(topology, plan);
   }
 
   private List<BaseAccessControlAction> getAccessControlActions(ExecutionPlan plan) {

@@ -14,6 +14,7 @@ import com.purbon.kafka.topology.schemas.SchemaRegistryManager;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -53,30 +54,31 @@ public class TopicManager implements ExecutionPlanUpdater {
   }
 
   @Override
-  public void updatePlan(ExecutionPlan plan, Topology topology) throws IOException {
+  public void updatePlan(ExecutionPlan plan, Map<String, Topology> topologies) throws IOException {
 
     Set<String> currentTopics = loadActualClusterStateIfAvailable(plan);
-    // Foreach topic in the topology, sync it's content
-    // if topics does not exist already it's created
-
-    Map<String, Topic> topics = parseMapOfTopics(topology);
+    Map<String, Topic> topics = new HashMap<>();
 
     Set<Action> createTopicActions = new HashSet<>();
     Set<Action> updateTopicConfigActions = new HashSet<>();
-    topics.forEach(
-        (topicName, topic) -> {
-          if (currentTopics.contains(topicName)) {
-            TopicConfigUpdatePlanBuilder builder = new TopicConfigUpdatePlanBuilder(adminClient);
-            TopicConfigUpdatePlan topicConfigUpdatePlan =
-                builder.createTopicConfigUpdatePlan(topic, topicName);
-            if (topicConfigUpdatePlan.hasConfigChanges()) {
-              updateTopicConfigActions.add(
-                  new UpdateTopicConfigAction(adminClient, topicConfigUpdatePlan));
+    for (Topology topology : topologies.values()) {
+      var entryTopics = parseMapOfTopics(topology);
+      entryTopics.forEach(
+          (topicName, topic) -> {
+            if (currentTopics.contains(topicName)) {
+              TopicConfigUpdatePlanBuilder builder = new TopicConfigUpdatePlanBuilder(adminClient);
+              TopicConfigUpdatePlan topicConfigUpdatePlan =
+                  builder.createTopicConfigUpdatePlan(topic, topicName);
+              if (topicConfigUpdatePlan.hasConfigChanges()) {
+                updateTopicConfigActions.add(
+                    new UpdateTopicConfigAction(adminClient, topicConfigUpdatePlan));
+              }
+            } else {
+              createTopicActions.add(new CreateTopicAction(adminClient, topic, topicName));
             }
-          } else {
-            createTopicActions.add(new CreateTopicAction(adminClient, topic, topicName));
-          }
-        });
+            topics.put(topicName, topic);
+          });
+    }
 
     createTopicActions.forEach(plan::add); // Do createActions before update actions
     updateTopicConfigActions.forEach(plan::add);

@@ -6,7 +6,6 @@ import static org.mockito.Mockito.doReturn;
 import com.purbon.kafka.topology.TopicManager;
 import com.purbon.kafka.topology.actions.topics.TopicConfigUpdatePlan;
 import com.purbon.kafka.topology.api.adminclient.TopologyBuilderAdminClient;
-import com.purbon.kafka.topology.model.Impl.TopicImpl;
 import com.purbon.kafka.topology.model.Topic;
 import java.io.IOException;
 import java.util.Collections;
@@ -112,11 +111,11 @@ public class TopicConfigUpdatePlanBuilderTest {
   private Topic createTopic(String configName, String configValue) {
     var config = new HashMap<String, String>();
     config.put(configName, configValue);
-    return new TopicImpl(TopicConfigUpdatePlanBuilderTest.TOPIC_NAME, config);
+    return new Topic(TopicConfigUpdatePlanBuilderTest.TOPIC_NAME, config);
   }
 
   private Topic createTopic() {
-    return new TopicImpl(TopicConfigUpdatePlanBuilderTest.TOPIC_NAME);
+    return new Topic(TopicConfigUpdatePlanBuilderTest.TOPIC_NAME);
   }
 
   private Config createEmptyConfig() {

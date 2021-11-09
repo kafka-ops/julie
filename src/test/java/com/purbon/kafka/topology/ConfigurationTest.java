@@ -1,19 +1,26 @@
 package com.purbon.kafka.topology;
 
-import static com.purbon.kafka.topology.CommandLineInterface.*;
+import static com.purbon.kafka.topology.CommandLineInterface.BROKERS_OPTION;
+import static com.purbon.kafka.topology.CommandLineInterface.CLIENT_CONFIG_OPTION;
 import static com.purbon.kafka.topology.Constants.*;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
+import com.purbon.kafka.topology.api.ksql.KsqlClientConfig;
 import com.purbon.kafka.topology.exceptions.ConfigurationException;
 import com.purbon.kafka.topology.model.Impl.ProjectImpl;
-import com.purbon.kafka.topology.model.Impl.TopicImpl;
 import com.purbon.kafka.topology.model.Impl.TopologyImpl;
+import com.purbon.kafka.topology.model.JulieRole;
+import com.purbon.kafka.topology.model.JulieRoleAcl;
 import com.purbon.kafka.topology.model.Project;
 import com.purbon.kafka.topology.model.Topic;
 import com.purbon.kafka.topology.model.Topology;
 import com.purbon.kafka.topology.model.schema.TopicSchemas;
 import com.purbon.kafka.topology.utils.TestUtils;
+import java.io.IOException;
 import java.util.*;
+import java.util.stream.Collectors;
+import org.assertj.core.api.Condition;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -47,7 +54,7 @@ public class ConfigurationTest {
   public void testSchemaRegistryConfigFields() throws ConfigurationException {
     Topology topology = new TopologyImpl();
     Project project = new ProjectImpl();
-    Topic topic = new TopicImpl();
+    Topic topic = new Topic();
     TopicSchemas schema = new TopicSchemas("foo", "bar");
     topic.setSchemas(Collections.singletonList(schema));
     project.addTopic(topic);
@@ -62,7 +69,7 @@ public class ConfigurationTest {
   public void testSchemaRegistryValidConfigFields() throws ConfigurationException {
     Topology topology = new TopologyImpl();
     Project project = new ProjectImpl();
-    Topic topic = new TopicImpl();
+    Topic topic = new Topic();
     TopicSchemas schema = new TopicSchemas("foo", "bar");
     topic.setSchemas(Collections.singletonList(schema));
     project.addTopic(topic);
@@ -78,7 +85,7 @@ public class ConfigurationTest {
   public void testSchemaRegistryValidConfigButNoSchemas() throws ConfigurationException {
     Topology topology = new TopologyImpl();
     Project project = new ProjectImpl();
-    Topic topic = new TopicImpl();
+    Topic topic = new Topic();
     project.addTopic(topic);
     topology.addProject(project);
 
@@ -92,7 +99,7 @@ public class ConfigurationTest {
   public void testNoSchemaRegistry() throws ConfigurationException {
     Topology topology = new TopologyImpl();
     Project project = new ProjectImpl("project");
-    Topic topic = new TopicImpl("topic", "json");
+    Topic topic = new Topic("topic", "json");
     project.addTopic(topic);
     topology.addProject(project);
 
@@ -104,7 +111,7 @@ public class ConfigurationTest {
   public void testPrefixValidConfigFields() throws ConfigurationException {
     Topology topology = new TopologyImpl();
     Project project = new ProjectImpl();
-    Topic topic = new TopicImpl();
+    Topic topic = new Topic();
     project.addTopic(topic);
     topology.addProject(project);
 
@@ -119,7 +126,7 @@ public class ConfigurationTest {
   public void testMissingPrefixValidConfigFields() throws ConfigurationException {
     Topology topology = new TopologyImpl();
     Project project = new ProjectImpl();
-    Topic topic = new TopicImpl();
+    Topic topic = new Topic();
     project.addTopic(topic);
     topology.addProject(project);
 
@@ -133,7 +140,7 @@ public class ConfigurationTest {
   public void testMissingTopicPrefixValidConfigFields() throws ConfigurationException {
     Topology topology = new TopologyImpl();
     Project project = new ProjectImpl();
-    Topic topic = new TopicImpl();
+    Topic topic = new Topic();
     project.addTopic(topic);
     topology.addProject(project);
 
@@ -147,7 +154,7 @@ public class ConfigurationTest {
   public void testIncompatiblePrefixValidConfigFields() throws ConfigurationException {
     Topology topology = new TopologyImpl();
     Project project = new ProjectImpl();
-    Topic topic = new TopicImpl();
+    Topic topic = new Topic();
     project.addTopic(topic);
     topology.addProject(project);
 
@@ -177,5 +184,88 @@ public class ConfigurationTest {
     Configuration config = Configuration.build(cliOps);
     assertThat(config.getKafkaInternalTopicPrefixes())
         .isEqualTo(Arrays.asList("_", "topicA", "topicB"));
+  }
+
+  @Test
+  public void testKsqlServerWithHttps() {
+    String clientConfigFile = TestUtils.getResourceFilename("/client-config.properties");
+    cliOps.put(CLIENT_CONFIG_OPTION, clientConfigFile);
+    props.put(PLATFORM_SERVER_KSQL_URL, "https://example.com:8083");
+    Configuration config = new Configuration(cliOps, props);
+    KsqlClientConfig ksqlClientConfig = config.getKSQLClientConfig();
+
+    assertThat(ksqlClientConfig.getServer().getProtocol()).isEqualTo("https");
+    assertThat(ksqlClientConfig.getServer().getHost()).isEqualTo("example.com");
+    assertThat(ksqlClientConfig.getServer().getPort()).isEqualTo(8083);
+  }
+
+  @Test
+  public void testKsqlServerWithoutScheme() {
+    String clientConfigFile = TestUtils.getResourceFilename("/client-config.properties");
+    cliOps.put(CLIENT_CONFIG_OPTION, clientConfigFile);
+    props.put(PLATFORM_SERVER_KSQL_URL, "example.com:8083");
+    Configuration config = new Configuration(cliOps, props);
+
+    assertThatThrownBy(config::getKSQLClientConfig)
+        .hasMessageContaining("example.com:8083")
+        .isInstanceOf(IllegalArgumentException.class);
+  }
+
+  @Test
+  public void testJulieRolesFetch() throws IOException {
+
+    String rolesFile = TestUtils.getResourceFilename("/roles.yaml");
+    props.put(JULIE_ROLES, rolesFile);
+    Configuration config = new Configuration(cliOps, props);
+
+    var roles = config.getJulieRoles();
+    assertThat(roles).isNotNull();
+    assertThat(roles.getRoles()).hasSize(2);
+    for (JulieRole role : roles.getRoles()) {
+      assertThat(role.getName()).isIn("app", "other");
+    }
+
+    JulieRole role = roles.get("app");
+    List<String> resources =
+        role.getAcls().stream().map(JulieRoleAcl::getResourceType).collect(Collectors.toList());
+    assertThat(resources).contains("Topic", "Group");
+    assertThat(role.getName()).isEqualTo("app");
+    assertThat(role.getAcls()).hasSize(4);
+
+    role = roles.get("other");
+    resources =
+        role.getAcls().stream().map(JulieRoleAcl::getResourceType).collect(Collectors.toList());
+    assertThat(resources).contains("Topic");
+    assertThat(role.getName()).isEqualTo("other");
+    assertThat(role.getAcls()).hasSize(2);
+  }
+
+  @Test(expected = IOException.class)
+  public void testWrongFileJulieRoles() throws IOException {
+    String rolesFile = TestUtils.getResourceFilename("/descriptor.yaml");
+    props.put(JULIE_ROLES, rolesFile);
+    Configuration config = new Configuration(cliOps, props);
+    config.getJulieRoles();
+  }
+
+  @Test
+  public void testJulieOpsInstanceIdGeneration() {
+    props.put(JULIE_INSTANCE_ID, "12345");
+    Configuration config = new Configuration(cliOps, props);
+    assertThat(config.getJulieInstanceId()).isEqualTo("12345");
+  }
+
+  @Test
+  public void testRandomJulieOpsInstanceIdGeneration() {
+    Configuration config = new Configuration(cliOps, props);
+    assertThat(config.getJulieInstanceId()).hasSize(10);
+    assertThat(config.getJulieInstanceId())
+        .has(
+            new Condition<>() {
+              @Override
+              public boolean matches(String value) {
+                return value.chars().allMatch(value1 -> (97 <= value1) && (value1 <= 122));
+              }
+            });
   }
 }

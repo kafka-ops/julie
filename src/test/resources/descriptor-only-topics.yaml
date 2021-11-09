@@ -13,6 +13,7 @@ projects:
         config:
           replication.factor: "1"
           num.partitions: "1"
+          cleanup.policy: "compact"
   - name: "bar"
     topics:
       - dataType: "avro"

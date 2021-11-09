@@ -34,4 +34,8 @@ public class MDSBaseTest {
   protected String getKafkaConnectClusterID() {
     return "connect-cluster";
   }
+
+  protected String getKSqlClusterID() {
+    return "ksqldb";
+  }
 }

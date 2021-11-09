@@ -20,6 +20,10 @@ public abstract class BaseAccessControlAction extends BaseAction {
     this.aclBindings = aclBindings;
   }
 
+  protected BaseAccessControlAction() {
+    this.aclBindings = new ArrayList<>();
+  }
+
   @Override
   public void run() throws IOException {
     LOGGER.debug(String.format("Running Action %s", getClass()));

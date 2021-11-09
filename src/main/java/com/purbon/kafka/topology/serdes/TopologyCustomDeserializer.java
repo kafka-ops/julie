@@ -25,6 +25,7 @@ import com.purbon.kafka.topology.model.users.Connector;
 import com.purbon.kafka.topology.model.users.Consumer;
 import com.purbon.kafka.topology.model.users.KSqlApp;
 import com.purbon.kafka.topology.model.users.KStream;
+import com.purbon.kafka.topology.model.users.Other;
 import com.purbon.kafka.topology.model.users.Producer;
 import com.purbon.kafka.topology.model.users.Schemas;
 import com.purbon.kafka.topology.model.users.platform.ControlCenter;
@@ -37,6 +38,7 @@ import java.io.IOException;
 import java.util.*;
 import java.util.function.Function;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 import org.apache.logging.log4j.LogManager;
@@ -72,6 +74,17 @@ public class TopologyCustomDeserializer extends StdDeserializer<Topology> {
   private static final String STREAMS_NODE = "streams";
   private static final String TABLES_NODE = "tables";
 
+  private static List<String> projectCoreKeys =
+      Arrays.asList(
+          NAME_KEY,
+          CONSUMERS_KEY,
+          PRODUCERS_KEY,
+          CONNECTORS_KEY,
+          STREAMS_KEY,
+          SCHEMAS_KEY,
+          KSQL_KEY,
+          RBAC_KEY);
+
   private final Configuration config;
 
   TopologyCustomDeserializer(Configuration config) {
@@ -88,7 +101,14 @@ public class TopologyCustomDeserializer extends StdDeserializer<Topology> {
       throws IOException {
 
     JsonNode rootNode = parser.getCodec().readTree(parser);
-    validateRequiresKeys(rootNode, CONTEXT_KEY, PROJECTS_KEY);
+    validateRequiresKeys(rootNode, CONTEXT_KEY);
+    if (rootNode.get(PROJECTS_KEY) == null) {
+      LOGGER.warn(
+          PROJECTS_KEY
+              + " is missing for topology: "
+              + rootNode.get(CONTEXT_KEY).asText()
+              + ", this might be a required field, be aware.");
+    }
 
     Topology topology = new TopologyImpl(config);
     List<String> excludeAttributes = Arrays.asList(PROJECTS_KEY, CONTEXT_KEY, PLATFORM_KEY);
@@ -120,13 +140,15 @@ public class TopologyCustomDeserializer extends StdDeserializer<Topology> {
     }
 
     topology.setPlatform(platform);
-    parseProjects(parser, rootNode.get(PROJECTS_KEY), topology, config)
-        .forEach(topology::addProject);
+    if (rootNode.get(PROJECTS_KEY) != null) {
+      parseProjects(parser, rootNode.get(PROJECTS_KEY), topology, config)
+          .forEach(topology::addProject);
 
-    // validate the generated full topics names for valid encoding
-    for (Project project : topology.getProjects()) {
-      for (Topic topic : project.getTopics()) {
-        validateEncodingForTopicName(topic.toString());
+      // validate the generated full topics names for valid encoding
+      for (Project project : topology.getProjects()) {
+        for (Topic topic : project.getTopics()) {
+          validateEncodingForTopicName(topic.toString());
+        }
       }
     }
 
@@ -163,23 +185,18 @@ public class TopologyCustomDeserializer extends StdDeserializer<Topology> {
       JsonParser parser, JsonNode rootNode, Topology topology, Configuration config)
       throws IOException {
 
+    Iterable<String> it = () -> rootNode.fieldNames();
     List<String> keys =
-        Arrays.asList(
-            CONSUMERS_KEY,
-            PROJECTS_KEY,
-            PRODUCERS_KEY,
-            CONNECTORS_KEY,
-            STREAMS_KEY,
-            SCHEMAS_KEY,
-            KSQL_KEY);
-
+        StreamSupport.stream(it.spliterator(), false)
+            .filter(key -> !Arrays.asList(TOPICS_KEY, NAME_KEY).contains(key))
+            .collect(Collectors.toList());
     Map<String, JsonNode> rootNodes = Maps.asMap(new HashSet<>(keys), (key) -> rootNode.get(key));
 
     Map<String, PlatformSystem> mapOfValues = new HashMap<>();
     for (String key : rootNodes.keySet()) {
       JsonNode keyNode = rootNodes.get(key);
       if (keyNode != null) {
-        Optional<PlatformSystem> optionalPlatformSystem = Optional.empty();
+        Optional<PlatformSystem> optionalPlatformSystem;
         switch (key) {
           case CONSUMERS_KEY:
             optionalPlatformSystem = doConsumerElements(parser, keyNode);
@@ -199,6 +216,11 @@ public class TopologyCustomDeserializer extends StdDeserializer<Topology> {
           case KSQL_KEY:
             optionalPlatformSystem = doKSqlElements(parser, keyNode);
             break;
+          default:
+            optionalPlatformSystem = Optional.empty();
+            if (!key.equalsIgnoreCase(RBAC_KEY)) {
+              optionalPlatformSystem = doOtherElements(parser, keyNode);
+            }
         }
         optionalPlatformSystem.ifPresent(ps -> mapOfValues.put(key, ps));
       }
@@ -214,23 +236,64 @@ public class TopologyCustomDeserializer extends StdDeserializer<Topology> {
             Optional.ofNullable(mapOfValues.get(SCHEMAS_KEY)),
             Optional.ofNullable(mapOfValues.get(KSQL_KEY)),
             parseOptionalRbacRoles(rootNode.get(RBAC_KEY)),
+            filterOthers(mapOfValues),
             config);
 
     project.setPrefixContextAndOrder(topology.asFullContext(), topology.getOrder());
 
-    if (rootNode.get(TOPICS_KEY) == null) {
-      throw new IOException(
+    var topicsNode = rootNode.get(TOPICS_KEY);
+    if (topicsNode == null) {
+      LOGGER.warn(
           TOPICS_KEY
-              + "is missing for project: "
+              + " is missing for project: "
               + project.getName()
-              + ", this is a required field.");
+              + ", this might be a required field, be aware.");
+    } else {
+      new JsonSerdesUtils<Topic>()
+          .parseApplicationUser(parser, topicsNode, Topic.class)
+          .forEach(
+              topic -> {
+                project.addTopic(topic); // add normal topic and evaluate
+                if (config.shouldGenerateDlqTopics()) {
+                  String name = topic.toString();
+                  if (shouldGenerateDlqTopic().apply(name)) {
+                    Topic dlqTopic = topic.clone();
+                    dlqTopic.setDlqPrefix(config.getDlqTopicLabel());
+                    dlqTopic.setTopicNamePattern(config.getDlqTopicPrefixFormat());
+                    project.addTopic(dlqTopic);
+                  }
+                }
+              });
     }
 
-    new JsonSerdesUtils<Topic>()
-        .parseApplicationUser(parser, rootNode.get(TOPICS_KEY), Topic.class)
-        .forEach(project::addTopic);
-
     return project;
+  }
+
+  private Function<String, Boolean> shouldGenerateDlqTopic() {
+    return name -> {
+      var allowList = config.getDlqTopicsAllowList();
+      var denyList = config.getDlqTopicsDenyList();
+      boolean isAllowedOrEmpty =
+          allowList.isEmpty() || (!allowList.isEmpty() && allowList.contains(name));
+      boolean isNotDeniedOrEmpty =
+          denyList.isEmpty() || (!denyList.isEmpty() && !denyList.contains(name));
+      return isAllowedOrEmpty && isNotDeniedOrEmpty;
+    };
+  }
+
+  private List<Map.Entry<String, PlatformSystem<Other>>> filterOthers(
+      Map<String, PlatformSystem> mapOfValues) {
+    return mapOfValues.entrySet().stream()
+        .filter(entry -> !projectCoreKeys.contains(entry.getKey()))
+        .map(entry -> Map.entry(entry.getKey(), (PlatformSystem<Other>) entry.getValue()))
+        .collect(Collectors.toList());
+  }
+
+  private Optional<PlatformSystem> doOtherElements(JsonParser parser, JsonNode node)
+      throws JsonProcessingException {
+    List<Other> others =
+        new JsonSerdesUtils<Other>().parseApplicationUser(parser, node, Other.class);
+    return Optional.of(new PlatformSystem(others));
   }
 
   private Optional<PlatformSystem> doConsumerElements(JsonParser parser, JsonNode node)
@@ -270,7 +333,7 @@ public class TopologyCustomDeserializer extends StdDeserializer<Topology> {
           throw new TopologyParsingException(
               "KafkaConnect: Path, name and label are artefact mandatory fields");
         }
-        if (serverLabels.contains(artefact.getServerLabel())) {
+        if (!serverLabels.contains(artefact.getServerLabel())) {
           throw new TopologyParsingException(
               String.format(
                   "KafkaConnect: Server alias label %s does not exist on the provided configuration, please check",
@@ -316,9 +379,42 @@ public class TopologyCustomDeserializer extends StdDeserializer<Topology> {
   }
 
   private Optional<PlatformSystem> doStreamsElements(JsonParser parser, JsonNode node)
-      throws JsonProcessingException {
+      throws IOException {
     List<KStream> streams =
-        new JsonSerdesUtils<KStream>().parseApplicationUser(parser, node, KStream.class);
+        new JsonSerdesUtils<KStream>()
+            .parseApplicationUser(parser, node, KStream.class).stream()
+                .map(
+                    ks -> {
+                      ks.getTopics().putIfAbsent(KStream.READ_TOPICS, Collections.emptyList());
+                      ks.getTopics().putIfAbsent(KStream.WRITE_TOPICS, Collections.emptyList());
+                      return ks;
+                    })
+                .collect(Collectors.toList());
+
+    for (KStream ks : streams) {
+      var topics = ks.getTopics();
+      if (topics.get(KStream.READ_TOPICS).isEmpty() || topics.get(KStream.WRITE_TOPICS).isEmpty()) {
+        LOGGER.warn(
+            "A Kafka Streams application with Id ("
+                + ks.getApplicationId()
+                + ") and Principal ("
+                + ks.getPrincipal()
+                + ")"
+                + " might require both read and write topics as per its "
+                + "nature it is always reading and writing into Apache Kafka, be aware if you notice problems.");
+      }
+      if (topics.get(KStream.READ_TOPICS).isEmpty()) {
+        // should have at minimum read topics defined as we could think of write topics as internal
+        // topics being
+        // auto created.
+        throw new IOException(
+            "Kafka Streams application with Id "
+                + ks.getApplicationId()
+                + " and principal "
+                + ks.getPrincipal()
+                + " have missing read topics. This field is required.");
+      }
+    }
     return Optional.of(new PlatformSystem(streams));
   }
 

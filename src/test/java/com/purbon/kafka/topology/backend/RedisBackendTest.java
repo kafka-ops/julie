@@ -1,14 +1,15 @@
 package com.purbon.kafka.topology.backend;
 
-import static com.purbon.kafka.topology.backend.RedisBackend.JULIE_OPS_BINDINGS;
-import static com.purbon.kafka.topology.backend.RedisBackend.JULIE_OPS_TYPE;
+import static com.purbon.kafka.topology.backend.RedisBackend.JULIE_OPS_STATE;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.*;
 
 import com.purbon.kafka.topology.roles.TopologyAclBinding;
 import java.io.IOException;
 import java.util.Collections;
 import org.apache.kafka.common.resource.ResourceType;
+import org.jetbrains.annotations.NotNull;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -31,32 +32,34 @@ public class RedisBackendTest {
   }
 
   @Test
-  public void testSaveBindings() {
+  public void testSaveBindings() throws IOException {
 
-    TopologyAclBinding binding =
-        TopologyAclBinding.build(
-            ResourceType.CLUSTER.name(), "Topic", "host", "op", "principal", "LITERAL");
-
-    when(jedis.sadd(eq(JULIE_OPS_BINDINGS), any())).thenReturn(1L);
-
-    BackendState state = new BackendState();
-    state.addBindings(Collections.singleton(binding));
+    BackendState state = buildBackendState();
     stateProcessor.save(state);
 
-    verify(jedis, times(1)).sadd(eq(JULIE_OPS_BINDINGS), any());
+    verify(jedis, times(1)).set(eq(JULIE_OPS_STATE), any());
   }
 
   @Test
   public void testDataLoading() throws IOException {
 
-    when(jedis.get(eq(JULIE_OPS_TYPE))).thenReturn("acls");
-    when(jedis.scard(eq(JULIE_OPS_BINDINGS))).thenReturn(10L);
-    when(jedis.spop(eq(JULIE_OPS_BINDINGS)))
-        .thenReturn(
-            "'TOPIC', 'topicA', '*', 'READ', 'User:C=NO,CN=John Doe,emailAddress=john.doe@example.com', 'LITERAL'")
-        .thenReturn("'TOPIC', 'topicB', '*', 'READ', 'User:Connect1', 'LITERAL'");
+    BackendState mockedState = buildBackendState();
+    when(jedis.get(eq(JULIE_OPS_STATE))).thenReturn(mockedState.asPrettyJson());
 
     BackendState state = stateProcessor.load();
-    assertEquals(2, state.size());
+    assertEquals(1, state.size());
+    assertTrue(state.getBindings().iterator().hasNext());
+    assertEquals("Topic A", state.getBindings().iterator().next().getResourceName());
+  }
+
+  @NotNull
+  private BackendState buildBackendState() {
+    TopologyAclBinding binding =
+        TopologyAclBinding.build(
+            ResourceType.CLUSTER.name(), "Topic A", "host", "op", "principal", "LITERAL");
+
+    BackendState state = new BackendState();
+    state.addBindings(Collections.singleton(binding));
+    return state;
   }
 }

@@ -16,16 +16,18 @@ import com.purbon.kafka.topology.AccessControlManager;
 import com.purbon.kafka.topology.BackendController;
 import com.purbon.kafka.topology.Configuration;
 import com.purbon.kafka.topology.ExecutionPlan;
+import com.purbon.kafka.topology.TestTopologyBuilder;
 import com.purbon.kafka.topology.api.mds.MDSApiClient;
+import com.purbon.kafka.topology.api.mds.RbacResourceType;
 import com.purbon.kafka.topology.model.*;
 import com.purbon.kafka.topology.model.Impl.ProjectImpl;
-import com.purbon.kafka.topology.model.Impl.TopicImpl;
 import com.purbon.kafka.topology.model.Impl.TopologyImpl;
 import com.purbon.kafka.topology.model.users.*;
 import com.purbon.kafka.topology.model.users.platform.*;
 import com.purbon.kafka.topology.roles.RBACProvider;
 import com.purbon.kafka.topology.roles.TopologyAclBinding;
 import com.purbon.kafka.topology.roles.rbac.RBACBindingsBuilder;
+import com.purbon.kafka.topology.utils.BasicAuth;
 import com.purbon.kafka.topology.utils.TestUtils;
 import java.io.IOException;
 import java.util.*;
@@ -56,11 +58,12 @@ public class RBACPRoviderRbacIT extends MDSBaseTest {
     TestUtils.deleteStateFile();
 
     apiClient = new MDSApiClient(mdsServer);
-    apiClient.login(mdsUser, mdsPassword);
+    apiClient.setBasicAuth(new BasicAuth(mdsUser, mdsPassword));
     apiClient.authenticate();
     apiClient.setKafkaClusterId(getKafkaClusterID());
     apiClient.setSchemaRegistryClusterID(getSchemaRegistryClusterID());
     apiClient.setConnectClusterID(getKafkaConnectClusterID());
+    apiClient.setKSqlClusterID(getKSqlClusterID());
 
     plan = ExecutionPlan.init(cs, System.out);
     RBACProvider rbacProvider = new RBACProvider(apiClient);
@@ -85,14 +88,14 @@ public class RBACPRoviderRbacIT extends MDSBaseTest {
 
     Project project = new ProjectImpl("project");
     project.setConsumers(consumers);
-    Topic topicA = new TopicImpl("topicA");
+    Topic topicA = new Topic("topicA");
     project.addTopic(topicA);
 
     Topology topology = new TopologyImpl();
     topology.setContext("testConsumerAclsCreation-test");
     topology.addProject(project);
 
-    accessControlManager.updatePlan(plan, topology);
+    accessControlManager.updatePlan(topology, plan);
     plan.run();
 
     // this method is call twice, once for consumers and one for producers
@@ -109,20 +112,46 @@ public class RBACPRoviderRbacIT extends MDSBaseTest {
 
     Project project = new ProjectImpl("project");
     project.setProducers(producers);
-    Topic topicA = new TopicImpl("topicA");
+    Topic topicA = new Topic("topicA");
     project.addTopic(topicA);
 
     Topology topology = new TopologyImpl();
     topology.setContext("producerAclsCreation-test");
     topology.addProject(project);
 
-    accessControlManager.updatePlan(plan, topology);
+    accessControlManager.updatePlan(topology, plan);
     plan.run();
 
     // this method is call twice, once for consumers and one for consumers
     verify(cs, times(1)).addBindings(anyList());
     verify(cs, times(1)).flushAndClose();
     verifyProducerAcls(producers, topicA.toString());
+  }
+
+  @Test
+  public void producerAclsWithExtraPropertiesShouldNotBreak() throws IOException {
+
+    List<Producer> producers = new ArrayList<>();
+    var producer = new Producer("User:app3");
+    producer.setTransactionId(Optional.of("12345"));
+    producers.add(producer);
+
+    Project project = new ProjectImpl("project");
+    project.setProducers(producers);
+    Topic topicA = new Topic("topicA");
+    project.addTopic(topicA);
+
+    Topology topology = new TopologyImpl();
+    topology.setContext("producerAclsWithExtraPropertiesShouldNotBreak-test");
+    topology.addProject(project);
+
+    accessControlManager.updatePlan(topology, plan);
+    plan.run();
+
+    // this method is call twice, once for consumers and one for consumers
+    verify(cs, times(1)).addBindings(anyList());
+    verify(cs, times(1)).flushAndClose();
+    verifyProducerAcls(producers, topicA.toString(), 2);
   }
 
   @Test
@@ -141,7 +170,7 @@ public class RBACPRoviderRbacIT extends MDSBaseTest {
     topology.setContext("kstreamsAclsCreation-test");
     topology.addProject(project);
 
-    accessControlManager.updatePlan(plan, topology);
+    accessControlManager.updatePlan(topology, plan);
     plan.run();
 
     verify(cs, times(1)).addBindings(anyList());
@@ -167,7 +196,7 @@ public class RBACPRoviderRbacIT extends MDSBaseTest {
     topology.addOther("source", "ksqlAppAclsCreation-test");
     topology.addProject(project);
 
-    accessControlManager.updatePlan(plan, topology);
+    accessControlManager.updatePlan(topology, plan);
     plan.run();
 
     verify(cs, times(1)).addBindings(anyList());
@@ -191,7 +220,7 @@ public class RBACPRoviderRbacIT extends MDSBaseTest {
     topology.setContext("connectAclsCreation-test");
     topology.addProject(project);
 
-    accessControlManager.updatePlan(plan, topology);
+    accessControlManager.updatePlan(topology, plan);
     plan.run();
 
     verify(cs, times(1)).addBindings(anyList());
@@ -225,7 +254,7 @@ public class RBACPRoviderRbacIT extends MDSBaseTest {
     platform.setSchemaRegistry(sr);
     topology.setPlatform(platform);
 
-    accessControlManager.updatePlan(plan, topology);
+    accessControlManager.updatePlan(topology, plan);
     plan.run();
 
     verify(cs, times(1)).addBindings(anyList());
@@ -251,7 +280,7 @@ public class RBACPRoviderRbacIT extends MDSBaseTest {
 
     topology.setPlatform(platform);
 
-    accessControlManager.updatePlan(plan, topology);
+    accessControlManager.updatePlan(topology, plan);
     plan.run();
 
     verify(cs, times(1)).addBindings(anyList());
@@ -276,7 +305,7 @@ public class RBACPRoviderRbacIT extends MDSBaseTest {
     platform.setKafka(kafka);
     topology.setPlatform(platform);
 
-    accessControlManager.updatePlan(plan, topology);
+    accessControlManager.updatePlan(topology, plan);
     plan.run();
 
     verify(cs, times(1)).addBindings(anyList());
@@ -302,7 +331,7 @@ public class RBACPRoviderRbacIT extends MDSBaseTest {
     platform.setKafkaConnect(connect);
     topology.setPlatform(platform);
 
-    accessControlManager.updatePlan(plan, topology);
+    accessControlManager.updatePlan(topology, plan);
     plan.run();
 
     verify(cs, times(1)).addBindings(anyList());
@@ -342,10 +371,10 @@ public class RBACPRoviderRbacIT extends MDSBaseTest {
     project.setConsumers(consumers);
     topology.setProjects(Collections.singletonList(project));
 
-    Topic topicA = new TopicImpl("topicA");
+    Topic topicA = new Topic("topicA");
     project.addTopic(topicA);
 
-    accessControlManager.updatePlan(plan, topology);
+    accessControlManager.updatePlan(topology, plan);
     plan.run();
 
     // two group and two topics as we have one topic and two principles
@@ -356,12 +385,59 @@ public class RBACPRoviderRbacIT extends MDSBaseTest {
     cs = new BackendController();
     plan = ExecutionPlan.init(cs, System.out);
 
-    accessControlManager.updatePlan(plan, topology);
+    accessControlManager.updatePlan(topology, plan);
     plan.run();
 
     bindings = getBindings(rbacProvider);
     // only one group and one topic as we removed one of principles
     assertThat(bindings).hasSize(2);
+  }
+
+  @Test
+  public void testJulieRoleAclCreation() throws IOException {
+
+    BackendController cs = new BackendController();
+    ExecutionPlan plan = ExecutionPlan.init(cs, System.out);
+    RBACProvider rbacProvider = Mockito.spy(new RBACProvider(apiClient));
+    RBACBindingsBuilder bindingsBuilder = new RBACBindingsBuilder(apiClient);
+    String principal = "User:app" + System.currentTimeMillis();
+
+    Topology topology =
+        TestTopologyBuilder.createProject().addOther("app", principal, "foo").buildTopology();
+
+    Map<String, String> cliOps = new HashMap<>();
+    cliOps.put(BROKERS_OPTION, "");
+
+    Properties props = new Properties();
+    props.put(JULIE_ROLES, TestUtils.getResourceFilename("/roles-rbac.yaml"));
+
+    Configuration config = new Configuration(cliOps, props);
+
+    accessControlManager =
+        new AccessControlManager(rbacProvider, bindingsBuilder, config.getJulieRoles(), config);
+
+    accessControlManager.updatePlan(topology, plan);
+
+    plan.run();
+
+    List<TopologyAclBinding> bindings =
+        getBindings(rbacProvider).stream()
+            .filter(binding -> binding.getPrincipal().equalsIgnoreCase(principal))
+            .collect(Collectors.toList());
+
+    assertThat(bindings).hasSize(4);
+
+    List<String> roles = apiClient.lookupRoles(principal);
+    assertTrue(roles.contains(DEVELOPER_READ));
+
+    roles =
+        apiClient.lookupRoles(
+            principal, apiClient.withClusterIDs().forKafka().forKafkaConnect().asMap());
+    assertTrue(roles.contains(SECURITY_ADMIN));
+
+    var clusters = apiClient.withClusterIDs().forKafka().forKsql().asMap();
+    roles = apiClient.lookupRoles(principal, clusters);
+    assertTrue(roles.contains(RESOURCE_OWNER));
   }
 
   private List<TopologyAclBinding> getBindings(RBACProvider rbacProvider) {
@@ -443,11 +519,19 @@ public class RBACPRoviderRbacIT extends MDSBaseTest {
   }
 
   private void verifyProducerAcls(List<Producer> producers, String topic) {
+    verifyProducerAcls(producers, topic, 1);
+  }
+
+  private void verifyProducerAcls(List<Producer> producers, String topic, int resourcesCount) {
     producers.forEach(
         producer -> {
           List<String> roles = apiClient.lookupRoles(producer.getPrincipal());
           assertEquals(1, roles.size());
           assertTrue(roles.contains(DEVELOPER_WRITE));
+
+          List<RbacResourceType> resources =
+              apiClient.lookupResourcesForKafka(producer.getPrincipal(), DEVELOPER_WRITE);
+          assertEquals(resourcesCount, resources.size());
         });
   }
 

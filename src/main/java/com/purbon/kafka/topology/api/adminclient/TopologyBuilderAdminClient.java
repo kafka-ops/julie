@@ -186,7 +186,7 @@ public class TopologyBuilderAdminClient {
 
   public void createTopic(Topic topic, String fullTopicName) throws IOException {
     NewTopic newTopic =
-        new NewTopic(fullTopicName, topic.partitionsCountOptional(), topic.replicationFactor())
+        new NewTopic(fullTopicName, topic.getPartitionCount(), topic.replicationFactor())
             .configs(topic.getRawConfig());
     try {
       createAllTopics(Collections.singleton(newTopic));
@@ -196,6 +196,11 @@ public class TopologyBuilderAdminClient {
       LOGGER.error(e);
       throw new IOException(e);
     }
+  }
+
+  public void createTopic(String topicName) throws IOException {
+    Topic topic = new Topic();
+    createTopic(topic, topicName);
   }
 
   private void createAllTopics(Collection<NewTopic> newTopics)

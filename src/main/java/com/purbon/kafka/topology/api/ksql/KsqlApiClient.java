@@ -1,6 +1,7 @@
 package com.purbon.kafka.topology.api.ksql;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.purbon.kafka.topology.Constants;
 import com.purbon.kafka.topology.clients.ArtefactClient;
 import com.purbon.kafka.topology.model.Artefact;
 import com.purbon.kafka.topology.model.artefact.KsqlArtefact;
@@ -12,47 +13,79 @@ import io.confluent.ksql.api.client.ClientOptions;
 import io.confluent.ksql.api.client.StreamInfo;
 import io.confluent.ksql.api.client.TableInfo;
 import java.io.IOException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.ExecutionException;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 public class KsqlApiClient implements ArtefactClient {
 
-  private String server;
-  private Integer port;
-  private Client client;
+  private static final Logger LOGGER = LogManager.getLogger(KsqlApiClient.class);
 
-  public static String QUERY_TYPE = "query";
-  public static String STREAM_TYPE = "stream";
-  public static String TABLE_TYPE = "table";
+  private final URL server;
+  private final Client client;
 
-  public KsqlApiClient(String server, Integer port) {
-    this.server = server;
-    this.port = port;
+  public static final String QUERY_TYPE = "query";
+  public static final String STREAM_TYPE = "stream";
+  public static final String TABLE_TYPE = "table";
+
+  public KsqlApiClient(KsqlClientConfig ksqlClientConfig) {
+    this.server = ksqlClientConfig.getServer();
     ClientOptions options =
-        ClientOptions.create().setHost(server.split(":")[0].strip()).setPort(port);
-    client = Client.create(options);
+        ClientOptions.create().setHost(server.getHost()).setPort(server.getPort());
+    if (server.getProtocol() != null && server.getProtocol().equals(Constants.HTTPS)) {
+      options.setUseTls(true);
+    }
+    options.setUseAlpn(ksqlClientConfig.useAlpn());
+    options.setKeyStore(ksqlClientConfig.getKeyStore());
+    options.setKeyStorePassword(ksqlClientConfig.getKeyStorePassword());
+    options.setTrustStore(ksqlClientConfig.getTrustStore());
+    options.setTrustStorePassword(ksqlClientConfig.getTrustStorePassword());
+    options.setVerifyHost(ksqlClientConfig.isVerifyHost());
+    if (ksqlClientConfig.useBasicAuth()) {
+      options.setBasicAuthCredentials(
+          ksqlClientConfig.getBasicAuth().getUser(), ksqlClientConfig.getBasicAuth().getPassword());
+    }
+    this.client = Client.create(options);
   }
 
   @Override
   public String getServer() {
-    return server + ":" + port;
+    return server.toString();
   }
 
   @Override
   public Map<String, Object> add(String sql) throws IOException {
     try {
+      if (isCreateWithoutReplace(sql)) {
+        LOGGER.warn(
+            "Are you trying to archive idempotency? if yes, please make sure that your statement"
+                + "starts with CREATE OR REPLACE. Currently sour ksql statement does not, "
+                + "- "
+                + sql.substring(0, 40));
+      }
       var result = client.executeStatement(sql).get();
       return new QueryResponse(result).asMap();
     } catch (InterruptedException | ExecutionException e) {
       throw new IOException(e);
     }
+  }
+
+  private boolean isCreateWithoutReplace(String sql) {
+    return sql.toLowerCase(Locale.ROOT).trim().matches("create\\s+(stream|table)");
+  }
+
+  @Override
+  public Map<String, Object> add(String name, String sql) throws IOException {
+    return add(sql);
   }
 
   @Override
@@ -93,21 +126,19 @@ public class KsqlApiClient implements ArtefactClient {
     }
 
     return infos.stream()
-        .map(tableInfo -> new KsqlTableArtefact("", server, tableInfo.getName()))
-        .map(artefactToString())
+        .map(tableInfo -> new KsqlTableArtefact("", server.getHost(), tableInfo.getName()))
+        .map(this::artefactToString)
         .filter(s -> !s.isEmpty())
         .collect(Collectors.toList());
   }
 
-  private Function<KsqlArtefact, String> artefactToString() {
-    return ksqlArtefact -> {
-      try {
-        return JSON.asString(ksqlArtefact);
-      } catch (JsonProcessingException e) {
-        e.printStackTrace();
-        return "";
-      }
-    };
+  private String artefactToString(KsqlArtefact ksqlArtefact) {
+    try {
+      return JSON.asString(ksqlArtefact);
+    } catch (JsonProcessingException e) {
+      e.printStackTrace();
+      return "";
+    }
   }
 
   public List<String> listStreams() throws IOException {
@@ -121,8 +152,8 @@ public class KsqlApiClient implements ArtefactClient {
 
     return infos.stream()
         .filter(e -> !"KSQL_PROCESSING_LOG".equalsIgnoreCase(e.getName()))
-        .map(queryInfo -> new KsqlStreamArtefact("", server, queryInfo.getName()))
-        .map(artefactToString())
+        .map(queryInfo -> new KsqlStreamArtefact("", server.getHost(), queryInfo.getName()))
+        .map(this::artefactToString)
         .filter(s -> !s.isEmpty())
         .collect(Collectors.toList());
   }
