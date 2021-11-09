@@ -5,6 +5,7 @@ import com.purbon.kafka.topology.api.adminclient.TopologyBuilderAdminClient;
 import com.purbon.kafka.topology.model.Topic;
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -40,7 +41,7 @@ public class CreateTopicAction extends BaseAction {
 
   @Override
   protected Map<String, Object> props() {
-    Map<String, Object> map = new HashMap<>();
+    Map<String, Object> map = new LinkedHashMap<>();
     map.put("Operation", getClass().getName());
     map.put("Topic", fullTopicName);
     map.put("Action", "create");
