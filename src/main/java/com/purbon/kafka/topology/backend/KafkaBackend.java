@@ -52,7 +52,7 @@ public class KafkaBackend implements Backend, RecordReceivedCallback {
   @Override
   public void configure(Configuration config) {
     instanceId = config.getJulieInstanceId();
-    latest = new AtomicReference<>();
+    latest = new AtomicReference<>(new BackendState());
 
     consumer = new KafkaBackendConsumer(config);
     consumer.configure();
