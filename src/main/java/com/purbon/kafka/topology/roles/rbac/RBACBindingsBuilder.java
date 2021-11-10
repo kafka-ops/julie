@@ -123,7 +123,8 @@ public class RBACBindingsBuilder implements BindingsBuilderProvider {
         });
 
     if (eos) {
-      bindings.add(apiClient.bind(principal, DEVELOPER_WRITE, topicPrefix, "TransactionalId", PREFIX));
+      bindings.add(
+          apiClient.bind(principal, DEVELOPER_WRITE, topicPrefix, "TransactionalId", PREFIX));
     }
 
     binding = apiClient.bind(principal, RESOURCE_OWNER, topicPrefix, PREFIX);

@@ -13,6 +13,7 @@ public class KStream extends DynamicUser {
   @JsonInclude(Include.NON_EMPTY)
   private Optional<String> applicationId;
 
+  @JsonInclude(Include.NON_EMPTY)
   private Optional<Boolean> exactlyOnce;
 
   public KStream() {
