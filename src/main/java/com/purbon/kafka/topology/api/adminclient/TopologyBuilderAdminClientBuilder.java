@@ -25,6 +25,16 @@ public class TopologyBuilderAdminClientBuilder {
         String.format(
             "Connecting AdminClient to %s",
             props.getProperty(AdminClientConfig.BOOTSTRAP_SERVERS_CONFIG)));
+
+    // Security protocol on
+    if (config.getProperty("security.protocol").equals("SASL_SSL")
+        && config.getProperty("ssl.truststore.location") != null) {
+      props.remove("ssl.truststore.location");
+      props.remove("ssl.truststore.password");
+      props.remove("ssl.keystore.location");
+      props.remove("ssl.keystore.password");
+    }
+
     TopologyBuilderAdminClient client = new TopologyBuilderAdminClient(AdminClient.create(props));
     if (!config.isDryRun() && !config.doValidate()) {
       client.healthCheck();
