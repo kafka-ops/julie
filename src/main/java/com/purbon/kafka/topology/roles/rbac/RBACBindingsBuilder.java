@@ -99,7 +99,11 @@ public class RBACBindingsBuilder implements BindingsBuilderProvider {
 
   @Override
   public List<TopologyAclBinding> buildBindingsForStreamsApp(
-      String principal, String topicPrefix, List<String> readTopics, List<String> writeTopics) {
+      String principal,
+      String topicPrefix,
+      List<String> readTopics,
+      List<String> writeTopics,
+      boolean eos) {
     List<TopologyAclBinding> bindings = new ArrayList<>();
 
     TopologyAclBinding binding = apiClient.bind(principal, DEVELOPER_READ, topicPrefix, PREFIX);
@@ -117,6 +121,10 @@ public class RBACBindingsBuilder implements BindingsBuilderProvider {
               apiClient.bind(principal, DEVELOPER_WRITE, topic, LITERAL);
           bindings.add(writeBinding);
         });
+
+    if (eos) {
+      bindings.add(apiClient.bind(principal, DEVELOPER_WRITE, topicPrefix, "TransactionalId", PREFIX));
+    }
 
     binding = apiClient.bind(principal, RESOURCE_OWNER, topicPrefix, PREFIX);
     bindings.add(binding);
@@ -318,7 +326,7 @@ public class RBACBindingsBuilder implements BindingsBuilderProvider {
     // schema access
     List<String> subjects =
         readTopics.stream()
-            .flatMap((Function<List<String>, Stream<String>>) topics -> topics.stream())
+            .flatMap((Function<List<String>, Stream<String>>) Collection::stream)
             .map(topicName -> String.format("%s-value", topicName))
             .collect(Collectors.toList());
 

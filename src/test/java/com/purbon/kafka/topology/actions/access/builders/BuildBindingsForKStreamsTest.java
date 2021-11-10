@@ -37,12 +37,12 @@ public class BuildBindingsForKStreamsTest {
     assertThat(action.getBindings())
         .anyMatch(
             b ->
-                b.getResourceType() == ResourceType.TOPIC.name()
+                b.getResourceType().equals(ResourceType.TOPIC.name())
                     && b.getResourceName().equals(topicPrefix));
     assertThat(action.getBindings())
         .anyMatch(
             b ->
-                b.getResourceType() == ResourceType.GROUP.name()
+                b.getResourceType().equals(ResourceType.GROUP.name())
                     && b.getResourceName().equals(topicPrefix));
   }
 
@@ -59,12 +59,12 @@ public class BuildBindingsForKStreamsTest {
     assertThat(action.getBindings())
         .anyMatch(
             b ->
-                b.getResourceType() == ResourceType.TOPIC.name()
+                b.getResourceType().equals(ResourceType.TOPIC.name())
                     && b.getResourceName().equals(applicationId));
     assertThat(action.getBindings())
         .anyMatch(
             b ->
-                b.getResourceType() == ResourceType.GROUP.name()
+                b.getResourceType().equals(ResourceType.GROUP.name())
                     && b.getResourceName().equals(applicationId));
   }
 }
