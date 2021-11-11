@@ -19,7 +19,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
-import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.common.resource.ResourceType;
 import org.junit.After;
 import org.junit.Before;
@@ -83,7 +82,7 @@ public class KafkaBackendIT {
 
     HashMap<String, String> cliOps = new HashMap<>();
     cliOps.put(BROKERS_OPTION, container.getBootstrapServers());
-    props.put(JULIE_KAFKA_CONSUMER_GROUP_ID, "julieops"+System.currentTimeMillis());
+    props.put(JULIE_KAFKA_CONSUMER_GROUP_ID, "julieops" + System.currentTimeMillis());
     Configuration config = new Configuration(cliOps, props);
     newBackend.configure(config);
 
