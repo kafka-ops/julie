@@ -4,6 +4,7 @@ import com.purbon.kafka.topology.clients.ArtefactClient;
 import com.purbon.kafka.topology.model.Artefact;
 import com.purbon.kafka.topology.model.Project;
 import com.purbon.kafka.topology.model.Topology;
+import com.purbon.kafka.topology.model.artefact.KsqlArtefact;
 import com.purbon.kafka.topology.model.artefact.KsqlArtefacts;
 import com.purbon.kafka.topology.model.artefact.KsqlStreamArtefact;
 import com.purbon.kafka.topology.model.artefact.KsqlTableArtefact;
@@ -15,6 +16,7 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.Collection;
 import java.util.LinkedHashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -45,6 +47,15 @@ public class KSqlArtefactManager extends ArtefactManager {
   Collection<? extends Artefact> loadActualClusterStateIfAvailable(ExecutionPlan plan)
       throws IOException {
     return config.fetchStateFromTheCluster() ? getClustersState() : plan.getKSqlArtefacts();
+  }
+
+  @Override
+  protected List<? extends Artefact> findArtefactsToBeDeleted(
+      Collection<? extends Artefact> currentArtefacts, Set<Artefact> artefacts) {
+    return currentArtefacts.stream()
+        .filter(a -> !artefacts.contains(a))
+        .sorted((o1, o2) -> -1 * ((KsqlArtefact) o1).compareTo((KsqlArtefact) o2))
+        .collect(Collectors.toCollection(LinkedList::new));
   }
 
   private Collection<? extends Artefact> getClustersState() throws IOException {

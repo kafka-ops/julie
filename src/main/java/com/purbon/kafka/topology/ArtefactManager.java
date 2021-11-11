@@ -58,10 +58,7 @@ public abstract class ArtefactManager implements ExecutionPlanUpdater {
     }
 
     if (isAllowDelete()) {
-      List<? extends Artefact> toBeDeleted =
-          currentArtefacts.stream()
-              .filter(a -> !artefacts.contains(a))
-              .collect(Collectors.toList());
+      List<? extends Artefact> toBeDeleted = findArtefactsToBeDeleted(currentArtefacts, artefacts);
 
       if (toBeDeleted.size() > 0) {
         LOGGER.debug("Artefacts to be deleted: " + StringUtils.join(toBeDeleted, ","));
@@ -77,6 +74,13 @@ public abstract class ArtefactManager implements ExecutionPlanUpdater {
         }
       }
     }
+  }
+
+  protected List<? extends Artefact> findArtefactsToBeDeleted(
+      Collection<? extends Artefact> currentArtefacts, Set<Artefact> artefacts) {
+    return currentArtefacts.stream()
+        .filter(a -> !artefacts.contains(a))
+        .collect(Collectors.toList());
   }
 
   protected ArtefactClient selectClient(Artefact artefact) {
