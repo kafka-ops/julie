@@ -37,8 +37,8 @@ public class KafkaBackendConsumer {
     var serde = new JsonDeserializer<>(BackendState.class);
     consumerProperties.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, serde.getClass());
     consumerProperties.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest");
-    var groupId = consumerProperties.getProperty(GROUP_ID_CONFIG, config.getJulieInstanceId());
-    consumerProperties.put(GROUP_ID_CONFIG, groupId);
+
+    consumerProperties.put(GROUP_ID_CONFIG, config.getKafkaBackendConsumerGroupId());
     consumer = new KafkaConsumer<>(consumerProperties);
     consumer.subscribe(Collections.singletonList(config.getJulieKafkaConfigTopic()));
   }

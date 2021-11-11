@@ -565,4 +565,8 @@ public class Configuration {
               .toString();
     }
   }
+
+  public String getKafkaBackendConsumerGroupId() {
+    return config.getString(JULIE_KAFKA_CONSUMER_GROUP_ID);
+  }
 }
