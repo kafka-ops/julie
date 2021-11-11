@@ -7,6 +7,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import org.apache.zookeeper.Op;
 
 public class KStream extends DynamicUser {
 
@@ -32,11 +33,11 @@ public class KStream extends DynamicUser {
 
   public KStream(
       String principal, HashMap<String, List<String>> topics, Optional<String> applicationId) {
-    this(principal, topics, applicationId, Optional.empty());
+    this(principal, topics, applicationId,  Optional.of(Boolean.FALSE));
   }
 
   public KStream(String principal, HashMap<String, List<String>> topics) {
-    this(principal, topics, Optional.empty(), Optional.empty());
+    this(principal, topics, Optional.empty(), Optional.of(Boolean.FALSE));
   }
 
   public Optional<String> getApplicationId() {

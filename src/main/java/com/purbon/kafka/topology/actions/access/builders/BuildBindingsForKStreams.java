@@ -39,7 +39,7 @@ public class BuildBindingsForKStreams extends BaseAccessControlAction {
             prefix,
             readTopics,
             writeTopics,
-            app.getExactlyOnce().orElse(false));
+            app.getExactlyOnce().get());
   }
 
   @Override
