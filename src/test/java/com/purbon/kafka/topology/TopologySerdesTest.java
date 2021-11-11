@@ -578,6 +578,53 @@ public class TopologySerdesTest {
   }
 
   @Test
+  public void testTopicsWithDLQWithDenyListAndPattern() {
+    Map<String, String> cliOps = new HashMap<>();
+    cliOps.put(BROKERS_OPTION, "");
+    cliOps.put(CLIENT_CONFIG_OPTION, "/fooBar");
+
+    Properties props = new Properties();
+    props.put(TOPOLOGY_DLQ_TOPICS_GENERATE, "true");
+    props.put(TOPOLOGY_DQL_TOPICS_DENY_LIST + ".0", "^.*source.foo.foo$");
+
+    Configuration config = new Configuration(cliOps, props);
+
+    TopologySerdes parser = new TopologySerdes(config, new PlanMap());
+
+    Topology topology =
+            parser.deserialise(TestUtils.getResourceFile("/descriptor-only-topics.yaml"));
+    Project p = topology.getProjects().get(0);
+
+    assertThat(p.getTopics()).hasSize(3);
+    assertEquals("contextOrg.source.foo.foo", p.getTopics().get(0).toString());
+    assertEquals("contextOrg.source.foo.bar.avro", p.getTopics().get(1).toString());
+    assertEquals("contextOrg.source.foo.bar.avro.dlq", p.getTopics().get(2).toString());
+  }
+
+  @Test
+  public void testTopicsWithDLQWithDenyListAndPatternFullDeny() {
+    Map<String, String> cliOps = new HashMap<>();
+    cliOps.put(BROKERS_OPTION, "");
+    cliOps.put(CLIENT_CONFIG_OPTION, "/fooBar");
+
+    Properties props = new Properties();
+    props.put(TOPOLOGY_DLQ_TOPICS_GENERATE, "true");
+    props.put(TOPOLOGY_DQL_TOPICS_DENY_LIST + ".0", "^.*source.foo.*$");
+
+    Configuration config = new Configuration(cliOps, props);
+
+    TopologySerdes parser = new TopologySerdes(config, new PlanMap());
+
+    Topology topology =
+            parser.deserialise(TestUtils.getResourceFile("/descriptor-only-topics.yaml"));
+    Project p = topology.getProjects().get(0);
+
+    assertThat(p.getTopics()).hasSize(2);
+    assertEquals("contextOrg.source.foo.foo", p.getTopics().get(0).toString());
+    assertEquals("contextOrg.source.foo.bar.avro", p.getTopics().get(1).toString());
+  }
+
+  @Test
   public void testTopicsWithDLQWithTopicPattern() {
     Map<String, String> cliOps = new HashMap<>();
     cliOps.put(BROKERS_OPTION, "");
