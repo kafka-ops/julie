@@ -2,6 +2,7 @@ package com.purbon.kafka.topology.integration.backend;
 
 import static com.purbon.kafka.topology.CommandLineInterface.BROKERS_OPTION;
 import static com.purbon.kafka.topology.Constants.JULIE_INSTANCE_ID;
+import static com.purbon.kafka.topology.Constants.JULIE_KAFKA_CONSUMER_GROUP_ID;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.purbon.kafka.topology.Configuration;
@@ -39,7 +40,6 @@ public class KafkaBackendIT {
 
     props = new Properties();
     props.put(JULIE_INSTANCE_ID, "1234");
-    props.put(ConsumerConfig.GROUP_ID_CONFIG, "group.id");
 
     Map<String, Object> saslConfig =
         ContainerTestUtils.getSaslConfig(
@@ -80,6 +80,11 @@ public class KafkaBackendIT {
     backend.close();
 
     KafkaBackend newBackend = new KafkaBackend();
+
+    HashMap<String, String> cliOps = new HashMap<>();
+    cliOps.put(BROKERS_OPTION, container.getBootstrapServers());
+    props.put(JULIE_KAFKA_CONSUMER_GROUP_ID, "julieops"+System.currentTimeMillis());
+    Configuration config = new Configuration(cliOps, props);
     newBackend.configure(config);
 
     Thread.sleep(3000);
