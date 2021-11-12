@@ -35,11 +35,7 @@ public class BuildBindingsForKStreams extends BaseAccessControlAction {
 
     bindings =
         builderProvider.buildBindingsForStreamsApp(
-            app.getPrincipal(),
-            prefix,
-            readTopics,
-            writeTopics,
-            app.getExactlyOnce().get());
+            app.getPrincipal(), prefix, readTopics, writeTopics, app.getExactlyOnce().get());
   }
 
   @Override
