@@ -190,9 +190,14 @@ public class Configuration {
   }
 
   public List<String> getKafkaInternalTopicPrefixes() {
-    return config.getStringList(KAFKA_INTERNAL_TOPIC_PREFIXES).stream()
+    var prefixes = config.getStringList(KAFKA_INTERNAL_TOPIC_PREFIXES).stream()
         .map(String::trim)
         .collect(Collectors.toList());
+    if (getStateProcessorImplementationClassName().equalsIgnoreCase(KAFKA_STATE_PROCESSOR_CLASS)) {
+      LOGGER.info("Adding "+getJulieKafkaConfigTopic()+" as internal topic because we are using the Kafka Backend");
+      prefixes.add(getJulieKafkaConfigTopic());
+    }
+    return prefixes;
   }
 
   public List<String> getServiceAccountManagedPrefixes() {
