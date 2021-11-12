@@ -215,13 +215,13 @@ public class TopicManagerTest {
   public void topicDeleteWithConfiguredNoDelete() throws IOException {
 
     Properties props = new Properties();
-    props.put(KAFKA_INTERNAL_TOPIC_PREFIXES, Arrays.asList("foo.", "_"));
+    props.put(KAFKA_INTERNAL_TOPIC_PREFIXES + ".0", "foo.");
+    props.put(KAFKA_INTERNAL_TOPIC_PREFIXES + ".1", "_");
 
     HashMap<String, String> cliOps = new HashMap<>();
     cliOps.put(BROKERS_OPTION, "");
 
     Configuration config = new Configuration(cliOps, props);
-
     TopicManager topicManager = new TopicManager(adminClient, schemaRegistryManager, config);
 
     // Topology after delete action

@@ -592,7 +592,7 @@ public class TopologySerdesTest {
     TopologySerdes parser = new TopologySerdes(config, new PlanMap());
 
     Topology topology =
-            parser.deserialise(TestUtils.getResourceFile("/descriptor-only-topics.yaml"));
+        parser.deserialise(TestUtils.getResourceFile("/descriptor-only-topics.yaml"));
     Project p = topology.getProjects().get(0);
 
     assertThat(p.getTopics()).hasSize(3);
@@ -616,7 +616,7 @@ public class TopologySerdesTest {
     TopologySerdes parser = new TopologySerdes(config, new PlanMap());
 
     Topology topology =
-            parser.deserialise(TestUtils.getResourceFile("/descriptor-only-topics.yaml"));
+        parser.deserialise(TestUtils.getResourceFile("/descriptor-only-topics.yaml"));
     Project p = topology.getProjects().get(0);
 
     assertThat(p.getTopics()).hasSize(2);
