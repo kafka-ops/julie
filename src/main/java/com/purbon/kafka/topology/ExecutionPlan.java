@@ -91,14 +91,16 @@ public class ExecutionPlan {
       }
     }
 
-    backendController.reset();
-    backendController.addBindings(new ArrayList<>(bindings));
-    backendController.addServiceAccounts(serviceAccounts);
-    backendController.addTopics(topics);
-    backendController.addConnectors(connectors);
-    backendController.addKSqlStreams(ksqlStreams);
-    backendController.addKSqlTables(ksqlTables);
-    backendController.flushAndClose();
+    if (!dryRun) {
+      backendController.reset();
+      backendController.addBindings(new ArrayList<>(bindings));
+      backendController.addServiceAccounts(serviceAccounts);
+      backendController.addTopics(topics);
+      backendController.addConnectors(connectors);
+      backendController.addKSqlStreams(ksqlStreams);
+      backendController.addKSqlTables(ksqlTables);
+      backendController.flushAndClose();
+    }
   }
 
   private void execute(Action action, boolean dryRun) throws IOException {

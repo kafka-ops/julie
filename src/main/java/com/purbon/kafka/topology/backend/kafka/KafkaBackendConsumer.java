@@ -16,6 +16,7 @@ import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
 import org.apache.kafka.common.PartitionInfo;
+import org.apache.kafka.common.TopicPartition;
 import org.apache.kafka.common.serialization.Serdes;
 
 public class KafkaBackendConsumer {
@@ -36,21 +37,24 @@ public class KafkaBackendConsumer {
         ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, Serdes.String().deserializer().getClass());
     var serde = new JsonDeserializer<>(BackendState.class);
     consumerProperties.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, serde.getClass());
-    consumerProperties.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest");
 
     consumerProperties.put(GROUP_ID_CONFIG, config.getKafkaBackendConsumerGroupId());
     consumer = new KafkaConsumer<>(consumerProperties);
-    consumer.subscribe(Collections.singletonList(config.getJulieKafkaConfigTopic()));
+
+    var topicPartition = new TopicPartition(config.getJulieKafkaConfigTopic(), 0);
+    var topicPartitions = Collections.singletonList(topicPartition);
+    consumer.assign(topicPartitions);
+    consumer.seekToBeginning(topicPartitions);
   }
 
   public void retrieve(KafkaBackend callback) {
-
     while (running.get()) {
-      ConsumerRecords<String, BackendState> records = consumer.poll(Duration.ofSeconds(1));
+      ConsumerRecords<String, BackendState> records = consumer.poll(Duration.ofSeconds(10));
       callback.complete();
       for (ConsumerRecord<String, BackendState> record : records) {
         callback.apply(record);
       }
+      if (records.count() > 0) callback.initialLoadFinish();
       consumer.commitAsync();
     }
   }

@@ -10,3 +10,5 @@ docker-compose up -d --build
 
 docker-compose exec kafka kafka-acls --authorizer-properties zookeeper.connect=zookeeper:2181 --add --cluster --operation=All --allow-principal=User:kafka
 
+docker exec kafka kafka-topics --bootstrap-server kafka:29092 \
+                  --create --topic julieops --partitions 1 --replication-factor 1
