@@ -189,9 +189,11 @@ public class TopologyBuilderAdminClient {
             .configs(topic.getRawConfig());
     try {
       createAllTopics(Collections.singleton(newTopic));
-    } catch (TopicExistsException ex) {
-      LOGGER.info(ex);
     } catch (ExecutionException | InterruptedException e) {
+      if (e.getCause() instanceof TopicExistsException) {
+        LOGGER.info(e.getMessage());
+        return;
+      }
       LOGGER.error(e);
       throw new IOException(e);
     }
