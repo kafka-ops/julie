@@ -244,13 +244,15 @@ public class AccessControlManagerTest {
             "User:App0",
             project.namePrefix(),
             topics.get(KStream.READ_TOPICS),
-            topics.get(KStream.WRITE_TOPICS));
+            topics.get(KStream.WRITE_TOPICS),
+            false);
     verify(aclsBuilder, times(1))
         .buildBindingsForStreamsApp(
             eq("User:App0"),
             eq(project.namePrefix()),
             eq(topics.get(KStream.READ_TOPICS)),
-            eq(topics.get(KStream.WRITE_TOPICS)));
+            eq(topics.get(KStream.WRITE_TOPICS)),
+            eq(false));
   }
 
   @Test

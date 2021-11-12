@@ -35,12 +35,12 @@ public class KStreamsAclBindingsBuilderTest {
     assertThat(builder.getAclBindings().getAclBindings())
         .anyMatch(
             b ->
-                b.getResourceType() == ResourceType.TOPIC.name()
+                b.getResourceType().equals(ResourceType.TOPIC.name())
                     && b.getResourceName().equals(topicPrefix));
     assertThat(builder.getAclBindings().getAclBindings())
         .anyMatch(
             b ->
-                b.getResourceType() == ResourceType.GROUP.name()
+                b.getResourceType().equals(ResourceType.GROUP.name())
                     && b.getResourceName().equals(topicPrefix));
   }
 
@@ -56,12 +56,12 @@ public class KStreamsAclBindingsBuilderTest {
     assertThat(builder.getAclBindings().getAclBindings())
         .anyMatch(
             b ->
-                b.getResourceType() == ResourceType.TOPIC.name()
+                b.getResourceType().equals(ResourceType.TOPIC.name())
                     && b.getResourceName().equals(applicationId));
     assertThat(builder.getAclBindings().getAclBindings())
         .anyMatch(
             b ->
-                b.getResourceType() == ResourceType.GROUP.name()
+                b.getResourceType().equals(ResourceType.GROUP.name())
                     && b.getResourceName().equals(applicationId));
   }
 }
