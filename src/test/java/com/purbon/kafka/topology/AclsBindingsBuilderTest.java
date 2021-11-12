@@ -16,6 +16,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Optional;
 import java.util.Properties;
 import org.apache.kafka.common.acl.AccessControlEntry;
 import org.apache.kafka.common.acl.AclBinding;
@@ -83,6 +84,39 @@ public class AclsBindingsBuilderTest {
     assertThat(aclBindings)
         .contains(
             buildTopicLevelAcl("User:foo", "bar", PatternType.LITERAL, AclOperation.DESCRIBE));
+  }
+
+  @Test
+  public void testStreamsWithTxIdAclsBuilder() {
+    KStream producer =
+        new KStream(
+            "User:foo",
+            singletonMap("read", singletonList("bar")),
+            Optional.of("app1"),
+            Optional.of(true));
+    List<TopologyAclBinding> aclBindings =
+        builder.buildBindingsForStreamsApp(
+            "User:foo", "app1", singletonList("bar"), emptyList(), true);
+    assertThat(aclBindings.size()).isEqualTo(5);
+
+    assertThat(aclBindings)
+        .contains(buildTopicLevelAcl("User:foo", "bar", PatternType.LITERAL, AclOperation.READ));
+
+    assertThat(aclBindings)
+        .contains(
+            buildTransactionIdLevelAcl(
+                producer.getPrincipal(),
+                producer.getApplicationId().get(),
+                PatternType.PREFIXED,
+                AclOperation.DESCRIBE));
+
+    assertThat(aclBindings)
+        .contains(
+            buildTransactionIdLevelAcl(
+                producer.getPrincipal(),
+                producer.getApplicationId().get(),
+                PatternType.PREFIXED,
+                AclOperation.WRITE));
   }
 
   @Test
@@ -282,7 +316,7 @@ public class AclsBindingsBuilderTest {
 
     List<TopologyAclBinding> bindings =
         builder.buildBindingsForStreamsApp(
-            stream.getPrincipal(), "prefix", readTopics, writeTopics);
+            stream.getPrincipal(), "prefix", readTopics, writeTopics, false);
 
     assertThat(bindings.size()).isEqualTo(4);
     assertThat(bindings)
