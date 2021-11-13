@@ -341,7 +341,8 @@ public class TopologyCustomDeserializer extends StdDeserializer<Topology> {
         }
       }
     }
-    // bloody hack that needs to be cleanned. This is to support not having ACLS defined properly and only connectors.
+    // bloody hack that needs to be cleanned. This is to support not having ACLS defined properly
+    // and only connectors.
     if (connectors.size() == 1 && connectors.get(0) == null) {
       connectors = new ArrayList<>();
     }
