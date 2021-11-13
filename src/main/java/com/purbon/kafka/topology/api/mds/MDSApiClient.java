@@ -141,9 +141,9 @@ public class MDSApiClient extends JulieHttpClient {
    * @param scope The request scope
    */
   public void deleteRole(String principal, String role, RequestScope scope) {
-    String url = "/security/1.0/principals/" + principal + "/roles/" + role;
+    String url = "/security/1.0/principals/" + principal + "/roles/" + role + "/bindings";
     try {
-      doDelete(url, scope.clustersAsJson());
+      doDelete(url, scope.asJson());
     } catch (IOException e) {
       e.printStackTrace();
     }
