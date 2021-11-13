@@ -6,7 +6,6 @@ import static com.purbon.kafka.topology.model.SubjectNameStrategy.TOPIC_NAME_STR
 import static com.purbon.kafka.topology.model.SubjectNameStrategy.TOPIC_RECORD_NAME_STRATEGY;
 import static com.purbon.kafka.topology.roles.rbac.RBACPredefinedRoles.DEVELOPER_READ;
 import static com.purbon.kafka.topology.roles.rbac.RBACPredefinedRoles.RESOURCE_OWNER;
-import static junit.framework.TestCase.assertFalse;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -364,7 +363,7 @@ public class TopologySerdesTest {
   @Test
   public void testOnlyConnectors() {
     Topology topology =
-            parser.deserialise(TestUtils.getResourceFile("/descriptor-connector-alone.yaml"));
+        parser.deserialise(TestUtils.getResourceFile("/descriptor-connector-alone.yaml"));
 
     var project = topology.getProjects().get(0);
     assertEquals("context", topology.getContext());

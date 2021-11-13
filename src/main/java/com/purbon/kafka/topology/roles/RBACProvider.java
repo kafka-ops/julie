@@ -10,6 +10,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -41,7 +42,9 @@ public class RBACProvider implements AccessControlProvider {
           RequestScope scope = new RequestScope();
           scope.setClusters(apiClient.withClusterIDs().forKafka().asMap());
           scope.addResource(
-              aclBinding.getResourceType(), aclBinding.getResourceName(), aclBinding.getPattern());
+              StringUtils.capitalize(aclBinding.getResourceType().toLowerCase()),
+              aclBinding.getResourceName(),
+              aclBinding.getPattern());
           scope.build();
 
           apiClient.deleteRole(principal, role, scope);
