@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import org.apache.commons.lang3.StringUtils;
 
 @JsonDeserialize(using = RequestScopeDeser.class)
 @JsonSerialize(using = RequestScopeSerde.class)
@@ -35,7 +36,7 @@ public class RequestScope {
 
   public void addResource(String resourceType, String name, String patternType) {
     Map<String, String> resource = new HashMap<>();
-    resource.put(RESOURCE_TYPE, resourceType);
+    resource.put(RESOURCE_TYPE, StringUtils.capitalize(resourceType.toLowerCase()));
     resource.put(RESOURCE_NAME, name);
     resource.put(RESOURCE_PATTERN_TYPE, patternType);
     this.resources.add(resource);
