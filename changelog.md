@@ -1,4 +1,17 @@
 
+v3.2.1 / 2021-11-13
+===================
+
+  * fix: delete problem on resource used from the rbac api (wrong resource type) (#398)
+  * fix/handling of connectors only without defining acls (#397)
+  * fix: Kafka as a Backend for JulieOps resiliency. Ensure state is not corrupted. (#396)
+  * Kafka Backend group ID configuration make easier (#391)
+  * add env vars for kafka.config.topic and instance.id (#390)
+  * KafkaBackendFix (state initialisation) and exit JVM if exception if raised (#386)
+  * Relax the conditions for kstream application to not require read and write topics all the topic. included as well more easy to catch error messages (#369)
+  * Add pre install hook verification for requirement java  (#371)
+  * Add the missing TransactionID permission for producers when using rbac (#370)
+
 v3.2.0 / 2021-10-20
 ===================
 
