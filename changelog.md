@@ -1,4 +1,12 @@
 
+v3.3.1 / 2021-11-17
+===================
+
+  * fix: order for delete in ksql to be reverse from creation (#400)
+  * add Parameter for initial Kafka Backend consumer retry
+  * raise initial load as done if tried at least five times
+
+
 v3.3.0 / 2021-11-13
 ===================
 
