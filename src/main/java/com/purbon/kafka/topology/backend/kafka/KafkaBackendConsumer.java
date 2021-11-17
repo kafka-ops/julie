@@ -48,14 +48,17 @@ public class KafkaBackendConsumer {
   }
 
   public void retrieve(KafkaBackend callback) {
+    int times = 0;
     while (running.get()) {
       ConsumerRecords<String, BackendState> records = consumer.poll(Duration.ofSeconds(10));
       callback.complete();
       for (ConsumerRecord<String, BackendState> record : records) {
         callback.apply(record);
       }
-      if (records.count() > 0) callback.initialLoadFinish();
-      consumer.commitAsync();
+      if (records.count() > 0 || times >= 5) {
+        callback.initialLoadFinish();
+      }
+      times += 1;
     }
   }
 
