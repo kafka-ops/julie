@@ -14,13 +14,16 @@ import java.io.IOException;
 import java.io.PrintStream;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.Arrays;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
+import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -52,10 +55,32 @@ public class KSqlArtefactManager extends ArtefactManager {
   @Override
   protected List<? extends Artefact> findArtefactsToBeDeleted(
       Collection<? extends Artefact> currentArtefacts, Set<Artefact> artefacts) {
-    return currentArtefacts.stream()
-        .filter(a -> !artefacts.contains(a))
-        .sorted((o1, o2) -> -1 * ((KsqlArtefact) o1).compareTo((KsqlArtefact) o2))
-        .collect(Collectors.toCollection(LinkedList::new));
+
+    var artefactsList =
+        currentArtefacts.stream()
+            .filter(a -> !artefacts.contains(a))
+            .sorted((o1, o2) -> -1 * ((KsqlArtefact) o1).compareTo((KsqlArtefact) o2))
+            .collect(Collectors.toCollection(LinkedList::new));
+
+    Map<String, LinkedList<KsqlArtefact>> artefactsMap = new HashMap<>();
+    artefactsMap.put("table", new LinkedList<>());
+    artefactsMap.put("stream", new LinkedList<>());
+
+    artefactsList.forEach(
+        (Consumer<Artefact>)
+            artefact -> {
+              if (artefact instanceof KsqlTableArtefact) {
+                artefactsMap.get("table").add((KsqlArtefact) artefact);
+              } else {
+                artefactsMap.get("stream").add((KsqlArtefact) artefact);
+              }
+            });
+
+    LinkedList<KsqlArtefact> toDeleteArtefactsList = new LinkedList<>();
+    for (String key : Arrays.asList("table", "stream")) {
+      artefactsMap.get(key).descendingIterator().forEachRemaining(toDeleteArtefactsList::add);
+    }
+    return toDeleteArtefactsList;
   }
 
   private Collection<? extends Artefact> getClustersState() throws IOException {
