@@ -45,7 +45,7 @@ public class ClusterLevelRoleBuilder {
 
     scope = new RequestScope();
     scope.setClusters(clusters);
-    scope.addResource("Subject", "Subject:" + subject, patternType);
+    scope.addResource("Subject", subject, patternType);
     scope.build();
 
     return this;
@@ -59,7 +59,7 @@ public class ClusterLevelRoleBuilder {
 
     scope = new RequestScope();
     scope.setClusters(clusters);
-    scope.addResource("Connector", "Connector:" + connector, patternType);
+    scope.addResource("Connector", connector, patternType);
     scope.build();
 
     return this;
