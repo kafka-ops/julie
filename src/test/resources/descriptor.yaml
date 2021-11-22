@@ -3,9 +3,12 @@ context: "contextOrg"
 source: "source"
 projects:
   - name: "foo"
-    foo:
+    app:
       - principal: "User:banana"
         group: "foo"
+        subject: "test.subject"
+        connector: "con"
+        topic: "top"
     bar:
       - principal: "User:banana"
         group: "bar"

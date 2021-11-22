@@ -288,7 +288,7 @@ public class TopologySerdesTest {
 
     var others = project.getOthers();
     assertThat(others).hasSize(2);
-    var foos = others.get("foo");
+    var foos = others.get("app");
     assertThat(foos.get(0).getPrincipal()).isEqualTo("User:banana");
     assertThat(foos.get(0).groupString()).isEqualTo("foo");
     var bars = others.get("bar");

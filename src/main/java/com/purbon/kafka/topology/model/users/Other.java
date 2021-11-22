@@ -12,10 +12,14 @@ public class Other extends User {
   private Optional<Boolean> idempotence;
   private Optional<String> group;
   private Optional<String> topic;
+  private Optional<String> subject;
+  private Optional<String> connector;
 
   public Other() {
     super();
     topic = Optional.empty();
+    subject = Optional.empty();
+    connector = Optional.empty();
     group = Optional.empty();
     transactionId = Optional.empty();
     idempotence = Optional.empty();
@@ -24,6 +28,12 @@ public class Other extends User {
   public Map<String, Object> asMap() {
     Map<String, Object> map = new HashMap<>();
     map.put("topic", topicString());
+    if (subject.isPresent()) {
+      map.put("subject", subjectString());
+    }
+    if (connector.isPresent()) {
+      map.put("connector", connectorString());
+    }
     map.put("group", groupString());
     if (transactionId.isPresent()) {
       map.put("transactionId", transactionId.get());
@@ -53,6 +63,30 @@ public class Other extends User {
 
   public void setTopic(Optional<String> topic) {
     this.topic = topic;
+  }
+
+  public Optional<String> getSubject() {
+    return subject;
+  }
+
+  public String subjectString() {
+    return subject.orElse("");
+  }
+
+  public void setSubject(Optional<String> subject) {
+    this.subject = subject;
+  }
+
+  public Optional<String> getConnector() {
+    return connector;
+  }
+
+  public String connectorString() {
+    return connector.orElse("");
+  }
+
+  public void setConnector(Optional<String> connector) {
+    this.connector = connector;
   }
 
   public Optional<String> getTransactionId() {
