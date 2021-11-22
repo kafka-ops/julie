@@ -91,9 +91,16 @@ public class TestTopologyBuilder {
   }
 
   public TestTopologyBuilder addOther(String roleName, String principal, String topic) {
+    return addOther(roleName, principal, topic, "", "");
+  }
+
+  public TestTopologyBuilder addOther(
+      String roleName, String principal, String topic, String subject, String connector) {
     Other other = new Other();
     other.setPrincipal(principal);
     other.setTopic(Optional.of(topic));
+    if (!connector.isEmpty()) other.setConnector(Optional.of(connector));
+    if (!subject.isEmpty()) other.setSubject(Optional.of(subject));
     others.add(Map.entry(roleName, Collections.singletonList(other)));
     return this;
   }
