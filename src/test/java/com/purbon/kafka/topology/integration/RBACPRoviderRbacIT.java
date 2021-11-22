@@ -424,7 +424,9 @@ public class RBACPRoviderRbacIT extends MDSBaseTest {
     String principal = "User:app" + System.currentTimeMillis();
 
     Topology topology =
-        TestTopologyBuilder.createProject().addOther("app", principal, "foo").buildTopology();
+        TestTopologyBuilder.createProject()
+            .addOther("app", principal, "foo", "subj", "con")
+            .buildTopology();
 
     Map<String, String> cliOps = new HashMap<>();
     cliOps.put(BROKERS_OPTION, "");
