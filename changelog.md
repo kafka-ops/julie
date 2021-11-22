@@ -1,11 +1,16 @@
 
+v3.3.2 / 2021-11-22
+===================
+
+  * feat: add support in the custom roles for subject and connect attributes (#406)
+  * fix: incorrect rbac resource name for subjects and connectors (#405)
+
 v3.3.1 / 2021-11-17
 ===================
 
   * fix: order for delete in ksql to be reverse from creation (#400)
   * add Parameter for initial Kafka Backend consumer retry
   * raise initial load as done if tried at least five times
-
 
 v3.3.0 / 2021-11-13
 ===================
