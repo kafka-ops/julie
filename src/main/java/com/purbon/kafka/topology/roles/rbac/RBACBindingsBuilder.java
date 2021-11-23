@@ -382,14 +382,14 @@ public class RBACBindingsBuilder implements BindingsBuilderProvider {
       String subjectName = acl.getResourceName().replaceFirst("Subject:", "").trim();
       return apiClient
           .bind(other.getPrincipal(), acl.getRole())
-          .forSchemaSubject(subjectName)
-          .apply("Subject", subjectName);
+          .forSchemaSubject(subjectName, acl.getPatternType())
+          .apply("Subject", subjectName, acl.getPatternType());
     } else if (resourceType.equalsIgnoreCase("Connector")) {
       String connectorName = acl.getResourceName().replaceFirst("Connector:", "").trim();
       return apiClient
           .bind(other.getPrincipal(), acl.getRole())
-          .forAKafkaConnector(connectorName)
-          .apply(acl.getResourceType(), connectorName);
+          .forAKafkaConnector(connectorName, acl.getPatternType())
+          .apply(acl.getResourceType(), connectorName, acl.getPatternType());
     } else if (resourceType.equalsIgnoreCase("KsqlCluster")) {
       var clusterIds = apiClient.withClusterIDs().forKsql().asMap();
       var clusterId = clusterIds.get("clusters").get(KSQL_CLUSTER_ID_LABEL);
