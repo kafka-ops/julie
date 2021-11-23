@@ -56,4 +56,28 @@ public class JulieRoleAcl {
   public String getRole() {
     return getOperation();
   }
+
+  @Override
+  public String toString() {
+    return "JulieRoleAcl{"
+        + "resourceType='"
+        + resourceType
+        + '\''
+        + ", resourceName='"
+        + resourceName
+        + '\''
+        + ", patternType='"
+        + patternType
+        + '\''
+        + ", host='"
+        + host
+        + '\''
+        + ", operation='"
+        + operation
+        + '\''
+        + ", permissionType='"
+        + permissionType
+        + '\''
+        + '}';
+  }
 }
