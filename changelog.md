@@ -1,3 +1,8 @@
+v3.3.3 / 2021-11-23
+===================
+
+  * fix: request scope to hold proper pattern type (literal, prefix) in rbac (#407)
+  * fix: add proper clusterIds for RBAC clear bindings operations, not only kafka one (#407)
 
 v3.3.2 / 2021-11-22
 ===================
