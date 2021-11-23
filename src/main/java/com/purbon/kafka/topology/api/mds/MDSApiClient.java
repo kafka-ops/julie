@@ -71,8 +71,18 @@ public class MDSApiClient extends JulieHttpClient {
 
   public TopologyAclBinding bindClusterRole(
       String principal, String resourceType, String resourceName, String role, RequestScope scope) {
+    return bindClusterRole(principal, resourceType, resourceName, role, scope, "LITERAL");
+  }
+
+  public TopologyAclBinding bindClusterRole(
+      String principal,
+      String resourceType,
+      String resourceName,
+      String role,
+      RequestScope scope,
+      String patternType) {
     TopologyAclBinding binding =
-        new TopologyAclBinding(resourceType, resourceName, "*", role, principal, "LITERAL");
+        new TopologyAclBinding(resourceType, resourceName, "*", role, principal, patternType);
     binding.setScope(scope);
     return binding;
   }
