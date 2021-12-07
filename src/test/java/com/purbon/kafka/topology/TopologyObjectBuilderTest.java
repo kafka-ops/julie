@@ -51,7 +51,7 @@ public class TopologyObjectBuilderTest {
     // should overwide values with priority given to the plans
     topic = map.get("barFooBar");
     assertThat(topic.getConfig()).containsEntry("replication.factor", "1");
-    assertThat(topic.getConfig()).containsEntry("bar", "3");
+    assertThat(topic.getConfig()).containsEntry("bar", "1");
   }
 
   @Test(expected = IllegalArgumentException.class)
