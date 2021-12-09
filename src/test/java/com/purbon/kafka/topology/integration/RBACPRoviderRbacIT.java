@@ -32,6 +32,7 @@ import com.purbon.kafka.topology.model.users.Consumer;
 import com.purbon.kafka.topology.model.users.KSqlApp;
 import com.purbon.kafka.topology.model.users.KStream;
 import com.purbon.kafka.topology.model.users.Producer;
+import com.purbon.kafka.topology.model.users.Schemas;
 import com.purbon.kafka.topology.model.users.platform.ControlCenter;
 import com.purbon.kafka.topology.model.users.platform.ControlCenterInstance;
 import com.purbon.kafka.topology.model.users.platform.Kafka;
@@ -288,6 +289,47 @@ public class RBACPRoviderRbacIT extends MDSBaseTest {
     verify(cs, times(1)).addBindings(anyList());
     verify(cs, times(1)).flushAndClose();
     verifyConnectAcls(connector);
+  }
+
+  @Test
+  public void schemasRbacCreation() throws IOException {
+    var names = asList("foo", "bar");
+
+    Schemas schema = new Schemas();
+    schema.setPrincipal("User:Schemas");
+    schema.setSubjects(names);
+
+    PlatformSystem<Schemas> schemas = new PlatformSystem<>(singletonList(schema));
+
+    Project project =
+        new ProjectImpl(
+            "name",
+            Optional.empty(),
+            Optional.empty(),
+            Optional.empty(),
+            Optional.empty(),
+            Optional.of(schemas),
+            Optional.empty(),
+            Collections.emptyMap(),
+            Collections.emptyList(),
+            new Configuration());
+
+    Topology topology = new TopologyImpl();
+    topology.setContext("schemasRbacCreation-test");
+    topology.addProject(project);
+
+    accessControlManager.apply(topology, plan);
+    plan.run();
+
+    verify(cs, times(1)).addBindings(anyList());
+    verify(cs, times(1)).flushAndClose();
+
+    var resources =
+        apiClient.lookupResourcesForSchemaRegistry(schema.getPrincipal(), RESOURCE_OWNER);
+    for (RbacResourceType resource : resources) {
+      assertThat(names).contains(resource.getName());
+      assertThat(resource.getResourceType()).isEqualTo("Subject");
+    }
   }
 
   @Test

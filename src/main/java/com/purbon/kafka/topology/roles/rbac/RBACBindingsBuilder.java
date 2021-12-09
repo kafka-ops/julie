@@ -451,7 +451,10 @@ public class RBACBindingsBuilder implements BindingsBuilderProvider {
     return subjects.stream()
         .map(
             subject ->
-                apiClient.bind(principal, role).forSchemaSubject(subject, patternType).apply())
+                apiClient
+                    .bind(principal, role)
+                    .forSchemaSubject(subject, patternType)
+                    .apply("Subject", subject))
         .filter(Objects::nonNull)
         .collect(Collectors.toList());
   }
