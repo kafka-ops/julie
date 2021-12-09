@@ -1,5 +1,6 @@
 package com.purbon.kafka.topology.model.users;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.purbon.kafka.topology.model.User;
 import java.util.Objects;
 import java.util.Optional;
@@ -58,10 +59,12 @@ public class Producer extends User {
     return Objects.hash(getPrincipal());
   }
 
+  @JsonIgnore
   public boolean hasTransactionId() {
     return transactionId.isPresent();
   }
 
+  @JsonIgnore
   public boolean isIdempotent() {
     return idempotence.isPresent();
   }
