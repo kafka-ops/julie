@@ -83,7 +83,7 @@ public class TopicCustomDeserializer extends StdDeserializer<Topic> {
           String planLabel = jsonNode.asText();
           if (plans.containsKey(planLabel)) {
             Map<String, String> planConfigObject = plans.get(planLabel).getConfig();
-            planConfigObject.forEach(config::put);
+            planConfigObject.forEach(config::putIfAbsent);
           } else {
             LOGGER.warn(planLabel + " is missing in the plans definition. It will be ignored.");
           }
