@@ -22,6 +22,7 @@ import com.purbon.kafka.topology.api.mds.RbacResourceType;
 import com.purbon.kafka.topology.model.Impl.ProjectImpl;
 import com.purbon.kafka.topology.model.Impl.TopologyImpl;
 import com.purbon.kafka.topology.model.Platform;
+import com.purbon.kafka.topology.model.PlatformSystem;
 import com.purbon.kafka.topology.model.Project;
 import com.purbon.kafka.topology.model.Topic;
 import com.purbon.kafka.topology.model.Topology;
@@ -224,6 +225,46 @@ public class RBACPRoviderRbacIT extends MDSBaseTest {
     verify(cs, times(1)).flushAndClose();
 
     verifyKSqlAppAcls(app);
+  }
+
+  @Test
+  public void connectorsRbacCreation() throws IOException {
+    var names = asList("jdbc-sink", "jdbc-source");
+
+    Connector con = new Connector();
+    con.setPrincipal("User:Connect");
+    con.setConnectors(Optional.of(names));
+
+    PlatformSystem<Connector> connectors = new PlatformSystem<>(singletonList(con));
+
+    Project project =
+        new ProjectImpl(
+            "name",
+            Optional.empty(),
+            Optional.empty(),
+            Optional.empty(),
+            Optional.of(connectors),
+            Optional.empty(),
+            Optional.empty(),
+            Collections.emptyMap(),
+            Collections.emptyList(),
+            new Configuration());
+
+    Topology topology = new TopologyImpl();
+    topology.setContext("connectorsRbacCreation-test");
+    topology.addProject(project);
+
+    accessControlManager.apply(topology, plan);
+    plan.run();
+
+    verify(cs, times(1)).addBindings(anyList());
+    verify(cs, times(1)).flushAndClose();
+
+    var resources = apiClient.lookupResourcesForConnect(con.getPrincipal(), RESOURCE_OWNER);
+    for (RbacResourceType resource : resources) {
+      assertThat(names).contains(resource.getName());
+      assertThat(resource.getResourceType()).isEqualTo("Connector");
+    }
   }
 
   @Test

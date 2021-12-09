@@ -462,7 +462,10 @@ public class RBACBindingsBuilder implements BindingsBuilderProvider {
     return connectors.stream()
         .map(
             connector ->
-                apiClient.bind(principal, RESOURCE_OWNER).forAKafkaConnector(connector).apply())
+                apiClient
+                    .bind(principal, RESOURCE_OWNER)
+                    .forAKafkaConnector(connector)
+                    .apply("Connector", connector))
         .filter(Objects::nonNull)
         .collect(Collectors.toList());
   }
