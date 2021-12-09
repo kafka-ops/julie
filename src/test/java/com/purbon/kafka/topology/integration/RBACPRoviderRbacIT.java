@@ -129,7 +129,7 @@ public class RBACPRoviderRbacIT extends MDSBaseTest {
   public void producerAclsCreation() throws IOException {
 
     List<Producer> producers = new ArrayList<>();
-    producers.add(new Producer("User:appp2"));
+    producers.add(new Producer("User:appp2", null, true));
 
     Project project = new ProjectImpl("project");
     project.setProducers(producers);
@@ -146,7 +146,7 @@ public class RBACPRoviderRbacIT extends MDSBaseTest {
     // this method is call twice, once for consumers and one for consumers
     verify(cs, times(1)).addBindings(anyList());
     verify(cs, times(1)).flushAndClose();
-    verifyProducerAcls(producers, topicA.toString());
+    verifyProducerAcls(producers, topicA.toString(), 2);
   }
 
   @Test

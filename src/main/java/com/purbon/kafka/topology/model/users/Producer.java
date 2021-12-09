@@ -57,4 +57,12 @@ public class Producer extends User {
   public int hashCode() {
     return Objects.hash(getPrincipal());
   }
+
+  public boolean hasTransactionId() {
+    return transactionId.isPresent();
+  }
+
+  public boolean isIdempotent() {
+    return idempotence.isPresent();
+  }
 }

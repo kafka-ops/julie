@@ -56,7 +56,8 @@ public final class TestProducerConsumerQuota implements Closeable {
 
       for (final ConsumerRecord<String, String> record : records) {
         //  if (handler != null) {
-        //      continueConsuming = handler.handle(record.keyKafkaListenerEndpointRegistry(), record.value());
+        //      continueConsuming = handler.handle(record.keyKafkaListenerEndpointRegistry(),
+        // record.value());
         // }
         consumer.commitAsync();
       }
