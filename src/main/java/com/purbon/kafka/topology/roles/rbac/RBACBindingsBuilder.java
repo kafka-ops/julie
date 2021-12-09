@@ -180,7 +180,14 @@ public class RBACBindingsBuilder implements BindingsBuilderProvider {
               apiClient.bind(producer.getPrincipal(), DEVELOPER_WRITE, resource, patternType);
           bindings.add(binding);
 
-          if (producer.getTransactionId().isPresent()) {
+          if (producer.isIdempotent()) {
+            binding =
+                apiClient.bind(
+                    producer.getPrincipal(), DEVELOPER_WRITE, "kafka-cluster", "Cluster", LITERAL);
+            bindings.add(binding);
+          }
+
+          if (producer.hasTransactionId()) {
             binding =
                 apiClient.bind(
                     producer.getPrincipal(),
