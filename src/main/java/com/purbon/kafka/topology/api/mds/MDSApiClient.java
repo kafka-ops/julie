@@ -71,8 +71,18 @@ public class MDSApiClient extends JulieHttpClient {
 
   public TopologyAclBinding bindClusterRole(
       String principal, String resourceType, String resourceName, String role, RequestScope scope) {
+    return bindClusterRole(principal, resourceType, resourceName, role, scope, "LITERAL");
+  }
+
+  public TopologyAclBinding bindClusterRole(
+      String principal,
+      String resourceType,
+      String resourceName,
+      String role,
+      RequestScope scope,
+      String patternType) {
     TopologyAclBinding binding =
-        new TopologyAclBinding(resourceType, resourceName, "*", role, principal, "LITERAL");
+        new TopologyAclBinding(resourceType, resourceName, "*", role, principal, patternType);
     binding.setScope(scope);
     return binding;
   }
@@ -141,9 +151,9 @@ public class MDSApiClient extends JulieHttpClient {
    * @param scope The request scope
    */
   public void deleteRole(String principal, String role, RequestScope scope) {
-    String url = "/security/1.0/principals/" + principal + "/roles/" + role;
+    String url = "/security/1.0/principals/" + principal + "/roles/" + role + "/bindings";
     try {
-      doDelete(url, scope.clustersAsJson());
+      doDelete(url, scope.asJson());
     } catch (IOException e) {
       e.printStackTrace();
     }

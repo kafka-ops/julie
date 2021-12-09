@@ -25,7 +25,7 @@ public class MDSApiClientTest {
     assertThat(mdsRequest.getUrl()).isEqualTo("User:foo/roles/DeveloperRead/bindings");
     assertThat(mdsRequest.getJsonEntity())
         .isEqualTo(
-            "{\"resourcePatterns\":[{\"name\":\"Subject:topic-value\",\"patternType\":\"LITERAL\",\"resourceType\":\"Subject\"}],\"scope\":{\"clusters\":{\"kafka-cluster\":\"\",\"schema-registry-cluster\":\"\"}}}");
+            "{\"resourcePatterns\":[{\"name\":\"topic-value\",\"patternType\":\"LITERAL\",\"resourceType\":\"Subject\"}],\"scope\":{\"clusters\":{\"kafka-cluster\":\"\",\"schema-registry-cluster\":\"\"}}}");
   }
 
   @Test
@@ -41,6 +41,25 @@ public class MDSApiClientTest {
     assertThat(mdsRequest.getUrl()).isEqualTo("User:foo/roles/DeveloperRead/bindings");
     assertThat(mdsRequest.getJsonEntity())
         .isEqualTo(
-            "{\"resourcePatterns\":[{\"name\":\"Subject:topic-value\",\"patternType\":\"LITERAL\",\"resourceType\":\"Subject\"}],\"scope\":{\"clusters\":{\"kafka-cluster\":\"\",\"schema-registry-cluster\":\"\"}}}");
+            "{\"resourcePatterns\":[{\"name\":\"topic-value\",\"patternType\":\"LITERAL\",\"resourceType\":\"Subject\"}],\"scope\":{\"clusters\":{\"kafka-cluster\":\"\",\"schema-registry-cluster\":\"\"}}}");
+  }
+
+  @Test
+  public void testBindConnectRole() {
+    String principal = "User:foo";
+    String connectorName = "jdbc-sink";
+
+    TopologyAclBinding binding =
+        apiClient
+            .bind(principal, DEVELOPER_READ)
+            .forAKafkaConnector(connectorName)
+            .apply("Connector", connectorName);
+
+    MDSRequest mdsRequest = apiClient.buildRequest(binding);
+
+    assertThat(mdsRequest.getUrl()).isEqualTo("User:foo/roles/DeveloperRead/bindings");
+    assertThat(mdsRequest.getJsonEntity())
+        .isEqualTo(
+            "{\"resourcePatterns\":[{\"name\":\"jdbc-sink\",\"patternType\":\"LITERAL\",\"resourceType\":\"Connector\"}],\"scope\":{\"clusters\":{\"kafka-cluster\":\"\",\"connect-cluster\":\"\"}}}");
   }
 }

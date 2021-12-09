@@ -4,7 +4,6 @@ import static com.purbon.kafka.topology.CommandLineInterface.*;
 import static com.purbon.kafka.topology.Constants.*;
 import static org.mockito.Mockito.*;
 
-import com.purbon.kafka.topology.BackendController.Mode;
 import com.purbon.kafka.topology.api.adminclient.TopologyBuilderAdminClient;
 import com.purbon.kafka.topology.backend.BackendState;
 import com.purbon.kafka.topology.backend.RedisBackend;
@@ -185,7 +184,6 @@ public class JulieOpsTest {
     builder.close();
 
     verify(stateProcessor, times(1)).createOrOpen();
-    verify(stateProcessor, times(1)).createOrOpen(Mode.TRUNCATE);
     verify(topicManager, times(1)).updatePlan(any(ExecutionPlan.class), any(Map.class));
     verify(accessControlManager, times(1)).updatePlan(any(ExecutionPlan.class), any(Map.class));
   }

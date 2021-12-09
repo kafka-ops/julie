@@ -5,6 +5,7 @@ import com.purbon.kafka.topology.backend.kafka.KafkaBackendConsumer;
 import com.purbon.kafka.topology.backend.kafka.KafkaBackendProducer;
 import com.purbon.kafka.topology.backend.kafka.RecordReceivedCallback;
 import java.io.IOException;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 import lombok.SneakyThrows;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
@@ -22,11 +23,13 @@ public class KafkaBackend implements Backend, RecordReceivedCallback {
   private KafkaBackendProducer producer;
 
   private AtomicReference<BackendState> latest;
+  private AtomicBoolean shouldWaitForLoad;
   private String instanceId;
   private Thread thread;
 
   public KafkaBackend() {
     isCompleted = false;
+    shouldWaitForLoad = new AtomicBoolean(true);
   }
 
   private static class JulieKafkaConsumerThread implements Runnable {
@@ -52,8 +55,8 @@ public class KafkaBackend implements Backend, RecordReceivedCallback {
   @Override
   public void configure(Configuration config) {
     instanceId = config.getJulieInstanceId();
-    latest = new AtomicReference<>();
-
+    latest = new AtomicReference<>(new BackendState());
+    shouldWaitForLoad.set(true);
     consumer = new KafkaBackendConsumer(config);
     consumer.configure();
 
@@ -88,9 +91,17 @@ public class KafkaBackend implements Backend, RecordReceivedCallback {
     producer.save(state);
   }
 
+  @SneakyThrows
   @Override
   public BackendState load() throws IOException {
+    while (shouldWaitForLoad.get()) {
+      continue;
+    }
     return latest == null ? new BackendState() : latest.get();
+  }
+
+  public void initialLoadFinish() {
+    shouldWaitForLoad.set(false);
   }
 
   @Override

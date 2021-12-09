@@ -2,6 +2,8 @@
 context: "oltp"
 projects:
   - name: "foo"
+    consumers:
+      - principal: "User:App0"
     topics:
       - name: "foo"
         config:

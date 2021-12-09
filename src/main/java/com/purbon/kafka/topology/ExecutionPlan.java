@@ -44,7 +44,7 @@ public class ExecutionPlan {
   private Set<KsqlTableArtefact> ksqlTables;
 
   private ExecutionPlan(
-          List<Action> plan, PrintStream outputStream, BackendController backendController) {
+      List<Action> plan, PrintStream outputStream, BackendController backendController) {
     this.plan = plan;
     this.outputStream = outputStream;
 
@@ -71,7 +71,7 @@ public class ExecutionPlan {
   }
 
   public static ExecutionPlan init(BackendController backendController, PrintStream outputStream)
-          throws IOException {
+      throws IOException {
     backendController.load();
     List<Action> listOfActions = Collections.synchronizedList(new LinkedList<>());
     return new ExecutionPlan(listOfActions, outputStream, backendController);
@@ -91,14 +91,16 @@ public class ExecutionPlan {
       }
     }
 
-    backendController.reset();
-    backendController.addBindings(new ArrayList<>(bindings));
-    backendController.addServiceAccounts(serviceAccounts);
-    backendController.addTopics(topics);
-    backendController.addConnectors(connectors);
-    backendController.addKSqlStreams(ksqlStreams);
-    backendController.addKSqlTables(ksqlTables);
-    backendController.flushAndClose();
+    if (!dryRun) {
+      backendController.reset();
+      backendController.addBindings(new ArrayList<>(bindings));
+      backendController.addServiceAccounts(serviceAccounts);
+      backendController.addTopics(topics);
+      backendController.addConnectors(connectors);
+      backendController.addKSqlStreams(ksqlStreams);
+      backendController.addKSqlTables(ksqlTables);
+      backendController.flushAndClose();
+    }
   }
 
   private void execute(Action action, boolean dryRun) throws IOException {
@@ -113,17 +115,17 @@ public class ExecutionPlan {
       } else if (action instanceof DeleteTopics) {
         List<String> topicsToBeDeleted = ((DeleteTopics) action).getTopicsToBeDeleted();
         topics =
-                new StreamUtils<>(topics.stream())
-                        .filterAsSet(topic -> !topicsToBeDeleted.contains(topic));
+            new StreamUtils<>(topics.stream())
+                .filterAsSet(topic -> !topicsToBeDeleted.contains(topic));
       }
       if (action instanceof BaseAccessControlAction
-              && !((BaseAccessControlAction) action).getAclBindings().isEmpty()) {
+          && !((BaseAccessControlAction) action).getAclBindings().isEmpty()) {
         if (action instanceof ClearBindings) {
           bindings =
-                  new StreamUtils<>(bindings.stream())
-                          .filterAsSet(
-                                  binding ->
-                                          !((BaseAccessControlAction) action).getAclBindings().contains(binding));
+              new StreamUtils<>(bindings.stream())
+                  .filterAsSet(
+                      binding ->
+                          !((BaseAccessControlAction) action).getAclBindings().contains(binding));
         } else {
           bindings.addAll(((BaseAccessControlAction) action).getAclBindings());
         }
@@ -132,8 +134,8 @@ public class ExecutionPlan {
         if (action instanceof ClearAccounts) {
           Collection<ServiceAccount> toDeletePrincipals = ((ClearAccounts) action).getPrincipals();
           serviceAccounts =
-                  new StreamUtils<>(serviceAccounts.stream())
-                          .filterAsSet(sa -> !toDeletePrincipals.contains(sa));
+              new StreamUtils<>(serviceAccounts.stream())
+                  .filterAsSet(sa -> !toDeletePrincipals.contains(sa));
         } else {
           CreateAccounts createAction = (CreateAccounts) action;
           serviceAccounts.addAll(createAction.getPrincipals());
@@ -153,15 +155,15 @@ public class ExecutionPlan {
         Artefact toBeDeleted = ((DeleteArtefactAction) action).getArtefact();
         if (toBeDeleted instanceof KafkaConnectArtefact) {
           connectors =
-                  new StreamUtils<>(connectors.stream())
-                          .filterAsSet(connector -> !connector.equals(toBeDeleted));
+              new StreamUtils<>(connectors.stream())
+                  .filterAsSet(connector -> !connector.equals(toBeDeleted));
         } else if (toBeDeleted instanceof KsqlStreamArtefact) {
           ksqlStreams =
-                  new StreamUtils<>(ksqlStreams.stream())
-                          .filterAsSet(ksql -> !ksql.equals(toBeDeleted));
+              new StreamUtils<>(ksqlStreams.stream())
+                  .filterAsSet(ksql -> !ksql.equals(toBeDeleted));
         } else if (toBeDeleted instanceof KsqlTableArtefact) {
           ksqlTables =
-                  new StreamUtils<>(ksqlTables.stream()).filterAsSet(ksql -> !ksql.equals(toBeDeleted));
+              new StreamUtils<>(ksqlTables.stream()).filterAsSet(ksql -> !ksql.equals(toBeDeleted));
         }
       }
     }
@@ -189,7 +191,7 @@ public class ExecutionPlan {
 
   public Set<? extends KsqlArtefact> getKSqlArtefacts() {
     return Stream.of(ksqlStreams, ksqlTables)
-            .flatMap(Collection::stream)
-            .collect(Collectors.toSet());
+        .flatMap(Collection::stream)
+        .collect(Collectors.toSet());
   }
 }

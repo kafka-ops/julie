@@ -99,7 +99,11 @@ public class RBACBindingsBuilder implements BindingsBuilderProvider {
 
   @Override
   public List<TopologyAclBinding> buildBindingsForStreamsApp(
-      String principal, String topicPrefix, List<String> readTopics, List<String> writeTopics) {
+      String principal,
+      String topicPrefix,
+      List<String> readTopics,
+      List<String> writeTopics,
+      boolean eos) {
     List<TopologyAclBinding> bindings = new ArrayList<>();
 
     TopologyAclBinding binding = apiClient.bind(principal, DEVELOPER_READ, topicPrefix, PREFIX);
@@ -117,6 +121,11 @@ public class RBACBindingsBuilder implements BindingsBuilderProvider {
               apiClient.bind(principal, DEVELOPER_WRITE, topic, LITERAL);
           bindings.add(writeBinding);
         });
+
+    if (eos) {
+      bindings.add(
+          apiClient.bind(principal, DEVELOPER_WRITE, topicPrefix, "TransactionalId", PREFIX));
+    }
 
     binding = apiClient.bind(principal, RESOURCE_OWNER, topicPrefix, PREFIX);
     bindings.add(binding);
@@ -318,7 +327,7 @@ public class RBACBindingsBuilder implements BindingsBuilderProvider {
     // schema access
     List<String> subjects =
         readTopics.stream()
-            .flatMap((Function<List<String>, Stream<String>>) topics -> topics.stream())
+            .flatMap((Function<List<String>, Stream<String>>) Collection::stream)
             .map(topicName -> String.format("%s-value", topicName))
             .collect(Collectors.toList());
 
@@ -373,14 +382,14 @@ public class RBACBindingsBuilder implements BindingsBuilderProvider {
       String subjectName = acl.getResourceName().replaceFirst("Subject:", "").trim();
       return apiClient
           .bind(other.getPrincipal(), acl.getRole())
-          .forSchemaSubject(subjectName)
-          .apply("Subject", subjectName);
+          .forSchemaSubject(subjectName, acl.getPatternType())
+          .apply("Subject", subjectName, acl.getPatternType());
     } else if (resourceType.equalsIgnoreCase("Connector")) {
       String connectorName = acl.getResourceName().replaceFirst("Connector:", "").trim();
       return apiClient
           .bind(other.getPrincipal(), acl.getRole())
-          .forAKafkaConnector(connectorName)
-          .apply(acl.getResourceType(), connectorName);
+          .forAKafkaConnector(connectorName, acl.getPatternType())
+          .apply(acl.getResourceType(), connectorName, acl.getPatternType());
     } else if (resourceType.equalsIgnoreCase("KsqlCluster")) {
       var clusterIds = apiClient.withClusterIDs().forKsql().asMap();
       var clusterId = clusterIds.get("clusters").get(KSQL_CLUSTER_ID_LABEL);

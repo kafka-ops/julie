@@ -141,10 +141,15 @@ public class CommandLineInterface {
     return options;
   }
 
-  public static void main(String[] args) throws Exception {
+  public static void main(String[] args) {
     CommandLineInterface cli = new CommandLineInterface();
-    cli.run(args);
-    exit(0);
+    try {
+      cli.run(args);
+      exit(0);
+    } catch (Exception ex) {
+      ex.printStackTrace();
+      exit(1);
+    }
   }
 
   public void run(String[] args) throws Exception {

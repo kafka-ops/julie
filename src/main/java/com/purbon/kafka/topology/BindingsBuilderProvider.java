@@ -20,7 +20,11 @@ public interface BindingsBuilderProvider {
   List<TopologyAclBinding> buildBindingsForConnect(Connector connector, String topicPrefix);
 
   List<TopologyAclBinding> buildBindingsForStreamsApp(
-      String principal, String topicPrefix, List<String> readTopics, List<String> writeTopics);
+      String principal,
+      String topicPrefix,
+      List<String> readTopics,
+      List<String> writeTopics,
+      boolean eos);
 
   List<TopologyAclBinding> buildBindingsForConsumers(
       Collection<Consumer> consumers, String resource, boolean prefixed);

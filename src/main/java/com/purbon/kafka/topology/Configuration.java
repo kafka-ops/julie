@@ -565,4 +565,12 @@ public class Configuration {
               .toString();
     }
   }
+
+  public String getKafkaBackendConsumerGroupId() {
+    return config.getString(JULIE_KAFKA_CONSUMER_GROUP_ID);
+  }
+
+  public Integer getKafkaBackendConsumerRetries() {
+    return config.getInt(JULIE_KAFKA_CONSUMER_RETRIES);
+  }
 }

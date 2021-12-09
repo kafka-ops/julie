@@ -21,8 +21,11 @@ public class KConnectApiClient extends JulieHttpClient implements ArtefactClient
     this(server, "", config);
   }
 
+  private String label;
+
   public KConnectApiClient(String server, String label, Configuration config) {
     super(server, Optional.of(config));
+    this.label = label;
     // configure basic authentication if available
     var basicAuths = config.getServersBasicAuthMap();
     if (basicAuths.containsKey(label)) {
@@ -96,6 +99,6 @@ public class KConnectApiClient extends JulieHttpClient implements ArtefactClient
 
   @Override
   public String toString() {
-    return "KConnectApiClient{" + server + "}";
+    return "KConnectApiClient{" + server + " - " + label + "}";
   }
 }

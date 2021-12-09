@@ -1,6 +1,6 @@
 ---
 roles:
-  - name: "foo"
+  - name: "app"
     acls:
       - resourceType: "Topic"
         resourceName: "{{topic}}"
@@ -8,6 +8,16 @@ roles:
         host: "*"
         operation: "ALL"
         permissionType: "ALLOW"
+      - resourceType: "Subject"
+        resourceName: "{{subject}}"
+        patternType: "PREFIXED"
+        host: "*"
+        role: "ResourceOwner"
+      - resourceType: "Connector"
+        resourceName: "{{connector}}"
+        patternType: "PREFIXED"
+        host: "*"
+        role: "ResourceOwner"
       - resourceType: "Topic"
         resourceName: "sourceTopic"
         patternType: "LITERAL"

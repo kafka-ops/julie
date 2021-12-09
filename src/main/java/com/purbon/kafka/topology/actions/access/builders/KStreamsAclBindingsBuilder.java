@@ -28,6 +28,7 @@ public class KStreamsAclBindingsBuilder implements AclBindingsBuilder {
             app.getPrincipal(),
             prefix,
             app.getTopics().get(KStream.READ_TOPICS),
-            app.getTopics().get(KStream.WRITE_TOPICS)));
+            app.getTopics().get(KStream.WRITE_TOPICS),
+            app.getExactlyOnce().orElseThrow()));
   }
 }

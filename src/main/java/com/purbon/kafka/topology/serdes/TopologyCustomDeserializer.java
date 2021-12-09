@@ -249,6 +249,12 @@ public class TopologyCustomDeserializer extends StdDeserializer<Topology> {
               + project.getName()
               + ", this might be a required field, be aware.");
     } else {
+      var allowList =
+          config.getDlqTopicsAllowList().stream()
+              .map(Pattern::compile)
+              .collect(Collectors.toList());
+      var denyList =
+          config.getDlqTopicsDenyList().stream().map(Pattern::compile).collect(Collectors.toList());
       new JsonSerdesUtils<Topic>()
           .parseApplicationUser(parser, topicsNode, Topic.class)
           .forEach(
@@ -256,7 +262,7 @@ public class TopologyCustomDeserializer extends StdDeserializer<Topology> {
                 project.addTopic(topic); // add normal topic and evaluate
                 if (config.shouldGenerateDlqTopics()) {
                   String name = topic.toString();
-                  if (shouldGenerateDlqTopic().apply(name)) {
+                  if (shouldGenerateDlqTopic(allowList, denyList).apply(name)) {
                     Topic dlqTopic = topic.clone();
                     dlqTopic.setDlqPrefix(config.getDlqTopicLabel());
                     dlqTopic.setTopicNamePattern(config.getDlqTopicPrefixFormat());
@@ -269,14 +275,15 @@ public class TopologyCustomDeserializer extends StdDeserializer<Topology> {
     return project;
   }
 
-  private Function<String, Boolean> shouldGenerateDlqTopic() {
+  private Function<String, Boolean> shouldGenerateDlqTopic(
+      List<Pattern> allowList, List<Pattern> denyList) {
     return name -> {
-      var allowList = config.getDlqTopicsAllowList();
-      var denyList = config.getDlqTopicsDenyList();
-      boolean isAllowedOrEmpty =
-          allowList.isEmpty() || (!allowList.isEmpty() && allowList.contains(name));
-      boolean isNotDeniedOrEmpty =
-          denyList.isEmpty() || (!denyList.isEmpty() && !denyList.contains(name));
+      var foundInAllowList =
+          allowList.stream().map(e -> e.matcher(name).matches()).anyMatch(p -> p);
+      var foundInDenyList = denyList.stream().map(e -> e.matcher(name).matches()).anyMatch(p -> p);
+
+      var isAllowedOrEmpty = allowList.isEmpty() || foundInAllowList;
+      var isNotDeniedOrEmpty = denyList.isEmpty() || !foundInDenyList;
       return isAllowedOrEmpty && isNotDeniedOrEmpty;
     };
   }
@@ -340,6 +347,11 @@ public class TopologyCustomDeserializer extends StdDeserializer<Topology> {
                   artefact.getServerLabel()));
         }
       }
+    }
+    // bloody hack that needs to be cleanned. This is to support not having ACLS defined properly
+    // and only connectors.
+    if (connectors.size() == 1 && connectors.get(0) == null) {
+      connectors = new ArrayList<>();
     }
     return Optional.of(new PlatformSystem(connectors, new KConnectArtefacts(artefacts)));
   }

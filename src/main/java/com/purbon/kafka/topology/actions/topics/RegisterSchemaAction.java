@@ -19,7 +19,7 @@ public class RegisterSchemaAction extends BaseAction {
   private final SchemaRegistryManager schemaRegistryManager;
 
   public RegisterSchemaAction(
-          SchemaRegistryManager schemaRegistryManager, Topic topic, String fullTopicName) {
+      SchemaRegistryManager schemaRegistryManager, Topic topic, String fullTopicName) {
     this.topic = topic;
     this.fullTopicName = fullTopicName;
     this.schemaRegistryManager = schemaRegistryManager;
@@ -54,7 +54,7 @@ public class RegisterSchemaAction extends BaseAction {
 
   private void setCompatibility(String subjectName, Optional<String> compatibilityOptional) {
     compatibilityOptional.ifPresent(
-            compatibility -> schemaRegistryManager.setCompatibility(subjectName, compatibility));
+        compatibility -> schemaRegistryManager.setCompatibility(subjectName, compatibility));
   }
 
   @Override

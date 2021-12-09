@@ -23,4 +23,9 @@ public class JulieRole {
   public List<JulieRoleAcl> getAcls() {
     return acls;
   }
+
+  @Override
+  public String toString() {
+    return "JulieRole{" + "name='" + name + '\'' + ", acls=" + acls + '}';
+  }
 }
