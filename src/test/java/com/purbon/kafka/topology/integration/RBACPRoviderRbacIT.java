@@ -4,6 +4,7 @@ import static com.purbon.kafka.topology.CommandLineInterface.*;
 import static com.purbon.kafka.topology.Constants.*;
 import static com.purbon.kafka.topology.roles.rbac.RBACPredefinedRoles.*;
 import static java.util.Arrays.asList;
+import static java.util.Collections.singleton;
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertEquals;
@@ -495,6 +496,82 @@ public class RBACPRoviderRbacIT extends MDSBaseTest {
     bindings = getBindings(rbacProvider);
     // only one group and one topic as we removed one of principles
     assertThat(bindings).hasSize(2);
+  }
+
+  @Test
+  public void deleteRolesShouldBeSkippedIfPrincipalIsNotManaged() throws IOException {
+    BackendController cs = new BackendController();
+    ExecutionPlan plan = ExecutionPlan.init(cs, System.out);
+    RBACProvider rbacProvider = Mockito.spy(new RBACProvider(apiClient));
+    RBACBindingsBuilder bindingsBuilder = new RBACBindingsBuilder(apiClient);
+
+    Properties props = new Properties();
+    props.put(TOPOLOGY_STATE_FROM_CLUSTER, true);
+    props.put(ALLOW_DELETE_TOPICS, true);
+    props.put(ALLOW_DELETE_BINDINGS, true);
+    props.put(SERVICE_ACCOUNT_MANAGED_PREFIXES + ".0", "User:app");
+
+    HashMap<String, String> cliOps = new HashMap<>();
+    cliOps.put(BROKERS_OPTION, "");
+
+    Configuration config = new Configuration(cliOps, props);
+
+    accessControlManager = new AccessControlManager(rbacProvider, bindingsBuilder, config);
+    final List<String> principals = asList("User:Pere", "User:app1b", "User:app2b");
+
+    List<Consumer> consumers = new ArrayList<>();
+    consumers.add(new Consumer("User:app1b"));
+    consumers.add(new Consumer("User:app2b"));
+
+    Topology topology = new TopologyImpl(config);
+    var prefix = "deleteRolesShouldBeSkippedIfPrincipalIsNotManaged-test";
+    topology.setContext(prefix);
+
+    Project project = new ProjectImpl("project");
+    project.setConsumers(consumers);
+    topology.setProjects(Collections.singletonList(project));
+
+    Topic topicA = new Topic("topicA");
+    project.addTopic(topicA);
+
+    accessControlManager.apply(topology, plan);
+    plan.run();
+
+    // should create a new principal outside of the managed ones, before triggering the deletion.
+    var extraBinding = apiClient.bind("User:Pere", RESOURCE_OWNER, "topicA", "Topic", "LITERAL");
+    rbacProvider.createBindings(singleton(extraBinding));
+
+    // two group and three topics, as we have one topic and two principles and one unmanaged
+    // resource binding
+    List<TopologyAclBinding> bindings =
+        getBindings(rbacProvider).stream()
+            .filter(
+                binding ->
+                    principals.contains(binding.getPrincipal())
+                        || binding.getResourceName().startsWith(prefix))
+            .collect(Collectors.toList());
+    assertThat(bindings).hasSize(5);
+    consumers.remove(0); // remove the first consumer
+
+    cs = new BackendController();
+    plan = ExecutionPlan.init(cs, System.out);
+
+    accessControlManager.apply(topology, plan);
+    plan.run();
+
+    bindings =
+        getBindings(rbacProvider).stream()
+            .filter(
+                binding ->
+                    principals.contains(binding.getPrincipal())
+                        || binding.getResourceName().startsWith(prefix))
+            .collect(Collectors.toList());
+    // only one group and one topic as we removed one of principles plus the extra binding
+    assertThat(bindings).hasSize(3);
+    List<String> finalPrincipals = asList("User:Pere", "User:app2b");
+    for (TopologyAclBinding binding : bindings) {
+      assertThat(finalPrincipals).contains(binding.getPrincipal());
+    }
   }
 
   @Test
