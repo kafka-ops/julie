@@ -146,16 +146,16 @@ public class JulieOpsTest {
     builder.setConnectorManager(connectorManager);
     builder.setKsqlArtefactManager(ksqlArtefactManager);
 
-    doNothing().when(topicManager).apply(any(Map.class), any(ExecutionPlan.class));
+    doNothing().when(topicManager).updatePlan(any(ExecutionPlan.class), any(Map.class));
 
-    doNothing().when(accessControlManager).apply(any(Map.class), any(ExecutionPlan.class));
+    doNothing().when(accessControlManager).updatePlan(any(ExecutionPlan.class), any(Map.class));
 
     builder.run();
     builder.close();
 
-    verify(topicManager, times(1)).apply(any(Map.class), any(ExecutionPlan.class));
-    verify(accessControlManager, times(1)).apply(any(Map.class), any(ExecutionPlan.class));
-    verify(connectorManager, times(1)).apply(any(Map.class), any(ExecutionPlan.class));
+    verify(topicManager, times(1)).updatePlan(any(ExecutionPlan.class), any(Map.class));
+    verify(accessControlManager, times(1)).updatePlan(any(ExecutionPlan.class), any(Map.class));
+    verify(connectorManager, times(1)).updatePlan(any(ExecutionPlan.class), any(Map.class));
   }
 
   @Test
@@ -176,23 +176,20 @@ public class JulieOpsTest {
     builder.setConnectorManager(connectorManager);
     builder.setKsqlArtefactManager(ksqlArtefactManager);
 
-    doNothing().when(topicManager).apply(any(Map.class), any(ExecutionPlan.class));
+    doNothing().when(topicManager).updatePlan(any(ExecutionPlan.class), any(Map.class));
 
-    doNothing().when(accessControlManager).apply(any(Map.class), any(ExecutionPlan.class));
+    doNothing().when(accessControlManager).updatePlan(any(ExecutionPlan.class), any(Map.class));
 
-    BackendController cs = new BackendController(stateProcessor);
-    ExecutionPlan plan = ExecutionPlan.init(cs, System.out);
-
-    builder.run(plan);
+    builder.run(new BackendController(stateProcessor), System.out);
     builder.close();
 
     verify(stateProcessor, times(1)).createOrOpen();
-    verify(topicManager, times(1)).apply(any(Map.class), any(ExecutionPlan.class));
-    verify(accessControlManager, times(1)).apply(any(Map.class), any(ExecutionPlan.class));
+    verify(topicManager, times(1)).updatePlan(any(ExecutionPlan.class), any(Map.class));
+    verify(accessControlManager, times(1)).updatePlan(any(ExecutionPlan.class), any(Map.class));
   }
 
   @Test
-  public void buiderRunTest() throws Exception {
+  public void builderRunTest() throws Exception {
     String fileOrDirPath = TestUtils.getResourceFilename("/descriptor.yaml");
 
     Configuration builderConfig = new Configuration(cliOps, props);
@@ -210,15 +207,15 @@ public class JulieOpsTest {
     builder.setConnectorManager(connectorManager);
     builder.setKsqlArtefactManager(ksqlArtefactManager);
 
-    doNothing().when(topicManager).apply(any(Map.class), any(ExecutionPlan.class));
+    doNothing().when(topicManager).updatePlan(any(ExecutionPlan.class), any(Map.class));
 
-    doNothing().when(accessControlManager).apply(any(Map.class), any(ExecutionPlan.class));
+    doNothing().when(accessControlManager).updatePlan(any(ExecutionPlan.class), any(Map.class));
 
     builder.run();
     builder.close();
 
-    verify(topicManager, times(1)).apply(any(Map.class), any(ExecutionPlan.class));
-    verify(accessControlManager, times(1)).apply(any(Map.class), any(ExecutionPlan.class));
+    verify(topicManager, times(1)).updatePlan(any(ExecutionPlan.class), any(Map.class));
+    verify(accessControlManager, times(1)).updatePlan(any(ExecutionPlan.class), any(Map.class));
   }
 
   @Test
@@ -239,14 +236,14 @@ public class JulieOpsTest {
     builder.setAccessControlManager(accessControlManager);
     builder.setKsqlArtefactManager(ksqlArtefactManager);
 
-    doNothing().when(topicManager).apply(any(Map.class), any(ExecutionPlan.class));
+    doNothing().when(topicManager).updatePlan(any(ExecutionPlan.class), any(Map.class));
 
-    doNothing().when(accessControlManager).apply(any(Map.class), any(ExecutionPlan.class));
+    doNothing().when(accessControlManager).updatePlan(any(ExecutionPlan.class), any(Map.class));
 
     builder.run();
     builder.close();
 
-    verify(topicManager, times(1)).apply(any(Map.class), any(ExecutionPlan.class));
-    verify(accessControlManager, times(1)).apply(any(Map.class), any(ExecutionPlan.class));
+    verify(topicManager, times(1)).updatePlan(any(ExecutionPlan.class), any(Map.class));
+    verify(accessControlManager, times(1)).updatePlan(any(ExecutionPlan.class), any(Map.class));
   }
 }

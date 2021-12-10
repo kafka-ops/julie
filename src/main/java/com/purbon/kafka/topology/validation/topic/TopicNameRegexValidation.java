@@ -65,7 +65,7 @@ public class TopicNameRegexValidation implements TopicValidation {
       Pattern.compile(pattern);
     } catch (PatternSyntaxException exception) {
       throw new ConfigurationException(
-          String.format("TopicNameRegexValidation configured with unvalid regex '%s'", pattern));
+          String.format("TopicNameRegexValidation configured with invalid regex '%s'", pattern));
     }
   }
 }

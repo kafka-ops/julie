@@ -35,7 +35,8 @@ public class JulieOps implements AutoCloseable {
   private static final Logger LOGGER = LogManager.getLogger(JulieOps.class);
 
   private TopicManager topicManager;
-  private final PrincipalManager principalManager;
+  private final PrincipalUpdateManager principalUpdateManager;
+  private final PrincipalDeleteManager principalDeleteManager;
   private AccessControlManager accessControlManager;
   private KafkaConnectArtefactManager connectorManager;
   private KSqlArtefactManager kSqlArtefactManager;
@@ -48,14 +49,16 @@ public class JulieOps implements AutoCloseable {
       Configuration config,
       TopicManager topicManager,
       AccessControlManager accessControlManager,
-      PrincipalManager principalManager,
+      PrincipalUpdateManager principalUpdateManager,
+      PrincipalDeleteManager principalDeleteManager,
       KafkaConnectArtefactManager connectorManager,
       KSqlArtefactManager kSqlArtefactManager) {
     this.topologies = topologies;
     this.config = config;
     this.topicManager = topicManager;
     this.accessControlManager = accessControlManager;
-    this.principalManager = principalManager;
+    this.principalUpdateManager = principalUpdateManager;
+    this.principalDeleteManager = principalDeleteManager;
     this.connectorManager = connectorManager;
     this.kSqlArtefactManager = kSqlArtefactManager;
     this.outputStream = System.out;
@@ -155,7 +158,10 @@ public class JulieOps implements AutoCloseable {
 
     TopicManager topicManager = new TopicManager(adminClient, schemaRegistryManager, config);
 
-    PrincipalManager principalManager = new PrincipalManager(principalProvider, config);
+    PrincipalUpdateManager principalUpdateManager =
+        new PrincipalUpdateManager(principalProvider, config);
+    PrincipalDeleteManager principalDeleteManager =
+        new PrincipalDeleteManager(principalProvider, config);
 
     KafkaConnectArtefactManager connectorManager =
         configureKConnectArtefactManager(config, topologyFileOrDir);
@@ -168,7 +174,8 @@ public class JulieOps implements AutoCloseable {
         config,
         topicManager,
         accessControlManager,
-        principalManager,
+        principalUpdateManager,
+        principalDeleteManager,
         connectorManager,
         kSqlArtefactManager);
   }
@@ -221,28 +228,26 @@ public class JulieOps implements AutoCloseable {
     }
   }
 
-  void run(ExecutionPlan plan) throws IOException {
+  void run(BackendController backendController, PrintStream printStream) throws IOException {
+    ExecutionPlan plan = ExecutionPlan.init(backendController, printStream);
     LOGGER.debug(
         String.format(
-            "Running topology builder with TopicManager=[%s], accessControlManager=[%s], dryRun=[%s], isQuite=[%s]",
+            "Running topology builder with topicManager=[%s], accessControlManager=[%s], dryRun=[%s], isQuiet=[%s]",
             topicManager, accessControlManager, config.isDryRun(), config.isQuiet()));
 
+    // Create users should always be first, so user exists when making acl link
     for (Topology topology : topologies.values()) {
-      // Create users should always be first, so user exists when making acl link
-      principalManager.applyCreate(topology, plan);
+      principalUpdateManager.updatePlan(topology, plan);
     }
-
-    topicManager.apply(topologies, plan);
-    accessControlManager.apply(topologies, plan);
-
-    connectorManager.apply(topologies, plan);
-    kSqlArtefactManager.apply(topologies, plan);
-
+    topicManager.updatePlan(plan, topologies);
+    accessControlManager.updatePlan(plan, topologies);
+    connectorManager.updatePlan(plan, topologies);
+    kSqlArtefactManager.updatePlan(plan, topologies);
+    // Delete users should always be last,
+    // avoids any unlinked acls, e.g. if acl delete or something errors then there is a link still
+    // from the account, and can be re-run or manually fixed more easily
     for (Topology topology : topologies.values()) {
-      // Delete users should always be last,
-      // avoids any unlinked acls, e.g. if acl delete or something errors then there is a link still
-      // from the account, and can be re-run or manually fixed more easily
-      principalManager.applyDelete(topology, plan);
+      principalUpdateManager.updatePlan(topology, plan);
     }
 
     plan.run(config.isDryRun());
@@ -250,7 +255,8 @@ public class JulieOps implements AutoCloseable {
     if (!config.isQuiet() && !config.isDryRun()) {
       topicManager.printCurrentState(System.out);
       accessControlManager.printCurrentState(System.out);
-      principalManager.printCurrentState(System.out);
+      principalUpdateManager.printCurrentState(System.out);
+      principalDeleteManager.printCurrentState(System.out);
       connectorManager.printCurrentState(System.out);
       kSqlArtefactManager.printCurrentState(System.out);
     }
@@ -260,9 +266,7 @@ public class JulieOps implements AutoCloseable {
     if (config.doValidate()) {
       return;
     }
-    BackendController cs = buildBackendController(config);
-    ExecutionPlan plan = ExecutionPlan.init(cs, outputStream);
-    run(plan);
+    run(buildBackendController(config), outputStream);
   }
 
   public void close() {

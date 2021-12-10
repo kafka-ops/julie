@@ -1,14 +1,11 @@
 package com.purbon.kafka.topology;
 
-import com.purbon.kafka.topology.actions.Action;
-import com.purbon.kafka.topology.actions.BaseAccountsAction;
-import com.purbon.kafka.topology.actions.CreateArtefactAction;
-import com.purbon.kafka.topology.actions.DeleteArtefactAction;
+import com.purbon.kafka.topology.actions.*;
 import com.purbon.kafka.topology.actions.access.ClearBindings;
 import com.purbon.kafka.topology.actions.accounts.ClearAccounts;
 import com.purbon.kafka.topology.actions.accounts.CreateAccounts;
+import com.purbon.kafka.topology.actions.topics.CreateTopicAction;
 import com.purbon.kafka.topology.actions.topics.DeleteTopics;
-import com.purbon.kafka.topology.actions.topics.SyncTopicAction;
 import com.purbon.kafka.topology.model.Artefact;
 import com.purbon.kafka.topology.model.artefact.KafkaConnectArtefact;
 import com.purbon.kafka.topology.model.artefact.KsqlArtefact;
@@ -108,27 +105,29 @@ public class ExecutionPlan {
 
   private void execute(Action action, boolean dryRun) throws IOException {
     LOGGER.debug(String.format("Execution action %s (dryRun=%s)", action, dryRun));
-    if (dryRun) {
-      outputStream.println(action);
-    } else {
+    outputStream.println(action);
+    if (!dryRun) {
       action.run();
       // TODO: a nicer and more clean version of this might be a cool thing to have, current version
       // is shitty.
-      if (action instanceof SyncTopicAction) {
-        topics.add(((SyncTopicAction) action).getTopic());
+      if (action instanceof CreateTopicAction) {
+        topics.add(((CreateTopicAction) action).getTopic());
       } else if (action instanceof DeleteTopics) {
         List<String> topicsToBeDeleted = ((DeleteTopics) action).getTopicsToBeDeleted();
         topics =
             new StreamUtils<>(topics.stream())
                 .filterAsSet(topic -> !topicsToBeDeleted.contains(topic));
       }
-      if (!action.getBindings().isEmpty()) {
+      if (action instanceof BaseAccessControlAction
+          && !((BaseAccessControlAction) action).getAclBindings().isEmpty()) {
         if (action instanceof ClearBindings) {
           bindings =
               new StreamUtils<>(bindings.stream())
-                  .filterAsSet(binding -> !action.getBindings().contains(binding));
+                  .filterAsSet(
+                      binding ->
+                          !((BaseAccessControlAction) action).getAclBindings().contains(binding));
         } else {
-          bindings.addAll(action.getBindings());
+          bindings.addAll(((BaseAccessControlAction) action).getAclBindings());
         }
       }
       if (action instanceof BaseAccountsAction) {

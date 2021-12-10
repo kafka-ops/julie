@@ -6,10 +6,10 @@ public class AuthenticationCredentials {
   private final String tokenType;
   private final Integer expiresIn;
 
-  public AuthenticationCredentials(String authToken, String tokenType, Integer expriresIn) {
+  public AuthenticationCredentials(String authToken, String tokenType, Integer expiresIn) {
     this.authToken = authToken;
     this.tokenType = tokenType;
-    this.expiresIn = expriresIn;
+    this.expiresIn = expiresIn;
   }
 
   public String getAuthToken() {

@@ -121,7 +121,7 @@ public class QuotasManagerIT {
   public void quotaForUserCreation() throws ExecutionException, InterruptedException, IOException {
 
     Topology topology = woldMSpecPattern();
-    accessControlManager.apply(topology, plan);
+    accessControlManager.updatePlan(topology, plan);
     plan.run();
 
     List<Quota> quotas = new ArrayList<>();
@@ -138,7 +138,7 @@ public class QuotasManagerIT {
   public void quotaForUserRemove() throws ExecutionException, InterruptedException, IOException {
 
     Topology topology = woldMSpecPattern();
-    accessControlManager.apply(topology, plan);
+    accessControlManager.updatePlan(topology, plan);
     plan.run();
 
     List<Quota> quotas = new ArrayList<>();
@@ -159,7 +159,7 @@ public class QuotasManagerIT {
       throws ExecutionException, InterruptedException, IOException {
 
     Topology topology = woldMSpecPattern();
-    accessControlManager.apply(topology, plan);
+    accessControlManager.updatePlan(topology, plan);
     plan.run();
 
     List<Quota> quotas = new ArrayList<>();
@@ -182,7 +182,7 @@ public class QuotasManagerIT {
       throws ExecutionException, InterruptedException, IOException {
 
     Topology topology = woldMSpecPattern();
-    accessControlManager.apply(topology, plan);
+    accessControlManager.updatePlan(topology, plan);
     plan.run();
 
     List<Quota> quotas = new ArrayList<>();

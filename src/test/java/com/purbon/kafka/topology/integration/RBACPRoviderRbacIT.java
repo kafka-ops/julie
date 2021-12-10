@@ -1,6 +1,6 @@
 package com.purbon.kafka.topology.integration;
 
-import static com.purbon.kafka.topology.CommandLineInterface.*;
+import static com.purbon.kafka.topology.CommandLineInterface.BROKERS_OPTION;
 import static com.purbon.kafka.topology.Constants.*;
 import static com.purbon.kafka.topology.roles.rbac.RBACPredefinedRoles.*;
 import static java.util.Arrays.asList;
@@ -9,7 +9,7 @@ import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
-import static org.mockito.Matchers.anyList;
+import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
@@ -61,7 +61,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 
 @RunWith(MockitoJUnitRunner.class)
 public class RBACPRoviderRbacIT extends MDSBaseTest {
@@ -119,7 +119,7 @@ public class RBACPRoviderRbacIT extends MDSBaseTest {
     topology.setContext("testConsumerAclsCreation-test");
     topology.addProject(project);
 
-    accessControlManager.apply(topology, plan);
+    accessControlManager.updatePlan(topology, plan);
     plan.run();
 
     // this method is call twice, once for consumers and one for producers
@@ -132,7 +132,7 @@ public class RBACPRoviderRbacIT extends MDSBaseTest {
   public void producerAclsCreation() throws IOException {
 
     List<Producer> producers = new ArrayList<>();
-    producers.add(new Producer("User:appp2", null, true));
+    producers.add(new Producer("User:app2", null, true));
 
     Project project = new ProjectImpl("project");
     project.setProducers(producers);
@@ -143,7 +143,7 @@ public class RBACPRoviderRbacIT extends MDSBaseTest {
     topology.setContext("producerAclsCreation-test");
     topology.addProject(project);
 
-    accessControlManager.apply(topology, plan);
+    accessControlManager.updatePlan(topology, plan);
     plan.run();
 
     // this method is call twice, once for consumers and one for consumers
@@ -169,7 +169,7 @@ public class RBACPRoviderRbacIT extends MDSBaseTest {
     topology.setContext("producerAclsWithExtraPropertiesShouldNotBreak-test");
     topology.addProject(project);
 
-    accessControlManager.apply(topology, plan);
+    accessControlManager.updatePlan(topology, plan);
     plan.run();
 
     // this method is call twice, once for consumers and one for consumers
@@ -194,7 +194,7 @@ public class RBACPRoviderRbacIT extends MDSBaseTest {
     topology.setContext("kstreamsAclsCreation-test");
     topology.addProject(project);
 
-    accessControlManager.apply(topology, plan);
+    accessControlManager.updatePlan(topology, plan);
     plan.run();
 
     verify(cs, times(1)).addBindings(anyList());
@@ -220,7 +220,7 @@ public class RBACPRoviderRbacIT extends MDSBaseTest {
     topology.addOther("source", "ksqlAppAclsCreation-test");
     topology.addProject(project);
 
-    accessControlManager.apply(topology, plan);
+    accessControlManager.updatePlan(topology, plan);
     plan.run();
 
     verify(cs, times(1)).addBindings(anyList());
@@ -256,7 +256,7 @@ public class RBACPRoviderRbacIT extends MDSBaseTest {
     topology.setContext("connectorsRbacCreation-test");
     topology.addProject(project);
 
-    accessControlManager.apply(topology, plan);
+    accessControlManager.updatePlan(topology, plan);
     plan.run();
 
     verify(cs, times(1)).addBindings(anyList());
@@ -284,7 +284,7 @@ public class RBACPRoviderRbacIT extends MDSBaseTest {
     topology.setContext("connectAclsCreation-test");
     topology.addProject(project);
 
-    accessControlManager.apply(topology, plan);
+    accessControlManager.updatePlan(topology, plan);
     plan.run();
 
     verify(cs, times(1)).addBindings(anyList());
@@ -319,7 +319,7 @@ public class RBACPRoviderRbacIT extends MDSBaseTest {
     topology.setContext("schemasRbacCreation-test");
     topology.addProject(project);
 
-    accessControlManager.apply(topology, plan);
+    accessControlManager.updatePlan(topology, plan);
     plan.run();
 
     verify(cs, times(1)).addBindings(anyList());
@@ -359,7 +359,7 @@ public class RBACPRoviderRbacIT extends MDSBaseTest {
     platform.setSchemaRegistry(sr);
     topology.setPlatform(platform);
 
-    accessControlManager.apply(topology, plan);
+    accessControlManager.updatePlan(topology, plan);
     plan.run();
 
     verify(cs, times(1)).addBindings(anyList());
@@ -385,7 +385,7 @@ public class RBACPRoviderRbacIT extends MDSBaseTest {
 
     topology.setPlatform(platform);
 
-    accessControlManager.apply(topology, plan);
+    accessControlManager.updatePlan(topology, plan);
     plan.run();
 
     verify(cs, times(1)).addBindings(anyList());
@@ -410,7 +410,7 @@ public class RBACPRoviderRbacIT extends MDSBaseTest {
     platform.setKafka(kafka);
     topology.setPlatform(platform);
 
-    accessControlManager.apply(topology, plan);
+    accessControlManager.updatePlan(topology, plan);
     plan.run();
 
     verify(cs, times(1)).addBindings(anyList());
@@ -436,7 +436,7 @@ public class RBACPRoviderRbacIT extends MDSBaseTest {
     platform.setKafkaConnect(connect);
     topology.setPlatform(platform);
 
-    accessControlManager.apply(topology, plan);
+    accessControlManager.updatePlan(topology, plan);
     plan.run();
 
     verify(cs, times(1)).addBindings(anyList());
@@ -479,7 +479,7 @@ public class RBACPRoviderRbacIT extends MDSBaseTest {
     Topic topicA = new Topic("topicA");
     project.addTopic(topicA);
 
-    accessControlManager.apply(topology, plan);
+    accessControlManager.updatePlan(topology, plan);
     plan.run();
 
     // two group and two topics as we have one topic and two principles
@@ -490,7 +490,7 @@ public class RBACPRoviderRbacIT extends MDSBaseTest {
     cs = new BackendController();
     plan = ExecutionPlan.init(cs, System.out);
 
-    accessControlManager.apply(topology, plan);
+    accessControlManager.updatePlan(topology, plan);
     plan.run();
 
     bindings = getBindings(rbacProvider);
@@ -534,7 +534,7 @@ public class RBACPRoviderRbacIT extends MDSBaseTest {
     Topic topicA = new Topic("topicA");
     project.addTopic(topicA);
 
-    accessControlManager.apply(topology, plan);
+    accessControlManager.updatePlan(topology, plan);
     plan.run();
 
     // should create a new principal outside of the managed ones, before triggering the deletion.
@@ -556,7 +556,7 @@ public class RBACPRoviderRbacIT extends MDSBaseTest {
     cs = new BackendController();
     plan = ExecutionPlan.init(cs, System.out);
 
-    accessControlManager.apply(topology, plan);
+    accessControlManager.updatePlan(topology, plan);
     plan.run();
 
     bindings =
@@ -599,7 +599,7 @@ public class RBACPRoviderRbacIT extends MDSBaseTest {
     accessControlManager =
         new AccessControlManager(rbacProvider, bindingsBuilder, config.getJulieRoles(), config);
 
-    accessControlManager.apply(topology, plan);
+    accessControlManager.updatePlan(topology, plan);
 
     plan.run();
 

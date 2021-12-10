@@ -13,7 +13,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 /** Manages Artefacts as defined within the context of the filter class */
-public abstract class ArtefactManager implements ManagerOfThings {
+public abstract class ArtefactManager implements ExecutionPlanUpdater {
 
   private static final Logger LOGGER = LogManager.getLogger(ArtefactManager.class);
 
@@ -35,7 +35,7 @@ public abstract class ArtefactManager implements ManagerOfThings {
   }
 
   @Override
-  public void apply(Map<String, Topology> topologies, ExecutionPlan plan) throws IOException {
+  public void updatePlan(ExecutionPlan plan, Map<String, Topology> topologies) throws IOException {
     Collection<? extends Artefact> currentArtefacts = loadActualClusterStateIfAvailable(plan);
 
     Set<Artefact> artefacts = new HashSet<>();

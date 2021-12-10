@@ -45,7 +45,7 @@ public class BuildBindingsForRole extends BaseAccessControlAction {
               .collect(Collectors.toList());
       var instanceBindings =
           bindingsBuilder.buildBindingsForJulieRole(other, julieRole.getName(), acls);
-      bindings.addAll(instanceBindings);
+      aclBindings.addAll(instanceBindings);
     }
   }
 

@@ -14,14 +14,13 @@ public class BuildBindingsForSchemaAuthorization extends BaseAccessControlAction
 
   public BuildBindingsForSchemaAuthorization(
       BindingsBuilderProvider builderProvider, Schemas schemaAuthorization) {
-    super();
     this.builderProvider = builderProvider;
     this.schemaAuthorization = schemaAuthorization;
   }
 
   @Override
   protected void execute() throws IOException {
-    bindings =
+    aclBindings =
         builderProvider.setSchemaAuthorization(
             schemaAuthorization.getPrincipal(),
             schemaAuthorization.getSubjects(),
