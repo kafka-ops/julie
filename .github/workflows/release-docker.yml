@@ -3,6 +3,7 @@ on:
   push:
     tags:
       - 'v3.*.*'
+      - 'v4.*.*'
 jobs:
   ktb_docker_build:
     if: github.repository == 'kafka-ops/julie'
