@@ -4,6 +4,7 @@ import static com.purbon.kafka.topology.CommandLineInterface.BROKERS_OPTION;
 import static com.purbon.kafka.topology.Constants.*;
 import static com.purbon.kafka.topology.roles.rbac.RBACPredefinedRoles.*;
 import static java.util.Arrays.asList;
+import static java.util.Collections.singleton;
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertEquals;
@@ -19,18 +20,41 @@ import com.purbon.kafka.topology.ExecutionPlan;
 import com.purbon.kafka.topology.TestTopologyBuilder;
 import com.purbon.kafka.topology.api.mds.MDSApiClient;
 import com.purbon.kafka.topology.api.mds.RbacResourceType;
-import com.purbon.kafka.topology.model.*;
 import com.purbon.kafka.topology.model.Impl.ProjectImpl;
 import com.purbon.kafka.topology.model.Impl.TopologyImpl;
-import com.purbon.kafka.topology.model.users.*;
-import com.purbon.kafka.topology.model.users.platform.*;
+import com.purbon.kafka.topology.model.Platform;
+import com.purbon.kafka.topology.model.PlatformSystem;
+import com.purbon.kafka.topology.model.Project;
+import com.purbon.kafka.topology.model.Topic;
+import com.purbon.kafka.topology.model.Topology;
+import com.purbon.kafka.topology.model.User;
+import com.purbon.kafka.topology.model.users.Connector;
+import com.purbon.kafka.topology.model.users.Consumer;
+import com.purbon.kafka.topology.model.users.KSqlApp;
+import com.purbon.kafka.topology.model.users.KStream;
+import com.purbon.kafka.topology.model.users.Producer;
+import com.purbon.kafka.topology.model.users.Schemas;
+import com.purbon.kafka.topology.model.users.platform.ControlCenter;
+import com.purbon.kafka.topology.model.users.platform.ControlCenterInstance;
+import com.purbon.kafka.topology.model.users.platform.Kafka;
+import com.purbon.kafka.topology.model.users.platform.KafkaConnect;
+import com.purbon.kafka.topology.model.users.platform.SchemaRegistry;
+import com.purbon.kafka.topology.model.users.platform.SchemaRegistryInstance;
 import com.purbon.kafka.topology.roles.RBACProvider;
 import com.purbon.kafka.topology.roles.TopologyAclBinding;
 import com.purbon.kafka.topology.roles.rbac.RBACBindingsBuilder;
 import com.purbon.kafka.topology.utils.BasicAuth;
 import com.purbon.kafka.topology.utils.TestUtils;
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Properties;
 import java.util.stream.Collectors;
 import org.junit.Before;
 import org.junit.Test;
@@ -108,7 +132,7 @@ public class RBACPRoviderRbacIT extends MDSBaseTest {
   public void producerAclsCreation() throws IOException {
 
     List<Producer> producers = new ArrayList<>();
-    producers.add(new Producer("User:app2"));
+    producers.add(new Producer("User:app2", null, true));
 
     Project project = new ProjectImpl("project");
     project.setProducers(producers);
@@ -125,7 +149,7 @@ public class RBACPRoviderRbacIT extends MDSBaseTest {
     // this method is call twice, once for consumers and one for consumers
     verify(cs, times(1)).addBindings(anyList());
     verify(cs, times(1)).flushAndClose();
-    verifyProducerAcls(producers, topicA.toString());
+    verifyProducerAcls(producers, topicA.toString(), 2);
   }
 
   @Test
@@ -206,6 +230,46 @@ public class RBACPRoviderRbacIT extends MDSBaseTest {
   }
 
   @Test
+  public void connectorsRbacCreation() throws IOException {
+    var names = asList("jdbc-sink", "jdbc-source");
+
+    Connector con = new Connector();
+    con.setPrincipal("User:Connect");
+    con.setConnectors(Optional.of(names));
+
+    PlatformSystem<Connector> connectors = new PlatformSystem<>(singletonList(con));
+
+    Project project =
+        new ProjectImpl(
+            "name",
+            Optional.empty(),
+            Optional.empty(),
+            Optional.empty(),
+            Optional.of(connectors),
+            Optional.empty(),
+            Optional.empty(),
+            Collections.emptyMap(),
+            Collections.emptyList(),
+            new Configuration());
+
+    Topology topology = new TopologyImpl();
+    topology.setContext("connectorsRbacCreation-test");
+    topology.addProject(project);
+
+    accessControlManager.updatePlan(topology, plan);
+    plan.run();
+
+    verify(cs, times(1)).addBindings(anyList());
+    verify(cs, times(1)).flushAndClose();
+
+    var resources = apiClient.lookupResourcesForConnect(con.getPrincipal(), RESOURCE_OWNER);
+    for (RbacResourceType resource : resources) {
+      assertThat(names).contains(resource.getName());
+      assertThat(resource.getResourceType()).isEqualTo("Connector");
+    }
+  }
+
+  @Test
   public void connectAclsCreation() throws IOException {
     Project project = new ProjectImpl();
 
@@ -226,6 +290,47 @@ public class RBACPRoviderRbacIT extends MDSBaseTest {
     verify(cs, times(1)).addBindings(anyList());
     verify(cs, times(1)).flushAndClose();
     verifyConnectAcls(connector);
+  }
+
+  @Test
+  public void schemasRbacCreation() throws IOException {
+    var names = asList("foo", "bar");
+
+    Schemas schema = new Schemas();
+    schema.setPrincipal("User:Schemas");
+    schema.setSubjects(names);
+
+    PlatformSystem<Schemas> schemas = new PlatformSystem<>(singletonList(schema));
+
+    Project project =
+        new ProjectImpl(
+            "name",
+            Optional.empty(),
+            Optional.empty(),
+            Optional.empty(),
+            Optional.empty(),
+            Optional.of(schemas),
+            Optional.empty(),
+            Collections.emptyMap(),
+            Collections.emptyList(),
+            new Configuration());
+
+    Topology topology = new TopologyImpl();
+    topology.setContext("schemasRbacCreation-test");
+    topology.addProject(project);
+
+    accessControlManager.updatePlan(topology, plan);
+    plan.run();
+
+    verify(cs, times(1)).addBindings(anyList());
+    verify(cs, times(1)).flushAndClose();
+
+    var resources =
+        apiClient.lookupResourcesForSchemaRegistry(schema.getPrincipal(), RESOURCE_OWNER);
+    for (RbacResourceType resource : resources) {
+      assertThat(names).contains(resource.getName());
+      assertThat(resource.getResourceType()).isEqualTo("Subject");
+    }
   }
 
   @Test
@@ -391,6 +496,82 @@ public class RBACPRoviderRbacIT extends MDSBaseTest {
     bindings = getBindings(rbacProvider);
     // only one group and one topic as we removed one of principles
     assertThat(bindings).hasSize(2);
+  }
+
+  @Test
+  public void deleteRolesShouldBeSkippedIfPrincipalIsNotManaged() throws IOException {
+    BackendController cs = new BackendController();
+    ExecutionPlan plan = ExecutionPlan.init(cs, System.out);
+    RBACProvider rbacProvider = Mockito.spy(new RBACProvider(apiClient));
+    RBACBindingsBuilder bindingsBuilder = new RBACBindingsBuilder(apiClient);
+
+    Properties props = new Properties();
+    props.put(TOPOLOGY_STATE_FROM_CLUSTER, true);
+    props.put(ALLOW_DELETE_TOPICS, true);
+    props.put(ALLOW_DELETE_BINDINGS, true);
+    props.put(SERVICE_ACCOUNT_MANAGED_PREFIXES + ".0", "User:app");
+
+    HashMap<String, String> cliOps = new HashMap<>();
+    cliOps.put(BROKERS_OPTION, "");
+
+    Configuration config = new Configuration(cliOps, props);
+
+    accessControlManager = new AccessControlManager(rbacProvider, bindingsBuilder, config);
+    final List<String> principals = asList("User:Pere", "User:app1b", "User:app2b");
+
+    List<Consumer> consumers = new ArrayList<>();
+    consumers.add(new Consumer("User:app1b"));
+    consumers.add(new Consumer("User:app2b"));
+
+    Topology topology = new TopologyImpl(config);
+    var prefix = "deleteRolesShouldBeSkippedIfPrincipalIsNotManaged-test";
+    topology.setContext(prefix);
+
+    Project project = new ProjectImpl("project");
+    project.setConsumers(consumers);
+    topology.setProjects(Collections.singletonList(project));
+
+    Topic topicA = new Topic("topicA");
+    project.addTopic(topicA);
+
+    accessControlManager.updatePlan(topology, plan);
+    plan.run();
+
+    // should create a new principal outside of the managed ones, before triggering the deletion.
+    var extraBinding = apiClient.bind("User:Pere", RESOURCE_OWNER, "topicA", "Topic", "LITERAL");
+    rbacProvider.createBindings(singleton(extraBinding));
+
+    // two group and three topics, as we have one topic and two principles and one unmanaged
+    // resource binding
+    List<TopologyAclBinding> bindings =
+        getBindings(rbacProvider).stream()
+            .filter(
+                binding ->
+                    principals.contains(binding.getPrincipal())
+                        || binding.getResourceName().startsWith(prefix))
+            .collect(Collectors.toList());
+    assertThat(bindings).hasSize(5);
+    consumers.remove(0); // remove the first consumer
+
+    cs = new BackendController();
+    plan = ExecutionPlan.init(cs, System.out);
+
+    accessControlManager.updatePlan(topology, plan);
+    plan.run();
+
+    bindings =
+        getBindings(rbacProvider).stream()
+            .filter(
+                binding ->
+                    principals.contains(binding.getPrincipal())
+                        || binding.getResourceName().startsWith(prefix))
+            .collect(Collectors.toList());
+    // only one group and one topic as we removed one of principles plus the extra binding
+    assertThat(bindings).hasSize(3);
+    List<String> finalPrincipals = asList("User:Pere", "User:app2b");
+    for (TopologyAclBinding binding : bindings) {
+      assertThat(finalPrincipals).contains(binding.getPrincipal());
+    }
   }
 
   @Test

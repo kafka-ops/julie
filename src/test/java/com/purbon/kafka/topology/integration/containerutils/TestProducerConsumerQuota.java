@@ -55,10 +55,6 @@ public final class TestProducerConsumerQuota implements Closeable {
       final ConsumerRecords<String, String> records = consumer.poll(Duration.ofMillis(100000));
 
       for (final ConsumerRecord<String, String> record : records) {
-        //  if (handler != null) {
-        //      continueConsuming = handler.handle(record.keyKafkaListenerEndpointRegistry(),
-        // record.value());
-        // }
         consumer.commitAsync();
       }
 

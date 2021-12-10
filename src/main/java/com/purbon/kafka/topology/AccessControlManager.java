@@ -284,9 +284,9 @@ public class AccessControlManager implements ExecutionPlanUpdater {
   private boolean matchesManagedPrefixList(TopologyAclBinding topologyAclBinding) {
     String resourceName = topologyAclBinding.getResourceName();
     String principle = topologyAclBinding.getPrincipal();
-    // For global wild cards ACLs we manage only if we manage the service account/principle,
-    // regardless.
-    if (resourceName.equals("*")) {
+    // For global wild cards ACL's we manage only if we manage the service account/principle,
+    // regardless. Filtering by service account will always take precedence if defined
+    if (haveServiceAccountPrefixFilters() || resourceName.equals("*")) {
       return matchesServiceAccountPrefixList(principle);
     }
 
@@ -294,9 +294,8 @@ public class AccessControlManager implements ExecutionPlanUpdater {
       return matchesTopicPrefixList(resourceName);
     } else if ("GROUP".equalsIgnoreCase(topologyAclBinding.getResourceType())) {
       return matchesGroupPrefixList(resourceName);
-    } else {
-      return matchesServiceAccountPrefixList(principle);
     }
+    return true; // should include everything if not properly excluded earlier.
   }
 
   private boolean matchesTopicPrefixList(String topic) {
@@ -309,6 +308,10 @@ public class AccessControlManager implements ExecutionPlanUpdater {
 
   private boolean matchesServiceAccountPrefixList(String principal) {
     return matchesPrefix(managedServiceAccountPrefixes, principal, "Principal");
+  }
+
+  private boolean haveServiceAccountPrefixFilters() {
+    return managedServiceAccountPrefixes.size() != 0;
   }
 
   private boolean matchesPrefix(List<String> prefixes, String item, String type) {
