@@ -1,3 +1,19 @@
+
+v4.0.0 / 2021-12-10
+==================
+
+  * Fix/feature: establish service accounts prefix filter a primary criteria when available to filter the list of access control rules (#418)
+  * Security fix: Bump log4j-api from 2.13.3 to 2.15.0 (#416)
+  * fix: issue with connector and subject permissions being ignored when more than one (#415)
+  * feature: Add producer Idempotence permissions to Confluent RBAC (#414)
+  * fix: Topic config values should take precedence over plan config values (#410)
+  * feature: Quotas implementation, only quotas based in user principal (#376)
+  * feature: add support in the custom roles for subject and connect attributes (#406)
+  * fix: incorrect rbac resource name for subjects and connectors (#405)
+  * fix: ammend order for delete in ksql to be reverse from creation (#400)
+  * fix: add Parameter for initial Kafka Backend consumer retry 
+  * fix: Raise initial load as done if tried at least five times for the Kafka Backend
+
 v3.3.3 / 2021-11-23
 ===================
 
