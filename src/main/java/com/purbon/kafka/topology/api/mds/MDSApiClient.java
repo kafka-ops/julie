@@ -117,6 +117,16 @@ public class MDSApiClient extends JulieHttpClient {
     }
   }
 
+  /**
+   * Create an RBAC resource binding
+   *
+   * @param principal
+   * @param role
+   * @param resource
+   * @param resourceType
+   * @param patternType
+   * @return TopologyAclBinding
+   */
   public TopologyAclBinding bind(
       String principal, String role, String resource, String resourceType, String patternType) {
 
