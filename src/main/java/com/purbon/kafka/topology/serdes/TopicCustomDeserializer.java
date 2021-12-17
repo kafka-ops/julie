@@ -87,7 +87,7 @@ public class TopicCustomDeserializer extends StdDeserializer<Topic> {
             planConfigObject.forEach(config::putIfAbsent);
           } else {
             throw new TopologyParsingException(
-                "Topic \"" + name "\" references non-existing plan \"" + planLabel + "\"");
+                "Topic \"" + name + "\" references non-existing plan \"" + planLabel + "\"");
           }
         });
     Topic topic = new Topic(name, producers, consumers, optionalDataType, config, this.config);
