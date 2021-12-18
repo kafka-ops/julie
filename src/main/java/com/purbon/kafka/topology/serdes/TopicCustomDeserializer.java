@@ -10,6 +10,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.purbon.kafka.topology.Configuration;
+import com.purbon.kafka.topology.exceptions.TopologyParsingException;
 import com.purbon.kafka.topology.exceptions.ValidationException;
 import com.purbon.kafka.topology.model.PlanMap;
 import com.purbon.kafka.topology.model.SubjectNameStrategy;
@@ -85,10 +86,10 @@ public class TopicCustomDeserializer extends StdDeserializer<Topic> {
             Map<String, String> planConfigObject = plans.get(planLabel).getConfig();
             planConfigObject.forEach(config::putIfAbsent);
           } else {
-            LOGGER.warn(planLabel + " is missing in the plans definition. It will be ignored.");
+            throw new TopologyParsingException(
+                "Topic \"" + name + "\" references non-existing plan \"" + planLabel + "\"");
           }
         });
-
     Topic topic = new Topic(name, producers, consumers, optionalDataType, config, this.config);
 
     Optional<SubjectNameStrategy> subjectNameStrategy =
