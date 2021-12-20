@@ -1,4 +1,30 @@
 
+v4.0.1 / 2021-12-20
+==================
+
+  * Bump log4j to 2.17.0, prevent latest Log4j CVE, ref https://logging.apache.org/log4j/2.x/security.html (#427)
+
+v4.0.0 / 2021-12-10
+===================
+
+  * neat: Adapt CI jobs and other actions to latest versions (#419)
+  * version 4.0.0 bump
+  * prepare changelog for 4.0.0 release
+  * port the main changelog to master
+  * fix&feature: establish service accounts prefix filter a primary criteria when available to filter the list of access control rules (#418)
+  * Bump log4j-api from 2.13.3 to 2.15.0 (#416)
+  * fix: issue with connector and subject permissions being ignored when more than one (#415)
+  * Add producer Idempotence permissions to Confluent RBAC (#414)
+  * Fix: Topic config values should take precedence over plan config values (#410)
+  * Quotas implementation, only quotas based in user principal (#376)
+  * fix request scope to hold proper pattern type (literal, prefix) in rbac
+  * add proper clusterIds for RBAC clear bindings operations, not only kafka one
+  * add support in the custom roles for subject and connect attributes (#406)
+  * fix incorrect rbac resource name for subjects and connectors (#405)
+  * ammend order for delete in ksql to be reverse from creation (#400)
+  * add Parameter for initial Kafka Backend consumer retry
+  * raise initial load as done if tried at least five times
+
 v4.0.0 / 2021-12-10
 ==================
 
