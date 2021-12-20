@@ -1,6 +1,11 @@
+
+v3.3.4 / 2021-12-20
+==================
+
+  * Bump log4j to 2.17.0, prevent latest Log4j CVE, ref https://logging.apache.org/log4j/2.x/security.html (#427)
+
 v3.3.3 / 2021-11-23
 ===================
-
   * fix: request scope to hold proper pattern type (literal, prefix) in rbac (#407)
   * fix: add proper clusterIds for RBAC clear bindings operations, not only kafka one (#407)
 
