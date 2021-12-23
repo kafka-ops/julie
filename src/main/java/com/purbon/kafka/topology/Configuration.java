@@ -573,4 +573,10 @@ public class Configuration {
   public Integer getKafkaBackendConsumerRetries() {
     return config.getInt(JULIE_KAFKA_CONSUMER_RETRIES);
   }
+
+  public BasicAuth getConfluentCloudAuth() {
+    var user = config.getString(CCLOUD_API_KEY);
+    var pass = config.getString(CCLOUD_API_SECRET);
+    return new BasicAuth(user, pass);
+  }
 }

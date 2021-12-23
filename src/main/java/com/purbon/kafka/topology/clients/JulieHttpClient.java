@@ -29,7 +29,7 @@ import javax.net.ssl.TrustManagerFactory;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-public abstract class JulieHttpClient {
+public class JulieHttpClient {
 
   private static final Logger LOGGER = LogManager.getLogger(JulieHttpClient.class);
 
@@ -144,7 +144,7 @@ public abstract class JulieHttpClient {
     return setupARequest(url, timeoutMs).GET().build();
   }
 
-  private Response doGet(HttpRequest request) throws IOException {
+  public Response doGet(HttpRequest request) throws IOException {
     LOGGER.debug("method: " + request.method() + " request.uri: " + request.uri());
     try {
       HttpResponse<String> response =
@@ -156,7 +156,7 @@ public abstract class JulieHttpClient {
     }
   }
 
-  protected String doPost(String url, String body) throws IOException {
+  public String doPost(String url, String body) throws IOException {
     LOGGER.debug("doPost: " + url + " body: " + body);
     HttpRequest request = postRequest(url, body, DEFAULT_TIMEOUT_MS);
     return doRequest(request);
@@ -186,7 +186,10 @@ public abstract class JulieHttpClient {
     return setupARequest(url, timeoutMs).PUT(bodyPublisher).build();
   }
 
-  protected void doDelete(String url, String body) throws IOException {
+  public void doDelete(String url) throws IOException {
+    doDelete(url, "");
+  }
+  public void doDelete(String url, String body) throws IOException {
     LOGGER.debug("doDelete: " + url + " body: " + body);
     HttpRequest request = deleteRequest(url, body, DEFAULT_TIMEOUT_MS);
     doRequest(request);
@@ -223,5 +226,9 @@ public abstract class JulieHttpClient {
       throw new IOException(ex);
     }
     return result;
+  }
+
+  public String baseUrl() {
+    return server;
   }
 }

@@ -75,6 +75,8 @@ public class Constants {
   public static final String ALLOW_DELETE_KSQL_ARTEFACTS = "allow.delete.artefacts.ksql";
 
   public static final String CCLOUD_ENV_CONFIG = "ccloud.environment";
+  public static final String CCLOUD_API_KEY = "ccloud.api.key";
+  public static final String CCLOUD_API_SECRET = "ccloud.api.secret";
 
   public static final String TOPOLOGY_EXPERIMENTAL_ENABLED_CONFIG =
       "topology.features.experimental";
