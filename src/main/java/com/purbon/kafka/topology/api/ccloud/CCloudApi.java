@@ -28,7 +28,6 @@ public class CCloudApi {
 
     public CCloudApi(JulieHttpClient httpClient, Configuration config) {
         this.httpClient = httpClient;
-
         var basicAuth = config.getConfluentCloudAuth();
         this.httpClient.setBasicAuth(basicAuth);
     }

@@ -579,4 +579,12 @@ public class Configuration {
     var pass = config.getString(CCLOUD_API_SECRET);
     return new BasicAuth(user, pass);
   }
+
+  public String getConfluentCloudClusterId() {
+    return config.getString(CCLOUD_KAFKA_CLUSTER_ID_CONFIG);
+  }
+
+  public String getConfluentCloudClusterUrl() {
+    return config.getString(CCLOUD_CLUSTER_URL);
+  }
 }
