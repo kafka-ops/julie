@@ -11,8 +11,7 @@ import org.apache.kafka.common.resource.ResourceType;
 
 public class TopologyAclBinding implements Comparable<TopologyAclBinding> {
 
-  @JsonIgnore
-  private Optional<AclBinding> aclBindingOptional;
+  @JsonIgnore private Optional<AclBinding> aclBindingOptional;
 
   private String resourceType;
   private String resourceName;

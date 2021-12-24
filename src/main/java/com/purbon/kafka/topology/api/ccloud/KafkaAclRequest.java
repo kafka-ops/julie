@@ -51,6 +51,7 @@ public class KafkaAclRequest implements CCloudRequest {
         .collect(Collectors.joining("&"));
   }
 
+  @Override
   public String asJson() {
     var request = asMap();
     var urlParams = urlParams(request);
