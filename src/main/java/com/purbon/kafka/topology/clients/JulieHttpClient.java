@@ -189,6 +189,7 @@ public class JulieHttpClient {
   public void doDelete(String url) throws IOException {
     doDelete(url, "");
   }
+
   public void doDelete(String url, String body) throws IOException {
     LOGGER.debug("doDelete: " + url + " body: " + body);
     HttpRequest request = deleteRequest(url, body, DEFAULT_TIMEOUT_MS);

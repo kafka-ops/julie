@@ -1,5 +1,6 @@
 package com.purbon.kafka.topology.roles;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.purbon.kafka.topology.api.mds.RequestScope;
 import java.util.Objects;
 import java.util.Optional;
@@ -10,6 +11,7 @@ import org.apache.kafka.common.resource.ResourceType;
 
 public class TopologyAclBinding implements Comparable<TopologyAclBinding> {
 
+  @JsonIgnore
   private Optional<AclBinding> aclBindingOptional;
 
   private String resourceType;

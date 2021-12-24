@@ -4,14 +4,13 @@ import com.purbon.kafka.topology.AccessControlProvider;
 import com.purbon.kafka.topology.Configuration;
 import com.purbon.kafka.topology.api.adminclient.TopologyBuilderAdminClient;
 import com.purbon.kafka.topology.api.ccloud.CCloudApi;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-
 import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 public class CCloudAclsProviderV2 extends SimpleAclsProvider implements AccessControlProvider {
 
@@ -25,19 +24,18 @@ public class CCloudAclsProviderV2 extends SimpleAclsProvider implements AccessCo
     super(adminClient);
     this.cli = new CCloudApi(config.getConfluentCloudClusterUrl(), config);
     this.clusterId = config.getConfluentCloudClusterId();
-
   }
 
   @Override
   public void createBindings(Set<TopologyAclBinding> bindings) throws IOException {
-    for(TopologyAclBinding binding : bindings) {
+    for (TopologyAclBinding binding : bindings) {
       cli.createAcl(clusterId, binding);
     }
   }
 
   @Override
   public void clearBindings(Set<TopologyAclBinding> bindings) throws IOException {
-    for(TopologyAclBinding binding : bindings) {
+    for (TopologyAclBinding binding : bindings) {
       cli.deleteAcls(clusterId, binding);
     }
   }
@@ -46,5 +44,4 @@ public class CCloudAclsProviderV2 extends SimpleAclsProvider implements AccessCo
   public Map<String, List<TopologyAclBinding>> listAcls() {
     return Collections.emptyMap();
   }
-
 }
