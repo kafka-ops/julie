@@ -13,6 +13,7 @@ import org.apache.kafka.common.acl.AclBinding;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+@Deprecated
 public class CCloudAclsProvider extends SimpleAclsProvider implements AccessControlProvider {
 
   private static final Logger LOGGER = LogManager.getLogger(CCloudAclsProvider.class);
