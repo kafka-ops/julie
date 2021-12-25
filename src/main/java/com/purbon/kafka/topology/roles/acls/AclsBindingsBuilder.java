@@ -404,7 +404,7 @@ public class AclsBindingsBuilder implements BindingsBuilderProvider {
       } catch (IOException e) {
         LOGGER.error("Something happen during a ccloud cli warmup", e);
       }
-      int id = cCloudUtils.translate(namedPrincipal); // Check with the part after User:
+      String id = cCloudUtils.translate(namedPrincipal); // Check with the part after User:
       return "User:" + id;
     } else {
       return namedPrincipal;

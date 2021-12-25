@@ -1,4 +1,4 @@
-package com.purbon.kafka.topology.api.ccloud;
+package com.purbon.kafka.topology.api.ccloud.requests;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.purbon.kafka.topology.utils.JSON;
@@ -14,9 +14,9 @@ public class ServiceAccountRequest implements CCloudRequest {
   private String name;
   private String description;
 
-  public ServiceAccountRequest(String name) {
+  public ServiceAccountRequest(String name, String description) {
     this.name = name;
-    this.description = "Managed by JulieOps";
+    this.description = description;
   }
 
   @Override

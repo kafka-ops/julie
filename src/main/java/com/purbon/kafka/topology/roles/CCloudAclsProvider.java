@@ -61,7 +61,7 @@ public class CCloudAclsProvider extends SimpleAclsProvider implements AccessCont
   @Override
   public Map<String, List<TopologyAclBinding>> listAcls() {
     try {
-      Map<Integer, ServiceAccount> serviceAccountsById =
+      Map<String, ServiceAccount> serviceAccountsById =
           cli.serviceAccounts().values().stream()
               .collect(Collectors.toMap(ServiceAccount::getId, s -> s));
       Map<String, List<TopologyAclBinding>> map = new HashMap<>();
@@ -89,19 +89,19 @@ public class CCloudAclsProvider extends SimpleAclsProvider implements AccessCont
           convertToConfluentCloudId(serviceAccounts, binding.asAclBinding().get());
       return aclBinding == null ? null : new TopologyAclBinding(aclBinding);
     } else {
-      Integer id = getId(serviceAccounts, binding.getPrincipal());
+      String id = getId(serviceAccounts, binding.getPrincipal());
       return id == null ? null : getTopologyAclBinding(binding, "User:" + id);
     }
   }
 
   private AclBinding convertToConfluentCloudId(
       Map<String, ServiceAccount> serviceAccounts, AclBinding aclBinding) {
-    Integer id = getId(serviceAccounts, aclBinding.entry().principal());
+    String id = getId(serviceAccounts, aclBinding.entry().principal());
     return id == null ? null : getAclBinding(aclBinding, "User:" + id);
   }
 
   private TopologyAclBinding convertToServiceAccountName(
-      Map<Integer, ServiceAccount> serviceAccounts, TopologyAclBinding binding) {
+      Map<String, ServiceAccount> serviceAccounts, TopologyAclBinding binding) {
     if (binding.asAclBinding().isPresent()) {
       return new TopologyAclBinding(
           convertToServiceAccountName(serviceAccounts, binding.asAclBinding().get()));
@@ -112,7 +112,7 @@ public class CCloudAclsProvider extends SimpleAclsProvider implements AccessCont
   }
 
   private AclBinding convertToServiceAccountName(
-      Map<Integer, ServiceAccount> serviceAccounts, AclBinding aclBinding) {
+      Map<String, ServiceAccount> serviceAccounts, AclBinding aclBinding) {
     String serviceAccountName = getName(serviceAccounts, aclBinding.entry().principal());
     return getAclBinding(aclBinding, serviceAccountName);
   }
@@ -134,21 +134,21 @@ public class CCloudAclsProvider extends SimpleAclsProvider implements AccessCont
         binding.getPattern());
   }
 
-  private Integer getId(Map<String, ServiceAccount> serviceAccounts, String name) {
+  private String getId(Map<String, ServiceAccount> serviceAccounts, String name) {
     if (serviceAccounts.containsKey(name)) {
       return serviceAccounts.get(name).getId();
     } else {
       try {
-        return Integer.parseInt(name);
+        return name;
       } catch (NumberFormatException e) {
         return null;
       }
     }
   }
 
-  private String getName(Map<Integer, ServiceAccount> serviceAccounts, String id) {
+  private String getName(Map<String, ServiceAccount> serviceAccounts, String id) {
     try {
-      int cCloudId = Integer.parseInt(id.replace("User:", ""));
+      String cCloudId = id.replace("User:", "");
       return getName(serviceAccounts, cCloudId);
     } catch (NumberFormatException nfe) {
       return id;

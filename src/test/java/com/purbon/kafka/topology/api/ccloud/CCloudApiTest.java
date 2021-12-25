@@ -3,6 +3,7 @@ package com.purbon.kafka.topology.api.ccloud;
 import static com.purbon.kafka.topology.CommandLineInterface.BROKERS_OPTION;
 import static com.purbon.kafka.topology.Constants.CCLOUD_API_KEY;
 import static com.purbon.kafka.topology.Constants.CCLOUD_API_SECRET;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -77,11 +78,35 @@ public class CCloudApiTest {
 
   @Test
   public void testCreateServiceAccount() throws IOException {
-    var sa = "User:foo";
-    apiClient.createServiceAccount(sa);
+
+    var principal = "User:foo";
+
     var url = "https://api.confluent.cloud/iam/v2/service-accounts";
-    var body = "{\"description\":\"Managed by JulieOps\",\"display_name\":\"User:foo\"}";
+    var body = "{\"description\":\"Managed by JulieOps\",\"display_name\":\"" + principal + "\"}";
+    var createResponse =
+        "{\n"
+            + "  \"api_version\": \"iam/v2\",\n"
+            + "  \"kind\": \"ServiceAccount\",\n"
+            + "  \"id\": \"dlz-f3a90de\",\n"
+            + "  \"metadata\": {\n"
+            + "    \"self\": \"https://api.confluent.cloud/iam/v2/service-accounts/sa-12345\",\n"
+            + "    \"resource_name\": \"crn://confluent.cloud/service-account=sa-12345\",\n"
+            + "    \"created_at\": \"2006-01-02T15:04:05-07:00\",\n"
+            + "    \"updated_at\": \"2006-01-02T15:04:05-07:00\",\n"
+            + "    \"deleted_at\": \"2006-01-02T15:04:05-07:00\"\n"
+            + "  },\n"
+            + "  \"display_name\": \""
+            + principal
+            + "\",\n"
+            + "  \"description\": \"Managed by JulieOps\"\n"
+            + "}";
+
+    when(httpClient.doPost(url, body)).thenReturn(createResponse);
+
+    var sa = apiClient.createServiceAccount(principal);
     verify(httpClient, times(1)).doPost(url, body);
+    assertThat(sa.getName()).isEqualTo(principal);
+    assertThat(sa.getDescription()).isEqualTo("Managed by JulieOps");
   }
 
   @Test

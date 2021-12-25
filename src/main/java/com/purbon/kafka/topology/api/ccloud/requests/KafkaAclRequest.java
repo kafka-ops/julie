@@ -1,4 +1,4 @@
-package com.purbon.kafka.topology.api.ccloud;
+package com.purbon.kafka.topology.api.ccloud.requests;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.purbon.kafka.topology.roles.TopologyAclBinding;

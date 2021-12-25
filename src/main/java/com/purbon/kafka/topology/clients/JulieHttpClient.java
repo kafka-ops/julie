@@ -135,7 +135,7 @@ public class JulieHttpClient {
     this.token = basicAuth.toHttpAuthToken();
   }
 
-  protected Response doGet(String url) throws IOException {
+  public Response doGet(String url) throws IOException {
     HttpRequest request = getRequest(url, DEFAULT_TIMEOUT_MS);
     return doGet(request);
   }
@@ -144,7 +144,7 @@ public class JulieHttpClient {
     return setupARequest(url, timeoutMs).GET().build();
   }
 
-  public Response doGet(HttpRequest request) throws IOException {
+  protected Response doGet(HttpRequest request) throws IOException {
     LOGGER.debug("method: " + request.method() + " request.uri: " + request.uri());
     try {
       HttpResponse<String> response =

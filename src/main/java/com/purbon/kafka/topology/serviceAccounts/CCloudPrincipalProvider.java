@@ -2,43 +2,39 @@ package com.purbon.kafka.topology.serviceAccounts;
 
 import com.purbon.kafka.topology.Configuration;
 import com.purbon.kafka.topology.PrincipalProvider;
-import com.purbon.kafka.topology.api.ccloud.CCloudCLI;
+import com.purbon.kafka.topology.api.ccloud.CCloudApi;
 import com.purbon.kafka.topology.model.cluster.ServiceAccount;
 import java.io.IOException;
-import java.util.HashSet;
-import java.util.Map;
 import java.util.Set;
 
 public class CCloudPrincipalProvider implements PrincipalProvider {
 
-  private CCloudCLI cCloudCLI;
+  private CCloudApi cCloudApi;
   private String env;
 
   public CCloudPrincipalProvider(Configuration config) {
-    this.cCloudCLI = new CCloudCLI();
+    this.cCloudApi = new CCloudApi(config.getConfluentCloudClusterUrl(), config);
     this.env = config.getConfluentCloudEnv();
   }
 
   @Override
   public void configure() throws IOException {
-    cCloudCLI.setEnvironment(env);
+    // NoOp
   }
 
   @Override
   public Set<ServiceAccount> listServiceAccounts() throws IOException {
-    return new HashSet<>(cCloudCLI.serviceAccounts().values());
+    return cCloudApi.listServiceAccounts();
   }
 
   @Override
   public ServiceAccount createServiceAccount(String principal, String description)
       throws IOException {
-    return cCloudCLI.newServiceAccount(principal, description);
+    return cCloudApi.createServiceAccount(principal, description);
   }
 
   @Override
   public void deleteServiceAccount(String principal) throws IOException {
-    Map<String, ServiceAccount> accounts = cCloudCLI.serviceAccounts();
-    ServiceAccount sa = accounts.get(principal);
-    cCloudCLI.deleteServiceAccount(sa.getId());
+    cCloudApi.deleteServiceAccount(principal);
   }
 }

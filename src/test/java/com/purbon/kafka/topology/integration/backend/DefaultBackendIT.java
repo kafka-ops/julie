@@ -34,8 +34,8 @@ public class DefaultBackendIT {
         TopologyAclBinding.build(
             ResourceType.CLUSTER.name(), "Topic", "host", "op", "principal", "LITERAL");
 
-    ServiceAccount serviceAccount = new ServiceAccount(1, "name", "description");
-    ServiceAccount serviceAccount2 = new ServiceAccount(2, "name2", "description2");
+    ServiceAccount serviceAccount = new ServiceAccount("1", "name", "description");
+    ServiceAccount serviceAccount2 = new ServiceAccount("2", "name2", "description2");
 
     Set<ServiceAccount> accounts = new HashSet<>(Arrays.asList(serviceAccount, serviceAccount2));
 

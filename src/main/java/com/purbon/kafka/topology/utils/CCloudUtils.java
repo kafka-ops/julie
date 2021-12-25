@@ -36,7 +36,7 @@ public class CCloudUtils {
     }
   }
 
-  public int translate(String name) {
-    return serviceAccounts.containsKey(name) ? serviceAccounts.get(name).getId() : -1;
+  public String translate(String name) {
+    return serviceAccounts.containsKey(name) ? serviceAccounts.get(name).getId() : "-1";
   }
 }

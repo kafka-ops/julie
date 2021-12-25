@@ -1,4 +1,4 @@
-package com.purbon.kafka.topology.api.ccloud;
+package com.purbon.kafka.topology.api.ccloud.requests;
 
 public interface CCloudRequest {
 
