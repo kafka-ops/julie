@@ -24,7 +24,7 @@ public class PrincipalUpdateManager extends AbstractPrincipalManager {
     Set<ServiceAccount> principalsToBeCreated =
         principals.stream()
             .filter(wishPrincipal -> !accounts.containsKey(wishPrincipal))
-            .map(principal -> new ServiceAccount("-1", principal, "Managed by KTB"))
+            .map(principal -> new ServiceAccount("-1", principal, "Managed by JulieOps"))
             .collect(Collectors.toSet());
 
     if (!principalsToBeCreated.isEmpty()) {

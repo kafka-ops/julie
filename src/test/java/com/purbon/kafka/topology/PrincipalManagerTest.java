@@ -93,8 +93,8 @@ public class PrincipalManagerTest {
     Set<ServiceAccount> accounts =
         new HashSet<>(
             Arrays.asList(
-                new ServiceAccount("-1", "consumer-principal", "Managed by KTB"),
-                new ServiceAccount("-1", "producer-principal", "Managed by KTB")));
+                new ServiceAccount("-1", "consumer-principal", "Managed by JulieOps"),
+                new ServiceAccount("-1", "producer-principal", "Managed by JulieOps")));
 
     assertThat(plan.getActions()).hasSize(1);
     assertThat(plan.getActions()).containsAnyOf(new CreateAccounts(provider, accounts));
@@ -122,8 +122,8 @@ public class PrincipalManagerTest {
     Set<ServiceAccount> accounts =
         new HashSet<>(
             Arrays.asList(
-                new ServiceAccount("-1", "topicConsumer-principal", "Managed by KTB"),
-                new ServiceAccount("-1", "topicProducer-principal", "Managed by KTB")));
+                new ServiceAccount("-1", "topicConsumer-principal", "Managed by JulieOps"),
+                new ServiceAccount("-1", "topicProducer-principal", "Managed by JulieOps")));
 
     assertThat(plan.getActions()).hasSize(1);
     assertThat(plan.getActions()).containsAnyOf(new CreateAccounts(provider, accounts));
@@ -142,13 +142,13 @@ public class PrincipalManagerTest {
 
     doNothing().when(provider).configure();
 
-    doReturn(new ServiceAccount("123", "consumer", "Managed by KTB"))
+    doReturn(new ServiceAccount("123", "consumer", "Managed by JulieOps"))
         .when(provider)
-        .createServiceAccount(eq("consumer"), eq("Managed by KTB"));
+        .createServiceAccount(eq("consumer"), eq("Managed by JulieOps"));
 
-    doReturn(new ServiceAccount("124", "producer", "Managed by KTB"))
+    doReturn(new ServiceAccount("124", "producer", "Managed by JulieOps"))
         .when(provider)
-        .createServiceAccount(eq("producer"), eq("Managed by KTB"));
+        .createServiceAccount(eq("producer"), eq("Managed by JulieOps"));
 
     principalUpdateManager.updatePlan(topology, plan);
     principalDeleteManager.updatePlan(topology, plan);
