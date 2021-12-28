@@ -14,16 +14,18 @@ public class BuildBindingsForSchemaAuthorization extends BaseAccessControlAction
 
   public BuildBindingsForSchemaAuthorization(
       BindingsBuilderProvider builderProvider, Schemas schemaAuthorization) {
-    super();
     this.builderProvider = builderProvider;
     this.schemaAuthorization = schemaAuthorization;
   }
 
   @Override
   protected void execute() throws IOException {
-    bindings =
+    aclBindings =
         builderProvider.setSchemaAuthorization(
-            schemaAuthorization.getPrincipal(), schemaAuthorization.getSubjects());
+            schemaAuthorization.getPrincipal(),
+            schemaAuthorization.getSubjects(),
+            schemaAuthorization.getRole(),
+            schemaAuthorization.isPrefixed());
   }
 
   @Override
@@ -32,6 +34,8 @@ public class BuildBindingsForSchemaAuthorization extends BaseAccessControlAction
     map.put("Operation", getClass().getName());
     map.put("Principal", schemaAuthorization.getPrincipal());
     map.put("Subjects", schemaAuthorization.getSubjects());
+    map.put("Role", schemaAuthorization.getRole());
+    map.put("IsPrefixed", schemaAuthorization.isPrefixed());
     return map;
   }
 }

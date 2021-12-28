@@ -10,8 +10,8 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.purbon.kafka.topology.Configuration;
+import com.purbon.kafka.topology.exceptions.TopologyParsingException;
 import com.purbon.kafka.topology.exceptions.ValidationException;
-import com.purbon.kafka.topology.model.Impl.TopicImpl;
 import com.purbon.kafka.topology.model.PlanMap;
 import com.purbon.kafka.topology.model.SubjectNameStrategy;
 import com.purbon.kafka.topology.model.Topic;
@@ -34,7 +34,7 @@ import java.util.stream.StreamSupport;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-public class TopicCustomDeserializer extends StdDeserializer<TopicImpl> {
+public class TopicCustomDeserializer extends StdDeserializer<Topic> {
 
   private static final Logger LOGGER = LogManager.getLogger(TopicCustomDeserializer.class);
   private final Configuration config;
@@ -62,8 +62,7 @@ public class TopicCustomDeserializer extends StdDeserializer<TopicImpl> {
   }
 
   @Override
-  public TopicImpl deserialize(JsonParser parser, DeserializationContext context)
-      throws IOException {
+  public Topic deserialize(JsonParser parser, DeserializationContext context) throws IOException {
     JsonNode rootNode = parser.getCodec().readTree(parser);
     validateRequiresKeys(rootNode, "name");
 
@@ -85,14 +84,13 @@ public class TopicCustomDeserializer extends StdDeserializer<TopicImpl> {
           String planLabel = jsonNode.asText();
           if (plans.containsKey(planLabel)) {
             Map<String, String> planConfigObject = plans.get(planLabel).getConfig();
-            planConfigObject.forEach(config::put);
+            planConfigObject.forEach(config::putIfAbsent);
           } else {
-            LOGGER.warn(planLabel + " is missing in the plans definition. It will be ignored.");
+            throw new TopologyParsingException(
+                "Topic \"" + name + "\" references non-existing plan \"" + planLabel + "\"");
           }
         });
-
-    TopicImpl topic =
-        new TopicImpl(name, producers, consumers, optionalDataType, config, this.config);
+    Topic topic = new Topic(name, producers, consumers, optionalDataType, config, this.config);
 
     Optional<SubjectNameStrategy> subjectNameStrategy =
         Optional.ofNullable(rootNode.get("subject.name.strategy"))

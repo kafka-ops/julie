@@ -1,5 +1,6 @@
 package com.purbon.kafka.topology.roles.rbac;
 
+import static com.purbon.kafka.topology.api.mds.ClusterIDs.KSQL_CLUSTER_ID_LABEL;
 import static com.purbon.kafka.topology.roles.rbac.RBACPredefinedRoles.DEVELOPER_READ;
 import static com.purbon.kafka.topology.roles.rbac.RBACPredefinedRoles.DEVELOPER_WRITE;
 import static com.purbon.kafka.topology.roles.rbac.RBACPredefinedRoles.RESOURCE_OWNER;
@@ -9,9 +10,11 @@ import static com.purbon.kafka.topology.roles.rbac.RBACPredefinedRoles.SYSTEM_AD
 import com.purbon.kafka.topology.BindingsBuilderProvider;
 import com.purbon.kafka.topology.api.mds.MDSApiClient;
 import com.purbon.kafka.topology.model.Component;
+import com.purbon.kafka.topology.model.JulieRoleAcl;
 import com.purbon.kafka.topology.model.users.Connector;
 import com.purbon.kafka.topology.model.users.Consumer;
 import com.purbon.kafka.topology.model.users.KSqlApp;
+import com.purbon.kafka.topology.model.users.Other;
 import com.purbon.kafka.topology.model.users.Producer;
 import com.purbon.kafka.topology.model.users.platform.KsqlServerInstance;
 import com.purbon.kafka.topology.model.users.platform.SchemaRegistryInstance;
@@ -27,6 +30,7 @@ import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import org.apache.kafka.common.resource.PatternType;
 
 public class RBACBindingsBuilder implements BindingsBuilderProvider {
 
@@ -95,7 +99,11 @@ public class RBACBindingsBuilder implements BindingsBuilderProvider {
 
   @Override
   public List<TopologyAclBinding> buildBindingsForStreamsApp(
-      String principal, String topicPrefix, List<String> readTopics, List<String> writeTopics) {
+      String principal,
+      String topicPrefix,
+      List<String> readTopics,
+      List<String> writeTopics,
+      boolean eos) {
     List<TopologyAclBinding> bindings = new ArrayList<>();
 
     TopologyAclBinding binding = apiClient.bind(principal, DEVELOPER_READ, topicPrefix, PREFIX);
@@ -113,6 +121,11 @@ public class RBACBindingsBuilder implements BindingsBuilderProvider {
               apiClient.bind(principal, DEVELOPER_WRITE, topic, LITERAL);
           bindings.add(writeBinding);
         });
+
+    if (eos) {
+      bindings.add(
+          apiClient.bind(principal, DEVELOPER_WRITE, topicPrefix, "TransactionalId", PREFIX));
+    }
 
     binding = apiClient.bind(principal, RESOURCE_OWNER, topicPrefix, PREFIX);
     bindings.add(binding);
@@ -136,12 +149,24 @@ public class RBACBindingsBuilder implements BindingsBuilderProvider {
               apiClient.bind(
                   consumer.getPrincipal(),
                   RESOURCE_OWNER,
-                  consumer.groupString(),
+                  evaluateResourcePattern(consumer.groupString()),
                   "Group",
-                  LITERAL);
+                  evaluateResourcePatternType(consumer.groupString()));
           bindings.add(binding);
         });
     return bindings;
+  }
+
+  private boolean isResourcePrefixed(String res) {
+    return res.length() > 1 && res.endsWith("*");
+  }
+
+  private String evaluateResourcePattern(String res) {
+    return isResourcePrefixed(res) ? res.replaceFirst(".$", "") : res;
+  }
+
+  private String evaluateResourcePatternType(String res) {
+    return isResourcePrefixed(res) ? PREFIX : LITERAL;
   }
 
   @Override
@@ -154,6 +179,24 @@ public class RBACBindingsBuilder implements BindingsBuilderProvider {
           TopologyAclBinding binding =
               apiClient.bind(producer.getPrincipal(), DEVELOPER_WRITE, resource, patternType);
           bindings.add(binding);
+
+          if (producer.isIdempotent()) {
+            binding =
+                apiClient.bind(
+                    producer.getPrincipal(), DEVELOPER_WRITE, "kafka-cluster", "Cluster", LITERAL);
+            bindings.add(binding);
+          }
+
+          if (producer.hasTransactionId()) {
+            binding =
+                apiClient.bind(
+                    producer.getPrincipal(),
+                    DEVELOPER_WRITE,
+                    producer.getTransactionId().get(),
+                    "TransactionalId",
+                    LITERAL);
+            bindings.add(binding);
+          }
         });
     return bindings;
   }
@@ -291,7 +334,7 @@ public class RBACBindingsBuilder implements BindingsBuilderProvider {
     // schema access
     List<String> subjects =
         readTopics.stream()
-            .flatMap((Function<List<String>, Stream<String>>) topics -> topics.stream())
+            .flatMap((Function<List<String>, Stream<String>>) Collection::stream)
             .map(topicName -> String.format("%s-value", topicName))
             .collect(Collectors.toList());
 
@@ -330,6 +373,55 @@ public class RBACBindingsBuilder implements BindingsBuilderProvider {
   }
 
   @Override
+  public Collection<TopologyAclBinding> buildBindingsForJulieRole(
+      Other other, String name, List<JulieRoleAcl> acls) {
+
+    var stream = acls.stream().map(acl -> julieRoleToBinding(other, acl));
+
+    return stream.collect(Collectors.toList());
+  }
+
+  private TopologyAclBinding julieRoleToBinding(Other other, JulieRoleAcl acl) {
+
+    String resourceType = acl.getResourceType();
+
+    if (resourceType.equalsIgnoreCase("Subject")) {
+      String subjectName = acl.getResourceName().replaceFirst("Subject:", "").trim();
+      return apiClient
+          .bind(other.getPrincipal(), acl.getRole())
+          .forSchemaSubject(subjectName, acl.getPatternType())
+          .apply("Subject", subjectName, acl.getPatternType());
+    } else if (resourceType.equalsIgnoreCase("Connector")) {
+      String connectorName = acl.getResourceName().replaceFirst("Connector:", "").trim();
+      return apiClient
+          .bind(other.getPrincipal(), acl.getRole())
+          .forAKafkaConnector(connectorName, acl.getPatternType())
+          .apply(acl.getResourceType(), connectorName, acl.getPatternType());
+    } else if (resourceType.equalsIgnoreCase("KsqlCluster")) {
+      var clusterIds = apiClient.withClusterIDs().forKsql().asMap();
+      var clusterId = clusterIds.get("clusters").get(KSQL_CLUSTER_ID_LABEL);
+      String resourceName = acl.getResourceName().replaceFirst("KsqlCluster:", "").trim();
+      return apiClient
+          .bind(other.getPrincipal(), acl.getRole())
+          .forKSqlServer(clusterId)
+          .apply(acl.getResourceType(), resourceName);
+    }
+
+    String resourceName = acl.getResourceName();
+    if (resourceName.contains(":")) {
+      var pos = resourceName.indexOf(":");
+      resourceName = resourceName.substring(pos + 1);
+    }
+
+    return apiClient.bind(
+        other.getPrincipal(),
+        acl.getRole(),
+        resourceName,
+        acl.getResourceType(),
+        acl.getPatternType());
+  }
+
+  @Override
   public List<TopologyAclBinding> setClusterLevelRole(
       String role, String principal, Component component) throws IOException {
 
@@ -352,9 +444,17 @@ public class RBACBindingsBuilder implements BindingsBuilderProvider {
   }
 
   @Override
-  public List<TopologyAclBinding> setSchemaAuthorization(String principal, List<String> subjects) {
+  public List<TopologyAclBinding> setSchemaAuthorization(
+      String principal, List<String> subjects, String role, boolean prefixed) {
+
+    String patternType = prefixed ? PatternType.PREFIXED.name() : PatternType.LITERAL.name();
     return subjects.stream()
-        .map(subject -> apiClient.bind(principal, RESOURCE_OWNER).forSchemaSubject(subject).apply())
+        .map(
+            subject ->
+                apiClient
+                    .bind(principal, role)
+                    .forSchemaSubject(subject, patternType)
+                    .apply("Subject", subject))
         .filter(Objects::nonNull)
         .collect(Collectors.toList());
   }
@@ -365,7 +465,10 @@ public class RBACBindingsBuilder implements BindingsBuilderProvider {
     return connectors.stream()
         .map(
             connector ->
-                apiClient.bind(principal, RESOURCE_OWNER).forAKafkaConnector(connector).apply())
+                apiClient
+                    .bind(principal, RESOURCE_OWNER)
+                    .forAKafkaConnector(connector)
+                    .apply("Connector", connector))
         .filter(Objects::nonNull)
         .collect(Collectors.toList());
   }

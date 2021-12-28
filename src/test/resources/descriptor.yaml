@@ -3,6 +3,15 @@ context: "contextOrg"
 source: "source"
 projects:
   - name: "foo"
+    app:
+      - principal: "User:banana"
+        group: "foo"
+        subject: "test.subject"
+        connector: "con"
+        topic: "top"
+    bar:
+      - principal: "User:banana"
+        group: "bar"
     consumers:
       - principal: "User:App0"
         group: "foo"
@@ -38,29 +47,21 @@ projects:
             - "topicC"
             - "topicD"
     connectors:
-      artefacts:
-        - path: "connectors/sink-jdbc.json"
-          server: "connector0"
-          name: "sink-jdbc"
-        - path: "connectors/source-jdbc.json"
-          server: "connector0"
-          name: "source-jdbc"
-      access_control:
-        - principal: "User:Connect1"
-          cluster_id: "foo"
-          group: "group"
-          status_topic: "status"
-          offset_topic: "offset"
-          configs_topic: "configs"
-          topics:
-            read:
-              - "topicA"
-              - "topicB"
-        - principal: "User:Connect2"
-          topics:
-            write:
-              - "topicC"
-              - "topicD"
+      - principal: "User:Connect1"
+        cluster_id: "foo"
+        group: "group"
+        status_topic: "status"
+        offset_topic: "offset"
+        configs_topic: "configs"
+        topics:
+          read:
+            - "topicA"
+            - "topicB"
+      - principal: "User:Connect2"
+        topics:
+          write:
+            - "topicC"
+            - "topicD"
     topics:
       - name: "foo"
         config:

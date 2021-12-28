@@ -1,15 +1,20 @@
 package com.purbon.kafka.topology;
 
 import com.purbon.kafka.topology.model.Impl.ProjectImpl;
-import com.purbon.kafka.topology.model.Impl.TopicImpl;
 import com.purbon.kafka.topology.model.Impl.TopologyImpl;
 import com.purbon.kafka.topology.model.Project;
 import com.purbon.kafka.topology.model.Topic;
 import com.purbon.kafka.topology.model.Topology;
 import com.purbon.kafka.topology.model.users.Consumer;
+import com.purbon.kafka.topology.model.users.Other;
 import com.purbon.kafka.topology.model.users.Producer;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -20,6 +25,7 @@ public class TestTopologyBuilder {
   private Set<Topic> topics = new HashSet<>();
   private final Set<Consumer> consumers = new HashSet<>();
   private final Set<Producer> producers = new HashSet<>();
+  private final Collection<Map.Entry<String, List<Other>>> others = new ArrayList<>();
 
   public TestTopologyBuilder() {
     this(new Configuration(), "ctx", "project");
@@ -49,11 +55,13 @@ public class TestTopologyBuilder {
     project.setTopics(new ArrayList<>(topics));
     project.setConsumers(new ArrayList<>(consumers));
     project.setProducers(new ArrayList<>(producers));
+    var map = others.stream().collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+    project.setOthers(map);
     return topology;
   }
 
   public TestTopologyBuilder addTopic(String topicName) {
-    addTopic(new TopicImpl(topicName, configuration));
+    addTopic(new Topic(topicName, configuration));
     return this;
   }
 
@@ -79,6 +87,21 @@ public class TestTopologyBuilder {
   public TestTopologyBuilder addConsumer(String user, String group) {
     Consumer consumer = new Consumer(user, group);
     consumers.add(consumer);
+    return this;
+  }
+
+  public TestTopologyBuilder addOther(String roleName, String principal, String topic) {
+    return addOther(roleName, principal, topic, "", "");
+  }
+
+  public TestTopologyBuilder addOther(
+      String roleName, String principal, String topic, String subject, String connector) {
+    Other other = new Other();
+    other.setPrincipal(principal);
+    other.setTopic(Optional.of(topic));
+    if (!connector.isEmpty()) other.setConnector(Optional.of(connector));
+    if (!subject.isEmpty()) other.setSubject(Optional.of(subject));
+    others.add(Map.entry(roleName, Collections.singletonList(other)));
     return this;
   }
 

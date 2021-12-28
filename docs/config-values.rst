@@ -2,7 +2,7 @@
 Important configuration values
 *******************************
 
-This page describe the most common configuration values for Julie Ops, this values can be set within the topology-builder properties file.
+This page describe the most common configuration values for Julie Ops, these values can be set within the topology-builder properties file.
 
 Access control configuration
 -----------
@@ -105,6 +105,43 @@ An example configuration might look like this:
     kafka.internal.topic.prefixes.0=_
     kafka.internal.topic.prefixes.1=topicPrefixA
     kafka.internal.topic.prefixes.2=topicPrefixB
+
+
+Managed DLQ topics with JulieOps
+-----------
+
+It is possible in JulieOps to generate DLQ topics automatically, this feature is available if the reader configure this property.
+
+**Property**: *topology.dlq.topics.generate*
+**Default value**: "false"
+
+As well it is possible to select for which topics this DLQ equivalents are going to be created, the most important properties here are.
+
+**Property**: *topology.dlq.topics.allow.list*
+**Default value**: "[]"
+
+**Property**: *topology.dlq.topics.deny.list*
+**Default value**: "[]"
+
+that as the name indicate are lists that could be used to either only allow this topics or deny certain ones.
+If no list is specified and DLQ topics are activated there is going to be one generated for each "normal" topic.
+
+DLQ topic naming format
+-----------
+
+It is possible to customize the naming format for DLQ topics, this can be achived by using a Jinja pattern within this property.
+
+**Property**: *topology.topic.dlq.prefix.format*
+**Default value**: "default"
+
+if specified, DLQ topics are going to be generated using this format.
+
+In order to customize the DLQ topic naming, the reader could as well select which label is used to flag this topics.
+The relevant config property for this is.
+
+**Property**: *topology.topic.dlq.label*
+**Default value**: "dlq"
+
 
 Topology validations
 -----------
@@ -247,3 +284,21 @@ An example configuration might look like this:
 
 If this prefix list is used, only groups that match the prefix will be ever processed, if wildcard it will be managed if the service account is managed by Julie Ops, anything else will be ignored.
 This is useful in a shared cluster, to avoid Julie Ops removing/accidentally managing group acls by other teams with seperate pipelines.
+
+HTTPs configuration (TLS)
+-----------
+
+JulieOps uses internally the new HttpClient provided since the Java 11 version. If you are aiming to connect into a HTTPs protected endpoint
+you should configure the required truststore and keystore, this as with common kafka clients you can do by using this properties.
+
+* ssl.keystore.location - full path for the store
+* ssl.keystore.password - password for the keystore
+* ssl.truststore.location - full path for the truststore
+* ssl.truststore.password - password for the truststore
+* ssl.key.password - password for the certificate, when required.
+
+ksqlDB manager have specific configuration values for truststore and keystore, but if not specified this ones will be used as default.
+
+**NOTE**: As default JulieOps uses PKCS12 stores, JKS stores are not supported.
+
+This feature is available since version 3.0.0, however if you are willing to use an https connection you could as well define global JVM stores, for more details you can see  https://docs.oracle.com/cd/E29585_01/PlatformServices.61x/security/src/csec_ssl_jsp_start_server.html link.

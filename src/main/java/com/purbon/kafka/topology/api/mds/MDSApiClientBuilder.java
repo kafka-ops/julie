@@ -1,6 +1,7 @@
 package com.purbon.kafka.topology.api.mds;
 
 import com.purbon.kafka.topology.Configuration;
+import java.util.Optional;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -17,11 +18,12 @@ public class MDSApiClientBuilder {
   public MDSApiClient build() {
     String mdsServer = config.getMdsServer();
 
-    MDSApiClient apiClient = new MDSApiClient(mdsServer);
+    MDSApiClient apiClient = new MDSApiClient(mdsServer, Optional.of(config));
     // Pass Cluster IDS
     apiClient.setKafkaClusterId(config.getKafkaClusterId());
     apiClient.setSchemaRegistryClusterID(config.getSchemaRegistryClusterId());
     apiClient.setConnectClusterID(config.getKafkaConnectClusterId());
+    apiClient.setKSqlClusterID(config.getKsqlDBClusterID());
 
     LOGGER.debug(String.format("Connecting to an MDS server at %s", mdsServer));
     return apiClient;

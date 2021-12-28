@@ -35,27 +35,30 @@ public class JulieOps implements AutoCloseable {
   private static final Logger LOGGER = LogManager.getLogger(JulieOps.class);
 
   private TopicManager topicManager;
-  private final PrincipalManager principalManager;
+  private final PrincipalUpdateManager principalUpdateManager;
+  private final PrincipalDeleteManager principalDeleteManager;
   private AccessControlManager accessControlManager;
   private KafkaConnectArtefactManager connectorManager;
   private KSqlArtefactManager kSqlArtefactManager;
-  private final Topology topology;
+  private final Map<String, Topology> topologies;
   private final Configuration config;
   private final PrintStream outputStream;
 
   private JulieOps(
-      Topology topology,
+      Map<String, Topology> topologies,
       Configuration config,
       TopicManager topicManager,
       AccessControlManager accessControlManager,
-      PrincipalManager principalManager,
+      PrincipalUpdateManager principalUpdateManager,
+      PrincipalDeleteManager principalDeleteManager,
       KafkaConnectArtefactManager connectorManager,
       KSqlArtefactManager kSqlArtefactManager) {
-    this.topology = topology;
+    this.topologies = topologies;
     this.config = config;
     this.topicManager = topicManager;
     this.accessControlManager = accessControlManager;
-    this.principalManager = principalManager;
+    this.principalUpdateManager = principalUpdateManager;
+    this.principalDeleteManager = principalDeleteManager;
     this.connectorManager = connectorManager;
     this.kSqlArtefactManager = kSqlArtefactManager;
     this.outputStream = System.out;
@@ -78,17 +81,14 @@ public class JulieOps implements AutoCloseable {
 
     PrincipalProviderFactory principalProviderFactory = new PrincipalProviderFactory(builderConfig);
 
-    JulieOps builder =
-        build(
-            topologyFile,
-            plansFile,
-            builderConfig,
-            adminClient,
-            factory.get(),
-            factory.builder(),
-            principalProviderFactory.get());
-
-    return builder;
+    return build(
+        topologyFile,
+        plansFile,
+        builderConfig,
+        adminClient,
+        factory.get(),
+        factory.builder(),
+        principalProviderFactory.get());
   }
 
   public static JulieOps build(
@@ -118,23 +118,27 @@ public class JulieOps implements AutoCloseable {
       PrincipalProvider principalProvider)
       throws Exception {
 
-    Topology topology;
+    Map<String, Topology> topologies;
     if (plansFile.equals("default")) {
-      topology = TopologyObjectBuilder.build(topologyFileOrDir, config);
+      topologies = TopologyObjectBuilder.build(topologyFileOrDir, config);
     } else {
-      topology = TopologyObjectBuilder.build(topologyFileOrDir, plansFile, config);
+      topologies = TopologyObjectBuilder.build(topologyFileOrDir, plansFile, config);
     }
 
     TopologyValidator validator = new TopologyValidator(config);
-    List<String> validationResults = validator.validate(topology);
-    if (!validationResults.isEmpty()) {
-      String resultsMessage = String.join("\n", validationResults);
-      throw new ValidationException(resultsMessage);
+
+    for (Topology topology : topologies.values()) {
+      List<String> validationResults = validator.validate(topology);
+      if (!validationResults.isEmpty()) {
+        String resultsMessage = String.join("\n", validationResults);
+        throw new ValidationException(resultsMessage);
+      }
+      config.validateWith(topology);
     }
-    config.validateWith(topology);
 
     AccessControlManager accessControlManager =
-        new AccessControlManager(accessControlProvider, bindingsBuilderProvider, config);
+        new AccessControlManager(
+            accessControlProvider, bindingsBuilderProvider, config.getJulieRoles(), config);
 
     RestService restService = new RestService(config.getConfluentSchemaRegistryUrl());
     Map<String, ?> schemaRegistryConfig = config.asMap();
@@ -154,7 +158,10 @@ public class JulieOps implements AutoCloseable {
 
     TopicManager topicManager = new TopicManager(adminClient, schemaRegistryManager, config);
 
-    PrincipalManager principalManager = new PrincipalManager(principalProvider, config);
+    PrincipalUpdateManager principalUpdateManager =
+        new PrincipalUpdateManager(principalProvider, config);
+    PrincipalDeleteManager principalDeleteManager =
+        new PrincipalDeleteManager(principalProvider, config);
 
     KafkaConnectArtefactManager connectorManager =
         configureKConnectArtefactManager(config, topologyFileOrDir);
@@ -163,11 +170,12 @@ public class JulieOps implements AutoCloseable {
         configureKSqlArtefactManager(config, topologyFileOrDir);
 
     return new JulieOps(
-        topology,
+        topologies,
         config,
         topicManager,
         accessControlManager,
-        principalManager,
+        principalUpdateManager,
+        principalDeleteManager,
         connectorManager,
         kSqlArtefactManager);
   }
@@ -176,7 +184,11 @@ public class JulieOps implements AutoCloseable {
       Configuration config, String topologyFileOrDir) {
     Map<String, KConnectApiClient> clients =
         config.getKafkaConnectServers().entrySet().stream()
-            .map(entry -> new Pair<>(entry.getKey(), new KConnectApiClient(entry.getValue())))
+            .map(
+                entry ->
+                    new Pair<>(
+                        entry.getKey(),
+                        new KConnectApiClient(entry.getValue(), entry.getKey(), config)))
             .collect(Collectors.toMap(Pair::getKey, Pair::getValue));
 
     if (clients.isEmpty()) {
@@ -192,10 +204,7 @@ public class JulieOps implements AutoCloseable {
 
     Map<String, KsqlApiClient> clients = new HashMap<>();
     if (config.hasKSQLServer()) {
-      String ksqlAddress = config.getKSQLServer();
-      String server = ksqlAddress.substring(0, ksqlAddress.lastIndexOf(":"));
-      Integer port = Integer.parseInt(ksqlAddress.substring(ksqlAddress.lastIndexOf(":") + 1));
-      KsqlApiClient client = new KsqlApiClient(server, port);
+      KsqlApiClient client = new KsqlApiClient(config.getKSQLClientConfig());
       clients.put("default", client);
     }
 
@@ -219,32 +228,35 @@ public class JulieOps implements AutoCloseable {
     }
   }
 
-  void run(ExecutionPlan plan) throws IOException {
+  void run(BackendController backendController, PrintStream printStream) throws IOException {
+    ExecutionPlan plan = ExecutionPlan.init(backendController, printStream);
     LOGGER.debug(
         String.format(
-            "Running topology builder with TopicManager=[%s], accessControlManager=[%s], dryRun=[%s], isQuite=[%s]",
+            "Running topology builder with topicManager=[%s], accessControlManager=[%s], dryRun=[%s], isQuiet=[%s]",
             topicManager, accessControlManager, config.isDryRun(), config.isQuiet()));
 
     // Create users should always be first, so user exists when making acl link
-    principalManager.applyCreate(topology, plan);
-
-    topicManager.apply(topology, plan);
-    accessControlManager.apply(topology, plan);
-
-    connectorManager.apply(topology, plan);
-    kSqlArtefactManager.apply(topology, plan);
-
+    for (Topology topology : topologies.values()) {
+      principalUpdateManager.updatePlan(topology, plan);
+    }
+    topicManager.updatePlan(plan, topologies);
+    accessControlManager.updatePlan(plan, topologies);
+    connectorManager.updatePlan(plan, topologies);
+    kSqlArtefactManager.updatePlan(plan, topologies);
     // Delete users should always be last,
     // avoids any unlinked acls, e.g. if acl delete or something errors then there is a link still
     // from the account, and can be re-run or manually fixed more easily
-    principalManager.applyDelete(topology, plan);
+    for (Topology topology : topologies.values()) {
+      principalUpdateManager.updatePlan(topology, plan);
+    }
 
     plan.run(config.isDryRun());
 
     if (!config.isQuiet() && !config.isDryRun()) {
       topicManager.printCurrentState(System.out);
       accessControlManager.printCurrentState(System.out);
-      principalManager.printCurrentState(System.out);
+      principalUpdateManager.printCurrentState(System.out);
+      principalDeleteManager.printCurrentState(System.out);
       connectorManager.printCurrentState(System.out);
       kSqlArtefactManager.printCurrentState(System.out);
     }
@@ -254,9 +266,7 @@ public class JulieOps implements AutoCloseable {
     if (config.doValidate()) {
       return;
     }
-    BackendController cs = buildBackendController(config);
-    ExecutionPlan plan = ExecutionPlan.init(cs, outputStream);
-    run(plan);
+    run(buildBackendController(config), outputStream);
   }
 
   public void close() {
@@ -280,7 +290,7 @@ public class JulieOps implements AutoCloseable {
   private static BackendController buildBackendController(Configuration config) throws IOException {
 
     String backendClass = config.getStateProcessorImplementationClassName();
-    Backend backend = null;
+    Backend backend;
     try {
       if (backendClass.equalsIgnoreCase(STATE_PROCESSOR_DEFAULT_CLASS)) {
         backend = new FileBackend();
@@ -292,6 +302,8 @@ public class JulieOps implements AutoCloseable {
         backend = new S3Backend();
       } else if (backendClass.equalsIgnoreCase(GCP_STATE_PROCESSOR_CLASS)) {
         backend = new GCPBackend();
+      } else if (backendClass.equalsIgnoreCase(KAFKA_STATE_PROCESSOR_CLASS)) {
+        backend = new KafkaBackend();
       } else {
         throw new IOException(backendClass + " Unknown state processor provided.");
       }

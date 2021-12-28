@@ -33,8 +33,12 @@ public class JSON {
     return mapper.readValue(jsonString, List.class);
   }
 
-  public static String asString(Object account) throws JsonProcessingException {
-    return mapper.writeValueAsString(account);
+  public static String asString(Object object) throws JsonProcessingException {
+    return mapper.writeValueAsString(object);
+  }
+
+  public static String asPrettyString(Object object) throws JsonProcessingException {
+    return mapper.writerWithDefaultPrettyPrinter().writeValueAsString(object);
   }
 
   public static Object toObjectList(String jsonString, Class objectClazz)

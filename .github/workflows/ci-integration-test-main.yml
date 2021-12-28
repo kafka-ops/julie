@@ -8,10 +8,14 @@ on:
     branches:
       - master
       - 3.x
+      - 3.2.x
+      - 3.3.x
+      - 4.x
   pull_request:
     branches:
       - master
       - 3.x
+      - 4.x
 
 jobs:
   build:
@@ -19,7 +23,7 @@ jobs:
       matrix:
         os: [ubuntu-latest]
         java: [11.0.x]
-        cpversion: [5.5.3, 6.0.2, 6.1.0]
+        cpversion: [7.0.0]
 
     runs-on: ${{ matrix.os }}
 

@@ -13,7 +13,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 /** Manages Artefacts as defined within the context of the filter class */
-public abstract class ArtefactManager implements ManagerOfThings {
+public abstract class ArtefactManager implements ExecutionPlanUpdater {
 
   private static final Logger LOGGER = LogManager.getLogger(ArtefactManager.class);
 
@@ -35,29 +35,30 @@ public abstract class ArtefactManager implements ManagerOfThings {
   }
 
   @Override
-  public void apply(Topology topology, ExecutionPlan plan) throws IOException {
-
+  public void updatePlan(ExecutionPlan plan, Map<String, Topology> topologies) throws IOException {
     Collection<? extends Artefact> currentArtefacts = loadActualClusterStateIfAvailable(plan);
 
-    Set<? extends Artefact> artefacts = parseNewArtefacts(topology);
-    for (Artefact artefact : artefacts) {
-      if (!currentArtefacts.contains(artefact)) {
-        ArtefactClient client = selectClient(artefact);
-        if (client == null) {
-          throw new IOException(
-              "The Artefact "
-                  + artefact.getName()
-                  + " require a non configured client, please check our configuration");
+    Set<Artefact> artefacts = new HashSet<>();
+
+    for (Topology topology : topologies.values()) {
+      Set<? extends Artefact> entryArtefacts = parseNewArtefacts(topology);
+      for (Artefact artefact : entryArtefacts) {
+        if (!currentArtefacts.contains(artefact)) {
+          ArtefactClient client = selectClient(artefact);
+          if (client == null) {
+            throw new IOException(
+                "The Artefact "
+                    + artefact.getName()
+                    + " require a non configured client, please check our configuration");
+          }
+          plan.add(new CreateArtefactAction(client, rootPath(), currentArtefacts, artefact));
         }
-        plan.add(new CreateArtefactAction(client, rootPath(), currentArtefacts, artefact));
+        artefacts.add(artefact);
       }
     }
 
     if (isAllowDelete()) {
-      List<? extends Artefact> toBeDeleted =
-          currentArtefacts.stream()
-              .filter(a -> !artefacts.contains(a))
-              .collect(Collectors.toList());
+      List<? extends Artefact> toBeDeleted = findArtefactsToBeDeleted(currentArtefacts, artefacts);
 
       if (toBeDeleted.size() > 0) {
         LOGGER.debug("Artefacts to be deleted: " + StringUtils.join(toBeDeleted, ","));
@@ -73,6 +74,13 @@ public abstract class ArtefactManager implements ManagerOfThings {
         }
       }
     }
+  }
+
+  protected List<? extends Artefact> findArtefactsToBeDeleted(
+      Collection<? extends Artefact> currentArtefacts, Set<Artefact> artefacts) {
+    return currentArtefacts.stream()
+        .filter(a -> !artefacts.contains(a))
+        .collect(Collectors.toList());
   }
 
   protected ArtefactClient selectClient(Artefact artefact) {

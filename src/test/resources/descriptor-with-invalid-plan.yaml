@@ -1,0 +1,10 @@
+---
+context: "contextOrg"
+source: "source"
+projects:
+  - name: "foo"
+    topics:
+      - name: "fooBar"
+        plan: "gold"
+      - name: "barFoo"
+        plan: "invalid-plan-name"

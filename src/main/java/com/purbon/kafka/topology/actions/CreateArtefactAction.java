@@ -16,10 +16,10 @@ public class CreateArtefactAction extends BaseAction {
 
   private static final Logger LOGGER = LogManager.getLogger(CreateArtefactAction.class);
 
-  private ArtefactClient client;
-  private Artefact artefact;
-  private String rootPath;
-  private Collection<? extends Artefact> artefacts;
+  private final ArtefactClient client;
+  private final Artefact artefact;
+  private final String rootPath;
+  private final Collection<? extends Artefact> artefacts;
 
   public CreateArtefactAction(
       ArtefactClient client,
@@ -38,7 +38,7 @@ public class CreateArtefactAction extends BaseAction {
       LOGGER.info(
           String.format(
               "Creating artefact %s for client %s", artefact.getName(), client.getClass()));
-      client.add(content());
+      client.add(artefact.getName(), content());
     }
   }
 
@@ -48,8 +48,7 @@ public class CreateArtefactAction extends BaseAction {
 
   private String content() throws IOException {
     LOGGER.debug(
-        String.format(
-            "Reading artefact content from %s with rootPath %s", artefact.getPath(), rootPath));
+        "Reading artefact content from " + artefact.getPath() + " with rootPath " + rootPath);
     return Utils.readFullFile(filePath(artefact.getPath(), rootPath));
   }
 

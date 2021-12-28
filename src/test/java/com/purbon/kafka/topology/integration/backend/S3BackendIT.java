@@ -1,18 +1,23 @@
 package com.purbon.kafka.topology.integration.backend;
 
-import static com.purbon.kafka.topology.CommandLineInterface.*;
-import static com.purbon.kafka.topology.Constants.*;
+import static com.purbon.kafka.topology.CommandLineInterface.BROKERS_OPTION;
+import static com.purbon.kafka.topology.Constants.JULIE_S3_BUCKET;
+import static com.purbon.kafka.topology.Constants.JULIE_S3_ENDPOINT;
+import static com.purbon.kafka.topology.Constants.JULIE_S3_REGION;
 import static org.assertj.core.api.Assertions.assertThat;
 
+import com.amazonaws.auth.AWSStaticCredentialsProvider;
 import com.amazonaws.auth.AnonymousAWSCredentials;
-import com.amazonaws.services.s3.AmazonS3Client;
+import com.amazonaws.client.builder.AwsClientBuilder;
+import com.amazonaws.services.s3.AmazonS3;
+import com.amazonaws.services.s3.AmazonS3ClientBuilder;
+import com.amazonaws.services.s3.model.Region;
 import com.purbon.kafka.topology.Configuration;
 import com.purbon.kafka.topology.backend.BackendState;
 import com.purbon.kafka.topology.backend.S3Backend;
 import com.purbon.kafka.topology.roles.TopologyAclBinding;
 import io.findify.s3mock.S3Mock;
 import java.io.IOException;
-import java.net.URI;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Collections;
@@ -42,8 +47,15 @@ public class S3BackendIT {
     api = S3Mock.create(8001, s3Path.toFile().getAbsolutePath());
     api.start();
 
-    AmazonS3Client client = new AmazonS3Client(new AnonymousAWSCredentials());
-    client.setEndpoint(TEST_ENDPOINT);
+    AnonymousAWSCredentials credentials = new AnonymousAWSCredentials();
+    AwsClientBuilder.EndpointConfiguration endpointConfiguration =
+        new AwsClientBuilder.EndpointConfiguration(
+            TEST_ENDPOINT, Region.US_Standard.getFirstRegionId());
+    AmazonS3 client =
+        AmazonS3ClientBuilder.standard()
+            .withEndpointConfiguration(endpointConfiguration)
+            .withCredentials(new AWSStaticCredentialsProvider(credentials))
+            .build();
     client.createBucket(TEST_BUCKET);
   }
 
@@ -60,9 +72,10 @@ public class S3BackendIT {
     Properties props = new Properties();
     props.put(JULIE_S3_REGION, "us-west-2");
     props.put(JULIE_S3_BUCKET, TEST_BUCKET);
+    props.put(JULIE_S3_ENDPOINT, TEST_ENDPOINT);
 
     Configuration config = new Configuration(cliOps, props);
-    backend.configure(config, URI.create(TEST_ENDPOINT), true);
+    backend.configure(config, true);
 
     TopologyAclBinding binding =
         TopologyAclBinding.build(
@@ -74,7 +87,7 @@ public class S3BackendIT {
     backend.close();
 
     S3Backend newBackend = new S3Backend();
-    newBackend.configure(config, URI.create(TEST_ENDPOINT), true);
+    newBackend.configure(config, true);
 
     BackendState newState = newBackend.load();
     assertThat(newState.size()).isEqualTo(1);

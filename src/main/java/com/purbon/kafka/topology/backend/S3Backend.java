@@ -17,7 +17,7 @@ import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.S3ClientBuilder;
 import software.amazon.awssdk.services.s3.model.*;
 
-public class S3Backend extends AbstractBackend {
+public class S3Backend implements Backend {
 
   private static final Logger LOGGER = LogManager.getLogger(S3Backend.class);
 
@@ -26,19 +26,21 @@ public class S3Backend extends AbstractBackend {
 
   @Override
   public void configure(Configuration config) {
-    configure(config, null, false);
+    configure(config, false);
   }
 
   // Visible and used for tests
-  public void configure(Configuration config, URI endpoint, boolean anonymous) {
+  public void configure(Configuration config, boolean anonymous) {
     this.config = config;
     S3ClientBuilder builder = S3Client.builder().region(Region.of(config.getS3Region()));
-    if (endpoint != null) {
-      builder = builder.endpointOverride(endpoint);
+    String endpoint = config.getS3Endpoint();
+    if (!endpoint.isBlank()) {
+      builder = builder.endpointOverride(URI.create(endpoint));
     }
     if (anonymous) {
       builder = builder.credentialsProvider(AnonymousCredentialsProvider.create());
     }
+
     this.s3 = builder.build();
   }
 
@@ -48,7 +50,7 @@ public class S3Backend extends AbstractBackend {
   }
 
   @Override
-  public BackendState load() throws IOException {
+  public BackendState load() {
     try {
       String content = getRemoteStateContent(STATE_FILE_NAME);
       return (BackendState) JSON.toObject(content, BackendState.class);

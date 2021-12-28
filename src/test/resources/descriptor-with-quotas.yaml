@@ -1,0 +1,36 @@
+---
+context: "contextOrg"
+source: "source"
+projects:
+  - name: "foo"
+    consumers:
+      - principal: "User:App0"
+      - principal: "User:App1"
+    producers:
+      - principal: "User:App0"
+      - principal: "User:App2"
+    topics:
+      - name: "foo"
+        config:
+          replication.factor: "1"
+          num.partitions: "1"
+        consumers:
+          - principal: "User:App3"
+        producers:
+          - principal: "User:App4"
+      - name: "bar"
+        config:
+          replication.factor: "1"
+          num.partitions: "1"
+platform:
+  kafka:
+    quotas:
+      - principal: "User:App0"
+        producer_byte_rate: 1024
+        consumer_byte_rate: 1024
+        request_percentage: 50.0
+      - principal: "User:App1"
+        producer_byte_rate: 2048
+        consumer_byte_rate: 2048
+      - principal: "User:App2"
+        request_percentage: 80.0

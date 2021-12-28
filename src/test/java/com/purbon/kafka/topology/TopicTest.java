@@ -4,7 +4,6 @@ import static com.purbon.kafka.topology.CommandLineInterface.*;
 import static com.purbon.kafka.topology.Constants.*;
 
 import com.purbon.kafka.topology.model.Impl.ProjectImpl;
-import com.purbon.kafka.topology.model.Impl.TopicImpl;
 import com.purbon.kafka.topology.model.Impl.TopologyImpl;
 import com.purbon.kafka.topology.model.Project;
 import com.purbon.kafka.topology.model.Topic;
@@ -33,10 +32,10 @@ public class TopicTest {
 
   @Test
   public void buildTopicNameTest() {
-    Topic topic = new TopicImpl("topic");
-    topic.setDefaultProjectPrefix(project.namePrefix());
-    String fulllName = topic.toString();
-    Assert.assertEquals("team.project.topic", fulllName);
+    Topic topic = new Topic("topic");
+    topic.setProjectPrefix(project.namePrefix());
+    String fullName = topic.toString();
+    Assert.assertEquals("team.project.topic", fullName);
   }
 
   @Test
@@ -53,18 +52,18 @@ public class TopicTest {
 
     topology.setProjects(Collections.singletonList(project));
 
-    Topic topic = new TopicImpl("topic");
+    Topic topic = new Topic("topic");
     project.addTopic(topic);
-    String fulllName = topic.toString();
-    Assert.assertEquals("team.other.another.project.topic", fulllName);
+    String fullName = topic.toString();
+    Assert.assertEquals("team.other.another.project.topic", fullName);
   }
 
   @Test
   public void buildTopicNameWithDataTypeTest() {
-    Topic topic = new TopicImpl("topic", "type");
-    topic.setDefaultProjectPrefix(project.namePrefix());
-    String fulllName = topic.toString();
-    Assert.assertEquals("team.project.topic.type", fulllName);
+    Topic topic = new Topic("topic", "type");
+    topic.setProjectPrefix(project.namePrefix());
+    String fullName = topic.toString();
+    Assert.assertEquals("team.project.topic.type", fullName);
   }
 
   @Test
@@ -87,11 +86,11 @@ public class TopicTest {
     Project project = new ProjectImpl("project", config);
     topology.setProjects(Collections.singletonList(project));
 
-    Topic topic = new TopicImpl("topic", config);
+    Topic topic = new Topic("topic", config);
     project.addTopic(topic);
 
-    String fulllName = topic.toString();
-    Assert.assertEquals("team_other_another_project_topic", fulllName);
+    String fullName = topic.toString();
+    Assert.assertEquals("team_other_another_project_topic", fullName);
   }
 
   @Test
@@ -114,10 +113,10 @@ public class TopicTest {
     Project project = new ProjectImpl("project", config);
     topology.setProjects(Collections.singletonList(project));
 
-    Topic topic = new TopicImpl("topic", config);
+    Topic topic = new Topic("topic", config);
     project.addTopic(topic);
 
-    String fulllName = topic.toString();
-    Assert.assertEquals("other.team.project.topic", fulllName);
+    String fullName = topic.toString();
+    Assert.assertEquals("other.team.project.topic", fullName);
   }
 }

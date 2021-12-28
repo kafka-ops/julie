@@ -24,6 +24,8 @@ To get you started we recommend:
 * New to gitops and kafka, check the :doc:`core-concepts` page.
 * If you are ready to jump in, start with the :doc:`workflow-setup`.
 
+To learn more about JulieOps listen to `this podcast <https://developer.confluent.io/podcast/automating-devops-for-apache-kafka-and-confluent-ft-pere-urbon-bayes>`_ with Pere Urbón-Bayes.
+
 Installation
 -----------
 
@@ -43,7 +45,7 @@ if you already have this components, you can install the JulieOps agent:
 * As well in the form of a docker image, available from `docker hub <https://hub.docker.com/repository/docker/purbon/kafka-topology-builder>`_.
 
 You always can self build this package, all information is available from `here <https://github.com/kafka-ops/julie/blob/master/RELEASE.md>`_.
-Users can download the latest "official" release artifacts directly from the download page `here <https://github.com/kafka-ops/julie/releases>`_.
+Users can download the latest "official" release artefacts directly from the download page `here <https://github.com/kafka-ops/julie/releases>`_.
 
 Help?
 ------------------------------

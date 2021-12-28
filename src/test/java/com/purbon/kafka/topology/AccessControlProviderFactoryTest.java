@@ -1,9 +1,8 @@
 package com.purbon.kafka.topology;
 
-import static com.purbon.kafka.topology.CommandLineInterface.*;
+import static com.purbon.kafka.topology.CommandLineInterface.BROKERS_OPTION;
 import static com.purbon.kafka.topology.Constants.*;
 import static org.hamcrest.CoreMatchers.instanceOf;
-import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.mockito.internal.verification.VerificationModeFactory.times;
@@ -13,10 +12,12 @@ import com.purbon.kafka.topology.api.mds.MDSApiClient;
 import com.purbon.kafka.topology.api.mds.MDSApiClientBuilder;
 import com.purbon.kafka.topology.roles.RBACProvider;
 import com.purbon.kafka.topology.roles.SimpleAclsProvider;
+import com.purbon.kafka.topology.utils.BasicAuth;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
+import org.hamcrest.MatcherAssert;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -62,10 +63,10 @@ public class AccessControlProviderFactoryTest {
 
     AccessControlProvider provider = factory.get();
 
-    verify(mdsApiClient, times(1)).login("alice", "alice-secret");
+    verify(mdsApiClient, times(1)).setBasicAuth(new BasicAuth("alice", "alice-secret"));
     verify(mdsApiClient, times(1)).authenticate();
 
-    assertThat(provider, instanceOf(RBACProvider.class));
+    MatcherAssert.assertThat(provider, instanceOf(RBACProvider.class));
   }
 
   @Test
@@ -76,7 +77,7 @@ public class AccessControlProviderFactoryTest {
     AccessControlProviderFactory factory =
         new AccessControlProviderFactory(config, adminClient, mdsApiClientBuilder);
 
-    assertThat(factory.get(), instanceOf(SimpleAclsProvider.class));
+    MatcherAssert.assertThat(factory.get(), instanceOf(SimpleAclsProvider.class));
   }
 
   @Test(expected = IOException.class)

@@ -1,12 +1,12 @@
 package com.purbon.kafka.topology.model.schema;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.PropertyNamingStrategy;
+import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import com.purbon.kafka.topology.model.schema.Subject.SubjectKind;
 import java.util.Optional;
 
-@JsonNaming(PropertyNamingStrategy.LowerDotCaseStrategy.class)
+@JsonNaming(PropertyNamingStrategies.LowerDotCaseStrategy.class)
 public class TopicSchemas {
 
   private Subject keySubject;

@@ -68,7 +68,7 @@ In this Topology the topics *fooBar*, *barFoo* and *barFooBar* will be using cus
 
 **Things to consider**:
 
-* Configuration values defined in the plan take precedence over the config values defined in the topic.
+* Configuration values defined in the topic take precedence over the config values defined plan.
 * A topic can have only a plan, without providing any configuration.
 * The Plan label is optional, topics can use, or not, plans.
 * If plans are defined in the Topology, but no proper definition file is passed, the tool will complain.

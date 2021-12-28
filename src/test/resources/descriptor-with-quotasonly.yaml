@@ -1,0 +1,15 @@
+---
+context: "contextOrg"
+source: "source"
+platform:
+  kafka:
+    quotas:
+      - principal: "User:App0"
+        producer_byte_rate: 1024
+        consumer_byte_rate: 1024
+        request_percentage: 50.0
+      - principal: "User:App1"
+        producer_byte_rate: 2048
+        consumer_byte_rate: 2048
+      - principal: "User:App2"
+        request_percentage: 80.0

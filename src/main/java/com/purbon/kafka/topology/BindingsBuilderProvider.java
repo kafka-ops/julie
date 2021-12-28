@@ -1,10 +1,11 @@
 package com.purbon.kafka.topology;
 
-import com.purbon.kafka.topology.exceptions.ConfigurationException;
 import com.purbon.kafka.topology.model.Component;
+import com.purbon.kafka.topology.model.JulieRoleAcl;
 import com.purbon.kafka.topology.model.users.Connector;
 import com.purbon.kafka.topology.model.users.Consumer;
 import com.purbon.kafka.topology.model.users.KSqlApp;
+import com.purbon.kafka.topology.model.users.Other;
 import com.purbon.kafka.topology.model.users.Producer;
 import com.purbon.kafka.topology.model.users.platform.KsqlServerInstance;
 import com.purbon.kafka.topology.model.users.platform.SchemaRegistryInstance;
@@ -19,7 +20,11 @@ public interface BindingsBuilderProvider {
   List<TopologyAclBinding> buildBindingsForConnect(Connector connector, String topicPrefix);
 
   List<TopologyAclBinding> buildBindingsForStreamsApp(
-      String principal, String topicPrefix, List<String> readTopics, List<String> writeTopics);
+      String principal,
+      String topicPrefix,
+      List<String> readTopics,
+      List<String> writeTopics,
+      boolean eos);
 
   List<TopologyAclBinding> buildBindingsForConsumers(
       Collection<Consumer> consumers, String resource, boolean prefixed);
@@ -33,12 +38,12 @@ public interface BindingsBuilderProvider {
     return null;
   }
 
-  List<TopologyAclBinding> buildBindingsForSchemaRegistry(SchemaRegistryInstance schemaRegistry)
-      throws ConfigurationException;
+  List<TopologyAclBinding> buildBindingsForSchemaRegistry(SchemaRegistryInstance schemaRegistry);
 
   List<TopologyAclBinding> buildBindingsForControlCenter(String principal, String appId);
 
-  default List<TopologyAclBinding> setSchemaAuthorization(String principal, List<String> subjects) {
+  default List<TopologyAclBinding> setSchemaAuthorization(
+      String principal, List<String> subjects, String role, boolean prefixed) {
     return Collections.emptyList();
   }
 
@@ -55,4 +60,7 @@ public interface BindingsBuilderProvider {
   Collection<TopologyAclBinding> buildBindingsForKSqlServer(KsqlServerInstance ksqlServer);
 
   Collection<TopologyAclBinding> buildBindingsForKSqlApp(KSqlApp app, String prefix);
+
+  Collection<TopologyAclBinding> buildBindingsForJulieRole(
+      Other other, String name, List<JulieRoleAcl> acls) throws IOException;
 }

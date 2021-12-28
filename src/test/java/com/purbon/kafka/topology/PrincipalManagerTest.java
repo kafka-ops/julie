@@ -14,7 +14,6 @@ import com.purbon.kafka.topology.actions.Action;
 import com.purbon.kafka.topology.actions.accounts.ClearAccounts;
 import com.purbon.kafka.topology.actions.accounts.CreateAccounts;
 import com.purbon.kafka.topology.model.Impl.ProjectImpl;
-import com.purbon.kafka.topology.model.Impl.TopicImpl;
 import com.purbon.kafka.topology.model.Impl.TopologyImpl;
 import com.purbon.kafka.topology.model.Project;
 import com.purbon.kafka.topology.model.Topic;
@@ -45,7 +44,8 @@ public class PrincipalManagerTest {
 
   @Rule public MockitoRule mockitoRule = MockitoJUnit.rule();
 
-  PrincipalManager principalManager;
+  PrincipalUpdateManager principalUpdateManager;
+  PrincipalDeleteManager principalDeleteManager;
   Configuration config;
 
   BackendController backendController;
@@ -70,7 +70,8 @@ public class PrincipalManagerTest {
 
     plan = ExecutionPlan.init(backendController, mockPrintStream);
     config = new Configuration(cliOps, props);
-    principalManager = new PrincipalManager(provider, config);
+    principalUpdateManager = new PrincipalUpdateManager(provider, config);
+    principalDeleteManager = new PrincipalDeleteManager(provider, config);
   }
 
   @Test
@@ -86,8 +87,8 @@ public class PrincipalManagerTest {
 
     doNothing().when(provider).configure();
 
-    principalManager.applyCreate(topology, plan);
-    principalManager.applyDelete(topology, plan);
+    principalUpdateManager.updatePlan(topology, plan);
+    principalDeleteManager.updatePlan(topology, plan);
 
     Set<ServiceAccount> accounts =
         new HashSet<>(
@@ -106,7 +107,7 @@ public class PrincipalManagerTest {
     Topology topology = new TopologyImpl();
     topology.setContext("context");
     Project project = new ProjectImpl("foo");
-    Topic topic = new TopicImpl("baa");
+    Topic topic = new Topic("baa");
     topic.setConsumers(Collections.singletonList(new Consumer("topicConsumer-principal")));
     topic.setProducers(Collections.singletonList(new Producer("topicProducer-principal")));
 
@@ -115,8 +116,8 @@ public class PrincipalManagerTest {
 
     doNothing().when(provider).configure();
 
-    principalManager.applyCreate(topology, plan);
-    principalManager.applyDelete(topology, plan);
+    principalUpdateManager.updatePlan(topology, plan);
+    principalDeleteManager.updatePlan(topology, plan);
 
     Set<ServiceAccount> accounts =
         new HashSet<>(
@@ -149,8 +150,8 @@ public class PrincipalManagerTest {
         .when(provider)
         .createServiceAccount(eq("producer"), eq("Managed by KTB"));
 
-    principalManager.applyCreate(topology, plan);
-    principalManager.applyDelete(topology, plan);
+    principalUpdateManager.updatePlan(topology, plan);
+    principalDeleteManager.updatePlan(topology, plan);
     plan.run();
     assertThat(plan.getServiceAccounts()).hasSize(2);
 
@@ -162,8 +163,8 @@ public class PrincipalManagerTest {
 
     backendController = new BackendController();
     plan = ExecutionPlan.init(backendController, mockPrintStream);
-    principalManager.applyCreate(topology, plan);
-    principalManager.applyDelete(topology, plan);
+    principalUpdateManager.updatePlan(topology, plan);
+    principalDeleteManager.updatePlan(topology, plan);
 
     Collection<ServiceAccount> accounts =
         Arrays.asList(new ServiceAccount(124, "producer", "Managed by KTB"));
@@ -183,12 +184,13 @@ public class PrincipalManagerTest {
     props.put(TOPOLOGY_EXPERIMENTAL_ENABLED_CONFIG, "false");
 
     config = new Configuration(cliOps, props);
-    principalManager = new PrincipalManager(provider, config);
+    principalUpdateManager = new PrincipalUpdateManager(provider, config);
+    principalDeleteManager = new PrincipalDeleteManager(provider, config);
 
     Topology topology = new TopologyImpl();
 
-    principalManager.applyCreate(topology, plan);
-    principalManager.applyDelete(topology, plan);
+    principalUpdateManager.updatePlan(topology, plan);
+    principalDeleteManager.updatePlan(topology, plan);
 
     verify(mockPlan, times(0)).add(any(Action.class));
     backendController.flushAndClose();
@@ -200,7 +202,8 @@ public class PrincipalManagerTest {
     props.put(SERVICE_ACCOUNT_MANAGED_PREFIXES, Collections.singletonList("pro"));
 
     config = new Configuration(cliOps, props);
-    principalManager = new PrincipalManager(provider, config);
+    principalUpdateManager = new PrincipalUpdateManager(provider, config);
+    principalDeleteManager = new PrincipalDeleteManager(provider, config);
 
     Topology topology = new TopologyImpl();
     topology.setContext("context");
@@ -219,8 +222,8 @@ public class PrincipalManagerTest {
         .when(provider)
         .createServiceAccount(eq("producer"), eq("Managed by KTB"));
 
-    principalManager.applyCreate(topology, plan);
-    principalManager.applyDelete(topology, plan);
+    principalUpdateManager.updatePlan(topology, plan);
+    principalDeleteManager.updatePlan(topology, plan);
     plan.run();
 
     assertThat(plan.getServiceAccounts()).hasSize(1);

@@ -1,0 +1,28 @@
+---
+context: "context"
+projects:
+  - name: "foo"
+    ksql:
+      artefacts:
+        streams:
+          - path: "ksql-streams/riderlocations.sql"
+            name: "riderLocations"
+          - path: "ksql-streams/orders.sql"
+            name: "ordersStream"
+        tables:
+          - path: "ksql-tables/users.sql"
+            name: "users"
+          - path: "ksql-tables/moreOrders.sql"
+            name: "moreOrders"
+      access_control:
+        - principal: "User:ksql0"
+          topics:
+            read:
+              - "topicA"
+            write:
+              - "topicC"
+    topics:
+      - name: "foo"
+        config:
+          replication.factor: "1"
+          num.partitions: "1"

@@ -4,6 +4,7 @@ import com.purbon.kafka.topology.clients.ArtefactClient;
 import com.purbon.kafka.topology.model.Artefact;
 import com.purbon.kafka.topology.model.Project;
 import com.purbon.kafka.topology.model.Topology;
+import com.purbon.kafka.topology.model.artefact.KsqlArtefact;
 import com.purbon.kafka.topology.model.artefact.KsqlArtefacts;
 import com.purbon.kafka.topology.model.artefact.KsqlStreamArtefact;
 import com.purbon.kafka.topology.model.artefact.KsqlTableArtefact;
@@ -13,11 +14,16 @@ import java.io.IOException;
 import java.io.PrintStream;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.Arrays;
 import java.util.Collection;
+import java.util.HashMap;
+import java.util.LinkedHashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
+import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -44,6 +50,37 @@ public class KSqlArtefactManager extends ArtefactManager {
   Collection<? extends Artefact> loadActualClusterStateIfAvailable(ExecutionPlan plan)
       throws IOException {
     return config.fetchStateFromTheCluster() ? getClustersState() : plan.getKSqlArtefacts();
+  }
+
+  @Override
+  protected List<? extends Artefact> findArtefactsToBeDeleted(
+      Collection<? extends Artefact> currentArtefacts, Set<Artefact> artefacts) {
+
+    var artefactsList =
+        currentArtefacts.stream()
+            .filter(a -> !artefacts.contains(a))
+            .sorted((o1, o2) -> -1 * ((KsqlArtefact) o1).compareTo((KsqlArtefact) o2))
+            .collect(Collectors.toCollection(LinkedList::new));
+
+    Map<String, LinkedList<KsqlArtefact>> artefactsMap = new HashMap<>();
+    artefactsMap.put("table", new LinkedList<>());
+    artefactsMap.put("stream", new LinkedList<>());
+
+    artefactsList.forEach(
+        (Consumer<Artefact>)
+            artefact -> {
+              if (artefact instanceof KsqlTableArtefact) {
+                artefactsMap.get("table").add((KsqlArtefact) artefact);
+              } else {
+                artefactsMap.get("stream").add((KsqlArtefact) artefact);
+              }
+            });
+
+    LinkedList<KsqlArtefact> toDeleteArtefactsList = new LinkedList<>();
+    for (String key : Arrays.asList("table", "stream")) {
+      artefactsMap.get(key).descendingIterator().forEachRemaining(toDeleteArtefactsList::add);
+    }
+    return toDeleteArtefactsList;
   }
 
   private Collection<? extends Artefact> getClustersState() throws IOException {
@@ -84,15 +121,9 @@ public class KSqlArtefactManager extends ArtefactManager {
         .map(
             artefact -> {
               if (artefact instanceof KsqlStreamArtefact) {
-                return new KsqlStreamArtefact(
-                    artefact.getPath(),
-                    null,
-                    artefact.getName());
+                return new KsqlStreamArtefact(artefact.getPath(), null, artefact.getName());
               } else if (artefact instanceof KsqlTableArtefact) {
-                return new KsqlTableArtefact(
-                    artefact.getPath(),
-                    null,
-                    artefact.getName());
+                return new KsqlTableArtefact(artefact.getPath(), null, artefact.getName());
               } else {
                 LOGGER.error("KSQL Artefact of wrong type " + artefact.getClass());
                 return null;
@@ -111,7 +142,8 @@ public class KSqlArtefactManager extends ArtefactManager {
                   KsqlArtefacts kSql = project.getKsqlArtefacts();
                   return Stream.concat(kSql.getStreams().stream(), kSql.getTables().stream());
                 })
-        .collect(Collectors.toSet());
+        .sorted()
+        .collect(Collectors.toCollection(LinkedHashSet::new));
   }
 
   @Override

@@ -7,11 +7,10 @@ import static org.mockito.Mockito.verify;
 
 import com.purbon.kafka.topology.actions.access.ClearBindings;
 import com.purbon.kafka.topology.actions.access.CreateBindings;
+import com.purbon.kafka.topology.actions.topics.CreateTopicAction;
 import com.purbon.kafka.topology.actions.topics.DeleteTopics;
-import com.purbon.kafka.topology.actions.topics.SyncTopicAction;
 import com.purbon.kafka.topology.api.adminclient.TopologyBuilderAdminClient;
 import com.purbon.kafka.topology.model.Impl.ProjectImpl;
-import com.purbon.kafka.topology.model.Impl.TopicImpl;
 import com.purbon.kafka.topology.model.Impl.TopologyImpl;
 import com.purbon.kafka.topology.model.Project;
 import com.purbon.kafka.topology.model.Topic;
@@ -118,13 +117,11 @@ public class ExecutionPlanTest {
     Topic topicBar = topology.getProjects().get(0).getTopics().get(1);
     Set<String> listOfTopics = new HashSet<>();
 
-    SyncTopicAction addTopicAction1 =
-        new SyncTopicAction(
-            adminClient, schemaRegistryManager, topicFoo, topicFoo.toString(), listOfTopics);
+    CreateTopicAction addTopicAction1 =
+        new CreateTopicAction(adminClient, topicFoo, topicFoo.toString());
 
-    SyncTopicAction addTopicAction2 =
-        new SyncTopicAction(
-            adminClient, schemaRegistryManager, topicBar, topicBar.toString(), listOfTopics);
+    CreateTopicAction addTopicAction2 =
+        new CreateTopicAction(adminClient, topicBar, topicBar.toString());
 
     plan.add(addTopicAction1);
     plan.add(addTopicAction2);
@@ -143,13 +140,11 @@ public class ExecutionPlanTest {
     Topic topicBar = topology.getProjects().get(0).getTopics().get(1);
     Set<String> listOfTopics = new HashSet<>();
 
-    SyncTopicAction addTopicAction1 =
-        new SyncTopicAction(
-            adminClient, schemaRegistryManager, topicFoo, topicFoo.toString(), listOfTopics);
+    CreateTopicAction addTopicAction1 =
+        new CreateTopicAction(adminClient, topicFoo, topicFoo.toString());
 
-    SyncTopicAction addTopicAction2 =
-        new SyncTopicAction(
-            adminClient, schemaRegistryManager, topicBar, topicBar.toString(), listOfTopics);
+    CreateTopicAction addTopicAction2 =
+        new CreateTopicAction(adminClient, topicBar, topicBar.toString());
 
     plan.add(addTopicAction1);
     plan.add(addTopicAction2);
@@ -179,8 +174,8 @@ public class ExecutionPlanTest {
     Project project = new ProjectImpl("project");
     topology.setProjects(singletonList(project));
 
-    Topic topic = new TopicImpl("foo");
-    Topic topicBar = new TopicImpl("bar");
+    Topic topic = new Topic("foo");
+    Topic topicBar = new Topic("bar");
     project.setTopics(Arrays.asList(topic, topicBar));
     return topology;
   }
