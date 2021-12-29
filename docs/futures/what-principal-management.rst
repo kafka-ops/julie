@@ -8,7 +8,7 @@ How does it work
 -----------
 
 This feature is not enabled by default, if the reader is interested in managing as well principals it would be required to use the config property
-_julieops.enable.principal.management_.
+_julie.enable.principal.management_.
 
 .. code-block:: bash
 
