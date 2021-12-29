@@ -12,5 +12,5 @@ public interface PrincipalProvider {
 
   ServiceAccount createServiceAccount(String principal, String description) throws IOException;
 
-  void deleteServiceAccount(String principal) throws IOException;
+  void deleteServiceAccount(ServiceAccount serviceAccount) throws IOException;
 }
