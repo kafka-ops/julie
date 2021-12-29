@@ -25,7 +25,7 @@ public class VoidPrincipalProvider implements PrincipalProvider {
   }
 
   @Override
-  public void deleteServiceAccount(String principal) throws IOException {
+  public void deleteServiceAccount(ServiceAccount serviceAccount) throws IOException {
     throw new IOException("Not implemented!!");
   }
 }

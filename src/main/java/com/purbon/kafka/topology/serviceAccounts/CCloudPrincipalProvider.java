@@ -34,7 +34,7 @@ public class CCloudPrincipalProvider implements PrincipalProvider {
   }
 
   @Override
-  public void deleteServiceAccount(String principal) throws IOException {
-    cCloudApi.deleteServiceAccount(principal);
+  public void deleteServiceAccount(ServiceAccount serviceAccount) throws IOException {
+    cCloudApi.deleteServiceAccount(serviceAccount.getId());
   }
 }

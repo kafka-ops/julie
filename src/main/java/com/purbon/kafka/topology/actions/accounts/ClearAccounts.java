@@ -20,7 +20,7 @@ public class ClearAccounts extends BaseAccountsAction {
   public void run() throws IOException {
     LOGGER.debug("ClearPrincipals " + accounts);
     for (ServiceAccount account : accounts) {
-      provider.deleteServiceAccount(account.getName());
+      provider.deleteServiceAccount(account);
     }
   }
 }
