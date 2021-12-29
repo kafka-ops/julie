@@ -85,8 +85,9 @@ public class CCloudApi {
 
   public ServiceAccount createServiceAccount(String sa, String description) throws IOException {
     var request = new ServiceAccountRequest(sa, description);
-    String responseBody =
-        ccloudApiHttpClient.doPost(V2_IAM_SERVICE_ACCOUNTS_URL, JSON.asString(request));
+    var requestJson = JSON.asString(request);
+    LOGGER.debug("createServiceAccount request=" + requestJson);
+    String responseBody = ccloudApiHttpClient.doPost(V2_IAM_SERVICE_ACCOUNTS_URL, requestJson);
 
     ServiceAccountResponse response =
         (ServiceAccountResponse) JSON.toObject(responseBody, ServiceAccountResponse.class);
