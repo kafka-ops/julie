@@ -3,6 +3,7 @@ package com.purbon.kafka.topology.api.ccloud;
 import com.purbon.kafka.topology.Configuration;
 import com.purbon.kafka.topology.api.ccloud.requests.KafkaAclRequest;
 import com.purbon.kafka.topology.api.ccloud.requests.ServiceAccountRequest;
+import com.purbon.kafka.topology.api.ccloud.response.KafkaAclListResponse;
 import com.purbon.kafka.topology.api.ccloud.response.ListServiceAccountResponse;
 import com.purbon.kafka.topology.api.ccloud.response.ServiceAccountResponse;
 import com.purbon.kafka.topology.api.mds.Response;
@@ -12,8 +13,10 @@ import com.purbon.kafka.topology.roles.TopologyAclBinding;
 import com.purbon.kafka.topology.utils.JSON;
 import java.io.IOException;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -50,10 +53,20 @@ public class CCloudApi {
   }
 
   public void deleteAcls(String clusterId, TopologyAclBinding binding) throws IOException {
-    String url =
-        String.format("%s/kafka/v3/clusters/%s/acls", clusterHttpClient.baseUrl(), clusterId);
-    KafkaAclRequest request = new KafkaAclRequest(binding, url);
+    String url = String.format("/kafka/v3/clusters/%s/acls", clusterId);
+    KafkaAclRequest request =
+        new KafkaAclRequest(binding, String.format("%s%s", clusterHttpClient.baseUrl(), url));
     clusterHttpClient.doDelete(request.deleteUrl());
+  }
+
+  public List<TopologyAclBinding> listAcls(String clusterId) throws IOException {
+    String url = String.format("/kafka/v3/clusters/%s/acls", clusterId);
+
+    Response rawResponse = clusterHttpClient.doGet(url);
+    KafkaAclListResponse response =
+        (KafkaAclListResponse)
+            JSON.toObject(rawResponse.getResponseAsString(), KafkaAclListResponse.class);
+    return response.getData().stream().map(TopologyAclBinding::new).collect(Collectors.toList());
   }
 
   public ServiceAccount createServiceAccount(String sa) throws IOException {

@@ -5,7 +5,9 @@ import com.purbon.kafka.topology.Configuration;
 import com.purbon.kafka.topology.api.adminclient.TopologyBuilderAdminClient;
 import com.purbon.kafka.topology.api.ccloud.CCloudApi;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -42,6 +44,19 @@ public class CCloudAclsProvider extends SimpleAclsProvider implements AccessCont
 
   @Override
   public Map<String, List<TopologyAclBinding>> listAcls() {
-    return Collections.emptyMap();
+    try {
+      Map<String, List<TopologyAclBinding>> bindings = new HashMap<>();
+      for (TopologyAclBinding binding : cli.listAcls(clusterId)) {
+        String resourceName = binding.getResourceName();
+        if (!bindings.containsKey(resourceName)) {
+          bindings.put(resourceName, new ArrayList<>());
+        }
+        bindings.get(resourceName).add(binding);
+      }
+      return bindings;
+    } catch (IOException e) {
+      LOGGER.warn(e);
+      return Collections.emptyMap();
+    }
   }
 }

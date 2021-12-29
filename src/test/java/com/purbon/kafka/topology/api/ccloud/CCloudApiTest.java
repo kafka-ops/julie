@@ -1,6 +1,8 @@
 package com.purbon.kafka.topology.api.ccloud;
 
 import static com.purbon.kafka.topology.CommandLineInterface.BROKERS_OPTION;
+import static com.purbon.kafka.topology.Constants.CCLOUD_CLOUD_API_KEY;
+import static com.purbon.kafka.topology.Constants.CCLOUD_CLOUD_API_SECRET;
 import static com.purbon.kafka.topology.Constants.CCLOUD_CLUSTER_API_KEY;
 import static com.purbon.kafka.topology.Constants.CCLOUD_CLUSTER_API_SECRET;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -39,7 +41,8 @@ public class CCloudApiTest {
     Properties props = new Properties();
     props.put(CCLOUD_CLUSTER_API_KEY, "apiKey");
     props.put(CCLOUD_CLUSTER_API_SECRET, "apiSecret");
-
+    props.put(CCLOUD_CLOUD_API_KEY, "apiKey");
+    props.put(CCLOUD_CLOUD_API_SECRET, "apiSecret");
     config = new Configuration(cliOps, props);
 
     when(httpClient.baseUrl()).thenReturn("http://not.valid:9999");

@@ -1,6 +1,7 @@
 package com.purbon.kafka.topology.roles;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.purbon.kafka.topology.api.ccloud.response.KafkaAclResponse;
 import com.purbon.kafka.topology.api.mds.RequestScope;
 import java.util.Objects;
 import java.util.Optional;
@@ -87,6 +88,16 @@ public class TopologyAclBinding implements Comparable<TopologyAclBinding> {
     this.operation = entry.operation().name();
     this.pattern = pattern.patternType().name();
     this.host = entry.host();
+  }
+
+  public TopologyAclBinding(KafkaAclResponse kafkaAclResponse) {
+    this.resourceName = kafkaAclResponse.getResource_name();
+    this.resourceType = kafkaAclResponse.getResource_type();
+    this.host = kafkaAclResponse.getHost();
+    this.operation = kafkaAclResponse.getOperation();
+    this.principal = kafkaAclResponse.getPrincipal();
+    this.pattern = kafkaAclResponse.getPattern_type();
+    this.operation = kafkaAclResponse.getOperation();
   }
 
   public Optional<AclBinding> asAclBinding() {
