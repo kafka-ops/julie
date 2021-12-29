@@ -574,9 +574,15 @@ public class Configuration {
     return config.getInt(JULIE_KAFKA_CONSUMER_RETRIES);
   }
 
-  public BasicAuth getConfluentCloudAuth() {
-    var user = config.getString(CCLOUD_API_KEY);
-    var pass = config.getString(CCLOUD_API_SECRET);
+  public BasicAuth getConfluentCloudClusterAuth() {
+    var user = config.getString(CCLOUD_CLUSTER_API_KEY);
+    var pass = config.getString(CCLOUD_CLUSTER_API_SECRET);
+    return new BasicAuth(user, pass);
+  }
+
+  public BasicAuth getConfluentCloudCloudApiAuth() {
+    var user = config.getString(CCLOUD_CLOUD_API_KEY);
+    var pass = config.getString(CCLOUD_CLOUD_API_SECRET);
     return new BasicAuth(user, pass);
   }
 

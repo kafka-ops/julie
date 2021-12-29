@@ -1,8 +1,8 @@
 package com.purbon.kafka.topology.api.ccloud;
 
 import static com.purbon.kafka.topology.CommandLineInterface.BROKERS_OPTION;
-import static com.purbon.kafka.topology.Constants.CCLOUD_API_KEY;
-import static com.purbon.kafka.topology.Constants.CCLOUD_API_SECRET;
+import static com.purbon.kafka.topology.Constants.CCLOUD_CLUSTER_API_KEY;
+import static com.purbon.kafka.topology.Constants.CCLOUD_CLUSTER_API_SECRET;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -14,6 +14,7 @@ import com.purbon.kafka.topology.roles.TopologyAclBinding;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Properties;
 import org.junit.Before;
 import org.junit.Rule;
@@ -36,13 +37,13 @@ public class CCloudApiTest {
     Map<String, String> cliOps = new HashMap<>();
     cliOps.put(BROKERS_OPTION, "");
     Properties props = new Properties();
-    props.put(CCLOUD_API_KEY, "apiKey");
-    props.put(CCLOUD_API_SECRET, "apiSecret");
+    props.put(CCLOUD_CLUSTER_API_KEY, "apiKey");
+    props.put(CCLOUD_CLUSTER_API_SECRET, "apiSecret");
 
     config = new Configuration(cliOps, props);
 
     when(httpClient.baseUrl()).thenReturn("http://not.valid:9999");
-    apiClient = new CCloudApi(httpClient, config);
+    apiClient = new CCloudApi(httpClient, Optional.of(httpClient), config);
   }
 
   @Test
@@ -54,9 +55,7 @@ public class CCloudApiTest {
     apiClient.createAcl("clusterId", binding);
     var body =
         "{\"principal\":\"User:foo\","
-            + "\"metadata\":{\"self\":\"http://not.valid:9999/kafka/v3/clusters/clusterId/acls?principal=User:foo&pattern_type=LITERAL&kind=KafkaAcl&resource_type=TOPIC&host=*&permission=ALLOW&resource_name=foo&operation=ALL\"},"
             + "\"pattern_type\":\"LITERAL\","
-            + "\"kind\":\"KafkaAcl\","
             + "\"resource_type\":\"TOPIC\","
             + "\"host\":\"*\",\"permission\":\"ALLOW\","
             + "\"resource_name\":\"foo\","
@@ -81,7 +80,7 @@ public class CCloudApiTest {
 
     var principal = "User:foo";
 
-    var url = "https://api.confluent.cloud/iam/v2/service-accounts";
+    var url = "/iam/v2/service-accounts";
     var body = "{\"description\":\"Managed by JulieOps\",\"display_name\":\"" + principal + "\"}";
     var createResponse =
         "{\n"
@@ -113,7 +112,7 @@ public class CCloudApiTest {
   public void testDeleteServiceAccount() throws IOException {
     var sa = "User:foo";
     apiClient.deleteServiceAccount(sa);
-    var url = "https://api.confluent.cloud/iam/v2/service-accounts/User:foo";
+    var url = "/iam/v2/service-accounts/User:foo";
     verify(httpClient, times(1)).doDelete(url);
   }
 }

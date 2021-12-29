@@ -3,7 +3,6 @@ package com.purbon.kafka.topology.api.ccloud.requests;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.purbon.kafka.topology.roles.TopologyAclBinding;
 import com.purbon.kafka.topology.utils.JSON;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -30,7 +29,6 @@ public class KafkaAclRequest implements CCloudRequest {
 
   private Map<String, Object> asMap() {
     Map<String, Object> request = new HashMap<>();
-    request.put("kind", "KafkaAcl");
     request.put("resource_type", binding.getResourceType());
     request.put("resource_name", binding.getResourceName());
     request.put("pattern_type", binding.getPattern());
@@ -39,10 +37,6 @@ public class KafkaAclRequest implements CCloudRequest {
     request.put("operation", binding.getOperation());
     request.put("permission", "ALLOW");
     return request;
-  }
-
-  private String urlParams() {
-    return urlParams(asMap());
   }
 
   private String urlParams(Map<String, Object> props) {
@@ -54,10 +48,6 @@ public class KafkaAclRequest implements CCloudRequest {
   @Override
   public String asJson() {
     var request = asMap();
-    var urlParams = urlParams(request);
-
-    request.put(
-        "metadata", Collections.singletonMap("self", String.format("%s?%s", url, urlParams)));
 
     try {
       return JSON.asString(request);

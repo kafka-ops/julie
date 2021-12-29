@@ -75,8 +75,10 @@ public class Constants {
   public static final String ALLOW_DELETE_KSQL_ARTEFACTS = "allow.delete.artefacts.ksql";
 
   public static final String CCLOUD_ENV_CONFIG = "ccloud.environment";
-  public static final String CCLOUD_API_KEY = "ccloud.api.key";
-  public static final String CCLOUD_API_SECRET = "ccloud.api.secret";
+  public static final String CCLOUD_CLUSTER_API_KEY = "ccloud.cluster.api.key";
+  public static final String CCLOUD_CLUSTER_API_SECRET = "ccloud.cluster.api.secret";
+  public static final String CCLOUD_CLOUD_API_KEY = "ccloud.cloud.api.key";
+  public static final String CCLOUD_CLOUD_API_SECRET = "ccloud.cloud.api.secret";
   public static final String CCLOUD_KAFKA_CLUSTER_ID_CONFIG =
       "topology.builder.ccloud.kafka.cluster.id";
   public static final String CCLOUD_CLUSTER_URL = "ccloud.cluster.url";
