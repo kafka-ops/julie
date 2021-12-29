@@ -64,7 +64,7 @@ public class PrincipalManagerTest {
     cliOps.put(BROKERS_OPTION, "");
     props = new Properties();
 
-    props.put(TOPOLOGY_EXPERIMENTAL_ENABLED_CONFIG, "true");
+    props.put(JULIE_ENABLE_PRINCIPAL_MANAGEMENT, "true");
     props.put(TOPOLOGY_STATE_FROM_CLUSTER, "false");
     props.put(ALLOW_DELETE_PRINCIPALS, true);
 
@@ -181,7 +181,7 @@ public class PrincipalManagerTest {
 
   @Test
   public void testNotRunIfConfigNotExperimental() throws IOException {
-    props.put(TOPOLOGY_EXPERIMENTAL_ENABLED_CONFIG, "false");
+    props.put(JULIE_ENABLE_PRINCIPAL_MANAGEMENT, "false");
 
     config = new Configuration(cliOps, props);
     principalUpdateManager = new PrincipalUpdateManager(provider, config);

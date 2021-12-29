@@ -74,7 +74,8 @@ public class Constants {
   public static final String ALLOW_DELETE_CONNECT_ARTEFACTS = "allow.delete.artefacts.connect";
   public static final String ALLOW_DELETE_KSQL_ARTEFACTS = "allow.delete.artefacts.ksql";
 
-  public static final String ENABLE_PRINCIPAL_MANAGEMENT = "julie.enable.principal.management";
+  public static final String JULIE_ENABLE_PRINCIPAL_MANAGEMENT =
+      "julie.enable.principal.management";
 
   public static final String CCLOUD_ENV_CONFIG = "ccloud.environment";
   public static final String CCLOUD_CLUSTER_API_KEY = "ccloud.cluster.api.key";
