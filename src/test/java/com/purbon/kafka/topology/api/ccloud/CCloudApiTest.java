@@ -54,12 +54,14 @@ public class CCloudApiTest {
 
     apiClient.createAcl("clusterId", binding);
     var body =
-        "{\"principal\":\"User:foo\","
-            + "\"pattern_type\":\"LITERAL\","
-            + "\"resource_type\":\"TOPIC\","
-            + "\"host\":\"*\",\"permission\":\"ALLOW\","
+        "{\"resource_type\":\"TOPIC\","
             + "\"resource_name\":\"foo\","
-            + "\"operation\":\"ALL\"}";
+            + "\"pattern_type\":\"LITERAL\","
+            + "\"principal\":\"User:foo\","
+            + "\"host\":\"*\","
+            + "\"operation\":\"ALL\","
+            + "\"permission\":\"ALLOW\"}";
+
     verify(httpClient, times(1)).doPost("/kafka/v3/clusters/clusterId/acls", body);
   }
 
@@ -81,7 +83,7 @@ public class CCloudApiTest {
     var principal = "User:foo";
 
     var url = "/iam/v2/service-accounts";
-    var body = "{\"description\":\"" + MANAGED_BY + "\",\"display_name\":\"" + principal + "\"}";
+    var body = "{\"display_name\":\"" + principal + "\",\"description\":\"" + MANAGED_BY + "\"}";
     var createResponse =
         "{\n"
             + "  \"api_version\": \"iam/v2\",\n"

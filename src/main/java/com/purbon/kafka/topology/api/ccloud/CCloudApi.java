@@ -55,7 +55,7 @@ public class CCloudApi {
     String url = String.format(V3_KAFKA_CLUSTER_ACL_PATTERN, clusterId);
     var request =
         new KafkaAclRequest(binding, String.format("%s%s", clusterHttpClient.baseUrl(), url));
-    clusterHttpClient.doPost(url, request.asJson());
+    clusterHttpClient.doPost(url, JSON.asString(request));
   }
 
   public void deleteAcls(String clusterId, TopologyAclBinding binding) throws IOException {
@@ -85,7 +85,8 @@ public class CCloudApi {
 
   public ServiceAccount createServiceAccount(String sa, String description) throws IOException {
     var request = new ServiceAccountRequest(sa, description);
-    String responseBody = ccloudApiHttpClient.doPost(V2_IAM_SERVICE_ACCOUNTS_URL, request.asJson());
+    String responseBody =
+        ccloudApiHttpClient.doPost(V2_IAM_SERVICE_ACCOUNTS_URL, JSON.asString(request));
 
     ServiceAccountResponse response =
         (ServiceAccountResponse) JSON.toObject(responseBody, ServiceAccountResponse.class);
