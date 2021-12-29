@@ -1,11 +1,10 @@
 package com.purbon.kafka.topology.utils;
 
-import com.fasterxml.jackson.annotation.JsonAutoDetect;
-import com.fasterxml.jackson.annotation.PropertyAccessor;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.type.CollectionType;
 import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
+
 import java.util.List;
 import java.util.Map;
 
@@ -17,7 +16,6 @@ public class JSON {
     mapper = new ObjectMapper();
     mapper.registerModule(new Jdk8Module());
     mapper.findAndRegisterModules();
-    mapper.setVisibility(PropertyAccessor.FIELD, JsonAutoDetect.Visibility.ANY);
   }
 
   public static Map<String, Object> toMap(String jsonString) throws JsonProcessingException {
