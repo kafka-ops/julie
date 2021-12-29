@@ -247,7 +247,7 @@ public class JulieOps implements AutoCloseable {
     // avoids any unlinked acls, e.g. if acl delete or something errors then there is a link still
     // from the account, and can be re-run or manually fixed more easily
     for (Topology topology : topologies.values()) {
-      principalUpdateManager.updatePlan(topology, plan);
+      principalDeleteManager.updatePlan(topology, plan);
     }
 
     plan.run(config.isDryRun());
