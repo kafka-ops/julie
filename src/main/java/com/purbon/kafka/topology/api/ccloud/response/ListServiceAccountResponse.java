@@ -8,7 +8,7 @@ import lombok.Setter;
 @Getter
 @Setter
 @NoArgsConstructor
-public class ListServiceAccountResponse implements CCloudResponse {
+public class ListServiceAccountResponse {
 
   private String api_version;
   private String kind;
