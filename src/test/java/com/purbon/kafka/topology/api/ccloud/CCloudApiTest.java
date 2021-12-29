@@ -1,10 +1,7 @@
 package com.purbon.kafka.topology.api.ccloud;
 
 import static com.purbon.kafka.topology.CommandLineInterface.BROKERS_OPTION;
-import static com.purbon.kafka.topology.Constants.CCLOUD_CLOUD_API_KEY;
-import static com.purbon.kafka.topology.Constants.CCLOUD_CLOUD_API_SECRET;
-import static com.purbon.kafka.topology.Constants.CCLOUD_CLUSTER_API_KEY;
-import static com.purbon.kafka.topology.Constants.CCLOUD_CLUSTER_API_SECRET;
+import static com.purbon.kafka.topology.Constants.*;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -84,7 +81,7 @@ public class CCloudApiTest {
     var principal = "User:foo";
 
     var url = "/iam/v2/service-accounts";
-    var body = "{\"description\":\"Managed by JulieOps\",\"display_name\":\"" + principal + "\"}";
+    var body = "{\"description\":\"" + MANAGED_BY + "\",\"display_name\":\"" + principal + "\"}";
     var createResponse =
         "{\n"
             + "  \"api_version\": \"iam/v2\",\n"
@@ -100,7 +97,9 @@ public class CCloudApiTest {
             + "  \"display_name\": \""
             + principal
             + "\",\n"
-            + "  \"description\": \"Managed by JulieOps\"\n"
+            + "  \"description\": \""
+            + MANAGED_BY
+            + "\"\n"
             + "}";
 
     when(httpClient.doPost(url, body)).thenReturn(createResponse);
@@ -108,7 +107,7 @@ public class CCloudApiTest {
     var sa = apiClient.createServiceAccount(principal);
     verify(httpClient, times(1)).doPost(url, body);
     assertThat(sa.getName()).isEqualTo(principal);
-    assertThat(sa.getDescription()).isEqualTo("Managed by JulieOps");
+    assertThat(sa.getDescription()).isEqualTo(MANAGED_BY);
   }
 
   @Test

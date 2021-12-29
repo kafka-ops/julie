@@ -146,4 +146,6 @@ public class Constants {
   public static final String JULIE_KAFKA_CONSUMER_GROUP_ID = "julie.kafka.consumer.group.id";
   public static final String JULIE_KAFKA_CONSUMER_RETRIES = "julie.kafka.consumer.retries";
   public static final String JULIE_INSTANCE_ID = "julie.instance.id";
+
+  public static final String MANAGED_BY = "Managed by JulieOps";
 }

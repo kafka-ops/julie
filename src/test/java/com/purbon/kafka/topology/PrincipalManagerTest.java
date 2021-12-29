@@ -93,8 +93,8 @@ public class PrincipalManagerTest {
     Set<ServiceAccount> accounts =
         new HashSet<>(
             Arrays.asList(
-                new ServiceAccount("-1", "consumer-principal", "Managed by JulieOps"),
-                new ServiceAccount("-1", "producer-principal", "Managed by JulieOps")));
+                new ServiceAccount("-1", "consumer-principal", MANAGED_BY),
+                new ServiceAccount("-1", "producer-principal", MANAGED_BY)));
 
     assertThat(plan.getActions()).hasSize(1);
     assertThat(plan.getActions()).containsAnyOf(new CreateAccounts(provider, accounts));
@@ -122,8 +122,8 @@ public class PrincipalManagerTest {
     Set<ServiceAccount> accounts =
         new HashSet<>(
             Arrays.asList(
-                new ServiceAccount("-1", "topicConsumer-principal", "Managed by JulieOps"),
-                new ServiceAccount("-1", "topicProducer-principal", "Managed by JulieOps")));
+                new ServiceAccount("-1", "topicConsumer-principal", MANAGED_BY),
+                new ServiceAccount("-1", "topicProducer-principal", MANAGED_BY)));
 
     assertThat(plan.getActions()).hasSize(1);
     assertThat(plan.getActions()).containsAnyOf(new CreateAccounts(provider, accounts));
@@ -142,13 +142,13 @@ public class PrincipalManagerTest {
 
     doNothing().when(provider).configure();
 
-    doReturn(new ServiceAccount("123", "consumer", "Managed by JulieOps"))
+    doReturn(new ServiceAccount("123", "consumer", MANAGED_BY))
         .when(provider)
-        .createServiceAccount(eq("consumer"), eq("Managed by JulieOps"));
+        .createServiceAccount(eq("consumer"), eq(MANAGED_BY));
 
-    doReturn(new ServiceAccount("124", "producer", "Managed by JulieOps"))
+    doReturn(new ServiceAccount("124", "producer", MANAGED_BY))
         .when(provider)
-        .createServiceAccount(eq("producer"), eq("Managed by JulieOps"));
+        .createServiceAccount(eq("producer"), eq(MANAGED_BY));
 
     principalUpdateManager.updatePlan(topology, plan);
     principalDeleteManager.updatePlan(topology, plan);
@@ -167,7 +167,7 @@ public class PrincipalManagerTest {
     principalDeleteManager.updatePlan(topology, plan);
 
     Collection<ServiceAccount> accounts =
-        Arrays.asList(new ServiceAccount("124", "producer", "Managed by KTB"));
+        Arrays.asList(new ServiceAccount("124", "producer", MANAGED_BY));
 
     assertThat(plan.getActions()).hasSize(1);
     assertThat(plan.getActions()).containsAnyOf(new ClearAccounts(provider, accounts));
@@ -176,7 +176,7 @@ public class PrincipalManagerTest {
 
     assertThat(plan.getServiceAccounts()).hasSize(1);
     assertThat(plan.getServiceAccounts())
-        .contains(new ServiceAccount("123", "consumer", "Managed by KTB"));
+        .contains(new ServiceAccount("123", "consumer", MANAGED_BY));
   }
 
   @Test
@@ -214,13 +214,13 @@ public class PrincipalManagerTest {
 
     doNothing().when(provider).configure();
 
-    doReturn(new ServiceAccount("123", "consumer", "Managed by KTB"))
+    doReturn(new ServiceAccount("123", "consumer", MANAGED_BY))
         .when(provider)
-        .createServiceAccount(eq("consumer"), eq("Managed by KTB"));
+        .createServiceAccount(eq("consumer"), eq(MANAGED_BY));
 
-    doReturn(new ServiceAccount("124", "producer", "Managed by KTB"))
+    doReturn(new ServiceAccount("124", "producer", MANAGED_BY))
         .when(provider)
-        .createServiceAccount(eq("producer"), eq("Managed by KTB"));
+        .createServiceAccount(eq("producer"), eq(MANAGED_BY));
 
     principalUpdateManager.updatePlan(topology, plan);
     principalDeleteManager.updatePlan(topology, plan);

@@ -1,5 +1,7 @@
 package com.purbon.kafka.topology.api.ccloud;
 
+import static com.purbon.kafka.topology.Constants.MANAGED_BY;
+
 import com.purbon.kafka.topology.Configuration;
 import com.purbon.kafka.topology.api.ccloud.requests.KafkaAclRequest;
 import com.purbon.kafka.topology.api.ccloud.requests.ServiceAccountRequest;
@@ -24,10 +26,14 @@ public class CCloudApi {
 
   private static final Logger LOGGER = LogManager.getLogger(CCloudApi.class);
 
+  private static final String V2_IAM_SERVICE_ACCOUNTS_URL = "/iam/v2/service-accounts";
+  private static final String V3_KAFKA_CLUSTER_URL = "/kafka/v3/clusters/";
+
   private JulieHttpClient clusterHttpClient;
   private JulieHttpClient ccloudApiHttpClient;
 
   private String ccloudApiBaseUrl = "https://api.confluent.cloud";
+  private static final String V3_KAFKA_CLUSTER_ACL_PATTERN = V3_KAFKA_CLUSTER_URL + "%s/acls";
 
   public CCloudApi(String baseServerUrl, Configuration config) {
     this(new JulieHttpClient(baseServerUrl, Optional.of(config)), Optional.empty(), config);
@@ -46,20 +52,20 @@ public class CCloudApi {
   }
 
   public void createAcl(String clusterId, TopologyAclBinding binding) throws IOException {
-    String url = String.format("/kafka/v3/clusters/%s/acls", clusterId);
+    String url = String.format(V3_KAFKA_CLUSTER_ACL_PATTERN, clusterId);
     var request =
         new KafkaAclRequest(binding, String.format("%s%s", clusterHttpClient.baseUrl(), url));
     clusterHttpClient.doPost(url, request.asJson());
   }
 
   public void deleteAcls(String clusterId, TopologyAclBinding binding) throws IOException {
-    String url = String.format("/kafka/v3/clusters/%s/acls", clusterId);
+    String url = String.format(V3_KAFKA_CLUSTER_ACL_PATTERN, clusterId);
     KafkaAclRequest request = new KafkaAclRequest(binding, url);
     clusterHttpClient.doDelete(request.deleteUrl());
   }
 
   public List<TopologyAclBinding> listAcls(String clusterId) throws IOException {
-    String url = String.format("/kafka/v3/clusters/%s/acls", clusterId);
+    String url = String.format(V3_KAFKA_CLUSTER_ACL_PATTERN, clusterId);
 
     Response rawResponse = clusterHttpClient.doGet(url);
     KafkaAclListResponse response =
@@ -69,18 +75,17 @@ public class CCloudApi {
   }
 
   public ServiceAccount createServiceAccount(String sa) throws IOException {
-    return createServiceAccount(sa, "Managed by JulieOps");
+    return createServiceAccount(sa, MANAGED_BY);
   }
 
   public void deleteServiceAccount(String sa) throws IOException {
-    String url = String.format("/iam/v2/service-accounts/%s", sa);
+    String url = String.format("%s/%s", V2_IAM_SERVICE_ACCOUNTS_URL, sa);
     ccloudApiHttpClient.doDelete(url);
   }
 
   public ServiceAccount createServiceAccount(String sa, String description) throws IOException {
-    String url = "/iam/v2/service-accounts";
     var request = new ServiceAccountRequest(sa, description);
-    String responseBody = ccloudApiHttpClient.doPost(url, request.asJson());
+    String responseBody = ccloudApiHttpClient.doPost(V2_IAM_SERVICE_ACCOUNTS_URL, request.asJson());
 
     ServiceAccountResponse response =
         (ServiceAccountResponse) JSON.toObject(responseBody, ServiceAccountResponse.class);
@@ -92,7 +97,7 @@ public class CCloudApi {
   }
 
   public Set<ServiceAccount> listServiceAccounts() throws IOException {
-    String url = "/iam/v2/service-accounts";
+    String url = V2_IAM_SERVICE_ACCOUNTS_URL;
     boolean finished;
     Set<ServiceAccount> accounts = new HashSet<>();
 
