@@ -253,18 +253,20 @@ public class RBACBindingsBuilder implements BindingsBuilderProvider {
 
     // Kafka Cluster scope
     List<String> topics =
-        Arrays.asList(
-            ksqlServer.commandTopic(),
-            ksqlServer.processingLogTopic(),
-            ksqlServer.consumerGroupPrefix());
+        Arrays.asList(ksqlServer.processingLogTopic(), ksqlServer.consumerGroupPrefix());
     for (String topic : topics) {
       TopologyAclBinding binding =
           apiClient.bind(ksqlServer.getPrincipal(), RESOURCE_OWNER, topic, LITERAL);
       bindings.add(binding);
     }
-    String resource = String.format("_confluent-ksql-%stransient", clusterId);
+
     TopologyAclBinding binding =
-        apiClient.bind(ksqlServer.getPrincipal(), RESOURCE_OWNER, resource, "Topic", PREFIX);
+        apiClient.bind(
+            ksqlServer.getPrincipal(), RESOURCE_OWNER, ksqlServer.internalTopics(), PREFIX);
+    bindings.add(binding);
+
+    String resource = String.format("_confluent-ksql-%stransient", clusterId);
+    binding = apiClient.bind(ksqlServer.getPrincipal(), RESOURCE_OWNER, resource, "Topic", PREFIX);
     bindings.add(binding);
 
     binding =
