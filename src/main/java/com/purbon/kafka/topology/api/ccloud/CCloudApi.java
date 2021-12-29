@@ -54,8 +54,7 @@ public class CCloudApi {
 
   public void deleteAcls(String clusterId, TopologyAclBinding binding) throws IOException {
     String url = String.format("/kafka/v3/clusters/%s/acls", clusterId);
-    KafkaAclRequest request =
-        new KafkaAclRequest(binding, url);
+    KafkaAclRequest request = new KafkaAclRequest(binding, url);
     clusterHttpClient.doDelete(request.deleteUrl());
   }
 

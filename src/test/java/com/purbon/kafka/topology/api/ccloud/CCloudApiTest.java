@@ -74,7 +74,7 @@ public class CCloudApiTest {
 
     apiClient.deleteAcls("clusterId", binding);
     var url =
-        "http://not.valid:9999/kafka/v3/clusters/clusterId/acls?principal=User:foo&pattern_type=LITERAL&resource_type=TOPIC&host=*&permission=ALLOW&resource_name=foo&operation=ALL";
+        "/kafka/v3/clusters/clusterId/acls?principal=User:foo&pattern_type=LITERAL&resource_type=TOPIC&host=*&permission=ALLOW&resource_name=foo&operation=ALL";
     verify(httpClient, times(1)).doDelete(url);
   }
 
