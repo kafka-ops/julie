@@ -34,7 +34,8 @@ abstract class AbstractPrincipalManager implements ExecutionPlanUpdater {
   public final void updatePlan(ExecutionPlan plan, Map<String, Topology> topologies)
       throws IOException {
     if (!config.enabledPrincipalManagement()) {
-      LOGGER.debug("Not running the PrincipalsManager as this is feature is not enabled by default, please enable if required.");
+      LOGGER.debug(
+          "Not running the PrincipalsManager as this is feature is not enabled by default, please enable if required.");
       return;
     }
     if (provider instanceof VoidPrincipalProvider) {

@@ -595,6 +595,6 @@ public class Configuration {
   }
 
   public Boolean enabledPrincipalManagement() {
-    return config.getBoolean(ENABLE_PRINCIPAL_MANAGEMENT);
+    return config.getBoolean(JULIE_ENABLE_PRINCIPAL_MANAGEMENT);
   }
 }
