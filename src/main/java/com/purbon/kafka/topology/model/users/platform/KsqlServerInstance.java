@@ -19,8 +19,10 @@ public class KsqlServerInstance extends User {
     return owner;
   }
 
-  public String commandTopic() {
-    return String.format("_confluent-ksql-%s_command_topic", ksqlDbId);
+  public String commandTopic() { return String.format("_confluent-ksql-%s_command_topic", ksqlDbId); }
+
+  public String internalTopics() {
+    return String.format("_confluent-ksql-%s", ksqlDbId);
   }
 
   public String processingLogTopic() {

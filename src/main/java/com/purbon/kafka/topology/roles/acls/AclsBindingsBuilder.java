@@ -349,7 +349,7 @@ public class AclsBindingsBuilder implements BindingsBuilderProvider {
 
     bindings.add(
         buildTopicLevelAcl(
-            principal, ksqlServer.commandTopic(), PatternType.LITERAL, AclOperation.ALL));
+            principal, ksqlServer.internalTopics(), PatternType.PREFIXED, AclOperation.ALL));
     bindings.add(
         buildTopicLevelAcl(
             principal, ksqlServer.processingLogTopic(), PatternType.LITERAL, AclOperation.ALL));
