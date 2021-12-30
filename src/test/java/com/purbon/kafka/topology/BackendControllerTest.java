@@ -65,7 +65,7 @@ public class BackendControllerTest {
         TopologyAclBinding.build(
             ResourceType.CLUSTER.name(), "Topic", "host", "op", "principal", "LITERAL");
 
-    ServiceAccount serviceAccount = new ServiceAccount(1, "name", "description");
+    ServiceAccount serviceAccount = new ServiceAccount("1", "name", "description");
 
     backend.addBindings(Collections.singletonList(binding));
     backend.addServiceAccounts(Collections.singleton(serviceAccount));

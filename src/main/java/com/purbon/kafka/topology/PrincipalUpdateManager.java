@@ -1,5 +1,7 @@
 package com.purbon.kafka.topology;
 
+import static com.purbon.kafka.topology.Constants.MANAGED_BY;
+
 import com.purbon.kafka.topology.actions.accounts.CreateAccounts;
 import com.purbon.kafka.topology.model.Topology;
 import com.purbon.kafka.topology.model.cluster.ServiceAccount;
@@ -24,7 +26,7 @@ public class PrincipalUpdateManager extends AbstractPrincipalManager {
     Set<ServiceAccount> principalsToBeCreated =
         principals.stream()
             .filter(wishPrincipal -> !accounts.containsKey(wishPrincipal))
-            .map(principal -> new ServiceAccount(-1, principal, "Managed by KTB"))
+            .map(principal -> new ServiceAccount("-1", principal, MANAGED_BY))
             .collect(Collectors.toSet());
 
     if (!principalsToBeCreated.isEmpty()) {

@@ -256,7 +256,6 @@ public class JulieOps implements AutoCloseable {
       topicManager.printCurrentState(System.out);
       accessControlManager.printCurrentState(System.out);
       principalUpdateManager.printCurrentState(System.out);
-      principalDeleteManager.printCurrentState(System.out);
       connectorManager.printCurrentState(System.out);
       kSqlArtefactManager.printCurrentState(System.out);
     }

@@ -573,4 +573,24 @@ public class Configuration {
   public Integer getKafkaBackendConsumerRetries() {
     return config.getInt(JULIE_KAFKA_CONSUMER_RETRIES);
   }
+
+  public BasicAuth getConfluentCloudClusterAuth() {
+    var user = config.getString(CCLOUD_CLUSTER_API_KEY);
+    var pass = config.getString(CCLOUD_CLUSTER_API_SECRET);
+    return new BasicAuth(user, pass);
+  }
+
+  public BasicAuth getConfluentCloudCloudApiAuth() {
+    var user = config.getString(CCLOUD_CLOUD_API_KEY);
+    var pass = config.getString(CCLOUD_CLOUD_API_SECRET);
+    return new BasicAuth(user, pass);
+  }
+
+  public String getConfluentCloudClusterId() {
+    return config.getString(CCLOUD_KAFKA_CLUSTER_ID_CONFIG);
+  }
+
+  public String getConfluentCloudClusterUrl() {
+    return config.getString(CCLOUD_CLUSTER_URL);
+  }
 }

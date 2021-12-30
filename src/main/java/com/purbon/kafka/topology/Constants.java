@@ -75,6 +75,13 @@ public class Constants {
   public static final String ALLOW_DELETE_KSQL_ARTEFACTS = "allow.delete.artefacts.ksql";
 
   public static final String CCLOUD_ENV_CONFIG = "ccloud.environment";
+  public static final String CCLOUD_CLUSTER_API_KEY = "ccloud.cluster.api.key";
+  public static final String CCLOUD_CLUSTER_API_SECRET = "ccloud.cluster.api.secret";
+  public static final String CCLOUD_CLOUD_API_KEY = "ccloud.cloud.api.key";
+  public static final String CCLOUD_CLOUD_API_SECRET = "ccloud.cloud.api.secret";
+  public static final String CCLOUD_KAFKA_CLUSTER_ID_CONFIG =
+      "topology.builder.ccloud.kafka.cluster.id";
+  public static final String CCLOUD_CLUSTER_URL = "ccloud.cluster.url";
 
   public static final String TOPOLOGY_EXPERIMENTAL_ENABLED_CONFIG =
       "topology.features.experimental";
@@ -139,4 +146,6 @@ public class Constants {
   public static final String JULIE_KAFKA_CONSUMER_GROUP_ID = "julie.kafka.consumer.group.id";
   public static final String JULIE_KAFKA_CONSUMER_RETRIES = "julie.kafka.consumer.retries";
   public static final String JULIE_INSTANCE_ID = "julie.instance.id";
+
+  public static final String MANAGED_BY = "Managed by JulieOps";
 }

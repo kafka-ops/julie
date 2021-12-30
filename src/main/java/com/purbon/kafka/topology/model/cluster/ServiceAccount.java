@@ -2,10 +2,12 @@ package com.purbon.kafka.topology.model.cluster;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.Objects;
+import lombok.Getter;
 
+@Getter
 public class ServiceAccount {
 
-  private int id;
+  private String id;
   private String name;
   private String description;
 
@@ -13,34 +15,18 @@ public class ServiceAccount {
   private String resourceId;
 
   public ServiceAccount() {
-    this(-1, "", "", "");
+    this("", "", "", "");
   }
 
-  public ServiceAccount(int id, String name, String description) {
+  public ServiceAccount(String id, String name, String description) {
     this(id, name, description, "");
   }
 
-  public ServiceAccount(int id, String name, String description, String resourceId) {
+  public ServiceAccount(String id, String name, String description, String resourceId) {
     this.id = id;
     this.name = name;
     this.description = description;
     this.resourceId = resourceId;
-  }
-
-  public int getId() {
-    return id;
-  }
-
-  public String getName() {
-    return name;
-  }
-
-  public String getDescription() {
-    return description;
-  }
-
-  public String getResourceId() {
-    return resourceId;
   }
 
   @Override
