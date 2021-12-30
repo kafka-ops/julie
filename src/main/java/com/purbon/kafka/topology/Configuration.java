@@ -593,4 +593,8 @@ public class Configuration {
   public String getConfluentCloudClusterUrl() {
     return config.getString(CCLOUD_CLUSTER_URL);
   }
+
+  public Boolean enabledPrincipalManagement() {
+    return config.getBoolean(JULIE_ENABLE_PRINCIPAL_MANAGEMENT);
+  }
 }
