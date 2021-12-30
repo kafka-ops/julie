@@ -12,7 +12,7 @@ _julie.enable.principal.management_.
 
 .. code-block:: bash
 
-  julieops.enable.principal.management=true (disabled by default)
+  julie.enable.principal.management=true (disabled by default)
 
 Once enabled, this feature will run in between the TopicManager and the BindingsManager, so right before the Bindings are created all required
 principals are present in the cluster.
