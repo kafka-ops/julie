@@ -14,6 +14,7 @@ import com.purbon.kafka.topology.model.cluster.ServiceAccount;
 import com.purbon.kafka.topology.roles.TopologyAclBinding;
 import com.purbon.kafka.topology.utils.JSON;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
@@ -66,12 +67,17 @@ public class CCloudApi {
 
   public List<TopologyAclBinding> listAcls(String clusterId) throws IOException {
     String url = String.format(V3_KAFKA_CLUSTER_ACL_PATTERN, clusterId);
-
-    Response rawResponse = clusterHttpClient.doGet(url);
-    KafkaAclListResponse response =
-        (KafkaAclListResponse)
-            JSON.toObject(rawResponse.getResponseAsString(), KafkaAclListResponse.class);
-    return response.getData().stream().map(TopologyAclBinding::new).collect(Collectors.toList());
+    List<TopologyAclBinding> acls = new ArrayList<>();
+    do {
+      Response rawResponse = clusterHttpClient.doGet(url);
+      KafkaAclListResponse response =
+          (KafkaAclListResponse)
+              JSON.toObject(rawResponse.getResponseAsString(), KafkaAclListResponse.class);
+      acls.addAll(
+          response.getData().stream().map(TopologyAclBinding::new).collect(Collectors.toList()));
+      url = response.getMetadata().getNext();
+    } while (url != null);
+    return acls;
   }
 
   public ServiceAccount createServiceAccount(String sa) throws IOException {
