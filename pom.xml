@@ -423,7 +423,7 @@
     <maven-failsafe-plugin.version>2.22.2</maven-failsafe-plugin.version>
     <!-- dependencies -->
     <jackson.version>2.12.1</jackson.version>
-    <log4j.version>2.17.0</log4j.version>
+    <log4j.version>2.17.1</log4j.version>
     <zookeeper.version>3.5.7</zookeeper.version>
     <commons.version>1.4</commons.version>
     <mockito.version>3.6.0</mockito.version>
