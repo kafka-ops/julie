@@ -77,9 +77,10 @@ public class CCloudAclsProvider extends SimpleAclsProvider implements AccessCont
 
   private TopologyAclBinding translate(TopologyAclBinding binding) throws IOException {
 
-    LOGGER.info("At the time of this PR, 4 Feb the Confluent Cloud ACL(s) api require to translate " +
-            "Service Account names into ID(s). At some point in time this will not be required anymore, " +
-            "so you can configure this out by using ccloud.service_account.translation.enabled=false (true by default)");
+    LOGGER.info(
+        "At the time of this PR, 4 Feb the Confluent Cloud ACL(s) api require to translate "
+            + "Service Account names into ID(s). At some point in time this will not be required anymore, "
+            + "so you can configure this out by using ccloud.service_account.translation.enabled=false (true by default)");
 
     String principal = binding.getPrincipal();
     Long translatedPrincipalId = lookupServiceAccountId.get(principal);
