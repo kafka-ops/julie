@@ -9,11 +9,14 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+
+import static java.util.Arrays.asList;
 
 public class CCloudAclsProvider extends SimpleAclsProvider implements AccessControlProvider {
 
@@ -82,38 +85,34 @@ public class CCloudAclsProvider extends SimpleAclsProvider implements AccessCont
     Long translatedPrincipalId = lookupServiceAccountId.get(principal);
     if (translatedPrincipalId == null) { // Translation failed, so we can't continue
       throw new IOException(
-          "Translation of principal "
-              + principal
-              + " failed, please review your system configuration");
+              "Translation of principal "
+                      + principal
+                      + " failed, please review your system configuration");
     }
-    String translatedPrincipal = "";
-    if (principal.toLowerCase().startsWith("user")) {
-      LOGGER.debug(
-          "Translating Confluent Cloud principal "
-              + principal
-              + " to User:"
-              + translatedPrincipalId);
-      translatedPrincipal = "User:" + translatedPrincipalId;
-    } else if (principal.toLowerCase().startsWith("group")) {
-      LOGGER.debug(
-          "Translating Confluent Cloud principal "
-              + principal
-              + " to Group:"
-              + translatedPrincipalId);
-      translatedPrincipal = "Group:" + translatedPrincipalId;
-    } else {
-      throw new IOException("Unknown principalType: " + principal);
+    String[] fields = principal.split(":");
+
+    if (!asList("group", "user").contains(fields[0].toLowerCase())) {
+      throw new IOException("Unknown principalType: " + fields[0]);
     }
 
     TopologyAclBinding translatedBinding =
-        TopologyAclBinding.build(
-            binding.getResourceType(),
-            binding.getResourceName(),
-            binding.getHost(),
-            binding.getOperation(),
-            translatedPrincipal,
-            binding.getPattern());
+            TopologyAclBinding.build(
+                    binding.getResourceType(),
+                    binding.getResourceName(),
+                    binding.getHost(),
+                    binding.getOperation(),
+                    mappedPrincipal(fields[0], principal, translatedPrincipalId)
+                    binding.getPattern());
     return translatedBinding;
+  }
+
+  private String mappedPrincipal(String type, String principal, Long translatedPrincipalId) {
+    LOGGER.debug(
+            "Translating Confluent Cloud principal "
+                    + principal
+                    + " to " + type + ":"
+                    + translatedPrincipalId);
+    return type + ":" + translatedPrincipalId;
   }
 
   private Map<String, Long> initializeLookupTable(CCloudApi cli) throws IOException {
