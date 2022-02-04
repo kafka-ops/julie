@@ -101,7 +101,7 @@ public class CCloudAclsProvider extends SimpleAclsProvider implements AccessCont
                     binding.getResourceName(),
                     binding.getHost(),
                     binding.getOperation(),
-                    mappedPrincipal(fields[0], principal, translatedPrincipalId)
+                    mappedPrincipal(fields[0], principal, translatedPrincipalId),
                     binding.getPattern());
     return translatedBinding;
   }
