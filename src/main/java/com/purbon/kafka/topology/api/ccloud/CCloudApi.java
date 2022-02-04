@@ -8,9 +8,11 @@ import com.purbon.kafka.topology.api.ccloud.requests.ServiceAccountRequest;
 import com.purbon.kafka.topology.api.ccloud.response.KafkaAclListResponse;
 import com.purbon.kafka.topology.api.ccloud.response.ListServiceAccountResponse;
 import com.purbon.kafka.topology.api.ccloud.response.ServiceAccountResponse;
+import com.purbon.kafka.topology.api.ccloud.response.ServiceAccountV1Response;
 import com.purbon.kafka.topology.api.mds.Response;
 import com.purbon.kafka.topology.clients.JulieHttpClient;
 import com.purbon.kafka.topology.model.cluster.ServiceAccount;
+import com.purbon.kafka.topology.model.cluster.ServiceAccountV1;
 import com.purbon.kafka.topology.roles.TopologyAclBinding;
 import com.purbon.kafka.topology.utils.JSON;
 import java.io.IOException;
@@ -27,6 +29,7 @@ public class CCloudApi {
 
   private static final Logger LOGGER = LogManager.getLogger(CCloudApi.class);
 
+  private static final String V1_IAM_SERVICE_ACCOUNTS_URL = "/service_accounts";
   private static final String V2_IAM_SERVICE_ACCOUNTS_URL = "/iam/v2/service-accounts";
   private static final String V3_KAFKA_CLUSTER_URL = "/kafka/v3/clusters/";
 
@@ -130,6 +133,21 @@ public class CCloudApi {
     } while (!finished);
 
     return accounts;
+  }
+
+  public Set<ServiceAccountV1> listServiceAccountsV1() throws IOException {
+    Set<ServiceAccountV1> accounts = new HashSet<>();
+    var response = getServiceAccountsV1(V1_IAM_SERVICE_ACCOUNTS_URL);
+    if (response.getError() == null) {
+      accounts = new HashSet<>(response.getUsers());
+    }
+    return accounts;
+  }
+
+  private ServiceAccountV1Response getServiceAccountsV1(String url) throws IOException {
+    Response r = ccloudApiHttpClient.doGet(url);
+    return (ServiceAccountV1Response)
+        JSON.toObject(r.getResponseAsString(), ServiceAccountV1Response.class);
   }
 
   private ListServiceAccountResponse getListServiceAccounts(String url) throws IOException {
