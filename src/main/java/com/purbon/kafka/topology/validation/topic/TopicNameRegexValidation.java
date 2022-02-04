@@ -2,6 +2,7 @@ package com.purbon.kafka.topology.validation.topic;
 
 import static com.purbon.kafka.topology.Constants.TOPOLOGY_VALIDATIONS_TOPIC_NAME_REGEXP;
 
+import com.purbon.kafka.topology.Configuration;
 import com.purbon.kafka.topology.exceptions.ConfigurationException;
 import com.purbon.kafka.topology.exceptions.ValidationException;
 import com.purbon.kafka.topology.model.Topic;
@@ -11,6 +12,9 @@ import com.typesafe.config.ConfigException;
 import com.typesafe.config.ConfigFactory;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
+
+import lombok.NoArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -20,9 +24,11 @@ public class TopicNameRegexValidation implements TopicValidation {
   private static final Logger LOGGER = LogManager.getLogger(TopicNameRegexValidation.class);
 
   private String topicNamePattern;
+  private Configuration config;
 
-  public TopicNameRegexValidation() throws ConfigurationException {
-    this(getTopicNamePatternFromConfig());
+  public TopicNameRegexValidation(Configuration config) throws ConfigurationException {
+    this(getTopicNamePatternFromConfig(config));
+    this.config = config;
   }
 
   public TopicNameRegexValidation(String pattern) throws ConfigurationException {
@@ -42,10 +48,9 @@ public class TopicNameRegexValidation implements TopicValidation {
     }
   }
 
-  private static String getTopicNamePatternFromConfig() throws ConfigurationException {
-    Config config = ConfigFactory.load();
+  private static String getTopicNamePatternFromConfig(Configuration config) throws ConfigurationException {
     try {
-      return config.getString(TOPOLOGY_VALIDATIONS_TOPIC_NAME_REGEXP);
+      return config.getProperty(TOPOLOGY_VALIDATIONS_TOPIC_NAME_REGEXP);
     } catch (ConfigException e) {
       String msg =
           String.format(

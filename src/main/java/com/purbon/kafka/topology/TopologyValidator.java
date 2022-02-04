@@ -88,8 +88,8 @@ public class TopologyValidator {
                           validationClass));
                 }
 
-                Constructor<?> constructor = clazz.getConstructor();
-                Object instance = constructor.newInstance();
+                Constructor<?> constructor = clazz.getConstructor(Configuration.class);
+                Object instance = constructor.newInstance(config);
                 if (instance instanceof TopologyValidation) {
                   return (TopologyValidation) instance;
                 } else if (instance instanceof TopicValidation) {

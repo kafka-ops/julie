@@ -75,6 +75,20 @@ public class TopologyValidationTest {
         .isEqualTo("Topic contextOrg.source.baz.topicF has an invalid number of partitions: 1");
   }
 
+  @Test
+  public void regexpValidationShouldFindPatterns() {
+    Topology topology = parser.deserialise(TestUtils.getResourceFile("/descriptor.yaml"));
+
+    Configuration config =
+            createTopologyBuilderConfig(
+                    "com.purbon.kafka.topology.validation.topology.CamelCaseNameFormatValidation",
+                    "com.purbon.kafka.topology.validation.topic.TopicNameRegexValidation");
+
+    TopologyValidator validator = new TopologyValidator(config);
+    List<String> results = validator.validate(topology);
+    assertThat(results).hasSize(1);
+  }
+
   @Test(expected = IllegalStateException.class)
   public void testUsingDeprecatedValidationsConfig() {
 
@@ -106,6 +120,7 @@ public class TopologyValidationTest {
 
     Properties props = new Properties();
     props.put(TOPOLOGY_VALIDATIONS_CONFIG, Arrays.asList(validations));
+    props.put(TOPOLOGY_VALIDATIONS_TOPIC_NAME_REGEXP, "[a-zA-Z0-9.-]*");
     return new Configuration(cliOps, props);
   }
 }
