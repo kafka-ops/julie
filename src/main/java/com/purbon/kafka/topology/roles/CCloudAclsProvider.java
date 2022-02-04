@@ -21,6 +21,7 @@ public class CCloudAclsProvider extends SimpleAclsProvider implements AccessCont
 
   private final CCloudApi cli;
   private final String clusterId;
+  private final Configuration config;
   private Map<String, Long> lookupServiceAccountId;
 
   public CCloudAclsProvider(
@@ -28,14 +29,18 @@ public class CCloudAclsProvider extends SimpleAclsProvider implements AccessCont
     super(adminClient);
     this.cli = new CCloudApi(config.getConfluentCloudClusterUrl(), config);
     this.clusterId = config.getConfluentCloudClusterId();
+    this.config = config;
   }
 
   @Override
   public void createBindings(Set<TopologyAclBinding> bindings) throws IOException {
     this.lookupServiceAccountId = initializeLookupTable(this.cli);
     for (TopologyAclBinding binding : bindings) {
-      TopologyAclBinding translatedBinding = translate(binding);
-      cli.createAcl(clusterId, translatedBinding);
+      if (config.isConfluentCloudServiceAccountTranslationEnabled()) {
+        cli.createAcl(clusterId, translate(binding));
+      } else {
+        cli.createAcl(clusterId, binding);
+      }
     }
   }
 
@@ -43,8 +48,12 @@ public class CCloudAclsProvider extends SimpleAclsProvider implements AccessCont
   public void clearBindings(Set<TopologyAclBinding> bindings) throws IOException {
     for (TopologyAclBinding binding : bindings) {
       this.lookupServiceAccountId = initializeLookupTable(this.cli);
-      TopologyAclBinding translatedBinding = translate(binding);
-      cli.deleteAcls(clusterId, translatedBinding);
+      if (config.isConfluentCloudServiceAccountTranslationEnabled()) {
+        cli.deleteAcls(clusterId, translate(binding));
+      }
+      {
+        cli.deleteAcls(clusterId, binding);
+      }
     }
   }
 
@@ -67,35 +76,46 @@ public class CCloudAclsProvider extends SimpleAclsProvider implements AccessCont
   }
 
   private TopologyAclBinding translate(TopologyAclBinding binding) throws IOException {
+
+    LOGGER.info("At the time of this PR, 4 Feb the Confluent Cloud ACL(s) api require to translate " +
+            "Service Account names into ID(s). At some point in time this will not be required anymore, " +
+            "so you can configure this out by using ccloud.service_account.translation.enabled=false (true by default)");
+
     String principal = binding.getPrincipal();
     Long translatedPrincipalId = lookupServiceAccountId.get(principal);
+    if (translatedPrincipalId == null) { // Translation failed, so we can't continue
+      throw new IOException(
+          "Translation of principal "
+              + principal
+              + " failed, please review your system configuration");
+    }
     String translatedPrincipal = "";
     if (principal.toLowerCase().startsWith("user")) {
       LOGGER.debug(
-              "Translating Confluent Cloud principal "
-                      + principal
-                      + " to User:"
-                      + translatedPrincipalId);
+          "Translating Confluent Cloud principal "
+              + principal
+              + " to User:"
+              + translatedPrincipalId);
       translatedPrincipal = "User:" + translatedPrincipalId;
     } else if (principal.toLowerCase().startsWith("group")) {
       LOGGER.debug(
-              "Translating Confluent Cloud principal "
-                      + principal
-                      + " to Group:"
-                      + translatedPrincipalId);
+          "Translating Confluent Cloud principal "
+              + principal
+              + " to Group:"
+              + translatedPrincipalId);
       translatedPrincipal = "Group:" + translatedPrincipalId;
     } else {
       throw new IOException("Unknown principalType: " + principal);
     }
 
     TopologyAclBinding translatedBinding =
-            TopologyAclBinding.build(
-                    binding.getResourceType(),
-                    binding.getResourceName(),
-                    binding.getHost(),
-                    binding.getOperation(),
-                    translatedPrincipal,
-                    binding.getPattern());
+        TopologyAclBinding.build(
+            binding.getResourceType(),
+            binding.getResourceName(),
+            binding.getHost(),
+            binding.getOperation(),
+            translatedPrincipal,
+            binding.getPattern());
     return translatedBinding;
   }
 

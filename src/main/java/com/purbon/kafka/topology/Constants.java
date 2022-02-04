@@ -86,6 +86,9 @@ public class Constants {
       "topology.builder.ccloud.kafka.cluster.id";
   public static final String CCLOUD_CLUSTER_URL = "ccloud.cluster.url";
 
+  public static final String CCLOUD_SERVICE_ACCOUNT_TRANSLATION_ENABLED =
+      "ccloud.service_account.translation.enabled";
+
   public static final String TOPOLOGY_EXPERIMENTAL_ENABLED_CONFIG =
       "topology.features.experimental";
   static final String TOPOLOGY_PRINCIPAL_TRANSLATION_ENABLED_CONFIG =
