@@ -594,6 +594,10 @@ public class Configuration {
     return config.getString(CCLOUD_CLUSTER_URL);
   }
 
+  public Boolean isConfluentCloudServiceAccountTranslationEnabled() {
+    return config.getBoolean(CCLOUD_SERVICE_ACCOUNT_TRANSLATION_ENABLED);
+  }
+
   public Boolean enabledPrincipalManagement() {
     return config.getBoolean(JULIE_ENABLE_PRINCIPAL_MANAGEMENT);
   }
