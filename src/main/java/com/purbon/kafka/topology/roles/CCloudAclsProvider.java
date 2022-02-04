@@ -1,5 +1,7 @@
 package com.purbon.kafka.topology.roles;
 
+import static java.util.Arrays.asList;
+
 import com.purbon.kafka.topology.AccessControlProvider;
 import com.purbon.kafka.topology.Configuration;
 import com.purbon.kafka.topology.api.adminclient.TopologyBuilderAdminClient;
@@ -9,14 +11,11 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-
-import static java.util.Arrays.asList;
 
 public class CCloudAclsProvider extends SimpleAclsProvider implements AccessControlProvider {
 
@@ -39,7 +38,7 @@ public class CCloudAclsProvider extends SimpleAclsProvider implements AccessCont
   public void createBindings(Set<TopologyAclBinding> bindings) throws IOException {
     this.lookupServiceAccountId = initializeLookupTable(this.cli);
     for (TopologyAclBinding binding : bindings) {
-        cli.createAcl(clusterId, translateIfNecessary(binding));
+      cli.createAcl(clusterId, translateIfNecessary(binding));
     }
   }
 
@@ -77,17 +76,17 @@ public class CCloudAclsProvider extends SimpleAclsProvider implements AccessCont
     }
 
     LOGGER.info(
-            "At the time of this PR, 4 Feb the Confluent Cloud ACL(s) api require to translate "
-                    + "Service Account names into ID(s). At some point in time this will not be required anymore, "
-                    + "so you can configure this out by using ccloud.service_account.translation.enabled=false (true by default)");
+        "At the time of this PR, 4 Feb the Confluent Cloud ACL(s) api require to translate "
+            + "Service Account names into ID(s). At some point in time this will not be required anymore, "
+            + "so you can configure this out by using ccloud.service_account.translation.enabled=false (true by default)");
 
     String principal = binding.getPrincipal();
     Long translatedPrincipalId = lookupServiceAccountId.get(principal);
     if (translatedPrincipalId == null) { // Translation failed, so we can't continue
       throw new IOException(
-              "Translation of principal "
-                      + principal
-                      + " failed, please review your system configuration");
+          "Translation of principal "
+              + principal
+              + " failed, please review your system configuration");
     }
     String[] fields = principal.split(":");
 
@@ -96,22 +95,24 @@ public class CCloudAclsProvider extends SimpleAclsProvider implements AccessCont
     }
 
     TopologyAclBinding translatedBinding =
-            TopologyAclBinding.build(
-                    binding.getResourceType(),
-                    binding.getResourceName(),
-                    binding.getHost(),
-                    binding.getOperation(),
-                    mappedPrincipal(fields[0], principal, translatedPrincipalId),
-                    binding.getPattern());
+        TopologyAclBinding.build(
+            binding.getResourceType(),
+            binding.getResourceName(),
+            binding.getHost(),
+            binding.getOperation(),
+            mappedPrincipal(fields[0], principal, translatedPrincipalId),
+            binding.getPattern());
     return translatedBinding;
   }
 
   private String mappedPrincipal(String type, String principal, Long translatedPrincipalId) {
     LOGGER.debug(
-            "Translating Confluent Cloud principal "
-                    + principal
-                    + " to " + type + ":"
-                    + translatedPrincipalId);
+        "Translating Confluent Cloud principal "
+            + principal
+            + " to "
+            + type
+            + ":"
+            + translatedPrincipalId);
     return type + ":" + translatedPrincipalId;
   }
 
