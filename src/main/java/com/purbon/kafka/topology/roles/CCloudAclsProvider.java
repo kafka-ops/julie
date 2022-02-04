@@ -36,11 +36,7 @@ public class CCloudAclsProvider extends SimpleAclsProvider implements AccessCont
   public void createBindings(Set<TopologyAclBinding> bindings) throws IOException {
     this.lookupServiceAccountId = initializeLookupTable(this.cli);
     for (TopologyAclBinding binding : bindings) {
-      if (config.isConfluentCloudServiceAccountTranslationEnabled()) {
-        cli.createAcl(clusterId, translate(binding));
-      } else {
-        cli.createAcl(clusterId, binding);
-      }
+        cli.createAcl(clusterId, translateIfNecessary(binding));
     }
   }
 
@@ -48,12 +44,7 @@ public class CCloudAclsProvider extends SimpleAclsProvider implements AccessCont
   public void clearBindings(Set<TopologyAclBinding> bindings) throws IOException {
     for (TopologyAclBinding binding : bindings) {
       this.lookupServiceAccountId = initializeLookupTable(this.cli);
-      if (config.isConfluentCloudServiceAccountTranslationEnabled()) {
-        cli.deleteAcls(clusterId, translate(binding));
-      }
-      {
-        cli.deleteAcls(clusterId, binding);
-      }
+      cli.deleteAcls(clusterId, translateIfNecessary(binding));
     }
   }
 
@@ -75,12 +66,17 @@ public class CCloudAclsProvider extends SimpleAclsProvider implements AccessCont
     }
   }
 
-  private TopologyAclBinding translate(TopologyAclBinding binding) throws IOException {
+  private TopologyAclBinding translateIfNecessary(TopologyAclBinding binding) throws IOException {
+
+    if (!config.isConfluentCloudServiceAccountTranslationEnabled()) {
+      LOGGER.debug("Confluent Cloud Principal translation is currently disabled");
+      return binding;
+    }
 
     LOGGER.info(
-        "At the time of this PR, 4 Feb the Confluent Cloud ACL(s) api require to translate "
-            + "Service Account names into ID(s). At some point in time this will not be required anymore, "
-            + "so you can configure this out by using ccloud.service_account.translation.enabled=false (true by default)");
+            "At the time of this PR, 4 Feb the Confluent Cloud ACL(s) api require to translate "
+                    + "Service Account names into ID(s). At some point in time this will not be required anymore, "
+                    + "so you can configure this out by using ccloud.service_account.translation.enabled=false (true by default)");
 
     String principal = binding.getPrincipal();
     Long translatedPrincipalId = lookupServiceAccountId.get(principal);
