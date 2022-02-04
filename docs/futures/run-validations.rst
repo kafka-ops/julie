@@ -16,7 +16,7 @@ To configure which validations you require for your topology the reader would ne
 
         topology.validations.0=com.purbon.kafka.topology.validation.topic.ConfigurationKeyValidation
         topology.validations.1=com.purbon.kafka.topology.validation.topic.TopicNameRegexValidation
-        topology.validations.topic.name.regexp="[a-z0-9]"
+        validations.topic.name.regexp="[a-z0-9]"
 
 In the previous example we have configured two validations.
 
