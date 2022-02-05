@@ -1,4 +1,11 @@
 
+v4.1.1 / 2022-02-05
+===================
+
+  * Fix Confluent Cloud ACL(s) API usage, so ACL(s) are finally created properly (#444)
+  * Fix config passing for topology validator for regular expressions (#443)
+  * Bump log4j-api from 2.17.0 to 2.17.1 (#436)
+
 v4.1.0 / 2021-12-30
 ===================
 
