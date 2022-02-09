@@ -180,6 +180,23 @@ more examples can be found at the [example/](example/) directory.
 Also, please check, the documentation in [the docs](https://julieops.readthedocs.io/) for extra information and
 examples on managing ACLs, RBAC, Principales, Schemas and many others.  
 
+## Running JulieOps for Confluent Cloud
+
+JulieOps is designed to work with Confluent Cloud; however some changes were introduced to Confluent Cloud(REST API & CLI V2), which has impacted how JulieOps will work with Confluent Cloud. 
+
+### Problem :
+ The new public REST API for Service Accounts or the new Confluent CLI v2, expects Service Account IDs in the form `sa-123abc` but when you go to create an ACL using tools like the OSS Kafka Admin API, you’re expected to provide integer IDs like `nnnnn`. The deprecated v1 ccloud CLI displayed both the Resource ID and Integer ID, but the new Confluent CLI works only with Resource ID's.
+### Solution:
+ The long term plan is to work purely with Resource IDs and move away from exposing internal database integer IDs. This solution is being worked upon right now & JulieOps is adopting to this change.
+
+To get started on Confluent Cloud, follow detailed instructions [here](https://github.com/kafka-ops/julie/blob/master/docs/using-julieops-with-ccloud.rst).
+
+
+## TroubleShooting JulieOps
+
+JulieOps creates a hidden file on the directory you are running julie-ops from by the name `.cluster-state`, this file captures the state of all actions performed JulieOps.
+
+
 ## Interested in contributing back?
 
 Interested on contributing back? might be have an idea for a great future? or wanna fix a bug?
