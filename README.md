@@ -180,6 +180,13 @@ more examples can be found at the [example/](example/) directory.
 Also, please check, the documentation in [the docs](https://julieops.readthedocs.io/) for extra information and
 examples on managing ACLs, RBAC, Principales, Schemas and many others.  
 
+## Troubleshooting guides
+
+If you're having problems with JulieOps I would recommend lookup up two main sources of information:
+
+* The project [issues](https://github.com/kafka-ops/julie/issues) tracker. Highly possible others might have had your problem before.
+* Our always work in progress [troubleshooting guide](troubleshooting.md)
+
 ## Interested in contributing back?
 
 Interested on contributing back? might be have an idea for a great future? or wanna fix a bug?
