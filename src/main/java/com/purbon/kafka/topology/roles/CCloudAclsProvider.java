@@ -81,14 +81,14 @@ public class CCloudAclsProvider extends SimpleAclsProvider implements AccessCont
             + "so you can configure this out by using ccloud.service_account.translation.enabled=false (true by default)");
 
     String principal = binding.getPrincipal();
-    Long translatedPrincipalId = lookupServiceAccountId.get(principal);
+    String[] fields = principal.split(":");
+    Long translatedPrincipalId = lookupServiceAccountId.get(fields[1]);
     if (translatedPrincipalId == null) { // Translation failed, so we can't continue
       throw new IOException(
           "Translation of principal "
               + principal
               + " failed, please review your system configuration");
     }
-    String[] fields = principal.split(":");
 
     if (!asList("group", "user").contains(fields[0].toLowerCase())) {
       throw new IOException("Unknown principalType: " + fields[0]);
