@@ -13,7 +13,19 @@ public class PrincipalTest {
   }
 
   @Test
-  public void roundTripFromString() {
+  public void readsGroupPrincipal() {
+    Principal principal = Principal.fromString("Group:sa-bar");
+    assertEquals("sa-bar", principal.serviceAccountName);
+    assertEquals(PrincipalType.Group, principal.principalType);
+  }
+
+  @Test
+  public void roundTripFromUserString() {
     assertEquals("User:sa-foo", Principal.fromString("User:sa-foo").toString());
+  }
+
+  @Test
+  public void roundTripFromGroupString() {
+    assertEquals("User:sa-bar", Principal.fromString("User:sa-bar").toString());
   }
 }
