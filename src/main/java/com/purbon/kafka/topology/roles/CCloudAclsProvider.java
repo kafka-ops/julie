@@ -23,7 +23,7 @@ public class CCloudAclsProvider extends SimpleAclsProvider implements AccessCont
   private final CCloudApi cli;
   private final String clusterId;
   private final Configuration config;
-  private Map<String, Long> serviceAccountIdByName;
+  private Map<String, Long> serviceAccountIdByNameMap;
 
   public CCloudAclsProvider(
       final TopologyBuilderAdminClient adminClient, final Configuration config) {
@@ -35,7 +35,7 @@ public class CCloudAclsProvider extends SimpleAclsProvider implements AccessCont
 
   @Override
   public void createBindings(Set<TopologyAclBinding> bindings) throws IOException {
-    this.serviceAccountIdByName = initializeLookupTable(this.cli);
+    this.serviceAccountIdByNameMap = initializeLookupTable(this.cli);
     for (TopologyAclBinding binding : bindings) {
       cli.createAcl(clusterId, translateIfNecessary(binding));
     }
@@ -44,7 +44,7 @@ public class CCloudAclsProvider extends SimpleAclsProvider implements AccessCont
   @Override
   public void clearBindings(Set<TopologyAclBinding> bindings) throws IOException {
     for (TopologyAclBinding binding : bindings) {
-      this.serviceAccountIdByName = initializeLookupTable(this.cli);
+      this.serviceAccountIdByNameMap = initializeLookupTable(this.cli);
       cli.deleteAcls(clusterId, translateIfNecessary(binding));
     }
   }
@@ -80,7 +80,7 @@ public class CCloudAclsProvider extends SimpleAclsProvider implements AccessCont
             + "so you can configure this out by using ccloud.service_account.translation.enabled=false (true by default)");
 
     Principal principal = Principal.fromString(binding.getPrincipal());
-    Long numericServiceAccountId = serviceAccountIdByName.getOrDefault(principal.serviceAccountName, SERVICE_ACCOUNT_NOT_FOUND);
+    Long numericServiceAccountId = serviceAccountIdByNameMap.getOrDefault(principal.serviceAccountName, SERVICE_ACCOUNT_NOT_FOUND);
     if (numericServiceAccountId == SERVICE_ACCOUNT_NOT_FOUND) { // Translation failed, so we can't continue
       throw new IOException(
           "Translation of principal "
