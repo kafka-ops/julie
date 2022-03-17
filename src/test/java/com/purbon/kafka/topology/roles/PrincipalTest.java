@@ -20,7 +20,7 @@ public class PrincipalTest {
   }
 
   @Test
-  public void roundTripFromUserString() {
+  public void roundTripFromUserPrincipalString() {
     var userPrincipalString = "User:sa-foo";
     assertEquals(userPrincipalString, Principal.fromString(userPrincipalString).toString());
   }
