@@ -1,7 +1,5 @@
 package com.purbon.kafka.topology.roles;
 
-import static java.util.Arrays.asList;
-
 import com.purbon.kafka.topology.AccessControlProvider;
 import com.purbon.kafka.topology.Configuration;
 import com.purbon.kafka.topology.api.adminclient.TopologyBuilderAdminClient;
@@ -20,11 +18,12 @@ import org.apache.logging.log4j.Logger;
 public class CCloudAclsProvider extends SimpleAclsProvider implements AccessControlProvider {
 
   private static final Logger LOGGER = LogManager.getLogger(CCloudAclsProvider.class);
+  private static final long SERVICE_ACCOUNT_NOT_FOUND = -1L;
 
   private final CCloudApi cli;
   private final String clusterId;
   private final Configuration config;
-  private Map<String, Long> lookupServiceAccountId;
+  private Map<String, Long> serviceAccountIdByNameMap;
 
   public CCloudAclsProvider(
       final TopologyBuilderAdminClient adminClient, final Configuration config) {
@@ -36,7 +35,7 @@ public class CCloudAclsProvider extends SimpleAclsProvider implements AccessCont
 
   @Override
   public void createBindings(Set<TopologyAclBinding> bindings) throws IOException {
-    this.lookupServiceAccountId = initializeLookupTable(this.cli);
+    this.serviceAccountIdByNameMap = initializeLookupTable(this.cli);
     for (TopologyAclBinding binding : bindings) {
       cli.createAcl(clusterId, translateIfNecessary(binding));
     }
@@ -45,7 +44,7 @@ public class CCloudAclsProvider extends SimpleAclsProvider implements AccessCont
   @Override
   public void clearBindings(Set<TopologyAclBinding> bindings) throws IOException {
     for (TopologyAclBinding binding : bindings) {
-      this.lookupServiceAccountId = initializeLookupTable(this.cli);
+      this.serviceAccountIdByNameMap = initializeLookupTable(this.cli);
       cli.deleteAcls(clusterId, translateIfNecessary(binding));
     }
   }
@@ -80,18 +79,13 @@ public class CCloudAclsProvider extends SimpleAclsProvider implements AccessCont
             + "Service Account names into ID(s). At some point in time this will not be required anymore, "
             + "so you can configure this out by using ccloud.service_account.translation.enabled=false (true by default)");
 
-    String principal = binding.getPrincipal();
-    Long translatedPrincipalId = lookupServiceAccountId.get(principal);
-    if (translatedPrincipalId == null) { // Translation failed, so we can't continue
+    Principal principal = Principal.fromString(binding.getPrincipal());
+    long numericServiceAccountId = serviceAccountIdByNameMap.getOrDefault(principal.getServiceAccountName(), SERVICE_ACCOUNT_NOT_FOUND);
+    if (numericServiceAccountId == SERVICE_ACCOUNT_NOT_FOUND) { // Translation failed, so we can't continue
       throw new IOException(
           "Translation of principal "
               + principal
               + " failed, please review your system configuration");
-    }
-    String[] fields = principal.split(":");
-
-    if (!asList("group", "user").contains(fields[0].toLowerCase())) {
-      throw new IOException("Unknown principalType: " + fields[0]);
     }
 
     TopologyAclBinding translatedBinding =
@@ -100,7 +94,10 @@ public class CCloudAclsProvider extends SimpleAclsProvider implements AccessCont
             binding.getResourceName(),
             binding.getHost(),
             binding.getOperation(),
-            mappedPrincipal(fields[0], principal, translatedPrincipalId),
+            mappedPrincipal(
+                principal.getPrincipalType().name(),
+                binding.getPrincipal(),
+                numericServiceAccountId),
             binding.getPattern());
     return translatedBinding;
   }
