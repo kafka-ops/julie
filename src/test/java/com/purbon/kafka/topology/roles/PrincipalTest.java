@@ -20,6 +20,11 @@ public class PrincipalTest {
   }
 
   @Test(expected = IllegalArgumentException.class)
+  public void failsForMalformedPrincipalString() {
+    Principal.fromString("foo");
+  }
+
+  @Test(expected = IllegalArgumentException.class)
   public void failsForInvalidPrincipalTypeString() {
     Principal.fromString("Vulcan:sa-spock");
   }
