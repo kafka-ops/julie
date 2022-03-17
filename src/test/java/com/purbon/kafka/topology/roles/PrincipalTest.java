@@ -21,7 +21,7 @@ public class PrincipalTest {
 
   @Test(expected = IllegalArgumentException.class)
   public void failsForMalformedPrincipalString() {
-    Principal.fromString("foo");
+    Principal.fromString("");
   }
 
   @Test(expected = IllegalArgumentException.class)
