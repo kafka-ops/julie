@@ -21,7 +21,8 @@ public class PrincipalTest {
 
   @Test
   public void roundTripFromUserString() {
-    assertEquals("User:sa-foo", Principal.fromString("User:sa-foo").toString());
+    var userPrincipalString = "User:sa-foo";
+    assertEquals(userPrincipalString, Principal.fromString(userPrincipalString).toString());
   }
 
   @Test
