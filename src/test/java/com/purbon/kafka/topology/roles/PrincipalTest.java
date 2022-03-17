@@ -19,6 +19,11 @@ public class PrincipalTest {
     assertEquals(PrincipalType.Group, principal.getPrincipalType());
   }
 
+  @Test(expected = IllegalArgumentException.class)
+  public void failsForInvalidPrincipalTypeString() {
+    Principal.fromString("Vulcan:sa-spock");
+  }
+
   @Test
   public void roundTripFromUserPrincipalString() {
     var userPrincipalString = "User:sa-foo";
