@@ -8,15 +8,15 @@ public class PrincipalTest {
   @Test
   public void readsUserPrincipal() {
     Principal principal = Principal.fromString("User:sa-foo");
-    assertEquals("sa-foo", principal.serviceAccountName);
-    assertEquals(PrincipalType.User, principal.principalType);
+    assertEquals("sa-foo", principal.getServiceAccountName());
+    assertEquals(PrincipalType.User, principal.getPrincipalType());
   }
 
   @Test
   public void readsGroupPrincipal() {
     Principal principal = Principal.fromString("Group:sa-bar");
-    assertEquals("sa-bar", principal.serviceAccountName);
-    assertEquals(PrincipalType.Group, principal.principalType);
+    assertEquals("sa-bar", principal.getServiceAccountName());
+    assertEquals(PrincipalType.Group, principal.getPrincipalType());
   }
 
   @Test

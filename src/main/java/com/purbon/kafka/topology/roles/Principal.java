@@ -1,13 +1,11 @@
 package com.purbon.kafka.topology.roles;
 
-public class Principal {
-  final String serviceAccountName;
-  final PrincipalType principalType;
+import lombok.Value;
 
-  public Principal(PrincipalType principalType, String serviceAccountName) {
-    this.principalType = principalType;
-    this.serviceAccountName = serviceAccountName;
-  }
+@Value
+public class Principal {
+  PrincipalType principalType;
+  String serviceAccountName;
 
   public static Principal fromString(String principalString) {
     String[] user = principalString.split(":");

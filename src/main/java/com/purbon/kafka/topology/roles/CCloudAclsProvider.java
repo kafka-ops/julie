@@ -18,7 +18,7 @@ import org.apache.logging.log4j.Logger;
 public class CCloudAclsProvider extends SimpleAclsProvider implements AccessControlProvider {
 
   private static final Logger LOGGER = LogManager.getLogger(CCloudAclsProvider.class);
-  public static final long SERVICE_ACCOUNT_NOT_FOUND = -1L;
+  private static final long SERVICE_ACCOUNT_NOT_FOUND = -1L;
 
   private final CCloudApi cli;
   private final String clusterId;
@@ -80,7 +80,7 @@ public class CCloudAclsProvider extends SimpleAclsProvider implements AccessCont
             + "so you can configure this out by using ccloud.service_account.translation.enabled=false (true by default)");
 
     Principal principal = Principal.fromString(binding.getPrincipal());
-    Long numericServiceAccountId = serviceAccountIdByNameMap.getOrDefault(principal.serviceAccountName, SERVICE_ACCOUNT_NOT_FOUND);
+    long numericServiceAccountId = serviceAccountIdByNameMap.getOrDefault(principal.getServiceAccountName(), SERVICE_ACCOUNT_NOT_FOUND);
     if (numericServiceAccountId == SERVICE_ACCOUNT_NOT_FOUND) { // Translation failed, so we can't continue
       throw new IOException(
           "Translation of principal "
@@ -95,7 +95,9 @@ public class CCloudAclsProvider extends SimpleAclsProvider implements AccessCont
             binding.getHost(),
             binding.getOperation(),
             mappedPrincipal(
-                principal.principalType.name(), binding.getPrincipal(), numericServiceAccountId),
+                principal.getPrincipalType().name(),
+                binding.getPrincipal(),
+                numericServiceAccountId),
             binding.getPattern());
     return translatedBinding;
   }
