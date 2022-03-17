@@ -26,7 +26,8 @@ public class PrincipalTest {
   }
 
   @Test
-  public void roundTripFromGroupString() {
-    assertEquals("User:sa-bar", Principal.fromString("User:sa-bar").toString());
+  public void roundTripFromGroupPrincipalString() {
+    var groupPrincipalString = "Group:sa-bar";
+    assertEquals(groupPrincipalString, Principal.fromString(groupPrincipalString).toString());
   }
 }
