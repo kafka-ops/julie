@@ -5,8 +5,8 @@ import lombok.Value;
 @Value
 public class Principal {
   public static final String COLON_AS_SEPARATOR = ":";
-  PrincipalType principalType;
-  String serviceAccountName;
+  private PrincipalType principalType;
+  private String serviceAccountName;
 
   public static Principal fromString(String principalString) {
     String[] user = principalString.split(COLON_AS_SEPARATOR);
