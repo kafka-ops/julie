@@ -24,7 +24,7 @@ public class ConfluentCloudPrincipal {
     return String.format("%s%s%s", principalType, COLON_AS_SEPARATOR, serviceAccountName);
   }
 
-  public String getMappedPrincipal(long serviceAccountNumericId) {
+  public String toMappedPrincipalString(long serviceAccountNumericId) {
     return String.format("%s%s%d", principalType, COLON_AS_SEPARATOR, serviceAccountNumericId);
   }
 }

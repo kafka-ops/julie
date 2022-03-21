@@ -92,12 +92,11 @@ public class CCloudAclsProvider extends SimpleAclsProvider implements AccessCont
               + " failed, please review your system configuration");
     }
 
-    String type = principal.getPrincipalType().name();
     LOGGER.debug(
         "Translating Confluent Cloud principal "
             + binding.getPrincipal()
             + " to "
-            + type
+            + principal.getPrincipalType().name()
             + ":"
             + numericServiceAccountId);
     TopologyAclBinding translatedBinding =
@@ -106,7 +105,7 @@ public class CCloudAclsProvider extends SimpleAclsProvider implements AccessCont
             binding.getResourceName(),
             binding.getHost(),
             binding.getOperation(),
-            principal.getMappedPrincipal(numericServiceAccountId),
+            principal.toMappedPrincipalString(numericServiceAccountId),
             binding.getPattern());
     return translatedBinding;
   }

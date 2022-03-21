@@ -47,6 +47,6 @@ public class PrincipalTest {
   public void generatesMappedPrincipal() {
     var mappedPrincipal = "User:123456";
     ConfluentCloudPrincipal principal = ConfluentCloudPrincipal.fromString("User:sa-foo");
-    assertEquals(mappedPrincipal, principal.getMappedPrincipal(123456l));
+    assertEquals(mappedPrincipal, principal.toMappedPrincipalString(123456l));
   }
 }
