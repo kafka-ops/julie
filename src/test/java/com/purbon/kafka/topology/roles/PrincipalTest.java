@@ -40,4 +40,11 @@ public class PrincipalTest {
     var groupPrincipalString = "Group:sa-bar";
     assertEquals(groupPrincipalString, Principal.fromString(groupPrincipalString).toString());
   }
+
+  @Test
+  public void generatesMappedPrincipal() {
+    var mappedPrincipal = "User:123456";
+    Principal principal = Principal.fromString("User:sa-foo");
+    assertEquals(mappedPrincipal, principal.getMappedPrincipal(123456l));
+  }
 }

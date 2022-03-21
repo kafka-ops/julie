@@ -80,37 +80,34 @@ public class CCloudAclsProvider extends SimpleAclsProvider implements AccessCont
             + "so you can configure this out by using ccloud.service_account.translation.enabled=false (true by default)");
 
     Principal principal = Principal.fromString(binding.getPrincipal());
-    long numericServiceAccountId = serviceAccountIdByNameMap.getOrDefault(principal.getServiceAccountName(), SERVICE_ACCOUNT_NOT_FOUND);
-    if (numericServiceAccountId == SERVICE_ACCOUNT_NOT_FOUND) { // Translation failed, so we can't continue
+    long numericServiceAccountId =
+        serviceAccountIdByNameMap.getOrDefault(
+            principal.getServiceAccountName(), SERVICE_ACCOUNT_NOT_FOUND);
+    if (numericServiceAccountId
+        == SERVICE_ACCOUNT_NOT_FOUND) { // Translation failed, so we can't continue
       throw new IOException(
           "Translation of principal "
               + principal
               + " failed, please review your system configuration");
     }
 
+    String type = principal.getPrincipalType().name();
+    LOGGER.debug(
+        "Translating Confluent Cloud principal "
+            + binding.getPrincipal()
+            + " to "
+            + type
+            + ":"
+            + numericServiceAccountId);
     TopologyAclBinding translatedBinding =
         TopologyAclBinding.build(
             binding.getResourceType(),
             binding.getResourceName(),
             binding.getHost(),
             binding.getOperation(),
-            mappedPrincipal(
-                principal.getPrincipalType().name(),
-                binding.getPrincipal(),
-                numericServiceAccountId),
+            principal.getMappedPrincipal(numericServiceAccountId),
             binding.getPattern());
     return translatedBinding;
-  }
-
-  private String mappedPrincipal(String type, String principal, Long translatedPrincipalId) {
-    LOGGER.debug(
-        "Translating Confluent Cloud principal "
-            + principal
-            + " to "
-            + type
-            + ":"
-            + translatedPrincipalId);
-    return type + ":" + translatedPrincipalId;
   }
 
   private Map<String, Long> initializeLookupTable(CCloudApi cli) throws IOException {

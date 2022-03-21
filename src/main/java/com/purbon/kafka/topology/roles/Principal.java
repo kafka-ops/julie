@@ -13,6 +13,10 @@ public class Principal {
     return new Principal(PrincipalType.valueOf(user[0]), user[1]);
   }
 
+  public String getMappedPrincipal(long serviceAccountNumericId) {
+    return String.format("%s%s%d", principalType, COLON_AS_SEPARATOR, serviceAccountNumericId);
+  }
+
   @Override
   public String toString() {
     return String.format("%s%s%s", principalType, COLON_AS_SEPARATOR, serviceAccountName);
