@@ -4,6 +4,7 @@ import com.purbon.kafka.topology.AccessControlProvider;
 import com.purbon.kafka.topology.Configuration;
 import com.purbon.kafka.topology.api.adminclient.TopologyBuilderAdminClient;
 import com.purbon.kafka.topology.api.ccloud.CCloudApi;
+import com.purbon.kafka.topology.model.users.ConfluentCloudPrincipal;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -79,38 +80,34 @@ public class CCloudAclsProvider extends SimpleAclsProvider implements AccessCont
             + "Service Account names into ID(s). At some point in time this will not be required anymore, "
             + "so you can configure this out by using ccloud.service_account.translation.enabled=false (true by default)");
 
-    Principal principal = Principal.fromString(binding.getPrincipal());
-    long numericServiceAccountId = serviceAccountIdByNameMap.getOrDefault(principal.getServiceAccountName(), SERVICE_ACCOUNT_NOT_FOUND);
-    if (numericServiceAccountId == SERVICE_ACCOUNT_NOT_FOUND) { // Translation failed, so we can't continue
+    ConfluentCloudPrincipal principal = ConfluentCloudPrincipal.fromString(binding.getPrincipal());
+    long numericServiceAccountId =
+        serviceAccountIdByNameMap.getOrDefault(
+            principal.getServiceAccountName(), SERVICE_ACCOUNT_NOT_FOUND);
+    if (numericServiceAccountId
+        == SERVICE_ACCOUNT_NOT_FOUND) { // Translation failed, so we can't continue
       throw new IOException(
           "Translation of principal "
               + principal
               + " failed, please review your system configuration");
     }
 
+    LOGGER.debug(
+        "Translating Confluent Cloud principal "
+            + binding.getPrincipal()
+            + " to "
+            + principal.getPrincipalType().name()
+            + ":"
+            + numericServiceAccountId);
     TopologyAclBinding translatedBinding =
         TopologyAclBinding.build(
             binding.getResourceType(),
             binding.getResourceName(),
             binding.getHost(),
             binding.getOperation(),
-            mappedPrincipal(
-                principal.getPrincipalType().name(),
-                binding.getPrincipal(),
-                numericServiceAccountId),
+            principal.toMappedPrincipalString(numericServiceAccountId),
             binding.getPattern());
     return translatedBinding;
-  }
-
-  private String mappedPrincipal(String type, String principal, Long translatedPrincipalId) {
-    LOGGER.debug(
-        "Translating Confluent Cloud principal "
-            + principal
-            + " to "
-            + type
-            + ":"
-            + translatedPrincipalId);
-    return type + ":" + translatedPrincipalId;
   }
 
   private Map<String, Long> initializeLookupTable(CCloudApi cli) throws IOException {
