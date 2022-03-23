@@ -7,7 +7,7 @@ import static com.purbon.kafka.topology.Constants.REDIS_PORT_CONFIG;
 import static com.purbon.kafka.topology.Constants.STATE_PROCESSOR_IMPLEMENTATION_CLASS;
 import static com.purbon.kafka.topology.Constants.TOPOLOGY_TOPIC_STATE_FROM_CLUSTER;
 import static com.purbon.kafka.topology.backend.RedisBackend.JULIE_OPS_STATE;
-import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import com.purbon.kafka.topology.BackendController;
 import com.purbon.kafka.topology.Configuration;
@@ -39,7 +39,6 @@ import java.util.List;
 import java.util.Properties;
 import org.apache.kafka.clients.admin.AdminClient;
 import org.apache.kafka.common.resource.ResourceType;
-import org.assertj.core.api.Assertions;
 import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.Before;
@@ -135,9 +134,9 @@ public class RedisBackendIT {
     BackendState recoveredState = rsp.load();
 
     Assert.assertEquals(2, recoveredState.getTopics().size());
-    Assertions.assertThat(state.getTopics()).contains("foo", "bar");
-    Assertions.assertThat(state.getConnectors()).hasSize(1);
-    Assertions.assertThat(state.getConnectors()).contains(connector);
+    assertThat(state.getTopics()).contains("foo", "bar");
+    assertThat(state.getConnectors()).hasSize(1);
+    assertThat(state.getConnectors()).contains(connector);
     Assert.assertEquals(1, recoveredState.getBindings().size());
     Assert.assertEquals(
         binding.getPrincipal(), recoveredState.getBindings().iterator().next().getPrincipal());
