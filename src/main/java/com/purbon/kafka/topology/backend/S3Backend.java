@@ -73,7 +73,7 @@ public class S3Backend implements Backend {
       ResponseBytes<GetObjectResponse> objectBytes = s3.getObjectAsBytes(request);
       return objectBytes.asString(StandardCharsets.UTF_8);
     } catch (S3Exception ex) {
-      LOGGER.error(ex);
+      LOGGER.debug(ex);
       throw new IOException(ex);
     }
   }
