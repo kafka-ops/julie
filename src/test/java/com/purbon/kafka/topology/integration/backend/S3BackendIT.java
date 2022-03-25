@@ -44,7 +44,7 @@ public class S3BackendIT {
 
     long time = System.currentTimeMillis();
     String tmpDir = System.getProperty("java.io.tmpdir");
-    Path s3Path = Paths.get(tmpDir, "s3-"+time);
+    Path s3Path = Paths.get(tmpDir, "s3-" + time);
     api = S3Mock.create(8001, s3Path.toFile().getAbsolutePath());
     api.start();
 

@@ -5,11 +5,9 @@ name: CI tests
 
 on:
   push:
-  pull_request:
     branches:
       - master
-      - 3.x
-      - 4.x
+  pull_request:
 
 jobs:
   build:

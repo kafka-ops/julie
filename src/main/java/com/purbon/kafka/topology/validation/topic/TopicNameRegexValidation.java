@@ -7,14 +7,9 @@ import com.purbon.kafka.topology.exceptions.ConfigurationException;
 import com.purbon.kafka.topology.exceptions.ValidationException;
 import com.purbon.kafka.topology.model.Topic;
 import com.purbon.kafka.topology.validation.TopicValidation;
-import com.typesafe.config.Config;
 import com.typesafe.config.ConfigException;
-import com.typesafe.config.ConfigFactory;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
-
-import lombok.NoArgsConstructor;
-import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -48,7 +43,8 @@ public class TopicNameRegexValidation implements TopicValidation {
     }
   }
 
-  private static String getTopicNamePatternFromConfig(Configuration config) throws ConfigurationException {
+  private static String getTopicNamePatternFromConfig(Configuration config)
+      throws ConfigurationException {
     try {
       return config.getProperty(TOPOLOGY_VALIDATIONS_TOPIC_NAME_REGEXP);
     } catch (ConfigException e) {

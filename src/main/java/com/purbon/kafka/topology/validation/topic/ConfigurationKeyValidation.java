@@ -7,7 +7,6 @@ import com.purbon.kafka.topology.validation.TopicValidation;
 import java.lang.reflect.Field;
 import java.util.Arrays;
 import java.util.Map;
-
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;

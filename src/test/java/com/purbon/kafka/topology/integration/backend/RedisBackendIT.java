@@ -6,7 +6,6 @@ import static com.purbon.kafka.topology.Constants.REDIS_HOST_CONFIG;
 import static com.purbon.kafka.topology.Constants.REDIS_PORT_CONFIG;
 import static com.purbon.kafka.topology.Constants.STATE_PROCESSOR_IMPLEMENTATION_CLASS;
 import static com.purbon.kafka.topology.Constants.TOPOLOGY_TOPIC_STATE_FROM_CLUSTER;
-import static com.purbon.kafka.topology.backend.RedisBackend.JULIE_OPS_STATE;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.purbon.kafka.topology.BackendController;
@@ -65,9 +64,11 @@ public class RedisBackendIT {
 
   @Rule public MockitoRule mockitoRule = MockitoJUnit.rule();
   private Jedis jedis;
+  private static String bucket;
 
   @BeforeClass
   public static void setup() {
+    bucket = "bucket";
     container = ContainerFactory.fetchSaslKafkaContainer(System.getProperty("cp.version"));
     container.start();
   }
@@ -89,7 +90,7 @@ public class RedisBackendIT {
         new SchemaRegistryManager(schemaRegistryClient, System.getProperty("user.dir"));
 
     this.jedis = new Jedis(redis.getContainerIpAddress(), redis.getFirstMappedPort());
-    var backend = new RedisBackend(jedis);
+    var backend = new RedisBackend(jedis, bucket);
 
     this.plan = ExecutionPlan.init(new BackendController(backend), System.out);
 
@@ -114,7 +115,7 @@ public class RedisBackendIT {
 
     String host = redis.getContainerIpAddress();
     int port = redis.getFirstMappedPort();
-    RedisBackend rsp = new RedisBackend(host, port);
+    RedisBackend rsp = new RedisBackend(host, port, bucket);
     rsp.load();
 
     TopologyAclBinding binding =
@@ -167,7 +168,7 @@ public class RedisBackendIT {
     topicManager.updatePlan(topology, plan);
     plan.run();
 
-    String content = jedis.get(JULIE_OPS_STATE);
+    String content = jedis.get(bucket);
     assertThat(content)
         .contains(
             "\"topics\" : [ \"testTopicCreation.project.topicB\", \"testTopicCreation.project.topicA\" ]");

@@ -12,8 +12,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class ReplicationFactorValidation implements TopicValidation {
 
-  @NonNull
-  private Configuration config;
+  @NonNull private Configuration config;
 
   @Override
   public void valid(Topic topic) throws ValidationException {
