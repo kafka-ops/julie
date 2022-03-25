@@ -56,9 +56,10 @@ services:
       - 18083:18083
     environment:
       CUB_CLASSPATH: '/usr/share/java/confluent-security/connect/*:/usr/share/java/kafka/*:/usr/share/java/cp-base-new/*'
-      CLASSPATH: "/usr/share/java/kafka-connect-replicator/*:/usr/share/java/monitoring-interceptors/*"
+      CLASSPATH: "/usr/share/java/kafka-connect-replicator/*:/usr/share/java/monitoring-interceptors/*:/usr/share/confluent-hub-components/confluentinc-kafka-connect-jdbc/jars/*"
       CONNECT_BOOTSTRAP_SERVERS: "kafka:29092"
-      CONNECT_REST_PORT: 18083
+      CONNECT_REST_ADVERTISED_HOST_NAME: "kafka-connect"
+      CONNECT_LISTENERS: http://0.0.0.0:18083
       CONNECT_GROUP_ID: kafka-connect
       CONNECT_CONFIG_STORAGE_TOPIC: _kafka-connect-configs
       CONNECT_OFFSET_STORAGE_TOPIC: _kafka-connect-offsets
@@ -72,13 +73,11 @@ services:
       CONNECT_CONFIG_STORAGE_REPLICATION_FACTOR: "1"
       CONNECT_OFFSET_STORAGE_REPLICATION_FACTOR: "1"
       CONNECT_STATUS_STORAGE_REPLICATION_FACTOR: "1"
-      CONNECT_REST_ADVERTISED_HOST_NAME: "kafka-connect"
-      CONNECT_PLUGIN_PATH: /usr/share/confluent-hub-components
+      CONNECT_PLUGIN_PATH: /usr/share/confluent-hub-components,/usr/local/share/kafka/plugins,/usr/share/filestream-connectors
       CONNECT_REST_EXTENSION_CLASSES: org.apache.kafka.connect.rest.basic.auth.extension.BasicAuthSecurityRestExtension
       KAFKA_OPTS: -Djava.security.auth.login.config=/tmp/connect.jaas
     volumes:
       - $PWD/scripts:/scripts
-      - $PWD/connect-plugins:/usr/share/confluent-hub-components
       - $PWD/jars:/usr/share/confluent-hub-components/confluentinc-kafka-connect-jdbc/jars
 
   schema-registry:
