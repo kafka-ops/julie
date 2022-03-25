@@ -42,8 +42,9 @@ public class S3BackendIT {
     cliOps = new HashMap<>();
     cliOps.put(BROKERS_OPTION, "");
 
+    long time = System.currentTimeMillis();
     String tmpDir = System.getProperty("java.io.tmpdir");
-    Path s3Path = Paths.get(tmpDir, "s3");
+    Path s3Path = Paths.get(tmpDir, "s3-"+time);
     api = S3Mock.create(8001, s3Path.toFile().getAbsolutePath());
     api.start();
 
@@ -76,6 +77,8 @@ public class S3BackendIT {
 
     Configuration config = new Configuration(cliOps, props);
     backend.configure(config, true);
+
+    backend.load();
 
     TopologyAclBinding binding =
         TopologyAclBinding.build(
