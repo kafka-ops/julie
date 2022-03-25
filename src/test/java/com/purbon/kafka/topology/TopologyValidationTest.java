@@ -80,9 +80,9 @@ public class TopologyValidationTest {
     Topology topology = parser.deserialise(TestUtils.getResourceFile("/descriptor.yaml"));
 
     Configuration config =
-            createTopologyBuilderConfig(
-                    "com.purbon.kafka.topology.validation.topology.CamelCaseNameFormatValidation",
-                    "com.purbon.kafka.topology.validation.topic.TopicNameRegexValidation");
+        createTopologyBuilderConfig(
+            "com.purbon.kafka.topology.validation.topology.CamelCaseNameFormatValidation",
+            "com.purbon.kafka.topology.validation.topic.TopicNameRegexValidation");
 
     TopologyValidator validator = new TopologyValidator(config);
     List<String> results = validator.validate(topology);

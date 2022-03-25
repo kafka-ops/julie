@@ -294,9 +294,7 @@ public class JulieOps implements AutoCloseable {
       if (backendClass.equalsIgnoreCase(STATE_PROCESSOR_DEFAULT_CLASS)) {
         backend = new FileBackend();
       } else if (backendClass.equalsIgnoreCase(REDIS_STATE_PROCESSOR_CLASS)) {
-        String host = config.getProperty(REDIS_HOST_CONFIG);
-        int port = Integer.parseInt(config.getProperty(REDIS_PORT_CONFIG));
-        backend = new RedisBackend(host, port);
+        backend = new RedisBackend(config);
       } else if (backendClass.equalsIgnoreCase(S3_STATE_PROCESSOR_CLASS)) {
         backend = new S3Backend();
       } else if (backendClass.equalsIgnoreCase(GCP_STATE_PROCESSOR_CLASS)) {

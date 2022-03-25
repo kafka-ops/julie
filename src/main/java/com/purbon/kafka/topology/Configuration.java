@@ -345,6 +345,18 @@ public class Configuration {
     return fetchStateFromTheCluster() || config.getBoolean(TOPOLOGY_TOPIC_STATE_FROM_CLUSTER);
   }
 
+  public String getRedisBucket() {
+    return config.getString(REDIS_BUCKET_CONFIG);
+  }
+
+  public String getRedisHost() {
+    return config.getString(REDIS_HOST_CONFIG);
+  }
+
+  public int getRedisPort() {
+    return config.getInt(REDIS_PORT_CONFIG);
+  }
+
   public String getS3Bucket() {
     return config.getString(JULIE_S3_BUCKET);
   }
