@@ -36,6 +36,7 @@ public class Constants {
 
   public static final String REDIS_HOST_CONFIG = "topology.builder.redis.host";
   public static final String REDIS_PORT_CONFIG = "topology.builder.redis.port";
+  public static final String REDIS_BUCKET_CONFIG = "topology.builder.redis.bucket";
 
   public static final String MDS_SERVER = "topology.builder.mds.server";
   public static final String MDS_USER_CONFIG = "topology.builder.mds.user";

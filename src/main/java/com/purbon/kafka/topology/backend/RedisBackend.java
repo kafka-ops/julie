@@ -1,6 +1,7 @@
 package com.purbon.kafka.topology.backend;
 
 import com.purbon.kafka.topology.BackendController.Mode;
+import com.purbon.kafka.topology.Configuration;
 import com.purbon.kafka.topology.utils.JSON;
 import java.io.IOException;
 import java.util.Optional;
@@ -12,16 +13,20 @@ public class RedisBackend implements Backend {
 
   private static final Logger LOGGER = LogManager.getLogger(RedisBackend.class);
 
-  public static final String JULIE_OPS_STATE = "julie.ops.state";
+  private final String bucket;
+  private final Jedis jedis;
 
-  private Jedis jedis;
-
-  public RedisBackend(String host, int port) {
-    this(new Jedis(host, port));
+  public RedisBackend(String host, int port, String bucket) {
+    this(new Jedis(host, port), bucket);
   }
 
-  public RedisBackend(Jedis jedis) {
+  public RedisBackend(Jedis jedis, String bucket) {
     this.jedis = jedis;
+    this.bucket = bucket;
+  }
+
+  public RedisBackend(Configuration config) {
+    this(config.getRedisHost(), config.getRedisPort(), config.getRedisBucket());
   }
 
   @Override
@@ -33,7 +38,7 @@ public class RedisBackend implements Backend {
   public void createOrOpen(Mode mode) {
     jedis.connect();
     if (mode.equals(Mode.TRUNCATE)) {
-      jedis.del(JULIE_OPS_STATE);
+      jedis.del(bucket);
     }
   }
 
@@ -45,13 +50,13 @@ public class RedisBackend implements Backend {
   @Override
   public void save(BackendState state) throws IOException {
     LOGGER.debug("Storing state for: " + state);
-    jedis.set(JULIE_OPS_STATE, state.asPrettyJson());
+    jedis.set(bucket, state.asPrettyJson());
   }
 
   @Override
   public BackendState load() throws IOException {
     connectIfNeed();
-    Optional<String> contentOptional = Optional.ofNullable(jedis.get(JULIE_OPS_STATE));
+    Optional<String> contentOptional = Optional.ofNullable(jedis.get(bucket));
     LOGGER.debug("Loading a new state instance: " + contentOptional);
     return (BackendState) JSON.toObject(contentOptional.orElse("{}"), BackendState.class);
   }
