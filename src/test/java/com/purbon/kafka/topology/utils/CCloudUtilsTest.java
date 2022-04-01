@@ -3,6 +3,7 @@ package com.purbon.kafka.topology.utils;
 import static com.purbon.kafka.topology.CommandLineInterface.BROKERS_OPTION;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.doThrow;
 
 import com.purbon.kafka.topology.Configuration;
 import com.purbon.kafka.topology.api.ccloud.CCloudApi;
@@ -71,5 +72,13 @@ public class CCloudUtilsTest {
     var translatedBinding = utils.translateIfNecessary(binding, lookupTable);
 
     assertThat(translatedBinding.getPrincipal()).isEqualTo("User:12345");
+  }
+
+  @Test(expected = IOException.class)
+  public void translationShouldBeAbortedIfErrors() throws IOException {
+    Configuration config = new Configuration(cliOps, props);
+    var utils = new CCloudUtils(config);
+    doThrow(new IOException()).when(cCloudApi).listServiceAccounts();
+    utils.initializeLookupTable(cCloudApi);
   }
 }
