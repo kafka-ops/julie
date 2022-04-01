@@ -31,4 +31,12 @@ public class ServiceAccountV1 {
   private String deactivated_at;
   private String social_connection;
   private String auth_type;
+
+  // visible for test
+  public ServiceAccountV1(Long id, String email, String service_name, String resource_id) {
+    this.id = id;
+    this.email = email;
+    this.service_name = service_name;
+    this.resource_id = resource_id;
+  }
 }
