@@ -1,0 +1,83 @@
+---
+asyncapi: 2.3.0
+id: 'urn:com:smartylighting:streetlights:server'
+info:
+  title: Hello World
+  version: '0.1.0'
+servers:
+  production:
+    url: broker.mycompany.com
+    protocol: kafka
+    protocolVersion: '3.0.0'
+    description: This is my broker
+    security:
+      - user-password: []
+      - scram: []
+defaultContentType: application/avro
+channels:
+  hello0:
+    publish:
+      bindings:
+        kafka:
+          groupId:
+            type: string
+            enum: ['myGroupId']
+          clientId:
+            type: string
+            enum: ['myClientId']
+          bindingVersion: 'latest' # The version of this binding. If omitted, "latest" MUST be assumed.
+      message:
+        bindings:
+          kafka:
+            key:
+              type: string
+              enum: ['myKey']
+            bindingVersion: '0.1.0'
+        payload:
+          type: string
+          pattern: '^hello .+$'
+  hello:
+    subscribe:
+      operationId: "1234"
+      tags:
+        topic:
+          name: "topic"
+          description: "the topic where this operation is consuming"
+      message:
+        $ref: '#/components/messages/goodbye-msg'
+    publish:
+      operationId: "4321"
+      message:
+        $ref: '#/components/messages/hello-msg'
+  goodbye:
+    publish:
+      message:
+        $red: '#/components/messages/goodbye-msg'
+components:
+  messages:
+    hello-msg:
+      payload:
+        type: object
+        properties:
+          name:
+            type: string
+          sentAt:
+            $ref: '#/components/schemas/sent-at'
+    goodbye-msg:
+      payload:
+        type: object
+        properties:
+          sentAt:
+            $ref: '#/components/schemas/sent-at'
+  schemas:
+    sent-at:
+      type: string
+      description: The date and time a message was sent.
+      format: datetime
+    securitySchemes:
+      user-password:
+        name: "user-password"
+        type: userPassword
+      scram:
+        type: scramSha512 # gssapi, plain, x509
+

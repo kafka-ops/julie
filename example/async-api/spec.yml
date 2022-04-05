@@ -1,0 +1,51 @@
+---
+asyncapi: 2.2.0
+info:
+  title: Hello World
+  version: '0.1.0'
+servers:
+  production:
+    url: broker.mycompany.com
+    protocol: kafka
+    description: This is my broker
+    security:
+      - user-password: []
+channels:
+  hello0:
+    publish:
+      message:
+        payload:
+          type: string
+          pattern: '^hello .+$'
+  hello:
+    publish:
+      message:
+        $ref: '#/components/messages/hello-msg'
+  goodbye:
+    publish:
+      message:
+        $red: '#/components/messages/goodbye-msg'
+components:
+  messages:
+    hello-msg:
+      payload:
+        type: object
+        properties:
+          name:
+            type: string
+          sentAt:
+            $ref: '#/components/schemas/sent-at'
+    goodbye-msg:
+      payload:
+        type: object
+        properties:
+          sentAt:
+            $ref: '#/components/schemas/sent-at'
+  schemas:
+    sent-at:
+      type: string
+      description: The date and time a message was sent.
+      format: datetime
+    securitySchemes:
+      user-password:
+        type: userPassword

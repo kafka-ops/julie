@@ -1,0 +1,22 @@
+---
+asyncapi: 2.2.0
+info:
+  title: Example
+  version: 0.1.0
+channels:
+  user/signedup:
+    subscribe:
+      message:
+        description: An event describing that a user just signed up
+        payload:
+          type: object
+          additionalProperties: false
+          properties:
+            fullName:
+              type: string
+            email:
+              type: string
+              format: email
+            age:
+              type: integer
+              minimum: 18
