@@ -1,0 +1,101 @@
+---
+context: "context"
+projects:
+  - name: "projectA"
+    consumers:
+      - principal: "User:App0"
+        group: "consumer-foo"
+        metadata:
+          system: "System0"
+    producers:
+      - principal: "User:App3"
+        transactionId: "12345"
+        idempotence: false
+        metadata:
+          system: "System1"
+    streams:
+      - principal: "User:Streams0"
+        metadata:
+          contactInfo: "app1@company.com"
+        applicationId: "foo"
+        exactlyOnce: false
+        topics:
+          read:
+            - "topicA"
+            - "topicB"
+          write:
+            - "topicC"
+            - "topicD"
+    ksql:
+      artefacts:
+        streams:
+          - path: "ksql/riderlocations.sql"
+            name: "riderLocations"
+        tables:
+          - path: "ksql/users.sql"
+            name: "users"
+      access_control:
+        - principal: "User:Ksql"
+          applicationId: "1234"
+          ksqlDbId: "db01"
+          topics:
+            read:
+              - "topicA"
+              - "topicB"
+            write:
+              - "topicC"
+              - "topicD"
+    connectors:
+      artefacts:
+        - path: "connectors/source-jdbc.json"
+          server: "connect"
+          name: "source-jdbc"
+      access_control:
+        - principal: "User:Connect1"
+          group: "group"
+          status_topic: "status"
+          offset_topic: "offset"
+          configs_topic: "configs"
+          topics:
+            read:
+              - "topicA"
+              - "topicB"
+            write:
+              - "topicC"
+              - "topicD"
+    topics:
+      - name: "topicA"
+        plan: "gold"
+        metadata:
+          domain: "Sales"
+          owner: "DepartmentA"
+        consumers:
+          - principal: "User:App4"
+            metadata:
+              system: "System4"
+        producers:
+          - principal: "User:App1"
+            metadata:
+              system: "System1"
+        schemas:
+          - key.schema.file: "schemas/bar-key.avsc"
+            value.schema.file: "schemas/bar-value.avsc"
+        dataType: "avro"
+        config:
+          replication.factor: "1"
+          num.partitions: "1"
+platform:
+  schema_registry:
+    instances:
+      - principal: "User:SchemaRegistry01"
+        topic: "foo"
+        group: "bar"
+  ksql:
+    instances:
+      - principal: "User:Ksql01"
+        ksqlDbId: "12345"
+        owner: "foo"
+  control_center:
+    instances:
+      - principal: "User:ControlCenter"
+        appId: "controlcenter"
