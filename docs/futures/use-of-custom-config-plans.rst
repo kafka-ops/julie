@@ -83,4 +83,5 @@ An example call will look like:
 
   $>  julie-ops-cli.sh --brokers localhost:9092  \
                 --clientConfig example/topology-builder.properties \
+                --plans my-plans.yml \
                 --topology example/descriptor-with-plans.yaml
