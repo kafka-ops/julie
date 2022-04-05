@@ -18,6 +18,8 @@ The file type is configured using the *topology.file.type* configuration variabl
 topology.file.type=JSON
 ```
 
+More details about the expected entities and their schema can be found in the provided JSON schema file available `here <topologies/>`_.
+
 Getting started
 -----------
 
