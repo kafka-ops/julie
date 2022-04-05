@@ -1,5 +1,6 @@
 package com.purbon.kafka.topology.model;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.purbon.kafka.topology.model.Impl.ProjectImpl;
 import com.purbon.kafka.topology.model.artefact.KConnectArtefacts;
@@ -33,6 +34,7 @@ public interface Project {
 
   void setStreams(List<KStream> streams);
 
+  @JsonProperty("ksql")
   List<KSqlApp> getKSqls();
 
   void setKSqls(List<KSqlApp> ksqls);
