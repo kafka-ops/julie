@@ -2,7 +2,7 @@
     "$schema": "http://json-schema.org/draft-07/schema",
     "$id": "http://example.com/example.json",
     "type": "object",
-    "title": "The root schema",
+    "title": "JulieOps Topology descriptor format",
     "description": "The root schema comprises the entire JSON document.",
     "default": {},
     "required": [
@@ -47,8 +47,7 @@
                                 "$id": "#/properties/projects/items/anyOf/0/properties/consumers",
                                 "type": "array",
                                 "title": "The consumers schema",
-                                "description": "An explanation about the purpose of this instance.",
-                                "default": [],
+                                "description": "The definition for Access Control rules for raw Kafka Consumers",
                                 "additionalItems": true,
                                 "items": {
                                     "$id": "#/properties/projects/items/anyOf/0/properties/consumers/items",
@@ -79,12 +78,12 @@
                                                 "metadata": {
                                                     "$id": "#/properties/projects/items/anyOf/0/properties/consumers/items/anyOf/0/properties/metadata",
                                                     "type": "object",
-                                                    "title": "The metadata schema",
-                                                    "description": "An explanation about the purpose of this instance.",
+                                                    "title": "Metadata collection",
+                                                    "description": "A collection of metadata properties describing this producer.",
                                                     "additionalProperties": true
                                                 }
                                             },
-                                            "additionalProperties": true
+                                            "additionalProperties": false
                                         }
                                     ]
                                 }
@@ -113,31 +112,31 @@
                                                     "$id": "#/properties/projects/items/anyOf/0/properties/producers/items/anyOf/0/properties/principal",
                                                     "type": "string",
                                                     "title": "The principal schema",
-                                                    "description": "An explanation about the purpose of this instance."
+                                                    "description": "A Principal/User name in the form of User:Foo or Group:Bar."
                                                 },
                                                 "transactionId": {
                                                     "$id": "#/properties/projects/items/anyOf/0/properties/producers/items/anyOf/0/properties/transactionId",
                                                     "type": "string",
-                                                    "title": "The transactionId schema",
-                                                    "description": "An explanation about the purpose of this instance.",
+                                                    "title": "The Producer configured Transaction ID",
+                                                    "description": "The Transaction ID used by this project instance.",
                                                     "default": ""
                                                 },
                                                 "idempotence": {
                                                     "$id": "#/properties/projects/items/anyOf/0/properties/producers/items/anyOf/0/properties/idempotence",
                                                     "type": "boolean",
-                                                    "title": "The idempotence schema",
-                                                    "description": "An explanation about the purpose of this instance.",
+                                                    "title": "Idempotence Producer",
+                                                    "description": "True if this producer is an idempotence producer.",
                                                     "default": false
                                                 },
                                                 "metadata": {
                                                     "$id": "#/properties/projects/items/anyOf/0/properties/producers/items/anyOf/0/properties/metadata",
                                                     "type": "object",
-                                                    "title": "The metadata schema",
-                                                    "description": "An explanation about the purpose of this instance.",
+                                                    "title": "Metadata collection",
+                                                    "description": "A collection of metadata properties describing this producer.",
                                                     "additionalProperties": true
                                                 }
                                             },
-                                            "additionalProperties": true
+                                            "additionalProperties": false
                                         }
                                     ]
                                 }
@@ -145,8 +144,8 @@
                             "streams": {
                                 "$id": "#/properties/projects/items/anyOf/0/properties/streams",
                                 "type": "array",
-                                "title": "The streams schema",
-                                "description": "An explanation about the purpose of this instance.",
+                                "title": "Kafka Streams application",
+                                "description": "Collection of properties describing a Kafka Streams application.",
                                 "default": [],
                                 "additionalItems": true,
                                 "items": {
@@ -160,45 +159,40 @@
                                             "default": {},
                                             "required": [
                                                 "principal",
-                                                "metadata",
-                                                "applicationId",
-                                                "exactlyOnce",
                                                 "topics"
                                             ],
                                             "properties": {
                                                 "principal": {
                                                     "$id": "#/properties/projects/items/anyOf/0/properties/streams/items/anyOf/0/properties/principal",
                                                     "type": "string",
-                                                    "title": "The principal schema",
-                                                    "description": "An explanation about the purpose of this instance.",
-                                                    "default": ""
+                                                    "title": "Principal name",
+                                                    "description": "A Principal/User name in the form of User:Foo or Group:Bar."
                                                 },
                                                 "metadata": {
                                                     "$id": "#/properties/projects/items/anyOf/0/properties/streams/items/anyOf/0/properties/metadata",
                                                     "type": "object",
-                                                    "title": "The metadata schema",
-                                                    "description": "An explanation about the purpose of this instance.",
+                                                    "title": "Metadata collection",
+                                                    "description": "A collection of metadata properties describing this producer.",
                                                     "additionalProperties": true
                                                 },
                                                 "applicationId": {
                                                     "$id": "#/properties/projects/items/anyOf/0/properties/streams/items/anyOf/0/properties/applicationId",
                                                     "type": "string",
-                                                    "title": "The applicationId schema",
-                                                    "description": "An explanation about the purpose of this instance.",
-                                                    "default": ""
+                                                    "title": "ApplicationID property",
+                                                    "description": "The configured ApplicationID for the KStreams application."
                                                 },
                                                 "exactlyOnce": {
                                                     "$id": "#/properties/projects/items/anyOf/0/properties/streams/items/anyOf/0/properties/exactlyOnce",
                                                     "type": "boolean",
-                                                    "title": "The exactlyOnce schema",
-                                                    "description": "An explanation about the purpose of this instance.",
+                                                    "title": "Using exactly once",
+                                                    "description": "True if the application is using exactly once.",
                                                     "default": false
                                                 },
                                                 "topics": {
                                                     "$id": "#/properties/projects/items/anyOf/0/properties/streams/items/anyOf/0/properties/topics",
                                                     "type": "object",
-                                                    "title": "The topics schema",
-                                                    "description": "An explanation about the purpose of this instance.",
+                                                    "title": "Topics used",
+                                                    "description": "List of source and target topics used by this application.",
                                                     "default": {},
                                                     "required": [
                                                         "read",
@@ -208,9 +202,8 @@
                                                         "read": {
                                                             "$id": "#/properties/projects/items/anyOf/0/properties/streams/items/anyOf/0/properties/topics/properties/read",
                                                             "type": "array",
-                                                            "title": "The read schema",
-                                                            "description": "An explanation about the purpose of this instance.",
-                                                            "default": [],
+                                                            "title": "Source topics",
+                                                            "description": "A list of source topics.",
                                                             "additionalItems": true,
                                                             "items": {
                                                                 "$id": "#/properties/projects/items/anyOf/0/properties/streams/items/anyOf/0/properties/topics/properties/read/items",
@@ -228,8 +221,8 @@
                                                         "write": {
                                                             "$id": "#/properties/projects/items/anyOf/0/properties/streams/items/anyOf/0/properties/topics/properties/write",
                                                             "type": "array",
-                                                            "title": "The write schema",
-                                                            "description": "An explanation about the purpose of this instance.",
+                                                            "title": "Target topics",
+                                                            "description": "A list of target topics.",
                                                             "default": [],
                                                             "additionalItems": true,
                                                             "items": {
@@ -245,11 +238,9 @@
                                                                 ]
                                                             }
                                                         }
-                                                    },
-                                                    "additionalProperties": true
+                                                    }
                                                 }
-                                            },
-                                            "additionalProperties": true
+                                            }
                                         }
                                     ]
                                 }
@@ -257,8 +248,8 @@
                             "ksql": {
                                 "$id": "#/properties/projects/items/anyOf/0/properties/ksql",
                                 "type": "object",
-                                "title": "The ksql schema",
-                                "description": "An explanation about the purpose of this instance.",
+                                "title": "ksqlDB artefact and access control items",
+                                "description": "Items describing a ksqlDB deployment.",
                                 "default": {},
                                 "required": [
                                     "artefacts",
@@ -268,8 +259,8 @@
                                     "artefacts": {
                                         "$id": "#/properties/projects/items/anyOf/0/properties/ksql/properties/artefacts",
                                         "type": "object",
-                                        "title": "The artefacts schema",
-                                        "description": "An explanation about the purpose of this instance.",
+                                        "title": "ksqlDB artefacts",
+                                        "description": "A collection of deployment artefacts for ksqlDB.",
                                         "default": {},
                                         "required": [
                                             "streams",
@@ -279,8 +270,8 @@
                                             "streams": {
                                                 "$id": "#/properties/projects/items/anyOf/0/properties/ksql/properties/artefacts/properties/streams",
                                                 "type": "array",
-                                                "title": "The streams schema",
-                                                "description": "An explanation about the purpose of this instance.",
+                                                "title": "ksqlDB streams",
+                                                "description": "List of ksqlDB streams persistent queries.",
                                                 "default": [],
                                                 "additionalItems": true,
                                                 "items": {
@@ -300,19 +291,16 @@
                                                                 "path": {
                                                                     "$id": "#/properties/projects/items/anyOf/0/properties/ksql/properties/artefacts/properties/streams/items/anyOf/0/properties/path",
                                                                     "type": "string",
-                                                                    "title": "The path schema",
-                                                                    "description": "An explanation about the purpose of this instance.",
-                                                                    "default": ""
+                                                                    "title": "Artefact path",
+                                                                    "description": "The artefact path, relative to the topology file."
                                                                 },
                                                                 "name": {
                                                                     "$id": "#/properties/projects/items/anyOf/0/properties/ksql/properties/artefacts/properties/streams/items/anyOf/0/properties/name",
                                                                     "type": "string",
-                                                                    "title": "The name schema",
-                                                                    "description": "An explanation about the purpose of this instance.",
-                                                                    "default": ""
+                                                                    "title": "ksqlDB persistent stream name",
+                                                                    "description": "A given name for the persistent stream."
                                                                 }
-                                                            },
-                                                            "additionalProperties": true
+                                                            }
                                                         }
                                                     ]
                                                 }
@@ -320,8 +308,8 @@
                                             "tables": {
                                                 "$id": "#/properties/projects/items/anyOf/0/properties/ksql/properties/artefacts/properties/tables",
                                                 "type": "array",
-                                                "title": "The tables schema",
-                                                "description": "An explanation about the purpose of this instance.",
+                                                "title": "ksqlDB tables",
+                                                "description": "A list of ksqlDB persistent tables for the deployment.",
                                                 "default": [],
                                                 "additionalItems": true,
                                                 "items": {
@@ -341,31 +329,27 @@
                                                                 "path": {
                                                                     "$id": "#/properties/projects/items/anyOf/0/properties/ksql/properties/artefacts/properties/tables/items/anyOf/0/properties/path",
                                                                     "type": "string",
-                                                                    "title": "The path schema",
-                                                                    "description": "An explanation about the purpose of this instance.",
-                                                                    "default": ""
+                                                                    "title": "Artefact path",
+                                                                    "description": "The artefact path, relative to the topology file."
                                                                 },
                                                                 "name": {
                                                                     "$id": "#/properties/projects/items/anyOf/0/properties/ksql/properties/artefacts/properties/tables/items/anyOf/0/properties/name",
                                                                     "type": "string",
-                                                                    "title": "The name schema",
-                                                                    "description": "An explanation about the purpose of this instance.",
-                                                                    "default": ""
+                                                                    "title": "ksqlDB persistent stream name",
+                                                                    "description": "A given name for the persistent stream."
                                                                 }
-                                                            },
-                                                            "additionalProperties": true
+                                                            }
                                                         }
                                                     ]
                                                 }
                                             }
-                                        },
-                                        "additionalProperties": true
+                                        }
                                     },
                                     "access_control": {
                                         "$id": "#/properties/projects/items/anyOf/0/properties/ksql/properties/access_control",
                                         "type": "array",
-                                        "title": "The access_control schema",
-                                        "description": "An explanation about the purpose of this instance.",
+                                        "title": "ksqlDB access control permissions",
+                                        "description": "Items to define the required permissions to run a ksqlDB instance.",
                                         "default": [],
                                         "additionalItems": true,
                                         "items": {
@@ -385,29 +369,26 @@
                                                         "principal": {
                                                             "$id": "#/properties/projects/items/anyOf/0/properties/ksql/properties/access_control/items/anyOf/0/properties/principal",
                                                             "type": "string",
-                                                            "title": "The principal schema",
-                                                            "description": "An explanation about the purpose of this instance.",
-                                                            "default": ""
+                                                            "title": "Principal name",
+                                                            "description": "A Principal/User name in the form of User:Foo or Group:Bar."
                                                         },
                                                         "applicationId": {
                                                             "$id": "#/properties/projects/items/anyOf/0/properties/ksql/properties/access_control/items/anyOf/0/properties/applicationId",
                                                             "type": "string",
-                                                            "title": "The applicationId schema",
-                                                            "description": "An explanation about the purpose of this instance.",
-                                                            "default": ""
+                                                            "title": "ksqlDB applicationID",
+                                                            "description": "ksqlDB instance configured applicationID from the properties file."
                                                         },
                                                         "ksqlDbId": {
                                                             "$id": "#/properties/projects/items/anyOf/0/properties/ksql/properties/access_control/items/anyOf/0/properties/ksqlDbId",
                                                             "type": "string",
-                                                            "title": "The ksqlDbId schema",
-                                                            "description": "An explanation about the purpose of this instance.",
-                                                            "default": ""
+                                                            "title": "ksqlDbId applicationID",
+                                                            "description": "ksqlDbId instance configured applicationID from the properties file."
                                                         },
                                                         "topics": {
-                                                            "$id": "#/properties/projects/items/anyOf/0/properties/ksql/properties/access_control/items/anyOf/0/properties/topics",
+                                                            "$id": "#/properties/projects/items/anyOf/0/properties/ksql/items/anyOf/0/properties/topics",
                                                             "type": "object",
-                                                            "title": "The topics schema",
-                                                            "description": "An explanation about the purpose of this instance.",
+                                                            "title": "Topics used",
+                                                            "description": "List of source and target topics used by this application.",
                                                             "default": {},
                                                             "required": [
                                                                 "read",
@@ -415,17 +396,16 @@
                                                             ],
                                                             "properties": {
                                                                 "read": {
-                                                                    "$id": "#/properties/projects/items/anyOf/0/properties/ksql/properties/access_control/items/anyOf/0/properties/topics/properties/read",
+                                                                    "$id": "#/properties/projects/items/anyOf/0/properties/ksql/items/anyOf/0/properties/topics/properties/read",
                                                                     "type": "array",
-                                                                    "title": "The read schema",
-                                                                    "description": "An explanation about the purpose of this instance.",
-                                                                    "default": [],
+                                                                    "title": "Source topics",
+                                                                    "description": "A list of source topics.",
                                                                     "additionalItems": true,
                                                                     "items": {
-                                                                        "$id": "#/properties/projects/items/anyOf/0/properties/ksql/properties/access_control/items/anyOf/0/properties/topics/properties/read/items",
+                                                                        "$id": "#/properties/projects/items/anyOf/0/properties/ksql/items/anyOf/0/properties/topics/properties/read/items",
                                                                         "anyOf": [
                                                                             {
-                                                                                "$id": "#/properties/projects/items/anyOf/0/properties/ksql/properties/access_control/items/anyOf/0/properties/topics/properties/read/items/anyOf/0",
+                                                                                "$id": "#/properties/projects/items/anyOf/0/properties/ksql/items/anyOf/0/properties/topics/properties/read/items/anyOf/0",
                                                                                 "type": "string",
                                                                                 "title": "The first anyOf schema",
                                                                                 "description": "An explanation about the purpose of this instance.",
@@ -435,17 +415,17 @@
                                                                     }
                                                                 },
                                                                 "write": {
-                                                                    "$id": "#/properties/projects/items/anyOf/0/properties/ksql/properties/access_control/items/anyOf/0/properties/topics/properties/write",
+                                                                    "$id": "#/properties/projects/items/anyOf/0/properties/ksql/items/anyOf/0/properties/topics/properties/write",
                                                                     "type": "array",
-                                                                    "title": "The write schema",
-                                                                    "description": "An explanation about the purpose of this instance.",
+                                                                    "title": "Target topics",
+                                                                    "description": "A list of target topics.",
                                                                     "default": [],
                                                                     "additionalItems": true,
                                                                     "items": {
-                                                                        "$id": "#/properties/projects/items/anyOf/0/properties/ksql/properties/access_control/items/anyOf/0/properties/topics/properties/write/items",
+                                                                        "$id": "#/properties/projects/items/anyOf/0/properties/ksql/items/anyOf/0/properties/topics/properties/write/items",
                                                                         "anyOf": [
                                                                             {
-                                                                                "$id": "#/properties/projects/items/anyOf/0/properties/ksql/properties/access_control/items/anyOf/0/properties/topics/properties/write/items/anyOf/0",
+                                                                                "$id": "#/properties/projects/items/anyOf/0/properties/ksql/items/anyOf/0/properties/topics/properties/write/items/anyOf/0",
                                                                                 "type": "string",
                                                                                 "title": "The first anyOf schema",
                                                                                 "description": "An explanation about the purpose of this instance.",
@@ -454,23 +434,20 @@
                                                                         ]
                                                                     }
                                                                 }
-                                                            },
-                                                            "additionalProperties": true
+                                                            }
                                                         }
-                                                    },
-                                                    "additionalProperties": true
+                                                    }
                                                 }
                                             ]
                                         }
                                     }
-                                },
-                                "additionalProperties": true
+                                }
                             },
                             "connectors": {
                                 "$id": "#/properties/projects/items/anyOf/0/properties/connectors",
                                 "type": "object",
-                                "title": "The connectors schema",
-                                "description": "An explanation about the purpose of this instance.",
+                                "title": "Kafka Connect definition items",
+                                "description": "List of items defining the artefacts and access control rules for Kafka Connect usage.",
                                 "default": {},
                                 "required": [
                                     "artefacts",
@@ -480,8 +457,8 @@
                                     "artefacts": {
                                         "$id": "#/properties/projects/items/anyOf/0/properties/connectors/properties/artefacts",
                                         "type": "array",
-                                        "title": "The artefacts schema",
-                                        "description": "An explanation about the purpose of this instance.",
+                                        "title": "Kafka Connect artefacts",
+                                        "description": "A collection of deployment artefacts for Kafka Connect.",
                                         "default": [],
                                         "additionalItems": true,
                                         "items": {
@@ -502,26 +479,23 @@
                                                         "path": {
                                                             "$id": "#/properties/projects/items/anyOf/0/properties/connectors/properties/artefacts/items/anyOf/0/properties/path",
                                                             "type": "string",
-                                                            "title": "The path schema",
-                                                            "description": "An explanation about the purpose of this instance.",
+                                                            "title": "Connector JSON definition file path",
+                                                            "description": "The path where to find the connector definition file, relative to the topology file location.",
                                                             "default": ""
                                                         },
                                                         "server": {
                                                             "$id": "#/properties/projects/items/anyOf/0/properties/connectors/properties/artefacts/items/anyOf/0/properties/server",
                                                             "type": "string",
-                                                            "title": "The server schema",
-                                                            "description": "An explanation about the purpose of this instance.",
-                                                            "default": ""
+                                                            "title": "Kafka Connect Server name",
+                                                            "description": "Name/Alias for the Kafka Connect where the connector should be deployed, see JulieOps configuration file."
                                                         },
                                                         "name": {
                                                             "$id": "#/properties/projects/items/anyOf/0/properties/connectors/properties/artefacts/items/anyOf/0/properties/name",
                                                             "type": "string",
-                                                            "title": "The name schema",
-                                                            "description": "An explanation about the purpose of this instance.",
-                                                            "default": ""
+                                                            "title": "Connector name",
+                                                            "description": "A given Connector name"
                                                         }
-                                                    },
-                                                    "additionalProperties": true
+                                                    }
                                                 }
                                             ]
                                         }
@@ -529,8 +503,8 @@
                                     "access_control": {
                                         "$id": "#/properties/projects/items/anyOf/0/properties/connectors/properties/access_control",
                                         "type": "array",
-                                        "title": "The access_control schema",
-                                        "description": "An explanation about the purpose of this instance.",
+                                        "title": "Connector/Kafka Connect access control permissions",
+                                        "description": "Items to define the required permissions to run Connectors instance.",
                                         "default": [],
                                         "additionalItems": true,
                                         "items": {
@@ -550,43 +524,39 @@
                                                         "principal": {
                                                             "$id": "#/properties/projects/items/anyOf/0/properties/connectors/properties/access_control/items/anyOf/0/properties/principal",
                                                             "type": "string",
-                                                            "title": "The principal schema",
-                                                            "description": "An explanation about the purpose of this instance.",
-                                                            "default": ""
+                                                            "title": "Principal name",
+                                                            "description": "A Principal/User name in the form of User:Foo or Group:Bar."
                                                         },
                                                         "group": {
                                                             "$id": "#/properties/projects/items/anyOf/0/properties/connectors/properties/access_control/items/anyOf/0/properties/group",
                                                             "type": "string",
-                                                            "title": "The group schema",
-                                                            "description": "An explanation about the purpose of this instance.",
-                                                            "default": ""
+                                                            "title": "Consumer group",
+                                                            "description": "The consumer group as required by the connector/cluster.",
+                                                            "default": "*"
                                                         },
                                                         "status_topic": {
                                                             "$id": "#/properties/projects/items/anyOf/0/properties/connectors/properties/access_control/items/anyOf/0/properties/status_topic",
                                                             "type": "string",
-                                                            "title": "The status_topic schema",
-                                                            "description": "An explanation about the purpose of this instance.",
-                                                            "default": ""
+                                                            "title": "Kafka Connect status_topic",
+                                                            "description": "status_topic name."
                                                         },
                                                         "offset_topic": {
                                                             "$id": "#/properties/projects/items/anyOf/0/properties/connectors/properties/access_control/items/anyOf/0/properties/offset_topic",
                                                             "type": "string",
-                                                            "title": "The offset_topic schema",
-                                                            "description": "An explanation about the purpose of this instance.",
-                                                            "default": ""
+                                                            "title": "Kafka Connect offset_topic",
+                                                            "description": "offset_topic name."
                                                         },
                                                         "configs_topic": {
                                                             "$id": "#/properties/projects/items/anyOf/0/properties/connectors/properties/access_control/items/anyOf/0/properties/configs_topic",
                                                             "type": "string",
-                                                            "title": "The configs_topic schema",
-                                                            "description": "An explanation about the purpose of this instance.",
-                                                            "default": ""
+                                                            "title": "Kafka Connect configs_topic",
+                                                            "description": "configs_topic name."
                                                         },
                                                         "topics": {
-                                                            "$id": "#/properties/projects/items/anyOf/0/properties/connectors/properties/access_control/items/anyOf/0/properties/topics",
+                                                            "$id": "#/properties/projects/items/anyOf/0/properties/connectors/items/anyOf/0/properties/topics",
                                                             "type": "object",
-                                                            "title": "The topics schema",
-                                                            "description": "An explanation about the purpose of this instance.",
+                                                            "title": "Topics used",
+                                                            "description": "List of source and target topics used by this application.",
                                                             "default": {},
                                                             "required": [
                                                                 "read",
@@ -594,17 +564,16 @@
                                                             ],
                                                             "properties": {
                                                                 "read": {
-                                                                    "$id": "#/properties/projects/items/anyOf/0/properties/connectors/properties/access_control/items/anyOf/0/properties/topics/properties/read",
+                                                                    "$id": "#/properties/projects/items/anyOf/0/properties/connectors/items/anyOf/0/properties/topics/properties/read",
                                                                     "type": "array",
-                                                                    "title": "The read schema",
-                                                                    "description": "An explanation about the purpose of this instance.",
-                                                                    "default": [],
+                                                                    "title": "Source topics",
+                                                                    "description": "A list of source topics.",
                                                                     "additionalItems": true,
                                                                     "items": {
-                                                                        "$id": "#/properties/projects/items/anyOf/0/properties/connectors/properties/access_control/items/anyOf/0/properties/topics/properties/read/items",
+                                                                        "$id": "#/properties/projects/items/anyOf/0/properties/connectors/items/anyOf/0/properties/topics/properties/read/items",
                                                                         "anyOf": [
                                                                             {
-                                                                                "$id": "#/properties/projects/items/anyOf/0/properties/connectors/properties/access_control/items/anyOf/0/properties/topics/properties/read/items/anyOf/0",
+                                                                                "$id": "#/properties/projects/items/anyOf/0/properties/connectors/items/anyOf/0/properties/topics/properties/read/items/anyOf/0",
                                                                                 "type": "string",
                                                                                 "title": "The first anyOf schema",
                                                                                 "description": "An explanation about the purpose of this instance.",
@@ -614,17 +583,17 @@
                                                                     }
                                                                 },
                                                                 "write": {
-                                                                    "$id": "#/properties/projects/items/anyOf/0/properties/connectors/properties/access_control/items/anyOf/0/properties/topics/properties/write",
+                                                                    "$id": "#/properties/projects/items/anyOf/0/properties/connectors/items/anyOf/0/properties/topics/properties/write",
                                                                     "type": "array",
-                                                                    "title": "The write schema",
-                                                                    "description": "An explanation about the purpose of this instance.",
+                                                                    "title": "Target topics",
+                                                                    "description": "A list of target topics.",
                                                                     "default": [],
                                                                     "additionalItems": true,
                                                                     "items": {
-                                                                        "$id": "#/properties/projects/items/anyOf/0/properties/connectors/properties/access_control/items/anyOf/0/properties/topics/properties/write/items",
+                                                                        "$id": "#/properties/projects/items/anyOf/0/properties/connectors/items/anyOf/0/properties/topics/properties/write/items",
                                                                         "anyOf": [
                                                                             {
-                                                                                "$id": "#/properties/projects/items/anyOf/0/properties/connectors/properties/access_control/items/anyOf/0/properties/topics/properties/write/items/anyOf/0",
+                                                                                "$id": "#/properties/projects/items/anyOf/0/properties/connectors/items/anyOf/0/properties/topics/properties/write/items/anyOf/0",
                                                                                 "type": "string",
                                                                                 "title": "The first anyOf schema",
                                                                                 "description": "An explanation about the purpose of this instance.",
@@ -633,17 +602,14 @@
                                                                         ]
                                                                     }
                                                                 }
-                                                            },
-                                                            "additionalProperties": true
+                                                            }
                                                         }
-                                                    },
-                                                    "additionalProperties": true
+                                                    }
                                                 }
                                             ]
                                         }
                                     }
-                                },
-                                "additionalProperties": true
+                                }
                             },
                             "topics": {
                                 "$id": "#/properties/projects/items/anyOf/0/properties/topics",
@@ -668,15 +634,14 @@
                                                 "name": {
                                                     "$id": "#/properties/projects/items/anyOf/0/properties/topics/items/anyOf/0/properties/name",
                                                     "type": "string",
-                                                    "title": "The name schema",
-                                                    "description": "An explanation about the purpose of this instance.",
-                                                    "default": ""
+                                                    "title": "The topic name",
+                                                    "description": "A given topic name."
                                                 },
                                                 "metadata": {
                                                     "$id": "#/properties/projects/items/anyOf/0/properties/topics/items/anyOf/0/properties/metadata",
                                                     "type": "object",
-                                                    "title": "The metadata schema",
-                                                    "description": "An explanation about the purpose of this instance.",
+                                                    "title": "Metadata collection",
+                                                    "description": "A collection of metadata properties describing this topic.",
                                                     "additionalProperties": true
                                                 },
                                                 "consumers": {
@@ -702,19 +667,17 @@
                                                                     "principal": {
                                                                         "$id": "#/properties/projects/items/anyOf/0/properties/topics/items/anyOf/0/properties/consumers/items/anyOf/0/properties/principal",
                                                                         "type": "string",
-                                                                        "title": "The principal schema",
-                                                                        "description": "An explanation about the purpose of this instance.",
-                                                                        "default": ""
+                                                                        "title": "Principal name",
+                                                                        "description": "A Principal/User name in the form of User:Foo or Group:Bar."
                                                                     },
                                                                     "metadata": {
                                                                         "$id": "#/properties/projects/items/anyOf/0/properties/topics/items/anyOf/0/properties/consumers/items/anyOf/0/properties/metadata",
                                                                         "type": "object",
-                                                                        "title": "The metadata schema",
-                                                                        "description": "An explanation about the purpose of this instance.",
+                                                                        "title": "Metadata collection",
+                                                                        "description": "A collection of metadata properties describing this consumer.",
                                                                         "additionalProperties": true
                                                                     }
-                                                                },
-                                                                "additionalProperties": true
+                                                                }
                                                             }
                                                         ]
                                                     }
@@ -742,19 +705,17 @@
                                                                     "principal": {
                                                                         "$id": "#/properties/projects/items/anyOf/0/properties/topics/items/anyOf/0/properties/producers/items/anyOf/0/properties/principal",
                                                                         "type": "string",
-                                                                        "title": "The principal schema",
-                                                                        "description": "An explanation about the purpose of this instance.",
-                                                                        "default": ""
+                                                                        "title": "Principal name",
+                                                                        "description": "A Principal/User name in the form of User:Foo or Group:Bar."
                                                                     },
                                                                     "metadata": {
                                                                         "$id": "#/properties/projects/items/anyOf/0/properties/topics/items/anyOf/0/properties/producers/items/anyOf/0/properties/metadata",
                                                                         "type": "object",
-                                                                        "title": "The metadata schema",
-                                                                        "description": "An explanation about the purpose of this instance.",
+                                                                        "title": "Metadata collection",
+                                                                        "description": "A collection of metadata properties describing this producer.",
                                                                         "additionalProperties": true
                                                                     }
-                                                                },
-                                                                "additionalProperties": true
+                                                                }
                                                             }
                                                         ]
                                                     }
@@ -762,8 +723,8 @@
                                                 "schemas": {
                                                     "$id": "#/properties/projects/items/anyOf/0/properties/topics/items/anyOf/0/properties/schemas",
                                                     "type": "array",
-                                                    "title": "The schemas schema",
-                                                    "description": "An explanation about the purpose of this instance.",
+                                                    "title": "Schemas for this topic",
+                                                    "description": "Schema references for this topic.",
                                                     "default": [],
                                                     "additionalItems": true,
                                                     "items": {
@@ -783,19 +744,16 @@
                                                                     "key.schema.file": {
                                                                         "$id": "#/properties/projects/items/anyOf/0/properties/topics/items/anyOf/0/properties/schemas/items/anyOf/0/properties/key.schema.file",
                                                                         "type": "string",
-                                                                        "title": "The key.schema.file schema",
-                                                                        "description": "An explanation about the purpose of this instance.",
-                                                                        "default": ""
+                                                                        "title": "The key.schema.file path",
+                                                                        "description": "Relative path, to the topology, in order to locate the key schema."
                                                                     },
                                                                     "value.schema.file": {
                                                                         "$id": "#/properties/projects/items/anyOf/0/properties/topics/items/anyOf/0/properties/schemas/items/anyOf/0/properties/value.schema.file",
                                                                         "type": "string",
-                                                                        "title": "The value.schema.file schema",
-                                                                        "description": "An explanation about the purpose of this instance.",
-                                                                        "default": ""
+                                                                        "title": "The value.schema.file path",
+                                                                        "description": "Relative path, to the topology, in order to locate the value schema."
                                                                     }
-                                                                },
-                                                                "additionalProperties": true
+                                                                }
                                                             }
                                                         ]
                                                     }
@@ -803,25 +761,22 @@
                                                 "dataType": {
                                                     "$id": "#/properties/projects/items/anyOf/0/properties/topics/items/anyOf/0/properties/dataType",
                                                     "type": "string",
-                                                    "title": "The dataType schema",
-                                                    "description": "An explanation about the purpose of this instance.",
-                                                    "default": ""
+                                                    "title": "Data type label",
+                                                    "description": "A data type label, used during topic name building."
                                                 },
                                                 "config": {
                                                     "$id": "#/properties/projects/items/anyOf/0/properties/topics/items/anyOf/0/properties/config",
                                                     "type": "object",
-                                                    "title": "The config schema",
-                                                    "description": "An explanation about the purpose of this instance.",
+                                                    "title": "List of config properties for the topic",
+                                                    "description": "Topic level configuration for the topic, see docs for exact reference.",
                                                     "additionalProperties": true
                                                 }
-                                            },
-                                            "additionalProperties": true
+                                            }
                                         }
                                     ]
                                 }
                             }
-                        },
-                        "additionalProperties": true
+                        }
                     }
                 ]
             }
@@ -829,14 +784,9 @@
         "platform": {
             "$id": "#/properties/platform",
             "type": "object",
-            "title": "The platform schema",
-            "description": "An explanation about the purpose of this instance.",
+            "title": "The platform level configuration for access control",
+            "description": "A list of properties for configuring platform level access control rules for certain products.",
             "default": {},
-            "required": [
-                "schema_registry",
-                "ksql",
-                "control_center"
-            ],
             "properties": {
                 "schema_registry": {
                     "$id": "#/properties/platform/properties/schema_registry",
