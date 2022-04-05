@@ -791,8 +791,8 @@
                 "schema_registry": {
                     "$id": "#/properties/platform/properties/schema_registry",
                     "type": "object",
-                    "title": "The schema_registry schema",
-                    "description": "An explanation about the purpose of this instance.",
+                    "title": "Schema Registry instance access control items",
+                    "description": "Set of properties used to describe a deployment of Schema Registry servers.",
                     "default": {},
                     "required": [
                         "instances"
@@ -823,100 +823,35 @@
                                             "principal": {
                                                 "$id": "#/properties/platform/properties/schema_registry/properties/instances/items/anyOf/0/properties/principal",
                                                 "type": "string",
-                                                "title": "The principal schema",
-                                                "description": "An explanation about the purpose of this instance.",
-                                                "default": ""
+                                                "title": "Principal name",
+                                                "description": "A Principal/User name in the form of User:Foo or Group:Bar."
                                             },
                                             "topic": {
                                                 "$id": "#/properties/platform/properties/schema_registry/properties/instances/items/anyOf/0/properties/topic",
                                                 "type": "string",
-                                                "title": "The topic schema",
-                                                "description": "An explanation about the purpose of this instance.",
-                                                "default": ""
+                                                "title": "Schema topic name",
+                                                "description": "Name of the topic used to store schemas.",
+                                                "default": "_schema"
                                             },
                                             "group": {
                                                 "$id": "#/properties/platform/properties/schema_registry/properties/instances/items/anyOf/0/properties/group",
                                                 "type": "string",
-                                                "title": "The group schema",
-                                                "description": "An explanation about the purpose of this instance.",
-                                                "default": ""
+                                                "title": "Consumer group",
+                                                "description": "Schema Registry consumer group configuration.",
+                                                "default": "*"
                                             }
-                                        },
-                                        "additionalProperties": true
+                                        }
                                     }
                                 ]
                             }
                         }
-                    },
-                    "additionalProperties": true
-                },
-                "ksql": {
-                    "$id": "#/properties/platform/properties/ksql",
-                    "type": "object",
-                    "title": "The ksql schema",
-                    "description": "An explanation about the purpose of this instance.",
-                    "default": {},
-                    "required": [
-                        "instances"
-                    ],
-                    "properties": {
-                        "instances": {
-                            "$id": "#/properties/platform/properties/ksql/properties/instances",
-                            "type": "array",
-                            "title": "The instances schema",
-                            "description": "An explanation about the purpose of this instance.",
-                            "default": [],
-                            "additionalItems": true,
-                            "items": {
-                                "$id": "#/properties/platform/properties/ksql/properties/instances/items",
-                                "anyOf": [
-                                    {
-                                        "$id": "#/properties/platform/properties/ksql/properties/instances/items/anyOf/0",
-                                        "type": "object",
-                                        "title": "The first anyOf schema",
-                                        "description": "An explanation about the purpose of this instance.",
-                                        "default": {},
-                                        "required": [
-                                            "principal",
-                                            "ksqlDbId",
-                                            "owner"
-                                        ],
-                                        "properties": {
-                                            "principal": {
-                                                "$id": "#/properties/platform/properties/ksql/properties/instances/items/anyOf/0/properties/principal",
-                                                "type": "string",
-                                                "title": "The principal schema",
-                                                "description": "An explanation about the purpose of this instance.",
-                                                "default": ""
-                                            },
-                                            "ksqlDbId": {
-                                                "$id": "#/properties/platform/properties/ksql/properties/instances/items/anyOf/0/properties/ksqlDbId",
-                                                "type": "string",
-                                                "title": "The ksqlDbId schema",
-                                                "description": "An explanation about the purpose of this instance.",
-                                                "default": ""
-                                            },
-                                            "owner": {
-                                                "$id": "#/properties/platform/properties/ksql/properties/instances/items/anyOf/0/properties/owner",
-                                                "type": "string",
-                                                "title": "The owner schema",
-                                                "description": "An explanation about the purpose of this instance.",
-                                                "default": ""
-                                            }
-                                        },
-                                        "additionalProperties": true
-                                    }
-                                ]
-                            }
-                        }
-                    },
-                    "additionalProperties": true
+                    }
                 },
                 "control_center": {
                     "$id": "#/properties/platform/properties/control_center",
                     "type": "object",
-                    "title": "The control_center schema",
-                    "description": "An explanation about the purpose of this instance.",
+                    "title": "Control Center access control deployment configurations",
+                    "description": "Set of configurations used to create the access control rules for a Control Center deployment.",
                     "default": {},
                     "required": [
                         "instances"
@@ -946,29 +881,23 @@
                                             "principal": {
                                                 "$id": "#/properties/platform/properties/control_center/properties/instances/items/anyOf/0/properties/principal",
                                                 "type": "string",
-                                                "title": "The principal schema",
-                                                "description": "An explanation about the purpose of this instance.",
-                                                "default": ""
+                                                "title": "Principal name",
+                                                "description": "A Principal/User name in the form of User:Foo or Group:Bar."
                                             },
                                             "appId": {
                                                 "$id": "#/properties/platform/properties/control_center/properties/instances/items/anyOf/0/properties/appId",
                                                 "type": "string",
-                                                "title": "The appId schema",
-                                                "description": "An explanation about the purpose of this instance.",
-                                                "default": ""
+                                                "title": "An ApplicationID name",
+                                                "description": "The configured ApplicationID for the deployment."
                                             }
-                                        },
-                                        "additionalProperties": true
+                                        }
                                     }
                                 ]
                             }
                         }
-                    },
-                    "additionalProperties": true
+                    }
                 }
-            },
-            "additionalProperties": true
+            }
         }
-    },
-    "additionalProperties": true
+    }
 }
