@@ -65,6 +65,7 @@ projects:
               - "topicD"
     topics:
       - name: "topicA"
+        plan: "gold"
         metadata:
           domain: "Sales"
           owner: "DepartmentA"

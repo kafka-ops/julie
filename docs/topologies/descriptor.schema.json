@@ -644,6 +644,12 @@
                                                     "description": "A collection of metadata properties describing this topic.",
                                                     "additionalProperties": true
                                                 },
+                                                "plan": {
+                                                    "$id": "#/properties/projects/items/anyOf/0/properties/topics/items/anyOf/0/properties/plan",
+                                                    "type": "string",
+                                                    "title": "A plan label",
+                                                    "description": "An optional property used to describe the plan for this topic, the config here has priority."
+                                                },
                                                 "consumers": {
                                                     "$id": "#/properties/projects/items/anyOf/0/properties/topics/items/anyOf/0/properties/consumers",
                                                     "type": "array",
