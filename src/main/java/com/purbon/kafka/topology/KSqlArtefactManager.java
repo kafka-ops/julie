@@ -27,6 +27,7 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -49,7 +50,34 @@ public class KSqlArtefactManager extends ArtefactManager {
   @Override
   Collection<? extends Artefact> loadActualClusterStateIfAvailable(ExecutionPlan plan)
       throws IOException {
-    return config.fetchStateFromTheCluster() ? getClustersState() : plan.getKSqlArtefacts();
+    var currentState =
+        config.fetchStateFromTheCluster() ? getClustersState() : plan.getKSqlArtefacts();
+
+    if (!config.fetchStateFromTheCluster()) {
+      // should detect if there are divergences between the local cluster state and the current
+      // status in the cluster
+      detectDivergencesInTheRemoteCluster(plan);
+    }
+
+    return currentState;
+  }
+
+  private void detectDivergencesInTheRemoteCluster(ExecutionPlan plan) throws IOException {
+    var remoteArtefacts = getClustersState();
+
+    var delta =
+        plan.getKSqlArtefacts().stream()
+            .filter(localArtefacts -> !remoteArtefacts.contains(localArtefacts))
+            .collect(Collectors.toList());
+
+    if (delta.size() > 0) {
+      String errorMessage =
+          "Your remote state has changed since the last execution, these ksqlDB Artifact(s): "
+              + StringUtils.join(delta, ",")
+              + " are in your local state, but not in the cluster, please investigate!";
+      LOGGER.error(errorMessage);
+      throw new IOException(errorMessage);
+    }
   }
 
   @Override
