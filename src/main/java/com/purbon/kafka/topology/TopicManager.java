@@ -129,23 +129,27 @@ public class TopicManager implements ExecutionPlanUpdater {
 
     if (!config.fetchStateFromTheCluster()) {
       // verify that the remote state does not contain different topics than the local state
-      var remoteTopics = adminClient.listApplicationTopics();
-
-      var delta =
-          plan.getTopics().stream()
-              .filter(localTopic -> !remoteTopics.contains(localTopic))
-              .collect(Collectors.toList());
-
-      if (delta.size() > 0) {
-        String errorMessage =
-            "Your remote state has changed since the last execution, this topics: "
-                + StringUtils.join(delta, ",")
-                + " are in your local state, but not in the cluster, please investigate!";
-        LOGGER.error(errorMessage);
-        throw new IOException(errorMessage);
-      }
+      detectDivergencesInTheRemoteCluster(plan);
     }
+
     return listOfTopics;
+  }
+
+  private void detectDivergencesInTheRemoteCluster(ExecutionPlan plan) throws IOException {
+    var remoteTopics = adminClient.listApplicationTopics();
+    var delta =
+            plan.getTopics().stream()
+                    .filter(localTopic -> !remoteTopics.contains(localTopic))
+                    .collect(Collectors.toList());
+
+    if (delta.size() > 0) {
+      String errorMessage =
+              "Your remote state has changed since the last execution, this topics: "
+                      + StringUtils.join(delta, ",")
+                      + " are in your local state, but not in the cluster, please investigate!";
+      LOGGER.error(errorMessage);
+      throw new IOException(errorMessage);
+    }
   }
 
   private boolean matchesPrefixList(Topic topic) {
