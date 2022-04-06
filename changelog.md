@@ -1,4 +1,16 @@
 
+v4.1.2 / 2022-04-06
+===================
+
+  * [Security] Fix CWE-787 CVE-2020-36518 for jackson-databind (#476)
+  * Add support for deploying packaged released to Maven Central (#473) (#475) (#477)
+  * Add a JSON schema description of the topology/descriptor file sintax (#471) (#472)
+  * [Test] Refactor and add tests related to Confluent Cloud service account translation feature (#468)
+  * Allowing to configure the redis bucket used by JulieOps (#465)
+  * [Test] Clarify S3 Backend IT test (#464)
+  * [Bug] Fix RedisBackend bootstrap, NullPointerException (#462)
+  * [Bug] Issue fix (456) for resolution of service account mapping (Translation of principals) (#459)
+
 v4.1.1 / 2022-02-05
 ===================
 
