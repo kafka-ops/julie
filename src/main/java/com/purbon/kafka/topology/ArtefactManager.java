@@ -88,8 +88,41 @@ public abstract class ArtefactManager implements ExecutionPlanUpdater {
     return clients.getOrDefault(artefact.getServerLabel(), defaultClient);
   }
 
-  abstract Collection<? extends Artefact> loadActualClusterStateIfAvailable(ExecutionPlan plan)
-      throws IOException;
+  protected Collection<? extends Artefact> loadActualClusterStateIfAvailable(ExecutionPlan plan)
+          throws IOException {
+    var currentState =
+            config.fetchStateFromTheCluster() ? getClustersState() : getLocalState(plan);
+
+    if (!config.fetchStateFromTheCluster()) {
+      // should detect if there are divergences between the local cluster state and the current
+      // status in the cluster
+      detectDivergencesInTheRemoteCluster(plan);
+    }
+
+    return currentState;
+  }
+
+  private void detectDivergencesInTheRemoteCluster(ExecutionPlan plan) throws IOException {
+    var remoteArtefacts = getClustersState();
+
+    var delta =
+            getLocalState(plan).stream()
+                    .filter(localArtifact -> !remoteArtefacts.contains(localArtifact))
+                    .collect(Collectors.toList());
+
+    if (delta.size() > 0) {
+      String errorMessage =
+              "Your remote state has changed since the last execution, these Artefact(s): "
+                      + StringUtils.join(delta, ",")
+                      + " are in your local state, but not in the cluster, please investigate!";
+      LOGGER.error(errorMessage);
+      throw new IOException(errorMessage);
+    }
+  }
+
+  protected abstract Collection<? extends Artefact> getLocalState(ExecutionPlan plan);
+
+  protected abstract Collection<? extends Artefact> getClustersState() throws IOException;
 
   abstract Set<? extends Artefact> parseNewArtefacts(Topology topology);
 

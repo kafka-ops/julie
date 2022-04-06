@@ -7,6 +7,8 @@ import com.purbon.kafka.topology.model.Artefact;
 import com.purbon.kafka.topology.model.Topology;
 import com.purbon.kafka.topology.model.artefact.KafkaConnectArtefact;
 import com.purbon.kafka.topology.utils.TestUtils;
+
+import java.io.IOException;
 import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -37,7 +39,12 @@ public class ArtefactManagerTest {
     }
 
     @Override
-    Collection<? extends Artefact> loadActualClusterStateIfAvailable(ExecutionPlan plan) {
+    protected Collection<? extends Artefact> getLocalState(ExecutionPlan plan) {
+      return null;
+    }
+
+    @Override
+    protected Collection<? extends Artefact> getClustersState() throws IOException {
       return new ArrayList<>();
     }
 
