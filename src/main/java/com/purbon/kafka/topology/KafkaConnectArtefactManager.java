@@ -15,8 +15,13 @@ import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 public class KafkaConnectArtefactManager extends ArtefactManager {
+
+  private static final Logger LOGGER = LogManager.getLogger(KafkaConnectArtefactManager.class);
 
   public KafkaConnectArtefactManager(
       ArtefactClient client, Configuration config, String topologyFileOrDir) {
@@ -31,7 +36,34 @@ public class KafkaConnectArtefactManager extends ArtefactManager {
   @Override
   Collection<? extends Artefact> loadActualClusterStateIfAvailable(ExecutionPlan plan)
       throws IOException {
-    return config.fetchStateFromTheCluster() ? getClustersState() : plan.getConnectors();
+    var currentState =
+        config.fetchStateFromTheCluster() ? getClustersState() : plan.getConnectors();
+
+    if (!config.fetchStateFromTheCluster()) {
+      // should detect if there are divergences between the local cluster state and the current
+      // status in the cluster
+      detectDivergencesInTheRemoteCluster(plan);
+    }
+
+    return currentState;
+  }
+
+  private void detectDivergencesInTheRemoteCluster(ExecutionPlan plan) throws IOException {
+    var remoteConnectors = getClustersState();
+
+    var delta =
+        plan.getConnectors().stream()
+            .filter(localConnector -> !remoteConnectors.contains(localConnector))
+            .collect(Collectors.toList());
+
+    if (delta.size() > 0) {
+      String errorMessage =
+          "Your remote state has changed since the last execution, these Connector(s): "
+              + StringUtils.join(delta, ",")
+              + " are in your local state, but not in the cluster, please investigate!";
+      LOGGER.error(errorMessage);
+      throw new IOException(errorMessage);
+    }
   }
 
   private Collection<? extends Artefact> getClustersState() throws IOException {
