@@ -42,10 +42,11 @@ jobs:
           server-username: MAVEN_USERNAME
           server-password: MAVEN_PASSWORD
       - name: Publish package
-        run: mvn --batch-mode deploy
+        run: mvn verify -Dgpg.passphrase="$GPG_PASSPHRASE" --batch-mode deploy
         env:
           MAVEN_USERNAME: ${{ secrets.OSSRH_USERNAME }}
           MAVEN_PASSWORD: ${{ secrets.OSSRH_TOKEN }}
+          GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
       - name: Build the rpm
         run: mvn rpm:rpm
       - name: Sign rpm
