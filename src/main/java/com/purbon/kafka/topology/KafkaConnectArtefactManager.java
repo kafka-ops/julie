@@ -15,12 +15,21 @@ import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 public class KafkaConnectArtefactManager extends ArtefactManager {
+
+  private static final Logger LOGGER = LogManager.getLogger(KafkaConnectArtefactManager.class);
 
   public KafkaConnectArtefactManager(
       ArtefactClient client, Configuration config, String topologyFileOrDir) {
     super(client, config, topologyFileOrDir);
+  }
+
+  @Override
+  protected Collection<? extends Artefact> getLocalState(ExecutionPlan plan) {
+    return plan.getConnectors();
   }
 
   public KafkaConnectArtefactManager(
@@ -29,12 +38,7 @@ public class KafkaConnectArtefactManager extends ArtefactManager {
   }
 
   @Override
-  Collection<? extends Artefact> loadActualClusterStateIfAvailable(ExecutionPlan plan)
-      throws IOException {
-    return config.fetchStateFromTheCluster() ? getClustersState() : plan.getConnectors();
-  }
-
-  private Collection<? extends Artefact> getClustersState() throws IOException {
+  protected Collection<? extends Artefact> getClustersState() throws IOException {
     List<Either> list =
         clients.values().stream()
             .map(

@@ -8,6 +8,7 @@ import com.purbon.kafka.topology.actions.topics.TopicConfigUpdatePlan;
 import com.purbon.kafka.topology.actions.topics.UpdateTopicConfigAction;
 import com.purbon.kafka.topology.actions.topics.builders.TopicConfigUpdatePlanBuilder;
 import com.purbon.kafka.topology.api.adminclient.TopologyBuilderAdminClient;
+import com.purbon.kafka.topology.exceptions.RemoteValidationException;
 import com.purbon.kafka.topology.model.Topic;
 import com.purbon.kafka.topology.model.Topology;
 import com.purbon.kafka.topology.schemas.SchemaRegistryManager;
@@ -126,7 +127,30 @@ public class TopicManager implements ExecutionPlanUpdater {
       LOGGER.debug(
           "Full list of managed topics in the cluster: "
               + StringUtils.join(new ArrayList<>(listOfTopics), ","));
+
+    if (!config.fetchStateFromTheCluster()) {
+      // verify that the remote state does not contain different topics than the local state
+      detectDivergencesInTheRemoteCluster(plan);
+    }
+
     return listOfTopics;
+  }
+
+  private void detectDivergencesInTheRemoteCluster(ExecutionPlan plan) throws IOException {
+    var remoteTopics = adminClient.listApplicationTopics();
+    var delta =
+        plan.getTopics().stream()
+            .filter(localTopic -> !remoteTopics.contains(localTopic))
+            .collect(Collectors.toList());
+
+    if (delta.size() > 0) {
+      String errorMessage =
+          "Your remote state has changed since the last execution, this topics: "
+              + StringUtils.join(delta, ",")
+              + " are in your local state, but not in the cluster, please investigate!";
+      LOGGER.error(errorMessage);
+      throw new RemoteValidationException(errorMessage);
+    }
   }
 
   private boolean matchesPrefixList(Topic topic) {

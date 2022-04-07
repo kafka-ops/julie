@@ -7,6 +7,7 @@ import com.purbon.kafka.topology.actions.access.ClearBindings;
 import com.purbon.kafka.topology.actions.access.CreateBindings;
 import com.purbon.kafka.topology.actions.access.builders.*;
 import com.purbon.kafka.topology.actions.access.builders.rbac.*;
+import com.purbon.kafka.topology.exceptions.RemoteValidationException;
 import com.purbon.kafka.topology.model.Component;
 import com.purbon.kafka.topology.model.DynamicUser;
 import com.purbon.kafka.topology.model.JulieRoles;
@@ -29,6 +30,7 @@ import java.io.IOException;
 import java.io.PrintStream;
 import java.util.*;
 import java.util.stream.Collectors;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -84,13 +86,42 @@ public class AccessControlManager implements ExecutionPlanUpdater {
         .forEach(plan::add);
   }
 
-  private Set<TopologyAclBinding> loadActualClusterStateIfAvailable(ExecutionPlan plan) {
+  private Set<TopologyAclBinding> loadActualClusterStateIfAvailable(ExecutionPlan plan)
+      throws IOException {
     Set<TopologyAclBinding> bindings =
         config.fetchStateFromTheCluster() ? providerBindings() : plan.getBindings();
-    return bindings.stream()
-        .filter(this::matchesManagedPrefixList)
-        .filter(this::isNotInternalAcl)
-        .collect(Collectors.toSet());
+    var currentState =
+        bindings.stream()
+            .filter(this::matchesManagedPrefixList)
+            .filter(this::isNotInternalAcl)
+            .collect(Collectors.toSet());
+
+    if (!config.fetchStateFromTheCluster()) {
+      // should detect if there are divergences between the local cluster state and the current
+      // status in the cluster
+      detectDivergencesInTheRemoteCluster(plan);
+    }
+
+    return currentState;
+  }
+
+  private void detectDivergencesInTheRemoteCluster(ExecutionPlan plan)
+      throws RemoteValidationException {
+    var remoteAcls = providerBindings();
+
+    var delta =
+        plan.getBindings().stream()
+            .filter(acl -> !remoteAcls.contains(acl))
+            .collect(Collectors.toList());
+
+    if (delta.size() > 0) {
+      String errorMessage =
+          "Your remote state has changed since the last execution, this ACL(s): "
+              + StringUtils.join(delta, ",")
+              + " are in your local state, but not in the cluster, please investigate!";
+      LOGGER.error(errorMessage);
+      throw new RemoteValidationException(errorMessage);
+    }
   }
 
   private boolean isNotInternalAcl(TopologyAclBinding binding) {

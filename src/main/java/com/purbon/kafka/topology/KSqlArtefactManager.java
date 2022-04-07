@@ -47,9 +47,8 @@ public class KSqlArtefactManager extends ArtefactManager {
   }
 
   @Override
-  Collection<? extends Artefact> loadActualClusterStateIfAvailable(ExecutionPlan plan)
-      throws IOException {
-    return config.fetchStateFromTheCluster() ? getClustersState() : plan.getKSqlArtefacts();
+  protected Collection<? extends Artefact> getLocalState(ExecutionPlan plan) {
+    return plan.getKSqlArtefacts();
   }
 
   @Override
@@ -83,7 +82,8 @@ public class KSqlArtefactManager extends ArtefactManager {
     return toDeleteArtefactsList;
   }
 
-  private Collection<? extends Artefact> getClustersState() throws IOException {
+  @Override
+  protected Collection<? extends Artefact> getClustersState() throws IOException {
     List<Either> list =
         clients.values().stream()
             .map(

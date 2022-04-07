@@ -517,6 +517,8 @@ public class AccessControlManagerTest {
 
     Mockito.reset(aclsProvider);
     plan = ExecutionPlan.init(backendController, mockPrintStream);
+    doReturn(mapBindings(plan)).when(aclsProvider).listAcls();
+
     accessControlManager.updatePlan(builder.buildTopology(), plan);
     plan.run();
 
@@ -544,6 +546,8 @@ public class AccessControlManagerTest {
 
     Mockito.reset(aclsProvider);
     plan = ExecutionPlan.init(backendController, mockPrintStream);
+    doReturn(mapBindings(plan)).when(aclsProvider).listAcls();
+
     Topology topology = builder.buildTopology();
     accessControlManager.updatePlan(topology, plan);
     plan.run();
@@ -553,6 +557,15 @@ public class AccessControlManagerTest {
             singletonList(new Consumer("User:app2")), builder.getTopic("topicA").toString());
 
     verify(aclsProvider, times(1)).clearBindings(new HashSet<>(bindingsToDelete));
+  }
+
+  private HashMap<String, List<TopologyAclBinding>> mapBindings(ExecutionPlan plan) {
+    var allBindings = new HashMap<String, List<TopologyAclBinding>>();
+    for (var binding : plan.getBindings()) {
+      allBindings.computeIfAbsent(binding.getResourceName(), k -> new ArrayList<>());
+      allBindings.get(binding.getResourceName()).add(binding);
+    }
+    return allBindings;
   }
 
   private List<TopologyAclBinding> returnAclsForConsumers(List<Consumer> consumers, String topic) {

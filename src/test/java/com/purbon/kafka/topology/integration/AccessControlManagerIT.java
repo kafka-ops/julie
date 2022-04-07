@@ -195,6 +195,32 @@ public class AccessControlManagerIT {
     verifyConsumerAcls(consumers);
   }
 
+  @Test(expected = IOException.class)
+  public void shouldDetectChangesInTheRemoteClusterBetweenRuns() throws IOException {
+    TopologyBuilderAdminClient adminClient = new TopologyBuilderAdminClient(kafkaAdminClient);
+
+    var topology =
+        TestTopologyBuilder.createProject()
+            .addTopic("topic1")
+            .addTopic("topic2")
+            .addConsumer("User:foo")
+            .buildTopology();
+
+    accessControlManager.updatePlan(topology, plan);
+    plan.run();
+
+    System.out.println("****");
+    adminClient.fetchAclsList().values().forEach(System.out::println);
+    System.out.println("****");
+
+    var binding =
+        TopologyAclBinding.build(
+            "TOPIC", "ctx.project.topic2", "*", "DESCRIBE", "User:foo", "LITERAL");
+    adminClient.clearAcls(binding);
+
+    accessControlManager.updatePlan(topology, plan);
+  }
+
   @Test
   public void producerAclsCreation() throws ExecutionException, InterruptedException, IOException {
 
