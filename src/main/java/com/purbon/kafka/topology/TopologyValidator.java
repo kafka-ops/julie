@@ -88,8 +88,15 @@ public class TopologyValidator {
                           validationClass));
                 }
 
-                Constructor<?> constructor = clazz.getConstructor(Configuration.class);
-                Object instance = constructor.newInstance(config);
+                Object instance;
+                try {
+                  Constructor<?> configurationConstructor = clazz.getConstructor(Configuration.class);
+                  instance = configurationConstructor.newInstance(config);
+                } catch (NoSuchMethodException e) {
+                  /* Support pre 4.1.1 validators with no-arg constructors. */
+                  Constructor<?> noArgConstructor = clazz.getConstructor();
+                  instance = noArgConstructor.newInstance();
+                }
                 if (instance instanceof TopologyValidation) {
                   return (TopologyValidation) instance;
                 } else if (instance instanceof TopicValidation) {

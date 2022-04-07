@@ -1,15 +1,11 @@
 package com.purbon.kafka.topology.validation.topic;
 
-import com.purbon.kafka.topology.Configuration;
 import com.purbon.kafka.topology.exceptions.ValidationException;
 import com.purbon.kafka.topology.model.Topic;
 import com.purbon.kafka.topology.validation.TopicValidation;
 import java.lang.reflect.Field;
 import java.util.Arrays;
 import java.util.Map;
-import lombok.NoArgsConstructor;
-import lombok.NonNull;
-import lombok.RequiredArgsConstructor;
 import org.apache.kafka.common.config.TopicConfig;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -17,13 +13,9 @@ import org.apache.logging.log4j.Logger;
 /**
  * This validation checks that all topic configs are valid ones according to the TopicConfig class.
  */
-@NoArgsConstructor
-@RequiredArgsConstructor
 public class ConfigurationKeyValidation implements TopicValidation {
 
   private static final Logger LOGGER = LogManager.getLogger(ConfigurationKeyValidation.class);
-
-  @NonNull private Configuration config;
 
   @Override
   public void valid(Topic topic) throws ValidationException {
