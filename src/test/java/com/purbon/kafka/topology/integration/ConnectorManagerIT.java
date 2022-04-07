@@ -85,25 +85,23 @@ public class ConnectorManagerIT {
     testCreateAndUpdatePath(props, file);
   }
 
+  @Test(expected = IOException.class)
+  public void shouldDetectChangesInTheRemoteClusterBetweenRuns()
+      throws IOException, InterruptedException {
+    Properties props = new Properties();
+    props.put(TOPOLOGY_TOPIC_STATE_FROM_CLUSTER, "false");
+    props.put(ALLOW_DELETE_CONNECT_ARTEFACTS, "true");
+    props.put(PLATFORM_SERVERS_CONNECT + ".0", "connector0:" + connectContainer.getHttpsUrl());
+
+    File file = TestUtils.getResourceFile("/descriptor-connector.yaml");
+
+    testDeleteRemoteButNotLocal(props, file);
+  }
+
   private void testCreateAndUpdatePath(Properties props, File file)
       throws IOException, InterruptedException {
 
-    HashMap<String, String> cliOps = new HashMap<>();
-    cliOps.put(BROKERS_OPTION, "");
-
-    props.put(SSL_TRUSTSTORE_LOCATION, TestUtils.getResourceFile(TRUSTSTORE_JKS).getAbsolutePath());
-    props.put(SSL_TRUSTSTORE_PASSWORD, "ksqldb");
-    props.put(SSL_KEYSTORE_LOCATION, TestUtils.getResourceFile(KEYSTORE_JKS).getAbsolutePath());
-    props.put(SSL_KEYSTORE_PASSWORD, "ksqldb");
-    props.put(SSL_KEY_PASSWORD, "ksqldb");
-
-    Configuration config = new Configuration(cliOps, props);
-
-    client = new KConnectApiClient(connectContainer.getHttpsUrl(), config);
-    parser = new TopologySerdes(config, new PlanMap());
-    Topology topology = parser.deserialise(file);
-
-    connectorManager = new KafkaConnectArtefactManager(client, config, file.getAbsolutePath());
+    var topology = initTopology(props, file);
 
     connectorManager.updatePlan(topology, plan);
     plan.run();
@@ -129,5 +127,51 @@ public class ConnectorManagerIT {
 
     assertThat(connectors).hasSize(1);
     assertThat(connectors).contains("sink-jdbc");
+  }
+
+  private Topology initTopology(Properties props, File file) {
+    Configuration config = prepareClientConfig(props);
+    parser = new TopologySerdes(config, new PlanMap());
+    Topology topology = parser.deserialise(file);
+    connectorManager = prepareManager(config, file);
+    return topology;
+  }
+
+  private Configuration prepareClientConfig(Properties props) {
+    HashMap<String, String> cliOps = new HashMap<>();
+    cliOps.put(BROKERS_OPTION, "");
+
+    props.put(SSL_TRUSTSTORE_LOCATION, TestUtils.getResourceFile(TRUSTSTORE_JKS).getAbsolutePath());
+    props.put(SSL_TRUSTSTORE_PASSWORD, "ksqldb");
+    props.put(SSL_KEYSTORE_LOCATION, TestUtils.getResourceFile(KEYSTORE_JKS).getAbsolutePath());
+    props.put(SSL_KEYSTORE_PASSWORD, "ksqldb");
+    props.put(SSL_KEY_PASSWORD, "ksqldb");
+
+    return new Configuration(cliOps, props);
+  }
+
+  private KafkaConnectArtefactManager prepareManager(Configuration config, File file) {
+    client = new KConnectApiClient(connectContainer.getHttpsUrl(), config);
+    return new KafkaConnectArtefactManager(client, config, file.getAbsolutePath());
+  }
+
+  private void testDeleteRemoteButNotLocal(Properties props, File file)
+      throws IOException, InterruptedException {
+
+    var topology = initTopology(props, file);
+
+    connectorManager.updatePlan(topology, plan);
+    plan.run();
+    // we should wait a bit until the connector starts downstream
+    Thread.sleep(1000);
+
+    List<String> connectors = client.list();
+    assertThat(connectors).hasSize(2);
+    assertThat(connectors).contains("source-jdbc", "sink-jdbc");
+
+    client.delete("source-jdbc");
+
+    ExecutionPlan newPlan = ExecutionPlan.init(new BackendController(), System.out);
+    connectorManager.updatePlan(topology, newPlan);
   }
 }

@@ -8,8 +8,10 @@ import static org.junit.Assert.assertTrue;
 import com.purbon.kafka.topology.BackendController;
 import com.purbon.kafka.topology.Configuration;
 import com.purbon.kafka.topology.ExecutionPlan;
+import com.purbon.kafka.topology.TestTopologyBuilder;
 import com.purbon.kafka.topology.TopicManager;
 import com.purbon.kafka.topology.api.adminclient.TopologyBuilderAdminClient;
+import com.purbon.kafka.topology.exceptions.RemoteValidationException;
 import com.purbon.kafka.topology.integration.containerutils.ContainerFactory;
 import com.purbon.kafka.topology.integration.containerutils.ContainerTestUtils;
 import com.purbon.kafka.topology.integration.containerutils.SaslPlaintextKafkaContainer;
@@ -120,6 +122,24 @@ public class TopicManagerIT {
     plan.run();
 
     verifyTopics(Arrays.asList(topicA.toString(), topicB.toString()));
+  }
+
+  @Test(expected = RemoteValidationException.class)
+  public void topicManagerShouldDetectDeletedTopicsBetweenRuns() throws IOException {
+
+    TopologyBuilderAdminClient adminClient = new TopologyBuilderAdminClient(kafkaAdminClient);
+
+    Topic topic1 = new Topic("topic1");
+    Topic topic2 = new Topic("topic2");
+
+    var topology =
+        TestTopologyBuilder.createProject().addTopic(topic1).addTopic(topic2).buildTopology();
+
+    topicManager.updatePlan(topology, plan);
+    plan.run();
+
+    adminClient.deleteTopics(Collections.singletonList("ctx.project.topic1"));
+    topicManager.updatePlan(topology, plan);
   }
 
   @Test

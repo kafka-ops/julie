@@ -116,6 +116,8 @@ public class TopicManagerTest {
     project.addTopic(topicB);
 
     doReturn(new Config(Collections.emptyList())).when(adminClient).getActualTopicConfig(any());
+    var listOfTopics = new HashSet<>(Arrays.asList(topicA.toString(), topicB.toString()));
+    doReturn(listOfTopics).when(adminClient).listApplicationTopics();
     topicManager.updatePlan(topology, plan);
     plan.run();
 
