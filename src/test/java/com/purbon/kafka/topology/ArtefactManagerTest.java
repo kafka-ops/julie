@@ -7,7 +7,6 @@ import com.purbon.kafka.topology.model.Artefact;
 import com.purbon.kafka.topology.model.Topology;
 import com.purbon.kafka.topology.model.artefact.KafkaConnectArtefact;
 import com.purbon.kafka.topology.utils.TestUtils;
-
 import java.io.IOException;
 import java.io.PrintStream;
 import java.util.ArrayList;

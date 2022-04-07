@@ -3,6 +3,7 @@ package com.purbon.kafka.topology;
 import com.purbon.kafka.topology.actions.CreateArtefactAction;
 import com.purbon.kafka.topology.actions.DeleteArtefactAction;
 import com.purbon.kafka.topology.clients.ArtefactClient;
+import com.purbon.kafka.topology.exceptions.RemoteValidationException;
 import com.purbon.kafka.topology.model.Artefact;
 import com.purbon.kafka.topology.model.Topology;
 import java.io.IOException;
@@ -89,9 +90,8 @@ public abstract class ArtefactManager implements ExecutionPlanUpdater {
   }
 
   protected Collection<? extends Artefact> loadActualClusterStateIfAvailable(ExecutionPlan plan)
-          throws IOException {
-    var currentState =
-            config.fetchStateFromTheCluster() ? getClustersState() : getLocalState(plan);
+      throws IOException {
+    var currentState = config.fetchStateFromTheCluster() ? getClustersState() : getLocalState(plan);
 
     if (!config.fetchStateFromTheCluster()) {
       // should detect if there are divergences between the local cluster state and the current
@@ -106,17 +106,17 @@ public abstract class ArtefactManager implements ExecutionPlanUpdater {
     var remoteArtefacts = getClustersState();
 
     var delta =
-            getLocalState(plan).stream()
-                    .filter(localArtifact -> !remoteArtefacts.contains(localArtifact))
-                    .collect(Collectors.toList());
+        getLocalState(plan).stream()
+            .filter(localArtifact -> !remoteArtefacts.contains(localArtifact))
+            .collect(Collectors.toList());
 
     if (delta.size() > 0) {
       String errorMessage =
-              "Your remote state has changed since the last execution, these Artefact(s): "
-                      + StringUtils.join(delta, ",")
-                      + " are in your local state, but not in the cluster, please investigate!";
+          "Your remote state has changed since the last execution, these Artefact(s): "
+              + StringUtils.join(delta, ",")
+              + " are in your local state, but not in the cluster, please investigate!";
       LOGGER.error(errorMessage);
-      throw new IOException(errorMessage);
+      throw new RemoteValidationException(errorMessage);
     }
   }
 

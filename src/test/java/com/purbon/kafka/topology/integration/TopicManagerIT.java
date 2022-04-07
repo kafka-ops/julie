@@ -11,6 +11,7 @@ import com.purbon.kafka.topology.ExecutionPlan;
 import com.purbon.kafka.topology.TestTopologyBuilder;
 import com.purbon.kafka.topology.TopicManager;
 import com.purbon.kafka.topology.api.adminclient.TopologyBuilderAdminClient;
+import com.purbon.kafka.topology.exceptions.RemoteValidationException;
 import com.purbon.kafka.topology.integration.containerutils.ContainerFactory;
 import com.purbon.kafka.topology.integration.containerutils.ContainerTestUtils;
 import com.purbon.kafka.topology.integration.containerutils.SaslPlaintextKafkaContainer;
@@ -123,7 +124,7 @@ public class TopicManagerIT {
     verifyTopics(Arrays.asList(topicA.toString(), topicB.toString()));
   }
 
-  @Test(expected = IOException.class)
+  @Test(expected = RemoteValidationException.class)
   public void topicManagerShouldDetectDeletedTopicsBetweenRuns() throws IOException {
 
     TopologyBuilderAdminClient adminClient = new TopologyBuilderAdminClient(kafkaAdminClient);

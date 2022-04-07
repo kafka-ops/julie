@@ -7,6 +7,7 @@ import com.purbon.kafka.topology.actions.access.ClearBindings;
 import com.purbon.kafka.topology.actions.access.CreateBindings;
 import com.purbon.kafka.topology.actions.access.builders.*;
 import com.purbon.kafka.topology.actions.access.builders.rbac.*;
+import com.purbon.kafka.topology.exceptions.RemoteValidationException;
 import com.purbon.kafka.topology.model.Component;
 import com.purbon.kafka.topology.model.DynamicUser;
 import com.purbon.kafka.topology.model.JulieRoles;
@@ -104,7 +105,8 @@ public class AccessControlManager implements ExecutionPlanUpdater {
     return currentState;
   }
 
-  private void detectDivergencesInTheRemoteCluster(ExecutionPlan plan) throws IOException {
+  private void detectDivergencesInTheRemoteCluster(ExecutionPlan plan)
+      throws RemoteValidationException {
     var remoteAcls = providerBindings();
 
     var delta =
@@ -118,7 +120,7 @@ public class AccessControlManager implements ExecutionPlanUpdater {
               + StringUtils.join(delta, ",")
               + " are in your local state, but not in the cluster, please investigate!";
       LOGGER.error(errorMessage);
-      throw new IOException(errorMessage);
+      throw new RemoteValidationException(errorMessage);
     }
   }
 
