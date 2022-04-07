@@ -1,21 +1,14 @@
 package com.purbon.kafka.topology.validation.topology;
 
-import com.purbon.kafka.topology.Configuration;
 import com.purbon.kafka.topology.exceptions.ValidationException;
 import com.purbon.kafka.topology.model.Project;
 import com.purbon.kafka.topology.model.Topic;
 import com.purbon.kafka.topology.model.Topology;
 import com.purbon.kafka.topology.validation.TopologyValidation;
-import lombok.NoArgsConstructor;
-import lombok.NonNull;
-import lombok.RequiredArgsConstructor;
 
-@NoArgsConstructor
-@RequiredArgsConstructor
 public class CamelCaseNameFormatValidation implements TopologyValidation {
 
   private String camelCasePattern = "([a-z]+[A-Z]+\\w+)+";
-  @NonNull private Configuration config;
 
   @Override
   public void valid(Topology topology) throws ValidationException {
