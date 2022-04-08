@@ -12,6 +12,8 @@ import com.purbon.kafka.topology.model.Impl.TopologyImpl;
 import com.purbon.kafka.topology.model.Project;
 import com.purbon.kafka.topology.model.Topic;
 import com.purbon.kafka.topology.model.Topology;
+import com.purbon.kafka.topology.model.users.Consumer;
+import com.purbon.kafka.topology.model.users.Producer;
 import com.purbon.kafka.topology.schemas.SchemaRegistryManager;
 import java.io.IOException;
 import java.io.PrintStream;
@@ -361,5 +363,25 @@ public class TopicManagerTest {
 
     verify(adminClient, times(1)).createTopic(topicA, topicA.toString());
     verify(adminClient, times(0)).createTopic(topicB, topicB.toString());
+  }
+
+  @Test
+  public void shouldManageSpecialTopics() throws IOException {
+    Topic topicA = new Topic("TopicA");
+    topicA.setConsumers(Collections.singletonList(new Consumer("User:foo")));
+    topicA.setProducers(Collections.singletonList(new Producer("User:bar")));
+    TestTopologyBuilder builder = TestTopologyBuilder.createProject().addSpecialTopic(topicA);
+
+
+    Configuration config = new Configuration(cliOps, props);
+    TopicManager topicManager = new TopicManager(adminClient, schemaRegistryManager, config);
+
+    when(adminClient.listApplicationTopics()).thenReturn(new HashSet<>());
+    topicManager.updatePlan(builder.buildTopology(), plan);
+    plan.run();
+
+    verify(adminClient, times(1)).createTopic(topicA, "TopicA");
+
+
   }
 }
