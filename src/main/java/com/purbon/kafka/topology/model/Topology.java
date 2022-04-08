@@ -28,4 +28,8 @@ public interface Topology {
   Map<String, Object> asFullContext();
 
   List<String> getOrder();
+
+  List<Topic> getSpecialTopics();
+
+  void addSpecialTopic(Topic topic);
 }
