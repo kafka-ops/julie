@@ -381,7 +381,5 @@ public class TopicManagerTest {
     plan.run();
 
     verify(adminClient, times(1)).createTopic(topicA, "TopicA");
-
-
   }
 }

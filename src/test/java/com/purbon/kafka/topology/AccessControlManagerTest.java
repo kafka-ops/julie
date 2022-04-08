@@ -137,7 +137,6 @@ public class AccessControlManagerTest {
         .buildBindingsForConsumers(argumentCaptor.capture(), eq(topic.toString()), eq(false));
 
     List<Consumer> capturedList = argumentCaptor.getValue();
-
     assertThat(capturedList).contains(projectConsumer);
     assertThat(capturedList).contains(topicConsumer);
     assertThat(capturedList).hasSize(2);
