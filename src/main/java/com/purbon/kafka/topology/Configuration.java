@@ -195,6 +195,20 @@ public class Configuration {
         .collect(Collectors.toList());
   }
 
+  /**
+   * Build a list of internal topic prefixes for this deployment
+   * @return List<String> a list of internal topic prefixes
+   */
+  public List<String> getKafkaInternalTopicPrefixes(Collection<Topology> topologies) {
+    var internalTopicPrefixes = getKafkaInternalTopicPrefixes();
+    // Add internal topics for Kafka Stream Applications
+    topologies
+            .stream()
+            .flatMap(topology -> topology.getProjects().stream().flatMap(p -> p.getStreams().stream()))
+            .forEach(stream -> stream.getApplicationId().ifPresent(internalTopicPrefixes::add));
+    return internalTopicPrefixes;
+  }
+
   public List<String> getServiceAccountManagedPrefixes() {
     return config.getStringList(SERVICE_ACCOUNT_MANAGED_PREFIXES).stream()
         .map(String::trim)

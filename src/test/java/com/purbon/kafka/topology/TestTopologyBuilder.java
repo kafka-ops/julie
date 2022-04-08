@@ -6,11 +6,13 @@ import com.purbon.kafka.topology.model.Project;
 import com.purbon.kafka.topology.model.Topic;
 import com.purbon.kafka.topology.model.Topology;
 import com.purbon.kafka.topology.model.users.Consumer;
+import com.purbon.kafka.topology.model.users.KStream;
 import com.purbon.kafka.topology.model.users.Other;
 import com.purbon.kafka.topology.model.users.Producer;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -25,6 +27,8 @@ public class TestTopologyBuilder {
   private Set<Topic> topics = new HashSet<>();
   private final Set<Consumer> consumers = new HashSet<>();
   private final Set<Producer> producers = new HashSet<>();
+  private final Set<KStream>  kstreams = new HashSet<>();
+
   private final Collection<Map.Entry<String, List<Other>>> others = new ArrayList<>();
 
   public TestTopologyBuilder() {
@@ -55,6 +59,7 @@ public class TestTopologyBuilder {
     project.setTopics(new ArrayList<>(topics));
     project.setConsumers(new ArrayList<>(consumers));
     project.setProducers(new ArrayList<>(producers));
+    project.setStreams(new ArrayList<>(kstreams));
     var map = others.stream().collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
     project.setOthers(map);
     return topology;
@@ -87,6 +92,12 @@ public class TestTopologyBuilder {
   public TestTopologyBuilder addConsumer(String user, String group) {
     Consumer consumer = new Consumer(user, group);
     consumers.add(consumer);
+    return this;
+  }
+
+  public TestTopologyBuilder addKStream(String user, String applicationId) {
+    KStream stream = new KStream(user, new HashMap<>(), Optional.of(applicationId));
+    kstreams.add(stream);
     return this;
   }
 
