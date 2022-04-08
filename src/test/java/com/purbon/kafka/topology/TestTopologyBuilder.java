@@ -101,6 +101,12 @@ public class TestTopologyBuilder {
     return this;
   }
 
+  public TestTopologyBuilder addKStream(String user) {
+    KStream stream = new KStream(user, new HashMap<>(), Optional.empty());
+    kstreams.add(stream);
+    return this;
+  }
+
   public TestTopologyBuilder addOther(String roleName, String principal, String topic) {
     return addOther(roleName, principal, topic, "", "");
   }

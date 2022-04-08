@@ -282,4 +282,19 @@ public class ConfigurationTest {
     assertThat(internals).contains("applicationId");
     assertThat(internals).contains("_");
   }
+
+  @Test
+  public void shouldAddStreamsProjectPrefixAsInternalTopics() {
+    Configuration config = new Configuration(cliOps, props);
+
+    var topology = TestTopologyBuilder
+            .createProject()
+            .addKStream("foo")
+            .buildTopology();
+
+    var internals = config.getKafkaInternalTopicPrefixes(Collections.singletonList(topology));
+    assertThat(internals).contains("ctx.project");
+    assertThat(internals).contains("_");
+  }
+
 }
