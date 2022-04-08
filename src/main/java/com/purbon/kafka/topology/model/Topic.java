@@ -160,7 +160,10 @@ public class Topic implements Cloneable {
 
   private String defaultTopicStructureString(String projectPrefix) {
     StringBuilder sb = new StringBuilder();
-    sb.append(projectPrefix).append(appConfig.getTopicPrefixSeparator()).append(getName());
+    if (projectPrefix != null && !projectPrefix.isBlank()) {
+      sb.append(projectPrefix).append(appConfig.getTopicPrefixSeparator());
+    }
+    sb.append(getName());
 
     if (getDataType().isPresent()) {
       sb.append(appConfig.getTopicPrefixSeparator()).append(getDataType().get());

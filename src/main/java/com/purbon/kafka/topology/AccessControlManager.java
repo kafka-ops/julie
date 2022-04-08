@@ -13,6 +13,7 @@ import com.purbon.kafka.topology.model.DynamicUser;
 import com.purbon.kafka.topology.model.JulieRoles;
 import com.purbon.kafka.topology.model.Platform;
 import com.purbon.kafka.topology.model.Project;
+import com.purbon.kafka.topology.model.Topic;
 import com.purbon.kafka.topology.model.Topology;
 import com.purbon.kafka.topology.model.User;
 import com.purbon.kafka.topology.model.users.Connector;
@@ -80,6 +81,7 @@ public class AccessControlManager implements ExecutionPlanUpdater {
       julieRoles.validateTopology(topology);
       aclBindingsResults.addAll(buildProjectAclBindings(topology));
       aclBindingsResults.addAll(buildPlatformLevelActions(topology));
+      aclBindingsResults.addAll(buildSpecialTopicsAcls(topology));
     }
 
     buildUpdateBindingsActions(aclBindingsResults, loadActualClusterStateIfAvailable(plan))
@@ -221,35 +223,42 @@ public class AccessControlManager implements ExecutionPlanUpdater {
 
   private List<AclBindingsResult> buildBasicUsersAcls(
       Project project, boolean includeProjectLevel) {
+    return buildBasicUsersAcls(project.getTopics(), project, includeProjectLevel);
+  }
+
+  private List<AclBindingsResult> buildSpecialTopicsAcls(Topology topology) {
+    return buildBasicUsersAcls(topology.getSpecialTopics(), null, false);
+  }
+
+  private List<AclBindingsResult> buildBasicUsersAcls(
+      Collection<Topic> topics, Project project, boolean includeProjectLevel) {
     List<AclBindingsResult> aclBindingsResults = new ArrayList<>();
-    project
-        .getTopics()
-        .forEach(
-            topic -> {
-              final String fullTopicName = topic.toString();
-              Set<Consumer> consumers = new HashSet(topic.getConsumers());
-              if (includeProjectLevel) {
-                consumers.addAll(project.getConsumers());
-              }
-              if (!consumers.isEmpty()) {
-                AclBindingsResult aclBindingsResult =
-                    new ConsumerAclBindingsBuilder(
-                            bindingsBuilder, new ArrayList<>(consumers), fullTopicName, false)
-                        .getAclBindings();
-                aclBindingsResults.add(aclBindingsResult);
-              }
-              Set<Producer> producers = new HashSet(topic.getProducers());
-              if (includeProjectLevel) {
-                producers.addAll(project.getProducers());
-              }
-              if (!producers.isEmpty()) {
-                AclBindingsResult aclBindingsResult =
-                    new ProducerAclBindingsBuilder(
-                            bindingsBuilder, new ArrayList<>(producers), fullTopicName, false)
-                        .getAclBindings();
-                aclBindingsResults.add(aclBindingsResult);
-              }
-            });
+
+    for (Topic topic : topics) {
+      final String fullTopicName = topic.toString();
+      Set<Consumer> consumers = new HashSet(topic.getConsumers());
+      if (includeProjectLevel) {
+        consumers.addAll(project.getConsumers());
+      }
+      if (!consumers.isEmpty()) {
+        AclBindingsResult aclBindingsResult =
+            new ConsumerAclBindingsBuilder(
+                    bindingsBuilder, new ArrayList<>(consumers), fullTopicName, false)
+                .getAclBindings();
+        aclBindingsResults.add(aclBindingsResult);
+      }
+      Set<Producer> producers = new HashSet(topic.getProducers());
+      if (includeProjectLevel) {
+        producers.addAll(project.getProducers());
+      }
+      if (!producers.isEmpty()) {
+        AclBindingsResult aclBindingsResult =
+            new ProducerAclBindingsBuilder(
+                    bindingsBuilder, new ArrayList<>(producers), fullTopicName, false)
+                .getAclBindings();
+        aclBindingsResults.add(aclBindingsResult);
+      }
+    }
     return aclBindingsResults;
   }
 

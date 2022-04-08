@@ -107,6 +107,11 @@ public class TopologyImpl implements Topology, Cloneable {
   }
 
   @Override
+  public void setSpecialTopics(List<Topic> topics) {
+    this.specialTopics = topics;
+  }
+
+  @Override
   public Topology clone() {
     try {
       return (Topology) super.clone();

@@ -32,4 +32,6 @@ public interface Topology {
   List<Topic> getSpecialTopics();
 
   void addSpecialTopic(Topic topic);
+
+  void setSpecialTopics(List<Topic> topics);
 }
