@@ -1,4 +1,10 @@
 
+v4.1.3 / 2022-04-08
+===================
+
+  * Detect divergences between local state and the remote cluster current status (#478)
+  * Add validators backwards compatibility (#480)
+
 v4.1.2 / 2022-04-06
 ===================
 
