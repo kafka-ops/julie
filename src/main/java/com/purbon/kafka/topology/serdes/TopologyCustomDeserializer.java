@@ -113,7 +113,8 @@ public class TopologyCustomDeserializer extends StdDeserializer<Topology> {
     }
 
     Topology topology = new TopologyImpl(config);
-    List<String> excludeAttributes = Arrays.asList(PROJECTS_KEY, CONTEXT_KEY, PLATFORM_KEY);
+    List<String> excludeAttributes =
+        Arrays.asList(PROJECTS_KEY, CONTEXT_KEY, PLATFORM_KEY, SPECIAL_TOPICS_NODE);
 
     Iterator<String> fieldNames = rootNode.fieldNames();
     while (fieldNames.hasNext()) {
@@ -156,7 +157,7 @@ public class TopologyCustomDeserializer extends StdDeserializer<Topology> {
 
     JsonNode specialTopicsNode = rootNode.get(SPECIAL_TOPICS_NODE);
     if (specialTopicsNode != null && specialTopicsNode.size() > 0) {
-      for(int i=0; i < specialTopicsNode.size(); i++) {
+      for (int i = 0; i < specialTopicsNode.size(); i++) {
         JsonNode node = specialTopicsNode.get(i);
         var topic = parser.getCodec().treeToValue(node, Topic.class);
         topology.addSpecialTopic(topic);

@@ -90,7 +90,8 @@ public class TopologyValidator {
 
                 Object instance;
                 try {
-                  Constructor<?> configurationConstructor = clazz.getConstructor(Configuration.class);
+                  Constructor<?> configurationConstructor =
+                      clazz.getConstructor(Configuration.class);
                   instance = configurationConstructor.newInstance(config);
                 } catch (NoSuchMethodException e) {
                   /* Support pre 4.1.1 validators with no-arg constructors. */

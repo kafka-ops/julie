@@ -758,8 +758,7 @@ public class TopologySerdesTest {
 
   @Test
   public void shouldParseSpecialTopics() {
-    Topology topology =
-            parser.deserialise(TestUtils.getResourceFile("/descriptor.yaml"));
+    Topology topology = parser.deserialise(TestUtils.getResourceFile("/descriptor.yaml"));
 
     var topics = topology.getSpecialTopics();
     assertThat(topics).hasSize(2);
