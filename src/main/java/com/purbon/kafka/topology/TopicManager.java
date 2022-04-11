@@ -9,8 +9,10 @@ import com.purbon.kafka.topology.actions.topics.UpdateTopicConfigAction;
 import com.purbon.kafka.topology.actions.topics.builders.TopicConfigUpdatePlanBuilder;
 import com.purbon.kafka.topology.api.adminclient.TopologyBuilderAdminClient;
 import com.purbon.kafka.topology.exceptions.RemoteValidationException;
+import com.purbon.kafka.topology.model.Project;
 import com.purbon.kafka.topology.model.Topic;
 import com.purbon.kafka.topology.model.Topology;
+import com.purbon.kafka.topology.model.users.KStream;
 import com.purbon.kafka.topology.schemas.SchemaRegistryManager;
 import java.io.IOException;
 import java.io.PrintStream;
@@ -20,7 +22,10 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Function;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -35,7 +40,7 @@ public class TopicManager implements ExecutionPlanUpdater {
   private final SchemaRegistryManager schemaRegistryManager;
   private final TopologyBuilderAdminClient adminClient;
   private final Configuration config;
-  private final List<String> internalTopicPrefixes;
+  private List<String> internalTopicPrefixes;
   private final List<String> managedPrefixes;
 
   public TopicManager(
@@ -50,13 +55,14 @@ public class TopicManager implements ExecutionPlanUpdater {
     this.adminClient = adminClient;
     this.schemaRegistryManager = schemaRegistryManager;
     this.config = config;
-    this.internalTopicPrefixes = config.getKafkaInternalTopicPrefixes();
+    this.internalTopicPrefixes = new ArrayList<>();
     this.managedPrefixes = config.getTopicManagedPrefixes();
   }
 
   @Override
   public void updatePlan(ExecutionPlan plan, Map<String, Topology> topologies) throws IOException {
 
+    internalTopicPrefixes = config.getKafkaInternalTopicPrefixes(topologies.values());
     Set<String> currentTopics = loadActualClusterStateIfAvailable(plan);
     Map<String, Topic> topics = new HashMap<>();
 
