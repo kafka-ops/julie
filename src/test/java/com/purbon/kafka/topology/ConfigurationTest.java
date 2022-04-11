@@ -165,16 +165,6 @@ public class ConfigurationTest {
   }
 
   @Test
-  public void testKafkaInternalTopicDefaultPrefix() {
-    String clientConfigFile = TestUtils.getResourceFilename("/client-config.properties");
-
-    cliOps.put(CLIENT_CONFIG_OPTION, clientConfigFile);
-
-    Configuration config = Configuration.build(cliOps);
-    assertThat(config.getKafkaInternalTopicPrefixes()).isEqualTo(Collections.singletonList("_"));
-  }
-
-  @Test
   public void testKafkaInternalTopicExtendedPrefix() {
     String clientConfigFile =
         TestUtils.getResourceFilename("/config-internals-extended.properties");
@@ -268,4 +258,43 @@ public class ConfigurationTest {
               }
             });
   }
+
+  @Test
+  public void testKafkaInternalTopicDefaultPrefix() {
+    String clientConfigFile = TestUtils.getResourceFilename("/client-config.properties");
+
+    cliOps.put(CLIENT_CONFIG_OPTION, clientConfigFile);
+
+    Configuration config = Configuration.build(cliOps);
+    assertThat(config.getKafkaInternalTopicPrefixes()).isEqualTo(Collections.singletonList("_"));
+  }
+
+  @Test
+  public void shouldAddStreamsApplicationIdAsInternalTopics() {
+    Configuration config = new Configuration(cliOps, props);
+
+    var topology = TestTopologyBuilder
+            .createProject()
+            .addKStream("foo", "applicationId")
+            .buildTopology();
+
+    var internals = config.getKafkaInternalTopicPrefixes(Collections.singletonList(topology));
+    assertThat(internals).contains("applicationId");
+    assertThat(internals).contains("_");
+  }
+
+  @Test
+  public void shouldAddStreamsProjectPrefixAsInternalTopics() {
+    Configuration config = new Configuration(cliOps, props);
+
+    var topology = TestTopologyBuilder
+            .createProject()
+            .addKStream("foo")
+            .buildTopology();
+
+    var internals = config.getKafkaInternalTopicPrefixes(Collections.singletonList(topology));
+    assertThat(internals).contains("ctx.project");
+    assertThat(internals).contains("_");
+  }
+
 }
