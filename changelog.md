@@ -1,18 +1,85 @@
 
+v4.1.3 / 2022-04-13
+===================
+
+  * [Big] Fix Confluent Cloud Translation mechanism when the Service Account does not have a type prefix (default user) (#485)
+  * [Feature] Introduce the concept of an AuditLog for JulieOps (#484)
+  * [Feature] Add support for out of the box topics, an special topics list managed by JulieOps (#482)
+  * [Feature] Add Kafka Streams applicationId as internal topics, if available (#481)
+
+v4.1.3 / 2022-04-08
+===================
+
+* Detect divergences between local state and the remote cluster current status (#478)
+* Add validators backwards compatibility (#480)
+
+v4.1.2 / 2022-04-06
+===================
+
+* [Security] Fix CWE-787 CVE-2020-36518 for jackson-databind (#476)
+* Add support for deploying packaged released to Maven Central (#473) (#475) (#477)
+* Add a JSON schema description of the topology/descriptor file sintax (#471) (#472)
+* [Test] Refactor and add tests related to Confluent Cloud service account translation feature (#468)
+* Allowing to configure the redis bucket used by JulieOps (#465)
+* [Test] Clarify S3 Backend IT test (#464)
+* [Bug] Fix RedisBackend bootstrap, NullPointerException (#462)
+* [Bug] Issue fix (456) for resolution of service account mapping (Translation of principals) (#459)
+
+v4.1.1 / 2022-02-05
+===================
+
+* Fix Confluent Cloud ACL(s) API usage, so ACL(s) are finally created properly (#444)
+* Fix config passing for topology validator for regular expressions (#443)
+* Bump log4j-api from 2.17.0 to 2.17.1 (#436)
+
+v4.1.0 / 2021-12-30
+===================
+
+* [ksqlDB] when using ACLs configure all internal topics with ALL permissions for the ksql server user (#433)
+* Bring Principal Management for Confluent Cloud out of Experimental into Production ready feature (#435)
+* Use Confluent Cloud API when integrating with the Confluent fully managed service (#431)
+* Throw an exception when an invalid plan is used (#426)
+* Add docker to the SAN to make it run in our in-house Gitlab (#421)
+* Improved execution log for topics and schemas (#383)
+
+v4.0.1 / 2021-12-20
+==================
+
+* Bump log4j to 2.17.0, prevent latest Log4j CVE, ref https://logging.apache.org/log4j/2.x/security.html (#427)
+
+v4.0.0 / 2021-12-10
+===================
+
+* neat: Adapt CI jobs and other actions to latest versions (#419)
+* port the main changelog to master
+* fix&feature: establish service accounts prefix filter a primary criteria when available to filter the list of access control rules (#418)
+* Bump log4j-api from 2.13.3 to 2.15.0 (#416)
+* fix: issue with connector and subject permissions being ignored when more than one (#415)
+* Add producer Idempotence permissions to Confluent RBAC (#414)
+* Fix: Topic config values should take precedence over plan config values (#410)
+* Quotas implementation, only quotas based in user principal (#376)
+* fix request scope to hold proper pattern type (literal, prefix) in rbac
+* add proper clusterIds for RBAC clear bindings operations, not only kafka one
+* add support in the custom roles for subject and connect attributes (#406)
+* fix incorrect rbac resource name for subjects and connectors (#405)
+* ammend order for delete in ksql to be reverse from creation (#400)
+* add Parameter for initial Kafka Backend consumer retry
+* raise initial load as done if tried at least five times
+
 v4.0.0 / 2021-12-10
 ==================
 
-  * Fix/feature: establish service accounts prefix filter a primary criteria when available to filter the list of access control rules (#418)
-  * Security fix: Bump log4j-api from 2.13.3 to 2.15.0 (#416)
-  * fix: issue with connector and subject permissions being ignored when more than one (#415)
-  * feature: Add producer Idempotence permissions to Confluent RBAC (#414)
-  * fix: Topic config values should take precedence over plan config values (#410)
-  * feature: Quotas implementation, only quotas based in user principal (#376)
-  * feature: add support in the custom roles for subject and connect attributes (#406)
-  * fix: incorrect rbac resource name for subjects and connectors (#405)
-  * fix: ammend order for delete in ksql to be reverse from creation (#400)
-  * fix: add Parameter for initial Kafka Backend consumer retry 
-  * fix: Raise initial load as done if tried at least five times for the Kafka Backend
+* Fix/feature: establish service accounts prefix filter a primary criteria when available to filter the list of access control rules (#418)
+* Security fix: Bump log4j-api from 2.13.3 to 2.15.0 (#416)
+* fix: issue with connector and subject permissions being ignored when more than one (#415)
+* feature: Add producer Idempotence permissions to Confluent RBAC (#414)
+* fix: Topic config values should take precedence over plan config values (#410)
+* feature: Quotas implementation, only quotas based in user principal (#376)
+* feature: add support in the custom roles for subject and connect attributes (#406)
+* fix: incorrect rbac resource name for subjects and connectors (#405)
+* fix: ammend order for delete in ksql to be reverse from creation (#400)
+* fix: add Parameter for initial Kafka Backend consumer retry
+* fix: Raise initial load as done if tried at least five times for the Kafka Backend
 
 v3.3.3 / 2021-11-23
 ===================
