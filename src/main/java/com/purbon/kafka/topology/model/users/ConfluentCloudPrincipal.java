@@ -15,6 +15,9 @@ public class ConfluentCloudPrincipal {
   private String serviceAccountName;
 
   public static ConfluentCloudPrincipal fromString(String principalString) {
+    if (principalString.isBlank()) {
+      throw new IllegalArgumentException("Confluent Cloud wrong principal type, can't be blank");
+    }
     String type = "User";
     String name;
     if (principalString.contains(COLON_AS_SEPARATOR)) {
@@ -25,7 +28,6 @@ public class ConfluentCloudPrincipal {
       name = principalString;
     }
     return new ConfluentCloudPrincipal(PrincipalType.valueOf(type), name);
-
   }
 
   @Override

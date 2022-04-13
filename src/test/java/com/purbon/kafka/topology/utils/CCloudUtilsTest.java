@@ -57,7 +57,8 @@ public class CCloudUtilsTest {
     testTranslationMechanism(utils, "sa-xxxx", "foo");
   }
 
-  private void testTranslationMechanism(CCloudUtils utils, String resourceId, String serviceName) throws IOException {
+  private void testTranslationMechanism(CCloudUtils utils, String resourceId, String serviceName)
+      throws IOException {
 
     var accounts = new HashSet<>();
     accounts.add(new ServiceAccount(resourceId, serviceName, "description", resourceId));
@@ -70,13 +71,13 @@ public class CCloudUtilsTest {
     var lookupTable = utils.initializeLookupTable(cCloudApi);
 
     TopologyAclBinding binding =
-            TopologyAclBinding.build(
-                    ResourceType.CLUSTER.name(),
-                    "resourceName",
-                    "host",
-                    "operation",
-                    serviceName,
-                    "pattern");
+        TopologyAclBinding.build(
+            ResourceType.CLUSTER.name(),
+            "resourceName",
+            "host",
+            "operation",
+            serviceName,
+            "pattern");
 
     var translatedBinding = utils.translateIfNecessary(binding, lookupTable);
 
