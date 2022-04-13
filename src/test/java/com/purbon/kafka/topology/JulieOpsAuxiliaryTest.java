@@ -30,6 +30,7 @@ public class JulieOpsAuxiliaryTest {
     cliOps = new HashMap<>();
     cliOps.put(BROKERS_OPTION, "");
     props = new Properties();
+    props.put(JULIE_AUDIT_ENABLED, "true");
   }
 
   @After

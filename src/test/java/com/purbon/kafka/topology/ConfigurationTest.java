@@ -299,7 +299,7 @@ public class ConfigurationTest {
 
     Configuration config = new Configuration(cliOps, props);
     Properties props = config.asProperties("julie.audit");
-    assertThat(props).hasSize(4);
+    assertThat(props).hasSize(5);
     assertThat(props).containsEntry(AUDIT_APPENDER_KAFKA_TOPIC, "log");
     assertThat(props).containsEntry(JULIE_AUDIT_APPENDER_CLASS, "foo.class");
   }
