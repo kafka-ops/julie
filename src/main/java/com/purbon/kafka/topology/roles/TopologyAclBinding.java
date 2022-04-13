@@ -50,13 +50,13 @@ public class TopologyAclBinding implements Comparable<TopologyAclBinding> {
   /**
    * Build method
    *
-   * @param resourceTypeString
-   * @param resourceName
-   * @param host
-   * @param operation
-   * @param principal
-   * @param pattern
-   * @return
+   * @param resourceTypeString The resource type as described in ResourceType, but as String.
+   * @param resourceName The resource name
+   * @param host the host this acl is allowing/deny to
+   * @param operation an operations to be processed
+   * @param principal The selected principal
+   * @param pattern the pattern used to mach this acl
+   * @return A contructed TopologyAclBinding object
    */
   public static TopologyAclBinding build(
       String resourceTypeString,

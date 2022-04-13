@@ -6,6 +6,8 @@ import com.purbon.kafka.topology.actions.accounts.ClearAccounts;
 import com.purbon.kafka.topology.actions.accounts.CreateAccounts;
 import com.purbon.kafka.topology.actions.topics.CreateTopicAction;
 import com.purbon.kafka.topology.actions.topics.DeleteTopics;
+import com.purbon.kafka.topology.audit.Auditor;
+import com.purbon.kafka.topology.audit.VoidAuditor;
 import com.purbon.kafka.topology.model.Artefact;
 import com.purbon.kafka.topology.model.artefact.KafkaConnectArtefact;
 import com.purbon.kafka.topology.model.artefact.KsqlArtefact;
@@ -43,10 +45,16 @@ public class ExecutionPlan {
   private Set<KsqlStreamArtefact> ksqlStreams;
   private Set<KsqlTableArtefact> ksqlTables;
 
+  private Auditor auditor;
+
   private ExecutionPlan(
-      List<Action> plan, PrintStream outputStream, BackendController backendController) {
+      List<Action> plan,
+      PrintStream outputStream,
+      BackendController backendController,
+      Auditor auditor) {
     this.plan = plan;
     this.outputStream = outputStream;
+    this.auditor = auditor;
 
     this.bindings = new HashSet<>();
     this.serviceAccounts = new HashSet<>();
@@ -72,9 +80,15 @@ public class ExecutionPlan {
 
   public static ExecutionPlan init(BackendController backendController, PrintStream outputStream)
       throws IOException {
+    return init(backendController, outputStream, new VoidAuditor());
+  }
+
+  public static ExecutionPlan init(
+      BackendController backendController, PrintStream outputStream, Auditor auditor)
+      throws IOException {
     backendController.load();
     List<Action> listOfActions = Collections.synchronizedList(new LinkedList<>());
-    return new ExecutionPlan(listOfActions, outputStream, backendController);
+    return new ExecutionPlan(listOfActions, outputStream, backendController, auditor);
   }
 
   public void run() throws IOException {
@@ -108,6 +122,7 @@ public class ExecutionPlan {
     outputStream.println(action);
     if (!dryRun) {
       action.run();
+      auditor.log(action);
       // TODO: a nicer and more clean version of this might be a cool thing to have, current version
       // is shitty.
       if (action instanceof CreateTopicAction) {

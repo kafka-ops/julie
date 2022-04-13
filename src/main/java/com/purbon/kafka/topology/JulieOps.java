@@ -7,6 +7,8 @@ import com.purbon.kafka.topology.api.adminclient.TopologyBuilderAdminClientBuild
 import com.purbon.kafka.topology.api.connect.KConnectApiClient;
 import com.purbon.kafka.topology.api.ksql.KsqlApiClient;
 import com.purbon.kafka.topology.api.mds.MDSApiClientBuilder;
+import com.purbon.kafka.topology.audit.Appender;
+import com.purbon.kafka.topology.audit.Auditor;
 import com.purbon.kafka.topology.backend.*;
 import com.purbon.kafka.topology.exceptions.ValidationException;
 import com.purbon.kafka.topology.model.Topology;
@@ -23,6 +25,8 @@ import io.confluent.kafka.schemaregistry.protobuf.ProtobufSchemaProvider;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintStream;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.*;
@@ -108,6 +112,19 @@ public class JulieOps implements AutoCloseable {
         new VoidPrincipalProvider());
   }
 
+  /**
+   * Create an instance of a JulieOps Controller, used to run and manage all inter
+   *
+   * @param topologyFileOrDir
+   * @param plansFile
+   * @param config
+   * @param adminClient
+   * @param accessControlProvider
+   * @param bindingsBuilderProvider
+   * @param principalProvider
+   * @return
+   * @throws Exception
+   */
   public static JulieOps build(
       String topologyFileOrDir,
       String plansFile,
@@ -180,6 +197,65 @@ public class JulieOps implements AutoCloseable {
         kSqlArtefactManager);
   }
 
+  void run(BackendController backendController, PrintStream printStream, Auditor auditor)
+      throws IOException {
+    ExecutionPlan plan = ExecutionPlan.init(backendController, printStream, auditor);
+    LOGGER.debug(
+        String.format(
+            "Running topology builder with topicManager=[%s], accessControlManager=[%s], dryRun=[%s], isQuiet=[%s]",
+            topicManager, accessControlManager, config.isDryRun(), config.isQuiet()));
+
+    // Create users should always be first, so user exists when making acl link
+    for (Topology topology : topologies.values()) {
+      principalUpdateManager.updatePlan(topology, plan);
+    }
+    topicManager.updatePlan(plan, topologies);
+    accessControlManager.updatePlan(plan, topologies);
+    connectorManager.updatePlan(plan, topologies);
+    kSqlArtefactManager.updatePlan(plan, topologies);
+    // Delete users should always be last,
+    // avoids any unlinked acls, e.g. if acl delete or something errors then there is a link still
+    // from the account, and can be re-run or manually fixed more easily
+    for (Topology topology : topologies.values()) {
+      principalDeleteManager.updatePlan(topology, plan);
+    }
+
+    plan.run(config.isDryRun());
+
+    if (!config.isQuiet() && !config.isDryRun()) {
+      topicManager.printCurrentState(System.out);
+      accessControlManager.printCurrentState(System.out);
+      principalUpdateManager.printCurrentState(System.out);
+      connectorManager.printCurrentState(System.out);
+      kSqlArtefactManager.printCurrentState(System.out);
+    }
+  }
+
+  public void run() throws IOException {
+    if (config.doValidate()) {
+      return;
+    }
+    run(buildBackendController(config), outputStream, configureAndBuildAuditor(config));
+  }
+
+  public void close() {
+    topicManager.close();
+  }
+
+  public static String getVersion() {
+    InputStream resourceAsStream =
+        JulieOps.class.getResourceAsStream(
+            "/META-INF/maven/com.purbon.kafka/julie-ops/pom.properties");
+    Properties prop = new Properties();
+    try {
+      prop.load(resourceAsStream);
+      return prop.getProperty("version");
+    } catch (IOException e) {
+      e.printStackTrace();
+      return "unknown";
+    }
+  }
+
   private static KafkaConnectArtefactManager configureKConnectArtefactManager(
       Configuration config, String topologyFileOrDir) {
     Map<String, KConnectApiClient> clients =
@@ -228,64 +304,6 @@ public class JulieOps implements AutoCloseable {
     }
   }
 
-  void run(BackendController backendController, PrintStream printStream) throws IOException {
-    ExecutionPlan plan = ExecutionPlan.init(backendController, printStream);
-    LOGGER.debug(
-        String.format(
-            "Running topology builder with topicManager=[%s], accessControlManager=[%s], dryRun=[%s], isQuiet=[%s]",
-            topicManager, accessControlManager, config.isDryRun(), config.isQuiet()));
-
-    // Create users should always be first, so user exists when making acl link
-    for (Topology topology : topologies.values()) {
-      principalUpdateManager.updatePlan(topology, plan);
-    }
-    topicManager.updatePlan(plan, topologies);
-    accessControlManager.updatePlan(plan, topologies);
-    connectorManager.updatePlan(plan, topologies);
-    kSqlArtefactManager.updatePlan(plan, topologies);
-    // Delete users should always be last,
-    // avoids any unlinked acls, e.g. if acl delete or something errors then there is a link still
-    // from the account, and can be re-run or manually fixed more easily
-    for (Topology topology : topologies.values()) {
-      principalDeleteManager.updatePlan(topology, plan);
-    }
-
-    plan.run(config.isDryRun());
-
-    if (!config.isQuiet() && !config.isDryRun()) {
-      topicManager.printCurrentState(System.out);
-      accessControlManager.printCurrentState(System.out);
-      principalUpdateManager.printCurrentState(System.out);
-      connectorManager.printCurrentState(System.out);
-      kSqlArtefactManager.printCurrentState(System.out);
-    }
-  }
-
-  public void run() throws IOException {
-    if (config.doValidate()) {
-      return;
-    }
-    run(buildBackendController(config), outputStream);
-  }
-
-  public void close() {
-    topicManager.close();
-  }
-
-  public static String getVersion() {
-    InputStream resourceAsStream =
-        JulieOps.class.getResourceAsStream(
-            "/META-INF/maven/com.purbon.kafka/julie-ops/pom.properties");
-    Properties prop = new Properties();
-    try {
-      prop.load(resourceAsStream);
-      return prop.getProperty("version");
-    } catch (IOException e) {
-      e.printStackTrace();
-      return "unknown";
-    }
-  }
-
   private static BackendController buildBackendController(Configuration config) throws IOException {
 
     String backendClass = config.getStateProcessorImplementationClassName();
@@ -309,6 +327,29 @@ public class JulieOps implements AutoCloseable {
     }
     backend.configure(config);
     return new BackendController(backend);
+  }
+
+  private Auditor configureAndBuildAuditor(Configuration config) throws IOException {
+    String appenderClassString = config.getJulieAuditAppenderClass();
+
+    try {
+      Class anAppenderClass = Class.forName(appenderClassString);
+      Appender appender;
+      try {
+        Constructor constructor = anAppenderClass.getConstructor(Configuration.class);
+        appender = (Appender) constructor.newInstance(config);
+      } catch (NoSuchMethodException e) {
+        LOGGER.trace(
+            appenderClassString + " has no config constructor, falling back to a default one");
+        Constructor constructor = anAppenderClass.getConstructor();
+        appender = (Appender) constructor.newInstance();
+      }
+      return new Auditor(appender);
+    } catch (ClassNotFoundException | NoSuchMethodException e) {
+      throw new IOException(e);
+    } catch (IllegalAccessException | InstantiationException | InvocationTargetException e) {
+      throw new IOException(e);
+    }
   }
 
   void setTopicManager(TopicManager topicManager) {

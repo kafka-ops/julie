@@ -4,7 +4,11 @@ import com.purbon.kafka.topology.actions.BaseAction;
 import com.purbon.kafka.topology.api.adminclient.TopologyBuilderAdminClient;
 import com.purbon.kafka.topology.model.Topic;
 import java.io.IOException;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -58,5 +62,18 @@ public class UpdateTopicConfigAction extends BaseAction {
     map.put("Action", "update");
     map.put("Changes", changes);
     return map;
+  }
+
+  @Override
+  protected List<Map<String, Object>> detailedProps() {
+    Map<String, Object> map = new HashMap<>();
+    props().forEach((key, value) -> map.put(key.toLowerCase(Locale.ROOT), value));
+    map.remove("action");
+    map.put(
+        "resource_name",
+        String.format(
+            "rn://update.topic.config/%s/%s",
+            getClass().getName(), topicConfigUpdatePlan.getTopic().getName()));
+    return Collections.singletonList(map);
   }
 }

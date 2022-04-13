@@ -5,6 +5,7 @@ import static com.purbon.kafka.topology.Constants.*;
 import static org.mockito.Mockito.*;
 
 import com.purbon.kafka.topology.api.adminclient.TopologyBuilderAdminClient;
+import com.purbon.kafka.topology.audit.VoidAuditor;
 import com.purbon.kafka.topology.backend.BackendState;
 import com.purbon.kafka.topology.backend.RedisBackend;
 import com.purbon.kafka.topology.exceptions.TopologyParsingException;
@@ -180,7 +181,7 @@ public class JulieOpsTest {
 
     doNothing().when(accessControlManager).updatePlan(any(ExecutionPlan.class), any(Map.class));
 
-    builder.run(new BackendController(stateProcessor), System.out);
+    builder.run(new BackendController(stateProcessor), System.out, new VoidAuditor());
     builder.close();
 
     verify(stateProcessor, times(1)).createOrOpen();

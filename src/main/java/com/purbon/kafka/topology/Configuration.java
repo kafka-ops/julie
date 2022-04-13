@@ -85,8 +85,14 @@ public class Configuration {
   }
 
   public Properties asProperties() {
+    return asProperties("");
+  }
+
+  public Properties asProperties(String prefix) {
     Properties props = new Properties();
-    config.entrySet().forEach(entry -> props.put(entry.getKey(), entry.getValue().unwrapped()));
+    config.entrySet().stream()
+        .filter(entry -> prefix.isBlank() || entry.getKey().startsWith(prefix))
+        .forEach(entry -> props.put(entry.getKey(), entry.getValue().unwrapped()));
     if (cliParams.get(CommandLineInterface.BROKERS_OPTION) != null) {
       props.put(
           AdminClientConfig.BOOTSTRAP_SERVERS_CONFIG,
@@ -637,5 +643,13 @@ public class Configuration {
 
   public Boolean enabledPrincipalManagement() {
     return config.getBoolean(JULIE_ENABLE_PRINCIPAL_MANAGEMENT);
+  }
+
+  public String getKafkaAuditTopic() {
+    return config.getString(AUDIT_APPENDER_KAFKA_TOPIC);
+  }
+
+  public String getJulieAuditAppenderClass() {
+    return config.getString(JULIE_AUDIT_APPENDER_CLASS);
   }
 }

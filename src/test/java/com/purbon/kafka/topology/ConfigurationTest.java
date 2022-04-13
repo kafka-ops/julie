@@ -297,4 +297,15 @@ public class ConfigurationTest {
     assertThat(internals).contains("_");
   }
 
+  @Test
+  public void shouldFetchAConfigSubsetSuccessfully() {
+    props.put(JULIE_AUDIT_APPENDER_CLASS, "foo.class");
+    props.put(AUDIT_APPENDER_KAFKA_TOPIC, "log");
+
+    Configuration config = new Configuration(cliOps, props);
+    Properties props = config.asProperties("julie.audit");
+    assertThat(props).hasSize(4);
+    assertThat(props).containsEntry(AUDIT_APPENDER_KAFKA_TOPIC, "log");
+    assertThat(props).containsEntry(JULIE_AUDIT_APPENDER_CLASS, "foo.class");
+  }
 }

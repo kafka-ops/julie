@@ -5,6 +5,7 @@ import com.purbon.kafka.topology.actions.BaseAccessControlAction;
 import com.purbon.kafka.topology.model.JulieRole;
 import com.purbon.kafka.topology.model.JulieRoleAcl;
 import com.purbon.kafka.topology.model.users.Other;
+import com.purbon.kafka.topology.roles.TopologyAclBinding;
 import com.purbon.kafka.topology.utils.JinjaUtils;
 import java.io.IOException;
 import java.util.HashMap;
@@ -47,6 +48,12 @@ public class BuildBindingsForRole extends BaseAccessControlAction {
           bindingsBuilder.buildBindingsForJulieRole(other, julieRole.getName(), acls);
       aclBindings.addAll(instanceBindings);
     }
+  }
+
+  @Override
+  protected String resourceNameBuilder(TopologyAclBinding binding) {
+    return String.format(
+        "rn://create.binding.role/%s/%s", getClass().getName(), julieRole.getName());
   }
 
   @Override
