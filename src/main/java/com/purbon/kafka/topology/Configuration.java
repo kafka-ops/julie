@@ -85,8 +85,14 @@ public class Configuration {
   }
 
   public Properties asProperties() {
+    return asProperties("");
+  }
+
+  public Properties asProperties(String prefix) {
     Properties props = new Properties();
-    config.entrySet().forEach(entry -> props.put(entry.getKey(), entry.getValue().unwrapped()));
+    config.entrySet().stream()
+        .filter(entry -> prefix.isBlank() || entry.getKey().startsWith(prefix))
+        .forEach(entry -> props.put(entry.getKey(), entry.getValue().unwrapped()));
     if (cliParams.get(CommandLineInterface.BROKERS_OPTION) != null) {
       props.put(
           AdminClientConfig.BOOTSTRAP_SERVERS_CONFIG,
@@ -199,21 +205,26 @@ public class Configuration {
 
   /**
    * Build a list of internal topic prefixes for this deployment
-   * @return  A list of internal topic prefixes
+   *
+   * @return A list of internal topic prefixes
    */
   public List<String> getKafkaInternalTopicPrefixes(Collection<Topology> topologies) {
     var internalTopicPrefixes = getKafkaInternalTopicPrefixes();
     // Add internal topics for Kafka Stream Applications
-    topologies
-            .stream()
-            .flatMap(topology -> topology.getProjects().stream())
-            .flatMap(project -> project.getStreams().stream().map(s -> new Pair(project, s)))
-            .forEach(new Consumer<Pair>() {
+    topologies.stream()
+        .flatMap(topology -> topology.getProjects().stream())
+        .flatMap(project -> project.getStreams().stream().map(s -> new Pair(project, s)))
+        .forEach(
+            new Consumer<Pair>() {
               @Override
               public void accept(Pair pair) {
-                var project = (Project)pair.getKey();
-                var kStream = (KStream)pair.getValue();
-                kStream.getApplicationId().ifPresentOrElse(internalTopicPrefixes::add, () -> internalTopicPrefixes.add(project.namePrefix()));
+                var project = (Project) pair.getKey();
+                var kStream = (KStream) pair.getValue();
+                kStream
+                    .getApplicationId()
+                    .ifPresentOrElse(
+                        internalTopicPrefixes::add,
+                        () -> internalTopicPrefixes.add(project.namePrefix()));
               }
             });
 
@@ -637,5 +648,17 @@ public class Configuration {
 
   public Boolean enabledPrincipalManagement() {
     return config.getBoolean(JULIE_ENABLE_PRINCIPAL_MANAGEMENT);
+  }
+
+  public String getKafkaAuditTopic() {
+    return config.getString(AUDIT_APPENDER_KAFKA_TOPIC);
+  }
+
+  public String getJulieAuditAppenderClass() {
+    return config.getString(JULIE_AUDIT_APPENDER_CLASS);
+  }
+
+  public Boolean isJulieAuditEnabled() {
+    return config.getBoolean(JULIE_AUDIT_ENABLED);
   }
 }

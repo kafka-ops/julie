@@ -28,4 +28,9 @@ public class CreateAccounts extends BaseAccountsAction {
     }
     accounts = mappedAccounts;
   }
+
+  @Override
+  protected String resourceNameBuilder(ServiceAccount account) {
+    return String.format("rn://create.account/%s/%s", getClass().getName(), account.getName());
+  }
 }

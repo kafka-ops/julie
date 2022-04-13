@@ -7,6 +7,8 @@ import com.purbon.kafka.topology.model.schema.TopicSchemas;
 import com.purbon.kafka.topology.schemas.SchemaRegistryManager;
 import java.io.IOException;
 import java.util.*;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -71,6 +73,39 @@ public class RegisterSchemaAction extends BaseAction {
       map.put("Schemas", schemas);
     }
     return map;
+  }
+
+  @Override
+  protected List<Map<String, Object>> detailedProps() {
+    return topic.getSchemas().stream()
+        .map(
+            new Function<TopicSchemas, Map<String, Object>>() {
+              @Override
+              public Map<String, Object> apply(TopicSchemas topicSchemas) {
+                Map<String, Object> map = new LinkedHashMap<>();
+                Map<String, String> schema = new LinkedHashMap<>();
+                addSubjectIfExists(schema, topicSchemas.getKeySubject());
+                addSubjectIfExists(schema, topicSchemas.getValueSubject());
+
+                try {
+                  map.put(
+                      "resource_name",
+                      String.format(
+                          "rn://register.schema/%s/%s/%s/%s",
+                          getClass().getName(),
+                          fullTopicName,
+                          topicSchemas.getKeySubject().buildSubjectName(topic),
+                          topicSchemas.getValueSubject().buildSubjectName(topic)));
+                } catch (IOException e) {
+                  LOGGER.warn("Error building subject name", e);
+                }
+                map.put("operation", getClass().getName());
+                map.put("topic", fullTopicName);
+                map.put("schema", schema);
+                return map;
+              }
+            })
+        .collect(Collectors.toList());
   }
 
   private void addSubjectIfExists(Map<String, String> schemas, Subject subject) {

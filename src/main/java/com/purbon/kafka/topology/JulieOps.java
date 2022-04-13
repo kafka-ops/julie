@@ -1,18 +1,15 @@
 package com.purbon.kafka.topology;
 
-import static com.purbon.kafka.topology.Constants.*;
+import static com.purbon.kafka.topology.JulieOpsAuxiliary.*;
 
 import com.purbon.kafka.topology.api.adminclient.TopologyBuilderAdminClient;
 import com.purbon.kafka.topology.api.adminclient.TopologyBuilderAdminClientBuilder;
-import com.purbon.kafka.topology.api.connect.KConnectApiClient;
-import com.purbon.kafka.topology.api.ksql.KsqlApiClient;
 import com.purbon.kafka.topology.api.mds.MDSApiClientBuilder;
-import com.purbon.kafka.topology.backend.*;
+import com.purbon.kafka.topology.audit.Auditor;
 import com.purbon.kafka.topology.exceptions.ValidationException;
 import com.purbon.kafka.topology.model.Topology;
 import com.purbon.kafka.topology.schemas.SchemaRegistryManager;
 import com.purbon.kafka.topology.serviceAccounts.VoidPrincipalProvider;
-import com.purbon.kafka.topology.utils.Pair;
 import io.confluent.kafka.schemaregistry.SchemaProvider;
 import io.confluent.kafka.schemaregistry.avro.AvroSchemaProvider;
 import io.confluent.kafka.schemaregistry.client.CachedSchemaRegistryClient;
@@ -25,11 +22,17 @@ import java.io.InputStream;
 import java.io.PrintStream;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.*;
-import java.util.stream.Collectors;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+@Getter
+@Setter
 public class JulieOps implements AutoCloseable {
 
   private static final Logger LOGGER = LogManager.getLogger(JulieOps.class);
@@ -108,6 +111,7 @@ public class JulieOps implements AutoCloseable {
         new VoidPrincipalProvider());
   }
 
+  /** Create an instance of a JulieOps Controller, used to run and manage all inter */
   public static JulieOps build(
       String topologyFileOrDir,
       String plansFile,
@@ -180,56 +184,9 @@ public class JulieOps implements AutoCloseable {
         kSqlArtefactManager);
   }
 
-  private static KafkaConnectArtefactManager configureKConnectArtefactManager(
-      Configuration config, String topologyFileOrDir) {
-    Map<String, KConnectApiClient> clients =
-        config.getKafkaConnectServers().entrySet().stream()
-            .map(
-                entry ->
-                    new Pair<>(
-                        entry.getKey(),
-                        new KConnectApiClient(entry.getValue(), entry.getKey(), config)))
-            .collect(Collectors.toMap(Pair::getKey, Pair::getValue));
-
-    if (clients.isEmpty()) {
-      LOGGER.debug(
-          "No KafkaConnect clients configured for JulieOps to use, please verify your config file");
-    }
-
-    return new KafkaConnectArtefactManager(clients, config, topologyFileOrDir);
-  }
-
-  private static KSqlArtefactManager configureKSqlArtefactManager(
-      Configuration config, String topologyFileOrDir) {
-
-    Map<String, KsqlApiClient> clients = new HashMap<>();
-    if (config.hasKSQLServer()) {
-      KsqlApiClient client = new KsqlApiClient(config.getKSQLClientConfig());
-      clients.put("default", client);
-    }
-
-    if (clients.isEmpty()) {
-      LOGGER.debug(
-          "No KSQL clients configured for JulieOps to use, please verify your config file");
-    }
-
-    return new KSqlArtefactManager(clients, config, topologyFileOrDir);
-  }
-
-  static void verifyRequiredParameters(String topologyFile, Map<String, String> config)
+  void run(BackendController backendController, PrintStream printStream, Auditor auditor)
       throws IOException {
-    if (!Files.exists(Paths.get(topologyFile))) {
-      throw new IOException("Topology file does not exist");
-    }
-
-    String configFilePath = config.get(CommandLineInterface.CLIENT_CONFIG_OPTION);
-    if (!Files.exists(Paths.get(configFilePath))) {
-      throw new IOException("AdminClient config file does not exist");
-    }
-  }
-
-  void run(BackendController backendController, PrintStream printStream) throws IOException {
-    ExecutionPlan plan = ExecutionPlan.init(backendController, printStream);
+    ExecutionPlan plan = ExecutionPlan.init(backendController, printStream, auditor);
     LOGGER.debug(
         String.format(
             "Running topology builder with topicManager=[%s], accessControlManager=[%s], dryRun=[%s], isQuiet=[%s]",
@@ -265,7 +222,7 @@ public class JulieOps implements AutoCloseable {
     if (config.doValidate()) {
       return;
     }
-    run(buildBackendController(config), outputStream);
+    run(buildBackendController(config), outputStream, configureAndBuildAuditor(config));
   }
 
   public void close() {
@@ -286,44 +243,15 @@ public class JulieOps implements AutoCloseable {
     }
   }
 
-  private static BackendController buildBackendController(Configuration config) throws IOException {
-
-    String backendClass = config.getStateProcessorImplementationClassName();
-    Backend backend;
-    try {
-      if (backendClass.equalsIgnoreCase(STATE_PROCESSOR_DEFAULT_CLASS)) {
-        backend = new FileBackend();
-      } else if (backendClass.equalsIgnoreCase(REDIS_STATE_PROCESSOR_CLASS)) {
-        backend = new RedisBackend(config);
-      } else if (backendClass.equalsIgnoreCase(S3_STATE_PROCESSOR_CLASS)) {
-        backend = new S3Backend();
-      } else if (backendClass.equalsIgnoreCase(GCP_STATE_PROCESSOR_CLASS)) {
-        backend = new GCPBackend();
-      } else if (backendClass.equalsIgnoreCase(KAFKA_STATE_PROCESSOR_CLASS)) {
-        backend = new KafkaBackend();
-      } else {
-        throw new IOException(backendClass + " Unknown state processor provided.");
-      }
-    } catch (Exception ex) {
-      throw new IOException(ex);
+  static void verifyRequiredParameters(String topologyFile, Map<String, String> config)
+      throws IOException {
+    if (!Files.exists(Paths.get(topologyFile))) {
+      throw new IOException("Topology file does not exist");
     }
-    backend.configure(config);
-    return new BackendController(backend);
-  }
 
-  void setTopicManager(TopicManager topicManager) {
-    this.topicManager = topicManager;
-  }
-
-  void setAccessControlManager(AccessControlManager accessControlManager) {
-    this.accessControlManager = accessControlManager;
-  }
-
-  public void setConnectorManager(KafkaConnectArtefactManager connectorManager) {
-    this.connectorManager = connectorManager;
-  }
-
-  public void setKsqlArtefactManager(KSqlArtefactManager kSqlArtefactManager) {
-    this.kSqlArtefactManager = kSqlArtefactManager;
+    String configFilePath = config.get(CommandLineInterface.CLIENT_CONFIG_OPTION);
+    if (!Files.exists(Paths.get(configFilePath))) {
+      throw new IOException("AdminClient config file does not exist");
+    }
   }
 }

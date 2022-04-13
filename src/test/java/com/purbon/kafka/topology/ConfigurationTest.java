@@ -273,10 +273,8 @@ public class ConfigurationTest {
   public void shouldAddStreamsApplicationIdAsInternalTopics() {
     Configuration config = new Configuration(cliOps, props);
 
-    var topology = TestTopologyBuilder
-            .createProject()
-            .addKStream("foo", "applicationId")
-            .buildTopology();
+    var topology =
+        TestTopologyBuilder.createProject().addKStream("foo", "applicationId").buildTopology();
 
     var internals = config.getKafkaInternalTopicPrefixes(Collections.singletonList(topology));
     assertThat(internals).contains("applicationId");
@@ -287,14 +285,22 @@ public class ConfigurationTest {
   public void shouldAddStreamsProjectPrefixAsInternalTopics() {
     Configuration config = new Configuration(cliOps, props);
 
-    var topology = TestTopologyBuilder
-            .createProject()
-            .addKStream("foo")
-            .buildTopology();
+    var topology = TestTopologyBuilder.createProject().addKStream("foo").buildTopology();
 
     var internals = config.getKafkaInternalTopicPrefixes(Collections.singletonList(topology));
     assertThat(internals).contains("ctx.project");
     assertThat(internals).contains("_");
   }
 
+  @Test
+  public void shouldFetchAConfigSubsetSuccessfully() {
+    props.put(JULIE_AUDIT_APPENDER_CLASS, "foo.class");
+    props.put(AUDIT_APPENDER_KAFKA_TOPIC, "log");
+
+    Configuration config = new Configuration(cliOps, props);
+    Properties props = config.asProperties("julie.audit");
+    assertThat(props).hasSize(5);
+    assertThat(props).containsEntry(AUDIT_APPENDER_KAFKA_TOPIC, "log");
+    assertThat(props).containsEntry(JULIE_AUDIT_APPENDER_CLASS, "foo.class");
+  }
 }

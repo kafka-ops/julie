@@ -7,7 +7,9 @@ import com.purbon.kafka.topology.model.Artefact;
 import com.purbon.kafka.topology.utils.Utils;
 import java.io.IOException;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -58,5 +60,16 @@ public class CreateArtefactAction extends BaseAction {
     map.put("Operation", getClass().getName());
     map.put("Artefact", artefact.getPath());
     return map;
+  }
+
+  @Override
+  protected List<Map<String, Object>> detailedProps() {
+    Map<String, Object> map = new HashMap<>();
+    map.put(
+        "resource_name",
+        String.format("rn://create.artefact/%s/%s", getClass().getName(), artefact.getName()));
+    map.put("operation", getClass().getName());
+    map.put("artefact", artefact.getPath());
+    return Collections.singletonList(map);
   }
 }

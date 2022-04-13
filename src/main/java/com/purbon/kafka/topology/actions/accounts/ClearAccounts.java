@@ -23,4 +23,9 @@ public class ClearAccounts extends BaseAccountsAction {
       provider.deleteServiceAccount(account);
     }
   }
+
+  @Override
+  protected String resourceNameBuilder(ServiceAccount account) {
+    return String.format("rn://delete.account/%s/%s", getClass().getName(), account.getName());
+  }
 }

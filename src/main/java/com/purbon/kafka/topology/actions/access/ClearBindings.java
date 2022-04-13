@@ -36,4 +36,16 @@ public class ClearBindings extends BaseAccessControlAction {
     map.put("Bindings", aclBindings);
     return map;
   }
+
+  @Override
+  protected String resourceNameBuilder(TopologyAclBinding binding) {
+    return String.format(
+        "rn://delete.binding/%s/%s/%s/%s/%s/%s",
+        getClass().getName(),
+        binding.getResourceType(),
+        binding.getResourceName(),
+        binding.getPrincipal(),
+        binding.getOperation(),
+        binding.getPattern());
+  }
 }
