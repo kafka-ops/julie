@@ -37,7 +37,7 @@ public class JulieOpsAuxiliary {
   }
 
   private static Object initializeClassFromString(String classNameString, Configuration config)
-          throws IOException {
+      throws IOException {
     try {
       Class aClass = Class.forName(classNameString);
       Object newObject;
@@ -50,7 +50,11 @@ public class JulieOpsAuxiliary {
         newObject = constructor.newInstance();
       }
       return newObject;
-    } catch (ClassNotFoundException | NoSuchMethodException | IllegalAccessException | InstantiationException | InvocationTargetException e) {
+    } catch (ClassNotFoundException
+        | NoSuchMethodException
+        | IllegalAccessException
+        | InstantiationException
+        | InvocationTargetException e) {
       throw new IOException(e);
     }
   }

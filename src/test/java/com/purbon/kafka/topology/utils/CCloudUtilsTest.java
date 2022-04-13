@@ -47,9 +47,19 @@ public class CCloudUtilsTest {
   public void translationShouldNotRaiseErrors() throws IOException {
     Configuration config = new Configuration(cliOps, props);
     var utils = new CCloudUtils(config);
+    testTranslationMechanism(utils, "sa-xxxx", "User:foo");
+  }
 
-    String resourceId = "sa-xxxx";
-    String serviceName = "User:foo";
+  @Test
+  public void translationShouldNotRaiseErrorWhenNotUsingUserPrefix() throws IOException {
+    Configuration config = new Configuration(cliOps, props);
+    var utils = new CCloudUtils(config);
+    testTranslationMechanism(utils, "sa-xxxx", "foo");
+  }
+
+  private void testTranslationMechanism(CCloudUtils utils, String resourceId, String serviceName)
+      throws IOException {
+
     var accounts = new HashSet<>();
     accounts.add(new ServiceAccount(resourceId, serviceName, "description", resourceId));
     doReturn(accounts).when(cCloudApi).listServiceAccounts();
