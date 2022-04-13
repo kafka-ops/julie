@@ -11,6 +11,8 @@ import com.purbon.kafka.topology.roles.TopologyAclBinding;
 import java.io.IOException;
 import java.util.List;
 import java.util.Set;
+
+import lombok.Getter;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -24,7 +26,9 @@ public class BackendController {
   }
 
   private static final Logger LOGGER = LogManager.getLogger(BackendController.class);
+  @Getter
   private final Backend backend;
+  @Getter
   private BackendState state;
 
   public BackendController() {

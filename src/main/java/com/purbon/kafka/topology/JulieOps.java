@@ -1,9 +1,6 @@
 package com.purbon.kafka.topology;
 
-import static com.purbon.kafka.topology.JulieOpsAuxiliary.buildBackendController;
-import static com.purbon.kafka.topology.JulieOpsAuxiliary.configureAndBuildAuditor;
-import static com.purbon.kafka.topology.JulieOpsAuxiliary.configureKConnectArtefactManager;
-import static com.purbon.kafka.topology.JulieOpsAuxiliary.configureKSqlArtefactManager;
+import static com.purbon.kafka.topology.JulieOpsAuxiliary.*;
 
 import com.purbon.kafka.topology.api.adminclient.TopologyBuilderAdminClient;
 import com.purbon.kafka.topology.api.adminclient.TopologyBuilderAdminClientBuilder;
