@@ -372,7 +372,6 @@ public class TopicManagerTest {
     topicA.setProducers(Collections.singletonList(new Producer("User:bar")));
     TestTopologyBuilder builder = TestTopologyBuilder.createProject().addSpecialTopic(topicA);
 
-
     Configuration config = new Configuration(cliOps, props);
     TopicManager topicManager = new TopicManager(adminClient, schemaRegistryManager, config);
 

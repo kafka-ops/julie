@@ -15,8 +15,17 @@ public class ConfluentCloudPrincipal {
   private String serviceAccountName;
 
   public static ConfluentCloudPrincipal fromString(String principalString) {
-    String[] user = principalString.split(COLON_AS_SEPARATOR);
-    return new ConfluentCloudPrincipal(PrincipalType.valueOf(user[0]), user[1]);
+    String type = "User";
+    String name;
+    if (principalString.contains(COLON_AS_SEPARATOR)) {
+      String[] user = principalString.split(COLON_AS_SEPARATOR);
+      type = user[0];
+      name = user[1];
+    } else {
+      name = principalString;
+    }
+    return new ConfluentCloudPrincipal(PrincipalType.valueOf(type), name);
+
   }
 
   @Override
