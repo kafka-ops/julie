@@ -5,9 +5,7 @@ import static com.purbon.kafka.topology.CommandLineInterface.BROKERS_OPTION;
 import static com.purbon.kafka.topology.Constants.*;
 import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
-import static org.hamcrest.CoreMatchers.hasItem;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.collection.IsCollectionWithSize.hasSize;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.*;
 
@@ -139,9 +137,9 @@ public class AccessControlManagerTest {
         .buildBindingsForConsumers(argumentCaptor.capture(), eq(topic.toString()), eq(false));
 
     List<Consumer> capturedList = argumentCaptor.getValue();
-    assertThat(capturedList, hasItem(projectConsumer));
-    assertThat(capturedList, hasItem(topicConsumer));
-    assertThat(capturedList, hasSize(2));
+    assertThat(capturedList).contains(projectConsumer);
+    assertThat(capturedList).contains(topicConsumer);
+    assertThat(capturedList).hasSize(2);
   }
 
   @Test
@@ -215,9 +213,9 @@ public class AccessControlManagerTest {
         .buildBindingsForProducers(argumentCaptor.capture(), eq(topic.toString()), eq(false));
 
     List<Producer> capturedList = argumentCaptor.getValue();
-    assertThat(capturedList, hasItem(projectProducer));
-    assertThat(capturedList, hasItem(topicProducer));
-    assertThat(capturedList, hasSize(2));
+    assertThat(capturedList).contains(projectProducer);
+    assertThat(capturedList).contains(topicProducer);
+    assertThat(capturedList).hasSize(2);
   }
 
   @Test
@@ -557,6 +555,38 @@ public class AccessControlManagerTest {
             singletonList(new Consumer("User:app2")), builder.getTopic("topicA").toString());
 
     verify(aclsProvider, times(1)).clearBindings(new HashSet<>(bindingsToDelete));
+  }
+
+  @Test
+  public void specialTopicsShouldGenerateTheConfiguredAclsSuccessfully() throws IOException {
+
+    BackendController backendController = initializeFileBackendController();
+    plan = ExecutionPlan.init(backendController, mockPrintStream);
+    accessControlManager =
+        new AccessControlManager(aclsProvider, new AclsBindingsBuilder(config), config);
+
+    Topic topicA = new Topic("TopicA");
+    topicA.setConsumers(Collections.singletonList(new Consumer("User:foo")));
+    topicA.setProducers(Collections.singletonList(new Producer("User:bar")));
+    TestTopologyBuilder builder = TestTopologyBuilder.createProject().addSpecialTopic(topicA);
+
+    accessControlManager.updatePlan(builder.buildTopology(), plan);
+    plan.run();
+
+    var bindings = plan.getBindings();
+
+    verify(aclsProvider, times(1)).createBindings(any());
+
+    var operations = bindings.stream().map(b -> b.getOperation()).collect(Collectors.toList());
+    assertThat(operations).contains("READ");
+    assertThat(operations).contains("WRITE");
+
+    var users = bindings.stream().map(b -> b.getPrincipal()).collect(Collectors.toList());
+    assertThat(users).contains("User:foo");
+    assertThat(users).contains("User:bar");
+
+    var topics = bindings.stream().map(b -> b.getResourceName()).collect(Collectors.toSet());
+    assertThat(topics).contains("TopicA");
   }
 
   private HashMap<String, List<TopologyAclBinding>> mapBindings(ExecutionPlan plan) {

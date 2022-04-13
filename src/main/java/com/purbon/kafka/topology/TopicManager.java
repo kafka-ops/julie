@@ -9,11 +9,13 @@ import com.purbon.kafka.topology.actions.topics.UpdateTopicConfigAction;
 import com.purbon.kafka.topology.actions.topics.builders.TopicConfigUpdatePlanBuilder;
 import com.purbon.kafka.topology.api.adminclient.TopologyBuilderAdminClient;
 import com.purbon.kafka.topology.exceptions.RemoteValidationException;
-import com.purbon.kafka.topology.model.Project;
 import com.purbon.kafka.topology.model.Topic;
 import com.purbon.kafka.topology.model.Topology;
-import com.purbon.kafka.topology.model.users.KStream;
 import com.purbon.kafka.topology.schemas.SchemaRegistryManager;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import java.io.IOException;
 import java.io.PrintStream;
 import java.util.ArrayList;
@@ -22,13 +24,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-
-import org.apache.commons.lang3.StringUtils;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 
 public class TopicManager implements ExecutionPlanUpdater {
 
@@ -111,9 +108,14 @@ public class TopicManager implements ExecutionPlanUpdater {
   }
 
   private Map<String, Topic> parseMapOfTopics(Topology topology) {
-    return topology.getProjects().stream()
-        .flatMap(project -> project.getTopics().stream())
-        .filter(this::matchesPrefixList)
+    var topics =
+        topology.getProjects().stream()
+            .flatMap(project -> project.getTopics().stream())
+            .filter(this::matchesPrefixList);
+
+    var specialTopics = topology.getSpecialTopics().stream().filter(this::matchesPrefixList);
+
+    return Stream.concat(topics, specialTopics)
         .collect(Collectors.toMap(Topic::toString, topic -> topic));
   }
 

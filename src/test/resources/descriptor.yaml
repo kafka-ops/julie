@@ -131,3 +131,12 @@ platform:
     instances:
       - principal: "User:ControlCenter"
         appId: "controlcenter"
+special_topics:
+  - name: "foo"
+    config:
+      replication.factor: "1"
+      num.partitions: "1"
+  - name: "bar"
+    dataType: "avro"
+    schemas:
+      value.schema.file: "schemas/bar-value.avsc"

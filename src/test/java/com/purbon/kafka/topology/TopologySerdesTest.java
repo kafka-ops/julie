@@ -756,6 +756,17 @@ public class TopologySerdesTest {
     assertEquals(2, topology.getProjects().get(0).getTopics().size());
   }
 
+  @Test
+  public void shouldParseSpecialTopics() {
+    Topology topology = parser.deserialise(TestUtils.getResourceFile("/descriptor.yaml"));
+
+    var topics = topology.getSpecialTopics();
+    assertThat(topics).hasSize(2);
+    var topicNames = topics.stream().map(Topic::getName).collect(Collectors.toList());
+    assertThat(topicNames).contains("foo");
+    assertThat(topicNames).contains("bar");
+  }
+
   private List<Project> buildProjects() {
     Project project = new ProjectImpl("project");
     project.setConsumers(buildConsumers());

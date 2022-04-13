@@ -1,9 +1,11 @@
 package com.purbon.kafka.topology.model.Impl;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.purbon.kafka.topology.Configuration;
 import com.purbon.kafka.topology.model.Platform;
 import com.purbon.kafka.topology.model.Project;
+import com.purbon.kafka.topology.model.Topic;
 import com.purbon.kafka.topology.model.Topology;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -21,6 +23,9 @@ public class TopologyImpl implements Topology, Cloneable {
   @JsonIgnore private List<String> order;
   private Platform platform;
 
+  @JsonProperty("special_topics")
+  private List<Topic> specialTopics;
+
   public TopologyImpl() {
     this(new Configuration());
   }
@@ -31,6 +36,7 @@ public class TopologyImpl implements Topology, Cloneable {
     this.order = new ArrayList<>();
     this.projects = new ArrayList<>();
     this.platform = new Platform();
+    this.specialTopics = new ArrayList<>();
     this.config = config;
   }
 
@@ -88,6 +94,21 @@ public class TopologyImpl implements Topology, Cloneable {
   @Override
   public List<String> getOrder() {
     return order;
+  }
+
+  @Override
+  public List<Topic> getSpecialTopics() {
+    return specialTopics;
+  }
+
+  @Override
+  public void addSpecialTopic(Topic topic) {
+    this.specialTopics.add(topic);
+  }
+
+  @Override
+  public void setSpecialTopics(List<Topic> topics) {
+    this.specialTopics = topics;
   }
 
   @Override

@@ -74,6 +74,8 @@ public class TopologyCustomDeserializer extends StdDeserializer<Topology> {
   private static final String STREAMS_NODE = "streams";
   private static final String TABLES_NODE = "tables";
 
+  private static final String SPECIAL_TOPICS_NODE = "special_topics";
+
   private static List<String> projectCoreKeys =
       Arrays.asList(
           NAME_KEY,
@@ -111,7 +113,8 @@ public class TopologyCustomDeserializer extends StdDeserializer<Topology> {
     }
 
     Topology topology = new TopologyImpl(config);
-    List<String> excludeAttributes = Arrays.asList(PROJECTS_KEY, CONTEXT_KEY, PLATFORM_KEY);
+    List<String> excludeAttributes =
+        Arrays.asList(PROJECTS_KEY, CONTEXT_KEY, PLATFORM_KEY, SPECIAL_TOPICS_NODE);
 
     Iterator<String> fieldNames = rootNode.fieldNames();
     while (fieldNames.hasNext()) {
@@ -149,6 +152,15 @@ public class TopologyCustomDeserializer extends StdDeserializer<Topology> {
         for (Topic topic : project.getTopics()) {
           validateEncodingForTopicName(topic.toString());
         }
+      }
+    }
+
+    JsonNode specialTopicsNode = rootNode.get(SPECIAL_TOPICS_NODE);
+    if (specialTopicsNode != null && specialTopicsNode.size() > 0) {
+      for (int i = 0; i < specialTopicsNode.size(); i++) {
+        JsonNode node = specialTopicsNode.get(i);
+        var topic = parser.getCodec().treeToValue(node, Topic.class);
+        topology.addSpecialTopic(topic);
       }
     }
 
