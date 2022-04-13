@@ -27,7 +27,7 @@ public class TestTopologyBuilder {
   private Set<Topic> topics = new HashSet<>();
   private final Set<Consumer> consumers = new HashSet<>();
   private final Set<Producer> producers = new HashSet<>();
-  private final Set<KStream>  kstreams = new HashSet<>();
+  private final Set<KStream> kstreams = new HashSet<>();
 
   private final Collection<Map.Entry<String, List<Other>>> others = new ArrayList<>();
 

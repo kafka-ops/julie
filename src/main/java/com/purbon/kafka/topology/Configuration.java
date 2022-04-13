@@ -199,21 +199,26 @@ public class Configuration {
 
   /**
    * Build a list of internal topic prefixes for this deployment
-   * @return  A list of internal topic prefixes
+   *
+   * @return A list of internal topic prefixes
    */
   public List<String> getKafkaInternalTopicPrefixes(Collection<Topology> topologies) {
     var internalTopicPrefixes = getKafkaInternalTopicPrefixes();
     // Add internal topics for Kafka Stream Applications
-    topologies
-            .stream()
-            .flatMap(topology -> topology.getProjects().stream())
-            .flatMap(project -> project.getStreams().stream().map(s -> new Pair(project, s)))
-            .forEach(new Consumer<Pair>() {
+    topologies.stream()
+        .flatMap(topology -> topology.getProjects().stream())
+        .flatMap(project -> project.getStreams().stream().map(s -> new Pair(project, s)))
+        .forEach(
+            new Consumer<Pair>() {
               @Override
               public void accept(Pair pair) {
-                var project = (Project)pair.getKey();
-                var kStream = (KStream)pair.getValue();
-                kStream.getApplicationId().ifPresentOrElse(internalTopicPrefixes::add, () -> internalTopicPrefixes.add(project.namePrefix()));
+                var project = (Project) pair.getKey();
+                var kStream = (KStream) pair.getValue();
+                kStream
+                    .getApplicationId()
+                    .ifPresentOrElse(
+                        internalTopicPrefixes::add,
+                        () -> internalTopicPrefixes.add(project.namePrefix()));
               }
             });
 

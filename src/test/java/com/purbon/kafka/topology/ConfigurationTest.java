@@ -273,10 +273,8 @@ public class ConfigurationTest {
   public void shouldAddStreamsApplicationIdAsInternalTopics() {
     Configuration config = new Configuration(cliOps, props);
 
-    var topology = TestTopologyBuilder
-            .createProject()
-            .addKStream("foo", "applicationId")
-            .buildTopology();
+    var topology =
+        TestTopologyBuilder.createProject().addKStream("foo", "applicationId").buildTopology();
 
     var internals = config.getKafkaInternalTopicPrefixes(Collections.singletonList(topology));
     assertThat(internals).contains("applicationId");
@@ -287,14 +285,10 @@ public class ConfigurationTest {
   public void shouldAddStreamsProjectPrefixAsInternalTopics() {
     Configuration config = new Configuration(cliOps, props);
 
-    var topology = TestTopologyBuilder
-            .createProject()
-            .addKStream("foo")
-            .buildTopology();
+    var topology = TestTopologyBuilder.createProject().addKStream("foo").buildTopology();
 
     var internals = config.getKafkaInternalTopicPrefixes(Collections.singletonList(topology));
     assertThat(internals).contains("ctx.project");
     assertThat(internals).contains("_");
   }
-
 }
