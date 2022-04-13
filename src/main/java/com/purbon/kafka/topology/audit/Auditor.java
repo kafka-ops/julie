@@ -5,8 +5,7 @@ import lombok.Getter;
 
 public class Auditor {
 
-  @Getter
-  private Appender appender;
+  @Getter private Appender appender;
 
   public Auditor(Appender appender) {
     this.appender = appender;

@@ -21,49 +21,33 @@ public class JulieOpsAuxiliary {
   private static final Logger LOGGER = LogManager.getLogger(JulieOpsAuxiliary.class);
 
   public static BackendController buildBackendController(Configuration config) throws IOException {
-
     String backendClass = config.getStateProcessorImplementationClassName();
-    Backend backend;
-    try {
-      if (backendClass.equalsIgnoreCase(STATE_PROCESSOR_DEFAULT_CLASS)) {
-        backend = new FileBackend();
-      } else if (backendClass.equalsIgnoreCase(REDIS_STATE_PROCESSOR_CLASS)) {
-        backend = new RedisBackend(config);
-      } else if (backendClass.equalsIgnoreCase(S3_STATE_PROCESSOR_CLASS)) {
-        backend = new S3Backend();
-      } else if (backendClass.equalsIgnoreCase(GCP_STATE_PROCESSOR_CLASS)) {
-        backend = new GCPBackend();
-      } else if (backendClass.equalsIgnoreCase(KAFKA_STATE_PROCESSOR_CLASS)) {
-        backend = new KafkaBackend();
-      } else {
-        throw new IOException(backendClass + " Unknown state processor provided.");
-      }
-    } catch (Exception ex) {
-      throw new IOException(ex);
-    }
+    var backend = (Backend) initializeClassFromString(backendClass, config);
     backend.configure(config);
     return new BackendController(backend);
   }
 
   public static Auditor configureAndBuildAuditor(Configuration config) throws IOException {
     String appenderClassString = config.getJulieAuditAppenderClass();
+    var appender = (Appender) initializeClassFromString(appenderClassString, config);
+    return new Auditor(appender);
+  }
 
+  private static Object initializeClassFromString(String classNameString, Configuration config)
+          throws IOException {
     try {
-      Class anAppenderClass = Class.forName(appenderClassString);
-      Appender appender;
+      Class aClass = Class.forName(classNameString);
+      Object newObject;
       try {
-        Constructor constructor = anAppenderClass.getConstructor(Configuration.class);
-        appender = (Appender) constructor.newInstance(config);
+        Constructor constructor = aClass.getConstructor(Configuration.class);
+        newObject = constructor.newInstance(config);
       } catch (NoSuchMethodException e) {
-        LOGGER.trace(
-            appenderClassString + " has no config constructor, falling back to a default one");
-        Constructor constructor = anAppenderClass.getConstructor();
-        appender = (Appender) constructor.newInstance();
+        LOGGER.trace(classNameString + " has no config constructor, falling back to a default one");
+        Constructor constructor = aClass.getConstructor();
+        newObject = constructor.newInstance();
       }
-      return new Auditor(appender);
-    } catch (ClassNotFoundException | NoSuchMethodException e) {
-      throw new IOException(e);
-    } catch (IllegalAccessException | InstantiationException | InvocationTargetException e) {
+      return newObject;
+    } catch (ClassNotFoundException | NoSuchMethodException | IllegalAccessException | InstantiationException | InvocationTargetException e) {
       throw new IOException(e);
     }
   }
