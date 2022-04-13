@@ -1,5 +1,5 @@
 
-v4.1.3 / 2022-04-13
+v4.2.0 / 2022-04-13
 ===================
 
   * [Big] Fix Confluent Cloud Translation mechanism when the Service Account does not have a type prefix (default user) (#485)
