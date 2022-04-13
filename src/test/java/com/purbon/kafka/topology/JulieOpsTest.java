@@ -145,7 +145,7 @@ public class JulieOpsTest {
     builder.setTopicManager(topicManager);
     builder.setAccessControlManager(accessControlManager);
     builder.setConnectorManager(connectorManager);
-    builder.setKsqlArtefactManager(ksqlArtefactManager);
+    builder.setKSqlArtefactManager(ksqlArtefactManager);
 
     doNothing().when(topicManager).updatePlan(any(ExecutionPlan.class), any(Map.class));
 
@@ -175,7 +175,7 @@ public class JulieOpsTest {
     builder.setTopicManager(topicManager);
     builder.setAccessControlManager(accessControlManager);
     builder.setConnectorManager(connectorManager);
-    builder.setKsqlArtefactManager(ksqlArtefactManager);
+    builder.setKSqlArtefactManager(ksqlArtefactManager);
 
     doNothing().when(topicManager).updatePlan(any(ExecutionPlan.class), any(Map.class));
 
@@ -206,7 +206,7 @@ public class JulieOpsTest {
     builder.setTopicManager(topicManager);
     builder.setAccessControlManager(accessControlManager);
     builder.setConnectorManager(connectorManager);
-    builder.setKsqlArtefactManager(ksqlArtefactManager);
+    builder.setKSqlArtefactManager(ksqlArtefactManager);
 
     doNothing().when(topicManager).updatePlan(any(ExecutionPlan.class), any(Map.class));
 
@@ -235,7 +235,7 @@ public class JulieOpsTest {
 
     builder.setTopicManager(topicManager);
     builder.setAccessControlManager(accessControlManager);
-    builder.setKsqlArtefactManager(ksqlArtefactManager);
+    builder.setKSqlArtefactManager(ksqlArtefactManager);
 
     doNothing().when(topicManager).updatePlan(any(ExecutionPlan.class), any(Map.class));
 
