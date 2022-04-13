@@ -657,4 +657,8 @@ public class Configuration {
   public String getJulieAuditAppenderClass() {
     return config.getString(JULIE_AUDIT_APPENDER_CLASS);
   }
+
+  public Boolean isJulieAuditEnabled() {
+    return config.getBoolean(JULIE_AUDIT_ENABLED);
+  }
 }

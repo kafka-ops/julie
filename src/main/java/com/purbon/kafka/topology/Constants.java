@@ -159,4 +159,5 @@ public class Constants {
   public static final String AUDIT_APPENDER_KAFKA_PREFIX = "julie.audit.appender.kafka";
   public static final String AUDIT_APPENDER_KAFKA_TOPIC = "julie.audit.appender.kafka.topic";
   public static final String JULIE_AUDIT_APPENDER_CLASS = "julie.audit.appender.class";
+  public static final String JULIE_AUDIT_ENABLED = "julie.audit.enabled";
 }

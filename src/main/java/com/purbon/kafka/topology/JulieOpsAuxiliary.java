@@ -28,6 +28,9 @@ public class JulieOpsAuxiliary {
   }
 
   public static Auditor configureAndBuildAuditor(Configuration config) throws IOException {
+    if (!config.isJulieAuditEnabled()) {
+      return new VoidAuditor();
+    }
     String appenderClassString = config.getJulieAuditAppenderClass();
     var appender = (Appender) initializeClassFromString(appenderClassString, config);
     return new Auditor(appender);
