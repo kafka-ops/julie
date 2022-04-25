@@ -120,7 +120,7 @@ public class Configuration {
 
     if (hasSchemaRegistry) {
       raiseIfNull(MDS_SR_CLUSTER_ID_CONFIG);
-    } else if (hasKafkaConnect && config.getString(MDS_KC_CLUSTER_ID_CONFIG) == null) {
+    } else if (hasKafkaConnect && getString(MDS_KC_CLUSTER_ID_CONFIG) == null) {
       raiseIfNull(MDS_KC_CLUSTER_ID_CONFIG);
     }
   }
@@ -155,7 +155,7 @@ public class Configuration {
   private void validateBrokersConfig() throws ConfigurationException {
     boolean existServersAsConfig;
     try {
-      config.getString(AdminClientConfig.BOOTSTRAP_SERVERS_CONFIG);
+      getString(AdminClientConfig.BOOTSTRAP_SERVERS_CONFIG);
       existServersAsConfig = true;
     } catch (Exception ex) {
       existServersAsConfig = false;
@@ -177,7 +177,7 @@ public class Configuration {
   }
 
   private void raiseIfDefault(String key, String _default) throws ConfigurationException {
-    if (config.getString(key).equals(_default)) {
+    if (getString(key).equals(_default)) {
       throw new ConfigurationException(
           "Configuration key " + key + " should not have the default value " + _default);
     }
@@ -186,7 +186,7 @@ public class Configuration {
   private void raiseIfNull(String... keys) throws ConfigurationException {
     try {
       for (String key : keys) {
-        config.getString(key);
+        getString(key);
       }
     } catch (Exception ex) {
       throw new ConfigurationException(ex.getMessage());
@@ -194,7 +194,7 @@ public class Configuration {
   }
 
   public String getProperty(String key) {
-    return config.getString(key);
+    return getString(key);
   }
 
   public List<String> getKafkaInternalTopicPrefixes() {
@@ -250,47 +250,47 @@ public class Configuration {
   }
 
   public String getConfluentSchemaRegistryUrl() {
-    return config.getString(CONFLUENT_SCHEMA_REGISTRY_URL_CONFIG);
+    return getString(CONFLUENT_SCHEMA_REGISTRY_URL_CONFIG);
   }
 
   public String getConfluentMonitoringTopic() {
-    return config.getString(CONFLUENT_MONITORING_TOPIC_CONFIG);
+    return getString(CONFLUENT_MONITORING_TOPIC_CONFIG);
   }
 
   public String getConfluentCommandTopic() {
-    return config.getString(CONFLUENT_COMMAND_TOPIC_CONFIG);
+    return getString(CONFLUENT_COMMAND_TOPIC_CONFIG);
   }
 
   public String getConfluentMetricsTopic() {
-    return config.getString(CONFLUENT_METRICS_TOPIC_CONFIG);
+    return getString(CONFLUENT_METRICS_TOPIC_CONFIG);
   }
 
   public String getAccessControlClassName() {
-    return config.getString(ACCESS_CONTROL_IMPLEMENTATION_CLASS);
+    return getString(ACCESS_CONTROL_IMPLEMENTATION_CLASS);
   }
 
   public String getStateProcessorImplementationClassName() {
-    return config.getString(STATE_PROCESSOR_IMPLEMENTATION_CLASS);
+    return getString(STATE_PROCESSOR_IMPLEMENTATION_CLASS);
   }
 
   public String getTopicPrefixFormat() {
-    return config.getString(TOPIC_PREFIX_FORMAT_CONFIG);
+    return getString(TOPIC_PREFIX_FORMAT_CONFIG);
   }
 
   public String getDlqTopicPrefixFormat() {
-    return config.getString(DLQ_TOPIC_PREFIX_FORMAT_CONFIG);
+    return getString(DLQ_TOPIC_PREFIX_FORMAT_CONFIG);
   }
 
   public String getDlqTopicLabel() {
-    return config.getString(DLQ_TOPIC_LABEL_CONFIG);
+    return getString(DLQ_TOPIC_LABEL_CONFIG);
   }
 
   public String getProjectPrefixFormat() {
-    return config.getString(PROJECT_PREFIX_FORMAT_CONFIG);
+    return getString(PROJECT_PREFIX_FORMAT_CONFIG);
   }
 
   public String getTopicPrefixSeparator() {
-    return config.getString(TOPIC_PREFIX_SEPARATOR_CONFIG);
+    return getString(TOPIC_PREFIX_SEPARATOR_CONFIG);
   }
 
   public Boolean shouldOptimizeAcls() {
@@ -298,7 +298,7 @@ public class Configuration {
   }
 
   public String getConfluentCloudEnv() {
-    return config.getString(CCLOUD_ENV_CONFIG);
+    return getString(CCLOUD_ENV_CONFIG);
   }
 
   public boolean enabledExperimental() {
@@ -312,9 +312,9 @@ public class Configuration {
   public Optional<String> getInternalPrincipalOptional() {
     String internalPrincipal = null;
     if (hasProperty(JULIE_INTERNAL_PRINCIPAL)) {
-      internalPrincipal = config.getString(JULIE_INTERNAL_PRINCIPAL);
+      internalPrincipal = getString(JULIE_INTERNAL_PRINCIPAL);
     } else if (hasProperty(TOPOLOGY_BUILDER_INTERNAL_PRINCIPAL)) {
-      internalPrincipal = config.getString(TOPOLOGY_BUILDER_INTERNAL_PRINCIPAL);
+      internalPrincipal = getString(TOPOLOGY_BUILDER_INTERNAL_PRINCIPAL);
     }
     return Optional.ofNullable(internalPrincipal);
   }
@@ -382,11 +382,11 @@ public class Configuration {
   }
 
   public String getRedisBucket() {
-    return config.getString(REDIS_BUCKET_CONFIG);
+    return getString(REDIS_BUCKET_CONFIG);
   }
 
   public String getRedisHost() {
-    return config.getString(REDIS_HOST_CONFIG);
+    return getString(REDIS_HOST_CONFIG);
   }
 
   public int getRedisPort() {
@@ -394,27 +394,27 @@ public class Configuration {
   }
 
   public String getS3Bucket() {
-    return config.getString(JULIE_S3_BUCKET);
+    return getString(JULIE_S3_BUCKET);
   }
 
   public String getS3Endpoint() {
-    return config.getString(JULIE_S3_ENDPOINT);
+    return getString(JULIE_S3_ENDPOINT);
   }
 
   public String getS3Region() {
-    return config.getString(JULIE_S3_REGION);
+    return getString(JULIE_S3_REGION);
   }
 
   public String getGCPProjectId() {
-    return config.getString(JULIE_GCP_PROJECT_ID);
+    return getString(JULIE_GCP_PROJECT_ID);
   }
 
   public String getGCPBucket() {
-    return config.getString(JULIE_GCP_BUCKET);
+    return getString(JULIE_GCP_BUCKET);
   }
 
   public String getMdsServer() {
-    return config.getString(MDS_SERVER);
+    return getString(MDS_SERVER);
   }
 
   public List<String> getValidClusterIds() {
@@ -422,24 +422,24 @@ public class Configuration {
   }
 
   public String getKafkaClusterId() {
-    return config.getString(MDS_KAFKA_CLUSTER_ID_CONFIG);
+    return getString(MDS_KAFKA_CLUSTER_ID_CONFIG);
   }
 
   public String getSchemaRegistryClusterId() {
-    return config.getString(MDS_SR_CLUSTER_ID_CONFIG);
+    return getString(MDS_SR_CLUSTER_ID_CONFIG);
   }
 
   public String getKafkaConnectClusterId() {
-    return config.getString(MDS_KC_CLUSTER_ID_CONFIG);
+    return getString(MDS_KC_CLUSTER_ID_CONFIG);
   }
 
   public String getKsqlDBClusterID() {
-    return config.getString(MDS_KSQLDB_CLUSTER_ID_CONFIG);
+    return getString(MDS_KSQLDB_CLUSTER_ID_CONFIG);
   }
 
   public Optional<String> getSslTrustStoreLocation() {
     try {
-      return Optional.of(config.getString(SSL_TRUSTSTORE_LOCATION));
+      return Optional.of(getString(SSL_TRUSTSTORE_LOCATION));
     } catch (ConfigException.Missing missingEx) {
       return Optional.empty();
     }
@@ -447,7 +447,7 @@ public class Configuration {
 
   public Optional<String> getSslTrustStorePassword() {
     try {
-      return Optional.of(config.getString(SSL_TRUSTSTORE_PASSWORD));
+      return Optional.of(getString(SSL_TRUSTSTORE_PASSWORD));
     } catch (ConfigException.Missing missingEx) {
       return Optional.empty();
     }
@@ -455,7 +455,7 @@ public class Configuration {
 
   public Optional<String> getSslKeyStoreLocation() {
     try {
-      return Optional.of(config.getString(SSL_KEYSTORE_LOCATION));
+      return Optional.of(getString(SSL_KEYSTORE_LOCATION));
     } catch (ConfigException.Missing missingEx) {
       return Optional.empty();
     }
@@ -463,7 +463,7 @@ public class Configuration {
 
   public Optional<String> getSslKeyStorePassword() {
     try {
-      return Optional.of(config.getString(SSL_KEYSTORE_PASSWORD));
+      return Optional.of(getString(SSL_KEYSTORE_PASSWORD));
     } catch (ConfigException.Missing missingEx) {
       return Optional.empty();
     }
@@ -471,7 +471,7 @@ public class Configuration {
 
   public Optional<String> getSslKeyPassword() {
     try {
-      return Optional.of(config.getString(SSL_KEY_PASSWORD));
+      return Optional.of(getString(SSL_KEY_PASSWORD));
     } catch (ConfigException.Missing missingEx) {
       return Optional.empty();
     }
@@ -537,7 +537,7 @@ public class Configuration {
 
   private String getPropertyOrNull(String key, String defaultKey) {
     try {
-      return config.getString(key);
+      return getString(key);
     } catch (ConfigException.Missing e) {
       if (!defaultKey.isBlank()) {
         return getPropertyOrNull(defaultKey, "");
@@ -557,7 +557,7 @@ public class Configuration {
   public JulieRoles getJulieRoles() throws IOException {
     JulieRolesSerdes serdes = new JulieRolesSerdes();
     try {
-      String path = config.getString(JULIE_ROLES);
+      String path = getString(JULIE_ROLES);
       return serdes.deserialise(Paths.get(path).toFile());
     } catch (ConfigException.Missing | ConfigException.WrongType ex) {
       LOGGER.debug(ex);
@@ -585,7 +585,7 @@ public class Configuration {
   }
 
   public String getJulieKafkaConfigTopic() {
-    return config.getString(JULIE_KAFKA_CONFIG_TOPIC);
+    return getString(JULIE_KAFKA_CONFIG_TOPIC);
   }
 
   public String getJulieInstanceId() {
@@ -593,7 +593,7 @@ public class Configuration {
       return julieInstanceId;
     }
     try {
-      julieInstanceId = config.getString(JULIE_INSTANCE_ID);
+      julieInstanceId = getString(JULIE_INSTANCE_ID);
     } catch (ConfigException.Missing | ConfigException.WrongType errorType) {
       generateRandomJulieInstanceId();
     }
@@ -619,7 +619,7 @@ public class Configuration {
   }
 
   public String getKafkaBackendConsumerGroupId() {
-    return config.getString(JULIE_KAFKA_CONSUMER_GROUP_ID);
+    return getString(JULIE_KAFKA_CONSUMER_GROUP_ID);
   }
 
   public Integer getKafkaBackendConsumerRetries() {
@@ -627,23 +627,23 @@ public class Configuration {
   }
 
   public BasicAuth getConfluentCloudClusterAuth() {
-    var user = config.getString(CCLOUD_CLUSTER_API_KEY);
-    var pass = config.getString(CCLOUD_CLUSTER_API_SECRET);
+    var user = getString(CCLOUD_CLUSTER_API_KEY);
+    var pass = getString(CCLOUD_CLUSTER_API_SECRET);
     return new BasicAuth(user, pass);
   }
 
   public BasicAuth getConfluentCloudCloudApiAuth() {
-    var user = config.getString(CCLOUD_CLOUD_API_KEY);
-    var pass = config.getString(CCLOUD_CLOUD_API_SECRET);
+    var user = getString(CCLOUD_CLOUD_API_KEY);
+    var pass = getString(CCLOUD_CLOUD_API_SECRET);
     return new BasicAuth(user, pass);
   }
 
   public String getConfluentCloudClusterId() {
-    return config.getString(CCLOUD_KAFKA_CLUSTER_ID_CONFIG);
+    return getString(CCLOUD_KAFKA_CLUSTER_ID_CONFIG);
   }
 
   public String getConfluentCloudClusterUrl() {
-    return config.getString(CCLOUD_CLUSTER_URL);
+    return getString(CCLOUD_CLUSTER_URL);
   }
 
   public Boolean isConfluentCloudServiceAccountTranslationEnabled() {
@@ -655,14 +655,18 @@ public class Configuration {
   }
 
   public String getKafkaAuditTopic() {
-    return config.getString(AUDIT_APPENDER_KAFKA_TOPIC);
+    return getString(AUDIT_APPENDER_KAFKA_TOPIC);
   }
 
   public String getJulieAuditAppenderClass() {
-    return config.getString(JULIE_AUDIT_APPENDER_CLASS);
+    return getString(JULIE_AUDIT_APPENDER_CLASS);
   }
 
   public Boolean isJulieAuditEnabled() {
     return config.getBoolean(JULIE_AUDIT_ENABLED);
+  }
+
+  private String getString(String path) {
+    return config.getString(path).strip().trim();
   }
 }
