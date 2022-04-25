@@ -33,7 +33,7 @@ public class MDSApiClient extends JulieHttpClient {
 
   public MDSApiClient(String mdsServer, Optional<Configuration> configOptional) {
     super(mdsServer, configOptional);
-    this.clusterIDs = new ClusterIDs();
+    this.clusterIDs = new ClusterIDs(configOptional);
   }
 
   public AuthenticationCredentials getCredentials() {
