@@ -11,7 +11,7 @@ if [ -z "$KAFKA_CLUSTER_ID" ]; then
 fi
 
 ## Login into MDS
-XX_CONFLUENT_USERNAME=professor XX_CONFLUENT_PASSWORD=professor confluent login --url http://localhost:8090
+confluent login --url http://localhost:8090
 
 SUPER_USER=professor
 SUPER_USER_PASSWORD=professor
@@ -30,18 +30,18 @@ C3=c3-cluster
 ################################### SETUP SUPERUSER ###################################
 echo "Creating Super User role bindings"
 
-confluent iam rolebinding create \
+confluent iam rbac role-binding create \
     --principal $SUPER_USER_PRINCIPAL  \
     --role SystemAdmin \
     --kafka-cluster-id $KAFKA_CLUSTER_ID
 
-confluent iam rolebinding create \
+confluent iam rbac role-binding create \
     --principal $SUPER_USER_PRINCIPAL \
     --role SystemAdmin \
     --kafka-cluster-id $KAFKA_CLUSTER_ID \
     --schema-registry-cluster-id $SR
 
-confluent iam rolebinding create \
+confluent iam rbac role-binding create \
     --principal $SUPER_USER_PRINCIPAL \
     --role SystemAdmin \
     --kafka-cluster-id $KAFKA_CLUSTER_ID \
