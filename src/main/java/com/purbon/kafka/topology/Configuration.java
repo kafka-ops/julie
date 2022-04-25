@@ -417,6 +417,10 @@ public class Configuration {
     return config.getString(MDS_SERVER);
   }
 
+  public List<String> getValidClusterIds() {
+    return config.getStringList(MDS_VALID_CLUSTER_IDS_CONFIG);
+  }
+
   public String getKafkaClusterId() {
     return config.getString(MDS_KAFKA_CLUSTER_ID_CONFIG);
   }
