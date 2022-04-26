@@ -421,6 +421,10 @@ public class Configuration {
     return config.getStringList(MDS_VALID_CLUSTER_IDS_CONFIG);
   }
 
+  public Boolean mdsInsecureAllowed() {
+    return config.getBoolean(MDS_ALLOW_INSECURE_CONFIG);
+  }
+
   public String getKafkaClusterId() {
     return getString(MDS_KAFKA_CLUSTER_ID_CONFIG);
   }

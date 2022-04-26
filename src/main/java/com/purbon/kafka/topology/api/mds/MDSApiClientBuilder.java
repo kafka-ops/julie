@@ -1,6 +1,7 @@
 package com.purbon.kafka.topology.api.mds;
 
 import com.purbon.kafka.topology.Configuration;
+import java.io.IOException;
 import java.util.Optional;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -15,7 +16,7 @@ public class MDSApiClientBuilder {
     this.config = config;
   }
 
-  public MDSApiClient build() {
+  public MDSApiClient build() throws IOException {
     String mdsServer = config.getMdsServer();
 
     MDSApiClient apiClient = new MDSApiClient(mdsServer, Optional.of(config));

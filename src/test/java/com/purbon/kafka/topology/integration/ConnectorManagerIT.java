@@ -129,7 +129,7 @@ public class ConnectorManagerIT {
     assertThat(connectors).contains("sink-jdbc");
   }
 
-  private Topology initTopology(Properties props, File file) {
+  private Topology initTopology(Properties props, File file) throws IOException {
     Configuration config = prepareClientConfig(props);
     parser = new TopologySerdes(config, new PlanMap());
     Topology topology = parser.deserialise(file);
@@ -150,7 +150,8 @@ public class ConnectorManagerIT {
     return new Configuration(cliOps, props);
   }
 
-  private KafkaConnectArtefactManager prepareManager(Configuration config, File file) {
+  private KafkaConnectArtefactManager prepareManager(Configuration config, File file)
+      throws IOException {
     client = new KConnectApiClient(connectContainer.getHttpsUrl(), config);
     return new KafkaConnectArtefactManager(client, config, file.getAbsolutePath());
   }

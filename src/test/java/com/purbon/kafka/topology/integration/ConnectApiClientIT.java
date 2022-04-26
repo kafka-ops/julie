@@ -42,7 +42,7 @@ public class ConnectApiClientIT {
   }
 
   @Before
-  public void configure() {
+  public void configure() throws IOException {
     HashMap<String, String> cliOps = new HashMap<>();
     cliOps.put(BROKERS_OPTION, "");
     Configuration config = new Configuration(cliOps, new Properties());
