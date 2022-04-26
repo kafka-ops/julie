@@ -670,6 +670,10 @@ public class Configuration {
     return config.getBoolean(JULIE_AUDIT_ENABLED);
   }
 
+  public Boolean areJulieLogsInDebugMode() {
+    return config.getBoolean(JULIE_DEBUG_MODE);
+  }
+
   private String getString(String path) {
     return config.getString(path).strip().trim();
   }

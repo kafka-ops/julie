@@ -1,7 +1,5 @@
 package com.purbon.kafka.topology;
 
-import static com.purbon.kafka.topology.Constants.*;
-
 import com.purbon.kafka.topology.api.connect.KConnectApiClient;
 import com.purbon.kafka.topology.api.ksql.KsqlApiClient;
 import com.purbon.kafka.topology.audit.*;
@@ -12,8 +10,10 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.HashMap;
 import java.util.Map;
+import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.core.config.Configurator;
 
 public class JulieOpsAuxiliary {
 
@@ -93,5 +93,12 @@ public class JulieOpsAuxiliary {
     }
 
     return new KSqlArtefactManager(clients, config, topologyFileOrDir);
+  }
+
+  public static void configureLogsInDebugMode(Configuration config) {
+    if (!config.areJulieLogsInDebugMode()) {
+      return;
+    }
+    Configurator.setAllLevels("com.purbon.kafka", Level.DEBUG);
   }
 }
