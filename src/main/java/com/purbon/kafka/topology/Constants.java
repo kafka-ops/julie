@@ -157,4 +157,6 @@ public class Constants {
   public static final String MANAGED_BY = "Managed by JulieOps";
 
   public static final String JULIE_DEBUG_MODE = "julie.debug.mode";
+
+  public static final String JULIE_VERIFY_STATE_SYNC = "julie.verify.remote.state";
 }

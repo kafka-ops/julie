@@ -647,4 +647,8 @@ public class Configuration {
   public Boolean areJulieLogsInDebugMode() {
     return config.getBoolean(JULIE_DEBUG_MODE);
   }
+
+  public Boolean shouldVerifyRemoteState() {
+    return config.getBoolean(JULIE_VERIFY_STATE_SYNC);
+  }
 }

@@ -93,7 +93,13 @@ public abstract class ArtefactManager implements ExecutionPlanUpdater {
       throws IOException {
     var currentState = config.fetchStateFromTheCluster() ? getClustersState() : getLocalState(plan);
 
-    if (!config.fetchStateFromTheCluster()) {
+    if (!config.shouldVerifyRemoteState()) {
+      LOGGER.warn(
+          "Remote state verification disabled, this is not a good practice, be aware"
+              + "in future versions, this check is going to become mandatory.");
+    }
+
+    if (config.shouldVerifyRemoteState() && !config.fetchStateFromTheCluster()) {
       // should detect if there are divergences between the local cluster state and the current
       // status in the cluster
       detectDivergencesInTheRemoteCluster(plan);

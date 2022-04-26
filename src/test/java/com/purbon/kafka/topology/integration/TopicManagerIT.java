@@ -129,6 +129,22 @@ public class TopicManagerIT {
 
     TopologyBuilderAdminClient adminClient = new TopologyBuilderAdminClient(kafkaAdminClient);
 
+    final SchemaRegistryClient schemaRegistryClient = new MockSchemaRegistryClient();
+    final SchemaRegistryManager schemaRegistryManager =
+        new SchemaRegistryManager(schemaRegistryClient, System.getProperty("user.dir"));
+
+    Properties props = new Properties();
+    props.put(TOPOLOGY_TOPIC_STATE_FROM_CLUSTER, "false");
+    props.put(ALLOW_DELETE_TOPICS, true);
+    props.put(JULIE_VERIFY_STATE_SYNC, true);
+
+    HashMap<String, String> cliOps = new HashMap<>();
+    cliOps.put(BROKERS_OPTION, "");
+
+    Configuration config = new Configuration(cliOps, props);
+
+    this.topicManager = new TopicManager(adminClient, schemaRegistryManager, config);
+
     Topic topic1 = new Topic("topic1");
     Topic topic2 = new Topic("topic2");
 
