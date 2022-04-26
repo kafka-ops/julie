@@ -674,6 +674,10 @@ public class Configuration {
     return config.getBoolean(JULIE_DEBUG_MODE);
   }
 
+  public Boolean shouldVerifyRemoteState() {
+    return config.getBoolean(JULIE_VERIFY_STATE_SYNC);
+  }
+
   private String getString(String path) {
     return config.getString(path).strip().trim();
   }
