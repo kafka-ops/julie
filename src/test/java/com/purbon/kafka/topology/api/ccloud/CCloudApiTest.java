@@ -31,7 +31,7 @@ public class CCloudApiTest {
   @Rule public MockitoRule mockitoRule = MockitoJUnit.rule();
 
   @Before
-  public void before() {
+  public void before() throws IOException {
 
     Map<String, String> cliOps = new HashMap<>();
     cliOps.put(BROKERS_OPTION, "");

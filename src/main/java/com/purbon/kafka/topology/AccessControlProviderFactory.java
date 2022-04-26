@@ -81,7 +81,7 @@ public class AccessControlProviderFactory {
     }
   }
 
-  private MDSApiClient apiClientLogIn() {
+  private MDSApiClient apiClientLogIn() throws IOException {
     MDSApiClient apiClient = mdsApiClientBuilder.build();
     config.getMdsBasicAuth().ifPresent(apiClient::setBasicAuth);
     return apiClient;

@@ -17,13 +17,13 @@ import java.util.stream.Collectors;
 
 public class KConnectApiClient extends JulieHttpClient implements ArtefactClient {
 
-  public KConnectApiClient(String server, Configuration config) {
+  public KConnectApiClient(String server, Configuration config) throws IOException {
     this(server, "", config);
   }
 
   private String label;
 
-  public KConnectApiClient(String server, String label, Configuration config) {
+  public KConnectApiClient(String server, String label, Configuration config) throws IOException {
     super(server, Optional.of(config));
     this.label = label;
     // configure basic authentication if available

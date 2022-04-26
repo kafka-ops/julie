@@ -15,6 +15,7 @@ import java.net.http.HttpRequest.BodyPublisher;
 import java.net.http.HttpResponse;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.security.KeyManagementException;
 import java.security.KeyStore;
 import java.security.KeyStoreException;
@@ -23,8 +24,10 @@ import java.security.UnrecoverableKeyException;
 import java.security.cert.CertificateException;
 import java.time.Duration;
 import java.util.Optional;
+import javax.net.ssl.KeyManager;
 import javax.net.ssl.KeyManagerFactory;
 import javax.net.ssl.SSLContext;
+import javax.net.ssl.TrustManager;
 import javax.net.ssl.TrustManagerFactory;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -39,11 +42,11 @@ public class JulieHttpClient {
   protected final String server;
   private String token;
 
-  public JulieHttpClient(String server) {
+  public JulieHttpClient(String server) throws IOException {
     this(server, Optional.empty());
   }
 
-  public JulieHttpClient(String server, Optional<Configuration> configOptional) {
+  public JulieHttpClient(String server, Optional<Configuration> configOptional) throws IOException {
     this.server = server;
     this.token = "";
     this.httpClient = configureHttpOrHttpsClient(configOptional);
@@ -61,74 +64,79 @@ public class JulieHttpClient {
     return builder;
   }
 
-  private HttpClient configureHttpOrHttpsClient(Optional<Configuration> configOptional) {
+  protected HttpClient configureHttpOrHttpsClient(Optional<Configuration> configOptional)
+      throws IOException {
     if (configOptional.isEmpty()) {
       return HttpClient.newBuilder().build();
     }
     Configuration config = configOptional.get();
-    KeyManagerFactory kmf;
-    TrustManagerFactory tmf;
+
     SSLContext sslContext = null;
 
     try {
-      kmf = KeyManagerFactory.getInstance("PKIX");
-      tmf = TrustManagerFactory.getInstance("PKIX");
       sslContext = SSLContext.getInstance("TLS");
 
-      KeyStore ks = loadKeyStore(config.getSslKeyStoreLocation(), config.getSslKeyStorePassword());
-      if (ks != null) {
-        try {
-          kmf.init(ks, config.getSslKeyStorePassword().get().toCharArray());
-        } catch (KeyStoreException | NoSuchAlgorithmException | UnrecoverableKeyException ex) {
-          LOGGER.error(ex);
-          kmf = null;
-        }
-      }
-
-      KeyStore ts =
-          loadKeyStore(config.getSslTrustStoreLocation(), config.getSslTrustStorePassword());
-      if (ts != null) {
-        try {
-          tmf.init(ts);
-        } catch (KeyStoreException ex) {
-          LOGGER.error(ex);
-          tmf = null;
-        }
-      }
-
-      if (ks != null || ts != null) {
-        var keyManagers = ks != null ? kmf.getKeyManagers() : null;
-        var trustManagers = ts != null ? tmf.getTrustManagers() : null;
+      if (areKeyStoreConfigured(config)) {
+        var keyManagers = getKeyManagersFromKeyStore(config);
+        var trustManagers = getTrustManagersFromTrustStore(config);
         sslContext.init(keyManagers, trustManagers, null);
       } else {
+        LOGGER.debug("Keystore and Trusstore not configured, connection will be using plain HTTP");
         sslContext = SSLContext.getDefault();
       }
 
-    } catch (KeyManagementException | NoSuchAlgorithmException e) {
+    } catch (KeyManagementException
+        | NoSuchAlgorithmException
+        | CertificateException
+        | KeyStoreException
+        | IOException
+        | UnrecoverableKeyException e) {
       LOGGER.error(e);
+      throw new IOException(e);
     }
 
     return HttpClient.newBuilder().sslContext(sslContext).build();
   }
 
+  protected boolean areKeyStoreConfigured(Configuration config) {
+    boolean existKeystore =
+        config.getSslKeyStoreLocation().map(p -> Files.exists(Paths.get(p))).orElse(false);
+    boolean existTruststore =
+        config.getSslTrustStoreLocation().map(p -> Files.exists(Paths.get(p))).orElse(false);
+    return existKeystore && existTruststore;
+  }
+
+  protected TrustManager[] getTrustManagersFromTrustStore(Configuration config)
+      throws NoSuchAlgorithmException, CertificateException, KeyStoreException, IOException {
+    TrustManagerFactory tmf = TrustManagerFactory.getInstance("PKIX");
+    KeyStore ts =
+        loadKeyStore(config.getSslTrustStoreLocation(), config.getSslTrustStorePassword());
+    tmf.init(ts);
+    return tmf.getTrustManagers();
+  }
+
+  protected KeyManager[] getKeyManagersFromKeyStore(Configuration config)
+      throws NoSuchAlgorithmException, CertificateException, KeyStoreException, IOException,
+          UnrecoverableKeyException {
+    KeyManagerFactory kmf = KeyManagerFactory.getInstance("PKIX");
+    KeyStore ks = loadKeyStore(config.getSslKeyStoreLocation(), config.getSslKeyStorePassword());
+    kmf.init(ks, config.getSslKeyStorePassword().get().toCharArray());
+    return kmf.getKeyManagers();
+  }
+
   private KeyStore loadKeyStore(
-      Optional<String> sslStoreLocation, Optional<String> sslStorePassword) {
-    if (sslStoreLocation.isPresent() && sslStorePassword.isPresent()) {
-      try {
-        KeyStore ks = KeyStore.getInstance("PKCS12");
-        char[] password = sslStorePassword.get().toCharArray();
-        InputStream is = Files.newInputStream(Path.of(sslStoreLocation.get()));
-        ks.load(is, password);
-        return ks;
-      } catch (KeyStoreException
-          | IOException
-          | NoSuchAlgorithmException
-          | CertificateException ex) {
-        LOGGER.error(ex);
-        return null;
-      }
+      Optional<String> sslStoreLocation, Optional<String> sslStorePassword)
+      throws CertificateException, NoSuchAlgorithmException, KeyStoreException, IOException {
+    try {
+      KeyStore ks = KeyStore.getInstance("PKCS12");
+      char[] password = sslStorePassword.get().toCharArray();
+      InputStream is = Files.newInputStream(Path.of(sslStoreLocation.get()));
+      ks.load(is, password);
+      return ks;
+    } catch (KeyStoreException | IOException | NoSuchAlgorithmException | CertificateException ex) {
+      LOGGER.error(ex);
+      throw ex;
     }
-    return null;
   }
 
   public void setBasicAuth(BasicAuth basicAuth) {

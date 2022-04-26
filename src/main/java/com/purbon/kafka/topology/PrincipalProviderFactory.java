@@ -2,6 +2,7 @@ package com.purbon.kafka.topology;
 
 import com.purbon.kafka.topology.serviceAccounts.CCloudPrincipalProvider;
 import com.purbon.kafka.topology.serviceAccounts.VoidPrincipalProvider;
+import java.io.IOException;
 
 public class PrincipalProviderFactory {
 
@@ -11,7 +12,7 @@ public class PrincipalProviderFactory {
     this.config = config;
   }
 
-  public PrincipalProvider get() {
+  public PrincipalProvider get() throws IOException {
     if (config.useConfluentCloud()) {
       return new CCloudPrincipalProvider(config);
     } else {
