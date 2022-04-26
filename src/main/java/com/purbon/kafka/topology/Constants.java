@@ -167,4 +167,6 @@ public class Constants {
   public static final String JULIE_AUDIT_ENABLED = "julie.audit.enabled";
 
   public static final String JULIE_DEBUG_MODE = "julie.debug.mode";
+
+  public static final String JULIE_VERIFY_STATE_SYNC = "julie.verify.remote.state";
 }

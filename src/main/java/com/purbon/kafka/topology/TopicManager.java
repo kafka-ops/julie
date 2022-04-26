@@ -135,7 +135,13 @@ public class TopicManager implements ExecutionPlanUpdater {
           "Full list of managed topics in the cluster: "
               + StringUtils.join(new ArrayList<>(listOfTopics), ","));
 
-    if (!config.fetchStateFromTheCluster()) {
+    if (!config.shouldVerifyRemoteState()) {
+      LOGGER.warn(
+          "Remote state verification disabled, this is not a good practice, be aware"
+              + "in future versions, this check is going to become mandatory.");
+    }
+
+    if (config.shouldVerifyRemoteState() && !config.fetchStateFromTheCluster()) {
       // verify that the remote state does not contain different topics than the local state
       detectDivergencesInTheRemoteCluster(plan);
     }
