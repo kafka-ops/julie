@@ -1,4 +1,13 @@
 
+v4.2.1 / 2022-04-26
+===================
+
+  * [Feature] Add feature flag to make the remote state verification backwards compatible again (#491)
+  * [Feature] Allow setting log level as debug in the code (#490)
+  * [Feature] allow insecure https connection when using mds, default to false
+  * [Neat] add a method to simple sanitize a string that could contain empty values
+  * [Feature] add a pre-flight check for valid clusterIds in your platform
+
 v4.2.0 / 2022-04-13
 ===================
 
