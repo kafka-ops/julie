@@ -1,18 +1,19 @@
 package com.purbon.kafka.topology;
 
 import static com.purbon.kafka.topology.Constants.*;
+import static com.purbon.kafka.topology.JulieOpsAuxiliary.buildBackendController;
+import static com.purbon.kafka.topology.JulieOpsAuxiliary.configureKConnectArtefactManager;
+import static com.purbon.kafka.topology.JulieOpsAuxiliary.configureKSqlArtefactManager;
+import static com.purbon.kafka.topology.JulieOpsAuxiliary.configureLogsInDebugMode;
 
 import com.purbon.kafka.topology.api.adminclient.TopologyBuilderAdminClient;
 import com.purbon.kafka.topology.api.adminclient.TopologyBuilderAdminClientBuilder;
-import com.purbon.kafka.topology.api.connect.KConnectApiClient;
-import com.purbon.kafka.topology.api.ksql.KsqlApiClient;
 import com.purbon.kafka.topology.api.mds.MDSApiClientBuilder;
 import com.purbon.kafka.topology.backend.*;
 import com.purbon.kafka.topology.exceptions.ValidationException;
 import com.purbon.kafka.topology.model.Topology;
 import com.purbon.kafka.topology.schemas.SchemaRegistryManager;
 import com.purbon.kafka.topology.serviceAccounts.VoidPrincipalProvider;
-import com.purbon.kafka.topology.utils.Pair;
 import io.confluent.kafka.schemaregistry.SchemaProvider;
 import io.confluent.kafka.schemaregistry.avro.AvroSchemaProvider;
 import io.confluent.kafka.schemaregistry.client.CachedSchemaRegistryClient;
@@ -26,7 +27,6 @@ import java.io.PrintStream;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.*;
-import java.util.stream.Collectors;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -169,6 +169,8 @@ public class JulieOps implements AutoCloseable {
     KSqlArtefactManager kSqlArtefactManager =
         configureKSqlArtefactManager(config, topologyFileOrDir);
 
+    configureLogsInDebugMode(config);
+
     return new JulieOps(
         topologies,
         config,
@@ -178,42 +180,6 @@ public class JulieOps implements AutoCloseable {
         principalDeleteManager,
         connectorManager,
         kSqlArtefactManager);
-  }
-
-  private static KafkaConnectArtefactManager configureKConnectArtefactManager(
-      Configuration config, String topologyFileOrDir) {
-    Map<String, KConnectApiClient> clients =
-        config.getKafkaConnectServers().entrySet().stream()
-            .map(
-                entry ->
-                    new Pair<>(
-                        entry.getKey(),
-                        new KConnectApiClient(entry.getValue(), entry.getKey(), config)))
-            .collect(Collectors.toMap(Pair::getKey, Pair::getValue));
-
-    if (clients.isEmpty()) {
-      LOGGER.debug(
-          "No KafkaConnect clients configured for JulieOps to use, please verify your config file");
-    }
-
-    return new KafkaConnectArtefactManager(clients, config, topologyFileOrDir);
-  }
-
-  private static KSqlArtefactManager configureKSqlArtefactManager(
-      Configuration config, String topologyFileOrDir) {
-
-    Map<String, KsqlApiClient> clients = new HashMap<>();
-    if (config.hasKSQLServer()) {
-      KsqlApiClient client = new KsqlApiClient(config.getKSQLClientConfig());
-      clients.put("default", client);
-    }
-
-    if (clients.isEmpty()) {
-      LOGGER.debug(
-          "No KSQL clients configured for JulieOps to use, please verify your config file");
-    }
-
-    return new KSqlArtefactManager(clients, config, topologyFileOrDir);
   }
 
   static void verifyRequiredParameters(String topologyFile, Map<String, String> config)
@@ -284,31 +250,6 @@ public class JulieOps implements AutoCloseable {
       e.printStackTrace();
       return "unknown";
     }
-  }
-
-  private static BackendController buildBackendController(Configuration config) throws IOException {
-
-    String backendClass = config.getStateProcessorImplementationClassName();
-    Backend backend;
-    try {
-      if (backendClass.equalsIgnoreCase(STATE_PROCESSOR_DEFAULT_CLASS)) {
-        backend = new FileBackend();
-      } else if (backendClass.equalsIgnoreCase(REDIS_STATE_PROCESSOR_CLASS)) {
-        backend = new RedisBackend(config);
-      } else if (backendClass.equalsIgnoreCase(S3_STATE_PROCESSOR_CLASS)) {
-        backend = new S3Backend();
-      } else if (backendClass.equalsIgnoreCase(GCP_STATE_PROCESSOR_CLASS)) {
-        backend = new GCPBackend();
-      } else if (backendClass.equalsIgnoreCase(KAFKA_STATE_PROCESSOR_CLASS)) {
-        backend = new KafkaBackend();
-      } else {
-        throw new IOException(backendClass + " Unknown state processor provided.");
-      }
-    } catch (Exception ex) {
-      throw new IOException(ex);
-    }
-    backend.configure(config);
-    return new BackendController(backend);
   }
 
   void setTopicManager(TopicManager topicManager) {

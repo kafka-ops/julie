@@ -155,4 +155,6 @@ public class Constants {
   public static final String JULIE_INSTANCE_ID = "julie.instance.id";
 
   public static final String MANAGED_BY = "Managed by JulieOps";
+
+  public static final String JULIE_DEBUG_MODE = "julie.debug.mode";
 }

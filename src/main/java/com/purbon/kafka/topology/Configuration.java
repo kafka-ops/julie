@@ -643,4 +643,8 @@ public class Configuration {
   public Boolean enabledPrincipalManagement() {
     return config.getBoolean(JULIE_ENABLE_PRINCIPAL_MANAGEMENT);
   }
+
+  public Boolean areJulieLogsInDebugMode() {
+    return config.getBoolean(JULIE_DEBUG_MODE);
+  }
 }
