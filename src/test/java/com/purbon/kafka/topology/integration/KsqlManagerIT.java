@@ -88,6 +88,7 @@ public class KsqlManagerIT {
     props.put(TOPOLOGY_STATE_FROM_CLUSTER, "false");
     props.put(TOPOLOGY_TOPIC_STATE_FROM_CLUSTER, "false");
     props.put(ALLOW_DELETE_KSQL_ARTEFACTS, "true");
+    props.put(JULIE_VERIFY_STATE_SYNC, true);
     props.put(PLATFORM_SERVER_KSQL_URL, "http://" + client.getServer());
 
     File file = TestUtils.getResourceFile("/descriptor-ksql.yaml");

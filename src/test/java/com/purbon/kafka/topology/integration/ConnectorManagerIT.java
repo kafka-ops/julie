@@ -91,6 +91,7 @@ public class ConnectorManagerIT {
     Properties props = new Properties();
     props.put(TOPOLOGY_TOPIC_STATE_FROM_CLUSTER, "false");
     props.put(ALLOW_DELETE_CONNECT_ARTEFACTS, "true");
+    props.put(JULIE_VERIFY_STATE_SYNC, true);
     props.put(PLATFORM_SERVERS_CONNECT + ".0", "connector0:" + connectContainer.getHttpsUrl());
 
     File file = TestUtils.getResourceFile("/descriptor-connector.yaml");

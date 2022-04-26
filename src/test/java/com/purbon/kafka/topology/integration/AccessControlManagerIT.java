@@ -197,6 +197,18 @@ public class AccessControlManagerIT {
 
   @Test(expected = IOException.class)
   public void shouldDetectChangesInTheRemoteClusterBetweenRuns() throws IOException {
+
+    Properties props = new Properties();
+    props.put(ALLOW_DELETE_BINDINGS, true);
+    props.put(JULIE_VERIFY_STATE_SYNC, true);
+
+    HashMap<String, String> cliOps = new HashMap<>();
+    cliOps.put(BROKERS_OPTION, "");
+
+    Configuration config = new Configuration(cliOps, props);
+
+    accessControlManager = new AccessControlManager(aclsProvider, bindingsBuilder, config);
+
     TopologyBuilderAdminClient adminClient = new TopologyBuilderAdminClient(kafkaAdminClient);
 
     var topology =
@@ -208,10 +220,6 @@ public class AccessControlManagerIT {
 
     accessControlManager.updatePlan(topology, plan);
     plan.run();
-
-    System.out.println("****");
-    adminClient.fetchAclsList().values().forEach(System.out::println);
-    System.out.println("****");
 
     var binding =
         TopologyAclBinding.build(
