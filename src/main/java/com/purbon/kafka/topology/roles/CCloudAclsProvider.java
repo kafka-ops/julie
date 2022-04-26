@@ -25,7 +25,7 @@ public class CCloudAclsProvider extends SimpleAclsProvider implements AccessCont
   private CCloudUtils cCloudUtils;
 
   public CCloudAclsProvider(
-      final TopologyBuilderAdminClient adminClient, final Configuration config) {
+      final TopologyBuilderAdminClient adminClient, final Configuration config) throws IOException {
     super(adminClient);
     this.cli = new CCloudApi(config.getConfluentCloudClusterUrl(), config);
     this.clusterId = config.getConfluentCloudClusterId();

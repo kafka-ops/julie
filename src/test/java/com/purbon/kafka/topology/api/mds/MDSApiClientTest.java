@@ -4,10 +4,18 @@ import static com.purbon.kafka.topology.roles.rbac.RBACPredefinedRoles.DEVELOPER
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
 import com.purbon.kafka.topology.roles.TopologyAclBinding;
+import java.io.IOException;
+import org.junit.Before;
 import org.junit.Test;
 
 public class MDSApiClientTest {
-  MDSApiClient apiClient = new MDSApiClient("http://not_used:8090");
+
+  private MDSApiClient apiClient;
+
+  @Before
+  public void before() throws IOException {
+    apiClient = new MDSApiClient("http://not_used:8090");
+  }
 
   @Test
   public void testBindSubjectRole() {

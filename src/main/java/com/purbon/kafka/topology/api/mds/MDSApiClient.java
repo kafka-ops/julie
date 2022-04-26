@@ -11,11 +11,18 @@ import com.purbon.kafka.topology.roles.TopologyAclBinding;
 import com.purbon.kafka.topology.roles.rbac.ClusterLevelRoleBuilder;
 import com.purbon.kafka.topology.utils.JSON;
 import java.io.IOException;
+import java.net.http.HttpClient;
+import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Properties;
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.TrustManager;
+import javax.net.ssl.X509TrustManager;
+import lombok.SneakyThrows;
 import org.apache.kafka.common.resource.ResourceType;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -27,13 +34,56 @@ public class MDSApiClient extends JulieHttpClient {
   private AuthenticationCredentials authenticationCredentials;
   private final ClusterIDs clusterIDs;
 
-  public MDSApiClient(String mdsServer) {
+  public MDSApiClient(String mdsServer) throws IOException {
     this(mdsServer, Optional.empty());
   }
 
-  public MDSApiClient(String mdsServer, Optional<Configuration> configOptional) {
+  public MDSApiClient(String mdsServer, Optional<Configuration> configOptional) throws IOException {
     super(mdsServer, configOptional);
     this.clusterIDs = new ClusterIDs(configOptional);
+  }
+
+  @Override
+  protected HttpClient configureHttpOrHttpsClient(Optional<Configuration> configOptional)
+      throws IOException {
+    if (configOptional.isEmpty()) {
+      return HttpClient.newBuilder().build();
+    }
+
+    Configuration config = configOptional.get();
+
+    if (!config.mdsInsecureAllowed()) {
+      return super.configureHttpOrHttpsClient(configOptional);
+    } else {
+      return trustAllClient();
+    }
+  }
+
+  @SneakyThrows
+  private HttpClient trustAllClient() {
+    LOGGER.info("MDS running with trust all connections");
+    final Properties props = System.getProperties();
+    props.setProperty(
+        "jdk.internal.httpclient.disableHostnameVerification", Boolean.TRUE.toString());
+
+    var trustManagers =
+        new TrustManager[] {
+          new X509TrustManager() {
+            public java.security.cert.X509Certificate[] getAcceptedIssuers() {
+              return null;
+            }
+
+            public void checkClientTrusted(
+                java.security.cert.X509Certificate[] certs, String authType) {}
+
+            public void checkServerTrusted(
+                java.security.cert.X509Certificate[] certs, String authType) {}
+          }
+        };
+    SSLContext sslContext = SSLContext.getInstance("TLS");
+    sslContext.init(null, trustManagers, new SecureRandom());
+
+    return HttpClient.newBuilder().sslContext(sslContext).build();
   }
 
   public AuthenticationCredentials getCredentials() {

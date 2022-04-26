@@ -12,7 +12,6 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.stream.Collectors;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -60,15 +59,16 @@ public class JulieOpsAuxiliary {
   }
 
   public static KafkaConnectArtefactManager configureKConnectArtefactManager(
-      Configuration config, String topologyFileOrDir) {
-    Map<String, KConnectApiClient> clients =
-        config.getKafkaConnectServers().entrySet().stream()
-            .map(
-                entry ->
-                    new Pair<>(
-                        entry.getKey(),
-                        new KConnectApiClient(entry.getValue(), entry.getKey(), config)))
-            .collect(Collectors.toMap(Pair::getKey, Pair::getValue));
+      Configuration config, String topologyFileOrDir) throws IOException {
+    Map<String, KConnectApiClient> clients = new HashMap<>();
+    for (var entry : config.getKafkaConnectServers().entrySet()) {
+      var pair =
+          new Pair<>(
+              entry.getKey(), new KConnectApiClient(entry.getValue(), entry.getKey(), config));
+      if (clients.put(pair.getKey(), pair.getValue()) != null) {
+        throw new IllegalStateException("Duplicate key");
+      }
+    }
 
     if (clients.isEmpty()) {
       LOGGER.debug(

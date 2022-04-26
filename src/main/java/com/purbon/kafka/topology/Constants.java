@@ -50,6 +50,8 @@ public class Constants {
   public static final String MDS_VALID_CLUSTER_IDS_CONFIG =
       "topology.builder.mds.valid.cluster.ids";
 
+  public static final String MDS_ALLOW_INSECURE_CONFIG = "topology.builder.mds.allow.insecure";
+
   public static final String CONFLUENT_SCHEMA_REGISTRY_URL_CONFIG = "schema.registry.url";
   static final String CONFLUENT_MONITORING_TOPIC_CONFIG = "confluent.monitoring.topic";
   static final String CONFLUENT_COMMAND_TOPIC_CONFIG = "confluent.command.topic";

@@ -39,14 +39,15 @@ public class CCloudApi {
   private String ccloudApiBaseUrl = "https://api.confluent.cloud";
   private static final String V3_KAFKA_CLUSTER_ACL_PATTERN = V3_KAFKA_CLUSTER_URL + "%s/acls";
 
-  public CCloudApi(String baseServerUrl, Configuration config) {
+  public CCloudApi(String baseServerUrl, Configuration config) throws IOException {
     this(new JulieHttpClient(baseServerUrl, Optional.of(config)), Optional.empty(), config);
   }
 
   public CCloudApi(
       JulieHttpClient clusterHttpClient,
       Optional<JulieHttpClient> ccloudApiHttpClientOptional,
-      Configuration config) {
+      Configuration config)
+      throws IOException {
     this.clusterHttpClient = clusterHttpClient;
     this.ccloudApiHttpClient =
         ccloudApiHttpClientOptional.orElse(
