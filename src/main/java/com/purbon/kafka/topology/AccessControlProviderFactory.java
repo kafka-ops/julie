@@ -47,9 +47,9 @@ public class AccessControlProviderFactory {
               ccloudProviderConstructor.newInstance(builderAdminClient, config);
         case CONFLUENT_HYBRID_CLOUD_CONTROL_CLASS:
           Constructor<?> hybridCcloudProviderConstructor =
-                  clazz.getConstructor(TopologyBuilderAdminClient.class, Configuration.class);
+              clazz.getConstructor(TopologyBuilderAdminClient.class, Configuration.class);
           return (HybridCCloudAclsProvider)
-                  hybridCcloudProviderConstructor.newInstance(builderAdminClient, config);
+              hybridCcloudProviderConstructor.newInstance(builderAdminClient, config);
         case RBAC_ACCESS_CONTROL_CLASS:
           Constructor<?> rbacProviderConstructor = clazz.getConstructor(MDSApiClient.class);
           MDSApiClient apiClient = apiClientLogIn();
@@ -71,7 +71,8 @@ public class AccessControlProviderFactory {
     try {
       if (accessControlClass.equalsIgnoreCase(ACCESS_CONTROL_DEFAULT_CLASS)) {
         return new AclsBindingsBuilder(config);
-      } else if (accessControlClass.equalsIgnoreCase(CONFLUENT_CLOUD_CONTROL_CLASS)) {
+      } else if (accessControlClass.equalsIgnoreCase(CONFLUENT_CLOUD_CONTROL_CLASS)
+          || accessControlClass.equalsIgnoreCase(CONFLUENT_HYBRID_CLOUD_CONTROL_CLASS)) {
         return new AclsBindingsBuilder(config);
       } else if (accessControlClass.equalsIgnoreCase(RBAC_ACCESS_CONTROL_CLASS)) {
         MDSApiClient apiClient = apiClientLogIn();
