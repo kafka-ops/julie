@@ -16,7 +16,7 @@ public class SimpleAclsProvider implements AccessControlProvider {
 
   private static final Logger LOGGER = LogManager.getLogger(SimpleAclsProvider.class);
 
-  private final TopologyBuilderAdminClient adminClient;
+  protected final TopologyBuilderAdminClient adminClient;
 
   public SimpleAclsProvider(final TopologyBuilderAdminClient adminClient) {
     this.adminClient = adminClient;
