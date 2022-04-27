@@ -1,4 +1,12 @@
 
+v4.1.4 / 2022-04-27
+===================
+
+  * Add feature flag to make the remote state verification backwards compatible again (#491)
+  * Allow setting log level as debug in the code (#490)
+  * Fix Confluent Cloud Translation mechanism when the Service Account does not have a type prefix (default user) (#485)
+  * Add Kafka Streams applicationId as internal topics, if available (#481)
+
 v4.1.3 / 2022-04-08
 ===================
 
