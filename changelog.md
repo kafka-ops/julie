@@ -1,4 +1,9 @@
 
+v4.2.3 / 2022-04-27
+===================
+
+  * [bug] fix a stupid missed thing when loading the hybrid provider, this code really needs to be done cleaner
+
 v4.2.2 / 2022-04-27
 ===================
 
