@@ -13,6 +13,9 @@ public class Constants {
   public static final String CONFLUENT_CLOUD_CONTROL_CLASS =
       "com.purbon.kafka.topology.roles.CCloudAclsProvider";
 
+  public static final String CONFLUENT_HYBRID_CLOUD_CONTROL_CLASS =
+          "com.purbon.kafka.topology.roles.HybridCCloudAclsProvider";
+
   public static final String RBAC_ACCESS_CONTROL_CLASS =
       "com.purbon.kafka.topology.roles.RBACProvider";
 

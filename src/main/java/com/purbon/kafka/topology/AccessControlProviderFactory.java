@@ -6,6 +6,7 @@ import com.purbon.kafka.topology.api.adminclient.TopologyBuilderAdminClient;
 import com.purbon.kafka.topology.api.mds.MDSApiClient;
 import com.purbon.kafka.topology.api.mds.MDSApiClientBuilder;
 import com.purbon.kafka.topology.roles.CCloudAclsProvider;
+import com.purbon.kafka.topology.roles.HybridCCloudAclsProvider;
 import com.purbon.kafka.topology.roles.RBACProvider;
 import com.purbon.kafka.topology.roles.SimpleAclsProvider;
 import com.purbon.kafka.topology.roles.acls.AclsBindingsBuilder;
@@ -44,6 +45,11 @@ public class AccessControlProviderFactory {
               clazz.getConstructor(TopologyBuilderAdminClient.class, Configuration.class);
           return (CCloudAclsProvider)
               ccloudProviderConstructor.newInstance(builderAdminClient, config);
+        case CONFLUENT_HYBRID_CLOUD_CONTROL_CLASS:
+          Constructor<?> hybridCcloudProviderConstructor =
+                  clazz.getConstructor(TopologyBuilderAdminClient.class, Configuration.class);
+          return (HybridCCloudAclsProvider)
+                  hybridCcloudProviderConstructor.newInstance(builderAdminClient, config);
         case RBAC_ACCESS_CONTROL_CLASS:
           Constructor<?> rbacProviderConstructor = clazz.getConstructor(MDSApiClient.class);
           MDSApiClient apiClient = apiClientLogIn();
