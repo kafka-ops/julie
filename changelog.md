@@ -1,4 +1,9 @@
 
+v4.2.2 / 2022-04-27
+===================
+
+  * [Feature] Introduce the concept of an hybrid ccloud provider, to set acls via admin client and translation via api (#492)
+
 v4.2.1 / 2022-04-26
 ===================
 
