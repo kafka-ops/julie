@@ -63,19 +63,6 @@ public class HybridCCloudAclsProvider extends SimpleAclsProvider implements Acce
 
   @Override
   public Map<String, List<TopologyAclBinding>> listAcls() {
-    try {
-      Map<String, List<TopologyAclBinding>> bindings = new HashMap<>();
-      for (TopologyAclBinding binding : cli.listAcls(clusterId)) {
-        String resourceName = binding.getResourceName();
-        if (!bindings.containsKey(resourceName)) {
-          bindings.put(resourceName, new ArrayList<>());
-        }
-        bindings.get(resourceName).add(binding);
-      }
-      return bindings;
-    } catch (IOException e) {
-      LOGGER.warn(e);
-      return Collections.emptyMap();
-    }
+    return super.listAcls();
   }
 }
