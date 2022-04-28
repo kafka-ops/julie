@@ -1,4 +1,9 @@
 
+v4.2.4 / 2022-04-28
+===================
+
+  * [neat] make hybrid ccloud provider list acls use admin client
+
 v4.2.3 / 2022-04-27
 ===================
 
