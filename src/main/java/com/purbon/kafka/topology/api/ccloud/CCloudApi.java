@@ -114,7 +114,7 @@ public class CCloudApi {
     Set<ServiceAccount> accounts = new HashSet<>();
 
     do {
-      ListServiceAccountResponse response = getListServiceAccounts(url);
+      ListServiceAccountResponse response = getListServiceAccounts(url, 100);
       for (ServiceAccountResponse serviceAccountResponse : response.getData()) {
         var resourceId = serviceAccountResponse.getMetadata().getResource_name();
         var serviceAccount =
@@ -151,8 +151,8 @@ public class CCloudApi {
         JSON.toObject(r.getResponseAsString(), ServiceAccountV1Response.class);
   }
 
-  private ListServiceAccountResponse getListServiceAccounts(String url) throws IOException {
-    Response r = ccloudApiHttpClient.doGet(url);
+  private ListServiceAccountResponse getListServiceAccounts(String url, int page_size) throws IOException {
+    Response r = ccloudApiHttpClient.doGet(String.format("%s?page_size=%d", url, page_size));
     return (ListServiceAccountResponse)
         JSON.toObject(r.getResponseAsString(), ListServiceAccountResponse.class);
   }

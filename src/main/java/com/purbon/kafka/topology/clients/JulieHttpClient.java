@@ -267,10 +267,14 @@ public class JulieHttpClient {
   }
 
   private boolean shouldRetry(HttpResponse<String> response, Throwable throwable, int count) {
-    if (response != null && response.statusCode() == 200 || count >= 20) return false;
+    if (response != null && isOkResponseStatusCode(response) || count >= 20) return false;
     var backoffTime = backoff(count);
     LOGGER.debug("Sleeping before retry on " + backoffTime + " ms");
     return true;
+  }
+
+  private <T> boolean isOkResponseStatusCode(HttpResponse<T> response) {
+    return response.statusCode() >= 200 && response.statusCode() <= 299;
   }
 
   private int backoff(int count) {
