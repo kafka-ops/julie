@@ -1,10 +1,5 @@
 name: Nightly Builds
 on:
-  workflow_dispatch:
-    name:
-      description: 'Reason and Motivation for this run'
-      required: true
-      default: 'Because I think is important'
   schedule:
     - cron: '0 0 * * *'
   push:
