@@ -30,6 +30,7 @@ public class SimpleAclsProvider implements AccessControlProvider {
             .filter(binding -> binding.asAclBinding().isPresent())
             .map(binding -> binding.asAclBinding().get())
             .collect(Collectors.toList());
+    LOGGER.debug("bindingsAsNativeKafka.size: " + bindingsAsNativeKafka.size());
     adminClient.createAcls(bindingsAsNativeKafka);
   }
 

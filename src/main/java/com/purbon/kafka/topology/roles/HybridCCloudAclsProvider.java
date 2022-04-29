@@ -2,22 +2,21 @@ package com.purbon.kafka.topology.roles;
 
 import com.purbon.kafka.topology.AccessControlProvider;
 import com.purbon.kafka.topology.Configuration;
+import com.purbon.kafka.topology.api.adminclient.AclBuilder;
 import com.purbon.kafka.topology.api.adminclient.TopologyBuilderAdminClient;
 import com.purbon.kafka.topology.api.ccloud.CCloudApi;
 import com.purbon.kafka.topology.utils.CCloudUtils;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.function.Function;
 import java.util.stream.Collectors;
+import org.apache.kafka.common.acl.AclOperation;
+import org.apache.kafka.common.acl.AclPermissionType;
+import org.apache.kafka.common.resource.PatternType;
+import org.apache.kafka.common.resource.ResourceType;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 public class HybridCCloudAclsProvider extends SimpleAclsProvider implements AccessControlProvider {
 
@@ -40,16 +39,38 @@ public class HybridCCloudAclsProvider extends SimpleAclsProvider implements Acce
   @Override
   public void createBindings(Set<TopologyAclBinding> bindings) throws IOException {
     var serviceAccountIdByNameMap = cCloudUtils.initializeLookupTable(this.cli);
-    var mayBeTranslated = bindings
-            .stream()
-            .map(binding -> {
-      try {
-        return cCloudUtils.translateIfNecessary(binding, serviceAccountIdByNameMap);
-      } catch (IOException e) {
-        LOGGER.error(e);
-        return binding;
-      }
-    }).collect(Collectors.toSet());
+    var mayBeTranslated =
+        bindings.stream()
+            .map(
+                binding -> {
+                  try {
+                    return cCloudUtils.translateIfNecessary(binding, serviceAccountIdByNameMap);
+                  } catch (IOException e) {
+                    LOGGER.error(e);
+                    return binding;
+                  }
+                })
+            .map(
+                binding -> {
+                  var aclBinding =
+                      new AclBuilder(binding.getPrincipal())
+                          .addResource(
+                              ResourceType.fromString(binding.getResourceType()),
+                              binding.getResourceName(),
+                              PatternType.fromString(binding.getPattern()))
+                          .addControlEntry(
+                              binding.getHost(),
+                              AclOperation.fromString(binding.getOperation()),
+                              AclPermissionType.ALLOW)
+                          .build();
+                  return new TopologyAclBinding(aclBinding);
+                })
+            .collect(Collectors.toSet());
+    LOGGER.debug(
+        "May be translated bindings: "
+            + mayBeTranslated.stream()
+                .map(TopologyAclBinding::getPrincipal)
+                .collect(Collectors.joining(",")));
     super.createBindings(mayBeTranslated);
   }
 
