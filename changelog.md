@@ -1,4 +1,9 @@
 
+v4.2.5 / 2022-05-02
+===================
+
+  * Fix the acl creation in the hybrid ccloud provider (#494)
+
 v4.2.4 / 2022-04-28
 ===================
 
