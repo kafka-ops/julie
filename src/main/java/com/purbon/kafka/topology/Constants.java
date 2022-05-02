@@ -14,7 +14,7 @@ public class Constants {
       "com.purbon.kafka.topology.roles.CCloudAclsProvider";
 
   public static final String CONFLUENT_HYBRID_CLOUD_CONTROL_CLASS =
-          "com.purbon.kafka.topology.roles.HybridCCloudAclsProvider";
+      "com.purbon.kafka.topology.roles.HybridCCloudAclsProvider";
 
   public static final String RBAC_ACCESS_CONTROL_CLASS =
       "com.purbon.kafka.topology.roles.RBACProvider";
@@ -98,6 +98,8 @@ public class Constants {
   public static final String CCLOUD_SERVICE_ACCOUNT_TRANSLATION_ENABLED =
       "ccloud.service_account.translation.enabled";
 
+  public static final String CCLOUD_SA_ACCOUNT_QUERY_PAGE_SIZE = "ccloud.service_account.query.page.size";
+
   public static final String TOPOLOGY_EXPERIMENTAL_ENABLED_CONFIG =
       "topology.features.experimental";
   static final String TOPOLOGY_PRINCIPAL_TRANSLATION_ENABLED_CONFIG =
@@ -172,4 +174,8 @@ public class Constants {
   public static final String JULIE_DEBUG_MODE = "julie.debug.mode";
 
   public static final String JULIE_VERIFY_STATE_SYNC = "julie.verify.remote.state";
+
+  public static final String JULIE_HTTP_RETRY_TIMES = "julie.http.retry.times";
+  public static final String JULIE_HTTP_BACKOFF_TIME_MS = "julie.http.retry.backoff.time.ms";
+
 }

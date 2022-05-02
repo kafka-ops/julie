@@ -654,6 +654,10 @@ public class Configuration {
     return config.getBoolean(CCLOUD_SERVICE_ACCOUNT_TRANSLATION_ENABLED);
   }
 
+  public Integer getConfluentCloudServiceAccountQuerySize() {
+    return config.getInt(CCLOUD_SA_ACCOUNT_QUERY_PAGE_SIZE);
+  }
+
   public Boolean enabledPrincipalManagement() {
     return config.getBoolean(JULIE_ENABLE_PRINCIPAL_MANAGEMENT);
   }
@@ -676,6 +680,14 @@ public class Configuration {
 
   public Boolean shouldVerifyRemoteState() {
     return config.getBoolean(JULIE_VERIFY_STATE_SYNC);
+  }
+
+  public Integer getHttpRetryTimes() {
+    return config.getInt(JULIE_HTTP_RETRY_TIMES);
+  }
+
+  public Integer getHttpBackoffTimeMs() {
+    return config.getInt(JULIE_HTTP_BACKOFF_TIME_MS);
   }
 
   private String getString(String path) {
