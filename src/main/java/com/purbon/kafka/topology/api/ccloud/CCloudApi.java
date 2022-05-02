@@ -39,6 +39,8 @@ public class CCloudApi {
   private String ccloudApiBaseUrl = "https://api.confluent.cloud";
   private static final String V3_KAFKA_CLUSTER_ACL_PATTERN = V3_KAFKA_CLUSTER_URL + "%s/acls";
 
+  private int serviceAccountPageSize;
+
   public CCloudApi(String baseServerUrl, Configuration config) throws IOException {
     this(new JulieHttpClient(baseServerUrl, Optional.of(config)), Optional.empty(), config);
   }
@@ -54,6 +56,8 @@ public class CCloudApi {
             new JulieHttpClient(ccloudApiBaseUrl, Optional.of(config)));
     this.clusterHttpClient.setBasicAuth(config.getConfluentCloudClusterAuth());
     this.ccloudApiHttpClient.setBasicAuth(config.getConfluentCloudCloudApiAuth());
+
+    this.serviceAccountPageSize = config.getConfluentCloudServiceAccountQuerySize();
   }
 
   public void createAcl(String clusterId, TopologyAclBinding binding) throws IOException {
@@ -114,7 +118,7 @@ public class CCloudApi {
     Set<ServiceAccount> accounts = new HashSet<>();
 
     do {
-      ListServiceAccountResponse response = getListServiceAccounts(url, 100);
+      ListServiceAccountResponse response = getListServiceAccounts(url, serviceAccountPageSize);
       for (ServiceAccountResponse serviceAccountResponse : response.getData()) {
         var resourceId = serviceAccountResponse.getMetadata().getResource_name();
         var serviceAccount =

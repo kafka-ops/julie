@@ -654,6 +654,10 @@ public class Configuration {
     return config.getBoolean(CCLOUD_SERVICE_ACCOUNT_TRANSLATION_ENABLED);
   }
 
+  public Integer getConfluentCloudServiceAccountQuerySize() {
+    return config.getInt(CCLOUD_SA_ACCOUNT_QUERY_PAGE_SIZE);
+  }
+
   public Boolean enabledPrincipalManagement() {
     return config.getBoolean(JULIE_ENABLE_PRINCIPAL_MANAGEMENT);
   }
