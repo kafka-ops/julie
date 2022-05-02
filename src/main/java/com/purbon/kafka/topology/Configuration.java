@@ -678,6 +678,14 @@ public class Configuration {
     return config.getBoolean(JULIE_VERIFY_STATE_SYNC);
   }
 
+  public Integer getHttpRetryTimes() {
+    return config.getInt(JULIE_HTTP_RETRY_TIMES);
+  }
+
+  public Integer getHttpBackoffTimeMs() {
+    return config.getInt(JULIE_HTTP_BACKOFF_TIME_MS);
+  }
+
   private String getString(String path) {
     return config.getString(path).strip().trim();
   }

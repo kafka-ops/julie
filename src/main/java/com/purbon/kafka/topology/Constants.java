@@ -172,4 +172,7 @@ public class Constants {
   public static final String JULIE_DEBUG_MODE = "julie.debug.mode";
 
   public static final String JULIE_VERIFY_STATE_SYNC = "julie.verify.remote.state";
+
+  public static final String JULIE_HTTP_RETRY_TIMES = "julie.http.retry.times";
+  public static final String JULIE_HTTP_BACKOFF_TIME_MS = "julie.http.retry.backoff.time.ms";
 }

@@ -44,6 +44,9 @@ public class JulieHttpClient {
   protected final String server;
   private String token;
 
+  private int retryTimes;
+  private int backoffTimesMs;
+
   public JulieHttpClient(String server) throws IOException {
     this(server, Optional.empty());
   }
@@ -52,6 +55,15 @@ public class JulieHttpClient {
     this.server = server;
     this.token = "";
     this.httpClient = configureHttpOrHttpsClient(configOptional);
+    configOptional.ifPresentOrElse(e -> {
+      retryTimes = e.getHttpRetryTimes();
+      backoffTimesMs = e.getHttpBackoffTimeMs();
+    }, () -> {
+      retryTimes = 0;
+      backoffTimesMs = 0;
+    });
+
+
   }
 
   private HttpRequest.Builder setupARequest(String url, long timeoutMs) {
@@ -255,6 +267,7 @@ public class JulieHttpClient {
       Throwable throwable) {
 
     if (shouldRetry(response, throwable, count)) {
+      System.out.println("shouldRetry: count="+count);
       return httpClient
           .sendAsync(request, handler)
           .handleAsync((r, t) -> tryResend(request, handler, count + 1, r, t))
@@ -267,24 +280,20 @@ public class JulieHttpClient {
   }
 
   private boolean shouldRetry(HttpResponse<String> response, Throwable throwable, int count) {
-    if (response != null && isOkResponseStatusCode(response) || count >= 20) return false;
+    if (response != null && !isRetrievableStatusCode(response) || count >= retryTimes) return false;
     var backoffTime = backoff(count);
     LOGGER.debug("Sleeping before retry on " + backoffTime + " ms");
     return true;
   }
 
-  private <T> boolean isOkResponseStatusCode(HttpResponse<T> response) {
-    return response.statusCode() >= 200 && response.statusCode() <= 299;
+  private <T> boolean isRetrievableStatusCode(HttpResponse<T> response) {
+    return response.statusCode() == 429 || response.statusCode() == 503;
   }
 
   private int backoff(int count) {
     int backoff = 0;
     try {
-      if (count < 10) {
-        backoff = 1000 * count;
-      } else {
-        backoff = 30000 + (10 * count);
-      }
+      backoff = this.backoffTimesMs + (10 * count);
       Thread.sleep(backoff);
     } catch (Exception ex) {
       LOGGER.error(ex);
