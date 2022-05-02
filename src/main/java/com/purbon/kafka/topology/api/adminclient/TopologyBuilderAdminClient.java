@@ -12,6 +12,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ExecutionException;
+import java.util.stream.Collectors;
 import org.apache.kafka.clients.admin.AdminClient;
 import org.apache.kafka.clients.admin.AlterConfigOp;
 import org.apache.kafka.clients.admin.AlterConfigOp.OpType;
@@ -242,6 +243,8 @@ public class TopologyBuilderAdminClient {
 
   public void createAcls(Collection<AclBinding> acls) {
     try {
+      var aclsDump = acls.stream().map(AclBinding::toString).collect(Collectors.joining(", "));
+      LOGGER.debug("createAcls: " + aclsDump);
       adminClient.createAcls(acls).all().get();
     } catch (InvalidConfigurationException ex) {
       LOGGER.error(ex);

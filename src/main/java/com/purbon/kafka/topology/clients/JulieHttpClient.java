@@ -24,6 +24,8 @@ import java.security.UnrecoverableKeyException;
 import java.security.cert.CertificateException;
 import java.time.Duration;
 import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
+import java.util.function.Function;
 import javax.net.ssl.KeyManager;
 import javax.net.ssl.KeyManagerFactory;
 import javax.net.ssl.SSLContext;
@@ -42,6 +44,9 @@ public class JulieHttpClient {
   protected final String server;
   private String token;
 
+  private int retryTimes;
+  private int backoffTimesMs;
+
   public JulieHttpClient(String server) throws IOException {
     this(server, Optional.empty());
   }
@@ -50,6 +55,15 @@ public class JulieHttpClient {
     this.server = server;
     this.token = "";
     this.httpClient = configureHttpOrHttpsClient(configOptional);
+    configOptional.ifPresentOrElse(e -> {
+      retryTimes = e.getHttpRetryTimes();
+      backoffTimesMs = e.getHttpBackoffTimeMs();
+    }, () -> {
+      retryTimes = 0;
+      backoffTimesMs = 0;
+    });
+
+
   }
 
   private HttpRequest.Builder setupARequest(String url, long timeoutMs) {
@@ -152,18 +166,6 @@ public class JulieHttpClient {
     return setupARequest(url, timeoutMs).GET().build();
   }
 
-  protected Response doGet(HttpRequest request) throws IOException {
-    LOGGER.debug("method: " + request.method() + " request.uri: " + request.uri());
-    try {
-      HttpResponse<String> response =
-          httpClient.send(request, HttpResponse.BodyHandlers.ofString());
-      LOGGER.debug("method: " + request.method() + " response: " + response);
-      return new Response(response);
-    } catch (Exception ex) {
-      throw new IOException(ex);
-    }
-  }
-
   public String doPost(String url, String body) throws IOException {
     LOGGER.debug("doPost: " + url + " body: " + body);
     HttpRequest request = postRequest(url, body, DEFAULT_TIMEOUT_MS);
@@ -211,12 +213,24 @@ public class JulieHttpClient {
     return builder.build();
   }
 
+  protected Response doGet(HttpRequest request) throws IOException {
+    LOGGER.debug("method: " + request.method() + " request.uri: " + request.uri());
+    try {
+      var handler = HttpResponse.BodyHandlers.ofString();
+      HttpResponse<String> response = sendAsync(request, handler).get();
+      LOGGER.debug("method: " + request.method() + " response: " + response);
+      return new Response(response);
+    } catch (Exception ex) {
+      throw new IOException(ex);
+    }
+  }
+
   private String doRequest(HttpRequest request) throws IOException {
     LOGGER.debug("method: " + request.method() + " request.uri: " + request.uri());
     String result = "";
     try {
-      HttpResponse<String> response =
-          httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+      var handler = HttpResponse.BodyHandlers.ofString();
+      HttpResponse<String> response = sendAsync(request, handler).get();
       LOGGER.debug("method: " + request.method() + " response: " + response);
       int statusCode = response.statusCode();
       if (statusCode < 200 || statusCode > 299) {
@@ -235,6 +249,56 @@ public class JulieHttpClient {
       throw new IOException(ex);
     }
     return result;
+  }
+
+  private CompletableFuture<HttpResponse<String>> sendAsync(
+      HttpRequest request, HttpResponse.BodyHandler<String> handler) {
+    return httpClient
+        .sendAsync(request, handler)
+        .handleAsync((response, throwable) -> tryResend(request, handler, 1, response, throwable))
+        .thenCompose(Function.identity());
+  }
+
+  private CompletableFuture<HttpResponse<String>> tryResend(
+      HttpRequest request,
+      HttpResponse.BodyHandler<String> handler,
+      int count,
+      HttpResponse<String> response,
+      Throwable throwable) {
+
+    if (shouldRetry(response, throwable, count)) {
+      System.out.println("shouldRetry: count="+count);
+      return httpClient
+          .sendAsync(request, handler)
+          .handleAsync((r, t) -> tryResend(request, handler, count + 1, r, t))
+          .thenCompose(Function.identity());
+    } else if (throwable != null) {
+      return CompletableFuture.failedFuture(throwable);
+    } else {
+      return CompletableFuture.completedFuture(response);
+    }
+  }
+
+  private boolean shouldRetry(HttpResponse<String> response, Throwable throwable, int count) {
+    if (response != null && !isRetrievableStatusCode(response) || count >= retryTimes) return false;
+    var backoffTime = backoff(count);
+    LOGGER.debug("Sleeping before retry on " + backoffTime + " ms");
+    return true;
+  }
+
+  private <T> boolean isRetrievableStatusCode(HttpResponse<T> response) {
+    return response.statusCode() == 429 || response.statusCode() == 503;
+  }
+
+  private int backoff(int count) {
+    int backoff = 0;
+    try {
+      backoff = this.backoffTimesMs + (10 * count);
+      Thread.sleep(backoff);
+    } catch (Exception ex) {
+      LOGGER.error(ex);
+    }
+    return backoff;
   }
 
   public String baseUrl() {
