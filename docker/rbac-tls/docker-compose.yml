@@ -54,6 +54,7 @@ services:
       - "9093:9093"
       - "9094:9094"
       - "9095:9095"
+      - "9096:9096"
     volumes:
       - ./certs/:/etc/kafka/secrets/
       - ./conf:/tmp/conf
@@ -68,8 +69,8 @@ services:
       KAFKA_ZOOKEEPER_CONNECT: 'zookeeper:2181'
       KAFKA_CONFLUENT_LICENSE_TOPIC_REPLICATION_FACTOR: 1
       KAFKA_CONFLUENT_SCHEMA_REGISTRY_URL: https://schema-registry:8081
-      KAFKA_ADVERTISED_LISTENERS: INTERNAL://localhost:9093,EXTERNAL://broker:9092,TOKEN://broker:9094,TOKENE://thusnelda:9095
-      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: INTERNAL:SSL,EXTERNAL:SSL,TOKEN:SASL_SSL,TOKENE:SASL_SSL
+      KAFKA_ADVERTISED_LISTENERS: INTERNAL://localhost:9093,EXTERNAL://localhost:9092,TOKEN://broker:9094,TOKENE://thusnelda:9095,EXTERNALS://localhost:9096
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: INTERNAL:SSL,EXTERNAL:SSL,TOKEN:SASL_SSL,TOKENE:SASL_SSL,EXTERNALS:SASL_SSL
       KAFKA_SASL_ENABLED_MECHANISMS: OAUTHBEARER
 
        # Configure interbroker listener
@@ -89,6 +90,13 @@ services:
       KAFKA_LISTENER_NAME_EXTERNAL_SSL_KEYSTORE_LOCATION: /etc/kafka/secrets/kafka.keystore.jks
       KAFKA_LISTENER_NAME_EXTERNAL_SSL_KEYSTORE_PASSWORD: confluent
       KAFKA_LISTENER_NAME_EXTERNAL_SSL_KEY_PASSWORD: confluent
+
+      KAFKA_LISTENER_NAME_EXTERNALS_SECURITY_PROTOCOL: SSL
+      KAFKA_LISTENER_NAME_EXTERNALS_SSL_TRUSTSTORE_LOCATION: /etc/kafka/secrets/kafka.truststore.jks
+      KAFKA_LISTENER_NAME_EXTERNALS_SSL_TRUSTSTORE_PASSWORD: confluent
+      KAFKA_LISTENER_NAME_EXTERNALS_SSL_KEYSTORE_LOCATION: /etc/kafka/secrets/kafka.keystore.jks
+      KAFKA_LISTENER_NAME_EXTERNALS_SSL_KEYSTORE_PASSWORD: confluent
+      KAFKA_LISTENER_NAME_EXTERNALS_SSL_KEY_PASSWORD: confluent
 
       KAFKA_LISTENER_NAME_TOKEN_SECURITY_PROTOCOL: SSL
       KAFKA_LISTENER_NAME_TOKEN_SSL_TRUSTSTORE_LOCATION: /etc/kafka/secrets/kafka.truststore.jks
@@ -126,6 +134,14 @@ services:
                                                                  \
                                                                  org.apache.kafka.common.security.oauthbearer.OAuthBearerLoginModule required \
                                                                  publicKeyPath="/tmp/conf/public.pem";
+
+      KAFKA_LISTENER_NAME_EXTERNALS_SASL_ENABLED_MECHANISMS: OAUTHBEARER
+      KAFKA_LISTENER_NAME_EXTERNALS_OAUTHBEARER_SASL_SERVER_CALLBACK_HANDLER_CLASS: io.confluent.kafka.server.plugins.auth.token.TokenBearerValidatorCallbackHandler
+      KAFKA_LISTENER_NAME_EXTERNALS_OAUTHBEARER_SASL_LOGIN_CALLBACK_HANDLER_CLASS: io.confluent.kafka.server.plugins.auth.token.TokenBearerServerLoginCallbackHandler
+      KAFKA_LISTENER_NAME_EXTERNALS_OAUTHBEARER_SASL_JAAS_CONFIG: |
+        \
+        org.apache.kafka.common.security.oauthbearer.OAuthBearerLoginModule required \
+        publicKeyPath="/tmp/conf/public.pem";
 
       # CONFIGURE AUTHORIZER
       KAFKA_AUTHORIZER_CLASS_NAME: io.confluent.kafka.security.authorizer.ConfluentServerAuthorizer
