@@ -12,7 +12,7 @@ fi
 
 ## Login into MDS
 CA_CERT=./certs/snakeoil-ca-1.crt
-XX_CONFLUENT_USERNAME=professor XX_CONFLUENT_PASSWORD=professor confluent login --ca-cert-path $CA_CERT --url https://localhost:8090
+CONFLUENT_PLATFORM_USERNAME=professor CONFLUENT_PLATFORM_PASSWORD=professor confluent login --ca-cert-path $CA_CERT --url https://localhost:8090
 
 SUPER_USER=professor
 SUPER_USER_PASSWORD=professor

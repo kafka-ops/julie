@@ -1,10 +1,11 @@
 ---
-version: '2.3'
+version: '3.5'
 services:
 
   phpldapadmin-service:
     image: osixia/phpldapadmin:0.7.2
     container_name: ldapadmin-service
+    domainname: test.local
     environment:
       - PHPLDAPADMIN_LDAP_HOSTS=openldap
     ports:
@@ -15,15 +16,18 @@ services:
   openldap:
     image: rroemhild/test-openldap
     hostname: openldap
+    domainname: test.local
     container_name: openldap
     ports:
-      - "10389:10389"
+      - "389:10389"
+      - "443:443"
     privileged: true
 
   zookeeper:
     image: confluentinc/cp-zookeeper:${TAG}
     hostname: zookeeper
     container_name: zookeeper
+    domainname: test.local
     ports:
       - "2181:2181"
     environment:
@@ -32,8 +36,9 @@ services:
 
   broker:
     image: confluentinc/cp-server:${TAG}
-    hostname: broker
+    hostname: kafka
     container_name: broker
+    domainname: test.local
     networks:
       default:
         aliases:
@@ -49,22 +54,23 @@ services:
       - "9093:9093"
       - "9094:9094"
       - "9095:9095"
+      - "9096:9096"
     volumes:
       - ./certs/:/etc/kafka/secrets/
       - ./conf:/tmp/conf
       - ./client-configs:/etc/client-configs
-      - ./kafka/:/etc/kafka/
+      - ./etc/kafka/:/etc/kafka/
       - ./jvm/:/etc/kafka/jvm/
     environment:
-      KAFKA_LOG4J_LOGGERS: kafka.controller=INFO,kafka.authorizer.logger=DEBUG
-      KAFKA_LOG4J_ROOT_LOGLEVEL: DEBUG
+      #KAFKA_LOG4J_LOGGERS: kafka.controller=INFO,kafka.authorizer.logger=DEBUG
+      #KAFKA_LOG4J_ROOT_LOGLEVEL: DEBUG
       KAFKA_SUPER_USERS: User:admin;User:kafka;User:professor;User:ANONYMOUS
       KAFKA_BROKER_ID: 1
       KAFKA_ZOOKEEPER_CONNECT: 'zookeeper:2181'
       KAFKA_CONFLUENT_LICENSE_TOPIC_REPLICATION_FACTOR: 1
       KAFKA_CONFLUENT_SCHEMA_REGISTRY_URL: https://schema-registry:8081
-      KAFKA_ADVERTISED_LISTENERS: INTERNAL://localhost:9093,EXTERNAL://localhost:9092,TOKEN://localhost:9094,TOKENE://thusnelda:9095
-      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: INTERNAL:SSL,EXTERNAL:SSL,TOKEN:SASL_SSL,TOKENE:SASL_SSL
+      KAFKA_ADVERTISED_LISTENERS: INTERNAL://localhost:9093,EXTERNAL://localhost:9092,TOKEN://broker:9094,TOKENE://thusnelda:9095,EXTERNALS://localhost:9096
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: INTERNAL:SSL,EXTERNAL:SSL,TOKEN:SASL_SSL,TOKENE:SASL_SSL,EXTERNALS:SASL_SSL
       KAFKA_SASL_ENABLED_MECHANISMS: OAUTHBEARER
 
        # Configure interbroker listener
@@ -85,6 +91,13 @@ services:
       KAFKA_LISTENER_NAME_EXTERNAL_SSL_KEYSTORE_PASSWORD: confluent
       KAFKA_LISTENER_NAME_EXTERNAL_SSL_KEY_PASSWORD: confluent
 
+      KAFKA_LISTENER_NAME_EXTERNALS_SECURITY_PROTOCOL: SSL
+      KAFKA_LISTENER_NAME_EXTERNALS_SSL_TRUSTSTORE_LOCATION: /etc/kafka/secrets/kafka.truststore.jks
+      KAFKA_LISTENER_NAME_EXTERNALS_SSL_TRUSTSTORE_PASSWORD: confluent
+      KAFKA_LISTENER_NAME_EXTERNALS_SSL_KEYSTORE_LOCATION: /etc/kafka/secrets/kafka.keystore.jks
+      KAFKA_LISTENER_NAME_EXTERNALS_SSL_KEYSTORE_PASSWORD: confluent
+      KAFKA_LISTENER_NAME_EXTERNALS_SSL_KEY_PASSWORD: confluent
+
       KAFKA_LISTENER_NAME_TOKEN_SECURITY_PROTOCOL: SSL
       KAFKA_LISTENER_NAME_TOKEN_SSL_TRUSTSTORE_LOCATION: /etc/kafka/secrets/kafka.truststore.jks
       KAFKA_LISTENER_NAME_TOKEN_SSL_TRUSTSTORE_PASSWORD: confluent
@@ -103,7 +116,7 @@ services:
       #KAFKA_SSL_PRINCIPAL_MAPPING_RULES: RULE:^CN=(.*?),.*$$/$$1/,DEFAULT
 
       KAFKA_LISTENER_NAME_INTERNAL_SSL_PRINCIPAL_MAPPING_RULES: RULE:^CN=([a-zA-Z0-9.]*).*$$/$$1/ , DEFAULT
-      KAFKA_LISTENER_NAME_EXTERNAL_SSL_PRINCIPAL_MAPPING_RULES: RULE:^CN=([a-zA-Z0-9.]*).*$$/kafka/ , DEFAULT
+      KAFKA_LISTENER_NAME_EXTERNAL_SSL_PRINCIPAL_MAPPING_RULES: RULE:^CN=([a-zA-Z0-9.]*).*$$/$$1/ , DEFAULT
 
       # Configure token listener
       KAFKA_LISTENER_NAME_TOKEN_SASL_ENABLED_MECHANISMS: OAUTHBEARER
@@ -121,6 +134,14 @@ services:
                                                                  \
                                                                  org.apache.kafka.common.security.oauthbearer.OAuthBearerLoginModule required \
                                                                  publicKeyPath="/tmp/conf/public.pem";
+
+      KAFKA_LISTENER_NAME_EXTERNALS_SASL_ENABLED_MECHANISMS: OAUTHBEARER
+      KAFKA_LISTENER_NAME_EXTERNALS_OAUTHBEARER_SASL_SERVER_CALLBACK_HANDLER_CLASS: io.confluent.kafka.server.plugins.auth.token.TokenBearerValidatorCallbackHandler
+      KAFKA_LISTENER_NAME_EXTERNALS_OAUTHBEARER_SASL_LOGIN_CALLBACK_HANDLER_CLASS: io.confluent.kafka.server.plugins.auth.token.TokenBearerServerLoginCallbackHandler
+      KAFKA_LISTENER_NAME_EXTERNALS_OAUTHBEARER_SASL_JAAS_CONFIG: |
+        \
+        org.apache.kafka.common.security.oauthbearer.OAuthBearerLoginModule required \
+        publicKeyPath="/tmp/conf/public.pem";
 
       # CONFIGURE AUTHORIZER
       KAFKA_AUTHORIZER_CLASS_NAME: io.confluent.kafka.security.authorizer.ConfluentServerAuthorizer
@@ -181,9 +202,10 @@ services:
 
       # ======================= OTHER BROKER STUFF =================================
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
-      SSL_ENABLED_PROTOCOLS: TLSv1.2
-      KAFKA_OPTS: " -Djava.security.properties=/etc/kafka/jvm/security-policy.properties"
-      KAFKA_SSL_CIPHER_SUITES: TLS_RSA_WITH_AES_256_CBC_SHA256, TLS_RSA_WITH_AES_256_GCM_SHA384, TLS_DHE_RSA_WITH_AES_256_CBC_SHA256, TLS_DHE_RSA_WITH_AES_256_GCM_SHA384, TLS_DHE_DSS_WITH_AES_256_CBC_SHA256, TLS_DHE_DSS_WITH_AES_256_GCM_SHA384, TLS_ECDH_RSA_WITH_AES_256_CBC_SHA384, TLS_ECDH_RSA_WITH_AES_256_GCM_SHA384, TLS_ECDH_ECDSA_WITH_AES_256_CBC_SHA384, TLS_ECDH_ECDSA_WITH_AES_256_GCM_SHA384, TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384, TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384, TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA384, TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384
+      KAFKA_CONFLUENT_BALANCER_ENABLE: 'false'
+      #SSL_ENABLED_PROTOCOLS: TLSv1.2
+      #KAFKA_OPTS: " -Djava.security.properties=/etc/kafka/jvm/security-policy.properties"
+      #KAFKA_SSL_CIPHER_SUITES: TLS_RSA_WITH_AES_256_CBC_SHA256, TLS_RSA_WITH_AES_256_GCM_SHA384, TLS_DHE_RSA_WITH_AES_256_CBC_SHA256, TLS_DHE_RSA_WITH_AES_256_GCM_SHA384, TLS_DHE_DSS_WITH_AES_256_CBC_SHA256, TLS_DHE_DSS_WITH_AES_256_GCM_SHA384, TLS_ECDH_RSA_WITH_AES_256_CBC_SHA384, TLS_ECDH_RSA_WITH_AES_256_GCM_SHA384, TLS_ECDH_ECDSA_WITH_AES_256_CBC_SHA384, TLS_ECDH_ECDSA_WITH_AES_256_GCM_SHA384, TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384, TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384, TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA384, TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384
       # KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0
       # CONFLUENT_METRICS_ENABLE: 'true'
       # CONFLUENT_SUPPORT_CUSTOMER_ID: 'anonymous'
@@ -252,8 +274,11 @@ services:
       SCHEMA_REGISTRY_SSL_CIPHER_SUITES: TLS_RSA_WITH_AES_256_CBC_SHA256, TLS_RSA_WITH_AES_256_GCM_SHA384, TLS_DHE_RSA_WITH_AES_256_CBC_SHA256, TLS_DHE_RSA_WITH_AES_256_GCM_SHA384, TLS_DHE_DSS_WITH_AES_256_CBC_SHA256, TLS_DHE_DSS_WITH_AES_256_GCM_SHA384, TLS_ECDH_RSA_WITH_AES_256_CBC_SHA384, TLS_ECDH_RSA_WITH_AES_256_GCM_SHA384, TLS_ECDH_ECDSA_WITH_AES_256_CBC_SHA384, TLS_ECDH_ECDSA_WITH_AES_256_GCM_SHA384, TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384, TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384, TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA384, TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384
 
   connect:
-    image: confluentinc/cp-server-connect:${TAG}
+    build:
+      context: kafka-connect/
+      dockerfile: Dockerfile
     hostname: connect
+    domainname: test.local
     container_name: connect
     depends_on:
       - 'broker'
@@ -261,6 +286,7 @@ services:
       - "8083:8083"
     volumes:
       - ./certs/:/etc/kafka/secrets/
+      - ./etc/kafka-connect/:/etc/kafka-connect/
       - ./conf:/tmp/conf
       - ./jvm/:/etc/kafka/jvm/
     environment:
@@ -390,7 +416,7 @@ services:
                   -Djavax.net.ssl.trustStorePassword=confluent
                   -Djavax.net.ssl.keyStore=/etc/kafka/secrets/connect.keystore.jks
                   -Djavax.net.ssl.keyStorePassword=confluent
-                  -Djava.security.properties=/etc/kafka/jvm/security-policy.properties
+                #  -Djava.security.properties=/etc/kafka/jvm/security-policy.properties
       # ========================= SECRET REGISTRY ==================================
       CONNECT_CONFIG_PROVIDERS: 'secret'
       CONNECT_CONFIG_PROVIDERS_SECRET_CLASS: 'io.confluent.connect.secretregistry.rbac.config.provider.InternalSecretConfigProvider'
@@ -409,8 +435,27 @@ services:
               username="fry" \
               password="fry" \
               metadataServerUrls="https://broker:8090";
-      CONNECT_SSL_ENABLED_PROTOCOLS: TLSv1.2
-      CONNECT_SSL_CIPHER_SUITES: TLS_RSA_WITH_AES_256_CBC_SHA256, TLS_RSA_WITH_AES_256_GCM_SHA384, TLS_DHE_RSA_WITH_AES_256_CBC_SHA256, TLS_DHE_RSA_WITH_AES_256_GCM_SHA384, TLS_DHE_DSS_WITH_AES_256_CBC_SHA256, TLS_DHE_DSS_WITH_AES_256_GCM_SHA384, TLS_ECDH_RSA_WITH_AES_256_CBC_SHA384, TLS_ECDH_RSA_WITH_AES_256_GCM_SHA384, TLS_ECDH_ECDSA_WITH_AES_256_CBC_SHA384, TLS_ECDH_ECDSA_WITH_AES_256_GCM_SHA384, TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384, TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384, TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA384, TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384
+      #CONNECT_SSL_ENABLED_PROTOCOLS: TLSv1.2
+      #CONNECT_SSL_CIPHER_SUITES: TLS_RSA_WITH_AES_256_CBC_SHA256, TLS_RSA_WITH_AES_256_GCM_SHA384, TLS_DHE_RSA_WITH_AES_256_CBC_SHA256, TLS_DHE_RSA_WITH_AES_256_GCM_SHA384, TLS_DHE_DSS_WITH_AES_256_CBC_SHA256, TLS_DHE_DSS_WITH_AES_256_GCM_SHA384, TLS_ECDH_RSA_WITH_AES_256_CBC_SHA384, TLS_ECDH_RSA_WITH_AES_256_GCM_SHA384, TLS_ECDH_ECDSA_WITH_AES_256_CBC_SHA384, TLS_ECDH_ECDSA_WITH_AES_256_GCM_SHA384, TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384, TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384, TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA384, TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384
+      # ==== CONFLUENT LICENSE MANAGER ====
+      CONNECT_CONFLUENT_TOPIC: '_confluent-command'
+      CONNECT_CONFLUENT_TOPIC_BOOTSTRAP_SERVERS: broker:9094
+      CONNECT_CONFLUENT_TOPIC_REPLICATION_FACTOR: 1
+      CONNECT_CONFLUENT_TOPIC_SECURITY_PROTOCOL: SASL_SSL
+      CONNECT_CONFLUENT_TOPIC_SSL_TRUSTSTORE_LOCATION: /etc/kafka/secrets/connect.truststore.jks
+      CONNECT_CONFLUENT_TOPIC_SSL_TRUSTSTORE_PASSWORD: confluent
+      CONNECT_CONFLUENT_TOPIC_SSL_KEYSTORE_LOCATION: /etc/kafka/secrets/connect.keystore.jks
+      CONNECT_CONFLUENT_TOPIC_SSL_KEYSTORE_PASSWORD: confluent
+      CONNECT_CONFLUENT_TOPIC_SSL_KEY_PASSWORD: confluent
+      #CONNECT_CONFLUENT_TOPIC_SSL_ENDPOINT_IDENTIFICATION_ALGORITH: ""
+
+      CONNECT_CONFLUENT_TOPIC_SASL_MECHANISM: 'OAUTHBEARER'
+      CONNECT_CONFLUENT_TOPIC_SASL_LOGIN_CALLBACK_HANDLER_CLASS: 'io.confluent.kafka.clients.plugins.auth.token.TokenUserLoginCallbackHandler'
+      CONNECT_CONFLUENT_TOPIC_SASL_JAAS_CONFIG: |
+              org.apache.kafka.common.security.oauthbearer.OAuthBearerLoginModule required \
+               username="professor" \
+              password="professor" \
+              metadataServerUrls="https://broker:8090";
 
   control-center:
     image: confluentinc/cp-enterprise-control-center:${TAG}
@@ -428,7 +473,8 @@ services:
       - ./jvm/:/etc/kafka/jvm/
     environment:
       # CUB CLASSPATH
-      CUB_CLASSPATH: '/etc/confluent/docker/docker-utils.jar:/usr/share/java/confluent-control-center/*:/usr/share/java/rest-utils/*:/usr/share/java/confluent-common/*'
+      #CUB_CLASSPATH: '/etc/confluent/docker/docker-utils.jar:/usr/share/java/confluent-control-center/*:/usr/share/java/rest-utils/*:/usr/share/java/confluent-common/*'
+      CUB_CLASSPATH: '/usr/share/java/confluent-control-center/*:/usr/share/java/rest-utils/*:/usr/share/java/confluent-common/*:/usr/share/java/confluent-security/kafka-rest/*:/usr/share/java/kafka-rest/:/usr/share/java/cp-base-new/*'
       # general settings
       #CONTROL_CENTER_LOG4J_ROOT_LOGLEVEL: DEBUG
       CONTROL_CENTER_BOOTSTRAP_SERVERS: 'SASL_SSL://broker:9094'
@@ -490,3 +536,6 @@ services:
       CONTROL_CENTER_SSL_ENABLED_PROTOCOLS: TLSv1.2
       KAFKA_OPTS: " -Djava.security.properties=/etc/kafka/jvm/security-policy.properties"
       CONTROL_CENTER_SSL_CIPHER_SUITES: TLS_RSA_WITH_AES_256_CBC_SHA256, TLS_RSA_WITH_AES_256_GCM_SHA384, TLS_DHE_RSA_WITH_AES_256_CBC_SHA256, TLS_DHE_RSA_WITH_AES_256_GCM_SHA384, TLS_DHE_DSS_WITH_AES_256_CBC_SHA256, TLS_DHE_DSS_WITH_AES_256_GCM_SHA384, TLS_ECDH_RSA_WITH_AES_256_CBC_SHA384, TLS_ECDH_RSA_WITH_AES_256_GCM_SHA384, TLS_ECDH_ECDSA_WITH_AES_256_CBC_SHA384, TLS_ECDH_ECDSA_WITH_AES_256_GCM_SHA384, TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384, TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384, TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA384, TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384
+
+networks:
+  default:
