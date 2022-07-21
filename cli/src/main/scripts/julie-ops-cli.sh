@@ -1,4 +1,6 @@
 #!/usr/bin/env bash
+## julie-ops-cli
+## author: pere.urbon@gmail.com
 
 JULIE_OPS_HOME=/usr/local/julie-ops
 JULIE_OPS_JAR=$JULIE_OPS_HOME/bin/julie-ops-cli.jar
