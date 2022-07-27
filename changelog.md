@@ -1,4 +1,11 @@
 
+v4.2.6 / 2022-07-27
+===================
+
+  * [bug] Force special topics to be using the name topic naming convention in order 
+    to avoid cases when the prefix formats break the flow (#507)
+  * [testing] Extend example for rbac tls for testing (#498)
+
 v4.2.5 / 2022-05-02
 ===================
 
