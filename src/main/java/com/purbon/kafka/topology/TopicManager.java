@@ -65,7 +65,7 @@ public class TopicManager implements ExecutionPlanUpdater {
     Set<Action> createTopicActions = new HashSet<>();
     Set<Action> updateTopicConfigActions = new HashSet<>();
     for (Topology topology : topologies.values()) {
-      var entryTopics = parseMapOfTopics(topology);
+      Map<String, Topic> entryTopics = parseMapOfTopics(topology);
       entryTopics.forEach(
           (topicName, topic) -> {
             if (currentTopics.contains(topicName)) {
@@ -107,12 +107,13 @@ public class TopicManager implements ExecutionPlanUpdater {
   }
 
   private Map<String, Topic> parseMapOfTopics(Topology topology) {
-    var topics =
+    Stream<Topic> topics =
         topology.getProjects().stream()
             .flatMap(project -> project.getTopics().stream())
             .filter(this::matchesPrefixList);
 
-    var specialTopics = topology.getSpecialTopics().stream().filter(this::matchesPrefixList);
+    Stream<Topic> specialTopics =
+        topology.getSpecialTopics().stream().filter(this::matchesPrefixList);
 
     return Stream.concat(topics, specialTopics)
         .collect(Collectors.toMap(Topic::toString, topic -> topic));
@@ -150,8 +151,8 @@ public class TopicManager implements ExecutionPlanUpdater {
   }
 
   private void detectDivergencesInTheRemoteCluster(ExecutionPlan plan) throws IOException {
-    var remoteTopics = adminClient.listApplicationTopics();
-    var delta =
+    Set<String> remoteTopics = adminClient.listApplicationTopics();
+    List<String> delta =
         plan.getTopics().stream()
             .filter(localTopic -> !remoteTopics.contains(localTopic))
             .collect(Collectors.toList());

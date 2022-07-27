@@ -103,6 +103,7 @@ public class TopologyImpl implements Topology, Cloneable {
 
   @Override
   public void addSpecialTopic(Topic topic) {
+    topic.setTopicNamePattern("name");
     this.specialTopics.add(topic);
   }
 
