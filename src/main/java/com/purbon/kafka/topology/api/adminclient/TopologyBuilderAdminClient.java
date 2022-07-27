@@ -243,7 +243,7 @@ public class TopologyBuilderAdminClient {
 
   public void createAcls(Collection<AclBinding> acls) {
     try {
-      var aclsDump = acls.stream().map(AclBinding::toString).collect(Collectors.joining(", "));
+      String aclsDump = acls.stream().map(AclBinding::toString).collect(Collectors.joining(", "));
       LOGGER.debug("createAcls: " + aclsDump);
       adminClient.createAcls(acls).all().get();
     } catch (InvalidConfigurationException ex) {

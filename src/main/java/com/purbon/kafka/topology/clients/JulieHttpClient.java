@@ -55,15 +55,15 @@ public class JulieHttpClient {
     this.server = server;
     this.token = "";
     this.httpClient = configureHttpOrHttpsClient(configOptional);
-    configOptional.ifPresentOrElse(e -> {
-      retryTimes = e.getHttpRetryTimes();
-      backoffTimesMs = e.getHttpBackoffTimeMs();
-    }, () -> {
-      retryTimes = 0;
-      backoffTimesMs = 0;
-    });
-
-
+    configOptional.ifPresentOrElse(
+        e -> {
+          retryTimes = e.getHttpRetryTimes();
+          backoffTimesMs = e.getHttpBackoffTimeMs();
+        },
+        () -> {
+          retryTimes = 0;
+          backoffTimesMs = 0;
+        });
   }
 
   private HttpRequest.Builder setupARequest(String url, long timeoutMs) {
@@ -267,7 +267,7 @@ public class JulieHttpClient {
       Throwable throwable) {
 
     if (shouldRetry(response, throwable, count)) {
-      System.out.println("shouldRetry: count="+count);
+      System.out.println("shouldRetry: count=" + count);
       return httpClient
           .sendAsync(request, handler)
           .handleAsync((r, t) -> tryResend(request, handler, count + 1, r, t))

@@ -13,6 +13,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 public class KConnectApiClient extends JulieHttpClient implements ArtefactClient {
@@ -27,7 +28,7 @@ public class KConnectApiClient extends JulieHttpClient implements ArtefactClient
     super(server, Optional.of(config));
     this.label = label;
     // configure basic authentication if available
-    var basicAuths = config.getServersBasicAuthMap();
+    Map<String, String> basicAuths = config.getServersBasicAuthMap();
     if (basicAuths.containsKey(label)) {
       String[] values = basicAuths.get(label).split(":");
       setBasicAuth(new BasicAuth(values[0], values[1]));
@@ -60,7 +61,7 @@ public class KConnectApiClient extends JulieHttpClient implements ArtefactClient
   public Map<String, Object> add(String name, String config) throws IOException {
     String url = String.format("/connectors/%s/config", name);
 
-    var map = JSON.toMap(config);
+    Map<String, Object> map = JSON.toMap(config);
     if (mayBeAConfigRecord(map)) {
       var content = map.get("config");
       if (!name.equalsIgnoreCase(map.get("name").toString())) {
@@ -74,7 +75,7 @@ public class KConnectApiClient extends JulieHttpClient implements ArtefactClient
   }
 
   private boolean mayBeAConfigRecord(Map<String, Object> map) {
-    var keySet = map.keySet();
+    Set<String> keySet = map.keySet();
     return keySet.contains("config") && keySet.contains("name") && keySet.size() == 2;
   }
 
