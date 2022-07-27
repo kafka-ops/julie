@@ -142,7 +142,7 @@ public class CCloudApi {
 
   public Set<ServiceAccountV1> listServiceAccountsV1() throws IOException {
     Set<ServiceAccountV1> accounts = new HashSet<>();
-    var response = getServiceAccountsV1(V1_IAM_SERVICE_ACCOUNTS_URL);
+    ServiceAccountV1Response response = getServiceAccountsV1(V1_IAM_SERVICE_ACCOUNTS_URL);
     if (response.getError() == null) {
       accounts = new HashSet<>(response.getUsers());
     }
