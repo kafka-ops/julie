@@ -155,7 +155,8 @@ public class CCloudApi {
         JSON.toObject(r.getResponseAsString(), ServiceAccountV1Response.class);
   }
 
-  private ListServiceAccountResponse getListServiceAccounts(String url, int page_size) throws IOException {
+  private ListServiceAccountResponse getListServiceAccounts(String url, int page_size)
+      throws IOException {
     Response r = ccloudApiHttpClient.doGet(String.format("%s?page_size=%d", url, page_size));
     return (ListServiceAccountResponse)
         JSON.toObject(r.getResponseAsString(), ListServiceAccountResponse.class);

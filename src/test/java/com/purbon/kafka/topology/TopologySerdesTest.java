@@ -765,6 +765,23 @@ public class TopologySerdesTest {
     var topicNames = topics.stream().map(Topic::getName).collect(Collectors.toList());
     assertThat(topicNames).contains("foo");
     assertThat(topicNames).contains("bar");
+
+    Properties props = new Properties();
+    props.put(PROJECT_PREFIX_FORMAT_CONFIG, "{{project}}");
+    props.put(TOPIC_PREFIX_FORMAT_CONFIG, "{{project}}.{{topic}}");
+    HashMap<String, String> cliOps = new HashMap<>();
+    cliOps.put(BROKERS_OPTION, "");
+
+    Configuration config = new Configuration(cliOps, props);
+
+    TopologySerdes parser = new TopologySerdes(config, FileType.YAML, new PlanMap());
+    topology = parser.deserialise(TestUtils.getResourceFile("/descriptor.yaml"));
+    topics = topology.getSpecialTopics();
+    assertThat(topics).hasSize(2);
+
+    var topicFullNames = topics.stream().map(Topic::toString).collect(Collectors.toList());
+    assertThat(topicFullNames).contains("foo");
+    assertThat(topicFullNames).contains("bar");
   }
 
   private List<Project> buildProjects() {
