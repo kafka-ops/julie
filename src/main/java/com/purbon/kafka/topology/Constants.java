@@ -152,6 +152,18 @@ public class Constants {
   public static final String TOPOLOGY_VALIDATIONS_TOPIC_NAME_REGEXP =
       "validations.topic.name.regexp";
 
+  public static final String TOPOLOGY_VALIDATIONS_REPLICATION_FACTOR_VALUE =
+      "validations.replication.factor.value";
+
+  public static final String TOPOLOGY_VALIDATIONS_REPLICATION_FACTOR_OP =
+      "validations.replication.factor.op";
+
+  public static final String TOPOLOGY_VALIDATIONS_PARTITION_NUMBER_VALUE =
+      "validations.partition.number.value";
+
+  public static final String TOPOLOGY_VALIDATIONS_PARTITION_NUMBER_OP =
+      "validations.partition.number.op";
+
   public static final String SSL_TRUSTSTORE_LOCATION = "ssl.truststore.location";
   public static final String SSL_TRUSTSTORE_PASSWORD = "ssl.truststore.password";
   public static final String SSL_KEYSTORE_LOCATION = "ssl.keystore.location";
