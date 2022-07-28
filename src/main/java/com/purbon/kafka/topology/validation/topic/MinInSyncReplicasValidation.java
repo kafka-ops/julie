@@ -23,7 +23,7 @@ public class MinInSyncReplicasValidation implements TopicValidation {
   private boolean validateMinInsyncReplicas(Topic topic) {
     short replicationFactor = topic.replicationFactor().orElse((short)-1);
     String minInSyncReplicas = topic.getConfig().get(MIN_INSYNC_REPLICAS);
-    return minInSyncReplicas == null || ((Integer.parseInt(minInSyncReplicas) <= replicationFactor - 1) && (Integer.parseInt(minInSyncReplicas) > 1));
+    return minInSyncReplicas == null || (Integer.parseInt(minInSyncReplicas) <= replicationFactor - 1);
   }
 
 }

@@ -22,7 +22,7 @@ public class MinInSyncReplicasValidationTest {
         validation.valid(topic);
     }
 
-    @Test(expected = ValidationException.class)
+    @Test
     public void shouldCheckMinimalValuesSuccessfully()
             throws ValidationException, ConfigurationException {
         Map<String, String> config = new HashMap<>();
