@@ -1,7 +1,7 @@
-
-v4.2.7 / 2022-07-28
+v4.2.8 / 2022-07-28
 ===================
 
+  * [fix] remove condition of failing if min.insync.validation == 1 and other bigger (#509)
   * [neat] Add extra validations for topics  (#508)
 
 v4.2.6 / 2022-07-27
