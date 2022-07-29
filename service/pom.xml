@@ -1,0 +1,34 @@
+<?xml version="1.0"?>
+<project xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd" xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <modelVersion>4.0.0</modelVersion>
+  <parent>
+    <groupId>com.purbon.kafka.topology</groupId>
+    <artifactId>julie-ops</artifactId>
+    <version>edge</version>
+  </parent>
+  <groupId>com.purbon.kafka.topology</groupId>
+  <artifactId>service</artifactId>
+  <version>edge</version>
+  <name>service</name>
+  <url>http://maven.apache.org</url>
+  <properties>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+  </properties>
+
+  <dependencies>
+    <dependency>
+      <groupId>com.purbon.kafka.topology</groupId>
+      <artifactId>core</artifactId>
+      <version>edge</version>
+    </dependency>
+    <dependency>
+      <groupId>com.purbon.kafka.topology</groupId>
+      <artifactId>core</artifactId>
+      <version>edge</version>
+      <type>test-jar</type>
+      <scope>test</scope>
+    </dependency>
+  </dependencies>
+
+</project>

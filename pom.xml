@@ -1,12 +1,12 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+
   <modelVersion>4.0.0</modelVersion>
 
-  <groupId>com.purbon.kafka</groupId>
+  <groupId>com.purbon.kafka.topology</groupId>
   <artifactId>julie-ops</artifactId>
   <version>edge</version>
+  <packaging>pom</packaging>
 
   <name>A Kafka operations manager, julie ops</name>
   <description>
@@ -44,6 +44,13 @@
     <connection>git@github.com:kafka-ops/julie.git</connection>
     <url>https://github.com/kafka-ops/julie</url>
   </scm>
+
+  <repositories>
+    <repository>
+      <id>confluent</id>
+      <url>https://packages.confluent.io/maven/</url>
+    </repository>
+  </repositories>
 
   <profiles>
     <profile>
@@ -137,13 +144,6 @@
     </profile>
   </profiles>
 
-  <repositories>
-    <repository>
-      <id>confluent</id>
-      <url>https://packages.confluent.io/maven/</url>
-    </repository>
-  </repositories>
-
   <build>
     <finalName>${project.artifactId}</finalName>
     <plugins>
@@ -165,71 +165,12 @@
 
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-shade-plugin</artifactId>
-        <version>3.2.4</version>
-        <configuration>
-          <filters>
-            <filter>
-              <artifact>*:*</artifact>
-              <excludes>
-                <exclude>META-INF/*.SF</exclude>
-                <exclude>META-INF/*.DSA</exclude>
-                <exclude>META-INF/*.RSA</exclude>
-              </excludes>
-            </filter>
-          </filters>
-        </configuration>
-        <executions>
-          <execution>
-            <phase>package</phase>
-            <goals>
-              <goal>shade</goal>
-            </goals>
-            <configuration>
-              <transformers>
-                <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
-                  <mainClass>com.purbon.kafka.topology.CommandLineInterface</mainClass>
-                  <manifestEntries>
-                    <Multi-Release>true</Multi-Release>
-                  </manifestEntries>
-                </transformer>
-              </transformers>
-            </configuration>
-          </execution>
-        </executions>
-      </plugin>
-
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-compiler-plugin</artifactId>
         <version>${maven-compiler-plugin.version}</version>
         <configuration>
           <source>11</source>
           <target>11</target>
         </configuration>
-      </plugin>
-
-      <plugin>
-        <artifactId>maven-assembly-plugin</artifactId>
-        <configuration>
-          <descriptors>
-            <descriptor>assembly.xml</descriptor>
-          </descriptors>
-          <archive>
-            <manifest>
-              <mainClass>com.purbon.kafka.topology.CommandLineInterface</mainClass>
-            </manifest>
-          </archive>
-        </configuration>
-        <executions>
-          <execution>
-            <id>make-assembly</id>
-            <!--<phase>package</phase>-->
-            <goals>
-              <goal>single</goal>
-            </goals>
-          </execution>
-        </executions>
       </plugin>
 
       <plugin>
@@ -269,162 +210,9 @@
       </plugin>
 
       <plugin>
-        <groupId>org.codehaus.mojo</groupId>
-        <artifactId>rpm-maven-plugin</artifactId>
-        <version>${rpm-maven-plugin.version}</version>
-        <!--<executions>
-          <execution>
-            <id>generate-rpm</id>
-            <goals>
-              <goal>>attached-rpm</goal>
-            </goals>
-          </execution>
-        </executions>-->
-        <configuration>
-          <license>MIT (c) 2019, Pere Urbon</license>
-          <distribution>Trash 2019</distribution>
-          <group>Application/Collectors</group>
-          <packager>Pere Urbon</packager>
-          <prefix>/usr/local</prefix>
-          <!--<changelogFile>changelog.md</changelogFile>-->
-          <defineStatements>
-            <defineStatement>_unpackaged_files_terminate_build 0</defineStatement>
-          </defineStatements>
-          <mappings>
-            <mapping>
-              <directory>/usr/local/julie-ops/bin</directory>
-              <filemode>440</filemode>
-              <username>julie-kafka</username>
-              <groupname>julie-kafka</groupname>
-              <sources>
-                <source>
-                  <location>target/julie-ops.jar</location>
-                </source>
-              </sources>
-            </mapping>
-            <mapping>
-              <directory>/usr/local/julie-ops/bin</directory>
-              <filemode>775</filemode>
-              <username>julie-kafka</username>
-              <groupname>julie-kafka</groupname>
-              <sources>
-                <source>
-                  <location>src/main/scripts/julie-ops-cli.sh</location>
-                </source>
-              </sources>
-            </mapping>
-            <mapping>
-              <directory>/usr/local/julie-ops/bin</directory>
-              <filemode>644</filemode>
-              <username>julie-kafka</username>
-              <groupname>julie-kafka</groupname>
-              <sources>
-                <source>
-                  <location>src/main/scripts/julie-ops-complete.sh</location>
-                </source>
-              </sources>
-            </mapping>
-            <mapping>
-              <directory>/usr/local/julie-ops/conf</directory>
-              <configuration>true</configuration>
-              <filemode>640</filemode>
-              <username>julie-kafka</username>
-              <groupname>julie-kafka</groupname>
-              <sources>
-                <source>
-                  <location>src/main/conf</location>
-                </source>
-              </sources>
-            </mapping>
-          </mappings>
-          <preinstallScriptlet>
-            <scriptFile>src/main/scripts/preinstall.sh</scriptFile>
-            <fileEncoding>utf-8</fileEncoding>
-            <filter>true</filter>
-          </preinstallScriptlet>
-          <postremoveScriptlet>
-            <scriptFile>src/main/scripts/remove.sh</scriptFile>
-            <fileEncoding>utf-8</fileEncoding>
-            <filter>true</filter>
-          </postremoveScriptlet>
-          <postinstallScriptlet>
-            <scriptFile>src/main/scripts/postinstall.sh</scriptFile>
-            <fileEncoding>utf-8</fileEncoding>
-            <filter>true</filter>
-          </postinstallScriptlet>
-        </configuration>
-      </plugin>
-
-      <plugin>
-        <groupId>org.vafer</groupId>
-        <artifactId>jdeb</artifactId>
-        <version>1.8</version>
-        <executions>
-          <execution>
-            <phase>package</phase>
-            <goals>
-              <goal>jdeb</goal>
-            </goals>
-            <configuration>
-              <verbose>true</verbose>
-              <controlDir>${basedir}/src/deb/control</controlDir>
-              <dataSet>
-                <data>
-                  <src>${project.basedir}/target/julie-ops.jar</src>
-                  <type>file</type>
-                  <mapper>
-                    <type>perm</type>
-                    <prefix>/usr/local/julie-ops/bin</prefix>
-                    <user>julie-kafka</user>
-                    <group>julie-kafka</group>
-                    <filemode>440</filemode>
-                  </mapper>
-                </data>
-
-                <data>
-                  <src>${basedir}/src/main/scripts/julie-ops-cli.sh</src>
-                  <type>file</type>
-                  <mapper>
-                    <type>perm</type>
-                    <prefix>/usr/local/julie-ops/bin</prefix>
-                    <user>julie-kafka</user>
-                    <group>julie-kafka</group>
-                    <filemode>755</filemode>
-                  </mapper>
-                </data>
-
-                <data>
-                  <src>${basedir}/src/main/scripts/julie-ops-complete.sh</src>
-                  <type>file</type>
-                  <mapper>
-                    <type>perm</type>
-                    <prefix>/usr/local/julie-ops/bin</prefix>
-                    <user>julie-kafka</user>
-                    <group>julie-kafka</group>
-                    <filemode>644</filemode>
-                  </mapper>
-                </data>
-
-                <data>
-                  <src>${basedir}/src/main/conf</src>
-                  <type>directory</type>
-                  <mapper>
-                    <type>perm</type>
-                    <prefix>/usr/local/julie-ops/conf</prefix>
-                    <filemode>755</filemode>
-                    <user>julie-kafka</user>
-                    <group>julie-kafka</group>
-                  </mapper>
-                </data>
-              </dataSet>
-            </configuration>
-          </execution>
-        </executions>
-      </plugin>
-
-      <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-source-plugin</artifactId>
+        <version>3.2.1</version>
         <executions>
           <execution>
             <id>attach-sources</id>
@@ -479,44 +267,10 @@
     </plugins>
   </build>
 
-  <reporting>
-    <plugins>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-pmd-plugin</artifactId>
-        <version>${maven-pmd-plugin.version}</version>
-        <configuration>
-          <rulesets>
-            <!-- A rule set, that comes bundled with PMD -->
-            <ruleset>/category/java/bestpractices.xml</ruleset>
-            <ruleset>/category/java/design.xml</ruleset>
-            <ruleset>category/java/codestyle.xml</ruleset>
-            <ruleset>category/java/documentation.xml</ruleset>
-            <ruleset>category/java/errorprone.xml</ruleset>
-            <ruleset>category/java/multithreading.xml</ruleset>
-            <ruleset>category/java/performance.xml</ruleset>
-            <ruleset>category/java/security.xml</ruleset>
-          </rulesets>
-        </configuration>
-      </plugin>
-
-      <plugin>
-        <groupId>com.github.spotbugs</groupId>
-        <artifactId>spotbugs-maven-plugin</artifactId>
-        <version>${spotbugs-maven-plugin.version}</version>
-
-        <configuration>
-          <xmlOutput>true</xmlOutput>
-          <!-- Optional directory to put spotbugs xdoc xml report -->
-          <xmlOutputDirectory>target/site</xmlOutputDirectory>
-        </configuration>
-      </plugin>
-    </plugins>
-  </reporting>
-
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <!-- plugins -->
+    <maven.compiler.target>11</maven.compiler.target>
+    <maven.compiler.source>11</maven.compiler.source>
     <maven-pmd-plugin.version>3.12.0</maven-pmd-plugin.version>
     <spotbugs-maven-plugin.version>3.1.12.2</spotbugs-maven-plugin.version>
     <maven-site-plugin.version>3.9.0</maven-site-plugin.version>
@@ -735,8 +489,49 @@
       <version>2.33.1</version>
       <scope>test</scope>
     </dependency>
-
   </dependencies>
+
+  <modules>
+    <module>core</module>
+    <module>service</module>
+    <module>cli</module>
+  </modules>
+
+  <reporting>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-pmd-plugin</artifactId>
+        <version>${maven-pmd-plugin.version}</version>
+        <configuration>
+          <rulesets>
+            <!-- A rule set, that comes bundled with PMD -->
+            <ruleset>/category/java/bestpractices.xml</ruleset>
+            <ruleset>/category/java/design.xml</ruleset>
+            <ruleset>category/java/codestyle.xml</ruleset>
+            <ruleset>category/java/documentation.xml</ruleset>
+            <ruleset>category/java/errorprone.xml</ruleset>
+            <ruleset>category/java/multithreading.xml</ruleset>
+            <ruleset>category/java/performance.xml</ruleset>
+            <ruleset>category/java/security.xml</ruleset>
+          </rulesets>
+        </configuration>
+      </plugin>
+
+      <plugin>
+        <groupId>com.github.spotbugs</groupId>
+        <artifactId>spotbugs-maven-plugin</artifactId>
+        <version>${spotbugs-maven-plugin.version}</version>
+
+        <configuration>
+          <xmlOutput>true</xmlOutput>
+          <!-- Optional directory to put spotbugs xdoc xml report -->
+          <xmlOutputDirectory>target/site</xmlOutputDirectory>
+        </configuration>
+      </plugin>
+    </plugins>
+  </reporting>
+
 
   <dependencyManagement>
     <dependencies>

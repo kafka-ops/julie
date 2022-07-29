@@ -9,18 +9,10 @@ jobs:
     if: github.repository == 'kafka-ops/julie'
     name: Build rpm/deb packages (using maven)
     runs-on: ubuntu-latest
+    env:
+      working-directory: ./cli
     steps:
       - uses: actions/checkout@v2
-      - name: Import private GPG key
-        id: import_gpg
-        uses: crazy-max/ghaction-import-gpg@v4
-        with:
-          gpg_private_key: ${{ secrets.GPG_PRIVATE_KEY }}
-          passphrase: ${{ secrets.GPG_PASSPHRASE }}
-          git_user_signingkey: true
-          git_commit_gpgsign: true
-      - name: Import public GPG Key
-        run: rpm --import release/keys/public.key
       - name: Set up the JDK
         uses: actions/setup-java@v1
         with:
@@ -41,18 +33,30 @@ jobs:
           server-id: ossrh
           server-username: MAVEN_USERNAME
           server-password: MAVEN_PASSWORD
+      - name: Import private GPG key
+        id: import_gpg
+        uses: crazy-max/ghaction-import-gpg@v4
+        with:
+          gpg_private_key: ${{ secrets.GPG_PRIVATE_KEY }}
+          passphrase: ${{ secrets.GPG_PASSPHRASE }}
+          git_user_signingkey: true
+          git_commit_gpgsign: true
       - name: Publish package
         run: mvn verify -Dgpg.passphrase="$GPG_PASSPHRASE" --batch-mode deploy
         env:
           MAVEN_USERNAME: ${{ secrets.OSSRH_USERNAME }}
           MAVEN_PASSWORD: ${{ secrets.OSSRH_TOKEN }}
           GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
+      - name: Import public GPG Key
+        run: rpm --import release/keys/public.key
       - name: Build the rpm
         run: mvn rpm:rpm
+        working-directory: ${{ env.working-directory }}
       - name: Sign rpm
         run: |
-          rpm --define "_gpg_name ${{ steps.import_gpg.outputs.keyid }}" --addsign target/rpm/julie-ops/RPMS/noarch/*.rpm
-          rpm --checksig target/rpm/julie-ops/RPMS/noarch/*.rpm
+          rpm --define "_gpg_name ${{ steps.import_gpg.outputs.keyid }}" --addsign target/rpm/julie-ops-cli/RPMS/noarch/*.rpm
+          rpm --checksig target/rpm/julie-ops-cli/RPMS/noarch/*.rpm
+        working-directory: ${{ env.working-directory }}
         env:
           GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
           GPG_KEY_NAME: ${{ steps.import_gpg.outputs.email }}
@@ -60,18 +64,19 @@ jobs:
         run: |
           sudo apt-get install dpkg-sig -y
           dpkg-sig -k ${{ steps.import_gpg.outputs.keyid }} --sign builder $FILE target/*.deb
+        working-directory: ${{ env.working-directory }}
         env:
           GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
           GPG_KEY_NAME: ${{ steps.import_gpg.outputs.email }}
       - uses: actions/upload-artifact@v2
         with:
           name: RPM package
-          path: target/rpm/julie-ops/RPMS/noarch/*.rpm
+          path: ./cli/target/rpm/julie-ops-cli/RPMS/noarch/*.rpm
       - uses: actions/upload-artifact@v2
         with:
           name: DEB package
-          path: target/*.deb
+          path: ./cli/target/*.deb
       - uses: actions/upload-artifact@v2
         with:
           name: FAT jar
-          path: target/julie-ops.jar
+          path: ./cli/target/julie-ops-cli.jar

@@ -1,8 +1,7 @@
 .DS_Store
-project/*
 .idea
-target/*
-logs/*
+target
+logs
 .cluster-state
 *.iml
 _build
@@ -14,3 +13,4 @@ release/
 private.key
 rpm-gen-key
 .s3/
+/julie-ops/service/logs/
