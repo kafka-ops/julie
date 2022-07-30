@@ -8,6 +8,7 @@ import static com.purbon.kafka.topology.Constants.QUIET_OPTION;
 import com.purbon.kafka.topology.JulieOps;
 import com.purbon.kafka.topology.integration.containerutils.ContainerFactory;
 import com.purbon.kafka.topology.integration.containerutils.SaslPlaintextKafkaContainer;
+import com.purbon.kafka.topology.model.Plan;
 import com.purbon.kafka.topology.utils.TestUtils;
 import java.io.IOException;
 import java.util.HashMap;
@@ -43,7 +44,7 @@ public class JulieOpsIT {
     config.put(QUIET_OPTION, "true");
     config.put(CLIENT_CONFIG_OPTION, clientConfigFile);
 
-    JulieOps.build(fileOrDirPath, config);
+    JulieOps.build(fileOrDirPath, Plan.DEFAULT_VALUE, config);
   }
 
   @Test
@@ -58,6 +59,6 @@ public class JulieOpsIT {
     config.put(QUIET_OPTION, "true");
     config.put(CLIENT_CONFIG_OPTION, clientConfigFile);
 
-    JulieOps.build(fileOrDirPath, config);
+    JulieOps.build(fileOrDirPath, Plan.DEFAULT_VALUE, config);
   }
 }

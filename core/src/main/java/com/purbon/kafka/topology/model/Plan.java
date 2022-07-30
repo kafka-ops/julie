@@ -7,6 +7,8 @@ import java.util.Map;
 
 public class Plan {
 
+  public static final String DEFAULT_VALUE = "default";
+
   @JsonInclude(Include.NON_EMPTY)
   private String alias;
 

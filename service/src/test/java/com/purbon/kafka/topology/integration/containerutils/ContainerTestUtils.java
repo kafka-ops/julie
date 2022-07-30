@@ -5,8 +5,10 @@ import com.purbon.kafka.topology.BindingsBuilderProvider;
 import com.purbon.kafka.topology.Configuration;
 import com.purbon.kafka.topology.JulieOps;
 import com.purbon.kafka.topology.api.adminclient.TopologyBuilderAdminClient;
+import com.purbon.kafka.topology.model.Plan;
 import com.purbon.kafka.topology.roles.SimpleAclsProvider;
 import com.purbon.kafka.topology.roles.acls.AclsBindingsBuilder;
+import com.purbon.kafka.topology.serviceAccounts.VoidPrincipalProvider;
 import com.purbon.kafka.topology.utils.TestUtils;
 import com.typesafe.config.ConfigFactory;
 import java.io.IOException;
@@ -95,10 +97,12 @@ public final class ContainerTestUtils {
     try {
       return JulieOps.build(
           fileOrDirPath,
+          Plan.DEFAULT_VALUE,
           builderConfig,
           topologyAdminClient,
           accessControlProvider,
-          bindingsBuilderProvider);
+          bindingsBuilderProvider,
+          new VoidPrincipalProvider());
     } catch (final Exception e) {
       throw new RuntimeException(e);
     }

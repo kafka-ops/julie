@@ -11,6 +11,7 @@ import com.purbon.kafka.topology.api.adminclient.TopologyBuilderAdminClientBuild
 import com.purbon.kafka.topology.api.mds.MDSApiClientBuilder;
 import com.purbon.kafka.topology.audit.Auditor;
 import com.purbon.kafka.topology.exceptions.ValidationException;
+import com.purbon.kafka.topology.model.Plan;
 import com.purbon.kafka.topology.model.Topology;
 import com.purbon.kafka.topology.schemas.SchemaRegistryManager;
 import com.purbon.kafka.topology.serviceAccounts.VoidPrincipalProvider;
@@ -35,6 +36,7 @@ import lombok.Setter;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+/** JulieOps Main Controller class */
 @Getter
 @Setter
 public class JulieOps implements AutoCloseable {
@@ -51,30 +53,15 @@ public class JulieOps implements AutoCloseable {
   private final Configuration config;
   private final PrintStream outputStream;
 
-  private JulieOps(
-      Map<String, Topology> topologies,
-      Configuration config,
-      TopicManager topicManager,
-      AccessControlManager accessControlManager,
-      PrincipalUpdateManager principalUpdateManager,
-      PrincipalDeleteManager principalDeleteManager,
-      KafkaConnectArtefactManager connectorManager,
-      KSqlArtefactManager kSqlArtefactManager) {
-    this.topologies = topologies;
-    this.config = config;
-    this.topicManager = topicManager;
-    this.accessControlManager = accessControlManager;
-    this.principalUpdateManager = principalUpdateManager;
-    this.principalDeleteManager = principalDeleteManager;
-    this.connectorManager = connectorManager;
-    this.kSqlArtefactManager = kSqlArtefactManager;
-    this.outputStream = System.out;
-  }
-
-  public static JulieOps build(String topologyFile, Map<String, String> config) throws Exception {
-    return build(topologyFile, "default", config);
-  }
-
+  /**
+   * Builder method for the controller
+   *
+   * @param topologyFile A topology file or directory
+   * @param plansFile A file describing the plans to be used with the application
+   * @param config A set of configuration properties for the application
+   * @return JulieOps
+   * @throws Exception Any error detected during the building process
+   */
   public static JulieOps build(String topologyFile, String plansFile, Map<String, String> config)
       throws Exception {
 
@@ -98,7 +85,20 @@ public class JulieOps implements AutoCloseable {
         principalProviderFactory.get());
   }
 
-  public static JulieOps build(
+  /**
+   * Simplified builder method, only used for tests
+   *
+   * @param topologyFileOrDir A topology file with the desired state description, could be single
+   *     file or a directory
+   * @param config A set of configuration properties for the application
+   * @param adminClient And instance of TopologyBuilderAdminClient to be used for admin ops by
+   *     JulieOps
+   * @param accessControlProvider An instance of a valid provider for access control rules
+   * @param bindingsBuilderProvider An instance of a valid provider for building bindings maps
+   * @return JulieOps
+   * @throws Exception Any error detected during the building process
+   */
+  static JulieOps build(
       String topologyFileOrDir,
       Configuration config,
       TopologyBuilderAdminClient adminClient,
@@ -107,7 +107,7 @@ public class JulieOps implements AutoCloseable {
       throws Exception {
     return build(
         topologyFileOrDir,
-        "default",
+        Plan.DEFAULT_VALUE,
         config,
         adminClient,
         accessControlProvider,
@@ -127,7 +127,7 @@ public class JulieOps implements AutoCloseable {
       throws Exception {
 
     Map<String, Topology> topologies;
-    if (plansFile.equals("default")) {
+    if (plansFile.equals(Plan.DEFAULT_VALUE)) {
       topologies = TopologyObjectBuilder.build(topologyFileOrDir, config);
     } else {
       topologies = TopologyObjectBuilder.build(topologyFileOrDir, plansFile, config);
@@ -188,6 +188,26 @@ public class JulieOps implements AutoCloseable {
         principalDeleteManager,
         connectorManager,
         kSqlArtefactManager);
+  }
+
+  private JulieOps(
+      Map<String, Topology> topologies,
+      Configuration config,
+      TopicManager topicManager,
+      AccessControlManager accessControlManager,
+      PrincipalUpdateManager principalUpdateManager,
+      PrincipalDeleteManager principalDeleteManager,
+      KafkaConnectArtefactManager connectorManager,
+      KSqlArtefactManager kSqlArtefactManager) {
+    this.topologies = topologies;
+    this.config = config;
+    this.topicManager = topicManager;
+    this.accessControlManager = accessControlManager;
+    this.principalUpdateManager = principalUpdateManager;
+    this.principalDeleteManager = principalDeleteManager;
+    this.connectorManager = connectorManager;
+    this.kSqlArtefactManager = kSqlArtefactManager;
+    this.outputStream = System.out;
   }
 
   void run(BackendController backendController, PrintStream printStream, Auditor auditor)

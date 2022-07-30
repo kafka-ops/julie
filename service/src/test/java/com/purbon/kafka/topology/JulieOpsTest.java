@@ -16,6 +16,7 @@ import com.purbon.kafka.topology.audit.VoidAuditor;
 import com.purbon.kafka.topology.backend.BackendState;
 import com.purbon.kafka.topology.backend.RedisBackend;
 import com.purbon.kafka.topology.exceptions.TopologyParsingException;
+import com.purbon.kafka.topology.model.Plan;
 import com.purbon.kafka.topology.utils.TestUtils;
 import java.io.IOException;
 import java.util.HashMap;
@@ -147,7 +148,7 @@ public class JulieOpsTest {
     config.put(QUIET_OPTION, "false");
     config.put(CLIENT_CONFIG_OPTION, clientConfigFile);
 
-    JulieOps builder = JulieOps.build(fileOrDirPath, config);
+    JulieOps builder = JulieOps.build(fileOrDirPath, Plan.DEFAULT_VALUE, config);
 
     builder.setTopicManager(topicManager);
     builder.setAccessControlManager(accessControlManager);
@@ -177,7 +178,7 @@ public class JulieOpsTest {
     config.put(QUIET_OPTION, "false");
     config.put(CLIENT_CONFIG_OPTION, clientConfigFile);
 
-    JulieOps builder = JulieOps.build(fileOrDirPath, config);
+    JulieOps builder = JulieOps.build(fileOrDirPath, Plan.DEFAULT_VALUE, config);
 
     builder.setTopicManager(topicManager);
     builder.setAccessControlManager(accessControlManager);
