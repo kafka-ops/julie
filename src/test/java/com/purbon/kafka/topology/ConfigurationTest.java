@@ -288,7 +288,7 @@ public class ConfigurationTest {
     var topology = TestTopologyBuilder.createProject().addKStream("foo").buildTopology();
 
     var internals = config.getKafkaInternalTopicPrefixes(Collections.singletonList(topology));
-    assertThat(internals).contains("ctx.project");
+    assertThat(internals).contains("ctx.project.");
     assertThat(internals).contains("_");
   }
 

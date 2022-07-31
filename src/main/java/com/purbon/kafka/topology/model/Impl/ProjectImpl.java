@@ -212,7 +212,10 @@ public class ProjectImpl implements Project, Cloneable {
 
   private String namePrefix(String topologyPrefix) {
     StringBuilder sb = new StringBuilder();
-    sb.append(topologyPrefix).append(config.getTopicPrefixSeparator()).append(name);
+    sb.append(topologyPrefix)
+        .append(config.getTopicPrefixSeparator())
+        .append(name)
+        .append(config.getTopicPrefixSeparator());
     return sb.toString();
   }
 

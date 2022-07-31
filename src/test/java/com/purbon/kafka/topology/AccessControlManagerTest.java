@@ -101,7 +101,7 @@ public class AccessControlManagerTest {
         .buildBindingsForConsumers(users, builder.getProject().namePrefix(), true);
     accessControlManager.updatePlan(builder.buildTopology(), plan);
     verify(aclsBuilder, times(1))
-        .buildBindingsForConsumers(eq(users), eq(builder.getProject().namePrefix()), eq(true));
+        .buildBindingsForConsumers(eq(users), eq("ctx.project."), eq(true));
   }
 
   @Test
@@ -177,7 +177,7 @@ public class AccessControlManagerTest {
         .buildBindingsForProducers(producers, builder.getProject().namePrefix(), true);
     accessControlManager.updatePlan(builder.buildTopology(), plan);
     verify(aclsBuilder, times(1))
-        .buildBindingsForProducers(eq(producers), eq(builder.getProject().namePrefix()), eq(true));
+        .buildBindingsForProducers(eq(producers), eq("ctx.project."), eq(true));
   }
 
   @Test
@@ -273,7 +273,7 @@ public class AccessControlManagerTest {
         .when(aclsBuilder)
         .buildBindingsForKSqlApp(any(KSqlApp.class), anyString());
 
-    verify(aclsBuilder, times(1)).buildBindingsForKSqlApp(app, "default.default");
+    verify(aclsBuilder, times(1)).buildBindingsForKSqlApp(app, "default.default.");
   }
 
   @Test(expected = IOException.class)

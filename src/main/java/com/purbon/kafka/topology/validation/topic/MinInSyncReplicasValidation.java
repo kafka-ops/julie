@@ -10,8 +10,7 @@ public class MinInSyncReplicasValidation implements TopicValidation {
 
   @Override
   public void valid(Topic topic) throws ValidationException {
-    if (topic.replicationFactor().isPresent()
-        && !validateMinInsyncReplicas(topic)) {
+    if (topic.replicationFactor().isPresent() && !validateMinInsyncReplicas(topic)) {
       String msg =
           String.format(
               "Topic %s has an unexpected min.insync.replicas config vs it's replication factor: %s value",
@@ -21,9 +20,9 @@ public class MinInSyncReplicasValidation implements TopicValidation {
   }
 
   private boolean validateMinInsyncReplicas(Topic topic) {
-    short replicationFactor = topic.replicationFactor().orElse((short)-1);
+    short replicationFactor = topic.replicationFactor().orElse((short) -1);
     String minInSyncReplicas = topic.getConfig().get(MIN_INSYNC_REPLICAS);
-    return minInSyncReplicas == null || (Integer.parseInt(minInSyncReplicas) <= replicationFactor - 1);
+    return minInSyncReplicas == null
+        || (Integer.parseInt(minInSyncReplicas) <= replicationFactor - 1);
   }
-
 }

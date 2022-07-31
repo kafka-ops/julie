@@ -101,7 +101,7 @@ public class TopologySerdesTest {
     Topology anotherTopology = parser.deserialise(TestUtils.getResourceFile("/descriptor.yaml"));
     Project anotherProject = anotherTopology.getProjects().get(0);
 
-    assertEquals("contextOrg.source.foo", anotherProject.namePrefix());
+    assertEquals("contextOrg.source.foo.", anotherProject.namePrefix());
   }
 
   @Test
