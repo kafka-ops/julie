@@ -331,6 +331,15 @@ public class RBACPRoviderRbacIT extends MDSBaseTest {
       assertThat(names).contains(resource.getName());
       assertThat(resource.getResourceType()).isEqualTo("Subject");
     }
+    // remove the first and only schema and check if properly deleted.
+    topology.getProjects().get(0).setSchemas(Collections.emptyList());
+
+    accessControlManager.updatePlan(topology, plan);
+    plan.run();
+
+    resources = apiClient.lookupResourcesForSchemaRegistry(schema.getPrincipal(), RESOURCE_OWNER);
+    assertThat(resources).isEmpty();
+
   }
 
   @Test
