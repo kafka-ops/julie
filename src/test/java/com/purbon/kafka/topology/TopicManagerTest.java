@@ -336,7 +336,7 @@ public class TopicManagerTest {
     topicManager.updatePlan(topology, plan);
     plan.run(true);
 
-    verify(outputStream, times(4)).println(any(Action.class));
+    verify(outputStream, times(2)).println(any(Action.class));
   }
 
   @Test
