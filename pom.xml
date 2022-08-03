@@ -535,8 +535,8 @@
     <junit.version>4.13.1</junit.version>
     <testcontainers.version>1.15.3</testcontainers.version>
     <jedis.version>3.2.0</jedis.version>
-    <confluent.version>7.2.1</confluent.version>
-    <confluent-ce.version>7.2.1-ce</confluent-ce.version>
+    <confluent.version>6.1.0</confluent.version>
+    <confluent-ce.version>6.1.0-ce</confluent-ce.version>
     <avro.version>1.9.2</avro.version>
     <jersey.version>2.22.2</jersey.version>
     <hamcrest.version>2.2</hamcrest.version>
