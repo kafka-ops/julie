@@ -61,10 +61,10 @@ public class TopologyObjectBuilderTest {
 
     var projects =
         Arrays.asList(
-            "context2.source2.foo.bar.projectFoo",
-            "context2.source2.foo.bar.projectBar",
-            "context2.source2.foo.bar.projectZet",
-            "context2.source2.foo.bar.projectBear");
+            "context2.source2.foo.bar.projectFoo.",
+            "context2.source2.foo.bar.projectBar.",
+            "context2.source2.foo.bar.projectZet.",
+            "context2.source2.foo.bar.projectBear.");
     assertThat(context.getProjects()).hasSize(4);
     for (Project proj : context.getProjects()) {
       assertThat(projects).contains(proj.namePrefix());

@@ -2,8 +2,10 @@ package com.purbon.kafka.topology.actions.topics;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import com.purbon.kafka.topology.TestTopologyBuilder;
 import com.purbon.kafka.topology.api.adminclient.TopologyBuilderAdminClient;
 import com.purbon.kafka.topology.model.Topic;
+import com.purbon.kafka.topology.model.Topology;
 import java.util.Collections;
 import org.junit.Rule;
 import org.junit.Test;
@@ -19,9 +21,14 @@ public class DeleteTopicsActionTest {
 
   @Test
   public void shouldComposeDetailedViewOfProperties() {
-    Topic topic = new Topic("foo");
-    topic.setProjectPrefix("bar");
-    topic.setConfig(Collections.singletonMap("foo", "bar"));
+    Topic t = new Topic("foo");
+    t.setConfig(Collections.singletonMap("foo", "bar"));
+
+    TestTopologyBuilder builder = TestTopologyBuilder.createProject().addTopic(t);
+
+    Topology topology = builder.buildTopology();
+    var topic = topology.getProjects().get(0).getTopics().get(0);
+
     var action = new DeleteTopics(adminClient, Collections.singletonList(topic.toString()));
 
     var refs = action.refs();
@@ -29,7 +36,7 @@ public class DeleteTopicsActionTest {
     var ref = refs.get(0);
     assertThat(ref)
         .contains(
-            "\"resource_name\" : \"rn://delete.topic/com.purbon.kafka.topology.actions.topics.DeleteTopics$1/bar.foo\"");
-    assertThat(ref).contains("\"topic\" : \"bar.foo\",");
+            "\"resource_name\" : \"rn://delete.topic/com.purbon.kafka.topology.actions.topics.DeleteTopics$1/ctx.project.foo\"");
+    assertThat(ref).contains("\"topic\" : \"ctx.project.foo\",");
   }
 }
