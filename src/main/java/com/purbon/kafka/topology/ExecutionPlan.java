@@ -119,7 +119,9 @@ public class ExecutionPlan {
 
   private void execute(Action action, boolean dryRun) throws IOException {
     LOGGER.debug(String.format("Execution action %s (dryRun=%s)", action, dryRun));
-    outputStream.println(action);
+    if (!action.toString().isEmpty()) {
+      outputStream.println(action);
+    }
     if (!dryRun) {
       action.run();
       auditor.log(action);
