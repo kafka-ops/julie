@@ -11,6 +11,7 @@ import com.purbon.kafka.topology.exceptions.RemoteValidationException;
 import com.purbon.kafka.topology.model.*;
 import com.purbon.kafka.topology.model.users.*;
 import com.purbon.kafka.topology.model.users.platform.*;
+import com.purbon.kafka.topology.roles.ResourceFilter;
 import com.purbon.kafka.topology.roles.TopologyAclBinding;
 import java.io.IOException;
 import java.io.PrintStream;
@@ -28,9 +29,7 @@ public class AccessControlManager implements ExecutionPlanUpdater {
   private final JulieRoles julieRoles;
   private AccessControlProvider controlProvider;
   private BindingsBuilderProvider bindingsBuilder;
-  private final List<String> managedServiceAccountPrefixes;
-  private final List<String> managedTopicPrefixes;
-  private final List<String> managedGroupPrefixes;
+  private final ResourceFilter resourceFilter;
 
   public AccessControlManager(
       AccessControlProvider controlProvider, BindingsBuilderProvider builderProvider) {
@@ -52,10 +51,8 @@ public class AccessControlManager implements ExecutionPlanUpdater {
     this.controlProvider = controlProvider;
     this.bindingsBuilder = builderProvider;
     this.config = config;
-    this.managedServiceAccountPrefixes = config.getServiceAccountManagedPrefixes();
-    this.managedTopicPrefixes = config.getTopicManagedPrefixes();
-    this.managedGroupPrefixes = config.getGroupManagedPrefixes();
     this.julieRoles = julieRoles;
+    this.resourceFilter = new ResourceFilter(config);
   }
 
   @Override
@@ -79,7 +76,7 @@ public class AccessControlManager implements ExecutionPlanUpdater {
         config.fetchStateFromTheCluster() ? providerBindings() : plan.getBindings();
     var currentState =
         bindings.stream()
-            .filter(this::matchesManagedPrefixList)
+            .filter(resourceFilter::matchesManagedPrefixList)
             .filter(this::isNotInternalAcl)
             .collect(Collectors.toSet());
 
@@ -156,11 +153,9 @@ public class AccessControlManager implements ExecutionPlanUpdater {
         connector
             .getConnectors()
             .ifPresent(
-                (list) -> {
-                  aclBindingsResults.add(
-                      new ConnectorAuthorizationAclBindingsBuilder(bindingsBuilder, connector)
-                          .getAclBindings());
-                });
+                (list) -> aclBindingsResults.add(
+                    new ConnectorAuthorizationAclBindingsBuilder(bindingsBuilder, connector)
+                        .getAclBindings()));
       }
 
       for (Schemas schemaAuthorization : project.getSchemas()) {
@@ -287,7 +282,7 @@ public class AccessControlManager implements ExecutionPlanUpdater {
         allFinalBindings.stream()
             .filter(Objects::nonNull)
             // Only create what we manage
-            .filter(this::matchesManagedPrefixList)
+            .filter(resourceFilter::matchesManagedPrefixList)
             // Diff of bindings, so we only create what is not already created in the cluster.
             .filter(binding -> !bindings.contains(binding))
             .collect(Collectors.toSet());
@@ -312,44 +307,6 @@ public class AccessControlManager implements ExecutionPlanUpdater {
     return updateActions;
   }
 
-  private boolean matchesManagedPrefixList(TopologyAclBinding topologyAclBinding) {
-    String resourceName = topologyAclBinding.getResourceName();
-    String principle = topologyAclBinding.getPrincipal();
-    // For global wild cards ACL's we manage only if we manage the service account/principle,
-    // regardless. Filtering by service account will always take precedence if defined
-    if (haveServiceAccountPrefixFilters() || resourceName.equals("*")) {
-      return matchesServiceAccountPrefixList(principle);
-    }
-
-    if ("TOPIC".equalsIgnoreCase(topologyAclBinding.getResourceType())) {
-      return matchesTopicPrefixList(resourceName);
-    } else if ("GROUP".equalsIgnoreCase(topologyAclBinding.getResourceType())) {
-      return matchesGroupPrefixList(resourceName);
-    }
-    return true; // should include everything if not properly excluded earlier.
-  }
-
-  private boolean matchesTopicPrefixList(String topic) {
-    return matchesPrefix(managedTopicPrefixes, topic, "Topic");
-  }
-
-  private boolean matchesGroupPrefixList(String group) {
-    return matchesPrefix(managedGroupPrefixes, group, "Group");
-  }
-
-  private boolean matchesServiceAccountPrefixList(String principal) {
-    return matchesPrefix(managedServiceAccountPrefixes, principal, "Principal");
-  }
-
-  private boolean haveServiceAccountPrefixFilters() {
-    return managedServiceAccountPrefixes.size() != 0;
-  }
-
-  private boolean matchesPrefix(List<String> prefixes, String item, String type) {
-    boolean matches = prefixes.size() == 0 || prefixes.stream().anyMatch(item::startsWith);
-    LOGGER.debug(String.format("%s %s matches %s with $s", type, item, matches, prefixes));
-    return matches;
-  }
 
   // Sync platform relevant Access Control List.
   private List<AclBindingsResult> buildPlatformLevelActions(final Topology topology) {
