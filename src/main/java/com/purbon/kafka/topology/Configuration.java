@@ -154,7 +154,6 @@ public class Configuration {
 
     Arrays.asList(TOPIC_MANAGED_PREFIXES, GROUP_MANAGED_PREFIXES, SERVICE_ACCOUNT_MANAGED_PREFIXES)
           .forEach(this::validateManagedPrefixes);
-
   }
 
   private void validateManagedPrefixes(String key) {
