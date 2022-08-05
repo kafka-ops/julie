@@ -303,4 +303,36 @@ public class ConfigurationTest {
     assertThat(props).containsEntry(AUDIT_APPENDER_KAFKA_TOPIC, "log");
     assertThat(props).containsEntry(JULIE_AUDIT_APPENDER_CLASS, "foo.class");
   }
+
+  @Test
+  public void nonEmptyTopicManagedPrefixConfigsShouldValidateSuccessfully() throws ConfigurationException {
+    var topology = TestTopologyBuilder.createProject().buildTopology();
+    props.put(TOPIC_MANAGED_PREFIXES + ".0", "foo");
+    Configuration config = new Configuration(cliOps, props);
+    config.validateWith(topology);
+  }
+
+  @Test(expected = ConfigurationException.class)
+  public void emptyTopicManagedPrefixConfigsShouldRaiseAnError() throws ConfigurationException {
+    var topology = TestTopologyBuilder.createProject().buildTopology();
+    props.put(TOPIC_MANAGED_PREFIXES + ".0", "");
+    Configuration config = new Configuration(cliOps, props);
+    config.validateWith(topology);
+  }
+
+  @Test(expected = ConfigurationException.class)
+  public void emptyGroupManagedPrefixConfigsShouldRaiseAnError() throws ConfigurationException {
+    var topology = TestTopologyBuilder.createProject().buildTopology();
+    props.put(GROUP_MANAGED_PREFIXES + ".0", "");
+    Configuration config = new Configuration(cliOps, props);
+    config.validateWith(topology);
+  }
+
+  @Test(expected = ConfigurationException.class)
+  public void emptySaManagedPrefixConfigsShouldRaiseAnError() throws ConfigurationException {
+    var topology = TestTopologyBuilder.createProject().buildTopology();
+    props.put(SERVICE_ACCOUNT_MANAGED_PREFIXES + ".0", "");
+    Configuration config = new Configuration(cliOps, props);
+    config.validateWith(topology);
+  }
 }
