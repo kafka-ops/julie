@@ -1,0 +1,10 @@
+---
+context: "o"
+projects:
+  - name: "f"
+    consumers:
+      - principal: "User:NewApp2"
+    topics:
+      - name: "b"
+        config:
+          confluent.placement.constraints:  "{\"version\":1,\"replicas\":[{\"count\":1,\"constraints\":{\"rack\":\"rack-1\"}},{\"count\":1,\"constraints\":{\"rack\":\"rack-2\"}}],\"observers\":[]}"
