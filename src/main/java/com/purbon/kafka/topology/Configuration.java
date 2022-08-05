@@ -28,6 +28,7 @@ import java.util.stream.Stream;
 import org.apache.kafka.clients.admin.AdminClientConfig;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.util.Strings;
 
 public class Configuration {
 
@@ -149,6 +150,18 @@ public class Configuration {
     if (!getTopicPrefixFormat().startsWith(getProjectPrefixFormat())) {
       throw new ConfigurationException(
           TOPIC_PREFIX_FORMAT_CONFIG + "should start by" + PROJECT_PREFIX_FORMAT_CONFIG);
+    }
+
+    Arrays.asList(TOPIC_MANAGED_PREFIXES, GROUP_MANAGED_PREFIXES, SERVICE_ACCOUNT_MANAGED_PREFIXES)
+          .forEach(this::validateManagedPrefixes);
+  }
+
+  private void validateManagedPrefixes(String key) {
+    List<String> managedTopicPrefixes = config.getStringList(key);
+    if (managedTopicPrefixes.contains("")) {
+      throw new ConfigurationException(
+              String.format("The config key %s, contains empty strings, this is not possible, please review", key)
+      );
     }
   }
 
