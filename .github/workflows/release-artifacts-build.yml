@@ -2,15 +2,14 @@ name: Release Builds
 on:
   push:
     tags:
-      - v3*
-      - v4*
+      - v5*
 jobs:
   package_build:
     if: github.repository == 'kafka-ops/julie'
     name: Build rpm/deb packages (using maven)
     runs-on: ubuntu-latest
     env:
-      working-directory: ./cli
+      working-directory: ./julie-ops-cli
     steps:
       - uses: actions/checkout@v2
       - name: Set up the JDK
@@ -71,12 +70,12 @@ jobs:
       - uses: actions/upload-artifact@v2
         with:
           name: RPM package
-          path: ./cli/target/rpm/julie-ops-cli/RPMS/noarch/*.rpm
+          path: ./julie-ops-cli/target/rpm/julie-ops-cli/RPMS/noarch/*.rpm
       - uses: actions/upload-artifact@v2
         with:
           name: DEB package
-          path: ./cli/target/*.deb
+          path: ./julie-ops-cli/target/*.deb
       - uses: actions/upload-artifact@v2
         with:
           name: FAT jar
-          path: ./cli/target/julie-ops-cli.jar
+          path: ./julie-ops-cli/target/julie-ops-cli.jar
