@@ -494,7 +494,7 @@
   <modules>
     <module>core</module>
     <module>service</module>
-    <module>cli</module>
+    <module>julie-ops-cli</module>
   </modules>
 
   <reporting>
