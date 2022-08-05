@@ -8,7 +8,7 @@ import org.junit.Test;
 import java.util.HashMap;
 import java.util.Properties;
 
-import static com.purbon.kafka.topology.CommandLineInterface.BROKERS_OPTION;
+import static com.purbon.kafka.topology.Constants.BROKERS_OPTION;
 import static com.purbon.kafka.topology.Constants.SERVICE_ACCOUNT_MANAGED_PREFIXES;
 import static com.purbon.kafka.topology.Constants.TOPIC_MANAGED_PREFIXES;
 import static org.assertj.core.api.Assertions.assertThat;
