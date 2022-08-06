@@ -2,7 +2,8 @@ name: Docker publish (legacy)
 on:
   push:
     tags:
-      - 'v2.*.*'
+      - 'v3.*.*'
+      - 'v4.*.*'
 jobs:
   ktb_docker_build:
     if: github.repository == 'kafka-ops/julie'
@@ -18,12 +19,12 @@ jobs:
           images: purbon/kafka-topology-builder # list of Docker images to use as base name for tags
           tag-sha: true
           tag-semver: |
-              {{version}}
-              {{major}}.{{minor}}
+            {{version}}
+            {{major}}.{{minor}}
       - name: Set up the JDK
         uses: actions/setup-java@v1
         with:
-          java-version: 8
+          java-version: 11
       - name: Cache dependencies
         uses: actions/cache@v2
         with:

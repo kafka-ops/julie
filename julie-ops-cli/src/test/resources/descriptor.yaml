@@ -1,0 +1,142 @@
+---
+context: "contextOrg"
+source: "source"
+projects:
+  - name: "foo"
+    app:
+      - principal: "User:banana"
+        group: "foo"
+        subject: "test.subject"
+        connector: "con"
+        topic: "top"
+    bar:
+      - principal: "User:banana"
+        group: "bar"
+    consumers:
+      - principal: "User:App0"
+        group: "foo"
+      - principal: "User:App1"
+    producers:
+      - principal: "User:App0"
+      - principal: "User:App2"
+        transactionId: "1234"
+      - principal: "User:App2"
+        idempotence: "true"
+    ksql:
+      artefacts:
+        streams:
+          - path: "ksql-streams/riderlocations.sql"
+            name: "riderLocations"
+        tables:
+          - path: "ksql-tables/users.sql"
+            name: "users"
+      access_control:
+        - principal: "User:ksql0"
+          topics:
+            read:
+              - "topicA"
+            write:
+              - "topicC"
+    streams:
+      - principal: "User:App0"
+        topics:
+          read:
+            - "topicA"
+            - "topicB"
+          write:
+            - "topicC"
+            - "topicD"
+    connectors:
+      - principal: "User:Connect1"
+        cluster_id: "foo"
+        group: "group"
+        status_topic: "status"
+        offset_topic: "offset"
+        configs_topic: "configs"
+        topics:
+          read:
+            - "topicA"
+            - "topicB"
+      - principal: "User:Connect2"
+        topics:
+          write:
+            - "topicC"
+            - "topicD"
+    topics:
+      - name: "foo"
+        config:
+          replication.factor: "1"
+          num.partitions: "1"
+      - name: "bar"
+        dataType: "avro"
+        schemas:
+          value.schema.file: "schemas/bar-value.avsc"
+      - name: "cat"
+        dataType: "avro"
+        subject.name.strategy: "TopicRecordNameStrategy"
+        schemas:
+          - key.schema.file: "schemas/bar-key.avsc"
+            value.schema.file: "schemas/bar-value.avsc"
+            key.record.type: "foo"
+            value.record.type: "bar"
+          - value.schema.file: "schemas/bar-value.avsc"
+            value.record.type: "value"
+  - name: "bar"
+    topics:
+      - dataType: "avro"
+        schemas:
+          key.schema.file: "schemas/bar-key.avsc"
+          value.schema.file: "schemas/bar-value.avsc"
+          value.format: "JSON"
+          value.compatibility: "BACKWARD"
+        name: "bar"
+        config:
+          replication.factor: "1"
+          num.partitions: "1"
+  - name: "baz"
+    streams:
+      - principal: "User:App1"
+        applicationId: "applicationId-1"
+        topics:
+          read:
+            - "topicE"
+          write:
+            - "topicF"
+    topics:
+      - name: "topicE"
+        config:
+          replication.factor: "1"
+          num.partitions: "1"
+      - name: "topicF"
+        config:
+          replication.factor: "1"
+          num.partitions: "1"
+platform:
+  ksql:
+    instances:
+      - principal: "User:ksql"
+        ksqlDbId: "ksql-server1"
+        owner: "User:foo"
+      - principal: "User:ksql"
+        ksqlDbId: "ksql-server2"
+        owner: "User:foo"
+  schema_registry:
+    instances:
+      - principal: "User:SchemaRegistry01"
+        topic: "foo"
+        group: "bar"
+      - principal: "User:SchemaRegistry02"
+        topic: "zet"
+  control_center:
+    instances:
+      - principal: "User:ControlCenter"
+        appId: "controlcenter"
+special_topics:
+  - name: "foo"
+    config:
+      replication.factor: "1"
+      num.partitions: "1"
+  - name: "bar"
+    dataType: "avro"
+    schemas:
+      value.schema.file: "schemas/bar-value.avsc"

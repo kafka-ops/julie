@@ -26,9 +26,9 @@ jobs:
       - name: Build with Maven
         run: mvn -B package --file pom.xml
       - name: copy fat jar
-        run: cp ./target/julie-ops.jar release/docker
+        run: cp ./julie-ops-cli/target/julie-ops-cli.jar release/docker
       - name: copy runner file
-        run: cp ./src/main/scripts/julie-ops-cli.sh release/docker
+        run: cp ./julie-ops-cli/src/main/scripts/julie-ops-cli.sh release/docker
       - name: list files (release dir)
         run: ls -l
         working-directory: release/docker
@@ -48,6 +48,8 @@ jobs:
     if: github.repository == 'kafka-ops/julie'
     name: Build rpm/deb packages (using maven)
     runs-on: ubuntu-latest
+    env:
+      working-directory: ./julie-ops-cli
     steps:
       - uses: actions/checkout@v2
       - name: Set up the JDK
@@ -88,10 +90,12 @@ jobs:
         run: rpm --import release/keys/public.key
       - name: Build the rpm
         run: mvn rpm:rpm
+        working-directory: ${{ env.working-directory }}
       - name: Sign rpm
         run: |
-          rpm --define "_gpg_name ${{ steps.import_gpg.outputs.keyid }}" --addsign target/rpm/julie-ops/RPMS/noarch/*.rpm
-          rpm --checksig target/rpm/julie-ops/RPMS/noarch/*.rpm
+          rpm --define "_gpg_name ${{ steps.import_gpg.outputs.keyid }}" --addsign target/rpm/julie-ops-cli/RPMS/noarch/*.rpm
+          rpm --checksig target/rpm/julie-ops-cli/RPMS/noarch/*.rpm
+        working-directory: ${{ env.working-directory }}
         env:
           GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
           GPG_KEY_NAME: ${{ steps.import_gpg.outputs.email }}
@@ -99,18 +103,19 @@ jobs:
         run: |
           sudo apt-get install dpkg-sig -y
           dpkg-sig -k ${{ steps.import_gpg.outputs.keyid }} --sign builder $FILE target/*.deb
+        working-directory: ${{ env.working-directory }}
         env:
           GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
           GPG_KEY_NAME: ${{ steps.import_gpg.outputs.email }}
       - uses: actions/upload-artifact@v2
         with:
           name: RPM package
-          path: target/rpm/julie-ops/RPMS/noarch/*.rpm
+          path: ./julie-ops-cli/target/rpm/julie-ops-cli/RPMS/noarch/*.rpm
       - uses: actions/upload-artifact@v2
         with:
           name: DEB package
-          path: target/*.deb
+          path: ./julie-ops-cli/target/*.deb
       - uses: actions/upload-artifact@v2
         with:
           name: FAT jar
-          path: target/julie-ops.jar
+          path: ./julie-ops-cli/target/julie-ops-cli.jar
