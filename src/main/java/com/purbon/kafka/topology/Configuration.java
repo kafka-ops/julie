@@ -262,6 +262,12 @@ public class Configuration {
         .collect(Collectors.toList());
   }
 
+  public List<String> getSubjectManagedPrefixes() {
+    return config.getStringList(SUBJECT_MANAGED_PREFIXES).stream()
+        .map(String::trim)
+        .collect(Collectors.toList());
+  }
+
   public String getConfluentSchemaRegistryUrl() {
     return getString(CONFLUENT_SCHEMA_REGISTRY_URL_CONFIG);
   }

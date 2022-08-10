@@ -118,6 +118,8 @@ public class Constants {
 
   public static final String GROUP_MANAGED_PREFIXES = "topology.group.managed.prefixes";
 
+  public static final String SUBJECT_MANAGED_PREFIXES = "topology.subject.managed.prefixes";
+
   public static final String PLATFORM_SERVERS_CONNECT = "platform.servers.connect";
   public static final String PLATFORM_SERVERS_BASIC_AUTH = "platform.servers.basic.auth";
 
