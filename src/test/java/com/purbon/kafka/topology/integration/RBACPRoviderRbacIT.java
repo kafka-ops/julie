@@ -109,6 +109,9 @@ public class RBACPRoviderRbacIT extends MDSBaseTest {
 
     List<Consumer> consumers = new ArrayList<>();
     consumers.add(new Consumer("User:app1"));
+    Consumer consumer2 = new Consumer("User:app4");
+    consumer2.setGroupRole(DEVELOPER_READ);
+    consumers.add(consumer2);
 
     Project project = new ProjectImpl("project");
     project.setConsumers(consumers);
@@ -339,7 +342,6 @@ public class RBACPRoviderRbacIT extends MDSBaseTest {
 
     resources = apiClient.lookupResourcesForSchemaRegistry(schema.getPrincipal(), RESOURCE_OWNER);
     assertThat(resources).isEmpty();
-
   }
 
   @Test
@@ -730,10 +732,38 @@ public class RBACPRoviderRbacIT extends MDSBaseTest {
   private void verifyConsumerAcls(List<Consumer> consumers, String topic) {
     consumers.forEach(
         consumer -> {
-          List<String> roles = apiClient.lookupRoles(consumer.getPrincipal());
-          assertEquals(2, roles.size());
-          assertTrue(roles.contains(DEVELOPER_READ));
-          assertTrue(roles.contains(RESOURCE_OWNER));
+          List<RbacResourceType> rbacResourceTypes =
+              apiClient.lookupResourcesForKafka(consumer.getPrincipal(), consumer.getGroupRole());
+
+          Optional<RbacResourceType> group =
+              rbacResourceTypes.stream()
+                  .filter(t -> t.getResourceType().equals("Group"))
+                  .findFirst();
+          assertTrue(group.isPresent());
+
+          Optional<RbacResourceType> topicResourceType;
+          if (RESOURCE_OWNER.equals(consumer.getGroupRole())) {
+            List<RbacResourceType> rbacTopicResourceTypes =
+                apiClient.lookupResourcesForKafka(consumer.getPrincipal(), DEVELOPER_READ);
+
+            topicResourceType =
+                rbacTopicResourceTypes.stream()
+                    .filter(t -> t.getResourceType().equals("Topic"))
+                    .findFirst();
+          } else {
+            topicResourceType =
+                rbacResourceTypes.stream()
+                    .filter(t -> t.getResourceType().equals("Topic"))
+                    .findFirst();
+          }
+
+          assertTrue(topicResourceType.isPresent());
+          assertThat(topicResourceType.get().getName()).isEqualTo(topic);
+
+          List<RbacResourceType> badRbacResourceTypes =
+              apiClient.lookupResourcesForKafka(consumer.getPrincipal(), DEVELOPER_WRITE);
+
+          assertTrue(badRbacResourceTypes.isEmpty());
         });
   }
 }
