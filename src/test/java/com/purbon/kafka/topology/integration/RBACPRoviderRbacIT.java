@@ -341,7 +341,6 @@ public class RBACPRoviderRbacIT extends MDSBaseTest {
 
     resources = apiClient.lookupResourcesForSchemaRegistry(schema.getPrincipal(), RESOURCE_OWNER);
     assertThat(resources).isEmpty();
-
   }
 
   @Test
