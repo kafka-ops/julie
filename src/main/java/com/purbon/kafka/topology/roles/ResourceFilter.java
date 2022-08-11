@@ -49,8 +49,10 @@ public class ResourceFilter {
             return matchesSubjectPrefixList(resourceName);
         } else if ("GROUP".equalsIgnoreCase(topologyAclBinding.getResourceType())) {
             return matchesGroupPrefixList(resourceName);
+        } else {
+            // Nothing to filter out here
+            return true;
         }
-        return false;
     }
 
     private boolean matchesTopicPrefixList(String topic) {
