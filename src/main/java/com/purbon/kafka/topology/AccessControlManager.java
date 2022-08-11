@@ -161,7 +161,12 @@ public class AccessControlManager implements ExecutionPlanUpdater {
       for (Schemas schemaAuthorization : project.getSchemas()) {
         aclBindingsResults.add(
             new SchemaAuthorizationAclBindingsBuilder(
-                    new BuildBindingsForSchemaAuthorization(bindingsBuilder, schemaAuthorization))
+                    new BuildBindingsForSchemaAuthorization(
+                      bindingsBuilder,
+                      schemaAuthorization,
+                      config.shouldOptimizeAcls(),
+                      topicPrefix
+                    ))
                 .getAclBindings());
       }
 

@@ -13,11 +13,16 @@ public class BuildBindingsForSchemaAuthorization extends BaseAccessControlAction
 
   private final BindingsBuilderProvider builderProvider;
   private final Schemas schemaAuthorization;
+  private final Boolean shouldOptimizeAcls;
+  private final String namePrefix;
 
   public BuildBindingsForSchemaAuthorization(
-      BindingsBuilderProvider builderProvider, Schemas schemaAuthorization) {
+    BindingsBuilderProvider builderProvider, Schemas schemaAuthorization, Boolean shouldOptimizeAcls, String namePrefix
+  ) {
     this.builderProvider = builderProvider;
     this.schemaAuthorization = schemaAuthorization;
+    this.shouldOptimizeAcls = shouldOptimizeAcls;
+    this.namePrefix = namePrefix;
   }
 
   @Override
@@ -27,7 +32,10 @@ public class BuildBindingsForSchemaAuthorization extends BaseAccessControlAction
             schemaAuthorization.getPrincipal(),
             schemaAuthorization.getSubjects(),
             schemaAuthorization.getRole(),
-            schemaAuthorization.isPrefixed());
+            schemaAuthorization.isPrefixed(),
+            shouldOptimizeAcls,
+            namePrefix
+          );
   }
 
   @Override

@@ -15,6 +15,7 @@ import static org.mockito.Mockito.verify;
 
 import com.purbon.kafka.topology.AccessControlManager;
 import com.purbon.kafka.topology.BackendController;
+import com.purbon.kafka.topology.BindingsBuilderProvider;
 import com.purbon.kafka.topology.Configuration;
 import com.purbon.kafka.topology.ExecutionPlan;
 import com.purbon.kafka.topology.TestTopologyBuilder;
@@ -56,6 +57,8 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Properties;
 import java.util.stream.Collectors;
+
+import org.apache.kafka.common.resource.PatternType;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -74,7 +77,8 @@ public class RBACPRoviderRbacIT extends MDSBaseTest {
   @Mock private BackendController cs;
   private ExecutionPlan plan;
 
-  private AccessControlManager accessControlManager;
+  private AccessControlManager defaultAccessControlManager;
+  private AccessControlManager optimizedAclsAccessControlManager;
 
   @Before
   public void before() throws IOException, InterruptedException {
@@ -93,15 +97,39 @@ public class RBACPRoviderRbacIT extends MDSBaseTest {
     RBACProvider rbacProvider = new RBACProvider(apiClient);
     RBACBindingsBuilder bindingsBuilder = new RBACBindingsBuilder(apiClient);
 
+    defaultAccessControlManager = buildDefaultAccessControlManager(rbacProvider, bindingsBuilder);
+    optimizedAclsAccessControlManager = buildOptimizedAclsAccessControlManager(rbacProvider, bindingsBuilder);
+  }
+
+  private AccessControlManager buildDefaultAccessControlManager(
+    RBACProvider rbacProvider,
+    BindingsBuilderProvider bindingsBuilder
+  ) {
     Properties props = new Properties();
     props.put(ALLOW_DELETE_BINDINGS, true);
 
     HashMap<String, String> cliOps = new HashMap<>();
     cliOps.put(BROKERS_OPTION, "");
 
-    Configuration config = new Configuration(cliOps, props);
+    Configuration configuration = new Configuration(cliOps, props);
 
-    accessControlManager = new AccessControlManager(rbacProvider, bindingsBuilder, config);
+    return new AccessControlManager(rbacProvider, bindingsBuilder, configuration);
+  }
+
+  private AccessControlManager buildOptimizedAclsAccessControlManager(
+    RBACProvider rbacProvider,
+    BindingsBuilderProvider bindingsBuilder
+  ) {
+    Properties props = new Properties();
+    props.put(ALLOW_DELETE_BINDINGS, true);
+    props.put(OPTIMIZED_ACLS_CONFIG, true);
+
+    HashMap<String, String> cliOps = new HashMap<>();
+    cliOps.put(BROKERS_OPTION, "");
+
+    Configuration configuration = new Configuration(cliOps, props);
+
+    return new AccessControlManager(rbacProvider, bindingsBuilder, configuration);
   }
 
   @Test
@@ -119,7 +147,7 @@ public class RBACPRoviderRbacIT extends MDSBaseTest {
     topology.setContext("testConsumerAclsCreation-test");
     topology.addProject(project);
 
-    accessControlManager.updatePlan(topology, plan);
+    defaultAccessControlManager.updatePlan(topology, plan);
     plan.run();
 
     // this method is call twice, once for consumers and one for producers
@@ -143,7 +171,7 @@ public class RBACPRoviderRbacIT extends MDSBaseTest {
     topology.setContext("producerAclsCreation-test");
     topology.addProject(project);
 
-    accessControlManager.updatePlan(topology, plan);
+    defaultAccessControlManager.updatePlan(topology, plan);
     plan.run();
 
     // this method is call twice, once for consumers and one for consumers
@@ -169,7 +197,7 @@ public class RBACPRoviderRbacIT extends MDSBaseTest {
     topology.setContext("producerAclsWithExtraPropertiesShouldNotBreak-test");
     topology.addProject(project);
 
-    accessControlManager.updatePlan(topology, plan);
+    defaultAccessControlManager.updatePlan(topology, plan);
     plan.run();
 
     // this method is call twice, once for consumers and one for consumers
@@ -194,7 +222,7 @@ public class RBACPRoviderRbacIT extends MDSBaseTest {
     topology.setContext("kstreamsAclsCreation-test");
     topology.addProject(project);
 
-    accessControlManager.updatePlan(topology, plan);
+    defaultAccessControlManager.updatePlan(topology, plan);
     plan.run();
 
     verify(cs, times(1)).addBindings(anyList());
@@ -220,7 +248,7 @@ public class RBACPRoviderRbacIT extends MDSBaseTest {
     topology.addOther("source", "ksqlAppAclsCreation-test");
     topology.addProject(project);
 
-    accessControlManager.updatePlan(topology, plan);
+    defaultAccessControlManager.updatePlan(topology, plan);
     plan.run();
 
     verify(cs, times(1)).addBindings(anyList());
@@ -256,7 +284,7 @@ public class RBACPRoviderRbacIT extends MDSBaseTest {
     topology.setContext("connectorsRbacCreation-test");
     topology.addProject(project);
 
-    accessControlManager.updatePlan(topology, plan);
+    defaultAccessControlManager.updatePlan(topology, plan);
     plan.run();
 
     verify(cs, times(1)).addBindings(anyList());
@@ -284,7 +312,7 @@ public class RBACPRoviderRbacIT extends MDSBaseTest {
     topology.setContext("connectAclsCreation-test");
     topology.addProject(project);
 
-    accessControlManager.updatePlan(topology, plan);
+    defaultAccessControlManager.updatePlan(topology, plan);
     plan.run();
 
     verify(cs, times(1)).addBindings(anyList());
@@ -319,7 +347,7 @@ public class RBACPRoviderRbacIT extends MDSBaseTest {
     topology.setContext("schemasRbacCreation-test");
     topology.addProject(project);
 
-    accessControlManager.updatePlan(topology, plan);
+    defaultAccessControlManager.updatePlan(topology, plan);
     plan.run();
 
     verify(cs, times(1)).addBindings(anyList());
@@ -327,19 +355,73 @@ public class RBACPRoviderRbacIT extends MDSBaseTest {
 
     var resources =
         apiClient.lookupResourcesForSchemaRegistry(schema.getPrincipal(), RESOURCE_OWNER);
+    assertThat(resources.size()).isEqualTo(2);
     for (RbacResourceType resource : resources) {
       assertThat(names).contains(resource.getName());
       assertThat(resource.getResourceType()).isEqualTo("Subject");
+      assertThat(resource.getPatternType()).isEqualTo(PatternType.LITERAL.name());
     }
     // remove the first and only schema and check if properly deleted.
     topology.getProjects().get(0).setSchemas(Collections.emptyList());
 
-    accessControlManager.updatePlan(topology, plan);
+    defaultAccessControlManager.updatePlan(topology, plan);
     plan.run();
 
     resources = apiClient.lookupResourcesForSchemaRegistry(schema.getPrincipal(), RESOURCE_OWNER);
     assertThat(resources).isEmpty();
 
+  }
+
+  @Test
+  public void schemasOptimizedRbacCreation() throws IOException {
+    var names = asList("foo", "bar");
+
+    Schemas schema = new Schemas();
+    schema.setPrincipal("User:Schemas");
+    schema.setSubjects(names);
+
+    PlatformSystem<Schemas> schemas = new PlatformSystem<>(singletonList(schema));
+
+    Project project =
+      new ProjectImpl(
+        "name",
+        Optional.empty(),
+        Optional.empty(),
+        Optional.empty(),
+        Optional.empty(),
+        Optional.of(schemas),
+        Optional.empty(),
+        Collections.emptyMap(),
+        Collections.emptyList(),
+        new Configuration());
+
+    Topology topology = new TopologyImpl();
+    topology.setContext("schemasOptimizedRbacCreation-test");
+    topology.addProject(project);
+
+    optimizedAclsAccessControlManager.updatePlan(topology, plan);
+    plan.run();
+
+    verify(cs, times(1)).addBindings(anyList());
+    verify(cs, times(1)).flushAndClose();
+
+    var resources =
+      apiClient.lookupResourcesForSchemaRegistry(schema.getPrincipal(), RESOURCE_OWNER);
+
+    assertThat(resources.size()).isEqualTo(1);
+    for (RbacResourceType resource : resources) {
+      assertThat(project.namePrefix()).contains(resource.getName());
+      assertThat(resource.getResourceType()).isEqualTo("Subject");
+      assertThat(resource.getPatternType()).isEqualTo(PatternType.PREFIXED.name());
+    }
+    // remove the first and only schema and check if properly deleted.
+    topology.getProjects().get(0).setSchemas(Collections.emptyList());
+
+    optimizedAclsAccessControlManager.updatePlan(topology, plan);
+    plan.run();
+
+    resources = apiClient.lookupResourcesForSchemaRegistry(schema.getPrincipal(), RESOURCE_OWNER);
+    assertThat(resources).isEmpty();
   }
 
   @Test
@@ -368,7 +450,7 @@ public class RBACPRoviderRbacIT extends MDSBaseTest {
     platform.setSchemaRegistry(sr);
     topology.setPlatform(platform);
 
-    accessControlManager.updatePlan(topology, plan);
+    defaultAccessControlManager.updatePlan(topology, plan);
     plan.run();
 
     verify(cs, times(1)).addBindings(anyList());
@@ -394,7 +476,7 @@ public class RBACPRoviderRbacIT extends MDSBaseTest {
 
     topology.setPlatform(platform);
 
-    accessControlManager.updatePlan(topology, plan);
+    defaultAccessControlManager.updatePlan(topology, plan);
     plan.run();
 
     verify(cs, times(1)).addBindings(anyList());
@@ -419,7 +501,7 @@ public class RBACPRoviderRbacIT extends MDSBaseTest {
     platform.setKafka(kafka);
     topology.setPlatform(platform);
 
-    accessControlManager.updatePlan(topology, plan);
+    defaultAccessControlManager.updatePlan(topology, plan);
     plan.run();
 
     verify(cs, times(1)).addBindings(anyList());
@@ -445,7 +527,7 @@ public class RBACPRoviderRbacIT extends MDSBaseTest {
     platform.setKafkaConnect(connect);
     topology.setPlatform(platform);
 
-    accessControlManager.updatePlan(topology, plan);
+    defaultAccessControlManager.updatePlan(topology, plan);
     plan.run();
 
     verify(cs, times(1)).addBindings(anyList());
@@ -472,7 +554,7 @@ public class RBACPRoviderRbacIT extends MDSBaseTest {
 
     Configuration config = new Configuration(cliOps, props);
 
-    accessControlManager = new AccessControlManager(rbacProvider, bindingsBuilder, config);
+    defaultAccessControlManager = new AccessControlManager(rbacProvider, bindingsBuilder, config);
 
     List<Consumer> consumers = new ArrayList<>();
     consumers.add(new Consumer("User:app1a"));
@@ -488,7 +570,7 @@ public class RBACPRoviderRbacIT extends MDSBaseTest {
     Topic topicA = new Topic("topicA");
     project.addTopic(topicA);
 
-    accessControlManager.updatePlan(topology, plan);
+    defaultAccessControlManager.updatePlan(topology, plan);
     plan.run();
 
     // two group and two topics as we have one topic and two principles
@@ -499,7 +581,7 @@ public class RBACPRoviderRbacIT extends MDSBaseTest {
     cs = new BackendController();
     plan = ExecutionPlan.init(cs, System.out);
 
-    accessControlManager.updatePlan(topology, plan);
+    defaultAccessControlManager.updatePlan(topology, plan);
     plan.run();
 
     bindings = getBindings(rbacProvider);
@@ -525,7 +607,7 @@ public class RBACPRoviderRbacIT extends MDSBaseTest {
 
     Configuration config = new Configuration(cliOps, props);
 
-    accessControlManager = new AccessControlManager(rbacProvider, bindingsBuilder, config);
+    defaultAccessControlManager = new AccessControlManager(rbacProvider, bindingsBuilder, config);
     final List<String> principals = asList("User:Pere", "User:app1b", "User:app2b");
 
     List<Consumer> consumers = new ArrayList<>();
@@ -543,7 +625,7 @@ public class RBACPRoviderRbacIT extends MDSBaseTest {
     Topic topicA = new Topic("topicA");
     project.addTopic(topicA);
 
-    accessControlManager.updatePlan(topology, plan);
+    defaultAccessControlManager.updatePlan(topology, plan);
     plan.run();
 
     // should create a new principal outside of the managed ones, before triggering the deletion.
@@ -565,7 +647,7 @@ public class RBACPRoviderRbacIT extends MDSBaseTest {
     cs = new BackendController();
     plan = ExecutionPlan.init(cs, System.out);
 
-    accessControlManager.updatePlan(topology, plan);
+    defaultAccessControlManager.updatePlan(topology, plan);
     plan.run();
 
     bindings =
@@ -605,10 +687,10 @@ public class RBACPRoviderRbacIT extends MDSBaseTest {
 
     Configuration config = new Configuration(cliOps, props);
 
-    accessControlManager =
+    defaultAccessControlManager =
         new AccessControlManager(rbacProvider, bindingsBuilder, config.getJulieRoles(), config);
 
-    accessControlManager.updatePlan(topology, plan);
+    defaultAccessControlManager.updatePlan(topology, plan);
 
     plan.run();
 
