@@ -445,6 +445,29 @@ public class RBACBindingsBuilder implements BindingsBuilderProvider {
 
   @Override
   public List<TopologyAclBinding> setSchemaAuthorization(
+      String principal,
+      List<String> subjects,
+      String role,
+      boolean prefixed,
+      Boolean shouldOptimizeAcls,
+      String namePrefix) {
+    if (shouldOptimizeAcls) {
+      return setDetailedSchemaAuthorization(principal, role, namePrefix);
+    } else {
+      return setOptimizedSchemaAuthorization(principal, subjects, role, prefixed);
+    }
+  }
+
+  private List<TopologyAclBinding> setDetailedSchemaAuthorization(
+      String principal, String role, String namePrefix) {
+    return List.of(
+        apiClient
+            .bind(principal, role)
+            .forSchemaSubject(namePrefix, PatternType.PREFIXED.name())
+            .apply("SUBJECT", namePrefix, PatternType.PREFIXED.name()));
+  }
+
+  private List<TopologyAclBinding> setOptimizedSchemaAuthorization(
       String principal, List<String> subjects, String role, boolean prefixed) {
 
     String patternType = prefixed ? PatternType.PREFIXED.name() : PatternType.LITERAL.name();

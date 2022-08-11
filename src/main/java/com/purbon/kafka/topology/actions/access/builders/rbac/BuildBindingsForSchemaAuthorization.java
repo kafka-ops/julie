@@ -1,6 +1,7 @@
 package com.purbon.kafka.topology.actions.access.builders.rbac;
 
 import com.purbon.kafka.topology.BindingsBuilderProvider;
+import com.purbon.kafka.topology.Configuration;
 import com.purbon.kafka.topology.actions.BaseAccessControlAction;
 import com.purbon.kafka.topology.model.users.Schemas;
 import com.purbon.kafka.topology.roles.TopologyAclBinding;
@@ -13,11 +14,18 @@ public class BuildBindingsForSchemaAuthorization extends BaseAccessControlAction
 
   private final BindingsBuilderProvider builderProvider;
   private final Schemas schemaAuthorization;
+  private final Boolean shouldOptimizeAcls;
+  private final String schemaPrefix;
 
   public BuildBindingsForSchemaAuthorization(
-      BindingsBuilderProvider builderProvider, Schemas schemaAuthorization) {
+      BindingsBuilderProvider builderProvider,
+      Schemas schemaAuthorization,
+      Configuration configuration,
+      String schemaPrefix) {
     this.builderProvider = builderProvider;
     this.schemaAuthorization = schemaAuthorization;
+    this.shouldOptimizeAcls = configuration.shouldOptimizeAcls();
+    this.schemaPrefix = schemaPrefix;
   }
 
   @Override
@@ -27,7 +35,9 @@ public class BuildBindingsForSchemaAuthorization extends BaseAccessControlAction
             schemaAuthorization.getPrincipal(),
             schemaAuthorization.getSubjects(),
             schemaAuthorization.getRole(),
-            schemaAuthorization.isPrefixed());
+            schemaAuthorization.isPrefixed(),
+            shouldOptimizeAcls,
+            schemaPrefix);
   }
 
   @Override
