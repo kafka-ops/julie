@@ -305,7 +305,8 @@ public class ConfigurationTest {
   }
 
   @Test
-  public void nonEmptyTopicManagedPrefixConfigsShouldValidateSuccessfully() throws ConfigurationException {
+  public void nonEmptyTopicManagedPrefixConfigsShouldValidateSuccessfully()
+      throws ConfigurationException {
     var topology = TestTopologyBuilder.createProject().buildTopology();
     props.put(TOPIC_MANAGED_PREFIXES + ".0", "foo");
     Configuration config = new Configuration(cliOps, props);

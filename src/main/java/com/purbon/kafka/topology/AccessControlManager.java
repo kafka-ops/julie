@@ -153,9 +153,10 @@ public class AccessControlManager implements ExecutionPlanUpdater {
         connector
             .getConnectors()
             .ifPresent(
-                (list) -> aclBindingsResults.add(
-                    new ConnectorAuthorizationAclBindingsBuilder(bindingsBuilder, connector)
-                        .getAclBindings()));
+                (list) ->
+                    aclBindingsResults.add(
+                        new ConnectorAuthorizationAclBindingsBuilder(bindingsBuilder, connector)
+                            .getAclBindings()));
       }
 
       for (Schemas schemaAuthorization : project.getSchemas()) {
@@ -306,7 +307,6 @@ public class AccessControlManager implements ExecutionPlanUpdater {
     }
     return updateActions;
   }
-
 
   // Sync platform relevant Access Control List.
   private List<AclBindingsResult> buildPlatformLevelActions(final Topology topology) {

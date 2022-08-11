@@ -148,7 +148,7 @@ public class RBACBindingsBuilder implements BindingsBuilderProvider {
           binding =
               apiClient.bind(
                   consumer.getPrincipal(),
-                  RESOURCE_OWNER,
+                  consumer.getGroupRole(),
                   evaluateResourcePattern(consumer.groupString()),
                   "Group",
                   evaluateResourcePatternType(consumer.groupString()));
