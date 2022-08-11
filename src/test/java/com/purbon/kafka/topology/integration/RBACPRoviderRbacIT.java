@@ -57,7 +57,6 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Properties;
 import java.util.stream.Collectors;
-
 import org.apache.kafka.common.resource.PatternType;
 import org.junit.Before;
 import org.junit.Test;
@@ -98,13 +97,12 @@ public class RBACPRoviderRbacIT extends MDSBaseTest {
     RBACBindingsBuilder bindingsBuilder = new RBACBindingsBuilder(apiClient);
 
     defaultAccessControlManager = buildDefaultAccessControlManager(rbacProvider, bindingsBuilder);
-    optimizedAclsAccessControlManager = buildOptimizedAclsAccessControlManager(rbacProvider, bindingsBuilder);
+    optimizedAclsAccessControlManager =
+        buildOptimizedAclsAccessControlManager(rbacProvider, bindingsBuilder);
   }
 
   private AccessControlManager buildDefaultAccessControlManager(
-    RBACProvider rbacProvider,
-    BindingsBuilderProvider bindingsBuilder
-  ) {
+      RBACProvider rbacProvider, BindingsBuilderProvider bindingsBuilder) {
     Properties props = new Properties();
     props.put(ALLOW_DELETE_BINDINGS, true);
 
@@ -117,9 +115,7 @@ public class RBACPRoviderRbacIT extends MDSBaseTest {
   }
 
   private AccessControlManager buildOptimizedAclsAccessControlManager(
-    RBACProvider rbacProvider,
-    BindingsBuilderProvider bindingsBuilder
-  ) {
+      RBACProvider rbacProvider, BindingsBuilderProvider bindingsBuilder) {
     Properties props = new Properties();
     props.put(ALLOW_DELETE_BINDINGS, true);
     props.put(OPTIMIZED_ACLS_CONFIG, true);
@@ -369,7 +365,6 @@ public class RBACPRoviderRbacIT extends MDSBaseTest {
 
     resources = apiClient.lookupResourcesForSchemaRegistry(schema.getPrincipal(), RESOURCE_OWNER);
     assertThat(resources).isEmpty();
-
   }
 
   @Test
@@ -383,17 +378,17 @@ public class RBACPRoviderRbacIT extends MDSBaseTest {
     PlatformSystem<Schemas> schemas = new PlatformSystem<>(singletonList(schema));
 
     Project project =
-      new ProjectImpl(
-        "name",
-        Optional.empty(),
-        Optional.empty(),
-        Optional.empty(),
-        Optional.empty(),
-        Optional.of(schemas),
-        Optional.empty(),
-        Collections.emptyMap(),
-        Collections.emptyList(),
-        new Configuration());
+        new ProjectImpl(
+            "name",
+            Optional.empty(),
+            Optional.empty(),
+            Optional.empty(),
+            Optional.empty(),
+            Optional.of(schemas),
+            Optional.empty(),
+            Collections.emptyMap(),
+            Collections.emptyList(),
+            new Configuration());
 
     Topology topology = new TopologyImpl();
     topology.setContext("schemasOptimizedRbacCreation-test");
@@ -406,7 +401,7 @@ public class RBACPRoviderRbacIT extends MDSBaseTest {
     verify(cs, times(1)).flushAndClose();
 
     var resources =
-      apiClient.lookupResourcesForSchemaRegistry(schema.getPrincipal(), RESOURCE_OWNER);
+        apiClient.lookupResourcesForSchemaRegistry(schema.getPrincipal(), RESOURCE_OWNER);
 
     assertThat(resources.size()).isEqualTo(1);
     for (RbacResourceType resource : resources) {

@@ -445,13 +445,12 @@ public class RBACBindingsBuilder implements BindingsBuilderProvider {
 
   @Override
   public List<TopologyAclBinding> setSchemaAuthorization(
-    String principal,
-    List<String> subjects,
-    String role,
-    boolean prefixed,
-    Boolean shouldOptimizeAcls,
-    String namePrefix
-  ) {
+      String principal,
+      List<String> subjects,
+      String role,
+      boolean prefixed,
+      Boolean shouldOptimizeAcls,
+      String namePrefix) {
     if (shouldOptimizeAcls) {
       return setOptimizedSchemaAuthorization(principal, role, namePrefix);
     } else {
@@ -459,26 +458,28 @@ public class RBACBindingsBuilder implements BindingsBuilderProvider {
     }
   }
 
-  private  List<TopologyAclBinding> setOptimizedSchemaAuthorization(String principal, String role, String namePrefix) {
+  private List<TopologyAclBinding> setOptimizedSchemaAuthorization(
+      String principal, String role, String namePrefix) {
     return List.of(
-      apiClient.bind(principal, role)
-        .forSchemaSubject(namePrefix, PatternType.PREFIXED.name())
-        .apply("SUBJECT", namePrefix, PatternType.PREFIXED.name()));
+        apiClient
+            .bind(principal, role)
+            .forSchemaSubject(namePrefix, PatternType.PREFIXED.name())
+            .apply("SUBJECT", namePrefix, PatternType.PREFIXED.name()));
   }
 
-  private  List<TopologyAclBinding> setNotOptimizedSchemaAuthorization(
-    String principal, List<String> subjects, String role, boolean prefixed) {
+  private List<TopologyAclBinding> setNotOptimizedSchemaAuthorization(
+      String principal, List<String> subjects, String role, boolean prefixed) {
 
     String patternType = prefixed ? PatternType.PREFIXED.name() : PatternType.LITERAL.name();
     return subjects.stream()
-      .map(
-        subject ->
-          apiClient
-            .bind(principal, role)
-            .forSchemaSubject(subject, patternType)
-            .apply("Subject", subject))
-      .filter(Objects::nonNull)
-      .collect(Collectors.toList());
+        .map(
+            subject ->
+                apiClient
+                    .bind(principal, role)
+                    .forSchemaSubject(subject, patternType)
+                    .apply("Subject", subject))
+        .filter(Objects::nonNull)
+        .collect(Collectors.toList());
   }
 
   @Override
