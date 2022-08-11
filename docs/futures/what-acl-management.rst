@@ -392,6 +392,12 @@ This is possible with Julie Ops with a topology like the one below, where *User:
 have access to schemas in subjects *transactions* and *User:App1* to subject *contracts*.
 
 By default, Julie Ops grants `ResourceOwner` role for subjects, and creates non-prefixed (literal) role bindings.
+For organisations that aim not to have dedicated pair of rules per Subject, Julie Ops offers the option
+to optimise the number of ACLs using prefixed rules.
+It then create a prefixed role binding using the common prefix which is by default: *context.project_name.*.
+
+The optimised ACLs/RBAC can be enabled using the *topology.acls.optimized* configuration property.
+
 It's possible to specify different role, and create prefixed role bindings for subjects,
 as shown in the example below for *User:App2*.
 
