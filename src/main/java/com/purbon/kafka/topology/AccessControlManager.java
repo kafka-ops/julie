@@ -163,10 +163,7 @@ public class AccessControlManager implements ExecutionPlanUpdater {
         aclBindingsResults.add(
             new SchemaAuthorizationAclBindingsBuilder(
                     new BuildBindingsForSchemaAuthorization(
-                        bindingsBuilder,
-                        schemaAuthorization,
-                        config.shouldOptimizeAcls(),
-                        topicPrefix))
+                        bindingsBuilder, schemaAuthorization, config, topicPrefix))
                 .getAclBindings());
       }
 
