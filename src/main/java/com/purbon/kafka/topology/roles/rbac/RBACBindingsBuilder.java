@@ -452,13 +452,13 @@ public class RBACBindingsBuilder implements BindingsBuilderProvider {
       Boolean shouldOptimizeAcls,
       String namePrefix) {
     if (shouldOptimizeAcls) {
-      return setOptimizedSchemaAuthorization(principal, role, namePrefix);
+      return setDetailedSchemaAuthorization(principal, role, namePrefix);
     } else {
-      return setNotOptimizedSchemaAuthorization(principal, subjects, role, prefixed);
+      return setOptimizedSchemaAuthorization(principal, subjects, role, prefixed);
     }
   }
 
-  private List<TopologyAclBinding> setOptimizedSchemaAuthorization(
+  private List<TopologyAclBinding> setDetailedSchemaAuthorization(
       String principal, String role, String namePrefix) {
     return List.of(
         apiClient
@@ -467,7 +467,7 @@ public class RBACBindingsBuilder implements BindingsBuilderProvider {
             .apply("SUBJECT", namePrefix, PatternType.PREFIXED.name()));
   }
 
-  private List<TopologyAclBinding> setNotOptimizedSchemaAuthorization(
+  private List<TopologyAclBinding> setOptimizedSchemaAuthorization(
       String principal, List<String> subjects, String role, boolean prefixed) {
 
     String patternType = prefixed ? PatternType.PREFIXED.name() : PatternType.LITERAL.name();
