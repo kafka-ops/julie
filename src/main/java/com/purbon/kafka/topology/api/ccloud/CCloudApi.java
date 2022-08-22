@@ -29,9 +29,9 @@ public class CCloudApi {
 
   private static final Logger LOGGER = LogManager.getLogger(CCloudApi.class);
 
-  private static final String V1_IAM_SERVICE_ACCOUNTS_URL = "/service_accounts";
-  private static final String V2_IAM_SERVICE_ACCOUNTS_URL = "/iam/v2/service-accounts";
-  private static final String V3_KAFKA_CLUSTER_URL = "/kafka/v3/clusters/";
+  static final String V1_IAM_SERVICE_ACCOUNTS_URL = "/service_accounts";
+  static final String V2_IAM_SERVICE_ACCOUNTS_URL = "/iam/v2/service-accounts";
+  static final String V3_KAFKA_CLUSTER_URL = "/kafka/v3/clusters/";
 
   private JulieHttpClient clusterHttpClient;
   private JulieHttpClient ccloudApiHttpClient;
@@ -157,7 +157,11 @@ public class CCloudApi {
 
   private ListServiceAccountResponse getListServiceAccounts(String url, int page_size)
       throws IOException {
-    Response r = ccloudApiHttpClient.doGet(String.format("%s?page_size=%d", url, page_size));
+    String requestUrl = url;
+    if (!url.contains("page_token")) {
+        requestUrl = String.format("%s?page_size=%d", url, page_size);
+    }
+    Response r = ccloudApiHttpClient.doGet(requestUrl);
     return (ListServiceAccountResponse)
         JSON.toObject(r.getResponseAsString(), ListServiceAccountResponse.class);
   }
