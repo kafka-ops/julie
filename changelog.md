@@ -1,3 +1,9 @@
+v4.2.9 / 2022-08-22
+===================
+
+  * Fix pagination issue when listing service accounts for confluent cloud (#531)
+  * Don't print empty operations (#517)
+
 v4.2.8 / 2022-07-28
 ===================
 
