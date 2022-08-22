@@ -19,11 +19,19 @@ public class Response {
   private final int statusCode;
   private final HttpHeaders headers;
 
+  public Response(HttpHeaders headers, int statusCode, Map<String, Object> map, String response) {
+    this.headers = headers;
+    this.statusCode = statusCode;
+    this.map = map;
+    this.response = response;
+  }
+
+  public Response(HttpHeaders headers, int statusCode, String response) {
+    this(headers, statusCode, new HashMap<>(), response);
+  }
+
   public Response(HttpResponse<String> response) {
-    this.headers = response.headers();
-    this.statusCode = response.statusCode();
-    this.response = response.body();
-    this.map = new HashMap<>();
+    this(response.headers(), response.statusCode(), response.body());
   }
 
   public Integer getStatus() {
