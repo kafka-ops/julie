@@ -285,6 +285,22 @@ An example configuration might look like this:
 If this prefix list is used, only groups that match the prefix will be ever processed, if wildcard it will be managed if the service account is managed by Julie Ops, anything else will be ignored.
 This is useful in a shared cluster, to avoid Julie Ops removing/accidentally managing group acls by other teams with seperate pipelines.
 
+Control allowed Subject to be managed by Julie Ops
+-----------
+
+This property is used to control which Subject prefixes are allowed to be managed by Julie Ops, this variable contains a list of allowed prefixes.
+
+**Property**: *topology.subject.managed.prefixes*
+**Default value**: "[]"
+
+An example configuration might look like this:
+::
+    topology.subject.managed.prefixes.0=NameSpaceA
+    topology.subject.managed.prefixes.1=NameSpaceB
+
+If this prefix list is used, only subjects that match the prefix will be ever processed, if wildcard it will be managed if the service account is managed by Julie Ops, anything else will be ignored.
+This is useful in a shared cluster, to avoid Julie Ops removing/accidentally managing subject acls by other teams with seperate pipelines.
+
 HTTPs configuration (TLS)
 -----------
 

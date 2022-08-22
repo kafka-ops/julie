@@ -95,6 +95,7 @@ public class RBACPRoviderRbacIT extends MDSBaseTest {
 
     Properties props = new Properties();
     props.put(ALLOW_DELETE_BINDINGS, true);
+    props.put(SUBJECT_MANAGED_PREFIXES + ".0", "managed");
 
     HashMap<String, String> cliOps = new HashMap<>();
     cliOps.put(BROKERS_OPTION, "");
@@ -294,7 +295,7 @@ public class RBACPRoviderRbacIT extends MDSBaseTest {
 
   @Test
   public void schemasRbacCreation() throws IOException {
-    var names = asList("foo", "bar");
+    var names = asList("managed.foo", "managed.bar", "not-managed.unused");
 
     Schemas schema = new Schemas();
     schema.setPrincipal("User:Schemas");
@@ -327,6 +328,7 @@ public class RBACPRoviderRbacIT extends MDSBaseTest {
 
     var resources =
         apiClient.lookupResourcesForSchemaRegistry(schema.getPrincipal(), RESOURCE_OWNER);
+    assertThat(resources.size()).isEqualTo(2);
     for (RbacResourceType resource : resources) {
       assertThat(names).contains(resource.getName());
       assertThat(resource.getResourceType()).isEqualTo("Subject");
@@ -339,7 +341,6 @@ public class RBACPRoviderRbacIT extends MDSBaseTest {
 
     resources = apiClient.lookupResourcesForSchemaRegistry(schema.getPrincipal(), RESOURCE_OWNER);
     assertThat(resources).isEmpty();
-
   }
 
   @Test
