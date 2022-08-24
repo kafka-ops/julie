@@ -7,6 +7,7 @@ import static com.purbon.kafka.topology.model.SubjectNameStrategy.TOPIC_RECORD_N
 import static com.purbon.kafka.topology.roles.rbac.RBACPredefinedRoles.DEVELOPER_READ;
 import static com.purbon.kafka.topology.roles.rbac.RBACPredefinedRoles.RESOURCE_OWNER;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
@@ -35,11 +36,19 @@ import java.io.IOException;
 import java.util.*;
 import java.util.stream.Collectors;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
 public class TopologySerdesTest {
 
   private TopologySerdes parser;
+
+  @BeforeClass
+  public static void beforeClass() {
+    System.setProperty("env", "staging");
+    System.setProperty("source", "partner");
+    System.setProperty("project", "my_project");
+  }
 
   @Before
   public void setup() {
@@ -68,6 +77,32 @@ public class TopologySerdesTest {
     assertThat(project.getTopics().get(1).getMetadata()).containsKey("owner");
     assertThat(project.getTopics().get(0).getConsumers().get(0).getMetadata())
         .containsKey("system");
+  }
+
+  @Test
+  public void testSystemPropertySubstitution() {
+    // Given
+    // System properties already set in the setup fonction
+
+    // When
+    Topology topology =
+      parser.deserialise(TestUtils.getResourceFile("/descriptor-with-system-properties.yaml"));
+    Project project = topology.getProjects().get(0);
+
+    // Then
+    assertThat(project.getName()).isEqualTo("my_project");
+    assertThat(project.namePrefix()).isEqualTo("staging.partner.my_project.");
+  }
+
+  @Test
+  public void testInvalidSystemPropertySubstitution() {
+    // Given
+    // System properties already set in the setup fonction
+
+    // When
+    // Then
+    assertThatThrownBy(() -> parser.deserialise(TestUtils.getResourceFile("/descriptor-with-unknown-system-properties.yaml")))
+      .isExactlyInstanceOf(TopologyParsingException.class);
   }
 
   @Test

@@ -531,6 +531,7 @@
     <log4j.version>2.17.1</log4j.version>
     <zookeeper.version>3.5.7</zookeeper.version>
     <commons.version>1.4</commons.version>
+    <commons-text.version>1.9</commons-text.version>
     <mockito.version>3.6.0</mockito.version>
     <junit.version>4.13.1</junit.version>
     <testcontainers.version>1.15.3</testcontainers.version>
@@ -735,7 +736,11 @@
       <version>2.33.1</version>
       <scope>test</scope>
     </dependency>
-
+    <dependency>
+      <groupId>org.apache.commons</groupId>
+      <artifactId>commons-text</artifactId>
+      <version>${commons-text.version}</version>
+    </dependency>
   </dependencies>
 
   <dependencyManagement>
