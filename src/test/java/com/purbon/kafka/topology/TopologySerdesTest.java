@@ -86,7 +86,7 @@ public class TopologySerdesTest {
 
     // When
     Topology topology =
-      parser.deserialise(TestUtils.getResourceFile("/descriptor-with-system-properties.yaml"));
+        parser.deserialise(TestUtils.getResourceFile("/descriptor-with-system-properties.yaml"));
     Project project = topology.getProjects().get(0);
 
     // Then
@@ -101,8 +101,11 @@ public class TopologySerdesTest {
 
     // When
     // Then
-    assertThatThrownBy(() -> parser.deserialise(TestUtils.getResourceFile("/descriptor-with-unknown-system-properties.yaml")))
-      .isExactlyInstanceOf(TopologyParsingException.class);
+    assertThatThrownBy(
+            () ->
+                parser.deserialise(
+                    TestUtils.getResourceFile("/descriptor-with-unknown-system-properties.yaml")))
+        .isExactlyInstanceOf(TopologyParsingException.class);
   }
 
   @Test
