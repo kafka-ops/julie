@@ -24,7 +24,7 @@ public class KStreamsAclBindingsBuilderTest {
   }
 
   @Test
-  void testStreamsWithoutApplicationId() {
+  void streamsWithoutApplicationId() {
     HashMap<String, List<String>> topics = new HashMap<>();
     topics.put(KStream.READ_TOPICS, singletonList("topicA"));
     topics.put(KStream.WRITE_TOPICS, singletonList("topicB"));
@@ -45,7 +45,7 @@ public class KStreamsAclBindingsBuilderTest {
   }
 
   @Test
-  void testStreamWithApplicationId() {
+  void streamWithApplicationId() {
     HashMap<String, List<String>> topics = new HashMap<>();
     topics.put(KStream.READ_TOPICS, singletonList("topicA"));
     topics.put(KStream.WRITE_TOPICS, singletonList("topicB"));

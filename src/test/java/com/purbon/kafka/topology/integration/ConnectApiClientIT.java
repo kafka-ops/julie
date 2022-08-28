@@ -50,7 +50,7 @@ public class ConnectApiClientIT {
   }
 
   @Test
-  void testAddRetrieveAndDeleteConnector() throws IOException {
+  void addRetrieveAndDeleteConnector() throws IOException {
     String connectorName = "file-source-connector";
     String connectorConfig =
         "{\n"
@@ -72,7 +72,7 @@ public class ConnectApiClientIT {
   }
 
   @Test
-  void testAddStartStopConnector() throws IOException, InterruptedException {
+  void addStartStopConnector() throws IOException, InterruptedException {
     String connectorName = "file-source-connector";
     String connectorConfig =
         "{\n"

@@ -64,7 +64,7 @@ public class KafkaBackendIT {
   }
 
   @Test
-  void testExpectedFlow() throws IOException, InterruptedException {
+  void expectedFlow() throws IOException, InterruptedException {
 
     TopologyAclBinding binding =
         TopologyAclBinding.build(
@@ -96,20 +96,21 @@ public class KafkaBackendIT {
   }
 
   @Test
-  void testWrongConfig() {
-    assertThrows(IOException.class, () -> {
+  void wrongConfig() {
+    assertThrows(
+        IOException.class,
+        () -> {
+          KafkaBackend backend = new KafkaBackend();
 
-      KafkaBackend backend = new KafkaBackend();
+          HashMap<String, String> cliOps = new HashMap<>();
+          cliOps.put(BROKERS_OPTION, container.getBootstrapServers());
 
-      HashMap<String, String> cliOps = new HashMap<>();
-      cliOps.put(BROKERS_OPTION, container.getBootstrapServers());
+          props.put(Constants.JULIE_KAFKA_CONFIG_TOPIC, "foo");
 
-      props.put(Constants.JULIE_KAFKA_CONFIG_TOPIC, "foo");
+          Configuration config = new Configuration(cliOps, props);
 
-      Configuration config = new Configuration(cliOps, props);
-
-      backend.configure(config);
-      backend.close();
-    });
+          backend.configure(config);
+          backend.close();
+        });
   }
 }

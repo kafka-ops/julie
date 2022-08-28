@@ -79,38 +79,42 @@ public class JulieOpsTest {
 
   @Test
   void verifyProblematicParametersTest() throws Exception {
-    assertThrows(TopologyParsingException.class, () -> {
-      String file = "fileThatDoesNotExist.yaml";
-      Configuration builderConfig = new Configuration(cliOps, props);
+    assertThrows(
+        TopologyParsingException.class,
+        () -> {
+          String file = "fileThatDoesNotExist.yaml";
+          Configuration builderConfig = new Configuration(cliOps, props);
 
-      JulieOps builder =
-          JulieOps.build(
-              file,
-              builderConfig,
-              topologyAdminClient,
-              accessControlProvider,
-              bindingsBuilderProvider);
+          JulieOps builder =
+              JulieOps.build(
+                  file,
+                  builderConfig,
+                  topologyAdminClient,
+                  accessControlProvider,
+                  bindingsBuilderProvider);
 
-      builder.verifyRequiredParameters(file, cliOps);
-    });
+          builder.verifyRequiredParameters(file, cliOps);
+        });
   }
 
   @Test
   void verifyProblematicParametersTest2() throws Exception {
-    assertThrows(IOException.class, () -> {
-      String fileOrDirPath = TestUtils.getResourceFilename("/descriptor.yaml");
+    assertThrows(
+        IOException.class,
+        () -> {
+          String fileOrDirPath = TestUtils.getResourceFilename("/descriptor.yaml");
 
-      Configuration builderConfig = new Configuration(cliOps, props);
-      JulieOps builder =
-          JulieOps.build(
-              fileOrDirPath,
-              builderConfig,
-              topologyAdminClient,
-              accessControlProvider,
-              bindingsBuilderProvider);
+          Configuration builderConfig = new Configuration(cliOps, props);
+          JulieOps builder =
+              JulieOps.build(
+                  fileOrDirPath,
+                  builderConfig,
+                  topologyAdminClient,
+                  accessControlProvider,
+                  bindingsBuilderProvider);
 
-      builder.verifyRequiredParameters(fileOrDirPath, cliOps);
-    });
+          builder.verifyRequiredParameters(fileOrDirPath, cliOps);
+        });
   }
 
   @Test

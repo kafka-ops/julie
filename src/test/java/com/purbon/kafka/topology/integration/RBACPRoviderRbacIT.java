@@ -533,7 +533,7 @@ public class RBACPRoviderRbacIT extends MDSBaseTest {
   }
 
   @Test
-  void testRoleDeleteFlow() throws IOException {
+  void roleDeleteFlow() throws IOException {
 
     BackendController cs = new BackendController();
     ExecutionPlan plan = ExecutionPlan.init(cs, System.out);
@@ -662,7 +662,7 @@ public class RBACPRoviderRbacIT extends MDSBaseTest {
   }
 
   @Test
-  void testJulieRoleAclCreation() throws IOException {
+  void julieRoleAclCreation() throws IOException {
 
     BackendController cs = new BackendController();
     ExecutionPlan plan = ExecutionPlan.init(cs, System.out);

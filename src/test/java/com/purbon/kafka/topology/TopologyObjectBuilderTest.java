@@ -74,19 +74,23 @@ public class TopologyObjectBuilderTest {
 
   @Test
   void buildOutOfMultipleToposIfNotEnabled() throws IOException {
-    assertThrows(IOException.class, () -> {
-      String fileOrDirPath = TestUtils.getResourceFilename("/dir_with_multiple");
-      TopologyObjectBuilder.build(fileOrDirPath);
-    });
+    assertThrows(
+        IOException.class,
+        () -> {
+          String fileOrDirPath = TestUtils.getResourceFilename("/dir_with_multiple");
+          TopologyObjectBuilder.build(fileOrDirPath);
+        });
   }
 
   @Test
   void shouldRaiseAnExceptionIfTryingToParseMultipleTopologiesWithSharedProjects()
       throws IOException {
-    assertThrows(IOException.class, () -> {
-      String fileOrDirPath = TestUtils.getResourceFilename("/dir_with_prob");
-      TopologyObjectBuilder.build(fileOrDirPath);
-    });
+    assertThrows(
+        IOException.class,
+        () -> {
+          String fileOrDirPath = TestUtils.getResourceFilename("/dir_with_prob");
+          TopologyObjectBuilder.build(fileOrDirPath);
+        });
   }
 
   @Test
@@ -116,7 +120,7 @@ public class TopologyObjectBuilderTest {
   }
 
   @Test
-  void testConfigUpdateWhenUsingCustomPlans() throws IOException {
+  void configUpdateWhenUsingCustomPlans() throws IOException {
     String descriptorFile = TestUtils.getResourceFilename("/descriptor-with-plans.yaml");
     String plansFile = TestUtils.getResourceFilename("/plans.yaml");
 
@@ -146,36 +150,45 @@ public class TopologyObjectBuilderTest {
   }
 
   @Test
-  void testTopologyWithPlansButWithNoPlansDef() throws IOException {
-    assertThrows(IllegalArgumentException.class, () -> {
-      String descriptorFile = TestUtils.getResourceFilename("/descriptor-with-plans.yaml");
-      TopologyObjectBuilder.build(descriptorFile);
-    });
+  void topologyWithPlansButWithNoPlansDef() throws IOException {
+    assertThrows(
+        IllegalArgumentException.class,
+        () -> {
+          String descriptorFile = TestUtils.getResourceFilename("/descriptor-with-plans.yaml");
+          TopologyObjectBuilder.build(descriptorFile);
+        });
   }
 
   @Test
-  void testTopologyWithInvalidPlan() throws IOException {
-    assertThrows(TopologyParsingException.class, () -> {
-      String descriptorFile = TestUtils.getResourceFilename("/descriptor-with-invalid-plan.yaml");
-      String plansFile = TestUtils.getResourceFilename("/plans.yaml");
-      TopologyObjectBuilder.build(descriptorFile, plansFile);
-    });
+  void topologyWithInvalidPlan() throws IOException {
+    assertThrows(
+        TopologyParsingException.class,
+        () -> {
+          String descriptorFile =
+              TestUtils.getResourceFilename("/descriptor-with-invalid-plan.yaml");
+          String plansFile = TestUtils.getResourceFilename("/plans.yaml");
+          TopologyObjectBuilder.build(descriptorFile, plansFile);
+        });
   }
 
   @Test
-  void testInvalidTopology() throws IOException {
-    assertThrows(TopologyParsingException.class, () -> {
-      String descriptorFile =
-          TestUtils.getResourceFilename("/errors_dir/descriptor-with-errors.yaml");
-      TopologyObjectBuilder.build(descriptorFile);
-    });
+  void invalidTopology() throws IOException {
+    assertThrows(
+        TopologyParsingException.class,
+        () -> {
+          String descriptorFile =
+              TestUtils.getResourceFilename("/errors_dir/descriptor-with-errors.yaml");
+          TopologyObjectBuilder.build(descriptorFile);
+        });
   }
 
   @Test
-  void testInvalidTopologyFromDir() throws IOException {
-    assertThrows(TopologyParsingException.class, () -> {
-      String dirPath = TestUtils.getResourceFilename("/errors_dir");
-      TopologyObjectBuilder.build(dirPath);
-    });
+  void invalidTopologyFromDir() throws IOException {
+    assertThrows(
+        TopologyParsingException.class,
+        () -> {
+          String dirPath = TestUtils.getResourceFilename("/errors_dir");
+          TopologyObjectBuilder.build(dirPath);
+        });
   }
 }

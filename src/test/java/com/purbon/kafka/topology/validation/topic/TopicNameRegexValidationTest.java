@@ -10,27 +10,31 @@ import org.junit.jupiter.api.Test;
 public class TopicNameRegexValidationTest {
 
   @Test
-  void testKoConfigValues() throws ValidationException, ConfigurationException {
-    assertThrows(ValidationException.class, () -> {
-      Topic topic = new Topic("topic");
-      TopicNameRegexValidation validation = new TopicNameRegexValidation("[1-9]");
-      validation.valid(topic);
-    });
+  void koConfigValues() throws ValidationException, ConfigurationException {
+    assertThrows(
+        ValidationException.class,
+        () -> {
+          Topic topic = new Topic("topic");
+          TopicNameRegexValidation validation = new TopicNameRegexValidation("[1-9]");
+          validation.valid(topic);
+        });
   }
 
   @Test
-  void testOkConfigValues() throws ValidationException, ConfigurationException {
+  void okConfigValues() throws ValidationException, ConfigurationException {
     Topic topic = new Topic("topic");
     TopicNameRegexValidation validation = new TopicNameRegexValidation("[a-z]*");
     validation.valid(topic);
   }
 
   @Test
-  void testEmptyParam() throws ValidationException, ConfigurationException {
-    assertThrows(ConfigurationException.class, () -> {
-      Topic topic = new Topic("topic");
-      TopicNameRegexValidation validation = new TopicNameRegexValidation("");
-      validation.valid(topic);
-    });
+  void emptyParam() throws ValidationException, ConfigurationException {
+    assertThrows(
+        ConfigurationException.class,
+        () -> {
+          Topic topic = new Topic("topic");
+          TopicNameRegexValidation validation = new TopicNameRegexValidation("");
+          validation.valid(topic);
+        });
   }
 }

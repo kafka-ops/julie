@@ -43,7 +43,7 @@ public class KsqlSSLClientIT {
   }
 
   @Test
-  void testStreamTableCreateAndDelete() throws IOException {
+  void streamTableCreateAndDelete() throws IOException {
     KsqlClientConfig config =
         KsqlClientConfig.builder()
             .setServer(sslKsqlContainer.getUrl())

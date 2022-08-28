@@ -66,7 +66,7 @@ public class S3BackendIT {
   }
 
   @Test
-  void testContentCreation() throws IOException {
+  void contentCreation() throws IOException {
 
     S3Backend backend = new S3Backend();
 

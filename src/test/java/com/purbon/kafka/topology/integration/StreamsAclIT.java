@@ -69,7 +69,7 @@ public final class StreamsAclIT {
   }
 
   @Test
-  void testSimpleStream() {
+  void simpleStream() {
     Set<String> values;
     try (final TestProducer producer = TestProducer.create(container, PRODUCER_USERNAME)) {
       values = producer.produceSomeStrings(TOPIC_A);
@@ -98,7 +98,7 @@ public final class StreamsAclIT {
   }
 
   @Test
-  void testStreamWithInternalTopics() {
+  void streamWithInternalTopics() {
     final Set<String> values;
     try (final TestProducer producer = TestProducer.create(container, PRODUCER_USERNAME)) {
       values = producer.produceSomeStrings(TOPIC_A);

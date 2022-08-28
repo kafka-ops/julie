@@ -50,78 +50,95 @@ public final class AclProducerAndConsumerIT {
 
   @Test
   void shouldNotProduceWhenUnknownUser() {
-    assertThrows(SaslAuthenticationException.class, () -> {
-      try (final TestProducer producer = TestProducer.create(container, UNKNOWN_USERNAME)) {
-        producer.produce(TOPIC, "foo");
-      }
-    });
+    assertThrows(
+        SaslAuthenticationException.class,
+        () -> {
+          try (final TestProducer producer = TestProducer.create(container, UNKNOWN_USERNAME)) {
+            producer.produce(TOPIC, "foo");
+          }
+        });
   }
 
   @Test
   void shouldNotConsumeWhenUnknownUser() {
-    assertThrows(SaslAuthenticationException.class, () -> {
-      try (final TestConsumer consumer =
-          TestConsumer.create(container, UNKNOWN_USERNAME, CONSUMER_GROUP)) {
-        consumer.consumeForAWhile(TOPIC, null);
-      }
-    });
+    assertThrows(
+        SaslAuthenticationException.class,
+        () -> {
+          try (final TestConsumer consumer =
+              TestConsumer.create(container, UNKNOWN_USERNAME, CONSUMER_GROUP)) {
+            consumer.consumeForAWhile(TOPIC, null);
+          }
+        });
   }
 
   @Test
   void shouldNotProduceWithoutPermission() {
-    assertThrows(TopicAuthorizationException.class, () -> {
-      try (final TestProducer producer = TestProducer.create(container, NO_ACCESS_USERNAME)) {
-        producer.produce(TOPIC, "foo");
-      }
-    });
+    assertThrows(
+        TopicAuthorizationException.class,
+        () -> {
+          try (final TestProducer producer = TestProducer.create(container, NO_ACCESS_USERNAME)) {
+            producer.produce(TOPIC, "foo");
+          }
+        });
   }
 
   @Test
   void shouldNotConsumeWithoutPermission() {
-    assertThrows(TopicAuthorizationException.class, () -> {
-      try (final TestConsumer consumer =
-          TestConsumer.create(container, NO_ACCESS_USERNAME, CONSUMER_GROUP)) {
-        consumer.consumeForAWhile(TOPIC, null);
-      }
-    });
+    assertThrows(
+        TopicAuthorizationException.class,
+        () -> {
+          try (final TestConsumer consumer =
+              TestConsumer.create(container, NO_ACCESS_USERNAME, CONSUMER_GROUP)) {
+            consumer.consumeForAWhile(TOPIC, null);
+          }
+        });
   }
 
   @Test
   void shouldNotProduceWithoutPermissionEvenIfPermittedElsewhere() {
-    assertThrows(TopicAuthorizationException.class, () -> {
-      try (final TestProducer producer = TestProducer.create(container, OTHER_PRODUCER_USERNAME)) {
-        producer.produce(TOPIC, "foo");
-      }
-    });
+    assertThrows(
+        TopicAuthorizationException.class,
+        () -> {
+          try (final TestProducer producer =
+              TestProducer.create(container, OTHER_PRODUCER_USERNAME)) {
+            producer.produce(TOPIC, "foo");
+          }
+        });
   }
 
   @Test
   void shouldNotConsumeWithoutPermissionEvenIfPermittedElsewhere() {
-    assertThrows(TopicAuthorizationException.class, () -> {
-      try (final TestConsumer consumer =
-          TestConsumer.create(container, OTHER_CONSUMER_USERNAME, CONSUMER_GROUP)) {
-        consumer.consumeForAWhile(TOPIC, null);
-      }
-    });
+    assertThrows(
+        TopicAuthorizationException.class,
+        () -> {
+          try (final TestConsumer consumer =
+              TestConsumer.create(container, OTHER_CONSUMER_USERNAME, CONSUMER_GROUP)) {
+            consumer.consumeForAWhile(TOPIC, null);
+          }
+        });
   }
 
   @Test
   void shouldNotProduceWhenConsumer() {
-    assertThrows(TopicAuthorizationException.class, () -> {
-      try (final TestProducer producer = TestProducer.create(container, CONSUMER_USERNAME)) {
-        producer.produce(TOPIC, "foo");
-      }
-    });
+    assertThrows(
+        TopicAuthorizationException.class,
+        () -> {
+          try (final TestProducer producer = TestProducer.create(container, CONSUMER_USERNAME)) {
+            producer.produce(TOPIC, "foo");
+          }
+        });
   }
 
   @Test
   void shouldNotConsumeWhenProducer() {
-    assertThrows(GroupAuthorizationException.class, () -> {
-      try (final TestConsumer consumer =
-          TestConsumer.create(container, PRODUCER_USERNAME, CONSUMER_GROUP)) {
-        consumer.consumeForAWhile(TOPIC, null);
-      }
-    });
+    assertThrows(
+        GroupAuthorizationException.class,
+        () -> {
+          try (final TestConsumer consumer =
+              TestConsumer.create(container, PRODUCER_USERNAME, CONSUMER_GROUP)) {
+            consumer.consumeForAWhile(TOPIC, null);
+          }
+        });
   }
 
   @Test

@@ -159,8 +159,7 @@ public class QuotasManagerIT {
   }
 
   @Test
-  void quotaForUserChangeValues()
-      throws ExecutionException, InterruptedException, IOException {
+  void quotaForUserChangeValues() throws ExecutionException, InterruptedException, IOException {
 
     Topology topology = woldMSpecPattern();
     accessControlManager.updatePlan(topology, plan);
@@ -182,8 +181,7 @@ public class QuotasManagerIT {
   }
 
   @Test
-  void quotaOnlyRemoveOneUser()
-      throws ExecutionException, InterruptedException, IOException {
+  void quotaOnlyRemoveOneUser() throws ExecutionException, InterruptedException, IOException {
 
     Topology topology = woldMSpecPattern();
     accessControlManager.updatePlan(topology, plan);

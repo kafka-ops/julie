@@ -55,7 +55,7 @@ public class TopologySerdesTest {
   }
 
   @Test
-  void testMetadata() {
+  void metadata() {
     Topology topology =
         parser.deserialise(TestUtils.getResourceFile("/descriptor-with-metadata.yaml"));
     Project project = topology.getProjects().get(0);
@@ -72,7 +72,7 @@ public class TopologySerdesTest {
   }
 
   @Test
-  void testStreamsParsingOnlyReadTopicsShouldNotParseAsNull() {
+  void streamsParsingOnlyReadTopicsShouldNotParseAsNull() {
     Topology topology =
         parser.deserialise(TestUtils.getResourceFile("/descriptor-streams-only-read.yaml"));
 
@@ -88,14 +88,16 @@ public class TopologySerdesTest {
   }
 
   @Test
-  void testStreamsParsingOnlyWriteTopicsShoulRaiseAnException() {
-    assertThrows(TopologyParsingException.class, () -> {
-      parser.deserialise(TestUtils.getResourceFile("/descriptor-streams-only-write.yaml"));
-    });
+  void streamsParsingOnlyWriteTopicsShoulRaiseAnException() {
+    assertThrows(
+        TopologyParsingException.class,
+        () -> {
+          parser.deserialise(TestUtils.getResourceFile("/descriptor-streams-only-write.yaml"));
+        });
   }
 
   @Test
-  void testDynamicFirstLevelAttributes() {
+  void dynamicFirstLevelAttributes() {
     Topology topology =
         parser.deserialise(TestUtils.getResourceFile("/descriptor-with-others.yml"));
     Project project = topology.getProjects().get(0);
@@ -108,12 +110,12 @@ public class TopologySerdesTest {
   }
 
   @Test
-  void testFileWithoutTopicsShouldNotError() {
+  void fileWithoutTopicsShouldNotError() {
     parser.deserialise(TestUtils.getResourceFile("/descriptor-without-topics.yml"));
   }
 
   @Test
-  void testTopologySerialisation() throws IOException {
+  void topologySerialisation() throws IOException {
     Topology topology = new TopologyImpl();
     topology.setContext("contextOrg");
     topology.setProjects(buildProjects());
@@ -126,7 +128,7 @@ public class TopologySerdesTest {
   }
 
   @Test
-  void testTopicConfigSerdes() throws IOException {
+  void topicConfigSerdes() throws IOException {
     Topology topology = new TopologyImpl();
     topology.setContext("team");
 
@@ -185,7 +187,7 @@ public class TopologySerdesTest {
   }
 
   @Test
-  void testTopicWithDataType() throws IOException {
+  void topicWithDataType() throws IOException {
     Project project = new ProjectImpl("foo");
 
     Topology topology = new TopologyImpl();
@@ -215,19 +217,21 @@ public class TopologySerdesTest {
   }
 
   @Test
-  void testTopologyWithNoTeam() {
-    assertThrows(TopologyParsingException.class, () -> {
-      parser.deserialise(TestUtils.getResourceFile("/descriptor-with-no-context.yaml"));
-    });
+  void topologyWithNoTeam() {
+    assertThrows(
+        TopologyParsingException.class,
+        () -> {
+          parser.deserialise(TestUtils.getResourceFile("/descriptor-with-no-context.yaml"));
+        });
   }
 
   @Test
-  void testTopologyWithNoProjectShouldNotError() {
+  void topologyWithNoProjectShouldNotError() {
     parser.deserialise(TestUtils.getResourceFile("/descriptor-with-no-project.yaml"));
   }
 
   @Test
-  void testCoreElementsProcessing() {
+  void coreElementsProcessing() {
     Topology topology = parser.deserialise(TestUtils.getResourceFile("/descriptor.yaml"));
 
     assertThat(topology.getProjects()).hasSize(3);
@@ -248,7 +252,7 @@ public class TopologySerdesTest {
   }
 
   @Test
-  void testStreamsApps() {
+  void streamsApps() {
     Topology topology = parser.deserialise(TestUtils.getResourceFile("/descriptor.yaml"));
 
     Project project1 = topology.getProjects().get(0);
@@ -262,14 +266,16 @@ public class TopologySerdesTest {
   }
 
   @Test
-  void testInvalidSchemaSerdes() {
-    assertThrows(IllegalArgumentException.class, () -> {
-      parser.deserialise(TestUtils.getResourceFile("/descriptor-wrong-schemas.yaml"));
-    });
+  void invalidSchemaSerdes() {
+    assertThrows(
+        IllegalArgumentException.class,
+        () -> {
+          parser.deserialise(TestUtils.getResourceFile("/descriptor-wrong-schemas.yaml"));
+        });
   }
 
   @Test
-  void testSchemaSerdes() {
+  void schemaSerdes() {
     Topology topology = parser.deserialise(TestUtils.getResourceFile("/descriptor.yaml"));
     Project project = topology.getProjects().get(0);
     List<Topic> topics = project.getTopics();
@@ -289,7 +295,7 @@ public class TopologySerdesTest {
   }
 
   @Test
-  void testOtherSerdes() {
+  void otherSerdes() {
     Topology topology = parser.deserialise(TestUtils.getResourceFile("/descriptor.yaml"));
     Project project = topology.getProjects().get(0);
 
@@ -304,7 +310,7 @@ public class TopologySerdesTest {
   }
 
   @Test
-  void testKsqlSerdes() {
+  void ksqlSerdes() {
     Topology topology = parser.deserialise(TestUtils.getResourceFile("/descriptor.yaml"));
     Project project = topology.getProjects().get(0);
 
@@ -324,7 +330,7 @@ public class TopologySerdesTest {
   }
 
   @Test
-  void testPlatformProcessing() {
+  void platformProcessing() {
     Topology topology = parser.deserialise(TestUtils.getResourceFile("/descriptor.yaml"));
 
     assertEquals("contextOrg", topology.getContext());
@@ -356,7 +362,7 @@ public class TopologySerdesTest {
   }
 
   @Test
-  void testOnlyTopics() {
+  void onlyTopics() {
     Topology topology =
         parser.deserialise(TestUtils.getResourceFile("/descriptor-only-topics.yaml"));
 
@@ -368,7 +374,7 @@ public class TopologySerdesTest {
   }
 
   @Test
-  void testOnlyConnectors() {
+  void onlyConnectors() {
     Topology topology =
         parser.deserialise(TestUtils.getResourceFile("/descriptor-connector-alone.yaml"));
 
@@ -378,7 +384,7 @@ public class TopologySerdesTest {
   }
 
   @Test
-  void testRBACTopics() {
+  void rBACTopics() {
     Topology topology =
         parser.deserialise(TestUtils.getResourceFile("/descriptor-with-rbac-topics.yaml"));
 
@@ -401,7 +407,7 @@ public class TopologySerdesTest {
   }
 
   @Test
-  void testWithRBACDescriptor() {
+  void withRBACDescriptor() {
     Topology topology = parser.deserialise(TestUtils.getResourceFile("/descriptor-with-rbac.yaml"));
     Project myProject = topology.getProjects().get(0);
 
@@ -449,7 +455,7 @@ public class TopologySerdesTest {
   }
 
   @Test
-  void testConnectorArtefactsRetrieval() {
+  void connectorArtefactsRetrieval() {
     Topology topology = parser.deserialise(TestUtils.getResourceFile("/descriptor-connector.yaml"));
     Project project = topology.getProjects().get(0);
     List<KafkaConnectArtefact> artefacts = project.getConnectorArtefacts().getConnectors();
@@ -461,7 +467,7 @@ public class TopologySerdesTest {
   }
 
   @Test
-  void testBackwardsCompatibleDescriptorForConnectors() {
+  void backwardsCompatibleDescriptorForConnectors() {
     Topology topology =
         parser.deserialise(TestUtils.getResourceFile("/backwards-comp-descriptor.yaml"));
     Project fooProject = topology.getProjects().get(0);
@@ -473,7 +479,7 @@ public class TopologySerdesTest {
   }
 
   @Test
-  void testTopicNameWithCustomSeparator() {
+  void topicNameWithCustomSeparator() {
     Map<String, String> cliOps = new HashMap<>();
     cliOps.put(BROKERS_OPTION, "");
     cliOps.put(CLIENT_CONFIG_OPTION, "/fooBar");
@@ -497,7 +503,7 @@ public class TopologySerdesTest {
   }
 
   @Test
-  void testTopicNameWithCustomPattern() {
+  void topicNameWithCustomPattern() {
     Map<String, String> cliOps = new HashMap<>();
     cliOps.put(BROKERS_OPTION, "");
     cliOps.put(CLIENT_CONFIG_OPTION, "/fooBar");
@@ -521,7 +527,7 @@ public class TopologySerdesTest {
   }
 
   @Test
-  void testTopologyWithRepeatedAndMissingDataType() {
+  void topologyWithRepeatedAndMissingDataType() {
     Map<String, String> cliOps = new HashMap<>();
     cliOps.put(BROKERS_OPTION, "");
     cliOps.put(CLIENT_CONFIG_OPTION, "/fooBar");
@@ -547,7 +553,7 @@ public class TopologySerdesTest {
   }
 
   @Test
-  void testTopicsWithDLQNoFilter() {
+  void topicsWithDLQNoFilter() {
     Map<String, String> cliOps = new HashMap<>();
     cliOps.put(BROKERS_OPTION, "");
     cliOps.put(CLIENT_CONFIG_OPTION, "/fooBar");
@@ -571,7 +577,7 @@ public class TopologySerdesTest {
   }
 
   @Test
-  void testTopicsWithDLQWithDenyList() {
+  void topicsWithDLQWithDenyList() {
     Map<String, String> cliOps = new HashMap<>();
     cliOps.put(BROKERS_OPTION, "");
     cliOps.put(CLIENT_CONFIG_OPTION, "/fooBar");
@@ -595,7 +601,7 @@ public class TopologySerdesTest {
   }
 
   @Test
-  void testTopicsWithDLQWithDenyListAndPattern() {
+  void topicsWithDLQWithDenyListAndPattern() {
     Map<String, String> cliOps = new HashMap<>();
     cliOps.put(BROKERS_OPTION, "");
     cliOps.put(CLIENT_CONFIG_OPTION, "/fooBar");
@@ -619,7 +625,7 @@ public class TopologySerdesTest {
   }
 
   @Test
-  void testTopicsWithDLQWithDenyListAndPatternFullDeny() {
+  void topicsWithDLQWithDenyListAndPatternFullDeny() {
     Map<String, String> cliOps = new HashMap<>();
     cliOps.put(BROKERS_OPTION, "");
     cliOps.put(CLIENT_CONFIG_OPTION, "/fooBar");
@@ -642,7 +648,7 @@ public class TopologySerdesTest {
   }
 
   @Test
-  void testTopicsWithDLQWithTopicPattern() {
+  void topicsWithDLQWithTopicPattern() {
     Map<String, String> cliOps = new HashMap<>();
     cliOps.put(BROKERS_OPTION, "");
     cliOps.put(CLIENT_CONFIG_OPTION, "/fooBar");
@@ -667,7 +673,7 @@ public class TopologySerdesTest {
   }
 
   @Test
-  void testTopicsWithDLQConfigVerify() {
+  void topicsWithDLQConfigVerify() {
     Map<String, String> cliOps = new HashMap<>();
     cliOps.put(BROKERS_OPTION, "");
     cliOps.put(CLIENT_CONFIG_OPTION, "/fooBar");
@@ -695,7 +701,7 @@ public class TopologySerdesTest {
   }
 
   @Test
-  void testTopicsWithDLQWithAllowList() {
+  void topicsWithDLQWithAllowList() {
     Map<String, String> cliOps = new HashMap<>();
     cliOps.put(BROKERS_OPTION, "");
     cliOps.put(CLIENT_CONFIG_OPTION, "/fooBar");
@@ -719,7 +725,7 @@ public class TopologySerdesTest {
   }
 
   @Test
-  void testTopicsWithDLQWithAllowAndDenyList() {
+  void topicsWithDLQWithAllowAndDenyList() {
     Map<String, String> cliOps = new HashMap<>();
     cliOps.put(BROKERS_OPTION, "");
     cliOps.put(CLIENT_CONFIG_OPTION, "/fooBar");
@@ -749,14 +755,16 @@ public class TopologySerdesTest {
   }
 
   @Test
-  void testTopicNameWithUTFCharacters() {
-    assertThrows(TopologyParsingException.class, () -> {
-      parser.deserialise(TestUtils.getResourceFile("/descriptor-only-topics-utf.yaml"));
-    });
+  void topicNameWithUTFCharacters() {
+    assertThrows(
+        TopologyParsingException.class,
+        () -> {
+          parser.deserialise(TestUtils.getResourceFile("/descriptor-only-topics-utf.yaml"));
+        });
   }
 
   @Test
-  void testJsonDescriptorFileSerdes() {
+  void jsonDescriptorFileSerdes() {
     TopologySerdes parser = new TopologySerdes(new Configuration(), FileType.JSON, new PlanMap());
     Topology topology = parser.deserialise(TestUtils.getResourceFile("/descriptor.json"));
 

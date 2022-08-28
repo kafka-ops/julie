@@ -30,24 +30,26 @@ public class JulieOpsIT {
   }
 
   @Test
-  void testSetupKafkaTopologyBuilderWithWrongCredentialsHC() throws Exception {
-    assertThrows(IOException.class, () -> {
+  void setupKafkaTopologyBuilderWithWrongCredentialsHC() throws Exception {
+    assertThrows(
+        IOException.class,
+        () -> {
+          String fileOrDirPath = TestUtils.getResourceFilename("/descriptor.yaml");
+          String clientConfigFile =
+              TestUtils.getResourceFilename("/wrong-client-config.properties");
 
-      String fileOrDirPath = TestUtils.getResourceFilename("/descriptor.yaml");
-      String clientConfigFile = TestUtils.getResourceFilename("/wrong-client-config.properties");
+          Map<String, String> config = new HashMap<>();
+          config.put(BROKERS_OPTION, container.getBootstrapServers());
+          config.put(DRY_RUN_OPTION, "false");
+          config.put(QUIET_OPTION, "true");
+          config.put(CLIENT_CONFIG_OPTION, clientConfigFile);
 
-      Map<String, String> config = new HashMap<>();
-      config.put(BROKERS_OPTION, container.getBootstrapServers());
-      config.put(DRY_RUN_OPTION, "false");
-      config.put(QUIET_OPTION, "true");
-      config.put(CLIENT_CONFIG_OPTION, clientConfigFile);
-
-      JulieOps.build(fileOrDirPath, config);
-    });
+          JulieOps.build(fileOrDirPath, config);
+        });
   }
 
   @Test
-  void testSetupKafkaTopologyBuilderWithGoodCredentialsHC() throws Exception {
+  void setupKafkaTopologyBuilderWithGoodCredentialsHC() throws Exception {
 
     String fileOrDirPath = TestUtils.getResourceFilename("/descriptor.yaml");
     String clientConfigFile = TestUtils.getResourceFilename("/client-config.properties");

@@ -34,7 +34,7 @@ public class JulieRolesTest {
   public void after() {}
 
   @Test
-  void testSerdes() throws IOException {
+  void serdes() throws IOException {
     JulieRoles roles = parser.deserialise(TestUtils.getResourceFile("/roles-rbac.yaml"));
 
     assertThat(roles.getRoles()).hasSize(2);
@@ -90,18 +90,21 @@ public class JulieRolesTest {
   }
 
   @Test
-  void testTopologyValidationException() throws IOException {
-    assertThrows(IOException.class, () -> {
-      JulieRoles roles = parser.deserialise(TestUtils.getResourceFile("/roles.yaml"));
-      TopologySerdes topologySerdes = new TopologySerdes();
+  void topologyValidationException() throws IOException {
+    assertThrows(
+        IOException.class,
+        () -> {
+          JulieRoles roles = parser.deserialise(TestUtils.getResourceFile("/roles.yaml"));
+          TopologySerdes topologySerdes = new TopologySerdes();
 
-      Topology topology = topologySerdes.deserialise(TestUtils.getResourceFile("/descriptor.yaml"));
-      roles.validateTopology(topology);
-    });
+          Topology topology =
+              topologySerdes.deserialise(TestUtils.getResourceFile("/descriptor.yaml"));
+          roles.validateTopology(topology);
+        });
   }
 
   @Test
-  void testTopologyValidationCorrect() throws IOException {
+  void topologyValidationCorrect() throws IOException {
     JulieRoles roles = parser.deserialise(TestUtils.getResourceFile("/roles-goodTest.yaml"));
     TopologySerdes topologySerdes = new TopologySerdes();
 

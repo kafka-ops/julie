@@ -62,9 +62,11 @@ public class JulieOpsAuxiliaryTest {
 
   @Test
   void shouldConfigureAKafkaBackend() throws IOException {
-    assertThrows(KafkaException.class, () -> {
-      testBackend(KAFKA_STATE_PROCESSOR_CLASS, KafkaBackend.class);
-    });
+    assertThrows(
+        KafkaException.class,
+        () -> {
+          testBackend(KAFKA_STATE_PROCESSOR_CLASS, KafkaBackend.class);
+        });
   }
 
   @Test

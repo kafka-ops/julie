@@ -104,7 +104,7 @@ public class AccessControlManagerTest {
   }
 
   @Test
-  void testConsumerAclsAtTopicLevel() throws IOException {
+  void consumerAclsAtTopicLevel() throws IOException {
 
     Consumer projectConsumer = new Consumer("project-consumer");
     Consumer topicConsumer = new Consumer("topic-consumer");
@@ -180,7 +180,7 @@ public class AccessControlManagerTest {
   }
 
   @Test
-  void testProducerAclsAtTopicLevel() throws IOException {
+  void producerAclsAtTopicLevel() throws IOException {
 
     Producer projectProducer = new Producer("project-producer");
     Producer topicProducer = new Producer("topic-producer");
@@ -276,43 +276,44 @@ public class AccessControlManagerTest {
   }
 
   @Test
-  void testkStreamAclsCreationWithMissingPrefixGroup() throws Exception {
-    assertThrows(IOException.class, () -> {
+  void kStreamAclsCreationWithMissingPrefixGroup() throws Exception {
+    assertThrows(
+        IOException.class,
+        () -> {
+          Properties props = new Properties();
+          props.put(PROJECT_PREFIX_FORMAT_CONFIG, "");
+          props.put(TOPOLOGY_STATE_FROM_CLUSTER, "true");
+          props.put(ALLOW_DELETE_TOPICS, true);
+          props.put(TOPIC_PREFIX_FORMAT_CONFIG, "{{topic}}");
+          props.put(ALLOW_DELETE_BINDINGS, true);
+          props.put(KAFKA_INTERNAL_TOPIC_PREFIXES, singletonList("_"));
 
-      Properties props = new Properties();
-      props.put(PROJECT_PREFIX_FORMAT_CONFIG, "");
-      props.put(TOPOLOGY_STATE_FROM_CLUSTER, "true");
-      props.put(ALLOW_DELETE_TOPICS, true);
-      props.put(TOPIC_PREFIX_FORMAT_CONFIG, "{{topic}}");
-      props.put(ALLOW_DELETE_BINDINGS, true);
-      props.put(KAFKA_INTERNAL_TOPIC_PREFIXES, singletonList("_"));
+          HashMap<String, String> cliOps = new HashMap<>();
+          cliOps.put(BROKERS_OPTION, "");
 
-      HashMap<String, String> cliOps = new HashMap<>();
-      cliOps.put(BROKERS_OPTION, "");
+          Configuration config = new Configuration(cliOps, props);
 
-      Configuration config = new Configuration(cliOps, props);
+          AclsBindingsBuilder bindingsBuilder = new AclsBindingsBuilder(config);
+          AccessControlManager accessControlManager =
+              new AccessControlManager(aclsProvider, bindingsBuilder, config);
 
-      AclsBindingsBuilder bindingsBuilder = new AclsBindingsBuilder(config);
-      AccessControlManager accessControlManager =
-          new AccessControlManager(aclsProvider, bindingsBuilder, config);
+          Project project = new ProjectImpl("foo", config);
 
-      Project project = new ProjectImpl("foo", config);
+          KStream app = new KStream();
+          app.setPrincipal("User:App0");
+          HashMap<String, List<String>> topics = new HashMap<>();
+          topics.put(KStream.READ_TOPICS, Arrays.asList("topic-A", "topic-B"));
+          topics.put(KStream.WRITE_TOPICS, Arrays.asList("topic-C", "topic-D"));
+          app.setTopics(topics);
+          project.setStreams(Collections.singletonList(app));
 
-      KStream app = new KStream();
-      app.setPrincipal("User:App0");
-      HashMap<String, List<String>> topics = new HashMap<>();
-      topics.put(KStream.READ_TOPICS, Arrays.asList("topic-A", "topic-B"));
-      topics.put(KStream.WRITE_TOPICS, Arrays.asList("topic-C", "topic-D"));
-      app.setTopics(topics);
-      project.setStreams(Collections.singletonList(app));
+          Topology topology = new TopologyImpl();
+          topology.setContext("integration-test");
+          topology.addOther("source", "kstreamsAclsCreation");
+          topology.addProject(project);
 
-      Topology topology = new TopologyImpl();
-      topology.setContext("integration-test");
-      topology.addOther("source", "kstreamsAclsCreation");
-      topology.addProject(project);
-
-      accessControlManager.updatePlan(topology, plan);
-    });
+          accessControlManager.updatePlan(topology, plan);
+        });
   }
 
   @Test
@@ -456,7 +457,7 @@ public class AccessControlManagerTest {
   }
 
   @Test
-  void testDryRunMode() throws IOException {
+  void dryRunMode() throws IOException {
     plan = ExecutionPlan.init(backendController, mockPrintStream);
     accessControlManager =
         new AccessControlManager(aclsProvider, new AclsBindingsBuilder(config), config);
@@ -480,7 +481,7 @@ public class AccessControlManagerTest {
   }
 
   @Test
-  void testAclDeleteWithDetailedOptionEnabled() throws IOException {
+  void aclDeleteWithDetailedOptionEnabled() throws IOException {
     doReturn(true).when(config).isAllowDeleteBindings();
     doReturn(false).when(config).isAllowDeleteTopics();
 
@@ -488,7 +489,7 @@ public class AccessControlManagerTest {
   }
 
   @Test
-  void testAclDeleteWithDetailedOptionDisabled() throws IOException {
+  void aclDeleteWithDetailedOptionDisabled() throws IOException {
     doReturn(false).when(config).isAllowDeleteBindings();
     doReturn(false).when(config).isAllowDeleteTopics();
 
@@ -645,7 +646,7 @@ public class AccessControlManagerTest {
   }
 
   @Test
-  void testToProcessOnlySelectedTopics() throws IOException {
+  void toProcessOnlySelectedTopics() throws IOException {
     Map<String, String> cliOps = new HashMap<>();
     cliOps.put(BROKERS_OPTION, "");
 
@@ -688,7 +689,7 @@ public class AccessControlManagerTest {
   }
 
   @Test
-  void testToProcessOnlySelectedGroupsOrWildcard() throws IOException {
+  void toProcessOnlySelectedGroupsOrWildcard() throws IOException {
     Map<String, String> cliOps = new HashMap<>();
     cliOps.put(BROKERS_OPTION, "");
 
@@ -739,7 +740,7 @@ public class AccessControlManagerTest {
   }
 
   @Test
-  void testToProcessWildcardGroupOnlySelectedServiceAccounts() throws IOException {
+  void toProcessWildcardGroupOnlySelectedServiceAccounts() throws IOException {
     Map<String, String> cliOps = new HashMap<>();
     cliOps.put(BROKERS_OPTION, "");
 
@@ -783,7 +784,7 @@ public class AccessControlManagerTest {
   }
 
   @Test
-  void testJulieRoleAclCreation() throws IOException {
+  void julieRoleAclCreation() throws IOException {
     Topic topicA = new Topic("topicA");
     Topology topology =
         TestTopologyBuilder.createProject()
@@ -829,30 +830,32 @@ public class AccessControlManagerTest {
   }
 
   @Test
-  void testWrongJulieRoleAclCreation() throws IOException {
-    assertThrows(IllegalStateException.class, () -> {
-      Topic topicA = new Topic("topicA");
-      Topology topology =
-          TestTopologyBuilder.createProject()
-              .addTopic(topicA)
-              .addConsumer("User:app1")
-              .addOther("app", "User:app1", "foo")
-              .buildTopology();
+  void wrongJulieRoleAclCreation() throws IOException {
+    assertThrows(
+        IllegalStateException.class,
+        () -> {
+          Topic topicA = new Topic("topicA");
+          Topology topology =
+              TestTopologyBuilder.createProject()
+                  .addTopic(topicA)
+                  .addConsumer("User:app1")
+                  .addOther("app", "User:app1", "foo")
+                  .buildTopology();
 
-      Map<String, String> cliOps = new HashMap<>();
-      cliOps.put(BROKERS_OPTION, "");
+          Map<String, String> cliOps = new HashMap<>();
+          cliOps.put(BROKERS_OPTION, "");
 
-      Properties props = new Properties();
-      props.put(JULIE_ROLES, TestUtils.getResourceFilename("/roles-wrong.yaml"));
+          Properties props = new Properties();
+          props.put(JULIE_ROLES, TestUtils.getResourceFilename("/roles-wrong.yaml"));
 
-      Configuration config = new Configuration(cliOps, props);
+          Configuration config = new Configuration(cliOps, props);
 
-      accessControlManager =
-          new AccessControlManager(
-              aclsProvider, new AclsBindingsBuilder(config), config.getJulieRoles(), config);
+          accessControlManager =
+              new AccessControlManager(
+                  aclsProvider, new AclsBindingsBuilder(config), config.getJulieRoles(), config);
 
-      accessControlManager.updatePlan(topology, plan);
-    });
+          accessControlManager.updatePlan(topology, plan);
+        });
   }
 
   private List<BaseAccessControlAction> getAccessControlActions(ExecutionPlan plan) {

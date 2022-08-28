@@ -29,7 +29,7 @@ public class BackendControllerTest {
   @Mock FileBackend fileStateProcessor;
 
   @Test
-  void testClusterStateRecovery() throws IOException {
+  void clusterStateRecovery() throws IOException {
 
     BackendController backend = new BackendController(fileStateProcessor);
     TopologyAclBinding binding =
@@ -42,7 +42,7 @@ public class BackendControllerTest {
   }
 
   @Test
-  void testClusterStateSize() {
+  void clusterStateSize() {
 
     BackendController backend = new BackendController(fileStateProcessor);
     TopologyAclBinding binding =
@@ -55,7 +55,7 @@ public class BackendControllerTest {
   }
 
   @Test
-  void testStoreBindingsAndServiceAccounts() throws IOException {
+  void storeBindingsAndServiceAccounts() throws IOException {
 
     BackendController backend = new BackendController(fileStateProcessor);
 
@@ -74,7 +74,7 @@ public class BackendControllerTest {
   }
 
   @Test
-  void testStoreBindingsAndTopics() throws IOException {
+  void storeBindingsAndTopics() throws IOException {
     BackendController backend = new BackendController(fileStateProcessor);
 
     Topic topic = new Topic("foo");

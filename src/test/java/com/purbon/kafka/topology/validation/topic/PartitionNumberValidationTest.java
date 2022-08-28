@@ -12,73 +12,80 @@ import org.junit.jupiter.api.Test;
 public class PartitionNumberValidationTest {
 
   @Test
-  void shouldVerifyDifferentValuesWhenUsingEq()
-      throws ValidationException, ConfigurationException {
-    assertThrows(ValidationException.class, () -> {
-      Map<String, String> config = new HashMap<>();
-      config.put("replication.factor", "34");
-      config.put("num.partitions", "123");
+  void shouldVerifyDifferentValuesWhenUsingEq() throws ValidationException, ConfigurationException {
+    assertThrows(
+        ValidationException.class,
+        () -> {
+          Map<String, String> config = new HashMap<>();
+          config.put("replication.factor", "34");
+          config.put("num.partitions", "123");
 
-      Topic topic = new Topic("topic", config);
-      PartitionNumberValidation validation = new PartitionNumberValidation((short) 35, "eq");
-      validation.valid(topic);
-    });
+          Topic topic = new Topic("topic", config);
+          PartitionNumberValidation validation = new PartitionNumberValidation((short) 35, "eq");
+          validation.valid(topic);
+        });
   }
 
   @Test
   void shouldVerifyDifferentValuesWhenUsingGte()
       throws ValidationException, ConfigurationException {
-    assertThrows(ValidationException.class, () -> {
-      Map<String, String> config = new HashMap<>();
-      config.put("replication.factor", "34");
-      config.put("num.partitions", "123");
+    assertThrows(
+        ValidationException.class,
+        () -> {
+          Map<String, String> config = new HashMap<>();
+          config.put("replication.factor", "34");
+          config.put("num.partitions", "123");
 
-      Topic topic = new Topic("topic", config);
-      PartitionNumberValidation validation = new PartitionNumberValidation((short) 124, "gte");
-      validation.valid(topic);
-    });
+          Topic topic = new Topic("topic", config);
+          PartitionNumberValidation validation = new PartitionNumberValidation((short) 124, "gte");
+          validation.valid(topic);
+        });
   }
 
   @Test
   void shouldVerifyDifferentValuesWhenUsingLte()
       throws ValidationException, ConfigurationException {
-    assertThrows(ValidationException.class, () -> {
-      Map<String, String> config = new HashMap<>();
-      config.put("replication.factor", "34");
-      config.put("num.partitions", "123");
+    assertThrows(
+        ValidationException.class,
+        () -> {
+          Map<String, String> config = new HashMap<>();
+          config.put("replication.factor", "34");
+          config.put("num.partitions", "123");
 
-      Topic topic = new Topic("topic", config);
-      PartitionNumberValidation validation = new PartitionNumberValidation((short) 15, "lte");
-      validation.valid(topic);
-    });
+          Topic topic = new Topic("topic", config);
+          PartitionNumberValidation validation = new PartitionNumberValidation((short) 15, "lte");
+          validation.valid(topic);
+        });
   }
 
   @Test
-  void shouldVerifyDifferentValuesWhenUsingGt()
-      throws ValidationException, ConfigurationException {
-    assertThrows(ValidationException.class, () -> {
-      Map<String, String> config = new HashMap<>();
-      config.put("replication.factor", "34");
-      config.put("num.partitions", "123");
+  void shouldVerifyDifferentValuesWhenUsingGt() throws ValidationException, ConfigurationException {
+    assertThrows(
+        ValidationException.class,
+        () -> {
+          Map<String, String> config = new HashMap<>();
+          config.put("replication.factor", "34");
+          config.put("num.partitions", "123");
 
-      Topic topic = new Topic("topic", config);
-      PartitionNumberValidation validation = new PartitionNumberValidation((short) 125, "gt");
-      validation.valid(topic);
-    });
+          Topic topic = new Topic("topic", config);
+          PartitionNumberValidation validation = new PartitionNumberValidation((short) 125, "gt");
+          validation.valid(topic);
+        });
   }
 
   @Test
-  void shouldVerifyDifferentValuesWhenUsingLt()
-      throws ValidationException, ConfigurationException {
-    assertThrows(ValidationException.class, () -> {
-      Map<String, String> config = new HashMap<>();
-      config.put("replication.factor", "34");
-      config.put("num.partitions", "123");
+  void shouldVerifyDifferentValuesWhenUsingLt() throws ValidationException, ConfigurationException {
+    assertThrows(
+        ValidationException.class,
+        () -> {
+          Map<String, String> config = new HashMap<>();
+          config.put("replication.factor", "34");
+          config.put("num.partitions", "123");
 
-      Topic topic = new Topic("topic", config);
-      PartitionNumberValidation validation = new PartitionNumberValidation((short) 33, "lt");
-      validation.valid(topic);
-    });
+          Topic topic = new Topic("topic", config);
+          PartitionNumberValidation validation = new PartitionNumberValidation((short) 33, "lt");
+          validation.valid(topic);
+        });
   }
 
   @Test

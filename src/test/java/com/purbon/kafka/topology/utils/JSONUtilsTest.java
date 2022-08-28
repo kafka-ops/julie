@@ -16,7 +16,7 @@ public class JSONUtilsTest {
   public void setup() {}
 
   @Test
-  void testToMapDeserialization() throws JsonProcessingException {
+  void toMapDeserialization() throws JsonProcessingException {
 
     String jsonString = "{\n" + "\t\"foo\": 2,\n" + "\t\"test\": \"boo\"\n" + "}";
 
@@ -27,7 +27,7 @@ public class JSONUtilsTest {
   }
 
   @Test
-  void testToStringSerialization() throws JsonProcessingException {
+  void toStringSerialization() throws JsonProcessingException {
 
     String expectJSONAsString = "{\"test\":\"2\",\"foo\":\"bar\"}";
     Map<String, String> map = new HashMap<>();
@@ -40,7 +40,7 @@ public class JSONUtilsTest {
   }
 
   @Test
-  void testToArrayDeserialisation() throws JsonProcessingException {
+  void toArrayDeserialisation() throws JsonProcessingException {
 
     String jsonAsString = " [\n \t\"1\", \"2\", \"3\"\n ]";
 

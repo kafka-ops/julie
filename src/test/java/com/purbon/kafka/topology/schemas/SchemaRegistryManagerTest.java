@@ -93,9 +93,11 @@ public class SchemaRegistryManagerTest {
 
   @Test
   void shouldThrowAnExceptionWithFailedFilePath() {
-    assertThrows(SchemaRegistryManagerException.class, () -> {
-      manager.register(subjectName, "schemas/wrong-file-value.avsc", AvroSchema.TYPE);
-    });
+    assertThrows(
+        SchemaRegistryManagerException.class,
+        () -> {
+          manager.register(subjectName, "schemas/wrong-file-value.avsc", AvroSchema.TYPE);
+        });
   }
 
   @Test
@@ -263,10 +265,11 @@ public class SchemaRegistryManagerTest {
 
   @Test
   void shouldFailForTheUnknownType() {
-    assertThrows(SchemaRegistryManager.SchemaRegistryManagerException.class, () -> {
-
-      final String unknownSchemaType = "bunch-of-monkeys";
-      manager.register(subjectName, unknownSchemaType, simpleSchema);
-    });
+    assertThrows(
+        SchemaRegistryManager.SchemaRegistryManagerException.class,
+        () -> {
+          final String unknownSchemaType = "bunch-of-monkeys";
+          manager.register(subjectName, unknownSchemaType, simpleSchema);
+        });
   }
 }

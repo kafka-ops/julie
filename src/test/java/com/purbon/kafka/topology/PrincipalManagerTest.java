@@ -73,7 +73,7 @@ public class PrincipalManagerTest {
   }
 
   @Test
-  void testFreshGeneration() throws IOException {
+  void freshGeneration() throws IOException {
 
     Topology topology = new TopologyImpl();
     topology.setContext("context");
@@ -100,7 +100,7 @@ public class PrincipalManagerTest {
   }
 
   @Test
-  void testFreshTopicLevelGeneration() throws IOException {
+  void freshTopicLevelGeneration() throws IOException {
 
     Topology topology = new TopologyImpl();
     topology.setContext("context");
@@ -129,7 +129,7 @@ public class PrincipalManagerTest {
   }
 
   @Test
-  void testDeleteAccountsRequired() throws IOException {
+  void deleteAccountsRequired() throws IOException {
 
     Topology topology = new TopologyImpl();
     topology.setContext("context");
@@ -178,7 +178,7 @@ public class PrincipalManagerTest {
   }
 
   @Test
-  void testNotRunIfConfigNotExperimental() throws IOException {
+  void notRunIfConfigNotExperimental() throws IOException {
     props.put(JULIE_ENABLE_PRINCIPAL_MANAGEMENT, "false");
 
     config = new Configuration(cliOps, props);
@@ -195,7 +195,7 @@ public class PrincipalManagerTest {
   }
 
   @Test
-  void testToProcessOnlySelectedPrincipals() throws IOException {
+  void toProcessOnlySelectedPrincipals() throws IOException {
 
     props.put(SERVICE_ACCOUNT_MANAGED_PREFIXES, Collections.singletonList("pro"));
 

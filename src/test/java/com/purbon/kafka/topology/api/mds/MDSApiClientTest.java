@@ -18,7 +18,7 @@ public class MDSApiClientTest {
   }
 
   @Test
-  void testBindSubjectRole() {
+  void bindSubjectRole() {
     String principal = "User:foo";
     String subject = "topic-value";
 
@@ -37,7 +37,7 @@ public class MDSApiClientTest {
   }
 
   @Test
-  void testBindSubjectRoleWithoutResourceType() {
+  void bindSubjectRoleWithoutResourceType() {
     String principal = "User:foo";
     String subject = "topic-value";
 
@@ -53,7 +53,7 @@ public class MDSApiClientTest {
   }
 
   @Test
-  void testBindConnectRole() {
+  void bindConnectRole() {
     String principal = "User:foo";
     String connectorName = "jdbc-sink";
 

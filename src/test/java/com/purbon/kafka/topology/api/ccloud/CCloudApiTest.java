@@ -50,7 +50,7 @@ public class CCloudApiTest {
   }
 
   @Test
-  void testAclCreateMethod() throws IOException {
+  void aclCreateMethod() throws IOException {
     when(httpClient.baseUrl()).thenReturn("http://not.valid:9999");
 
     TopologyAclBinding binding =
@@ -70,7 +70,7 @@ public class CCloudApiTest {
   }
 
   @Test
-  void testAclDeleteMethod() throws IOException {
+  void aclDeleteMethod() throws IOException {
 
     TopologyAclBinding binding =
         new TopologyAclBinding("TOPIC", "foo", "*", "ALL", "User:foo", "LITERAL");
@@ -82,7 +82,7 @@ public class CCloudApiTest {
   }
 
   @Test
-  void testCreateServiceAccount() throws IOException {
+  void createServiceAccount() throws IOException {
 
     var principal = "User:foo";
 
@@ -117,7 +117,7 @@ public class CCloudApiTest {
   }
 
   @Test
-  void testDeleteServiceAccount() throws IOException {
+  void deleteServiceAccount() throws IOException {
     var sa = "User:foo";
     apiClient.deleteServiceAccount(sa);
     var url = "/iam/v2/service-accounts/User:foo";

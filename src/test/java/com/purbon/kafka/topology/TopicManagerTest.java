@@ -338,7 +338,7 @@ public class TopicManagerTest {
   }
 
   @Test
-  void testToProcessOnlySelectedTopics() throws IOException {
+  void toProcessOnlySelectedTopics() throws IOException {
 
     props.put(TOPIC_MANAGED_PREFIXES, Collections.singletonList("NamespaceA"));
     props.put(TOPIC_PREFIX_FORMAT_CONFIG, "{{topic}}");

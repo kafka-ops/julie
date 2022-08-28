@@ -35,7 +35,7 @@ public class RedisBackendTest {
   }
 
   @Test
-  void testSaveBindings() throws IOException {
+  void saveBindings() throws IOException {
 
     BackendState state = buildBackendState();
     stateProcessor.save(state);
@@ -44,7 +44,7 @@ public class RedisBackendTest {
   }
 
   @Test
-  void testDataLoading() throws IOException {
+  void dataLoading() throws IOException {
 
     BackendState mockedState = buildBackendState();
     when(jedis.get(eq(bucket))).thenReturn(mockedState.asPrettyJson());

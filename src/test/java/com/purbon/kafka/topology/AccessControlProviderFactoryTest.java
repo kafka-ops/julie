@@ -45,7 +45,7 @@ public class AccessControlProviderFactoryTest {
   }
 
   @Test
-  void testRBACConfig() throws IOException {
+  void rbacConfig() throws IOException {
 
     props.put(ACCESS_CONTROL_IMPLEMENTATION_CLASS, "com.purbon.kafka.topology.roles.RBACProvider");
     props.put(MDS_SERVER, "http://localhost:8090");
@@ -69,7 +69,7 @@ public class AccessControlProviderFactoryTest {
   }
 
   @Test
-  void testACLsConfig() throws IOException {
+  void aclsConfig() throws IOException {
 
     Configuration config = new Configuration(cliOps, props);
 
@@ -80,19 +80,21 @@ public class AccessControlProviderFactoryTest {
   }
 
   @Test
-  void testWrongProviderConfig() throws IOException {
-    assertThrows(IOException.class, () -> {
+  void wrongProviderConfig() throws IOException {
+    assertThrows(
+        IOException.class,
+        () -> {
+          props.put(
+              ACCESS_CONTROL_IMPLEMENTATION_CLASS,
+              "com.purbon.kafka.topology.roles.MyCustomProvider");
 
-      props.put(
-          ACCESS_CONTROL_IMPLEMENTATION_CLASS, "com.purbon.kafka.topology.roles.MyCustomProvider");
+          Configuration config = new Configuration(cliOps, props);
 
-      Configuration config = new Configuration(cliOps, props);
+          when(mdsApiClientBuilder.build()).thenReturn(mdsApiClient);
 
-      when(mdsApiClientBuilder.build()).thenReturn(mdsApiClient);
-
-      AccessControlProviderFactory factory =
-          new AccessControlProviderFactory(config, adminClient, mdsApiClientBuilder);
-      factory.get();
-    });
+          AccessControlProviderFactory factory =
+              new AccessControlProviderFactory(config, adminClient, mdsApiClientBuilder);
+          factory.get();
+        });
   }
 }

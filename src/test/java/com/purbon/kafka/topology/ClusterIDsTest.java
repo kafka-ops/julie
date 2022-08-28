@@ -31,13 +31,15 @@ public class ClusterIDsTest {
 
   @Test
   void shouldRaiseAnExceptionIfAnInvalidClusterIdIsUsed() {
-    assertThrows(ValidationException.class, () -> {
-      props.put(MDS_VALID_CLUSTER_IDS_CONFIG + ".0", "kafka-cluster");
-      Configuration config = new Configuration(cliOps, props);
+    assertThrows(
+        ValidationException.class,
+        () -> {
+          props.put(MDS_VALID_CLUSTER_IDS_CONFIG + ".0", "kafka-cluster");
+          Configuration config = new Configuration(cliOps, props);
 
-      ClusterIDs ids = new ClusterIDs(Optional.of(config));
-      ids.setKafkaClusterId("foo");
-    });
+          ClusterIDs ids = new ClusterIDs(Optional.of(config));
+          ids.setKafkaClusterId("foo");
+        });
   }
 
   @Test

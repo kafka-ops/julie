@@ -24,7 +24,7 @@ public class PlanMapSerdesTest {
   }
 
   @Test
-  void testSerialization() throws JsonProcessingException {
+  void serialization() throws JsonProcessingException {
     Map<String, String> config = new HashMap<>();
     config.put("foo", "bar");
     config.put("bar", "3");
@@ -46,7 +46,7 @@ public class PlanMapSerdesTest {
   }
 
   @Test
-  void testHappyDeserialization() throws IOException {
+  void happyDeserialization() throws IOException {
     PlanMap plans = parser.deserialise(TestUtils.getResourceFile("/plans.yaml"));
 
     assertThat(plans).has(new Condition<>(list -> list.size() == 2, "Contains two elements"));

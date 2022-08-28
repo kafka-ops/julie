@@ -22,16 +22,20 @@ public class PrincipalTest {
 
   @Test
   void failsForMalformedPrincipalString() {
-    assertThrows(IllegalArgumentException.class, () -> {
-      ConfluentCloudPrincipal.fromString("");
-    });
+    assertThrows(
+        IllegalArgumentException.class,
+        () -> {
+          ConfluentCloudPrincipal.fromString("");
+        });
   }
 
   @Test
   void failsForInvalidPrincipalTypeString() {
-    assertThrows(IllegalArgumentException.class, () -> {
-      ConfluentCloudPrincipal.fromString("Vulcan:sa-spock");
-    });
+    assertThrows(
+        IllegalArgumentException.class,
+        () -> {
+          ConfluentCloudPrincipal.fromString("Vulcan:sa-spock");
+        });
   }
 
   @Test

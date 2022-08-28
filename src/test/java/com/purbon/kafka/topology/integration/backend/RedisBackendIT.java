@@ -112,7 +112,7 @@ public class RedisBackendIT {
   }
 
   @Test
-  void testStoreAndFetch() throws IOException {
+  void storeAndFetch() throws IOException {
 
     String host = redis.getContainerIpAddress();
     int port = redis.getFirstMappedPort();
@@ -145,7 +145,7 @@ public class RedisBackendIT {
   }
 
   @Test
-  void testTopicCreation() throws IOException {
+  void topicCreation() throws IOException {
 
     Topology topology = new TopologyImpl();
     topology.setContext("testTopicCreation");

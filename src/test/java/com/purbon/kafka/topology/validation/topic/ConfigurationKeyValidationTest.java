@@ -11,20 +11,22 @@ import org.junit.jupiter.api.Test;
 public class ConfigurationKeyValidationTest {
 
   @Test
-  void testKoConfigValues() throws ValidationException {
-    assertThrows(ValidationException.class, () -> {
-      var config = new HashMap<String, String>();
-      config.put("foo", "2");
-      config.put(TopicConfig.COMPRESSION_TYPE_CONFIG, "gzip");
-      Topic topic = new Topic("topic", config);
+  void koConfigValues() throws ValidationException {
+    assertThrows(
+        ValidationException.class,
+        () -> {
+          var config = new HashMap<String, String>();
+          config.put("foo", "2");
+          config.put(TopicConfig.COMPRESSION_TYPE_CONFIG, "gzip");
+          Topic topic = new Topic("topic", config);
 
-      ConfigurationKeyValidation validation = new ConfigurationKeyValidation();
-      validation.valid(topic);
-    });
+          ConfigurationKeyValidation validation = new ConfigurationKeyValidation();
+          validation.valid(topic);
+        });
   }
 
   @Test
-  void testOkConfigValues() throws ValidationException {
+  void okConfigValues() throws ValidationException {
     var config = new HashMap<String, String>();
     config.put(TopicConfig.COMPRESSION_TYPE_CONFIG, "gzip");
     Topic topic = new Topic("topic", config);
@@ -34,7 +36,7 @@ public class ConfigurationKeyValidationTest {
   }
 
   @Test
-  void testPartitionsAndReplicationConfigValues() throws ValidationException {
+  void partitionsAndReplicationConfigValues() throws ValidationException {
     var config = new HashMap<String, String>();
     config.put("replication.factor", "3");
     Topic topic = new Topic("topic", config);

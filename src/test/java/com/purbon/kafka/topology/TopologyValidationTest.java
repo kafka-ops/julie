@@ -22,7 +22,7 @@ public class TopologyValidationTest {
   }
 
   @Test
-  void testPositiveExecutionOnCamelCaseNames() {
+  void positiveExecutionOnCamelCaseNames() {
 
     Topology topology =
         parser.deserialise(TestUtils.getResourceFile("/descriptor-with-camelCaseNames.yml"));
@@ -37,7 +37,7 @@ public class TopologyValidationTest {
   }
 
   @Test
-  void testInvalidExecutionBecauseOfNumberOfPartitions() {
+  void invalidExecutionBecauseOfNumberOfPartitions() {
 
     Topology topology =
         parser.deserialise(TestUtils.getResourceFile("/descriptor-with-camelCaseNames.yml"));
@@ -53,7 +53,7 @@ public class TopologyValidationTest {
   }
 
   @Test
-  void testInvalidExecutionWithFailedValidation() {
+  void invalidExecutionWithFailedValidation() {
 
     Topology topology = parser.deserialise(TestUtils.getResourceFile("/descriptor.yaml"));
 
@@ -91,31 +91,35 @@ public class TopologyValidationTest {
   }
 
   @Test
-  void testUsingDeprecatedValidationsConfig() {
-    assertThrows(IllegalStateException.class, () -> {
+  void usingDeprecatedValidationsConfig() {
+    assertThrows(
+        IllegalStateException.class,
+        () -> {
+          Topology topology = parser.deserialise(TestUtils.getResourceFile("/descriptor.yaml"));
 
-      Topology topology = parser.deserialise(TestUtils.getResourceFile("/descriptor.yaml"));
+          Configuration config =
+              createTopologyBuilderConfig("topology.CamelCaseNameFormatValidation");
 
-      Configuration config = createTopologyBuilderConfig("topology.CamelCaseNameFormatValidation");
-
-      TopologyValidator validator = new TopologyValidator(config);
-      List<String> results = validator.validate(topology);
-      assertThat(results).hasSize(1);
-      assertThat(results.get(0)).isEqualTo("Project name does not follow the camelCase format: foo");
-    });
+          TopologyValidator validator = new TopologyValidator(config);
+          List<String> results = validator.validate(topology);
+          assertThat(results).hasSize(1);
+          assertThat(results.get(0))
+              .isEqualTo("Project name does not follow the camelCase format: foo");
+        });
   }
 
   @Test
-  void testUsingUnknownClassName() {
-    assertThrows(IllegalStateException.class, () -> {
+  void usingUnknownClassName() {
+    assertThrows(
+        IllegalStateException.class,
+        () -> {
+          Topology topology = parser.deserialise(TestUtils.getResourceFile("/descriptor.yaml"));
 
-      Topology topology = parser.deserialise(TestUtils.getResourceFile("/descriptor.yaml"));
+          Configuration config = createTopologyBuilderConfig("not.available.Validation");
 
-      Configuration config = createTopologyBuilderConfig("not.available.Validation");
-
-      TopologyValidator validator = new TopologyValidator(config);
-      validator.validate(topology);
-    });
+          TopologyValidator validator = new TopologyValidator(config);
+          validator.validate(topology);
+        });
   }
 
   private Configuration createTopologyBuilderConfig(String... validations) {

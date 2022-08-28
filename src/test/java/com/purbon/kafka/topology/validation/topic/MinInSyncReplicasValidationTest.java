@@ -13,20 +13,21 @@ public class MinInSyncReplicasValidationTest {
 
   @Test
   void shouldCheckKoValuesSuccessfully() throws ValidationException, ConfigurationException {
-    assertThrows(ValidationException.class, () -> {
-      Map<String, String> config = new HashMap<>();
-      config.put("replication.factor", "3");
-      config.put("min.insync.replicas", "3");
+    assertThrows(
+        ValidationException.class,
+        () -> {
+          Map<String, String> config = new HashMap<>();
+          config.put("replication.factor", "3");
+          config.put("min.insync.replicas", "3");
 
-      Topic topic = new Topic("topic", config);
-      MinInSyncReplicasValidation validation = new MinInSyncReplicasValidation();
-      validation.valid(topic);
-    });
+          Topic topic = new Topic("topic", config);
+          MinInSyncReplicasValidation validation = new MinInSyncReplicasValidation();
+          validation.valid(topic);
+        });
   }
 
   @Test
-  void shouldCheckMinimalValuesSuccessfully()
-      throws ValidationException, ConfigurationException {
+  void shouldCheckMinimalValuesSuccessfully() throws ValidationException, ConfigurationException {
     Map<String, String> config = new HashMap<>();
     config.put("replication.factor", "3");
     config.put("min.insync.replicas", "1");

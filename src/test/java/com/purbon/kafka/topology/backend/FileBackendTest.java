@@ -41,7 +41,7 @@ public class FileBackendTest {
   }
 
   @Test
-  void testStoreAndLoadBindingsAndTopics() throws IOException {
+  void storeAndLoadBindingsAndTopics() throws IOException {
     verifyStoreAndLoadWithPrincipal("principal");
   }
 
@@ -56,7 +56,7 @@ public class FileBackendTest {
   }
 
   @Test
-  void testBindingSerdes() throws JsonProcessingException {
+  void bindingSerdes() throws JsonProcessingException {
     TopologyAclBinding binding =
         TopologyAclBinding.build(
             ResourceType.TOPIC.name(),

@@ -35,7 +35,7 @@ public class KsqlClientIT {
   }
 
   @Test
-  void testStreamTableCreateAndDelete() throws IOException {
+  void streamTableCreateAndDelete() throws IOException {
 
     KsqlApiClient client =
         new KsqlApiClient(KsqlClientConfig.builder().setServer(ksqlContainer.getUrl()).build());

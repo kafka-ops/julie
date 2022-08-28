@@ -202,38 +202,39 @@ public class AccessControlManagerIT {
 
   @Test
   void shouldDetectChangesInTheRemoteClusterBetweenRuns() throws IOException {
-    assertThrows(IOException.class, () -> {
+    assertThrows(
+        IOException.class,
+        () -> {
+          Properties props = new Properties();
+          props.put(ALLOW_DELETE_BINDINGS, true);
+          props.put(JULIE_VERIFY_STATE_SYNC, true);
 
-      Properties props = new Properties();
-      props.put(ALLOW_DELETE_BINDINGS, true);
-      props.put(JULIE_VERIFY_STATE_SYNC, true);
+          HashMap<String, String> cliOps = new HashMap<>();
+          cliOps.put(BROKERS_OPTION, "");
 
-      HashMap<String, String> cliOps = new HashMap<>();
-      cliOps.put(BROKERS_OPTION, "");
+          Configuration config = new Configuration(cliOps, props);
 
-      Configuration config = new Configuration(cliOps, props);
+          accessControlManager = new AccessControlManager(aclsProvider, bindingsBuilder, config);
 
-      accessControlManager = new AccessControlManager(aclsProvider, bindingsBuilder, config);
+          TopologyBuilderAdminClient adminClient = new TopologyBuilderAdminClient(kafkaAdminClient);
 
-      TopologyBuilderAdminClient adminClient = new TopologyBuilderAdminClient(kafkaAdminClient);
+          var topology =
+              TestTopologyBuilder.createProject()
+                  .addTopic("topic1")
+                  .addTopic("topic2")
+                  .addConsumer("User:foo")
+                  .buildTopology();
 
-      var topology =
-          TestTopologyBuilder.createProject()
-              .addTopic("topic1")
-              .addTopic("topic2")
-              .addConsumer("User:foo")
-              .buildTopology();
+          accessControlManager.updatePlan(topology, plan);
+          plan.run();
 
-      accessControlManager.updatePlan(topology, plan);
-      plan.run();
+          var binding =
+              TopologyAclBinding.build(
+                  "TOPIC", "ctx.project.topic2", "*", "DESCRIBE", "User:foo", "LITERAL");
+          adminClient.clearAcls(binding);
 
-      var binding =
-          TopologyAclBinding.build(
-              "TOPIC", "ctx.project.topic2", "*", "DESCRIBE", "User:foo", "LITERAL");
-      adminClient.clearAcls(binding);
-
-      accessControlManager.updatePlan(topology, plan);
-    });
+          accessControlManager.updatePlan(topology, plan);
+        });
   }
 
   @Test
@@ -260,8 +261,7 @@ public class AccessControlManagerIT {
   }
 
   @Test
-  void producerWithTxAclsCreation()
-      throws ExecutionException, InterruptedException, IOException {
+  void producerWithTxAclsCreation() throws ExecutionException, InterruptedException, IOException {
 
     List<Producer> producers = new ArrayList<>();
     Producer producer = new Producer("User:Producer12", "1234", true);
@@ -354,7 +354,7 @@ public class AccessControlManagerIT {
   }
 
   @Test
-  void testAvoidHandlingInternalAclsForJulie() throws Exception {
+  void avoidHandlingInternalAclsForJulie() throws Exception {
     // create a dummy internal ACL for julie
     String juliePrincipal = "User:Julie";
     AclBinding julieBinding =
@@ -411,8 +411,7 @@ public class AccessControlManagerIT {
   }
 
   @Test
-  void schemaRegistryAclsCreation()
-      throws ExecutionException, InterruptedException, IOException {
+  void schemaRegistryAclsCreation() throws ExecutionException, InterruptedException, IOException {
     Project project = new ProjectImpl();
 
     Topology topology = new TopologyImpl();
@@ -440,8 +439,7 @@ public class AccessControlManagerIT {
   }
 
   @Test
-  void controlcenterAclsCreation()
-      throws ExecutionException, InterruptedException, IOException {
+  void controlcenterAclsCreation() throws ExecutionException, InterruptedException, IOException {
 
     when(config.getConfluentCommandTopic()).thenReturn("foo");
     when(config.getConfluentMetricsTopic()).thenReturn("bar");
@@ -493,8 +491,7 @@ public class AccessControlManagerIT {
   }
 
   @Test
-  void testJulieRoleAclCreation()
-      throws IOException, ExecutionException, InterruptedException {
+  void julieRoleAclCreation() throws IOException, ExecutionException, InterruptedException {
     Topic topicA = new Topic("topicA");
     Topology topology =
         TestTopologyBuilder.createProject()

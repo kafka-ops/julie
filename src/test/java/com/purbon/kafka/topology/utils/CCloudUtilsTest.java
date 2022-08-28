@@ -85,11 +85,13 @@ public class CCloudUtilsTest {
 
   @Test
   void translationShouldBeAbortedIfErrors() throws IOException {
-    assertThrows(IOException.class, () -> {
-      Configuration config = new Configuration(cliOps, props);
-      var utils = new CCloudUtils(config);
-      doThrow(new IOException()).when(cCloudApi).listServiceAccounts();
-      utils.initializeLookupTable(cCloudApi);
-    });
+    assertThrows(
+        IOException.class,
+        () -> {
+          Configuration config = new Configuration(cliOps, props);
+          var utils = new CCloudUtils(config);
+          doThrow(new IOException()).when(cCloudApi).listServiceAccounts();
+          utils.initializeLookupTable(cCloudApi);
+        });
   }
 }

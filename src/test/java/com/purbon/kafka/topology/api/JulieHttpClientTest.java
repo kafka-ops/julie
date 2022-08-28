@@ -22,7 +22,9 @@ import org.junit.jupiter.api.extension.RegisterExtension;
 
 public class JulieHttpClientTest {
 
-  @RegisterExtension public WireMockExtension wireMockRule = WireMockExtension.newInstance().options(WireMockConfiguration.options().port(8089)).build();
+  @RegisterExtension
+  public WireMockExtension wireMockRule =
+      WireMockExtension.newInstance().options(WireMockConfiguration.options().port(8089)).build();
 
   private Map<String, String> cliOps;
   private Properties props;

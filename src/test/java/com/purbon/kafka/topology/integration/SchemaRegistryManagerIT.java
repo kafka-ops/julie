@@ -90,7 +90,7 @@ public class SchemaRegistryManagerIT {
   public void teardown() {}
 
   @Test
-  void testSchemaSetupForAvroDefaults() throws IOException, RestClientException {
+  void schemaSetupForAvroDefaults() throws IOException, RestClientException {
     AdminClient kafkaAdminClient = ContainerTestUtils.getSaslAdminClient(container);
     TopologyBuilderAdminClient adminClient = new TopologyBuilderAdminClient(kafkaAdminClient);
 
@@ -111,7 +111,7 @@ public class SchemaRegistryManagerIT {
   }
 
   @Test
-  void testSchemaSetupForJsonDefaults() throws IOException, RestClientException {
+  void schemaSetupForJsonDefaults() throws IOException, RestClientException {
     AdminClient kafkaAdminClient = ContainerTestUtils.getSaslAdminClient(container);
     TopologyBuilderAdminClient adminClient = new TopologyBuilderAdminClient(kafkaAdminClient);
 
@@ -129,7 +129,7 @@ public class SchemaRegistryManagerIT {
   }
 
   @Test
-  void testSchemaSetupForProtoBufDefaults() throws IOException, RestClientException {
+  void schemaSetupForProtoBufDefaults() throws IOException, RestClientException {
     AdminClient kafkaAdminClient = ContainerTestUtils.getSaslAdminClient(container);
     TopologyBuilderAdminClient adminClient = new TopologyBuilderAdminClient(kafkaAdminClient);
 
@@ -147,7 +147,7 @@ public class SchemaRegistryManagerIT {
   }
 
   @Test
-  void testSchemaSetupWithContentInUTF() throws IOException, RestClientException {
+  void schemaSetupWithContentInUTF() throws IOException, RestClientException {
     AdminClient kafkaAdminClient = ContainerTestUtils.getSaslAdminClient(container);
     TopologyBuilderAdminClient adminClient = new TopologyBuilderAdminClient(kafkaAdminClient);
 

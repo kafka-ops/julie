@@ -8,21 +8,21 @@ import org.junit.jupiter.api.Test;
 public class KsqlClientConfigTest {
 
   @Test
-  void testUrlConversion() {
+  void urlConversion() {
     KsqlClientConfig config = KsqlClientConfig.builder().setServer("https://foo.bar:9092").build();
     assertThat(config.getServer().getProtocol()).isEqualTo("https");
     assertThat(config.getServer().getPort()).isEqualTo(9092);
   }
 
   @Test
-  void testDefaults() {
+  void defaults() {
     KsqlClientConfig config = KsqlClientConfig.builder().setServer("https://foo.bar:9092").build();
     assertThat(config.isVerifyHost()).isTrue();
     assertThat(config.useAlpn()).isFalse();
   }
 
   @Test
-  void testServerRequired() {
+  void serverRequired() {
     assertThatThrownBy(() -> KsqlClientConfig.builder().build())
         .isInstanceOf(IllegalArgumentException.class);
   }

@@ -48,7 +48,7 @@ public class KsqlArtefactManagerTest {
   public void after() {}
 
   @Test
-  void testArtefactGenerationOrder() {
+  void artefactGenerationOrder() {
     String topologyFileName = "/descriptor-ksql-multiple.yaml";
     String topologyFilePath = TestUtils.getResourceFilename(topologyFileName);
 
@@ -72,7 +72,7 @@ public class KsqlArtefactManagerTest {
   }
 
   @Test
-  void testArtefactsForDeletionOrder() {
+  void artefactsForDeletionOrder() {
     String topologyFileName = "/descriptor-ksql-multiple.yaml";
     String topologyFilePath = TestUtils.getResourceFilename(topologyFileName);
 

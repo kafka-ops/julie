@@ -8,13 +8,13 @@ import org.junit.jupiter.api.Test;
 public class BasicAuthTest {
 
   @Test
-  void testToHttpAuthToken() {
+  void toHttpAuthToken() {
     BasicAuth auth = new BasicAuth("user", "pass");
     assertThat(auth.toHttpAuthToken()).isEqualTo("Basic dXNlcjpwYXNz");
   }
 
   @Test
-  void testValuesRequired() {
+  void valuesRequired() {
     assertThatThrownBy(() -> new BasicAuth(null, "pass")).isInstanceOf(NullPointerException.class);
     assertThatThrownBy(() -> new BasicAuth("user", null)).isInstanceOf(NullPointerException.class);
   }

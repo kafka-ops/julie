@@ -71,7 +71,7 @@ public class ArtefactManagerTest {
   @Mock public ArtefactClient mockClient2;
 
   @Test
-  void testClientSelection() {
+  void clientSelection() {
 
     Map<String, ArtefactClient> clients = new HashMap<>();
     clients.put("server0", mockClient1);

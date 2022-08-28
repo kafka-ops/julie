@@ -94,7 +94,7 @@ public class TopicManagerIT {
   }
 
   @Test
-  void testTopicCreation() throws ExecutionException, InterruptedException, IOException {
+  void topicCreation() throws ExecutionException, InterruptedException, IOException {
 
     Topology topology = new TopologyImpl();
     topology.setContext("testTopicCreation");
@@ -123,42 +123,43 @@ public class TopicManagerIT {
 
   @Test
   void topicManagerShouldDetectDeletedTopicsBetweenRuns() throws IOException {
-    assertThrows(RemoteValidationException.class, () -> {
+    assertThrows(
+        RemoteValidationException.class,
+        () -> {
+          TopologyBuilderAdminClient adminClient = new TopologyBuilderAdminClient(kafkaAdminClient);
 
-      TopologyBuilderAdminClient adminClient = new TopologyBuilderAdminClient(kafkaAdminClient);
+          final SchemaRegistryClient schemaRegistryClient = new MockSchemaRegistryClient();
+          final SchemaRegistryManager schemaRegistryManager =
+              new SchemaRegistryManager(schemaRegistryClient, System.getProperty("user.dir"));
 
-      final SchemaRegistryClient schemaRegistryClient = new MockSchemaRegistryClient();
-      final SchemaRegistryManager schemaRegistryManager =
-          new SchemaRegistryManager(schemaRegistryClient, System.getProperty("user.dir"));
+          Properties props = new Properties();
+          props.put(TOPOLOGY_TOPIC_STATE_FROM_CLUSTER, "false");
+          props.put(ALLOW_DELETE_TOPICS, true);
+          props.put(JULIE_VERIFY_STATE_SYNC, true);
 
-      Properties props = new Properties();
-      props.put(TOPOLOGY_TOPIC_STATE_FROM_CLUSTER, "false");
-      props.put(ALLOW_DELETE_TOPICS, true);
-      props.put(JULIE_VERIFY_STATE_SYNC, true);
+          HashMap<String, String> cliOps = new HashMap<>();
+          cliOps.put(BROKERS_OPTION, "");
 
-      HashMap<String, String> cliOps = new HashMap<>();
-      cliOps.put(BROKERS_OPTION, "");
+          Configuration config = new Configuration(cliOps, props);
 
-      Configuration config = new Configuration(cliOps, props);
+          this.topicManager = new TopicManager(adminClient, schemaRegistryManager, config);
 
-      this.topicManager = new TopicManager(adminClient, schemaRegistryManager, config);
+          Topic topic1 = new Topic("topic1");
+          Topic topic2 = new Topic("topic2");
 
-      Topic topic1 = new Topic("topic1");
-      Topic topic2 = new Topic("topic2");
+          var topology =
+              TestTopologyBuilder.createProject().addTopic(topic1).addTopic(topic2).buildTopology();
 
-      var topology =
-          TestTopologyBuilder.createProject().addTopic(topic1).addTopic(topic2).buildTopology();
+          topicManager.updatePlan(topology, plan);
+          plan.run();
 
-      topicManager.updatePlan(topology, plan);
-      plan.run();
-
-      adminClient.deleteTopics(Collections.singletonList("ctx.project.topic1"));
-      topicManager.updatePlan(topology, plan);
-    });
+          adminClient.deleteTopics(Collections.singletonList("ctx.project.topic1"));
+          topicManager.updatePlan(topology, plan);
+        });
   }
 
   @Test
-  void testTopicCreationWithDefaultTopicConfigs()
+  void topicCreationWithDefaultTopicConfigs()
       throws IOException, ExecutionException, InterruptedException {
 
     Topology topology = new TopologyImpl();
@@ -178,28 +179,30 @@ public class TopicManagerIT {
   }
 
   @Test
-  void testTopicCreationWithFalseConfig() throws IOException {
-    assertThrows(IOException.class, () -> {
-      HashMap<String, String> config = new HashMap<>();
-      config.put("num.partitions", "1");
-      config.put("replication.factor", "1");
-      config.put("banana", "bar");
+  void topicCreationWithFalseConfig() throws IOException {
+    assertThrows(
+        IOException.class,
+        () -> {
+          HashMap<String, String> config = new HashMap<>();
+          config.put("num.partitions", "1");
+          config.put("replication.factor", "1");
+          config.put("banana", "bar");
 
-      Project project = new ProjectImpl("project");
-      Topology topology = new TopologyImpl();
-      topology.setContext("testTopicCreationWithFalseConfig");
-      topology.addProject(project);
+          Project project = new ProjectImpl("project");
+          Topology topology = new TopologyImpl();
+          topology.setContext("testTopicCreationWithFalseConfig");
+          topology.addProject(project);
 
-      Topic topicA = new Topic("topicA", config);
-      project.addTopic(topicA);
+          Topic topicA = new Topic("topicA", config);
+          project.addTopic(topicA);
 
-      topicManager.updatePlan(topology, plan);
-      plan.run();
-    });
+          topicManager.updatePlan(topology, plan);
+          plan.run();
+        });
   }
 
   @Test
-  void testTopicCreationWithChangedTopology()
+  void topicCreationWithChangedTopology()
       throws ExecutionException, InterruptedException, IOException {
     HashMap<String, String> config = new HashMap<>();
     config.put(TopicManager.NUM_PARTITIONS, "1");
@@ -252,7 +255,7 @@ public class TopicManagerIT {
   }
 
   @Test
-  void testTopicDelete() throws ExecutionException, InterruptedException, IOException {
+  void topicDelete() throws ExecutionException, InterruptedException, IOException {
 
     Project project = new ProjectImpl("project");
     Topic topicA = new Topic("topicA", buildDummyTopicConfig());
@@ -303,8 +306,7 @@ public class TopicManagerIT {
   }
 
   @Test
-  void testTopicCreationWithConfig()
-      throws ExecutionException, InterruptedException, IOException {
+  void topicCreationWithConfig() throws ExecutionException, InterruptedException, IOException {
 
     Topology topology = new TopologyImpl();
     topology.setContext("testTopicCreationWithConfig-test");
@@ -323,7 +325,7 @@ public class TopicManagerIT {
   }
 
   @Test
-  void testTopicConfigUpdate() throws ExecutionException, InterruptedException, IOException {
+  void topicConfigUpdate() throws ExecutionException, InterruptedException, IOException {
 
     HashMap<String, String> config = buildDummyTopicConfig();
     config.put("retention.bytes", "104857600"); // set the retention.bytes per partition to 100mb

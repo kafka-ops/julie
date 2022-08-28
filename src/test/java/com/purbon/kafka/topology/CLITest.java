@@ -26,12 +26,12 @@ public class CLITest {
   }
 
   @Test
-  void testParamPassing() throws Exception {
+  void paramPassing() throws Exception {
     String[] args =
-        new String[]{
-            "--brokers", "localhost:9092",
-            "--topology", "descriptor.yaml",
-            "--clientConfig", "topology-builder-sasl-plain.properties"
+        new String[] {
+          "--brokers", "localhost:9092",
+          "--topology", "descriptor.yaml",
+          "--clientConfig", "topology-builder-sasl-plain.properties"
         };
 
     doNothing().when(cli).processTopology(eq("descriptor.yaml"), eq("default"), anyMap());
@@ -49,13 +49,13 @@ public class CLITest {
   }
 
   @Test
-  void testDryRun() throws Exception {
+  void dryRun() throws Exception {
     String[] args =
-        new String[]{
-            "--brokers", "localhost:9092",
-            "--topology", "descriptor.yaml",
-            "--clientConfig", "topology-builder-sasl-plain.properties",
-            "--dryRun"
+        new String[] {
+          "--brokers", "localhost:9092",
+          "--topology", "descriptor.yaml",
+          "--clientConfig", "topology-builder-sasl-plain.properties",
+          "--dryRun"
         };
 
     doNothing().when(cli).processTopology(eq("descriptor.yaml"), eq("default"), anyMap());

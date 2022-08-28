@@ -47,7 +47,7 @@ public class ClusterLevelRoleBuilderTest {
   }
 
   @Test
-  void testWithAllClientIdsForConnect() {
+  void withAllClientIdsForConnect() {
     when(apiClient.withClusterIDs()).thenReturn(allClusterIDs);
 
     ClusterLevelRoleBuilder runner = new ClusterLevelRoleBuilder("foo", SECURITY_ADMIN, apiClient);
@@ -61,7 +61,7 @@ public class ClusterLevelRoleBuilderTest {
   }
 
   @Test
-  void testWithAllClientIdsForSchemaRegistry() {
+  void withAllClientIdsForSchemaRegistry() {
     when(apiClient.withClusterIDs()).thenReturn(allClusterIDs);
 
     ClusterLevelRoleBuilder runner = new ClusterLevelRoleBuilder("foo", SECURITY_ADMIN, apiClient);
@@ -73,7 +73,7 @@ public class ClusterLevelRoleBuilderTest {
   }
 
   @Test
-  void testKafkaRun() {
+  void kafkaRun() {
     when(apiClient.withClusterIDs()).thenReturn(allClusterIDs);
 
     ClusterLevelRoleBuilder runner = new ClusterLevelRoleBuilder("foo", SECURITY_ADMIN, apiClient);
@@ -85,7 +85,7 @@ public class ClusterLevelRoleBuilderTest {
   }
 
   @Test
-  void testControlCenterRun() {
+  void controlCenterRun() {
     when(apiClient.withClusterIDs()).thenReturn(allClusterIDs);
 
     ClusterLevelRoleBuilder runner = new ClusterLevelRoleBuilder("foo", SECURITY_ADMIN, apiClient);
@@ -97,7 +97,7 @@ public class ClusterLevelRoleBuilderTest {
   }
 
   @Test
-  void testKafkaConnectRun() {
+  void kafkaConnectRun() {
     when(apiClient.withClusterIDs()).thenReturn(allClusterIDs);
 
     ClusterLevelRoleBuilder runner = new ClusterLevelRoleBuilder("foo", SECURITY_ADMIN, apiClient);
@@ -109,7 +109,7 @@ public class ClusterLevelRoleBuilderTest {
   }
 
   @Test
-  void testSchemaRegistryRun() {
+  void schemaRegistryRun() {
     when(apiClient.withClusterIDs()).thenReturn(allClusterIDs);
 
     ClusterLevelRoleBuilder runner = new ClusterLevelRoleBuilder("foo", SECURITY_ADMIN, apiClient);

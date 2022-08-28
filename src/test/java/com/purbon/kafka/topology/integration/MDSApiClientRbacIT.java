@@ -31,7 +31,7 @@ public class MDSApiClientRbacIT extends MDSBaseTest {
   }
 
   @Test
-  void testMDSLogin() throws IOException {
+  void mDSLogin() throws IOException {
     apiClient.setBasicAuth(new BasicAuth(mdsUser, mdsPassword));
     apiClient.authenticate();
     AuthenticationCredentials credentials = apiClient.getCredentials();
@@ -39,15 +39,17 @@ public class MDSApiClientRbacIT extends MDSBaseTest {
   }
 
   @Test
-  void testWithWrongMDSLogin() throws IOException {
-    assertThrows(IOException.class, () -> {
-      apiClient.setBasicAuth(new BasicAuth("wrong-user", "wrong-password"));
-      apiClient.authenticate();
-    });
+  void withWrongMDSLogin() throws IOException {
+    assertThrows(
+        IOException.class,
+        () -> {
+          apiClient.setBasicAuth(new BasicAuth("wrong-user", "wrong-password"));
+          apiClient.authenticate();
+        });
   }
 
   @Test
-  void testLookupRoles() throws IOException {
+  void lookupRoles() throws IOException {
     apiClient.setBasicAuth(new BasicAuth(mdsUser, mdsPassword));
     apiClient.authenticate();
     apiClient.setKafkaClusterId(getKafkaClusterID());
@@ -57,7 +59,7 @@ public class MDSApiClientRbacIT extends MDSBaseTest {
   }
 
   @Test
-  void testBindRoleToResource() throws IOException {
+  void bindRoleToResource() throws IOException {
     apiClient.setBasicAuth(new BasicAuth(mdsUser, mdsPassword));
     apiClient.authenticate();
     apiClient.setKafkaClusterId(getKafkaClusterID());
@@ -73,19 +75,21 @@ public class MDSApiClientRbacIT extends MDSBaseTest {
   }
 
   @Test
-  void testBindRoleWithoutAuthentication() throws IOException {
-    assertThrows(IOException.class, () -> {
-      apiClient.setKafkaClusterId(getKafkaClusterID());
+  void bindRoleWithoutAuthentication() throws IOException {
+    assertThrows(
+        IOException.class,
+        () -> {
+          apiClient.setKafkaClusterId(getKafkaClusterID());
 
-      TopologyAclBinding binding =
-          apiClient.bind("User:fry", DEVELOPER_READ, "connect-configs", LITERAL);
+          TopologyAclBinding binding =
+              apiClient.bind("User:fry", DEVELOPER_READ, "connect-configs", LITERAL);
 
-      apiClient.bindRequest(binding);
-    });
+          apiClient.bindRequest(binding);
+        });
   }
 
   @Test
-  void testBindSecurityAdminRole() throws IOException {
+  void bindSecurityAdminRole() throws IOException {
     apiClient.setBasicAuth(new BasicAuth(mdsUser, mdsPassword));
     apiClient.authenticate();
     apiClient.setKafkaClusterId(getKafkaClusterID());
@@ -106,7 +110,7 @@ public class MDSApiClientRbacIT extends MDSBaseTest {
   }
 
   @Test
-  void testBindSubjectRole() throws IOException {
+  void bindSubjectRole() throws IOException {
     apiClient.setBasicAuth(new BasicAuth(mdsUser, mdsPassword));
     apiClient.authenticate();
     apiClient.setKafkaClusterId(getKafkaClusterID());
@@ -132,7 +136,7 @@ public class MDSApiClientRbacIT extends MDSBaseTest {
   }
 
   @Test
-  void testBindResourceOwnerRole() throws IOException {
+  void bindResourceOwnerRole() throws IOException {
     apiClient.setBasicAuth(new BasicAuth(mdsUser, mdsPassword));
     apiClient.authenticate();
     apiClient.setKafkaClusterId(getKafkaClusterID());
