@@ -2,6 +2,7 @@ package com.purbon.kafka.topology;
 
 import static com.purbon.kafka.topology.CommandLineInterface.*;
 import static com.purbon.kafka.topology.Constants.*;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.*;
 
 import com.purbon.kafka.topology.api.adminclient.TopologyBuilderAdminClient;
@@ -15,13 +16,13 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
 import org.apache.kafka.clients.admin.AdminClientConfig;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnit;
-import org.mockito.junit.MockitoRule;
+import org.mockito.junit.jupiter.MockitoExtension;
 
+@ExtendWith(MockitoExtension.class)
 public class JulieOpsTest {
 
   @Mock TopologyBuilderAdminClient topologyAdminClient;
@@ -38,14 +39,12 @@ public class JulieOpsTest {
 
   @Mock KSqlArtefactManager ksqlArtefactManager;
 
-  @Rule public MockitoRule mockitoRule = MockitoJUnit.rule();
-
   @Mock RedisBackend stateProcessor;
 
   private Map<String, String> cliOps;
   private Properties props;
 
-  @Before
+  @BeforeEach
   public void before() throws IOException {
     cliOps = new HashMap<>();
     cliOps.put(BROKERS_OPTION, "");
@@ -60,7 +59,7 @@ public class JulieOpsTest {
   }
 
   @Test
-  public void closeAdminClientTest() throws Exception {
+  void closeAdminClientTest() throws Exception {
     String fileOrDirPath = TestUtils.getResourceFilename("/descriptor.yaml");
 
     Configuration builderConfig = new Configuration(cliOps, props);
@@ -78,40 +77,44 @@ public class JulieOpsTest {
     verify(topologyAdminClient, times(1)).close();
   }
 
-  @Test(expected = TopologyParsingException.class)
-  public void verifyProblematicParametersTest() throws Exception {
-    String file = "fileThatDoesNotExist.yaml";
-    Configuration builderConfig = new Configuration(cliOps, props);
+  @Test
+  void verifyProblematicParametersTest() throws Exception {
+    assertThrows(TopologyParsingException.class, () -> {
+      String file = "fileThatDoesNotExist.yaml";
+      Configuration builderConfig = new Configuration(cliOps, props);
 
-    JulieOps builder =
-        JulieOps.build(
-            file,
-            builderConfig,
-            topologyAdminClient,
-            accessControlProvider,
-            bindingsBuilderProvider);
+      JulieOps builder =
+          JulieOps.build(
+              file,
+              builderConfig,
+              topologyAdminClient,
+              accessControlProvider,
+              bindingsBuilderProvider);
 
-    builder.verifyRequiredParameters(file, cliOps);
-  }
-
-  @Test(expected = IOException.class)
-  public void verifyProblematicParametersTest2() throws Exception {
-    String fileOrDirPath = TestUtils.getResourceFilename("/descriptor.yaml");
-
-    Configuration builderConfig = new Configuration(cliOps, props);
-    JulieOps builder =
-        JulieOps.build(
-            fileOrDirPath,
-            builderConfig,
-            topologyAdminClient,
-            accessControlProvider,
-            bindingsBuilderProvider);
-
-    builder.verifyRequiredParameters(fileOrDirPath, cliOps);
+      builder.verifyRequiredParameters(file, cliOps);
+    });
   }
 
   @Test
-  public void verifyProblematicParametersTestOK() throws Exception {
+  void verifyProblematicParametersTest2() throws Exception {
+    assertThrows(IOException.class, () -> {
+      String fileOrDirPath = TestUtils.getResourceFilename("/descriptor.yaml");
+
+      Configuration builderConfig = new Configuration(cliOps, props);
+      JulieOps builder =
+          JulieOps.build(
+              fileOrDirPath,
+              builderConfig,
+              topologyAdminClient,
+              accessControlProvider,
+              bindingsBuilderProvider);
+
+      builder.verifyRequiredParameters(fileOrDirPath, cliOps);
+    });
+  }
+
+  @Test
+  void verifyProblematicParametersTestOK() throws Exception {
     String fileOrDirPath = TestUtils.getResourceFilename("/descriptor.yaml");
     String clientConfigFile = TestUtils.getResourceFilename("/client-config.properties");
 
@@ -130,7 +133,7 @@ public class JulieOpsTest {
   }
 
   @Test
-  public void builderRunTestAsFromCLI() throws Exception {
+  void builderRunTestAsFromCLI() throws Exception {
     String fileOrDirPath = TestUtils.getResourceFilename("/descriptor.yaml");
     String clientConfigFile = TestUtils.getResourceFilename("/client-config.properties");
 
@@ -160,7 +163,7 @@ public class JulieOpsTest {
   }
 
   @Test
-  public void builderRunTestAsFromCLIWithARedisBackend() throws Exception {
+  void builderRunTestAsFromCLIWithARedisBackend() throws Exception {
     String fileOrDirPath = TestUtils.getResourceFilename("/descriptor.yaml");
     String clientConfigFile = TestUtils.getResourceFilename("/client-config-redis.properties");
 
@@ -190,7 +193,7 @@ public class JulieOpsTest {
   }
 
   @Test
-  public void builderRunTest() throws Exception {
+  void builderRunTest() throws Exception {
     String fileOrDirPath = TestUtils.getResourceFilename("/descriptor.yaml");
 
     Configuration builderConfig = new Configuration(cliOps, props);
@@ -220,7 +223,7 @@ public class JulieOpsTest {
   }
 
   @Test
-  public void builderRunTestAsFromDirectoryWithSchema() throws Exception {
+  void builderRunTestAsFromDirectoryWithSchema() throws Exception {
     String fileOrDirPath = TestUtils.getResourceFilename("/dir_with_subdir");
 
     Configuration builderConfig = new Configuration(cliOps, props);

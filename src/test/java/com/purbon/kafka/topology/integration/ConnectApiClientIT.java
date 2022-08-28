@@ -12,10 +12,10 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Properties;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 public class ConnectApiClientIT {
 
@@ -27,7 +27,7 @@ public class ConnectApiClientIT {
   private static final String TRUSTSTORE_JKS = "/ksql-ssl/truststore/ksqldb.truststore.jks";
   private static final String KEYSTORE_JKS = "/ksql-ssl/keystore/ksqldb.keystore.jks";
 
-  @BeforeClass
+  @BeforeAll
   public static void setup() {
     container = ContainerFactory.fetchSaslKafkaContainer(System.getProperty("cp.version"));
     container.start();
@@ -35,13 +35,13 @@ public class ConnectApiClientIT {
     connectContainer.start();
   }
 
-  @AfterClass
+  @AfterAll
   public static void after() {
     connectContainer.stop();
     container.stop();
   }
 
-  @Before
+  @BeforeEach
   public void configure() throws IOException {
     HashMap<String, String> cliOps = new HashMap<>();
     cliOps.put(BROKERS_OPTION, "");
@@ -50,7 +50,7 @@ public class ConnectApiClientIT {
   }
 
   @Test
-  public void testAddRetrieveAndDeleteConnector() throws IOException {
+  void testAddRetrieveAndDeleteConnector() throws IOException {
     String connectorName = "file-source-connector";
     String connectorConfig =
         "{\n"
@@ -72,7 +72,7 @@ public class ConnectApiClientIT {
   }
 
   @Test
-  public void testAddStartStopConnector() throws IOException, InterruptedException {
+  void testAddStartStopConnector() throws IOException, InterruptedException {
     String connectorName = "file-source-connector";
     String connectorConfig =
         "{\n"

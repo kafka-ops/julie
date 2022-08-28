@@ -11,20 +11,20 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 import org.assertj.core.api.Condition;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 public class PlanMapSerdesTest {
 
   PlanMapSerdes parser;
 
-  @Before
+  @BeforeEach
   public void before() {
     parser = new PlanMapSerdes();
   }
 
   @Test
-  public void testSerialization() throws JsonProcessingException {
+  void testSerialization() throws JsonProcessingException {
     Map<String, String> config = new HashMap<>();
     config.put("foo", "bar");
     config.put("bar", "3");
@@ -46,7 +46,7 @@ public class PlanMapSerdesTest {
   }
 
   @Test
-  public void testHappyDeserialization() throws IOException {
+  void testHappyDeserialization() throws IOException {
     PlanMap plans = parser.deserialise(TestUtils.getResourceFile("/plans.yaml"));
 
     assertThat(plans).has(new Condition<>(list -> list.size() == 2, "Contains two elements"));

@@ -3,6 +3,8 @@ package com.purbon.kafka.topology;
 import static com.purbon.kafka.topology.CommandLineInterface.BROKERS_OPTION;
 import static com.purbon.kafka.topology.Constants.*;
 import static org.hamcrest.CoreMatchers.instanceOf;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.mockito.internal.verification.VerificationModeFactory.times;
@@ -17,14 +19,13 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
-import org.hamcrest.MatcherAssert;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnit;
-import org.mockito.junit.MockitoRule;
+import org.mockito.junit.jupiter.MockitoExtension;
 
+@ExtendWith(MockitoExtension.class)
 public class AccessControlProviderFactoryTest {
 
   @Mock TopologyBuilderAdminClient adminClient;
@@ -33,12 +34,10 @@ public class AccessControlProviderFactoryTest {
 
   @Mock MDSApiClient mdsApiClient;
 
-  @Rule public MockitoRule mockitoRule = MockitoJUnit.rule();
-
   Map<String, String> cliOps;
   Properties props;
 
-  @Before
+  @BeforeEach
   public void before() {
     cliOps = new HashMap<>();
     cliOps.put(BROKERS_OPTION, "");
@@ -46,7 +45,7 @@ public class AccessControlProviderFactoryTest {
   }
 
   @Test
-  public void testRBACConfig() throws IOException {
+  void testRBACConfig() throws IOException {
 
     props.put(ACCESS_CONTROL_IMPLEMENTATION_CLASS, "com.purbon.kafka.topology.roles.RBACProvider");
     props.put(MDS_SERVER, "http://localhost:8090");
@@ -66,32 +65,34 @@ public class AccessControlProviderFactoryTest {
     verify(mdsApiClient, times(1)).setBasicAuth(new BasicAuth("alice", "alice-secret"));
     verify(mdsApiClient, times(1)).authenticate();
 
-    MatcherAssert.assertThat(provider, instanceOf(RBACProvider.class));
+    assertThat(provider, instanceOf(RBACProvider.class));
   }
 
   @Test
-  public void testACLsConfig() throws IOException {
+  void testACLsConfig() throws IOException {
 
     Configuration config = new Configuration(cliOps, props);
 
     AccessControlProviderFactory factory =
         new AccessControlProviderFactory(config, adminClient, mdsApiClientBuilder);
 
-    MatcherAssert.assertThat(factory.get(), instanceOf(SimpleAclsProvider.class));
+    assertThat(factory.get(), instanceOf(SimpleAclsProvider.class));
   }
 
-  @Test(expected = IOException.class)
-  public void testWrongProviderConfig() throws IOException {
+  @Test
+  void testWrongProviderConfig() throws IOException {
+    assertThrows(IOException.class, () -> {
 
-    props.put(
-        ACCESS_CONTROL_IMPLEMENTATION_CLASS, "com.purbon.kafka.topology.roles.MyCustomProvider");
+      props.put(
+          ACCESS_CONTROL_IMPLEMENTATION_CLASS, "com.purbon.kafka.topology.roles.MyCustomProvider");
 
-    Configuration config = new Configuration(cliOps, props);
+      Configuration config = new Configuration(cliOps, props);
 
-    when(mdsApiClientBuilder.build()).thenReturn(mdsApiClient);
+      when(mdsApiClientBuilder.build()).thenReturn(mdsApiClient);
 
-    AccessControlProviderFactory factory =
-        new AccessControlProviderFactory(config, adminClient, mdsApiClientBuilder);
-    factory.get();
+      AccessControlProviderFactory factory =
+          new AccessControlProviderFactory(config, adminClient, mdsApiClientBuilder);
+      factory.get();
+    });
   }
 }

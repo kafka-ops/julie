@@ -1,5 +1,8 @@
 package com.purbon.kafka.topology.integration;
 
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.fail;
+
 import com.purbon.kafka.topology.integration.containerutils.ContainerFactory;
 import com.purbon.kafka.topology.integration.containerutils.ContainerTestUtils;
 import com.purbon.kafka.topology.integration.containerutils.SaslPlaintextKafkaContainer;
@@ -9,10 +12,9 @@ import java.util.Set;
 import org.apache.kafka.common.errors.GroupAuthorizationException;
 import org.apache.kafka.common.errors.SaslAuthenticationException;
 import org.apache.kafka.common.errors.TopicAuthorizationException;
-import org.junit.AfterClass;
-import org.junit.Assert;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 
 public final class AclProducerAndConsumerIT {
 
@@ -27,7 +29,7 @@ public final class AclProducerAndConsumerIT {
   private static final String OTHER_CONSUMER_USERNAME = "other-consumer";
   private static SaslPlaintextKafkaContainer container;
 
-  @BeforeClass
+  @BeforeAll
   public static void beforeClass() {
     container =
         ContainerFactory.fetchSaslKafkaContainer(System.getProperty("cp.version"))
@@ -41,78 +43,94 @@ public final class AclProducerAndConsumerIT {
         container, "/acl-producer-and-consumer-it.yaml", "/integration-tests.properties");
   }
 
-  @AfterClass
+  @AfterAll
   public static void afterClass() {
     container.stop();
   }
 
-  @Test(expected = SaslAuthenticationException.class)
-  public void shouldNotProduceWhenUnknownUser() {
-    try (final TestProducer producer = TestProducer.create(container, UNKNOWN_USERNAME)) {
-      producer.produce(TOPIC, "foo");
-    }
-  }
-
-  @Test(expected = SaslAuthenticationException.class)
-  public void shouldNotConsumeWhenUnknownUser() {
-    try (final TestConsumer consumer =
-        TestConsumer.create(container, UNKNOWN_USERNAME, CONSUMER_GROUP)) {
-      consumer.consumeForAWhile(TOPIC, null);
-    }
-  }
-
-  @Test(expected = TopicAuthorizationException.class)
-  public void shouldNotProduceWithoutPermission() {
-    try (final TestProducer producer = TestProducer.create(container, NO_ACCESS_USERNAME)) {
-      producer.produce(TOPIC, "foo");
-    }
-  }
-
-  @Test(expected = TopicAuthorizationException.class)
-  public void shouldNotConsumeWithoutPermission() {
-    try (final TestConsumer consumer =
-        TestConsumer.create(container, NO_ACCESS_USERNAME, CONSUMER_GROUP)) {
-      consumer.consumeForAWhile(TOPIC, null);
-    }
-  }
-
-  @Test(expected = TopicAuthorizationException.class)
-  public void shouldNotProduceWithoutPermissionEvenIfPermittedElsewhere() {
-    try (final TestProducer producer = TestProducer.create(container, OTHER_PRODUCER_USERNAME)) {
-      producer.produce(TOPIC, "foo");
-    }
-  }
-
-  @Test(expected = TopicAuthorizationException.class)
-  public void shouldNotConsumeWithoutPermissionEvenIfPermittedElsewhere() {
-    try (final TestConsumer consumer =
-        TestConsumer.create(container, OTHER_CONSUMER_USERNAME, CONSUMER_GROUP)) {
-      consumer.consumeForAWhile(TOPIC, null);
-    }
-  }
-
-  @Test(expected = TopicAuthorizationException.class)
-  public void shouldNotProduceWhenConsumer() {
-    try (final TestProducer producer = TestProducer.create(container, CONSUMER_USERNAME)) {
-      producer.produce(TOPIC, "foo");
-    }
-  }
-
-  @Test(expected = GroupAuthorizationException.class)
-  public void shouldNotConsumeWhenProducer() {
-    try (final TestConsumer consumer =
-        TestConsumer.create(container, PRODUCER_USERNAME, CONSUMER_GROUP)) {
-      consumer.consumeForAWhile(TOPIC, null);
-    }
+  @Test
+  void shouldNotProduceWhenUnknownUser() {
+    assertThrows(SaslAuthenticationException.class, () -> {
+      try (final TestProducer producer = TestProducer.create(container, UNKNOWN_USERNAME)) {
+        producer.produce(TOPIC, "foo");
+      }
+    });
   }
 
   @Test
-  public void shouldProduceAndConsume() {
+  void shouldNotConsumeWhenUnknownUser() {
+    assertThrows(SaslAuthenticationException.class, () -> {
+      try (final TestConsumer consumer =
+          TestConsumer.create(container, UNKNOWN_USERNAME, CONSUMER_GROUP)) {
+        consumer.consumeForAWhile(TOPIC, null);
+      }
+    });
+  }
+
+  @Test
+  void shouldNotProduceWithoutPermission() {
+    assertThrows(TopicAuthorizationException.class, () -> {
+      try (final TestProducer producer = TestProducer.create(container, NO_ACCESS_USERNAME)) {
+        producer.produce(TOPIC, "foo");
+      }
+    });
+  }
+
+  @Test
+  void shouldNotConsumeWithoutPermission() {
+    assertThrows(TopicAuthorizationException.class, () -> {
+      try (final TestConsumer consumer =
+          TestConsumer.create(container, NO_ACCESS_USERNAME, CONSUMER_GROUP)) {
+        consumer.consumeForAWhile(TOPIC, null);
+      }
+    });
+  }
+
+  @Test
+  void shouldNotProduceWithoutPermissionEvenIfPermittedElsewhere() {
+    assertThrows(TopicAuthorizationException.class, () -> {
+      try (final TestProducer producer = TestProducer.create(container, OTHER_PRODUCER_USERNAME)) {
+        producer.produce(TOPIC, "foo");
+      }
+    });
+  }
+
+  @Test
+  void shouldNotConsumeWithoutPermissionEvenIfPermittedElsewhere() {
+    assertThrows(TopicAuthorizationException.class, () -> {
+      try (final TestConsumer consumer =
+          TestConsumer.create(container, OTHER_CONSUMER_USERNAME, CONSUMER_GROUP)) {
+        consumer.consumeForAWhile(TOPIC, null);
+      }
+    });
+  }
+
+  @Test
+  void shouldNotProduceWhenConsumer() {
+    assertThrows(TopicAuthorizationException.class, () -> {
+      try (final TestProducer producer = TestProducer.create(container, CONSUMER_USERNAME)) {
+        producer.produce(TOPIC, "foo");
+      }
+    });
+  }
+
+  @Test
+  void shouldNotConsumeWhenProducer() {
+    assertThrows(GroupAuthorizationException.class, () -> {
+      try (final TestConsumer consumer =
+          TestConsumer.create(container, PRODUCER_USERNAME, CONSUMER_GROUP)) {
+        consumer.consumeForAWhile(TOPIC, null);
+      }
+    });
+  }
+
+  @Test
+  void shouldProduceAndConsume() {
     produceAndConsume(TOPIC, PRODUCER_USERNAME, CONSUMER_USERNAME);
   }
 
   @Test
-  public void shouldProduceAndConsumeElsewhere() {
+  void shouldProduceAndConsumeElsewhere() {
     /* Just to test that everything was spelled correctly in source and config for the above tests. */
     produceAndConsume(OTHER_TOPIC, OTHER_PRODUCER_USERNAME, OTHER_CONSUMER_USERNAME);
   }
@@ -130,7 +148,7 @@ public final class AclProducerAndConsumerIT {
             return !values.isEmpty();
           });
       if (!values.isEmpty()) {
-        Assert.fail("Unable to consume all messages.");
+        fail("Unable to consume all messages.");
       }
     }
   }

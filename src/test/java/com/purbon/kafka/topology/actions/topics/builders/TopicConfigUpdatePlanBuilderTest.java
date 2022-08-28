@@ -1,6 +1,6 @@
 package com.purbon.kafka.topology.actions.topics.builders;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.doReturn;
 
 import com.purbon.kafka.topology.TopicManager;
@@ -13,22 +13,21 @@ import java.util.HashMap;
 import org.apache.kafka.clients.admin.Config;
 import org.apache.kafka.clients.admin.ConfigEntry;
 import org.apache.kafka.common.config.TopicConfig;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnit;
-import org.mockito.junit.MockitoRule;
+import org.mockito.junit.jupiter.MockitoExtension;
 
+@ExtendWith(MockitoExtension.class)
 public class TopicConfigUpdatePlanBuilderTest {
 
   private static final String TOPIC_NAME = "foo";
   public static final String DEFAULT_RETENTION_MS = "604800000";
-  @Rule public MockitoRule mockitoRule = MockitoJUnit.rule();
 
   @Mock private TopologyBuilderAdminClient adminClient;
 
   @Test
-  public void shouldNotChangeConfigWhenNoConfig() {
+  void shouldNotChangeConfigWhenNoConfig() {
     doReturn(createEmptyConfig()).when(adminClient).getActualTopicConfig(TOPIC_NAME);
     var topic = createTopic();
     var plan = getTopicConfigUpdatePlan(topic);
@@ -36,7 +35,7 @@ public class TopicConfigUpdatePlanBuilderTest {
   }
 
   @Test
-  public void shouldUpdatePartitionCountWhenHigherThanCurrent() throws IOException {
+  void shouldUpdatePartitionCountWhenHigherThanCurrent() throws IOException {
     doReturn(createEmptyConfig()).when(adminClient).getActualTopicConfig(TOPIC_NAME);
     doReturn(3).when(adminClient).getPartitionCount(TOPIC_NAME);
     var topic = createTopic(TopicManager.NUM_PARTITIONS, "5");
@@ -46,7 +45,7 @@ public class TopicConfigUpdatePlanBuilderTest {
   }
 
   @Test
-  public void shouldNotUpdatePartitionCountWhenLowerThanCurrent() throws IOException {
+  void shouldNotUpdatePartitionCountWhenLowerThanCurrent() throws IOException {
     doReturn(createEmptyConfig()).when(adminClient).getActualTopicConfig(TOPIC_NAME);
     doReturn(3).when(adminClient).getPartitionCount(TOPIC_NAME);
     var topic = createTopic(TopicManager.NUM_PARTITIONS, "2");
@@ -56,7 +55,7 @@ public class TopicConfigUpdatePlanBuilderTest {
   }
 
   @Test
-  public void shouldAddNewConfigForRetention() {
+  void shouldAddNewConfigForRetention() {
     doReturn(createDefaultRetentionConfig()).when(adminClient).getActualTopicConfig(TOPIC_NAME);
     var topic = createTopic(TopicConfig.RETENTION_MS_CONFIG, "1000");
     var plan = getTopicConfigUpdatePlan(topic);
@@ -64,7 +63,7 @@ public class TopicConfigUpdatePlanBuilderTest {
   }
 
   @Test
-  public void shouldAddNewConfigForRetentionWhenAlreadySetByBroker() {
+  void shouldAddNewConfigForRetentionWhenAlreadySetByBroker() {
     doReturn(createBrokerOverriddenRetentionConfig())
         .when(adminClient)
         .getActualTopicConfig(TOPIC_NAME);
@@ -74,7 +73,7 @@ public class TopicConfigUpdatePlanBuilderTest {
   }
 
   @Test
-  public void shouldUpdateConfigForRetention() {
+  void shouldUpdateConfigForRetention() {
     doReturn(createAlreadyOverriddenRetentionConfig())
         .when(adminClient)
         .getActualTopicConfig(TOPIC_NAME);
@@ -84,7 +83,7 @@ public class TopicConfigUpdatePlanBuilderTest {
   }
 
   @Test
-  public void shouldDeleteConfigForRetention() {
+  void shouldDeleteConfigForRetention() {
     doReturn(createAlreadyOverriddenRetentionConfig())
         .when(adminClient)
         .getActualTopicConfig(TOPIC_NAME);
@@ -94,7 +93,7 @@ public class TopicConfigUpdatePlanBuilderTest {
   }
 
   @Test
-  public void shouldNotDeleteConfigForRetentionWhenSetByBroker() {
+  void shouldNotDeleteConfigForRetentionWhenSetByBroker() {
     doReturn(createBrokerOverriddenRetentionConfig())
         .when(adminClient)
         .getActualTopicConfig(TOPIC_NAME);

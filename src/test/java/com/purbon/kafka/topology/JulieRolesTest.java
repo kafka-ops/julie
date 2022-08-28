@@ -1,6 +1,7 @@
 package com.purbon.kafka.topology;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import com.purbon.kafka.topology.model.JulieRole;
 import com.purbon.kafka.topology.model.JulieRoleAcl;
@@ -16,24 +17,24 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 public class JulieRolesTest {
 
   JulieRolesSerdes parser;
 
-  @Before
+  @BeforeEach
   public void before() {
     this.parser = new JulieRolesSerdes();
   }
 
-  @After
+  @AfterEach
   public void after() {}
 
   @Test
-  public void testSerdes() throws IOException {
+  void testSerdes() throws IOException {
     JulieRoles roles = parser.deserialise(TestUtils.getResourceFile("/roles-rbac.yaml"));
 
     assertThat(roles.getRoles()).hasSize(2);
@@ -88,17 +89,19 @@ public class JulieRolesTest {
     }
   }
 
-  @Test(expected = IOException.class)
-  public void testTopologyValidationException() throws IOException {
-    JulieRoles roles = parser.deserialise(TestUtils.getResourceFile("/roles.yaml"));
-    TopologySerdes topologySerdes = new TopologySerdes();
+  @Test
+  void testTopologyValidationException() throws IOException {
+    assertThrows(IOException.class, () -> {
+      JulieRoles roles = parser.deserialise(TestUtils.getResourceFile("/roles.yaml"));
+      TopologySerdes topologySerdes = new TopologySerdes();
 
-    Topology topology = topologySerdes.deserialise(TestUtils.getResourceFile("/descriptor.yaml"));
-    roles.validateTopology(topology);
+      Topology topology = topologySerdes.deserialise(TestUtils.getResourceFile("/descriptor.yaml"));
+      roles.validateTopology(topology);
+    });
   }
 
   @Test
-  public void testTopologyValidationCorrect() throws IOException {
+  void testTopologyValidationCorrect() throws IOException {
     JulieRoles roles = parser.deserialise(TestUtils.getResourceFile("/roles-goodTest.yaml"));
     TopologySerdes topologySerdes = new TopologySerdes();
 

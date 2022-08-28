@@ -3,6 +3,7 @@ package com.purbon.kafka.topology;
 import static com.purbon.kafka.topology.CommandLineInterface.BROKERS_OPTION;
 import static com.purbon.kafka.topology.Constants.*;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import com.purbon.kafka.topology.audit.KafkaAppender;
 import com.purbon.kafka.topology.audit.StdoutAppender;
@@ -16,16 +17,16 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
 import org.apache.kafka.common.KafkaException;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 public class JulieOpsAuxiliaryTest {
 
   private Map<String, String> cliOps;
   private Properties props;
 
-  @Before
+  @BeforeEach
   public void before() {
     cliOps = new HashMap<>();
     cliOps.put(BROKERS_OPTION, "");
@@ -33,44 +34,46 @@ public class JulieOpsAuxiliaryTest {
     props.put(JULIE_AUDIT_ENABLED, "true");
   }
 
-  @After
+  @AfterEach
   public void after() {}
 
   @Test
-  public void shouldConfigureAFileBackend() throws IOException {
+  void shouldConfigureAFileBackend() throws IOException {
     testBackend(STATE_PROCESSOR_DEFAULT_CLASS, FileBackend.class);
   }
 
   @Test
-  public void shouldConfigureARedisBackend() throws IOException {
+  void shouldConfigureARedisBackend() throws IOException {
     testBackend(REDIS_STATE_PROCESSOR_CLASS, RedisBackend.class);
   }
 
   @Test
-  public void shouldConfigureAS3Backend() throws IOException {
+  void shouldConfigureAS3Backend() throws IOException {
     props.put(JULIE_S3_REGION, "region");
     testBackend(S3_STATE_PROCESSOR_CLASS, S3Backend.class);
   }
 
   @Test
-  public void shouldConfigureAGCPBackend() throws IOException {
+  void shouldConfigureAGCPBackend() throws IOException {
     props.put(JULIE_GCP_BUCKET, "bucket");
     props.put(JULIE_GCP_PROJECT_ID, "project");
     testBackend(GCP_STATE_PROCESSOR_CLASS, GCPBackend.class);
   }
 
-  @Test(expected = KafkaException.class)
-  public void shouldConfigureAKafkaBackend() throws IOException {
-    testBackend(KAFKA_STATE_PROCESSOR_CLASS, KafkaBackend.class);
+  @Test
+  void shouldConfigureAKafkaBackend() throws IOException {
+    assertThrows(KafkaException.class, () -> {
+      testBackend(KAFKA_STATE_PROCESSOR_CLASS, KafkaBackend.class);
+    });
   }
 
   @Test
-  public void shouldConfigureAnStdoutAuditor() throws IOException {
+  void shouldConfigureAnStdoutAuditor() throws IOException {
     testAuditor("com.purbon.kafka.topology.audit.StdoutAppender", StdoutAppender.class);
   }
 
   @Test
-  public void shouldConfigureAKafkaAuditor() throws IOException {
+  void shouldConfigureAKafkaAuditor() throws IOException {
     testAuditor("com.purbon.kafka.topology.audit.KafkaAppender", KafkaAppender.class);
   }
 

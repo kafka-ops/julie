@@ -7,20 +7,18 @@ import com.purbon.kafka.topology.api.adminclient.TopologyBuilderAdminClient;
 import com.purbon.kafka.topology.model.Topic;
 import com.purbon.kafka.topology.model.Topology;
 import java.util.Collections;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnit;
-import org.mockito.junit.MockitoRule;
+import org.mockito.junit.jupiter.MockitoExtension;
 
+@ExtendWith(MockitoExtension.class)
 public class DeleteTopicsActionTest {
 
   @Mock TopologyBuilderAdminClient adminClient;
 
-  @Rule public MockitoRule mockitoRule = MockitoJUnit.rule();
-
   @Test
-  public void shouldComposeDetailedViewOfProperties() {
+  void shouldComposeDetailedViewOfProperties() {
     Topic t = new Topic("foo");
     t.setConfig(Collections.singletonMap("foo", "bar"));
 

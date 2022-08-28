@@ -4,7 +4,9 @@ import static com.purbon.kafka.topology.CommandLineInterface.*;
 import static com.purbon.kafka.topology.Constants.*;
 import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.when;
 
 import com.purbon.kafka.topology.AccessControlManager;
@@ -36,11 +38,15 @@ import org.apache.kafka.common.acl.*;
 import org.apache.kafka.common.resource.PatternType;
 import org.apache.kafka.common.resource.ResourcePatternFilter;
 import org.apache.kafka.common.resource.ResourceType;
-import org.junit.*;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnit;
-import org.mockito.junit.MockitoRule;
+import org.mockito.junit.jupiter.MockitoExtension;
 
+@ExtendWith(MockitoExtension.class)
 public class AccessControlManagerIT {
 
   private static SaslPlaintextKafkaContainer container;
@@ -52,22 +58,21 @@ public class AccessControlManagerIT {
 
   private ExecutionPlan plan;
   private BackendController cs;
-  @Rule public MockitoRule mockitoRule = MockitoJUnit.rule();
 
   @Mock private Configuration config;
 
-  @BeforeClass
+  @BeforeAll
   public static void setup() {
     container = ContainerFactory.fetchSaslKafkaContainer(System.getProperty("cp.version"));
     container.start();
   }
 
-  @AfterClass
+  @AfterAll
   public static void teardown() {
     container.stop();
   }
 
-  @Before
+  @BeforeEach
   public void before() throws IOException {
     kafkaAdminClient = ContainerTestUtils.getSaslAdminClient(container);
     topologyAdminClient = new TopologyBuilderAdminClient(kafkaAdminClient);
@@ -83,7 +88,7 @@ public class AccessControlManagerIT {
   }
 
   @Test
-  public void aclsRemoval() throws ExecutionException, InterruptedException, IOException {
+  void aclsRemoval() throws ExecutionException, InterruptedException, IOException {
 
     Properties props = new Properties();
     props.put(ALLOW_DELETE_BINDINGS, true);
@@ -133,7 +138,7 @@ public class AccessControlManagerIT {
   }
 
   @Test
-  public void aclsRemovedTest() throws IOException, ExecutionException, InterruptedException {
+  void aclsRemovedTest() throws IOException, ExecutionException, InterruptedException {
 
     Properties props = new Properties();
     props.put(ALLOW_DELETE_BINDINGS, true);
@@ -174,7 +179,7 @@ public class AccessControlManagerIT {
   }
 
   @Test
-  public void consumerAclsCreation() throws ExecutionException, InterruptedException, IOException {
+  void consumerAclsCreation() throws ExecutionException, InterruptedException, IOException {
 
     List<Consumer> consumers = new ArrayList<>();
     consumers.add(new Consumer("User:app1"));
@@ -195,42 +200,44 @@ public class AccessControlManagerIT {
     verifyConsumerAcls(consumers);
   }
 
-  @Test(expected = IOException.class)
-  public void shouldDetectChangesInTheRemoteClusterBetweenRuns() throws IOException {
+  @Test
+  void shouldDetectChangesInTheRemoteClusterBetweenRuns() throws IOException {
+    assertThrows(IOException.class, () -> {
 
-    Properties props = new Properties();
-    props.put(ALLOW_DELETE_BINDINGS, true);
-    props.put(JULIE_VERIFY_STATE_SYNC, true);
+      Properties props = new Properties();
+      props.put(ALLOW_DELETE_BINDINGS, true);
+      props.put(JULIE_VERIFY_STATE_SYNC, true);
 
-    HashMap<String, String> cliOps = new HashMap<>();
-    cliOps.put(BROKERS_OPTION, "");
+      HashMap<String, String> cliOps = new HashMap<>();
+      cliOps.put(BROKERS_OPTION, "");
 
-    Configuration config = new Configuration(cliOps, props);
+      Configuration config = new Configuration(cliOps, props);
 
-    accessControlManager = new AccessControlManager(aclsProvider, bindingsBuilder, config);
+      accessControlManager = new AccessControlManager(aclsProvider, bindingsBuilder, config);
 
-    TopologyBuilderAdminClient adminClient = new TopologyBuilderAdminClient(kafkaAdminClient);
+      TopologyBuilderAdminClient adminClient = new TopologyBuilderAdminClient(kafkaAdminClient);
 
-    var topology =
-        TestTopologyBuilder.createProject()
-            .addTopic("topic1")
-            .addTopic("topic2")
-            .addConsumer("User:foo")
-            .buildTopology();
+      var topology =
+          TestTopologyBuilder.createProject()
+              .addTopic("topic1")
+              .addTopic("topic2")
+              .addConsumer("User:foo")
+              .buildTopology();
 
-    accessControlManager.updatePlan(topology, plan);
-    plan.run();
+      accessControlManager.updatePlan(topology, plan);
+      plan.run();
 
-    var binding =
-        TopologyAclBinding.build(
-            "TOPIC", "ctx.project.topic2", "*", "DESCRIBE", "User:foo", "LITERAL");
-    adminClient.clearAcls(binding);
+      var binding =
+          TopologyAclBinding.build(
+              "TOPIC", "ctx.project.topic2", "*", "DESCRIBE", "User:foo", "LITERAL");
+      adminClient.clearAcls(binding);
 
-    accessControlManager.updatePlan(topology, plan);
+      accessControlManager.updatePlan(topology, plan);
+    });
   }
 
   @Test
-  public void producerAclsCreation() throws ExecutionException, InterruptedException, IOException {
+  void producerAclsCreation() throws ExecutionException, InterruptedException, IOException {
 
     List<Producer> producers = new ArrayList<>();
     Producer producer = new Producer("User:Producer1");
@@ -253,7 +260,7 @@ public class AccessControlManagerIT {
   }
 
   @Test
-  public void producerWithTxAclsCreation()
+  void producerWithTxAclsCreation()
       throws ExecutionException, InterruptedException, IOException {
 
     List<Producer> producers = new ArrayList<>();
@@ -277,7 +284,7 @@ public class AccessControlManagerIT {
   }
 
   @Test
-  public void producerWithIdempotenceAclsCreation()
+  void producerWithIdempotenceAclsCreation()
       throws ExecutionException, InterruptedException, IOException {
 
     List<Producer> producers = new ArrayList<>();
@@ -301,7 +308,7 @@ public class AccessControlManagerIT {
   }
 
   @Test
-  public void kstreamsAclsCreation() throws ExecutionException, InterruptedException, IOException {
+  void kstreamsAclsCreation() throws ExecutionException, InterruptedException, IOException {
     Project project = new ProjectImpl();
 
     KStream app = new KStream();
@@ -324,7 +331,7 @@ public class AccessControlManagerIT {
   }
 
   @Test
-  public void ksqlAppAclsCreation() throws ExecutionException, InterruptedException, IOException {
+  void ksqlAppAclsCreation() throws ExecutionException, InterruptedException, IOException {
     Project project = new ProjectImpl();
 
     KSqlApp app = new KSqlApp();
@@ -347,7 +354,7 @@ public class AccessControlManagerIT {
   }
 
   @Test
-  public void testAvoidHandlingInternalAclsForJulie() throws Exception {
+  void testAvoidHandlingInternalAclsForJulie() throws Exception {
     // create a dummy internal ACL for julie
     String juliePrincipal = "User:Julie";
     AclBinding julieBinding =
@@ -404,7 +411,7 @@ public class AccessControlManagerIT {
   }
 
   @Test
-  public void schemaRegistryAclsCreation()
+  void schemaRegistryAclsCreation()
       throws ExecutionException, InterruptedException, IOException {
     Project project = new ProjectImpl();
 
@@ -433,7 +440,7 @@ public class AccessControlManagerIT {
   }
 
   @Test
-  public void controlcenterAclsCreation()
+  void controlcenterAclsCreation()
       throws ExecutionException, InterruptedException, IOException {
 
     when(config.getConfluentCommandTopic()).thenReturn("foo");
@@ -464,7 +471,7 @@ public class AccessControlManagerIT {
   }
 
   @Test
-  public void connectAclsCreation() throws ExecutionException, InterruptedException, IOException {
+  void connectAclsCreation() throws ExecutionException, InterruptedException, IOException {
     Project project = new ProjectImpl();
 
     Connector connector = new Connector();
@@ -486,7 +493,7 @@ public class AccessControlManagerIT {
   }
 
   @Test
-  public void testJulieRoleAclCreation()
+  void testJulieRoleAclCreation()
       throws IOException, ExecutionException, InterruptedException {
     Topic topicA = new Topic("topicA");
     Topology topology =
@@ -703,15 +710,15 @@ public class AccessControlManagerIT {
               .map(aclBinding -> aclBinding.pattern().resourceType())
               .collect(Collectors.toList());
 
-      Assert.assertTrue(types.contains(ResourceType.TOPIC));
+      assertTrue(types.contains(ResourceType.TOPIC));
 
       List<AclOperation> ops =
           acls.stream()
               .map(aclsBinding -> aclsBinding.entry().operation())
               .collect(Collectors.toList());
 
-      Assert.assertTrue(ops.contains(AclOperation.DESCRIBE));
-      Assert.assertTrue(ops.contains(AclOperation.WRITE));
+      assertTrue(ops.contains(AclOperation.DESCRIBE));
+      assertTrue(ops.contains(AclOperation.WRITE));
     }
   }
 
@@ -734,16 +741,16 @@ public class AccessControlManagerIT {
               .map(aclBinding -> aclBinding.pattern().resourceType())
               .collect(Collectors.toList());
 
-      Assert.assertTrue(types.contains(ResourceType.GROUP));
-      Assert.assertTrue(types.contains(ResourceType.TOPIC));
+      assertTrue(types.contains(ResourceType.GROUP));
+      assertTrue(types.contains(ResourceType.TOPIC));
 
       List<AclOperation> ops =
           acls.stream()
               .map(aclsBinding -> aclsBinding.entry().operation())
               .collect(Collectors.toList());
 
-      Assert.assertTrue(ops.contains(AclOperation.DESCRIBE));
-      Assert.assertTrue(ops.contains(AclOperation.READ));
+      assertTrue(ops.contains(AclOperation.DESCRIBE));
+      assertTrue(ops.contains(AclOperation.READ));
     }
   }
 }

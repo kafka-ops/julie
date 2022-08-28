@@ -3,25 +3,26 @@ package com.purbon.kafka.topology;
 import static com.purbon.kafka.topology.CommandLineInterface.*;
 import static com.purbon.kafka.topology.Constants.*;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import com.purbon.kafka.topology.model.Topology;
 import com.purbon.kafka.topology.serdes.TopologySerdes;
 import com.purbon.kafka.topology.utils.TestUtils;
 import java.util.*;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 public class TopologyValidationTest {
 
   private TopologySerdes parser;
 
-  @Before
+  @BeforeEach
   public void setup() {
     parser = new TopologySerdes();
   }
 
   @Test
-  public void testPositiveExecutionOnCamelCaseNames() {
+  void testPositiveExecutionOnCamelCaseNames() {
 
     Topology topology =
         parser.deserialise(TestUtils.getResourceFile("/descriptor-with-camelCaseNames.yml"));
@@ -36,7 +37,7 @@ public class TopologyValidationTest {
   }
 
   @Test
-  public void testInvalidExecutionBecauseOfNumberOfPartitions() {
+  void testInvalidExecutionBecauseOfNumberOfPartitions() {
 
     Topology topology =
         parser.deserialise(TestUtils.getResourceFile("/descriptor-with-camelCaseNames.yml"));
@@ -52,7 +53,7 @@ public class TopologyValidationTest {
   }
 
   @Test
-  public void testInvalidExecutionWithFailedValidation() {
+  void testInvalidExecutionWithFailedValidation() {
 
     Topology topology = parser.deserialise(TestUtils.getResourceFile("/descriptor.yaml"));
 
@@ -76,7 +77,7 @@ public class TopologyValidationTest {
   }
 
   @Test
-  public void regexpValidationShouldFindPatterns() {
+  void regexpValidationShouldFindPatterns() {
     Topology topology = parser.deserialise(TestUtils.getResourceFile("/descriptor.yaml"));
 
     Configuration config =
@@ -89,28 +90,32 @@ public class TopologyValidationTest {
     assertThat(results).hasSize(1);
   }
 
-  @Test(expected = IllegalStateException.class)
-  public void testUsingDeprecatedValidationsConfig() {
+  @Test
+  void testUsingDeprecatedValidationsConfig() {
+    assertThrows(IllegalStateException.class, () -> {
 
-    Topology topology = parser.deserialise(TestUtils.getResourceFile("/descriptor.yaml"));
+      Topology topology = parser.deserialise(TestUtils.getResourceFile("/descriptor.yaml"));
 
-    Configuration config = createTopologyBuilderConfig("topology.CamelCaseNameFormatValidation");
+      Configuration config = createTopologyBuilderConfig("topology.CamelCaseNameFormatValidation");
 
-    TopologyValidator validator = new TopologyValidator(config);
-    List<String> results = validator.validate(topology);
-    assertThat(results).hasSize(1);
-    assertThat(results.get(0)).isEqualTo("Project name does not follow the camelCase format: foo");
+      TopologyValidator validator = new TopologyValidator(config);
+      List<String> results = validator.validate(topology);
+      assertThat(results).hasSize(1);
+      assertThat(results.get(0)).isEqualTo("Project name does not follow the camelCase format: foo");
+    });
   }
 
-  @Test(expected = IllegalStateException.class)
-  public void testUsingUnknownClassName() {
+  @Test
+  void testUsingUnknownClassName() {
+    assertThrows(IllegalStateException.class, () -> {
 
-    Topology topology = parser.deserialise(TestUtils.getResourceFile("/descriptor.yaml"));
+      Topology topology = parser.deserialise(TestUtils.getResourceFile("/descriptor.yaml"));
 
-    Configuration config = createTopologyBuilderConfig("not.available.Validation");
+      Configuration config = createTopologyBuilderConfig("not.available.Validation");
 
-    TopologyValidator validator = new TopologyValidator(config);
-    validator.validate(topology);
+      TopologyValidator validator = new TopologyValidator(config);
+      validator.validate(topology);
+    });
   }
 
   private Configuration createTopologyBuilderConfig(String... validations) {

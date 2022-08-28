@@ -3,7 +3,7 @@ package com.purbon.kafka.topology.integration;
 import static com.purbon.kafka.topology.CommandLineInterface.*;
 import static com.purbon.kafka.topology.Constants.*;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 import com.purbon.kafka.topology.BackendController;
 import com.purbon.kafka.topology.Configuration;
@@ -42,15 +42,14 @@ import org.apache.kafka.clients.admin.Config;
 import org.apache.kafka.clients.admin.NewTopic;
 import org.apache.kafka.common.config.ConfigResource;
 import org.apache.kafka.common.config.ConfigResource.Type;
-import org.junit.AfterClass;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Rule;
-import org.junit.Test;
-import org.mockito.junit.MockitoJUnit;
-import org.mockito.junit.MockitoRule;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.junit.jupiter.MockitoExtension;
 
+@ExtendWith(MockitoExtension.class)
 public class TopicManagerIT {
 
   private static SaslPlaintextKafkaContainer container;
@@ -59,20 +58,18 @@ public class TopicManagerIT {
 
   private ExecutionPlan plan;
 
-  @Rule public MockitoRule mockitoRule = MockitoJUnit.rule();
-
-  @BeforeClass
+  @BeforeAll
   public static void setup() {
     container = ContainerFactory.fetchSaslKafkaContainer(System.getProperty("cp.version"));
     container.start();
   }
 
-  @AfterClass
+  @AfterAll
   public static void teardown() {
     container.stop();
   }
 
-  @Before
+  @BeforeEach
   public void before() throws IOException {
     Files.deleteIfExists(Paths.get(".cluster-state"));
 
@@ -97,7 +94,7 @@ public class TopicManagerIT {
   }
 
   @Test
-  public void testTopicCreation() throws ExecutionException, InterruptedException, IOException {
+  void testTopicCreation() throws ExecutionException, InterruptedException, IOException {
 
     Topology topology = new TopologyImpl();
     topology.setContext("testTopicCreation");
@@ -124,42 +121,44 @@ public class TopicManagerIT {
     verifyTopics(Arrays.asList(topicA.toString(), topicB.toString()));
   }
 
-  @Test(expected = RemoteValidationException.class)
-  public void topicManagerShouldDetectDeletedTopicsBetweenRuns() throws IOException {
+  @Test
+  void topicManagerShouldDetectDeletedTopicsBetweenRuns() throws IOException {
+    assertThrows(RemoteValidationException.class, () -> {
 
-    TopologyBuilderAdminClient adminClient = new TopologyBuilderAdminClient(kafkaAdminClient);
+      TopologyBuilderAdminClient adminClient = new TopologyBuilderAdminClient(kafkaAdminClient);
 
-    final SchemaRegistryClient schemaRegistryClient = new MockSchemaRegistryClient();
-    final SchemaRegistryManager schemaRegistryManager =
-        new SchemaRegistryManager(schemaRegistryClient, System.getProperty("user.dir"));
+      final SchemaRegistryClient schemaRegistryClient = new MockSchemaRegistryClient();
+      final SchemaRegistryManager schemaRegistryManager =
+          new SchemaRegistryManager(schemaRegistryClient, System.getProperty("user.dir"));
 
-    Properties props = new Properties();
-    props.put(TOPOLOGY_TOPIC_STATE_FROM_CLUSTER, "false");
-    props.put(ALLOW_DELETE_TOPICS, true);
-    props.put(JULIE_VERIFY_STATE_SYNC, true);
+      Properties props = new Properties();
+      props.put(TOPOLOGY_TOPIC_STATE_FROM_CLUSTER, "false");
+      props.put(ALLOW_DELETE_TOPICS, true);
+      props.put(JULIE_VERIFY_STATE_SYNC, true);
 
-    HashMap<String, String> cliOps = new HashMap<>();
-    cliOps.put(BROKERS_OPTION, "");
+      HashMap<String, String> cliOps = new HashMap<>();
+      cliOps.put(BROKERS_OPTION, "");
 
-    Configuration config = new Configuration(cliOps, props);
+      Configuration config = new Configuration(cliOps, props);
 
-    this.topicManager = new TopicManager(adminClient, schemaRegistryManager, config);
+      this.topicManager = new TopicManager(adminClient, schemaRegistryManager, config);
 
-    Topic topic1 = new Topic("topic1");
-    Topic topic2 = new Topic("topic2");
+      Topic topic1 = new Topic("topic1");
+      Topic topic2 = new Topic("topic2");
 
-    var topology =
-        TestTopologyBuilder.createProject().addTopic(topic1).addTopic(topic2).buildTopology();
+      var topology =
+          TestTopologyBuilder.createProject().addTopic(topic1).addTopic(topic2).buildTopology();
 
-    topicManager.updatePlan(topology, plan);
-    plan.run();
+      topicManager.updatePlan(topology, plan);
+      plan.run();
 
-    adminClient.deleteTopics(Collections.singletonList("ctx.project.topic1"));
-    topicManager.updatePlan(topology, plan);
+      adminClient.deleteTopics(Collections.singletonList("ctx.project.topic1"));
+      topicManager.updatePlan(topology, plan);
+    });
   }
 
   @Test
-  public void testTopicCreationWithDefaultTopicConfigs()
+  void testTopicCreationWithDefaultTopicConfigs()
       throws IOException, ExecutionException, InterruptedException {
 
     Topology topology = new TopologyImpl();
@@ -178,27 +177,29 @@ public class TopicManagerIT {
     verifyTopics(Arrays.asList(topicA.toString(), topicB.toString()));
   }
 
-  @Test(expected = IOException.class)
-  public void testTopicCreationWithFalseConfig() throws IOException {
-    HashMap<String, String> config = new HashMap<>();
-    config.put("num.partitions", "1");
-    config.put("replication.factor", "1");
-    config.put("banana", "bar");
+  @Test
+  void testTopicCreationWithFalseConfig() throws IOException {
+    assertThrows(IOException.class, () -> {
+      HashMap<String, String> config = new HashMap<>();
+      config.put("num.partitions", "1");
+      config.put("replication.factor", "1");
+      config.put("banana", "bar");
 
-    Project project = new ProjectImpl("project");
-    Topology topology = new TopologyImpl();
-    topology.setContext("testTopicCreationWithFalseConfig");
-    topology.addProject(project);
+      Project project = new ProjectImpl("project");
+      Topology topology = new TopologyImpl();
+      topology.setContext("testTopicCreationWithFalseConfig");
+      topology.addProject(project);
 
-    Topic topicA = new Topic("topicA", config);
-    project.addTopic(topicA);
+      Topic topicA = new Topic("topicA", config);
+      project.addTopic(topicA);
 
-    topicManager.updatePlan(topology, plan);
-    plan.run();
+      topicManager.updatePlan(topology, plan);
+      plan.run();
+    });
   }
 
   @Test
-  public void testTopicCreationWithChangedTopology()
+  void testTopicCreationWithChangedTopology()
       throws ExecutionException, InterruptedException, IOException {
     HashMap<String, String> config = new HashMap<>();
     config.put(TopicManager.NUM_PARTITIONS, "1");
@@ -251,7 +252,7 @@ public class TopicManagerIT {
   }
 
   @Test
-  public void testTopicDelete() throws ExecutionException, InterruptedException, IOException {
+  void testTopicDelete() throws ExecutionException, InterruptedException, IOException {
 
     Project project = new ProjectImpl("project");
     Topic topicA = new Topic("topicA", buildDummyTopicConfig());
@@ -302,7 +303,7 @@ public class TopicManagerIT {
   }
 
   @Test
-  public void testTopicCreationWithConfig()
+  void testTopicCreationWithConfig()
       throws ExecutionException, InterruptedException, IOException {
 
     Topology topology = new TopologyImpl();
@@ -322,7 +323,7 @@ public class TopicManagerIT {
   }
 
   @Test
-  public void testTopicConfigUpdate() throws ExecutionException, InterruptedException, IOException {
+  void testTopicConfigUpdate() throws ExecutionException, InterruptedException, IOException {
 
     HashMap<String, String> config = buildDummyTopicConfig();
     config.put("retention.bytes", "104857600"); // set the retention.bytes per partition to 100mb
@@ -370,7 +371,7 @@ public class TopicManagerIT {
     Map<ConfigResource, Config> configs = kafkaAdminClient.describeConfigs(resources).all().get();
 
     Config topicConfig = configs.get(resource);
-    Assert.assertNotNull(topicConfig);
+    assertNotNull(topicConfig);
 
     topicConfig
         .entries()
@@ -378,8 +379,8 @@ public class TopicManagerIT {
             entry -> {
               if (!entry.isDefault()) {
                 if (config.get(entry.name()) != null)
-                  Assert.assertEquals(config.get(entry.name()), entry.value());
-                Assert.assertFalse(removedConfigs.contains(entry.name()));
+                  assertEquals(config.get(entry.name()), entry.value());
+                assertFalse(removedConfigs.contains(entry.name()));
               }
             });
   }
@@ -400,7 +401,7 @@ public class TopicManagerIT {
 
     Set<String> topicNames = kafkaAdminClient.listTopics().names().get();
     topics.forEach(
-        topic -> assertTrue("Topic " + topic + " not found", topicNames.contains(topic)));
+        topic -> assertTrue(topicNames.contains(topic), "Topic " + topic + " not found"));
     boolean isInternal = false;
     for (String topic : topicNames) {
       if (topic.startsWith("_")) {
@@ -412,6 +413,6 @@ public class TopicManagerIT {
         topicNames.stream().filter(topic -> !topic.startsWith("_")).collect(Collectors.toSet());
 
     assertThat(topicsCount).isLessThanOrEqualTo(nonInternalTopics.size());
-    assertTrue("Internal topics not found", isInternal);
+    assertTrue(isInternal, "Internal topics not found");
   }
 }

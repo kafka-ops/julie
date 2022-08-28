@@ -7,7 +7,8 @@ import static com.purbon.kafka.topology.Constants.JULIE_HTTP_BACKOFF_TIME_MS;
 import static com.purbon.kafka.topology.Constants.JULIE_HTTP_RETRY_TIMES;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
-import com.github.tomakehurst.wiremock.junit.WireMockRule;
+import com.github.tomakehurst.wiremock.core.WireMockConfiguration;
+import com.github.tomakehurst.wiremock.junit5.WireMockExtension;
 import com.purbon.kafka.topology.Configuration;
 import com.purbon.kafka.topology.utils.PTHttpClient;
 import java.io.IOException;
@@ -15,20 +16,20 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Properties;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 
 public class JulieHttpClientTest {
 
-  @Rule public WireMockRule wireMockRule = new WireMockRule(8089);
+  @RegisterExtension public WireMockExtension wireMockRule = WireMockExtension.newInstance().options(WireMockConfiguration.options().port(8089)).build();
 
   private Map<String, String> cliOps;
   private Properties props;
 
   private PTHttpClient client;
 
-  @Before
+  @BeforeEach
   public void before() throws IOException {
     cliOps = new HashMap<>();
     cliOps.put(BROKERS_OPTION, "");
@@ -41,7 +42,7 @@ public class JulieHttpClientTest {
   }
 
   @Test
-  public void shouldResponseFastToNonRetryErrorCodes() throws IOException {
+  void shouldResponseFastToNonRetryErrorCodes() throws IOException {
     stubFor(
         get(urlEqualTo("/some/thing"))
             .willReturn(
@@ -52,7 +53,7 @@ public class JulieHttpClientTest {
   }
 
   @Test
-  public void shouldRunTheRetryFlowForRetrievableErrorCodes() throws IOException {
+  void shouldRunTheRetryFlowForRetrievableErrorCodes() throws IOException {
 
     cliOps = new HashMap<>();
     cliOps.put(BROKERS_OPTION, "");

@@ -1,22 +1,22 @@
 package com.purbon.kafka.topology.utils;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 public class JSONUtilsTest {
 
-  @Before
+  @BeforeEach
   public void setup() {}
 
   @Test
-  public void testToMapDeserialization() throws JsonProcessingException {
+  void testToMapDeserialization() throws JsonProcessingException {
 
     String jsonString = "{\n" + "\t\"foo\": 2,\n" + "\t\"test\": \"boo\"\n" + "}";
 
@@ -27,7 +27,7 @@ public class JSONUtilsTest {
   }
 
   @Test
-  public void testToStringSerialization() throws JsonProcessingException {
+  void testToStringSerialization() throws JsonProcessingException {
 
     String expectJSONAsString = "{\"test\":\"2\",\"foo\":\"bar\"}";
     Map<String, String> map = new HashMap<>();
@@ -40,7 +40,7 @@ public class JSONUtilsTest {
   }
 
   @Test
-  public void testToArrayDeserialisation() throws JsonProcessingException {
+  void testToArrayDeserialisation() throws JsonProcessingException {
 
     String jsonAsString = " [\n \t\"1\", \"2\", \"3\"\n ]";
 

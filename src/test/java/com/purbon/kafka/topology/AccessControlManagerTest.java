@@ -6,7 +6,8 @@ import static com.purbon.kafka.topology.Constants.*;
 import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.*;
 
 import com.purbon.kafka.topology.actions.Action;
@@ -31,16 +32,16 @@ import org.apache.kafka.common.acl.AclOperation;
 import org.apache.kafka.common.acl.AclPermissionType;
 import org.apache.kafka.common.resource.PatternType;
 import org.apache.kafka.common.resource.ResourceType;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.ArgumentMatchers;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.mockito.junit.MockitoJUnit;
-import org.mockito.junit.MockitoRule;
+import org.mockito.junit.jupiter.MockitoExtension;
 
+@ExtendWith(MockitoExtension.class)
 public class AccessControlManagerTest {
 
   @Mock SimpleAclsProvider aclsProvider;
@@ -53,11 +54,9 @@ public class AccessControlManagerTest {
 
   ExecutionPlan plan;
 
-  @Rule public MockitoRule mockitoRule = MockitoJUnit.rule();
-
   private AccessControlManager accessControlManager;
 
-  @Before
+  @BeforeEach
   public void setup() throws IOException {
     TestUtils.deleteStateFile();
     plan = ExecutionPlan.init(backendController, mockPrintStream);
@@ -67,7 +66,7 @@ public class AccessControlManagerTest {
   }
 
   @Test
-  public void newConsumerACLsCreation() throws IOException {
+  void newConsumerACLsCreation() throws IOException {
     Topic topicA = new Topic("topicA");
     TestTopologyBuilder builder =
         TestTopologyBuilder.createProject().addTopic(topicA).addConsumer("User:app1");
@@ -82,7 +81,7 @@ public class AccessControlManagerTest {
   }
 
   @Test
-  public void newConsumerOptimisedACLsCreation() throws IOException {
+  void newConsumerOptimisedACLsCreation() throws IOException {
 
     HashMap<String, String> cliOps = new HashMap<>();
     cliOps.put(BROKERS_OPTION, "");
@@ -105,7 +104,7 @@ public class AccessControlManagerTest {
   }
 
   @Test
-  public void testConsumerAclsAtTopicLevel() throws IOException {
+  void testConsumerAclsAtTopicLevel() throws IOException {
 
     Consumer projectConsumer = new Consumer("project-consumer");
     Consumer topicConsumer = new Consumer("topic-consumer");
@@ -143,7 +142,7 @@ public class AccessControlManagerTest {
   }
 
   @Test
-  public void newProducerACLsCreation() throws IOException {
+  void newProducerACLsCreation() throws IOException {
     Topic topicA = new Topic("topicA");
     TestTopologyBuilder builder =
         TestTopologyBuilder.createProject().addTopic(topicA).addProducer("User:app1");
@@ -159,7 +158,7 @@ public class AccessControlManagerTest {
   }
 
   @Test
-  public void newProducerOptimizedACLsCreation() throws IOException {
+  void newProducerOptimizedACLsCreation() throws IOException {
     HashMap<String, String> cliOps = new HashMap<>();
     cliOps.put(BROKERS_OPTION, "");
     Properties props = new Properties();
@@ -181,7 +180,7 @@ public class AccessControlManagerTest {
   }
 
   @Test
-  public void testProducerAclsAtTopicLevel() throws IOException {
+  void testProducerAclsAtTopicLevel() throws IOException {
 
     Producer projectProducer = new Producer("project-producer");
     Producer topicProducer = new Producer("topic-producer");
@@ -219,7 +218,7 @@ public class AccessControlManagerTest {
   }
 
   @Test
-  public void newKafkaStreamsAppACLsCreation() throws IOException {
+  void newKafkaStreamsAppACLsCreation() throws IOException {
 
     Project project = new ProjectImpl();
 
@@ -254,7 +253,7 @@ public class AccessControlManagerTest {
   }
 
   @Test
-  public void newKSqlApplicationCreation() throws IOException {
+  void newKSqlApplicationCreation() throws IOException {
     Project project = new ProjectImpl();
     KSqlApp app = new KSqlApp();
     HashMap<String, List<String>> topics = new HashMap<>();
@@ -276,46 +275,48 @@ public class AccessControlManagerTest {
     verify(aclsBuilder, times(1)).buildBindingsForKSqlApp(app, "default.default.");
   }
 
-  @Test(expected = IOException.class)
-  public void testkStreamAclsCreationWithMissingPrefixGroup() throws Exception {
+  @Test
+  void testkStreamAclsCreationWithMissingPrefixGroup() throws Exception {
+    assertThrows(IOException.class, () -> {
 
-    Properties props = new Properties();
-    props.put(PROJECT_PREFIX_FORMAT_CONFIG, "");
-    props.put(TOPOLOGY_STATE_FROM_CLUSTER, "true");
-    props.put(ALLOW_DELETE_TOPICS, true);
-    props.put(TOPIC_PREFIX_FORMAT_CONFIG, "{{topic}}");
-    props.put(ALLOW_DELETE_BINDINGS, true);
-    props.put(KAFKA_INTERNAL_TOPIC_PREFIXES, singletonList("_"));
+      Properties props = new Properties();
+      props.put(PROJECT_PREFIX_FORMAT_CONFIG, "");
+      props.put(TOPOLOGY_STATE_FROM_CLUSTER, "true");
+      props.put(ALLOW_DELETE_TOPICS, true);
+      props.put(TOPIC_PREFIX_FORMAT_CONFIG, "{{topic}}");
+      props.put(ALLOW_DELETE_BINDINGS, true);
+      props.put(KAFKA_INTERNAL_TOPIC_PREFIXES, singletonList("_"));
 
-    HashMap<String, String> cliOps = new HashMap<>();
-    cliOps.put(BROKERS_OPTION, "");
+      HashMap<String, String> cliOps = new HashMap<>();
+      cliOps.put(BROKERS_OPTION, "");
 
-    Configuration config = new Configuration(cliOps, props);
+      Configuration config = new Configuration(cliOps, props);
 
-    AclsBindingsBuilder bindingsBuilder = new AclsBindingsBuilder(config);
-    AccessControlManager accessControlManager =
-        new AccessControlManager(aclsProvider, bindingsBuilder, config);
+      AclsBindingsBuilder bindingsBuilder = new AclsBindingsBuilder(config);
+      AccessControlManager accessControlManager =
+          new AccessControlManager(aclsProvider, bindingsBuilder, config);
 
-    Project project = new ProjectImpl("foo", config);
+      Project project = new ProjectImpl("foo", config);
 
-    KStream app = new KStream();
-    app.setPrincipal("User:App0");
-    HashMap<String, List<String>> topics = new HashMap<>();
-    topics.put(KStream.READ_TOPICS, Arrays.asList("topic-A", "topic-B"));
-    topics.put(KStream.WRITE_TOPICS, Arrays.asList("topic-C", "topic-D"));
-    app.setTopics(topics);
-    project.setStreams(Collections.singletonList(app));
+      KStream app = new KStream();
+      app.setPrincipal("User:App0");
+      HashMap<String, List<String>> topics = new HashMap<>();
+      topics.put(KStream.READ_TOPICS, Arrays.asList("topic-A", "topic-B"));
+      topics.put(KStream.WRITE_TOPICS, Arrays.asList("topic-C", "topic-D"));
+      app.setTopics(topics);
+      project.setStreams(Collections.singletonList(app));
 
-    Topology topology = new TopologyImpl();
-    topology.setContext("integration-test");
-    topology.addOther("source", "kstreamsAclsCreation");
-    topology.addProject(project);
+      Topology topology = new TopologyImpl();
+      topology.setContext("integration-test");
+      topology.addOther("source", "kstreamsAclsCreation");
+      topology.addProject(project);
 
-    accessControlManager.updatePlan(topology, plan);
+      accessControlManager.updatePlan(topology, plan);
+    });
   }
 
   @Test
-  public void newSchemaRegistryACLCreation() throws IOException {
+  void newSchemaRegistryACLCreation() throws IOException {
 
     Project project = new ProjectImpl();
     Topology topology = new TopologyImpl();
@@ -354,7 +355,7 @@ public class AccessControlManagerTest {
   }
 
   @Test
-  public void newControlCenterACLCreation() throws IOException {
+  void newControlCenterACLCreation() throws IOException {
 
     Project project = new ProjectImpl();
     Topology topology = new TopologyImpl();
@@ -379,7 +380,7 @@ public class AccessControlManagerTest {
   }
 
   @Test
-  public void newKafkaClusterRBACCreation() throws IOException {
+  void newKafkaClusterRBACCreation() throws IOException {
     Project project = new ProjectImpl();
     Topology topology = new TopologyImpl();
     topology.addProject(project);
@@ -404,7 +405,7 @@ public class AccessControlManagerTest {
   }
 
   @Test
-  public void newKafkaConnectClusterRBACCreation() throws IOException {
+  void newKafkaConnectClusterRBACCreation() throws IOException {
     Project project = new ProjectImpl();
     Topology topology = new TopologyImpl();
     topology.addProject(project);
@@ -431,7 +432,7 @@ public class AccessControlManagerTest {
   }
 
   @Test
-  public void newKafkaConnectACLsCreation() throws IOException {
+  void newKafkaConnectACLsCreation() throws IOException {
     Project project = new ProjectImpl();
 
     Connector connector1 = new Connector();
@@ -455,7 +456,7 @@ public class AccessControlManagerTest {
   }
 
   @Test
-  public void testDryRunMode() throws IOException {
+  void testDryRunMode() throws IOException {
     plan = ExecutionPlan.init(backendController, mockPrintStream);
     accessControlManager =
         new AccessControlManager(aclsProvider, new AclsBindingsBuilder(config), config);
@@ -479,7 +480,7 @@ public class AccessControlManagerTest {
   }
 
   @Test
-  public void testAclDeleteWithDetailedOptionEnabled() throws IOException {
+  void testAclDeleteWithDetailedOptionEnabled() throws IOException {
     doReturn(true).when(config).isAllowDeleteBindings();
     doReturn(false).when(config).isAllowDeleteTopics();
 
@@ -487,7 +488,7 @@ public class AccessControlManagerTest {
   }
 
   @Test
-  public void testAclDeleteWithDetailedOptionDisabled() throws IOException {
+  void testAclDeleteWithDetailedOptionDisabled() throws IOException {
     doReturn(false).when(config).isAllowDeleteBindings();
     doReturn(false).when(config).isAllowDeleteTopics();
 
@@ -558,7 +559,7 @@ public class AccessControlManagerTest {
   }
 
   @Test
-  public void specialTopicsShouldGenerateTheConfiguredAclsSuccessfully() throws IOException {
+  void specialTopicsShouldGenerateTheConfiguredAclsSuccessfully() throws IOException {
 
     BackendController backendController = initializeFileBackendController();
     plan = ExecutionPlan.init(backendController, mockPrintStream);
@@ -644,7 +645,7 @@ public class AccessControlManagerTest {
   }
 
   @Test
-  public void testToProcessOnlySelectedTopics() throws IOException {
+  void testToProcessOnlySelectedTopics() throws IOException {
     Map<String, String> cliOps = new HashMap<>();
     cliOps.put(BROKERS_OPTION, "");
 
@@ -687,7 +688,7 @@ public class AccessControlManagerTest {
   }
 
   @Test
-  public void testToProcessOnlySelectedGroupsOrWildcard() throws IOException {
+  void testToProcessOnlySelectedGroupsOrWildcard() throws IOException {
     Map<String, String> cliOps = new HashMap<>();
     cliOps.put(BROKERS_OPTION, "");
 
@@ -738,7 +739,7 @@ public class AccessControlManagerTest {
   }
 
   @Test
-  public void testToProcessWildcardGroupOnlySelectedServiceAccounts() throws IOException {
+  void testToProcessWildcardGroupOnlySelectedServiceAccounts() throws IOException {
     Map<String, String> cliOps = new HashMap<>();
     cliOps.put(BROKERS_OPTION, "");
 
@@ -782,7 +783,7 @@ public class AccessControlManagerTest {
   }
 
   @Test
-  public void testJulieRoleAclCreation() throws IOException {
+  void testJulieRoleAclCreation() throws IOException {
     Topic topicA = new Topic("topicA");
     Topology topology =
         TestTopologyBuilder.createProject()
@@ -827,29 +828,31 @@ public class AccessControlManagerTest {
             .count());
   }
 
-  @Test(expected = IllegalStateException.class)
-  public void testWrongJulieRoleAclCreation() throws IOException {
-    Topic topicA = new Topic("topicA");
-    Topology topology =
-        TestTopologyBuilder.createProject()
-            .addTopic(topicA)
-            .addConsumer("User:app1")
-            .addOther("app", "User:app1", "foo")
-            .buildTopology();
+  @Test
+  void testWrongJulieRoleAclCreation() throws IOException {
+    assertThrows(IllegalStateException.class, () -> {
+      Topic topicA = new Topic("topicA");
+      Topology topology =
+          TestTopologyBuilder.createProject()
+              .addTopic(topicA)
+              .addConsumer("User:app1")
+              .addOther("app", "User:app1", "foo")
+              .buildTopology();
 
-    Map<String, String> cliOps = new HashMap<>();
-    cliOps.put(BROKERS_OPTION, "");
+      Map<String, String> cliOps = new HashMap<>();
+      cliOps.put(BROKERS_OPTION, "");
 
-    Properties props = new Properties();
-    props.put(JULIE_ROLES, TestUtils.getResourceFilename("/roles-wrong.yaml"));
+      Properties props = new Properties();
+      props.put(JULIE_ROLES, TestUtils.getResourceFilename("/roles-wrong.yaml"));
 
-    Configuration config = new Configuration(cliOps, props);
+      Configuration config = new Configuration(cliOps, props);
 
-    accessControlManager =
-        new AccessControlManager(
-            aclsProvider, new AclsBindingsBuilder(config), config.getJulieRoles(), config);
+      accessControlManager =
+          new AccessControlManager(
+              aclsProvider, new AclsBindingsBuilder(config), config.getJulieRoles(), config);
 
-    accessControlManager.updatePlan(topology, plan);
+      accessControlManager.updatePlan(topology, plan);
+    });
   }
 
   private List<BaseAccessControlAction> getAccessControlActions(ExecutionPlan plan) {

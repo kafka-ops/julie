@@ -1,7 +1,7 @@
 package com.purbon.kafka.topology.integration.backend;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import com.purbon.kafka.topology.BackendController;
 import com.purbon.kafka.topology.model.cluster.ServiceAccount;
@@ -14,21 +14,21 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 import org.apache.kafka.common.resource.ResourceType;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 public class DefaultBackendIT {
 
   BackendController backend;
 
-  @Before
+  @BeforeEach
   public void before() throws IOException {
     Files.deleteIfExists(Paths.get(".cluster-state"));
     backend = new BackendController();
   }
 
   @Test
-  public void saveAndRestoreBindingsAndAccountsTest() throws IOException {
+  void saveAndRestoreBindingsAndAccountsTest() throws IOException {
 
     TopologyAclBinding binding =
         TopologyAclBinding.build(
@@ -54,7 +54,7 @@ public class DefaultBackendIT {
   }
 
   @Test
-  public void saveAndRestoreBindingsWithNoAccounts() throws IOException {
+  void saveAndRestoreBindingsWithNoAccounts() throws IOException {
 
     TopologyAclBinding binding =
         TopologyAclBinding.build(

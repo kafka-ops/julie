@@ -9,31 +9,29 @@ import static org.mockito.Mockito.verify;
 
 import java.util.HashMap;
 import java.util.Map;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
-import org.mockito.junit.MockitoJUnit;
-import org.mockito.junit.MockitoRule;
+import org.mockito.junit.jupiter.MockitoExtension;
 
+@ExtendWith(MockitoExtension.class)
 public class CLITest {
-
-  @Rule public MockitoRule mockitoRule = MockitoJUnit.rule();
 
   private CommandLineInterface cli;
 
-  @Before
+  @BeforeEach
   public void setup() {
     cli = Mockito.spy(new CommandLineInterface());
   }
 
   @Test
-  public void testParamPassing() throws Exception {
+  void testParamPassing() throws Exception {
     String[] args =
-        new String[] {
-          "--brokers", "localhost:9092",
-          "--topology", "descriptor.yaml",
-          "--clientConfig", "topology-builder-sasl-plain.properties"
+        new String[]{
+            "--brokers", "localhost:9092",
+            "--topology", "descriptor.yaml",
+            "--clientConfig", "topology-builder-sasl-plain.properties"
         };
 
     doNothing().when(cli).processTopology(eq("descriptor.yaml"), eq("default"), anyMap());
@@ -51,13 +49,13 @@ public class CLITest {
   }
 
   @Test
-  public void testDryRun() throws Exception {
+  void testDryRun() throws Exception {
     String[] args =
-        new String[] {
-          "--brokers", "localhost:9092",
-          "--topology", "descriptor.yaml",
-          "--clientConfig", "topology-builder-sasl-plain.properties",
-          "--dryRun"
+        new String[]{
+            "--brokers", "localhost:9092",
+            "--topology", "descriptor.yaml",
+            "--clientConfig", "topology-builder-sasl-plain.properties",
+            "--dryRun"
         };
 
     doNothing().when(cli).processTopology(eq("descriptor.yaml"), eq("default"), anyMap());

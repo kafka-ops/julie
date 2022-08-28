@@ -1,7 +1,7 @@
 package com.purbon.kafka.topology;
 
 import static java.util.Collections.singletonList;
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
@@ -25,13 +25,13 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 import org.apache.kafka.common.resource.ResourceType;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnit;
-import org.mockito.junit.MockitoRule;
+import org.mockito.junit.jupiter.MockitoExtension;
 
+@ExtendWith(MockitoExtension.class)
 public class ExecutionPlanTest {
 
   private ExecutionPlan plan;
@@ -41,13 +41,11 @@ public class ExecutionPlanTest {
 
   @Mock SimpleAclsProvider aclsProvider;
 
-  @Rule public MockitoRule mockitoRule = MockitoJUnit.rule();
-
   @Mock TopologyBuilderAdminClient adminClient;
 
   @Mock SchemaRegistryManager schemaRegistryManager;
 
-  @Before
+  @BeforeEach
   public void before() throws IOException {
     TestUtils.deleteStateFile();
     backendController = new BackendController();
@@ -55,7 +53,7 @@ public class ExecutionPlanTest {
   }
 
   @Test
-  public void addBindingsTest() throws IOException {
+  void addBindingsTest() throws IOException {
     TopologyAclBinding binding1 =
         new TopologyAclBinding(
             ResourceType.ANY.name(), "topicA", "*", "ALL", "User:foo", "LITERAL");
@@ -74,7 +72,7 @@ public class ExecutionPlanTest {
   }
 
   @Test
-  public void deleteBindingsAfterCreateTest() throws IOException {
+  void deleteBindingsAfterCreateTest() throws IOException {
     TopologyAclBinding binding1 =
         new TopologyAclBinding(
             ResourceType.ANY.name(), "topicA", "*", "ALL", "User:foo", "LITERAL");
@@ -111,7 +109,7 @@ public class ExecutionPlanTest {
   }
 
   @Test
-  public void addTopicsTest() throws IOException {
+  void addTopicsTest() throws IOException {
     Topology topology = buildTopologyForTest();
     Topic topicFoo = topology.getProjects().get(0).getTopics().get(0);
     Topic topicBar = topology.getProjects().get(0).getTopics().get(1);
@@ -134,7 +132,7 @@ public class ExecutionPlanTest {
   }
 
   @Test
-  public void deleteTopicsPreviouslyAddedTest() throws IOException {
+  void deleteTopicsPreviouslyAddedTest() throws IOException {
     Topology topology = buildTopologyForTest();
     Topic topicFoo = topology.getProjects().get(0).getTopics().get(0);
     Topic topicBar = topology.getProjects().get(0).getTopics().get(1);

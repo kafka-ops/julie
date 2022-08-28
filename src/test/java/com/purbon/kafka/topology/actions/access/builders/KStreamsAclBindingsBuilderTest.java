@@ -10,21 +10,21 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
 import org.apache.kafka.common.resource.ResourceType;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 public class KStreamsAclBindingsBuilderTest {
 
   private KStreamsAclBindingsBuilder builder;
   private AclsBindingsBuilder aclsBindingsBuilder;
 
-  @Before
+  @BeforeEach
   public void setUp() {
     aclsBindingsBuilder = new AclsBindingsBuilder(new Configuration());
   }
 
   @Test
-  public void testStreamsWithoutApplicationId() {
+  void testStreamsWithoutApplicationId() {
     HashMap<String, List<String>> topics = new HashMap<>();
     topics.put(KStream.READ_TOPICS, singletonList("topicA"));
     topics.put(KStream.WRITE_TOPICS, singletonList("topicB"));
@@ -45,7 +45,7 @@ public class KStreamsAclBindingsBuilderTest {
   }
 
   @Test
-  public void testStreamWithApplicationId() {
+  void testStreamWithApplicationId() {
     HashMap<String, List<String>> topics = new HashMap<>();
     topics.put(KStream.READ_TOPICS, singletonList("topicA"));
     topics.put(KStream.WRITE_TOPICS, singletonList("topicB"));

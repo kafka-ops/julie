@@ -10,13 +10,13 @@ import com.purbon.kafka.topology.roles.TopologyAclBinding;
 import java.util.HashMap;
 import java.util.Properties;
 import org.apache.kafka.common.resource.ResourceType;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class ResourceFilterTest {
 
   @Test
-  public void resourcesWithPrincipalAndNameMatchesShouldBeFilter() {
-    Configuration config = makeConfig(new String[] {"User:foo"}, new String[] {"d.foo.bar"});
+  void resourcesWithPrincipalAndNameMatchesShouldBeFilter() {
+    Configuration config = makeConfig(new String[]{"User:foo"}, new String[]{"d.foo.bar"});
     ResourceFilter filter = new ResourceFilter(config);
 
     TopologyAclBinding binding =
@@ -36,8 +36,8 @@ public class ResourceFilterTest {
   }
 
   @Test
-  public void resourcesWithPrincipalMatchesShouldBeFiltered() {
-    Configuration config = makeConfig(new String[] {"User:foo"});
+  void resourcesWithPrincipalMatchesShouldBeFiltered() {
+    Configuration config = makeConfig(new String[]{"User:foo"});
     ResourceFilter filter = new ResourceFilter(config);
 
     TopologyAclBinding binding =
@@ -47,8 +47,8 @@ public class ResourceFilterTest {
   }
 
   @Test
-  public void resourcesWithNamesMatchesShouldBeFiltered() {
-    Configuration config = makeConfigOnlyNames(new String[] {"d.foo.bar"});
+  void resourcesWithNamesMatchesShouldBeFiltered() {
+    Configuration config = makeConfigOnlyNames(new String[]{"d.foo.bar"});
     ResourceFilter filter = new ResourceFilter(config);
 
     TopologyAclBinding binding =

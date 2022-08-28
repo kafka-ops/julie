@@ -3,6 +3,7 @@ package com.purbon.kafka.topology.integration;
 import static com.purbon.kafka.topology.CommandLineInterface.*;
 import static com.purbon.kafka.topology.Constants.*;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import com.purbon.kafka.topology.BackendController;
 import com.purbon.kafka.topology.Configuration;
@@ -23,9 +24,9 @@ import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Properties;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 public class ConnectorManagerIT {
 
@@ -40,13 +41,13 @@ public class ConnectorManagerIT {
   private static final String TRUSTSTORE_JKS = "/ksql-ssl/truststore/ksqldb.truststore.jks";
   private static final String KEYSTORE_JKS = "/ksql-ssl/keystore/ksqldb.keystore.jks";
 
-  @After
+  @AfterEach
   public void after() {
     connectContainer.stop();
     container.stop();
   }
 
-  @Before
+  @BeforeEach
   public void configure() throws IOException {
     container = ContainerFactory.fetchSaslKafkaContainer(System.getProperty("cp.version"));
     container.start();
@@ -59,7 +60,7 @@ public class ConnectorManagerIT {
   }
 
   @Test
-  public void testCreateAndUpdatePathWithLocalClusterState()
+  void testCreateAndUpdatePathWithLocalClusterState()
       throws IOException, InterruptedException {
     Properties props = new Properties();
     props.put(TOPOLOGY_TOPIC_STATE_FROM_CLUSTER, "false");
@@ -72,7 +73,7 @@ public class ConnectorManagerIT {
   }
 
   @Test
-  public void testCreateAndUpdatePathWithRemoveClusterState()
+  void testCreateAndUpdatePathWithRemoveClusterState()
       throws IOException, InterruptedException {
     Properties props = new Properties();
     props.put(TOPOLOGY_STATE_FROM_CLUSTER, "true");
@@ -85,18 +86,20 @@ public class ConnectorManagerIT {
     testCreateAndUpdatePath(props, file);
   }
 
-  @Test(expected = IOException.class)
-  public void shouldDetectChangesInTheRemoteClusterBetweenRuns()
+  @Test
+  void shouldDetectChangesInTheRemoteClusterBetweenRuns()
       throws IOException, InterruptedException {
-    Properties props = new Properties();
-    props.put(TOPOLOGY_TOPIC_STATE_FROM_CLUSTER, "false");
-    props.put(ALLOW_DELETE_CONNECT_ARTEFACTS, "true");
-    props.put(JULIE_VERIFY_STATE_SYNC, true);
-    props.put(PLATFORM_SERVERS_CONNECT + ".0", "connector0:" + connectContainer.getHttpsUrl());
+    assertThrows(IOException.class, () -> {
+      Properties props = new Properties();
+      props.put(TOPOLOGY_TOPIC_STATE_FROM_CLUSTER, "false");
+      props.put(ALLOW_DELETE_CONNECT_ARTEFACTS, "true");
+      props.put(JULIE_VERIFY_STATE_SYNC, true);
+      props.put(PLATFORM_SERVERS_CONNECT + ".0", "connector0:" + connectContainer.getHttpsUrl());
 
-    File file = TestUtils.getResourceFile("/descriptor-connector.yaml");
+      File file = TestUtils.getResourceFile("/descriptor-connector.yaml");
 
-    testDeleteRemoteButNotLocal(props, file);
+      testDeleteRemoteButNotLocal(props, file);
+    });
   }
 
   private void testCreateAndUpdatePath(Properties props, File file)

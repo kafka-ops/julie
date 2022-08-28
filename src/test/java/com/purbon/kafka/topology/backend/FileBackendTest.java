@@ -22,41 +22,41 @@ import java.util.Set;
 import org.apache.kafka.common.acl.AclOperation;
 import org.apache.kafka.common.resource.PatternType;
 import org.apache.kafka.common.resource.ResourceType;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 public class FileBackendTest {
 
   private FileBackend backend;
 
-  @Before
+  @BeforeEach
   public void setup() {
     backend = new FileBackend();
   }
 
-  @After
+  @AfterEach
   public void after() throws IOException {
     Files.deleteIfExists(Paths.get(STATE_FILE_NAME));
   }
 
   @Test
-  public void testStoreAndLoadBindingsAndTopics() throws IOException {
+  void testStoreAndLoadBindingsAndTopics() throws IOException {
     verifyStoreAndLoadWithPrincipal("principal");
   }
 
   @Test
-  public void shouldHandlePrincipalWithSpace() throws IOException {
+  void shouldHandlePrincipalWithSpace() throws IOException {
     verifyStoreAndLoadWithPrincipal("User:C=NO,CN=John Doe,emailAddress=john.doe@example.com");
   }
 
   @Test
-  public void shouldHandlePrincipalWithUri() throws IOException {
+  void shouldHandlePrincipalWithUri() throws IOException {
     verifyStoreAndLoadWithPrincipal("SPIFFE:spiffe://example.com/foo/bar");
   }
 
   @Test
-  public void testBindingSerdes() throws JsonProcessingException {
+  void testBindingSerdes() throws JsonProcessingException {
     TopologyAclBinding binding =
         TopologyAclBinding.build(
             ResourceType.TOPIC.name(),
@@ -83,7 +83,7 @@ public class FileBackendTest {
   }
 
   @Test
-  public void shouldParseStateFileSuccessfully() throws IOException {
+  void shouldParseStateFileSuccessfully() throws IOException {
     File file = TestUtils.getResourceFile("/stateFile.json");
     String content = Files.readString(file.toPath());
 
@@ -94,7 +94,7 @@ public class FileBackendTest {
   }
 
   @Test
-  public void shouldParseOldStyleStateFileSuccessfully() throws IOException {
+  void shouldParseOldStyleStateFileSuccessfully() throws IOException {
     File file = TestUtils.getResourceFile("/old-style-state-file.txt");
     final BackendState state = new FileBackend().load(file.toPath());
     assertThat(state.getTopics()).hasSize(2);

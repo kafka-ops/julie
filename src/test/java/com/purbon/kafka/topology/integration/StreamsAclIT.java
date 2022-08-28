@@ -13,9 +13,9 @@ import com.purbon.kafka.topology.integration.containerutils.TestStreams;
 import java.util.Set;
 import org.apache.kafka.streams.StreamsBuilder;
 import org.apache.kafka.streams.kstream.KStream;
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 
 public final class StreamsAclIT {
 
@@ -31,7 +31,7 @@ public final class StreamsAclIT {
 
   private static SaslPlaintextKafkaContainer container;
 
-  @BeforeClass
+  @BeforeAll
   public static void beforeClass() {
     container =
         ContainerFactory.fetchSaslKafkaContainer(System.getProperty("cp.version"))
@@ -43,13 +43,13 @@ public final class StreamsAclIT {
         container, "/streams-acl-it.yaml", "/integration-tests.properties");
   }
 
-  @AfterClass
+  @AfterAll
   public static void afterClass() {
     container.stop();
   }
 
   @Test
-  public void shouldNotProduceWithoutPermission() {
+  void shouldNotProduceWithoutPermission() {
     try (final TestProducer producer = TestProducer.create(container, PRODUCER_USERNAME)) {
       producer.produceSomeStrings(TOPIC_A);
     }
@@ -69,7 +69,7 @@ public final class StreamsAclIT {
   }
 
   @Test
-  public void testSimpleStream() {
+  void testSimpleStream() {
     Set<String> values;
     try (final TestProducer producer = TestProducer.create(container, PRODUCER_USERNAME)) {
       values = producer.produceSomeStrings(TOPIC_A);
@@ -98,7 +98,7 @@ public final class StreamsAclIT {
   }
 
   @Test
-  public void testStreamWithInternalTopics() {
+  void testStreamWithInternalTopics() {
     final Set<String> values;
     try (final TestProducer producer = TestProducer.create(container, PRODUCER_USERNAME)) {
       values = producer.produceSomeStrings(TOPIC_A);

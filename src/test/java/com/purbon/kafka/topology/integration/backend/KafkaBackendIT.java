@@ -4,6 +4,7 @@ import static com.purbon.kafka.topology.CommandLineInterface.BROKERS_OPTION;
 import static com.purbon.kafka.topology.Constants.JULIE_INSTANCE_ID;
 import static com.purbon.kafka.topology.Constants.JULIE_KAFKA_CONSUMER_GROUP_ID;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import com.purbon.kafka.topology.Configuration;
 import com.purbon.kafka.topology.Constants;
@@ -20,9 +21,9 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
 import org.apache.kafka.common.resource.ResourceType;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 public class KafkaBackendIT {
 
@@ -31,7 +32,7 @@ public class KafkaBackendIT {
 
   private static SaslPlaintextKafkaContainer container;
 
-  @Before
+  @BeforeEach
   public void before() throws IOException {
 
     container = ContainerFactory.fetchSaslKafkaContainer(System.getProperty("cp.version"));
@@ -57,13 +58,13 @@ public class KafkaBackendIT {
     topologyAdminClient.createTopic(config.getJulieKafkaConfigTopic());
   }
 
-  @After
+  @AfterEach
   public void after() {
     container.stop();
   }
 
   @Test
-  public void testExpectedFlow() throws IOException, InterruptedException {
+  void testExpectedFlow() throws IOException, InterruptedException {
 
     TopologyAclBinding binding =
         TopologyAclBinding.build(
@@ -94,19 +95,21 @@ public class KafkaBackendIT {
     newBackend.close();
   }
 
-  @Test(expected = IOException.class)
-  public void testWrongConfig() {
+  @Test
+  void testWrongConfig() {
+    assertThrows(IOException.class, () -> {
 
-    KafkaBackend backend = new KafkaBackend();
+      KafkaBackend backend = new KafkaBackend();
 
-    HashMap<String, String> cliOps = new HashMap<>();
-    cliOps.put(BROKERS_OPTION, container.getBootstrapServers());
+      HashMap<String, String> cliOps = new HashMap<>();
+      cliOps.put(BROKERS_OPTION, container.getBootstrapServers());
 
-    props.put(Constants.JULIE_KAFKA_CONFIG_TOPIC, "foo");
+      props.put(Constants.JULIE_KAFKA_CONFIG_TOPIC, "foo");
 
-    Configuration config = new Configuration(cliOps, props);
+      Configuration config = new Configuration(cliOps, props);
 
-    backend.configure(config);
-    backend.close();
+      backend.configure(config);
+      backend.close();
+    });
   }
 }

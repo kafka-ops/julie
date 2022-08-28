@@ -1,6 +1,7 @@
 package com.purbon.kafka.topology.schemas;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
@@ -22,13 +23,13 @@ import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
-import org.mockito.junit.MockitoJUnit;
-import org.mockito.junit.MockitoRule;
+import org.mockito.junit.jupiter.MockitoExtension;
 
+@ExtendWith(MockitoExtension.class)
 public class SchemaRegistryManagerTest {
 
   private static final String subjectName = "bananas";
@@ -42,9 +43,7 @@ public class SchemaRegistryManagerTest {
 
   private Path rootDir;
 
-  @Rule public MockitoRule mockitoRule = MockitoJUnit.rule();
-
-  @Before
+  @BeforeEach
   public void before() {
     List<SchemaProvider> providers =
         Arrays.asList(
@@ -55,7 +54,7 @@ public class SchemaRegistryManagerTest {
   }
 
   @Test
-  public void shouldRegisterTheSchema() throws Exception {
+  void shouldRegisterTheSchema() throws Exception {
 
     final int schemaId = manager.save(subjectName, schemaTypeAvro, simpleSchema);
     assertThat(schemaId).isEqualTo(1);
@@ -65,7 +64,7 @@ public class SchemaRegistryManagerTest {
   }
 
   @Test
-  public void shouldRegisterTheSchemaWithDefaultAvroType() throws Exception {
+  void shouldRegisterTheSchemaWithDefaultAvroType() throws Exception {
 
     Path schemaFilePath =
         Paths.get(getClass().getClassLoader().getResource("schemas/bar-value.avsc").toURI());
@@ -78,7 +77,7 @@ public class SchemaRegistryManagerTest {
   }
 
   @Test
-  public void shouldRegisterTheSchemawithCompatibility()
+  void shouldRegisterTheSchemawithCompatibility()
       throws IOException, RestClientException, URISyntaxException {
 
     Path schemaFilePath =
@@ -92,13 +91,15 @@ public class SchemaRegistryManagerTest {
     assertThat(client.getCompatibility(subjectName)).isEqualTo("FORWARD");
   }
 
-  @Test(expected = SchemaRegistryManagerException.class)
-  public void shouldThrowAnExceptionWithFailedFilePath() {
-    manager.register(subjectName, "schemas/wrong-file-value.avsc", AvroSchema.TYPE);
+  @Test
+  void shouldThrowAnExceptionWithFailedFilePath() {
+    assertThrows(SchemaRegistryManagerException.class, () -> {
+      manager.register(subjectName, "schemas/wrong-file-value.avsc", AvroSchema.TYPE);
+    });
   }
 
   @Test
-  public void shouldRegisterSchemasWithARelativePath() {
+  void shouldRegisterSchemasWithARelativePath() {
     SchemaRegistryManager managerSpy = Mockito.spy(manager);
     managerSpy.register(subjectName, "schemas/bar-value.avsc", AvroSchema.TYPE);
     Path mayBeAbsolutePath = Paths.get(rootDir.toString(), "schemas/bar-value.avsc");
@@ -106,7 +107,7 @@ public class SchemaRegistryManagerTest {
   }
 
   @Test
-  public void shouldRegisterSchemasWithAnAbsolutePath() {
+  void shouldRegisterSchemasWithAnAbsolutePath() {
     SchemaRegistryManager managerSpy = Mockito.spy(manager);
     Path mayBeAbsolutePath = Paths.get(rootDir.toString(), "schemas/bar-value.avsc");
     managerSpy.register(subjectName, mayBeAbsolutePath.toString(), AvroSchema.TYPE);
@@ -114,7 +115,7 @@ public class SchemaRegistryManagerTest {
   }
 
   @Test
-  public void shouldRegisterAndUpdateAvroSchema() throws Exception {
+  void shouldRegisterAndUpdateAvroSchema() throws Exception {
 
     Path schemaFilePath =
         Paths.get(getClass().getClassLoader().getResource("schemas/test.avsc").toURI());
@@ -140,7 +141,7 @@ public class SchemaRegistryManagerTest {
   }
 
   @Test
-  public void shouldDetectIncompatibleAvroSchema()
+  void shouldDetectIncompatibleAvroSchema()
       throws URISyntaxException, IOException, RestClientException {
 
     Path schemaFilePath =
@@ -164,7 +165,7 @@ public class SchemaRegistryManagerTest {
   }
 
   @Test
-  public void shouldRegisterAndUpdateJsonSchema() throws Exception {
+  void shouldRegisterAndUpdateJsonSchema() throws Exception {
 
     Path schemaFilePath =
         Paths.get(getClass().getClassLoader().getResource("schemas/test.json").toURI());
@@ -191,7 +192,7 @@ public class SchemaRegistryManagerTest {
   }
 
   @Test
-  public void shouldDetectIncompatibleJsonSchema()
+  void shouldDetectIncompatibleJsonSchema()
       throws URISyntaxException, IOException, RestClientException {
 
     Path schemaFilePath =
@@ -213,7 +214,7 @@ public class SchemaRegistryManagerTest {
   }
 
   @Test
-  public void shouldRegisterAndUpdateProtobufSchema() throws Exception {
+  void shouldRegisterAndUpdateProtobufSchema() throws Exception {
 
     Path schemaFilePath =
         Paths.get(getClass().getClassLoader().getResource("schemas/test.proto").toURI());
@@ -239,7 +240,7 @@ public class SchemaRegistryManagerTest {
   }
 
   @Test
-  public void shouldDetectIncompatibleProtobufSchema()
+  void shouldDetectIncompatibleProtobufSchema()
       throws URISyntaxException, IOException, RestClientException {
 
     Path schemaFilePath =
@@ -260,10 +261,12 @@ public class SchemaRegistryManagerTest {
     assertThat(client.testCompatibility(subjectName, parsedUpdatedSampleSchema)).isFalse();
   }
 
-  @Test(expected = SchemaRegistryManager.SchemaRegistryManagerException.class)
-  public void shouldFailForTheUnknownType() {
+  @Test
+  void shouldFailForTheUnknownType() {
+    assertThrows(SchemaRegistryManager.SchemaRegistryManagerException.class, () -> {
 
-    final String unknownSchemaType = "bunch-of-monkeys";
-    manager.register(subjectName, unknownSchemaType, simpleSchema);
+      final String unknownSchemaType = "bunch-of-monkeys";
+      manager.register(subjectName, unknownSchemaType, simpleSchema);
+    });
   }
 }

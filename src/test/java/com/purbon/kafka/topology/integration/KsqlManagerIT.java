@@ -3,6 +3,7 @@ package com.purbon.kafka.topology.integration;
 import static com.purbon.kafka.topology.CommandLineInterface.*;
 import static com.purbon.kafka.topology.Constants.*;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import com.purbon.kafka.topology.BackendController;
 import com.purbon.kafka.topology.Configuration;
@@ -23,9 +24,9 @@ import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Properties;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 public class KsqlManagerIT {
 
@@ -35,13 +36,13 @@ public class KsqlManagerIT {
   private KsqlApiClient client;
   private ExecutionPlan plan;
 
-  @After
+  @AfterEach
   public void after() {
     ksqlContainer.stop();
     container.stop();
   }
 
-  @Before
+  @BeforeEach
   public void configure() throws IOException {
     container = ContainerFactory.fetchSaslKafkaContainer(System.getProperty("cp.version"));
     container.start();
@@ -59,7 +60,7 @@ public class KsqlManagerIT {
   }
 
   @Test
-  public void testCreateAndUpdatePathWithLocalClusterState() throws IOException {
+  void testCreateAndUpdatePathWithLocalClusterState() throws IOException {
     Properties props = new Properties();
     props.put(TOPOLOGY_TOPIC_STATE_FROM_CLUSTER, "false");
     props.put(ALLOW_DELETE_KSQL_ARTEFACTS, "true");
@@ -70,7 +71,7 @@ public class KsqlManagerIT {
   }
 
   @Test
-  public void testCreateAndUpdatePathWithRemoveClusterState() throws IOException {
+  void testCreateAndUpdatePathWithRemoveClusterState() throws IOException {
     Properties props = new Properties();
     props.put(TOPOLOGY_STATE_FROM_CLUSTER, "true");
     props.put(TOPOLOGY_TOPIC_STATE_FROM_CLUSTER, "false");
@@ -82,18 +83,20 @@ public class KsqlManagerIT {
     testCreateAndUpdatePath(props, file);
   }
 
-  @Test(expected = IOException.class)
-  public void shouldDetectChangesInTheRemoteClusterBetweenRuns() throws IOException {
-    Properties props = new Properties();
-    props.put(TOPOLOGY_STATE_FROM_CLUSTER, "false");
-    props.put(TOPOLOGY_TOPIC_STATE_FROM_CLUSTER, "false");
-    props.put(ALLOW_DELETE_KSQL_ARTEFACTS, "true");
-    props.put(JULIE_VERIFY_STATE_SYNC, true);
-    props.put(PLATFORM_SERVER_KSQL_URL, "http://" + client.getServer());
+  @Test
+  void shouldDetectChangesInTheRemoteClusterBetweenRuns() throws IOException {
+    assertThrows(IOException.class, () -> {
+      Properties props = new Properties();
+      props.put(TOPOLOGY_STATE_FROM_CLUSTER, "false");
+      props.put(TOPOLOGY_TOPIC_STATE_FROM_CLUSTER, "false");
+      props.put(ALLOW_DELETE_KSQL_ARTEFACTS, "true");
+      props.put(JULIE_VERIFY_STATE_SYNC, true);
+      props.put(PLATFORM_SERVER_KSQL_URL, "http://" + client.getServer());
 
-    File file = TestUtils.getResourceFile("/descriptor-ksql.yaml");
+      File file = TestUtils.getResourceFile("/descriptor-ksql.yaml");
 
-    testDeleteRemoteButNotLocal(props, file);
+      testDeleteRemoteButNotLocal(props, file);
+    });
   }
 
   public void testCreateAndUpdatePath(Properties props, File file) throws IOException {

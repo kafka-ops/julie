@@ -11,22 +11,22 @@ import com.purbon.kafka.topology.integration.containerutils.KsqlContainer;
 import com.purbon.kafka.topology.integration.containerutils.SaslPlaintextKafkaContainer;
 import java.io.IOException;
 import java.util.List;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 public class KsqlClientIT {
 
   static SaslPlaintextKafkaContainer container;
   static KsqlContainer ksqlContainer;
 
-  @After
+  @AfterEach
   public void after() {
     ksqlContainer.stop();
     container.stop();
   }
 
-  @Before
+  @BeforeEach
   public void configure() {
     container = ContainerFactory.fetchSaslKafkaContainer(System.getProperty("cp.version"));
     container.start();
@@ -35,7 +35,7 @@ public class KsqlClientIT {
   }
 
   @Test
-  public void testStreamTableCreateAndDelete() throws IOException {
+  void testStreamTableCreateAndDelete() throws IOException {
 
     KsqlApiClient client =
         new KsqlApiClient(KsqlClientConfig.builder().setServer(ksqlContainer.getUrl()).build());

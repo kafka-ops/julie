@@ -1,7 +1,7 @@
 package com.purbon.kafka.topology.backend;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.eq;
 import static org.mockito.Mockito.times;
@@ -13,31 +13,29 @@ import java.io.IOException;
 import java.util.Collections;
 import org.apache.kafka.common.resource.ResourceType;
 import org.jetbrains.annotations.NotNull;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnit;
-import org.mockito.junit.MockitoRule;
+import org.mockito.junit.jupiter.MockitoExtension;
 import redis.clients.jedis.Jedis;
 
+@ExtendWith(MockitoExtension.class)
 public class RedisBackendTest {
 
   @Mock Jedis jedis;
 
-  @Rule public MockitoRule mockitoRule = MockitoJUnit.rule();
-
   private RedisBackend stateProcessor;
   private String bucket;
 
-  @Before
+  @BeforeEach
   public void before() {
     bucket = "foo";
     stateProcessor = new RedisBackend(jedis, bucket);
   }
 
   @Test
-  public void testSaveBindings() throws IOException {
+  void testSaveBindings() throws IOException {
 
     BackendState state = buildBackendState();
     stateProcessor.save(state);
@@ -46,7 +44,7 @@ public class RedisBackendTest {
   }
 
   @Test
-  public void testDataLoading() throws IOException {
+  void testDataLoading() throws IOException {
 
     BackendState mockedState = buildBackendState();
     when(jedis.get(eq(bucket))).thenReturn(mockedState.asPrettyJson());

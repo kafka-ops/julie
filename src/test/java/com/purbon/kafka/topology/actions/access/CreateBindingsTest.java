@@ -6,20 +6,18 @@ import com.purbon.kafka.topology.AccessControlProvider;
 import com.purbon.kafka.topology.roles.TopologyAclBinding;
 import java.util.HashSet;
 import org.apache.kafka.common.resource.ResourceType;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnit;
-import org.mockito.junit.MockitoRule;
+import org.mockito.junit.jupiter.MockitoExtension;
 
+@ExtendWith(MockitoExtension.class)
 public class CreateBindingsTest {
 
   @Mock AccessControlProvider provider;
 
-  @Rule public MockitoRule mockitoRule = MockitoJUnit.rule();
-
   @Test
-  public void shouldComposeDetailedViewOfProperties() {
+  void shouldComposeDetailedViewOfProperties() {
 
     var bindings = new HashSet<TopologyAclBinding>();
     bindings.add(

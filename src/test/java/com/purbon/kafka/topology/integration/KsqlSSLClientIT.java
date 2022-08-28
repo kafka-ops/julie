@@ -12,9 +12,9 @@ import com.purbon.kafka.topology.integration.containerutils.SaslPlaintextKafkaCo
 import com.purbon.kafka.topology.integration.containerutils.SslKsqlContainer;
 import java.io.IOException;
 import java.util.List;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 public class KsqlSSLClientIT {
 
@@ -23,13 +23,13 @@ public class KsqlSSLClientIT {
   private static SaslPlaintextKafkaContainer container;
   private static KsqlContainer sslKsqlContainer;
 
-  @After
+  @AfterEach
   public void after() {
     sslKsqlContainer.stop();
     container.stop();
   }
 
-  @Before
+  @BeforeEach
   public void configure() {
     container = ContainerFactory.fetchSaslKafkaContainer(System.getProperty("cp.version"));
     container.start();
@@ -43,7 +43,7 @@ public class KsqlSSLClientIT {
   }
 
   @Test
-  public void testStreamTableCreateAndDelete() throws IOException {
+  void testStreamTableCreateAndDelete() throws IOException {
     KsqlClientConfig config =
         KsqlClientConfig.builder()
             .setServer(sslKsqlContainer.getUrl())

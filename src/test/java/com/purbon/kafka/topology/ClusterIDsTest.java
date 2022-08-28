@@ -2,6 +2,7 @@ package com.purbon.kafka.topology;
 
 import static com.purbon.kafka.topology.CommandLineInterface.BROKERS_OPTION;
 import static com.purbon.kafka.topology.Constants.MDS_VALID_CLUSTER_IDS_CONFIG;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import com.purbon.kafka.topology.api.mds.ClusterIDs;
 import com.purbon.kafka.topology.exceptions.ValidationException;
@@ -9,36 +10,38 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Properties;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 public class ClusterIDsTest {
 
   private Map<String, String> cliOps;
   private Properties props;
 
-  @Before
+  @BeforeEach
   public void before() {
     cliOps = new HashMap<>();
     cliOps.put(BROKERS_OPTION, "");
     props = new Properties();
   }
 
-  @After
+  @AfterEach
   public void after() {}
 
-  @Test(expected = ValidationException.class)
-  public void shouldRaiseAnExceptionIfAnInvalidClusterIdIsUsed() {
-    props.put(MDS_VALID_CLUSTER_IDS_CONFIG + ".0", "kafka-cluster");
-    Configuration config = new Configuration(cliOps, props);
+  @Test
+  void shouldRaiseAnExceptionIfAnInvalidClusterIdIsUsed() {
+    assertThrows(ValidationException.class, () -> {
+      props.put(MDS_VALID_CLUSTER_IDS_CONFIG + ".0", "kafka-cluster");
+      Configuration config = new Configuration(cliOps, props);
 
-    ClusterIDs ids = new ClusterIDs(Optional.of(config));
-    ids.setKafkaClusterId("foo");
+      ClusterIDs ids = new ClusterIDs(Optional.of(config));
+      ids.setKafkaClusterId("foo");
+    });
   }
 
   @Test
-  public void shouldAcceptAValidID() {
+  void shouldAcceptAValidID() {
     props.put(MDS_VALID_CLUSTER_IDS_CONFIG + ".0", "kafka-cluster");
     Configuration config = new Configuration(cliOps, props);
 
@@ -47,7 +50,7 @@ public class ClusterIDsTest {
   }
 
   @Test
-  public void shouldAnyIdIfTheListIsEmpty() {
+  void shouldAnyIdIfTheListIsEmpty() {
     Configuration config = new Configuration(cliOps, props);
 
     ClusterIDs ids = new ClusterIDs(Optional.of(config));

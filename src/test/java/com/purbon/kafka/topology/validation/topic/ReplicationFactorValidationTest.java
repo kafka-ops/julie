@@ -1,76 +1,88 @@
 package com.purbon.kafka.topology.validation.topic;
 
+import static org.junit.jupiter.api.Assertions.assertThrows;
+
 import com.purbon.kafka.topology.exceptions.ConfigurationException;
 import com.purbon.kafka.topology.exceptions.ValidationException;
 import com.purbon.kafka.topology.model.Topic;
 import java.util.HashMap;
 import java.util.Map;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class ReplicationFactorValidationTest {
 
-  @Test(expected = ValidationException.class)
-  public void shouldVerifyDifferentValuesWhenUsingEq()
+  @Test
+  void shouldVerifyDifferentValuesWhenUsingEq()
       throws ValidationException, ConfigurationException {
-    Map<String, String> config = new HashMap<>();
-    config.put("replication.factor", "34");
-    config.put("num.partitions", "123");
+    assertThrows(ValidationException.class, () -> {
+      Map<String, String> config = new HashMap<>();
+      config.put("replication.factor", "34");
+      config.put("num.partitions", "123");
 
-    Topic topic = new Topic("topic", config);
-    ReplicationFactorValidation validation = new ReplicationFactorValidation((short) 35, "eq");
-    validation.valid(topic);
-  }
-
-  @Test(expected = ValidationException.class)
-  public void shouldVerifyDifferentValuesWhenUsingGte()
-      throws ValidationException, ConfigurationException {
-    Map<String, String> config = new HashMap<>();
-    config.put("replication.factor", "34");
-    config.put("num.partitions", "123");
-
-    Topic topic = new Topic("topic", config);
-    ReplicationFactorValidation validation = new ReplicationFactorValidation((short) 35, "gte");
-    validation.valid(topic);
-  }
-
-  @Test(expected = ValidationException.class)
-  public void shouldVerifyDifferentValuesWhenUsingLte()
-      throws ValidationException, ConfigurationException {
-    Map<String, String> config = new HashMap<>();
-    config.put("replication.factor", "34");
-    config.put("num.partitions", "123");
-
-    Topic topic = new Topic("topic", config);
-    ReplicationFactorValidation validation = new ReplicationFactorValidation((short) 15, "lte");
-    validation.valid(topic);
-  }
-
-  @Test(expected = ValidationException.class)
-  public void shouldVerifyDifferentValuesWhenUsingGt()
-      throws ValidationException, ConfigurationException {
-    Map<String, String> config = new HashMap<>();
-    config.put("replication.factor", "34");
-    config.put("num.partitions", "123");
-
-    Topic topic = new Topic("topic", config);
-    ReplicationFactorValidation validation = new ReplicationFactorValidation((short) 35, "gt");
-    validation.valid(topic);
-  }
-
-  @Test(expected = ValidationException.class)
-  public void shouldVerifyDifferentValuesWhenUsingLt()
-      throws ValidationException, ConfigurationException {
-    Map<String, String> config = new HashMap<>();
-    config.put("replication.factor", "34");
-    config.put("num.partitions", "123");
-
-    Topic topic = new Topic("topic", config);
-    ReplicationFactorValidation validation = new ReplicationFactorValidation((short) 33, "lt");
-    validation.valid(topic);
+      Topic topic = new Topic("topic", config);
+      ReplicationFactorValidation validation = new ReplicationFactorValidation((short) 35, "eq");
+      validation.valid(topic);
+    });
   }
 
   @Test
-  public void shouldVerifyDifferentValuesWhenUsingEqSuccessfully()
+  void shouldVerifyDifferentValuesWhenUsingGte()
+      throws ValidationException, ConfigurationException {
+    assertThrows(ValidationException.class, () -> {
+      Map<String, String> config = new HashMap<>();
+      config.put("replication.factor", "34");
+      config.put("num.partitions", "123");
+
+      Topic topic = new Topic("topic", config);
+      ReplicationFactorValidation validation = new ReplicationFactorValidation((short) 35, "gte");
+      validation.valid(topic);
+    });
+  }
+
+  @Test
+  void shouldVerifyDifferentValuesWhenUsingLte()
+      throws ValidationException, ConfigurationException {
+    assertThrows(ValidationException.class, () -> {
+      Map<String, String> config = new HashMap<>();
+      config.put("replication.factor", "34");
+      config.put("num.partitions", "123");
+
+      Topic topic = new Topic("topic", config);
+      ReplicationFactorValidation validation = new ReplicationFactorValidation((short) 15, "lte");
+      validation.valid(topic);
+    });
+  }
+
+  @Test
+  void shouldVerifyDifferentValuesWhenUsingGt()
+      throws ValidationException, ConfigurationException {
+    assertThrows(ValidationException.class, () -> {
+      Map<String, String> config = new HashMap<>();
+      config.put("replication.factor", "34");
+      config.put("num.partitions", "123");
+
+      Topic topic = new Topic("topic", config);
+      ReplicationFactorValidation validation = new ReplicationFactorValidation((short) 35, "gt");
+      validation.valid(topic);
+    });
+  }
+
+  @Test
+  void shouldVerifyDifferentValuesWhenUsingLt()
+      throws ValidationException, ConfigurationException {
+    assertThrows(ValidationException.class, () -> {
+      Map<String, String> config = new HashMap<>();
+      config.put("replication.factor", "34");
+      config.put("num.partitions", "123");
+
+      Topic topic = new Topic("topic", config);
+      ReplicationFactorValidation validation = new ReplicationFactorValidation((short) 33, "lt");
+      validation.valid(topic);
+    });
+  }
+
+  @Test
+  void shouldVerifyDifferentValuesWhenUsingEqSuccessfully()
       throws ValidationException, ConfigurationException {
     Map<String, String> config = new HashMap<>();
     config.put("replication.factor", "34");
@@ -82,7 +94,7 @@ public class ReplicationFactorValidationTest {
   }
 
   @Test
-  public void shouldVerifyDifferentValuesWhenUsingGteSuccessfully()
+  void shouldVerifyDifferentValuesWhenUsingGteSuccessfully()
       throws ValidationException, ConfigurationException {
     Map<String, String> config = new HashMap<>();
     config.put("replication.factor", "34");
@@ -94,7 +106,7 @@ public class ReplicationFactorValidationTest {
   }
 
   @Test
-  public void shouldVerifyDifferentValuesWhenUsingLteSuccessfully()
+  void shouldVerifyDifferentValuesWhenUsingLteSuccessfully()
       throws ValidationException, ConfigurationException {
     Map<String, String> config = new HashMap<>();
     config.put("replication.factor", "34");
@@ -106,7 +118,7 @@ public class ReplicationFactorValidationTest {
   }
 
   @Test
-  public void shouldVerifyDifferentValuesWhenUsingGtSuccessfully()
+  void shouldVerifyDifferentValuesWhenUsingGtSuccessfully()
       throws ValidationException, ConfigurationException {
     Map<String, String> config = new HashMap<>();
     config.put("replication.factor", "34");
@@ -118,7 +130,7 @@ public class ReplicationFactorValidationTest {
   }
 
   @Test
-  public void shouldVerifyDifferentValuesWhenUsingLtSuccessfully()
+  void shouldVerifyDifferentValuesWhenUsingLtSuccessfully()
       throws ValidationException, ConfigurationException {
     Map<String, String> config = new HashMap<>();
     config.put("replication.factor", "34");

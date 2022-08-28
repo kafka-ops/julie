@@ -15,13 +15,13 @@ import java.util.*;
 import org.apache.kafka.common.acl.AclOperation;
 import org.apache.kafka.common.resource.PatternType;
 import org.apache.kafka.common.resource.ResourceType;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnit;
-import org.mockito.junit.MockitoRule;
+import org.mockito.junit.jupiter.MockitoExtension;
 
+@ExtendWith(MockitoExtension.class)
 public class AccessControlWithRBACTest {
 
   @Mock RBACProvider aclsProvider;
@@ -30,18 +30,16 @@ public class AccessControlWithRBACTest {
   @Mock ExecutionPlan plan;
   @Mock BackendController backendController;
 
-  @Rule public MockitoRule mockitoRule = MockitoJUnit.rule();
-
   private AccessControlManager accessControlManager;
 
-  @Before
+  @BeforeEach
   public void setup() throws IOException {
     accessControlManager = new AccessControlManager(aclsProvider, bindingsBuilder);
     plan = ExecutionPlan.init(backendController, System.out);
   }
 
   @Test
-  public void testPredefinedRoles() throws IOException {
+  void testPredefinedRoles() throws IOException {
     Map<String, List<String>> predefinedRoles = new HashMap<>();
     predefinedRoles.put("ResourceOwner", Collections.singletonList("User:Foo"));
 

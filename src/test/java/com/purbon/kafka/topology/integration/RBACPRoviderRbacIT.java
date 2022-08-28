@@ -7,8 +7,8 @@ import static java.util.Arrays.asList;
 import static java.util.Collections.singleton;
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -58,14 +58,14 @@ import java.util.Optional;
 import java.util.Properties;
 import java.util.stream.Collectors;
 import org.apache.kafka.common.resource.PatternType;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class RBACPRoviderRbacIT extends MDSBaseTest {
 
   private String mdsServer = "http://localhost:8090";
@@ -79,7 +79,7 @@ public class RBACPRoviderRbacIT extends MDSBaseTest {
   private AccessControlManager defaultAccessControlManager;
   private AccessControlManager optimizedAclsAccessControlManager;
 
-  @Before
+  @BeforeEach
   public void before() throws IOException, InterruptedException {
     super.beforeEach();
     TestUtils.deleteStateFile();
@@ -130,7 +130,7 @@ public class RBACPRoviderRbacIT extends MDSBaseTest {
   }
 
   @Test
-  public void consumerAclsCreation() throws IOException {
+  void consumerAclsCreation() throws IOException {
 
     List<Consumer> consumers = new ArrayList<>();
     consumers.add(new Consumer("User:app1"));
@@ -154,7 +154,7 @@ public class RBACPRoviderRbacIT extends MDSBaseTest {
   }
 
   @Test
-  public void producerAclsCreation() throws IOException {
+  void producerAclsCreation() throws IOException {
 
     List<Producer> producers = new ArrayList<>();
     producers.add(new Producer("User:app2", null, true));
@@ -178,7 +178,7 @@ public class RBACPRoviderRbacIT extends MDSBaseTest {
   }
 
   @Test
-  public void producerAclsWithExtraPropertiesShouldNotBreak() throws IOException {
+  void producerAclsWithExtraPropertiesShouldNotBreak() throws IOException {
 
     List<Producer> producers = new ArrayList<>();
     var producer = new Producer("User:app3");
@@ -204,7 +204,7 @@ public class RBACPRoviderRbacIT extends MDSBaseTest {
   }
 
   @Test
-  public void kstreamsAclsCreation() throws IOException {
+  void kstreamsAclsCreation() throws IOException {
     Project project = new ProjectImpl();
 
     KStream app = new KStream();
@@ -228,7 +228,7 @@ public class RBACPRoviderRbacIT extends MDSBaseTest {
   }
 
   @Test
-  public void ksqlAppAclsCreation() throws IOException {
+  void ksqlAppAclsCreation() throws IOException {
     Project project = new ProjectImpl();
 
     KSqlApp app = new KSqlApp();
@@ -255,7 +255,7 @@ public class RBACPRoviderRbacIT extends MDSBaseTest {
   }
 
   @Test
-  public void connectorsRbacCreation() throws IOException {
+  void connectorsRbacCreation() throws IOException {
     var names = asList("jdbc-sink", "jdbc-source");
 
     Connector con = new Connector();
@@ -295,7 +295,7 @@ public class RBACPRoviderRbacIT extends MDSBaseTest {
   }
 
   @Test
-  public void connectAclsCreation() throws IOException {
+  void connectAclsCreation() throws IOException {
     Project project = new ProjectImpl();
 
     Connector connector = new Connector();
@@ -318,7 +318,7 @@ public class RBACPRoviderRbacIT extends MDSBaseTest {
   }
 
   @Test
-  public void schemasRbacCreation() throws IOException {
+  void schemasRbacCreation() throws IOException {
     var names = asList("managed.foo", "managed.bar", "not-managed.unused");
 
     Schemas schema = new Schemas();
@@ -369,7 +369,7 @@ public class RBACPRoviderRbacIT extends MDSBaseTest {
   }
 
   @Test
-  public void schemasOptimizedRbacCreation() throws IOException {
+  void schemasOptimizedRbacCreation() throws IOException {
     var names = asList("foo", "bar");
 
     Schemas schema = new Schemas();
@@ -421,7 +421,7 @@ public class RBACPRoviderRbacIT extends MDSBaseTest {
   }
 
   @Test
-  public void schemaRegistryAclsCreation() throws IOException {
+  void schemaRegistryAclsCreation() throws IOException {
     Project project = new ProjectImpl();
 
     Topology topology = new TopologyImpl();
@@ -455,7 +455,7 @@ public class RBACPRoviderRbacIT extends MDSBaseTest {
   }
 
   @Test
-  public void controlcenterAclsCreation() throws IOException {
+  void controlcenterAclsCreation() throws IOException {
     Project project = new ProjectImpl();
 
     Topology topology = new TopologyImpl();
@@ -481,7 +481,7 @@ public class RBACPRoviderRbacIT extends MDSBaseTest {
   }
 
   @Test
-  public void kafkaClusterLevelAclCreation() throws IOException {
+  void kafkaClusterLevelAclCreation() throws IOException {
     Project project = new ProjectImpl();
 
     Topology topology = new TopologyImpl();
@@ -507,7 +507,7 @@ public class RBACPRoviderRbacIT extends MDSBaseTest {
   }
 
   @Test
-  public void connectClusterLevelAclCreation() throws IOException {
+  void connectClusterLevelAclCreation() throws IOException {
     Project project = new ProjectImpl();
 
     Topology topology = new TopologyImpl();
@@ -533,7 +533,7 @@ public class RBACPRoviderRbacIT extends MDSBaseTest {
   }
 
   @Test
-  public void testRoleDeleteFlow() throws IOException {
+  void testRoleDeleteFlow() throws IOException {
 
     BackendController cs = new BackendController();
     ExecutionPlan plan = ExecutionPlan.init(cs, System.out);
@@ -586,7 +586,7 @@ public class RBACPRoviderRbacIT extends MDSBaseTest {
   }
 
   @Test
-  public void deleteRolesShouldBeSkippedIfPrincipalIsNotManaged() throws IOException {
+  void deleteRolesShouldBeSkippedIfPrincipalIsNotManaged() throws IOException {
     BackendController cs = new BackendController();
     ExecutionPlan plan = ExecutionPlan.init(cs, System.out);
     RBACProvider rbacProvider = Mockito.spy(new RBACProvider(apiClient));
@@ -662,7 +662,7 @@ public class RBACPRoviderRbacIT extends MDSBaseTest {
   }
 
   @Test
-  public void testJulieRoleAclCreation() throws IOException {
+  void testJulieRoleAclCreation() throws IOException {
 
     BackendController cs = new BackendController();
     ExecutionPlan plan = ExecutionPlan.init(cs, System.out);

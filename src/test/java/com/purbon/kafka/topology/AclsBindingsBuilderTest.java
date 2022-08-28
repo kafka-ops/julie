@@ -25,22 +25,22 @@ import org.apache.kafka.common.acl.AclPermissionType;
 import org.apache.kafka.common.resource.PatternType;
 import org.apache.kafka.common.resource.ResourcePattern;
 import org.apache.kafka.common.resource.ResourceType;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 public class AclsBindingsBuilderTest {
 
   Configuration config;
   AclsBindingsBuilder builder;
 
-  @Before
+  @BeforeEach
   public void before() {
     config = new Configuration();
     builder = new AclsBindingsBuilder(config);
   }
 
   @Test
-  public void testConsumerAclsBuilder() {
+  void testConsumerAclsBuilder() {
 
     Consumer consumer = new Consumer("User:foo");
 
@@ -57,7 +57,7 @@ public class AclsBindingsBuilderTest {
   }
 
   @Test
-  public void testConsumerAclsBuilderWithGroupPrefix() {
+  void testConsumerAclsBuilderWithGroupPrefix() {
 
     Consumer consumer = new Consumer("User:foo", "foo*");
 
@@ -74,7 +74,7 @@ public class AclsBindingsBuilderTest {
   }
 
   @Test
-  public void testProducerAclsBuilder() {
+  void testProducerAclsBuilder() {
     Producer producer = new Producer("User:foo");
     List<TopologyAclBinding> aclBindings =
         builder.buildBindingsForProducers(Collections.singleton(producer), "bar", false);
@@ -87,7 +87,7 @@ public class AclsBindingsBuilderTest {
   }
 
   @Test
-  public void testStreamsWithTxIdAclsBuilder() {
+  void testStreamsWithTxIdAclsBuilder() {
     KStream producer =
         new KStream(
             "User:foo",
@@ -120,7 +120,7 @@ public class AclsBindingsBuilderTest {
   }
 
   @Test
-  public void testProducerWithTxIdAclsBuilder() {
+  void testProducerWithTxIdAclsBuilder() {
     Producer producer = new Producer("User:foo", "1234", true);
     List<TopologyAclBinding> aclBindings =
         builder.buildBindingsForProducers(Collections.singleton(producer), "bar", false);
@@ -153,7 +153,7 @@ public class AclsBindingsBuilderTest {
   }
 
   @Test
-  public void testProducerWithTxIdPrefixAclsBuilder() {
+  void testProducerWithTxIdPrefixAclsBuilder() {
     Producer producer = new Producer("User:foo", "foo*", true);
     List<TopologyAclBinding> aclBindings =
         builder.buildBindingsForProducers(Collections.singleton(producer), "bar", false);
@@ -180,7 +180,7 @@ public class AclsBindingsBuilderTest {
   }
 
   @Test
-  public void testIdempotenceProducerAclsBuilder() {
+  void testIdempotenceProducerAclsBuilder() {
     Producer producer = new Producer("User:foo", null, true);
     List<TopologyAclBinding> aclBindings =
         builder.buildBindingsForProducers(Collections.singleton(producer), "bar", false);
@@ -197,7 +197,7 @@ public class AclsBindingsBuilderTest {
   }
 
   @Test
-  public void testSourceConnectorAcls() {
+  void testSourceConnectorAcls() {
     Connector connector = new Connector("User:foo");
     HashMap<String, List<String>> topicsMap = new HashMap<>();
     String connectorWriteTopic = "topicA";
@@ -219,7 +219,7 @@ public class AclsBindingsBuilderTest {
   }
 
   @Test
-  public void testSinkConnectorAcls() {
+  void testSinkConnectorAcls() {
     Connector connector = new Connector("User:foo");
     String connectorReadTopic = "topicA";
     connector.setTopics(singletonMap(DynamicUser.READ_TOPICS, singletonList(connectorReadTopic)));
@@ -236,7 +236,7 @@ public class AclsBindingsBuilderTest {
   }
 
   @Test
-  public void testConnectorAclsWithNoClusterCreate() {
+  void testConnectorAclsWithNoClusterCreate() {
     Properties configMap = config.asProperties();
     configMap.put(CONNECTOR_ALLOW_TOPIC_CREATE, false);
     builder = new AclsBindingsBuilder(new Configuration(emptyMap(), configMap));
@@ -308,7 +308,7 @@ public class AclsBindingsBuilderTest {
   }
 
   @Test
-  public void testStreamsAclsBuilder() {
+  void testStreamsAclsBuilder() {
     KStream stream = new KStream("User:foo", new HashMap<>());
 
     List<String> readTopics = singletonList("foo");

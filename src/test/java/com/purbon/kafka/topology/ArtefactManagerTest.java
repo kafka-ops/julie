@@ -15,12 +15,12 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnit;
-import org.mockito.junit.MockitoRule;
+import org.mockito.junit.jupiter.MockitoExtension;
 
+@ExtendWith(MockitoExtension.class)
 public class ArtefactManagerTest {
 
   public class MyArtefactManager extends ArtefactManager {
@@ -70,10 +70,8 @@ public class ArtefactManagerTest {
 
   @Mock public ArtefactClient mockClient2;
 
-  @Rule public MockitoRule mockitoRule = MockitoJUnit.rule();
-
   @Test
-  public void testClientSelection() {
+  void testClientSelection() {
 
     Map<String, ArtefactClient> clients = new HashMap<>();
     clients.put("server0", mockClient1);

@@ -26,13 +26,13 @@ import java.io.PrintStream;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.*;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnit;
-import org.mockito.junit.MockitoRule;
+import org.mockito.junit.jupiter.MockitoExtension;
 
+@ExtendWith(MockitoExtension.class)
 public class PrincipalManagerTest {
 
   private Map<String, String> cliOps;
@@ -41,8 +41,6 @@ public class PrincipalManagerTest {
   @Mock PrincipalProvider provider;
 
   ExecutionPlan plan;
-
-  @Rule public MockitoRule mockitoRule = MockitoJUnit.rule();
 
   PrincipalUpdateManager principalUpdateManager;
   PrincipalDeleteManager principalDeleteManager;
@@ -54,7 +52,7 @@ public class PrincipalManagerTest {
 
   @Mock ExecutionPlan mockPlan;
 
-  @Before
+  @BeforeEach
   public void before() throws IOException {
 
     Files.deleteIfExists(Paths.get(".cluster-state"));
@@ -75,7 +73,7 @@ public class PrincipalManagerTest {
   }
 
   @Test
-  public void testFreshGeneration() throws IOException {
+  void testFreshGeneration() throws IOException {
 
     Topology topology = new TopologyImpl();
     topology.setContext("context");
@@ -102,7 +100,7 @@ public class PrincipalManagerTest {
   }
 
   @Test
-  public void testFreshTopicLevelGeneration() throws IOException {
+  void testFreshTopicLevelGeneration() throws IOException {
 
     Topology topology = new TopologyImpl();
     topology.setContext("context");
@@ -131,7 +129,7 @@ public class PrincipalManagerTest {
   }
 
   @Test
-  public void testDeleteAccountsRequired() throws IOException {
+  void testDeleteAccountsRequired() throws IOException {
 
     Topology topology = new TopologyImpl();
     topology.setContext("context");
@@ -180,7 +178,7 @@ public class PrincipalManagerTest {
   }
 
   @Test
-  public void testNotRunIfConfigNotExperimental() throws IOException {
+  void testNotRunIfConfigNotExperimental() throws IOException {
     props.put(JULIE_ENABLE_PRINCIPAL_MANAGEMENT, "false");
 
     config = new Configuration(cliOps, props);
@@ -197,7 +195,7 @@ public class PrincipalManagerTest {
   }
 
   @Test
-  public void testToProcessOnlySelectedPrincipals() throws IOException {
+  void testToProcessOnlySelectedPrincipals() throws IOException {
 
     props.put(SERVICE_ACCOUNT_MANAGED_PREFIXES, Collections.singletonList("pro"));
 

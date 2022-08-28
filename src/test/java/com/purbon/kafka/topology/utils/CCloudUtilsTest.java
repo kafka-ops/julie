@@ -2,6 +2,7 @@ package com.purbon.kafka.topology.utils;
 
 import static com.purbon.kafka.topology.CommandLineInterface.BROKERS_OPTION;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.doThrow;
 
@@ -16,14 +17,14 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Properties;
 import org.apache.kafka.common.resource.ResourceType;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnit;
-import org.mockito.junit.MockitoRule;
+import org.mockito.junit.jupiter.MockitoExtension;
 
+@ExtendWith(MockitoExtension.class)
 public class CCloudUtilsTest {
 
   private Map<String, String> cliOps;
@@ -31,27 +32,25 @@ public class CCloudUtilsTest {
 
   @Mock CCloudApi cCloudApi;
 
-  @Rule public MockitoRule mockitoRule = MockitoJUnit.rule();
-
-  @Before
+  @BeforeEach
   public void before() {
     cliOps = new HashMap<>();
     cliOps.put(BROKERS_OPTION, "");
     props = new Properties();
   }
 
-  @After
+  @AfterEach
   public void after() {}
 
   @Test
-  public void translationShouldNotRaiseErrors() throws IOException {
+  void translationShouldNotRaiseErrors() throws IOException {
     Configuration config = new Configuration(cliOps, props);
     var utils = new CCloudUtils(config);
     testTranslationMechanism(utils, "sa-xxxx", "User:foo");
   }
 
   @Test
-  public void translationShouldNotRaiseErrorWhenNotUsingUserPrefix() throws IOException {
+  void translationShouldNotRaiseErrorWhenNotUsingUserPrefix() throws IOException {
     Configuration config = new Configuration(cliOps, props);
     var utils = new CCloudUtils(config);
     testTranslationMechanism(utils, "sa-xxxx", "foo");
@@ -84,11 +83,13 @@ public class CCloudUtilsTest {
     assertThat(translatedBinding.getPrincipal()).isEqualTo("User:12345");
   }
 
-  @Test(expected = IOException.class)
-  public void translationShouldBeAbortedIfErrors() throws IOException {
-    Configuration config = new Configuration(cliOps, props);
-    var utils = new CCloudUtils(config);
-    doThrow(new IOException()).when(cCloudApi).listServiceAccounts();
-    utils.initializeLookupTable(cCloudApi);
+  @Test
+  void translationShouldBeAbortedIfErrors() throws IOException {
+    assertThrows(IOException.class, () -> {
+      Configuration config = new Configuration(cliOps, props);
+      var utils = new CCloudUtils(config);
+      doThrow(new IOException()).when(cCloudApi).listServiceAccounts();
+      utils.initializeLookupTable(cCloudApi);
+    });
   }
 }

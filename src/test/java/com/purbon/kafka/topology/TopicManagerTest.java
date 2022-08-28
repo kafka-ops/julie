@@ -23,13 +23,13 @@ import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.apache.kafka.clients.admin.Config;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnit;
-import org.mockito.junit.MockitoRule;
+import org.mockito.junit.jupiter.MockitoExtension;
 
+@ExtendWith(MockitoExtension.class)
 public class TopicManagerTest {
 
   @Mock TopologyBuilderAdminClient adminClient;
@@ -41,14 +41,12 @@ public class TopicManagerTest {
 
   @Mock PrintStream outputStream;
 
-  @Rule public MockitoRule mockitoRule = MockitoJUnit.rule();
-
   private TopicManager topicManager;
   private HashMap<String, String> cliOps;
   private Properties props;
   private Configuration config;
 
-  @Before
+  @BeforeEach
   public void setup() throws IOException {
 
     Files.deleteIfExists(Paths.get(".cluster-state"));
@@ -66,7 +64,7 @@ public class TopicManagerTest {
   }
 
   @Test
-  public void newTopicCreationTest() throws IOException {
+  void newTopicCreationTest() throws IOException {
 
     Project project = new ProjectImpl("project");
     Topic topicA = new Topic("topicA");
@@ -85,7 +83,7 @@ public class TopicManagerTest {
   }
 
   @Test
-  public void topicPartitionCountUpdateTest() throws IOException {
+  void topicPartitionCountUpdateTest() throws IOException {
 
     Topology topology = new TopologyImpl();
     Project project = new ProjectImpl("project");
@@ -130,7 +128,7 @@ public class TopicManagerTest {
   }
 
   @Test
-  public void topicDeleteTest() throws IOException {
+  void topicDeleteTest() throws IOException {
 
     cliOps = new HashMap<>();
     cliOps.put(BROKERS_OPTION, "");
@@ -177,7 +175,7 @@ public class TopicManagerTest {
   }
 
   @Test
-  public void topicDeleteWithConfiguredInternalTopicsTest() throws IOException {
+  void topicDeleteWithConfiguredInternalTopicsTest() throws IOException {
 
     cliOps = new HashMap<>();
     cliOps.put(BROKERS_OPTION, "");
@@ -216,7 +214,7 @@ public class TopicManagerTest {
   }
 
   @Test
-  public void topicDeleteWithConfiguredNoDelete() throws IOException {
+  void topicDeleteWithConfiguredNoDelete() throws IOException {
 
     Properties props = new Properties();
     props.put(KAFKA_INTERNAL_TOPIC_PREFIXES + ".0", "foo.");
@@ -250,7 +248,7 @@ public class TopicManagerTest {
   }
 
   @Test
-  public void topicDeleteWithConfiguredNoDeleteOnlyForTopics() throws IOException {
+  void topicDeleteWithConfiguredNoDeleteOnlyForTopics() throws IOException {
 
     Properties props = new Properties();
     props.put(ALLOW_DELETE_TOPICS, "true");
@@ -284,7 +282,7 @@ public class TopicManagerTest {
   }
 
   @Test
-  public void topicDeleteWithConfiguredNoDeleteOnlyForTopicsAllDisabled() throws IOException {
+  void topicDeleteWithConfiguredNoDeleteOnlyForTopicsAllDisabled() throws IOException {
 
     Properties props = new Properties();
     props.put(ALLOW_DELETE_TOPICS, "false");
@@ -318,7 +316,7 @@ public class TopicManagerTest {
   }
 
   @Test
-  public void dryRunTest() throws IOException {
+  void dryRunTest() throws IOException {
 
     plan = ExecutionPlan.init(backendController, outputStream);
     Project project = new ProjectImpl("project");
@@ -340,7 +338,7 @@ public class TopicManagerTest {
   }
 
   @Test
-  public void testToProcessOnlySelectedTopics() throws IOException {
+  void testToProcessOnlySelectedTopics() throws IOException {
 
     props.put(TOPIC_MANAGED_PREFIXES, Collections.singletonList("NamespaceA"));
     props.put(TOPIC_PREFIX_FORMAT_CONFIG, "{{topic}}");
@@ -366,7 +364,7 @@ public class TopicManagerTest {
   }
 
   @Test
-  public void shouldManageSpecialTopics() throws IOException {
+  void shouldManageSpecialTopics() throws IOException {
     Topic topicA = new Topic("TopicA");
     topicA.setConsumers(Collections.singletonList(new Consumer("User:foo")));
     topicA.setProducers(Collections.singletonList(new Producer("User:bar")));

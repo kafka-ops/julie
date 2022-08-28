@@ -22,14 +22,14 @@ import java.util.concurrent.ExecutionException;
 import org.apache.kafka.clients.admin.AdminClient;
 import org.apache.kafka.clients.admin.CreateAclsResult;
 import org.apache.kafka.common.KafkaFuture;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentMatchers;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnit;
-import org.mockito.junit.MockitoRule;
+import org.mockito.junit.jupiter.MockitoExtension;
 
+@ExtendWith(MockitoExtension.class)
 public class TopologyBuilderAdminClientTest {
 
   @Mock CreateAclsResult createAclsResult;
@@ -45,11 +45,9 @@ public class TopologyBuilderAdminClientTest {
 
   @Mock BackendController backendController;
 
-  @Rule public MockitoRule mockitoRule = MockitoJUnit.rule();
-
   private AccessControlManager accessControlManager;
 
-  @Before
+  @BeforeEach
   public void setup() throws ExecutionException, InterruptedException, IOException {
     adminClient = new TopologyBuilderAdminClient(kafkaAdminClient);
     aclsProvider = new SimpleAclsProvider(adminClient);
@@ -71,7 +69,7 @@ public class TopologyBuilderAdminClientTest {
   }
 
   @Test
-  public void newConsumerACLsCreation() throws IOException {
+  void newConsumerACLsCreation() throws IOException {
 
     List<Consumer> consumers = new ArrayList<>();
     consumers.add(new Consumer("User:app1"));
@@ -91,7 +89,7 @@ public class TopologyBuilderAdminClientTest {
   }
 
   @Test
-  public void newProducerACLsCreation() throws IOException {
+  void newProducerACLsCreation() throws IOException {
 
     List<Producer> producers = new ArrayList<>();
     producers.add(new Producer("User:app1"));
@@ -111,7 +109,7 @@ public class TopologyBuilderAdminClientTest {
   }
 
   @Test
-  public void newKafkaStreamsAppACLsCreation() throws IOException {
+  void newKafkaStreamsAppACLsCreation() throws IOException {
 
     Project project = new ProjectImpl();
 
@@ -133,7 +131,7 @@ public class TopologyBuilderAdminClientTest {
   }
 
   @Test
-  public void newSchemaRegistryACLCreation() throws IOException {
+  void newSchemaRegistryACLCreation() throws IOException {
 
     Project project = new ProjectImpl();
     Topology topology = new TopologyImpl();
@@ -161,7 +159,7 @@ public class TopologyBuilderAdminClientTest {
   }
 
   @Test
-  public void newControlCenterACLCreation() throws IOException {
+  void newControlCenterACLCreation() throws IOException {
 
     Project project = new ProjectImpl();
     Topology topology = new TopologyImpl();
@@ -183,7 +181,7 @@ public class TopologyBuilderAdminClientTest {
   }
 
   @Test
-  public void newKafkaConnectACLsCreation() throws IOException {
+  void newKafkaConnectACLsCreation() throws IOException {
 
     Project project = new ProjectImpl();
 

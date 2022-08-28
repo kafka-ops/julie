@@ -1,6 +1,6 @@
 package com.purbon.kafka.topology;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -18,20 +18,18 @@ import com.purbon.kafka.topology.roles.TopologyAclBinding;
 import java.io.IOException;
 import java.util.Collections;
 import org.apache.kafka.common.resource.ResourceType;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnit;
-import org.mockito.junit.MockitoRule;
+import org.mockito.junit.jupiter.MockitoExtension;
 
+@ExtendWith(MockitoExtension.class)
 public class BackendControllerTest {
 
   @Mock FileBackend fileStateProcessor;
 
-  @Rule public MockitoRule mockitoRule = MockitoJUnit.rule();
-
   @Test
-  public void testClusterStateRecovery() throws IOException {
+  void testClusterStateRecovery() throws IOException {
 
     BackendController backend = new BackendController(fileStateProcessor);
     TopologyAclBinding binding =
@@ -44,7 +42,7 @@ public class BackendControllerTest {
   }
 
   @Test
-  public void testClusterStateSize() {
+  void testClusterStateSize() {
 
     BackendController backend = new BackendController(fileStateProcessor);
     TopologyAclBinding binding =
@@ -57,7 +55,7 @@ public class BackendControllerTest {
   }
 
   @Test
-  public void testStoreBindingsAndServiceAccounts() throws IOException {
+  void testStoreBindingsAndServiceAccounts() throws IOException {
 
     BackendController backend = new BackendController(fileStateProcessor);
 
@@ -76,7 +74,7 @@ public class BackendControllerTest {
   }
 
   @Test
-  public void testStoreBindingsAndTopics() throws IOException {
+  void testStoreBindingsAndTopics() throws IOException {
     BackendController backend = new BackendController(fileStateProcessor);
 
     Topic topic = new Topic("foo");

@@ -31,7 +31,11 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.*;
 import org.apache.kafka.clients.admin.AdminClient;
-import org.junit.*;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 public class SchemaRegistryManagerIT {
 
@@ -43,7 +47,7 @@ public class SchemaRegistryManagerIT {
 
   private SchemaRegistryClient schemaRegistryClient;
 
-  @BeforeClass
+  @BeforeAll
   public static void setup() {
     container = ContainerFactory.fetchSaslKafkaContainer(System.getProperty("cp.version"));
     container.start();
@@ -51,13 +55,13 @@ public class SchemaRegistryManagerIT {
     schemaRegistryContainer.start();
   }
 
-  @AfterClass
+  @AfterAll
   public static void after() {
     schemaRegistryContainer.stop();
     container.stop();
   }
 
-  @Before
+  @BeforeEach
   public void configure() throws IOException {
     Files.deleteIfExists(Paths.get(".cluster-state"));
 
@@ -82,11 +86,11 @@ public class SchemaRegistryManagerIT {
     schemaRegistryClient = new CachedSchemaRegistryClient(restService, 10, providers, null, null);
   }
 
-  @After
+  @AfterEach
   public void teardown() {}
 
   @Test
-  public void testSchemaSetupForAvroDefaults() throws IOException, RestClientException {
+  void testSchemaSetupForAvroDefaults() throws IOException, RestClientException {
     AdminClient kafkaAdminClient = ContainerTestUtils.getSaslAdminClient(container);
     TopologyBuilderAdminClient adminClient = new TopologyBuilderAdminClient(kafkaAdminClient);
 
@@ -107,7 +111,7 @@ public class SchemaRegistryManagerIT {
   }
 
   @Test
-  public void testSchemaSetupForJsonDefaults() throws IOException, RestClientException {
+  void testSchemaSetupForJsonDefaults() throws IOException, RestClientException {
     AdminClient kafkaAdminClient = ContainerTestUtils.getSaslAdminClient(container);
     TopologyBuilderAdminClient adminClient = new TopologyBuilderAdminClient(kafkaAdminClient);
 
@@ -125,7 +129,7 @@ public class SchemaRegistryManagerIT {
   }
 
   @Test
-  public void testSchemaSetupForProtoBufDefaults() throws IOException, RestClientException {
+  void testSchemaSetupForProtoBufDefaults() throws IOException, RestClientException {
     AdminClient kafkaAdminClient = ContainerTestUtils.getSaslAdminClient(container);
     TopologyBuilderAdminClient adminClient = new TopologyBuilderAdminClient(kafkaAdminClient);
 
@@ -143,7 +147,7 @@ public class SchemaRegistryManagerIT {
   }
 
   @Test
-  public void testSchemaSetupWithContentInUTF() throws IOException, RestClientException {
+  void testSchemaSetupWithContentInUTF() throws IOException, RestClientException {
     AdminClient kafkaAdminClient = ContainerTestUtils.getSaslAdminClient(container);
     TopologyBuilderAdminClient adminClient = new TopologyBuilderAdminClient(kafkaAdminClient);
 

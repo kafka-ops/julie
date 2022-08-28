@@ -5,20 +5,20 @@ import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
 import com.purbon.kafka.topology.roles.TopologyAclBinding;
 import java.io.IOException;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 public class MDSApiClientTest {
 
   private MDSApiClient apiClient;
 
-  @Before
+  @BeforeEach
   public void before() throws IOException {
     apiClient = new MDSApiClient("http://not_used:8090");
   }
 
   @Test
-  public void testBindSubjectRole() {
+  void testBindSubjectRole() {
     String principal = "User:foo";
     String subject = "topic-value";
 
@@ -37,7 +37,7 @@ public class MDSApiClientTest {
   }
 
   @Test
-  public void testBindSubjectRoleWithoutResourceType() {
+  void testBindSubjectRoleWithoutResourceType() {
     String principal = "User:foo";
     String subject = "topic-value";
 
@@ -53,7 +53,7 @@ public class MDSApiClientTest {
   }
 
   @Test
-  public void testBindConnectRole() {
+  void testBindConnectRole() {
     String principal = "User:foo";
     String connectorName = "jdbc-sink";
 

@@ -25,9 +25,9 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
 import org.apache.kafka.common.resource.ResourceType;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 public class S3BackendIT {
 
@@ -37,7 +37,7 @@ public class S3BackendIT {
   private static final String TEST_BUCKET = "testbucket";
   private static final String TEST_ENDPOINT = "http://127.0.0.1:8001";
 
-  @Before
+  @BeforeEach
   public void before() {
     cliOps = new HashMap<>();
     cliOps.put(BROKERS_OPTION, "");
@@ -60,13 +60,13 @@ public class S3BackendIT {
     client.createBucket(TEST_BUCKET);
   }
 
-  @After
+  @AfterEach
   public void after() {
     api.shutdown();
   }
 
   @Test
-  public void testContentCreation() throws IOException {
+  void testContentCreation() throws IOException {
 
     S3Backend backend = new S3Backend();
 

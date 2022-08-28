@@ -2,7 +2,8 @@ package com.purbon.kafka.topology.integration;
 
 import static com.purbon.kafka.topology.CommandLineInterface.BROKERS_OPTION;
 import static com.purbon.kafka.topology.Constants.*;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.purbon.kafka.topology.*;
 import com.purbon.kafka.topology.api.adminclient.TopologyBuilderAdminClient;
@@ -27,7 +28,10 @@ import java.util.stream.Collectors;
 import org.apache.kafka.clients.admin.AdminClient;
 import org.apache.kafka.common.quota.ClientQuotaEntity;
 import org.apache.kafka.common.quota.ClientQuotaFilter;
-import org.junit.*;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 public class QuotasManagerIT {
 
@@ -45,7 +49,7 @@ public class QuotasManagerIT {
   private QuotasManager quotasManager;
   private AclsBindingsBuilder bindingsBuilder;
 
-  @BeforeClass
+  @BeforeAll
   public static void setup() {
     container =
         ContainerFactory.fetchSaslKafkaContainer(System.getProperty("cp.version"))
@@ -55,12 +59,12 @@ public class QuotasManagerIT {
     container.start();
   }
 
-  @AfterClass
+  @AfterAll
   public static void teardown() {
     container.stop();
   }
 
-  @Before
+  @BeforeEach
   public void before() throws IOException, ExecutionException, InterruptedException {
     kafkaAdminClient = ContainerTestUtils.getSaslAdminClient(container);
     topologyAdminClient = new TopologyBuilderAdminClient(kafkaAdminClient);
@@ -118,7 +122,7 @@ public class QuotasManagerIT {
   }
 
   @Test
-  public void quotaForUserCreation() throws ExecutionException, InterruptedException, IOException {
+  void quotaForUserCreation() throws ExecutionException, InterruptedException, IOException {
 
     Topology topology = woldMSpecPattern();
     accessControlManager.updatePlan(topology, plan);
@@ -135,7 +139,7 @@ public class QuotasManagerIT {
   }
 
   @Test
-  public void quotaForUserRemove() throws ExecutionException, InterruptedException, IOException {
+  void quotaForUserRemove() throws ExecutionException, InterruptedException, IOException {
 
     Topology topology = woldMSpecPattern();
     accessControlManager.updatePlan(topology, plan);
@@ -155,7 +159,7 @@ public class QuotasManagerIT {
   }
 
   @Test
-  public void quotaForUserChangeValues()
+  void quotaForUserChangeValues()
       throws ExecutionException, InterruptedException, IOException {
 
     Topology topology = woldMSpecPattern();
@@ -178,7 +182,7 @@ public class QuotasManagerIT {
   }
 
   @Test
-  public void quotaOnlyRemoveOneUser()
+  void quotaOnlyRemoveOneUser()
       throws ExecutionException, InterruptedException, IOException {
 
     Topology topology = woldMSpecPattern();
@@ -222,13 +226,13 @@ public class QuotasManagerIT {
 
   private void verifyQuotaAssigment(Quota q, Map<String, Double> map) {
     if (q.getProducer_byte_rate().isPresent()) {
-      assertTrue(map.get("producer_byte_rate").equals(q.getProducer_byte_rate().get()));
+      assertEquals(map.get("producer_byte_rate"), q.getProducer_byte_rate().get());
     }
     if (q.getConsumer_byte_rate().isPresent()) {
-      assertTrue(map.get("consumer_byte_rate").equals(q.getConsumer_byte_rate().get()));
+      assertEquals(map.get("consumer_byte_rate"), q.getConsumer_byte_rate().get());
     }
     if (q.getRequest_percentage().isPresent()) {
-      assertTrue(map.get("request_percentage").equals(q.getRequest_percentage().get()));
+      assertEquals(map.get("request_percentage"), q.getRequest_percentage().get());
     }
   }
 }

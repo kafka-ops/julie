@@ -4,6 +4,7 @@ import static com.purbon.kafka.topology.CommandLineInterface.BROKERS_OPTION;
 import static com.purbon.kafka.topology.Constants.JULIE_ENABLE_MULTIPLE_CONTEXT_PER_DIR;
 import static com.purbon.kafka.topology.Constants.PLATFORM_SERVERS_CONNECT;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import com.purbon.kafka.topology.exceptions.TopologyParsingException;
 import com.purbon.kafka.topology.model.Project;
@@ -17,12 +18,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.stream.Collectors;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class TopologyObjectBuilderTest {
 
   @Test
-  public void buildTopicNameTest() throws IOException {
+  void buildTopicNameTest() throws IOException {
     String fileOrDirPath = TestUtils.getResourceFilename("/dir");
 
     var map = TopologyObjectBuilder.build(fileOrDirPath);
@@ -33,7 +34,7 @@ public class TopologyObjectBuilderTest {
   }
 
   @Test
-  public void buildOutOfMultipleTopos() throws IOException {
+  void buildOutOfMultipleTopos() throws IOException {
     Map<String, String> cliOps = new HashMap<>();
     cliOps.put(BROKERS_OPTION, "");
     var props = new Properties();
@@ -71,21 +72,25 @@ public class TopologyObjectBuilderTest {
     }
   }
 
-  @Test(expected = IOException.class)
-  public void buildOutOfMultipleToposIfNotEnabled() throws IOException {
-    String fileOrDirPath = TestUtils.getResourceFilename("/dir_with_multiple");
-    TopologyObjectBuilder.build(fileOrDirPath);
-  }
-
-  @Test(expected = IOException.class)
-  public void shouldRaiseAnExceptionIfTryingToParseMultipleTopologiesWithSharedProjects()
-      throws IOException {
-    String fileOrDirPath = TestUtils.getResourceFilename("/dir_with_prob");
-    TopologyObjectBuilder.build(fileOrDirPath);
+  @Test
+  void buildOutOfMultipleToposIfNotEnabled() throws IOException {
+    assertThrows(IOException.class, () -> {
+      String fileOrDirPath = TestUtils.getResourceFilename("/dir_with_multiple");
+      TopologyObjectBuilder.build(fileOrDirPath);
+    });
   }
 
   @Test
-  public void buildOnlyConnectorTopo() throws IOException {
+  void shouldRaiseAnExceptionIfTryingToParseMultipleTopologiesWithSharedProjects()
+      throws IOException {
+    assertThrows(IOException.class, () -> {
+      String fileOrDirPath = TestUtils.getResourceFilename("/dir_with_prob");
+      TopologyObjectBuilder.build(fileOrDirPath);
+    });
+  }
+
+  @Test
+  void buildOnlyConnectorTopo() throws IOException {
     HashMap<String, String> cliOps = new HashMap<>();
     cliOps.put(BROKERS_OPTION, "");
     Properties props = new Properties();
@@ -101,7 +106,7 @@ public class TopologyObjectBuilderTest {
   }
 
   @Test
-  public void buildTopoOnlyPlatform() throws IOException {
+  void buildTopoOnlyPlatform() throws IOException {
     String fileOrDirPath = TestUtils.getResourceFilename("/descriptor-only-platform.yaml");
     var topologies = TopologyObjectBuilder.build(fileOrDirPath);
     var topology = topologies.values().stream().findFirst().get();
@@ -111,7 +116,7 @@ public class TopologyObjectBuilderTest {
   }
 
   @Test
-  public void testConfigUpdateWhenUsingCustomPlans() throws IOException {
+  void testConfigUpdateWhenUsingCustomPlans() throws IOException {
     String descriptorFile = TestUtils.getResourceFilename("/descriptor-with-plans.yaml");
     String plansFile = TestUtils.getResourceFilename("/plans.yaml");
 
@@ -140,29 +145,37 @@ public class TopologyObjectBuilderTest {
     assertThat(topic.getConfig()).containsEntry("bar", "1");
   }
 
-  @Test(expected = IllegalArgumentException.class)
-  public void testTopologyWithPlansButWithNoPlansDef() throws IOException {
-    String descriptorFile = TestUtils.getResourceFilename("/descriptor-with-plans.yaml");
-    TopologyObjectBuilder.build(descriptorFile);
+  @Test
+  void testTopologyWithPlansButWithNoPlansDef() throws IOException {
+    assertThrows(IllegalArgumentException.class, () -> {
+      String descriptorFile = TestUtils.getResourceFilename("/descriptor-with-plans.yaml");
+      TopologyObjectBuilder.build(descriptorFile);
+    });
   }
 
-  @Test(expected = TopologyParsingException.class)
-  public void testTopologyWithInvalidPlan() throws IOException {
-    String descriptorFile = TestUtils.getResourceFilename("/descriptor-with-invalid-plan.yaml");
-    String plansFile = TestUtils.getResourceFilename("/plans.yaml");
-    TopologyObjectBuilder.build(descriptorFile, plansFile);
+  @Test
+  void testTopologyWithInvalidPlan() throws IOException {
+    assertThrows(TopologyParsingException.class, () -> {
+      String descriptorFile = TestUtils.getResourceFilename("/descriptor-with-invalid-plan.yaml");
+      String plansFile = TestUtils.getResourceFilename("/plans.yaml");
+      TopologyObjectBuilder.build(descriptorFile, plansFile);
+    });
   }
 
-  @Test(expected = TopologyParsingException.class)
-  public void testInvalidTopology() throws IOException {
-    String descriptorFile =
-        TestUtils.getResourceFilename("/errors_dir/descriptor-with-errors.yaml");
-    TopologyObjectBuilder.build(descriptorFile);
+  @Test
+  void testInvalidTopology() throws IOException {
+    assertThrows(TopologyParsingException.class, () -> {
+      String descriptorFile =
+          TestUtils.getResourceFilename("/errors_dir/descriptor-with-errors.yaml");
+      TopologyObjectBuilder.build(descriptorFile);
+    });
   }
 
-  @Test(expected = TopologyParsingException.class)
-  public void testInvalidTopologyFromDir() throws IOException {
-    String dirPath = TestUtils.getResourceFilename("/errors_dir");
-    TopologyObjectBuilder.build(dirPath);
+  @Test
+  void testInvalidTopologyFromDir() throws IOException {
+    assertThrows(TopologyParsingException.class, () -> {
+      String dirPath = TestUtils.getResourceFilename("/errors_dir");
+      TopologyObjectBuilder.build(dirPath);
+    });
   }
 }
