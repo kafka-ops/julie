@@ -159,7 +159,7 @@ public class CCloudApi {
       throws IOException {
     String requestUrl = url;
     if (!url.contains("page_token")) {
-        requestUrl = String.format("%s?page_size=%d", url, page_size);
+      requestUrl = String.format("%s?page_size=%d", url, page_size);
     }
     Response r = ccloudApiHttpClient.doGet(requestUrl);
     return (ListServiceAccountResponse)
