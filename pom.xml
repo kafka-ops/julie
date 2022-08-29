@@ -531,7 +531,7 @@
     <log4j.version>2.17.1</log4j.version>
     <zookeeper.version>3.5.7</zookeeper.version>
     <commons.version>1.4</commons.version>
-    <mockito.version>3.6.0</mockito.version>
+    <mockito.version>4.7.0</mockito.version>
     <junit.version>5.9.0</junit.version>
     <testcontainers.version>1.15.3</testcontainers.version>
     <jedis.version>3.2.0</jedis.version>
