@@ -16,7 +16,7 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-public class KsqlSSLClientIT {
+class KsqlSSLClientIT {
 
   private static final String KSQLDB_TRUSTSTORE_JKS = "/ksql-ssl/truststore/ksqldb.truststore.jks";
   private static final String KSQLDB_KEYSTORE_JKS = "/ksql-ssl/keystore/ksqldb.keystore.jks";
@@ -24,13 +24,13 @@ public class KsqlSSLClientIT {
   private static KsqlContainer sslKsqlContainer;
 
   @AfterEach
-  public void after() {
+  void after() {
     sslKsqlContainer.stop();
     container.stop();
   }
 
   @BeforeEach
-  public void configure() {
+  void configure() {
     container = ContainerFactory.fetchSaslKafkaContainer(System.getProperty("cp.version"));
     container.start();
     sslKsqlContainer = new SslKsqlContainer(container, KSQLDB_TRUSTSTORE_JKS, KSQLDB_KEYSTORE_JKS);

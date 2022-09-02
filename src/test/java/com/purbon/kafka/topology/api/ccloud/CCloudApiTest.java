@@ -26,15 +26,16 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 @ExtendWith(MockitoExtension.class)
-public class CCloudApiTest {
+class CCloudApiTest {
 
   private CCloudApi apiClient;
   private Configuration config;
 
-  @Mock JulieHttpClient httpClient;
+  @Mock
+  JulieHttpClient httpClient;
 
   @BeforeEach
-  public void before() throws IOException {
+  void before() throws IOException {
 
     Map<String, String> cliOps = new HashMap<>();
     cliOps.put(BROKERS_OPTION, "");

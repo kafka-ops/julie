@@ -37,13 +37,13 @@ public class KsqlManagerIT {
   private ExecutionPlan plan;
 
   @AfterEach
-  public void after() {
+  void after() {
     ksqlContainer.stop();
     container.stop();
   }
 
   @BeforeEach
-  public void configure() throws IOException {
+  void configure() throws IOException {
     container = ContainerFactory.fetchSaslKafkaContainer(System.getProperty("cp.version"));
     container.start();
     ksqlContainer = new KsqlContainer(container);

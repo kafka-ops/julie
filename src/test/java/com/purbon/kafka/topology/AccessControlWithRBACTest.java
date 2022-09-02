@@ -22,18 +22,22 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 @ExtendWith(MockitoExtension.class)
-public class AccessControlWithRBACTest {
+class AccessControlWithRBACTest {
 
-  @Mock RBACProvider aclsProvider;
-  @Mock RBACBindingsBuilder bindingsBuilder;
+  @Mock
+  RBACProvider aclsProvider;
+  @Mock
+  RBACBindingsBuilder bindingsBuilder;
 
-  @Mock ExecutionPlan plan;
-  @Mock BackendController backendController;
+  @Mock
+  ExecutionPlan plan;
+  @Mock
+  BackendController backendController;
 
   private AccessControlManager accessControlManager;
 
   @BeforeEach
-  public void setup() throws IOException {
+  void setup() throws IOException {
     accessControlManager = new AccessControlManager(aclsProvider, bindingsBuilder);
     plan = ExecutionPlan.init(backendController, System.out);
   }

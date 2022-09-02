@@ -45,22 +45,27 @@ import org.mockito.quality.Strictness;
 
 @ExtendWith(MockitoExtension.class)
 @MockitoSettings(strictness = Strictness.LENIENT)
-public class AccessControlManagerTest {
+class AccessControlManagerTest {
 
-  @Mock SimpleAclsProvider aclsProvider;
-  @Mock AclsBindingsBuilder aclsBuilder;
+  @Mock
+  SimpleAclsProvider aclsProvider;
+  @Mock
+  AclsBindingsBuilder aclsBuilder;
 
-  @Mock BackendController backendController;
+  @Mock
+  BackendController backendController;
 
-  @Mock PrintStream mockPrintStream;
-  @Mock Configuration config;
+  @Mock
+  PrintStream mockPrintStream;
+  @Mock
+  Configuration config;
 
   ExecutionPlan plan;
 
   private AccessControlManager accessControlManager;
 
   @BeforeEach
-  public void setup() throws IOException {
+  void setup() throws IOException {
     TestUtils.deleteStateFile();
     plan = ExecutionPlan.init(backendController, mockPrintStream);
     accessControlManager = new AccessControlManager(aclsProvider, aclsBuilder);

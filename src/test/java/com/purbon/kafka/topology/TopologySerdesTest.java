@@ -38,12 +38,12 @@ import java.util.stream.Collectors;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-public class TopologySerdesTest {
+class TopologySerdesTest {
 
   private TopologySerdes parser;
 
   @BeforeEach
-  public void setup() {
+  void setup() {
     Properties props = new Properties();
     props.put(PLATFORM_SERVERS_CONNECT + ".0", "connector0:foo");
     HashMap<String, String> cliOps = new HashMap<>();

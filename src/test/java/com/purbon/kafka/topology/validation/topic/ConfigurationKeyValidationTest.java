@@ -8,7 +8,7 @@ import java.util.HashMap;
 import org.apache.kafka.common.config.TopicConfig;
 import org.junit.jupiter.api.Test;
 
-public class ConfigurationKeyValidationTest {
+class ConfigurationKeyValidationTest {
 
   @Test
   void koConfigValues() throws ValidationException {

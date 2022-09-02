@@ -70,7 +70,7 @@ public class TopicManagerIT {
   }
 
   @BeforeEach
-  public void before() throws IOException {
+  void before() throws IOException {
     Files.deleteIfExists(Paths.get(".cluster-state"));
 
     kafkaAdminClient = ContainerTestUtils.getSaslAdminClient(container);

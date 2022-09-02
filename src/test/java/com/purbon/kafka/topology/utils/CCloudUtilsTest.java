@@ -25,22 +25,24 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 @ExtendWith(MockitoExtension.class)
-public class CCloudUtilsTest {
+class CCloudUtilsTest {
 
   private Map<String, String> cliOps;
   private Properties props;
 
-  @Mock CCloudApi cCloudApi;
+  @Mock
+  CCloudApi cCloudApi;
 
   @BeforeEach
-  public void before() {
+  void before() {
     cliOps = new HashMap<>();
     cliOps.put(BROKERS_OPTION, "");
     props = new Properties();
   }
 
   @AfterEach
-  public void after() {}
+  void after() {
+  }
 
   @Test
   void translationShouldNotRaiseErrors() throws IOException {

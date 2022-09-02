@@ -65,7 +65,7 @@ public class QuotasManagerIT {
   }
 
   @BeforeEach
-  public void before() throws IOException, ExecutionException, InterruptedException {
+  void before() throws IOException, ExecutionException, InterruptedException {
     kafkaAdminClient = ContainerTestUtils.getSaslAdminClient(container);
     topologyAdminClient = new TopologyBuilderAdminClient(kafkaAdminClient);
     topologyAdminClient.clearAcls();

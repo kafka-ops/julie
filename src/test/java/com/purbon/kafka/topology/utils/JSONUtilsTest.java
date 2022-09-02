@@ -10,10 +10,11 @@ import java.util.Map;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-public class JSONUtilsTest {
+class JSONUtilsTest {
 
   @BeforeEach
-  public void setup() {}
+  void setup() {
+  }
 
   @Test
   void toMapDeserialization() throws JsonProcessingException {

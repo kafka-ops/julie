@@ -16,7 +16,7 @@ import java.util.Map;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-public class MDSApiClientRbacIT extends MDSBaseTest {
+class MDSApiClientRbacIT extends MDSBaseTest {
 
   private final String mdsUser = "professor";
   private final String mdsPassword = "professor";
@@ -24,7 +24,7 @@ public class MDSApiClientRbacIT extends MDSBaseTest {
   private MDSApiClient apiClient;
 
   @BeforeEach
-  public void before() throws IOException, InterruptedException {
+  void before() throws IOException, InterruptedException {
     super.beforeEach();
     String mdsServer = "http://localhost:8090";
     apiClient = new MDSApiClient(mdsServer);

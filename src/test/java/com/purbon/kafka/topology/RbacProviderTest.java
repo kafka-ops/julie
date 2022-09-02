@@ -33,20 +33,23 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 @ExtendWith(MockitoExtension.class)
-public class RbacProviderTest {
+class RbacProviderTest {
 
-  @Mock MDSApiClient apiClient;
+  @Mock
+  MDSApiClient apiClient;
 
-  @Mock ExecutionPlan plan;
+  @Mock
+  ExecutionPlan plan;
 
-  @Mock ClusterLevelRoleBuilder runner;
+  @Mock
+  ClusterLevelRoleBuilder runner;
 
   private AccessControlManager accessControlManager;
   private RBACProvider aclsProvider;
   private RBACBindingsBuilder bindingsBuilder;
 
   @BeforeEach
-  public void setup() {
+  void setup() {
     apiClient.setConnectClusterID("kc");
     apiClient.setSchemaRegistryClusterID("sr");
     apiClient.setKafkaClusterId("ak");

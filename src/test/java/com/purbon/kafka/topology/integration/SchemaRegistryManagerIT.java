@@ -62,7 +62,7 @@ public class SchemaRegistryManagerIT {
   }
 
   @BeforeEach
-  public void configure() throws IOException {
+  void configure() throws IOException {
     Files.deleteIfExists(Paths.get(".cluster-state"));
 
     parser = new TopologySerdes();
@@ -87,7 +87,8 @@ public class SchemaRegistryManagerIT {
   }
 
   @AfterEach
-  public void teardown() {}
+  void teardown() {
+  }
 
   @Test
   void schemaSetupForAvroDefaults() throws IOException, RestClientException {

@@ -20,7 +20,7 @@ import java.util.Properties;
 import java.util.stream.Collectors;
 import org.junit.jupiter.api.Test;
 
-public class TopologyObjectBuilderTest {
+class TopologyObjectBuilderTest {
 
   @Test
   void buildTopicNameTest() throws IOException {

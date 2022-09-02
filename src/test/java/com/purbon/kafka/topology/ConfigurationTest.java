@@ -25,13 +25,13 @@ import org.assertj.core.api.Condition;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-public class ConfigurationTest {
+class ConfigurationTest {
 
   private Map<String, String> cliOps;
   private Properties props;
 
   @BeforeEach
-  public void before() {
+  void before() {
     cliOps = new HashMap<>();
     cliOps.put(BROKERS_OPTION, "");
     props = new Properties();

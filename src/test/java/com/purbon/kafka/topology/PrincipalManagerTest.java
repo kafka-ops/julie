@@ -33,12 +33,13 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 @ExtendWith(MockitoExtension.class)
-public class PrincipalManagerTest {
+class PrincipalManagerTest {
 
   private Map<String, String> cliOps;
   private Properties props;
 
-  @Mock PrincipalProvider provider;
+  @Mock
+  PrincipalProvider provider;
 
   ExecutionPlan plan;
 
@@ -48,12 +49,14 @@ public class PrincipalManagerTest {
 
   BackendController backendController;
 
-  @Mock PrintStream mockPrintStream;
+  @Mock
+  PrintStream mockPrintStream;
 
-  @Mock ExecutionPlan mockPlan;
+  @Mock
+  ExecutionPlan mockPlan;
 
   @BeforeEach
-  public void before() throws IOException {
+  void before() throws IOException {
 
     Files.deleteIfExists(Paths.get(".cluster-state"));
     backendController = new BackendController();

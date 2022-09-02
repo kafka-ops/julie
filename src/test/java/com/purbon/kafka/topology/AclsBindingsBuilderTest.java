@@ -28,13 +28,13 @@ import org.apache.kafka.common.resource.ResourceType;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-public class AclsBindingsBuilderTest {
+class AclsBindingsBuilderTest {
 
   Configuration config;
   AclsBindingsBuilder builder;
 
   @BeforeEach
-  public void before() {
+  void before() {
     config = new Configuration();
     builder = new AclsBindingsBuilder(config);
   }

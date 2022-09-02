@@ -17,13 +17,13 @@ import java.util.Properties;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-public class TopicTest {
+class TopicTest {
 
   Topology topology;
   Project project;
 
   @BeforeEach
-  public void before() {
+  void before() {
     topology = new TopologyImpl();
     topology.setContext("team");
     project = new ProjectImpl("project");

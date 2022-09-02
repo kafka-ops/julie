@@ -26,17 +26,17 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-public class FileBackendTest {
+class FileBackendTest {
 
   private FileBackend backend;
 
   @BeforeEach
-  public void setup() {
+  void setup() {
     backend = new FileBackend();
   }
 
   @AfterEach
-  public void after() throws IOException {
+  void after() throws IOException {
     Files.deleteIfExists(Paths.get(STATE_FILE_NAME));
   }
 

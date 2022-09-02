@@ -9,7 +9,7 @@ import java.util.HashMap;
 import java.util.Map;
 import org.junit.jupiter.api.Test;
 
-public class PartitionNumberValidationTest {
+class PartitionNumberValidationTest {
 
   @Test
   void shouldVerifyDifferentValuesWhenUsingEq() throws ValidationException, ConfigurationException {

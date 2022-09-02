@@ -32,21 +32,25 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 @ExtendWith(MockitoExtension.class)
-public class ExecutionPlanTest {
+class ExecutionPlanTest {
 
   private ExecutionPlan plan;
   private BackendController backendController;
 
-  @Mock PrintStream mockPrintStream;
+  @Mock
+  PrintStream mockPrintStream;
 
-  @Mock SimpleAclsProvider aclsProvider;
+  @Mock
+  SimpleAclsProvider aclsProvider;
 
-  @Mock TopologyBuilderAdminClient adminClient;
+  @Mock
+  TopologyBuilderAdminClient adminClient;
 
-  @Mock SchemaRegistryManager schemaRegistryManager;
+  @Mock
+  SchemaRegistryManager schemaRegistryManager;
 
   @BeforeEach
-  public void before() throws IOException {
+  void before() throws IOException {
     TestUtils.deleteStateFile();
     backendController = new BackendController();
     plan = ExecutionPlan.init(backendController, mockPrintStream);

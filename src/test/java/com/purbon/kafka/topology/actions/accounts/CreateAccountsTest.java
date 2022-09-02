@@ -11,9 +11,10 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 @ExtendWith(MockitoExtension.class)
-public class CreateAccountsTest {
+class CreateAccountsTest {
 
-  @Mock PrincipalProvider provider;
+  @Mock
+  PrincipalProvider provider;
 
   @Test
   void shouldComposeDetailedViewOfProperties() {

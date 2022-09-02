@@ -29,7 +29,7 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-public class S3BackendIT {
+class S3BackendIT {
 
   private S3Mock api;
   private Map<String, String> cliOps;
@@ -38,7 +38,7 @@ public class S3BackendIT {
   private static final String TEST_ENDPOINT = "http://127.0.0.1:8001";
 
   @BeforeEach
-  public void before() {
+  void before() {
     cliOps = new HashMap<>();
     cliOps.put(BROKERS_OPTION, "");
 
@@ -61,7 +61,7 @@ public class S3BackendIT {
   }
 
   @AfterEach
-  public void after() {
+  void after() {
     api.shutdown();
   }
 

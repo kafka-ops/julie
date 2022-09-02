@@ -21,17 +21,18 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-public class JulieRolesTest {
+class JulieRolesTest {
 
   JulieRolesSerdes parser;
 
   @BeforeEach
-  public void before() {
+  void before() {
     this.parser = new JulieRolesSerdes();
   }
 
   @AfterEach
-  public void after() {}
+  void after() {
+  }
 
   @Test
   void serdes() throws IOException {

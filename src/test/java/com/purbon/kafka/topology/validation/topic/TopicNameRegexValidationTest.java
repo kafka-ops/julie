@@ -7,7 +7,7 @@ import com.purbon.kafka.topology.exceptions.ValidationException;
 import com.purbon.kafka.topology.model.Topic;
 import org.junit.jupiter.api.Test;
 
-public class TopicNameRegexValidationTest {
+class TopicNameRegexValidationTest {
 
   @Test
   void koConfigValues() throws ValidationException, ConfigurationException {

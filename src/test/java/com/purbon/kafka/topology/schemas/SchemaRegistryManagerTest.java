@@ -30,7 +30,7 @@ import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 @ExtendWith(MockitoExtension.class)
-public class SchemaRegistryManagerTest {
+class SchemaRegistryManagerTest {
 
   private static final String subjectName = "bananas";
   private static final String schemaTypeAvro = "AVRO";
@@ -44,7 +44,7 @@ public class SchemaRegistryManagerTest {
   private Path rootDir;
 
   @BeforeEach
-  public void before() {
+  void before() {
     List<SchemaProvider> providers =
         Arrays.asList(
             new AvroSchemaProvider(), new JsonSchemaProvider(), new ProtobufSchemaProvider());

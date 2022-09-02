@@ -5,7 +5,7 @@ import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
 
 import org.junit.jupiter.api.Test;
 
-public class BasicAuthTest {
+class BasicAuthTest {
 
   @Test
   void toHttpAuthToken() {

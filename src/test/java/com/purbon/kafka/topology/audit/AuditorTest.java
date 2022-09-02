@@ -13,11 +13,13 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 @ExtendWith(MockitoExtension.class)
-public class AuditorTest {
+class AuditorTest {
 
-  @Mock Appender appender;
+  @Mock
+  Appender appender;
 
-  @Mock PrincipalProvider provider;
+  @Mock
+  PrincipalProvider provider;
 
   @Test
   void shouldComposeDetailedViewOfProperties() {

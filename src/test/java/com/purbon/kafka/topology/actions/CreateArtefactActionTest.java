@@ -12,9 +12,10 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 @ExtendWith(MockitoExtension.class)
-public class CreateArtefactActionTest {
+class CreateArtefactActionTest {
 
-  @Mock ArtefactClient client;
+  @Mock
+  ArtefactClient client;
 
   @Test
   void shouldComposeDetailedViewOfProperties() {

@@ -13,13 +13,13 @@ import org.apache.kafka.common.resource.ResourceType;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-public class KStreamsAclBindingsBuilderTest {
+class KStreamsAclBindingsBuilderTest {
 
   private KStreamsAclBindingsBuilder builder;
   private AclsBindingsBuilder aclsBindingsBuilder;
 
   @BeforeEach
-  public void setUp() {
+  void setUp() {
     aclsBindingsBuilder = new AclsBindingsBuilder(new Configuration());
   }
 

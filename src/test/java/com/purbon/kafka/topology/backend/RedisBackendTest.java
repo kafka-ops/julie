@@ -21,15 +21,16 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import redis.clients.jedis.Jedis;
 
 @ExtendWith(MockitoExtension.class)
-public class RedisBackendTest {
+class RedisBackendTest {
 
-  @Mock Jedis jedis;
+  @Mock
+  Jedis jedis;
 
   private RedisBackend stateProcessor;
   private String bucket;
 
   @BeforeEach
-  public void before() {
+  void before() {
     bucket = "foo";
     stateProcessor = new RedisBackend(jedis, bucket);
   }

@@ -28,7 +28,7 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-public class ConnectorManagerIT {
+class ConnectorManagerIT {
 
   static SaslPlaintextKafkaContainer container;
   static ConnectContainer connectContainer;
@@ -42,13 +42,13 @@ public class ConnectorManagerIT {
   private static final String KEYSTORE_JKS = "/ksql-ssl/keystore/ksqldb.keystore.jks";
 
   @AfterEach
-  public void after() {
+  void after() {
     connectContainer.stop();
     container.stop();
   }
 
   @BeforeEach
-  public void configure() throws IOException {
+  void configure() throws IOException {
     container = ContainerFactory.fetchSaslKafkaContainer(System.getProperty("cp.version"));
     container.start();
     connectContainer = new ConnectContainer(container, TRUSTSTORE_JKS, KEYSTORE_JKS);

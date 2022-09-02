@@ -22,16 +22,17 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 @ExtendWith(MockitoExtension.class)
-public class KsqlArtefactManagerTest {
+class KsqlArtefactManagerTest {
 
   Configuration config;
 
-  @Mock KsqlApiClient client;
+  @Mock
+  KsqlApiClient client;
 
   TopologySerdes parser;
 
   @BeforeEach
-  public void before() {
+  void before() {
 
     Map<String, String> cliOps = new HashMap<>();
     cliOps.put(BROKERS_OPTION, "");
@@ -45,7 +46,8 @@ public class KsqlArtefactManagerTest {
   }
 
   @AfterEach
-  public void after() {}
+  void after() {
+  }
 
   @Test
   void artefactGenerationOrder() {

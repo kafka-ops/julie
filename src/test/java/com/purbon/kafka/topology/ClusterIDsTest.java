@@ -14,20 +14,21 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-public class ClusterIDsTest {
+class ClusterIDsTest {
 
   private Map<String, String> cliOps;
   private Properties props;
 
   @BeforeEach
-  public void before() {
+  void before() {
     cliOps = new HashMap<>();
     cliOps.put(BROKERS_OPTION, "");
     props = new Properties();
   }
 
   @AfterEach
-  public void after() {}
+  void after() {
+  }
 
   @Test
   void shouldRaiseAnExceptionIfAnInvalidClusterIdIsUsed() {

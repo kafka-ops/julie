@@ -12,11 +12,11 @@ import java.util.Properties;
 import org.apache.kafka.common.resource.ResourceType;
 import org.junit.jupiter.api.Test;
 
-public class ResourceFilterTest {
+class ResourceFilterTest {
 
   @Test
   void resourcesWithPrincipalAndNameMatchesShouldBeFilter() {
-    Configuration config = makeConfig(new String[] {"User:foo"}, new String[] {"d.foo.bar"});
+    Configuration config = makeConfig(new String[]{"User:foo"}, new String[]{"d.foo.bar"});
     ResourceFilter filter = new ResourceFilter(config);
 
     TopologyAclBinding binding =
@@ -37,7 +37,7 @@ public class ResourceFilterTest {
 
   @Test
   void resourcesWithPrincipalMatchesShouldBeFiltered() {
-    Configuration config = makeConfig(new String[] {"User:foo"});
+    Configuration config = makeConfig(new String[]{"User:foo"});
     ResourceFilter filter = new ResourceFilter(config);
 
     TopologyAclBinding binding =
@@ -48,7 +48,7 @@ public class ResourceFilterTest {
 
   @Test
   void resourcesWithNamesMatchesShouldBeFiltered() {
-    Configuration config = makeConfigOnlyNames(new String[] {"d.foo.bar"});
+    Configuration config = makeConfigOnlyNames(new String[]{"d.foo.bar"});
     ResourceFilter filter = new ResourceFilter(config);
 
     TopologyAclBinding binding =

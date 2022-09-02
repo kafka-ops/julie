@@ -24,9 +24,10 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 @ExtendWith(MockitoExtension.class)
-public class BackendControllerTest {
+class BackendControllerTest {
 
-  @Mock FileBackend fileStateProcessor;
+  @Mock
+  FileBackend fileStateProcessor;
 
   @Test
   void clusterStateRecovery() throws IOException {

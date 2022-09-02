@@ -14,12 +14,12 @@ import org.assertj.core.api.Condition;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-public class PlanMapSerdesTest {
+class PlanMapSerdesTest {
 
   PlanMapSerdes parser;
 
   @BeforeEach
-  public void before() {
+  void before() {
     parser = new PlanMapSerdes();
   }
 

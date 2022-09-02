@@ -66,21 +66,22 @@ import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 @ExtendWith(MockitoExtension.class)
-public class RBACPRoviderRbacIT extends MDSBaseTest {
+class RBACPRoviderRbacIT extends MDSBaseTest {
 
   private String mdsServer = "http://localhost:8090";
   private String mdsUser = "professor";
   private String mdsPassword = "professor";
 
   private MDSApiClient apiClient;
-  @Mock private BackendController cs;
+  @Mock
+  private BackendController cs;
   private ExecutionPlan plan;
 
   private AccessControlManager defaultAccessControlManager;
   private AccessControlManager optimizedAclsAccessControlManager;
 
   @BeforeEach
-  public void before() throws IOException, InterruptedException {
+  void before() throws IOException, InterruptedException {
     super.beforeEach();
     TestUtils.deleteStateFile();
 

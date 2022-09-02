@@ -26,29 +26,37 @@ import org.mockito.quality.Strictness;
 
 @ExtendWith(MockitoExtension.class)
 @MockitoSettings(strictness = Strictness.LENIENT)
-public class JulieOpsTest {
+class JulieOpsTest {
 
-  @Mock TopologyBuilderAdminClient topologyAdminClient;
+  @Mock
+  TopologyBuilderAdminClient topologyAdminClient;
 
-  @Mock AccessControlProvider accessControlProvider;
+  @Mock
+  AccessControlProvider accessControlProvider;
 
-  @Mock BindingsBuilderProvider bindingsBuilderProvider;
+  @Mock
+  BindingsBuilderProvider bindingsBuilderProvider;
 
-  @Mock TopicManager topicManager;
+  @Mock
+  TopicManager topicManager;
 
-  @Mock AccessControlManager accessControlManager;
+  @Mock
+  AccessControlManager accessControlManager;
 
-  @Mock KafkaConnectArtefactManager connectorManager;
+  @Mock
+  KafkaConnectArtefactManager connectorManager;
 
-  @Mock KSqlArtefactManager ksqlArtefactManager;
+  @Mock
+  KSqlArtefactManager ksqlArtefactManager;
 
-  @Mock RedisBackend stateProcessor;
+  @Mock
+  RedisBackend stateProcessor;
 
   private Map<String, String> cliOps;
   private Properties props;
 
   @BeforeEach
-  public void before() throws IOException {
+  void before() throws IOException {
     cliOps = new HashMap<>();
     cliOps.put(BROKERS_OPTION, "");
     cliOps.put(CLIENT_CONFIG_OPTION, "/fooBar");

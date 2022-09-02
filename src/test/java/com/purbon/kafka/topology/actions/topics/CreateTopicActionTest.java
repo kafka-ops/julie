@@ -13,9 +13,10 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 @ExtendWith(MockitoExtension.class)
-public class CreateTopicActionTest {
+class CreateTopicActionTest {
 
-  @Mock TopologyBuilderAdminClient adminClient;
+  @Mock
+  TopologyBuilderAdminClient adminClient;
 
   @Test
   void shouldComposeDetailedViewOfProperties() {

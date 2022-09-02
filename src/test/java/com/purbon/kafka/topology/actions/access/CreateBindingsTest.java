@@ -12,9 +12,10 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 @ExtendWith(MockitoExtension.class)
-public class CreateBindingsTest {
+class CreateBindingsTest {
 
-  @Mock AccessControlProvider provider;
+  @Mock
+  AccessControlProvider provider;
 
   @Test
   void shouldComposeDetailedViewOfProperties() {

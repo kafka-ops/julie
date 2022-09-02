@@ -26,19 +26,22 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 @ExtendWith(MockitoExtension.class)
-public class AccessControlProviderFactoryTest {
+class AccessControlProviderFactoryTest {
 
-  @Mock TopologyBuilderAdminClient adminClient;
+  @Mock
+  TopologyBuilderAdminClient adminClient;
 
-  @Mock MDSApiClientBuilder mdsApiClientBuilder;
+  @Mock
+  MDSApiClientBuilder mdsApiClientBuilder;
 
-  @Mock MDSApiClient mdsApiClient;
+  @Mock
+  MDSApiClient mdsApiClient;
 
   Map<String, String> cliOps;
   Properties props;
 
   @BeforeEach
-  public void before() {
+  void before() {
     cliOps = new HashMap<>();
     cliOps.put(BROKERS_OPTION, "");
     props = new Properties();

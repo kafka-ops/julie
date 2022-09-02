@@ -42,7 +42,7 @@ public class ClusterLevelRoleBuilderTest {
   }
 
   @BeforeEach
-  public void before() {
+  void before() {
     connector = new Connector();
   }
 

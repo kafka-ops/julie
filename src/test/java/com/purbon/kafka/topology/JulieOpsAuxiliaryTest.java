@@ -21,13 +21,13 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-public class JulieOpsAuxiliaryTest {
+class JulieOpsAuxiliaryTest {
 
   private Map<String, String> cliOps;
   private Properties props;
 
   @BeforeEach
-  public void before() {
+  void before() {
     cliOps = new HashMap<>();
     cliOps.put(BROKERS_OPTION, "");
     props = new Properties();
@@ -35,7 +35,8 @@ public class JulieOpsAuxiliaryTest {
   }
 
   @AfterEach
-  public void after() {}
+  void after() {
+  }
 
   @Test
   void shouldConfigureAFileBackend() throws IOException {

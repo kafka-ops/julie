@@ -15,19 +15,19 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-public class KsqlClientIT {
+class KsqlClientIT {
 
   static SaslPlaintextKafkaContainer container;
   static KsqlContainer ksqlContainer;
 
   @AfterEach
-  public void after() {
+  void after() {
     ksqlContainer.stop();
     container.stop();
   }
 
   @BeforeEach
-  public void configure() {
+  void configure() {
     container = ContainerFactory.fetchSaslKafkaContainer(System.getProperty("cp.version"));
     container.start();
     ksqlContainer = new KsqlContainer(container);

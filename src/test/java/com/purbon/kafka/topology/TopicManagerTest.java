@@ -30,16 +30,19 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 @ExtendWith(MockitoExtension.class)
-public class TopicManagerTest {
+class TopicManagerTest {
 
-  @Mock TopologyBuilderAdminClient adminClient;
+  @Mock
+  TopologyBuilderAdminClient adminClient;
 
-  @Mock SchemaRegistryManager schemaRegistryManager;
+  @Mock
+  SchemaRegistryManager schemaRegistryManager;
 
   BackendController backendController;
   ExecutionPlan plan;
 
-  @Mock PrintStream outputStream;
+  @Mock
+  PrintStream outputStream;
 
   private TopicManager topicManager;
   private HashMap<String, String> cliOps;
@@ -47,7 +50,7 @@ public class TopicManagerTest {
   private Configuration config;
 
   @BeforeEach
-  public void setup() throws IOException {
+  void setup() throws IOException {
 
     Files.deleteIfExists(Paths.get(".cluster-state"));
     backendController = new BackendController();

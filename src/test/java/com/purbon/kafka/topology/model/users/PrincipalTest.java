@@ -5,7 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import org.junit.jupiter.api.Test;
 
-public class PrincipalTest {
+class PrincipalTest {
   @Test
   void readsUserPrincipal() {
     ConfluentCloudPrincipal principal = ConfluentCloudPrincipal.fromString("User:sa-foo");

@@ -18,3 +18,4 @@ release/
 private.key
 rpm-gen-key
 .s3/
+/target/

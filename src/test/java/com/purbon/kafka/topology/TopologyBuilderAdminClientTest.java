@@ -33,12 +33,16 @@ import org.mockito.quality.Strictness;
 
 @ExtendWith(MockitoExtension.class)
 @MockitoSettings(strictness = Strictness.LENIENT)
-public class TopologyBuilderAdminClientTest {
+class TopologyBuilderAdminClientTest {
 
-  @Mock CreateAclsResult createAclsResult;
-  @Mock KafkaFuture<Void> kafkaFuture;
-  @Mock AdminClient kafkaAdminClient;
-  @Mock Configuration config;
+  @Mock
+  CreateAclsResult createAclsResult;
+  @Mock
+  KafkaFuture<Void> kafkaFuture;
+  @Mock
+  AdminClient kafkaAdminClient;
+  @Mock
+  Configuration config;
 
   TopologyBuilderAdminClient adminClient;
 
@@ -46,12 +50,13 @@ public class TopologyBuilderAdminClientTest {
   private AclsBindingsBuilder bindingsBuilder;
   private ExecutionPlan plan;
 
-  @Mock BackendController backendController;
+  @Mock
+  BackendController backendController;
 
   private AccessControlManager accessControlManager;
 
   @BeforeEach
-  public void setup() throws ExecutionException, InterruptedException, IOException {
+  void setup() throws ExecutionException, InterruptedException, IOException {
     adminClient = new TopologyBuilderAdminClient(kafkaAdminClient);
     aclsProvider = new SimpleAclsProvider(adminClient);
     bindingsBuilder = new AclsBindingsBuilder(config);

@@ -17,12 +17,12 @@ import org.apache.kafka.common.resource.ResourceType;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-public class DefaultBackendIT {
+class DefaultBackendIT {
 
   BackendController backend;
 
   @BeforeEach
-  public void before() throws IOException {
+  void before() throws IOException {
     Files.deleteIfExists(Paths.get(".cluster-state"));
     backend = new BackendController();
   }

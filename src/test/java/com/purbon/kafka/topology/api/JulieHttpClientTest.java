@@ -35,7 +35,7 @@ public class JulieHttpClientTest {
   private PTHttpClient client;
 
   @BeforeEach
-  public void before() throws IOException {
+  void before() throws IOException {
     cliOps = new HashMap<>();
     cliOps.put(BROKERS_OPTION, "");
     props = new Properties();

@@ -25,7 +25,7 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-public class KafkaBackendIT {
+class KafkaBackendIT {
 
   Configuration config;
   Properties props;
@@ -33,7 +33,7 @@ public class KafkaBackendIT {
   private static SaslPlaintextKafkaContainer container;
 
   @BeforeEach
-  public void before() throws IOException {
+  void before() throws IOException {
 
     container = ContainerFactory.fetchSaslKafkaContainer(System.getProperty("cp.version"));
     container.start();
@@ -59,7 +59,7 @@ public class KafkaBackendIT {
   }
 
   @AfterEach
-  public void after() {
+  void after() {
     container.stop();
   }
 
