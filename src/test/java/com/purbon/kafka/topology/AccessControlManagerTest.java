@@ -835,31 +835,26 @@ class AccessControlManagerTest {
 
   @Test
   void wrongJulieRoleAclCreation() throws IOException {
-    assertThrows(
-        IllegalStateException.class,
-        () -> {
-          Topic topicA = new Topic("topicA");
-          Topology topology =
-              TestTopologyBuilder.createProject()
-                  .addTopic(topicA)
-                  .addConsumer("User:app1")
-                  .addOther("app", "User:app1", "foo")
-                  .buildTopology();
+    Topic topicA = new Topic("topicA");
+    Topology topology =
+        TestTopologyBuilder.createProject()
+            .addTopic(topicA)
+            .addConsumer("User:app1")
+            .addOther("app", "User:app1", "foo")
+            .buildTopology();
 
-          Map<String, String> cliOps = new HashMap<>();
-          cliOps.put(BROKERS_OPTION, "");
+    Map<String, String> cliOps = new HashMap<>();
+    cliOps.put(BROKERS_OPTION, "");
 
-          Properties props = new Properties();
-          props.put(JULIE_ROLES, TestUtils.getResourceFilename("/roles-wrong.yaml"));
+    Properties props = new Properties();
+    props.put(JULIE_ROLES, TestUtils.getResourceFilename("/roles-wrong.yaml"));
 
-          Configuration config = new Configuration(cliOps, props);
+    Configuration config = new Configuration(cliOps, props);
 
-          accessControlManager =
-              new AccessControlManager(
-                  aclsProvider, new AclsBindingsBuilder(config), config.getJulieRoles(), config);
+    accessControlManager = new AccessControlManager(
+        aclsProvider, new AclsBindingsBuilder(config), config.getJulieRoles(), config);
 
-          accessControlManager.updatePlan(topology, plan);
-        });
+    assertThrows(IllegalStateException.class, () -> accessControlManager.updatePlan(topology, plan));
   }
 
   private List<BaseAccessControlAction> getAccessControlActions(ExecutionPlan plan) {
