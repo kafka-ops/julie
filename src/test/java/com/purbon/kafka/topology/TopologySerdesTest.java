@@ -839,9 +839,9 @@ public class TopologySerdesTest {
     return consumers;
   }
 
-  private void assertSchemas(
+  private static void assertSchemas(
       Schemas schemas, String principal, List<String> subjects, String role, boolean prefixed) {
-    assertEquals("Schemas principal", principal, schemas.getPrincipal());
+    assertEquals(principal, schemas.getPrincipal(), "Schemas principal");
     assertEquals(subjects, schemas.getSubjects(), "Schemas subjects");
     assertEquals(role, schemas.getRole(), "Schemas role");
     assertEquals(prefixed, schemas.isPrefixed(), "Schemas isPrefixed");
