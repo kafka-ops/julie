@@ -285,43 +285,39 @@ class AccessControlManagerTest {
 
   @Test
   void kStreamAclsCreationWithMissingPrefixGroup() throws Exception {
-    assertThrows(
-        IOException.class,
-        () -> {
-          Properties props = new Properties();
-          props.put(PROJECT_PREFIX_FORMAT_CONFIG, "");
-          props.put(TOPOLOGY_STATE_FROM_CLUSTER, "true");
-          props.put(ALLOW_DELETE_TOPICS, true);
-          props.put(TOPIC_PREFIX_FORMAT_CONFIG, "{{topic}}");
-          props.put(ALLOW_DELETE_BINDINGS, true);
-          props.put(KAFKA_INTERNAL_TOPIC_PREFIXES, singletonList("_"));
+    Properties props = new Properties();
+    props.put(PROJECT_PREFIX_FORMAT_CONFIG, "");
+    props.put(TOPOLOGY_STATE_FROM_CLUSTER, "true");
+    props.put(ALLOW_DELETE_TOPICS, true);
+    props.put(TOPIC_PREFIX_FORMAT_CONFIG, "{{topic}}");
+    props.put(ALLOW_DELETE_BINDINGS, true);
+    props.put(KAFKA_INTERNAL_TOPIC_PREFIXES, singletonList("_"));
 
-          HashMap<String, String> cliOps = new HashMap<>();
-          cliOps.put(BROKERS_OPTION, "");
+    HashMap<String, String> cliOps = new HashMap<>();
+    cliOps.put(BROKERS_OPTION, "");
 
-          Configuration config = new Configuration(cliOps, props);
+    Configuration config = new Configuration(cliOps, props);
 
-          AclsBindingsBuilder bindingsBuilder = new AclsBindingsBuilder(config);
-          AccessControlManager accessControlManager =
-              new AccessControlManager(aclsProvider, bindingsBuilder, config);
+    AclsBindingsBuilder bindingsBuilder = new AclsBindingsBuilder(config);
+    AccessControlManager accessControlManager =
+        new AccessControlManager(aclsProvider, bindingsBuilder, config);
 
-          Project project = new ProjectImpl("foo", config);
+    Project project = new ProjectImpl("foo", config);
 
-          KStream app = new KStream();
-          app.setPrincipal("User:App0");
-          HashMap<String, List<String>> topics = new HashMap<>();
-          topics.put(KStream.READ_TOPICS, Arrays.asList("topic-A", "topic-B"));
-          topics.put(KStream.WRITE_TOPICS, Arrays.asList("topic-C", "topic-D"));
-          app.setTopics(topics);
-          project.setStreams(Collections.singletonList(app));
+    KStream app = new KStream();
+    app.setPrincipal("User:App0");
+    HashMap<String, List<String>> topics = new HashMap<>();
+    topics.put(KStream.READ_TOPICS, Arrays.asList("topic-A", "topic-B"));
+    topics.put(KStream.WRITE_TOPICS, Arrays.asList("topic-C", "topic-D"));
+    app.setTopics(topics);
+    project.setStreams(Collections.singletonList(app));
 
-          Topology topology = new TopologyImpl();
-          topology.setContext("integration-test");
-          topology.addOther("source", "kstreamsAclsCreation");
-          topology.addProject(project);
+    Topology topology = new TopologyImpl();
+    topology.setContext("integration-test");
+    topology.addOther("source", "kstreamsAclsCreation");
+    topology.addProject(project);
 
-          accessControlManager.updatePlan(topology, plan);
-        });
+    assertThrows(IOException.class, () ->  accessControlManager.updatePlan(topology, plan));
   }
 
   @Test
