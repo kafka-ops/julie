@@ -74,7 +74,6 @@ public class TopicManagerTest {
     Topology topology = new TopologyImpl();
     topology.addProject(project);
 
-    when(adminClient.listApplicationTopics()).thenReturn(new HashSet<>());
     topicManager.updatePlan(topology, plan);
     plan.run();
 
@@ -116,8 +115,6 @@ public class TopicManagerTest {
     project.addTopic(topicB);
 
     doReturn(new Config(Collections.emptyList())).when(adminClient).getActualTopicConfig(any());
-    var listOfTopics = new HashSet<>(Arrays.asList(topicA.toString(), topicB.toString()));
-    doReturn(listOfTopics).when(adminClient).listApplicationTopics();
     topicManager.updatePlan(topology, plan);
     plan.run();
 
@@ -369,7 +366,6 @@ public class TopicManagerTest {
     Configuration config = new Configuration(cliOps, props);
     TopicManager topicManager = new TopicManager(adminClient, schemaRegistryManager, config);
 
-    when(adminClient.listApplicationTopics()).thenReturn(new HashSet<>());
     topicManager.updatePlan(builder.buildTopology(), plan);
     plan.run();
 
