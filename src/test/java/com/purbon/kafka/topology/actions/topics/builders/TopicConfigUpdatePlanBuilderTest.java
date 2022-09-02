@@ -19,7 +19,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 @ExtendWith(MockitoExtension.class)
-public class TopicConfigUpdatePlanBuilderTest {
+class TopicConfigUpdatePlanBuilderTest {
 
   private static final String TOPIC_NAME = "foo";
   public static final String DEFAULT_RETENTION_MS = "604800000";
