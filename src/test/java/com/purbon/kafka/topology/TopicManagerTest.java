@@ -327,10 +327,6 @@ public class TopicManagerTest {
     Topology topology = new TopologyImpl();
     topology.addProject(project);
 
-    Set<String> dummyTopicList = new HashSet<>();
-    dummyTopicList.add(topicB.toString());
-    when(adminClient.listApplicationTopics()).thenReturn(dummyTopicList);
-
     topicManager.updatePlan(topology, plan);
     plan.run(true);
 
