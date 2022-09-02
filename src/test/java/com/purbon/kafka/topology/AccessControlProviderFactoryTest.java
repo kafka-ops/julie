@@ -81,14 +81,13 @@ public class AccessControlProviderFactoryTest {
 
   @Test
   void wrongProviderConfig() throws IOException {
-      props.put(
-          ACCESS_CONTROL_IMPLEMENTATION_CLASS,
-          "com.purbon.kafka.topology.roles.MyCustomProvider");
+    props.put(
+        ACCESS_CONTROL_IMPLEMENTATION_CLASS, "com.purbon.kafka.topology.roles.MyCustomProvider");
 
-      Configuration config = new Configuration(cliOps, props);
-      AccessControlProviderFactory factory =
-          new AccessControlProviderFactory(config, adminClient, mdsApiClientBuilder);
+    Configuration config = new Configuration(cliOps, props);
+    AccessControlProviderFactory factory =
+        new AccessControlProviderFactory(config, adminClient, mdsApiClientBuilder);
 
-      assertThrows(IOException.class, factory::get);
+    assertThrows(IOException.class, factory::get);
   }
 }
