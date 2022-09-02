@@ -212,10 +212,6 @@ public class PrincipalManagerTest {
 
     doNothing().when(provider).configure();
 
-    doReturn(new ServiceAccount("123", "consumer", MANAGED_BY))
-        .when(provider)
-        .createServiceAccount(eq("consumer"), eq(MANAGED_BY));
-
     doReturn(new ServiceAccount("124", "producer", MANAGED_BY))
         .when(provider)
         .createServiceAccount(eq("producer"), eq(MANAGED_BY));
