@@ -47,7 +47,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 @ExtendWith(MockitoExtension.class)
-public class AccessControlManagerIT {
+class AccessControlManagerIT {
 
   private static SaslPlaintextKafkaContainer container;
   private static AdminClient kafkaAdminClient;
@@ -73,7 +73,7 @@ public class AccessControlManagerIT {
   }
 
   @BeforeEach
-  public void before() throws IOException {
+  void before() throws IOException {
     kafkaAdminClient = ContainerTestUtils.getSaslAdminClient(container);
     topologyAdminClient = new TopologyBuilderAdminClient(kafkaAdminClient);
     topologyAdminClient.clearAcls();

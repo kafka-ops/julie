@@ -14,7 +14,7 @@ import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
-public class JulieOpsIT {
+class JulieOpsIT {
 
   private static SaslPlaintextKafkaContainer container;
 

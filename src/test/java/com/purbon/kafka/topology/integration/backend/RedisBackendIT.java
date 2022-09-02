@@ -53,7 +53,7 @@ import redis.clients.jedis.Jedis;
 
 @ExtendWith(MockitoExtension.class)
 @Testcontainers
-public class RedisBackendIT {
+class RedisBackendIT {
 
   @Container
   public GenericContainer redis =

@@ -37,7 +37,7 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-public class SchemaRegistryManagerIT {
+class SchemaRegistryManagerIT {
 
   static SaslPlaintextKafkaContainer container;
   static SchemaRegistryContainer schemaRegistryContainer;
