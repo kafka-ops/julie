@@ -72,7 +72,7 @@ public class TopicManager implements ExecutionPlanUpdater {
               TopicConfigUpdatePlanBuilder builder = new TopicConfigUpdatePlanBuilder(adminClient);
               TopicConfigUpdatePlan topicConfigUpdatePlan =
                   builder.createTopicConfigUpdatePlan(topic, topicName);
-              if (topicConfigUpdatePlan.hasConfigChanges()) {
+              if (config.isAllowUpdateOrDeleteConfigs() && topicConfigUpdatePlan.hasConfigChanges()) {
                 updateTopicConfigActions.add(
                     new UpdateTopicConfigAction(adminClient, topicConfigUpdatePlan));
               }

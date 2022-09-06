@@ -78,6 +78,8 @@ public class Constants {
   public static final String OPTIMIZED_ACLS_CONFIG = "topology.acls.optimized";
 
   public static final String ALLOW_DELETE_TOPICS = "allow.delete.topics";
+  public static final String ALLOW_DELETE_OR_UPDATE_CONFIGS = "allow.delete.or.update.configs";
+
   public static final String ALLOW_DELETE_BINDINGS = "allow.delete.bindings";
   static final String ALLOW_DELETE_PRINCIPALS = "allow.delete.principals";
   public static final String ALLOW_DELETE_CONNECT_ARTEFACTS = "allow.delete.artefacts.connect";
