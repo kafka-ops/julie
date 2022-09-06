@@ -171,12 +171,30 @@ public class TopologyBuilderAdminClient {
   }
 
   public Config getActualTopicConfig(String topic) {
+    return getActualTopicConfig(topic, false);
+  }
+
+  public Config getActualTopicConfig(String topic, boolean includeDefaults) {
     ConfigResource resource = new ConfigResource(Type.TOPIC, topic);
     Collection<ConfigResource> resources = Collections.singletonList(resource);
 
-    Map<ConfigResource, Config> configs = null;
+    Map<ConfigResource, Config> configs = new HashMap<>();
     try {
-      configs = adminClient.describeConfigs(resources).all().get();
+      adminClient
+          .describeConfigs(resources)
+          .all()
+          .get()
+          .forEach(
+              (configResource, config) -> {
+                Collection<ConfigEntry> configEntries = config.entries();
+                if (!includeDefaults) {
+                  configEntries =
+                      config.entries().stream()
+                          .filter(p -> !p.isDefault())
+                          .collect(Collectors.toList());
+                }
+                configs.put(configResource, new Config(configEntries));
+              });
     } catch (InterruptedException | ExecutionException ex) {
       LOGGER.error(ex);
       throw new RuntimeException(ex);
