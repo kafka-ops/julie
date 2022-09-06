@@ -353,6 +353,10 @@ public class Configuration {
     return config.getBoolean(ALLOW_DELETE_TOPICS);
   }
 
+  public boolean isAllowUpdateOrDeleteConfigs() {
+    return config.getBoolean(ALLOW_DELETE_OR_UPDATE_CONFIGS);
+  }
+
   public boolean isAllowDeleteBindings() {
     return config.getBoolean(ALLOW_DELETE_BINDINGS);
   }
