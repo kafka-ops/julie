@@ -1,3 +1,10 @@
+
+v4.2.10 / 2022-09-06
+====================
+
+  * add a feature flag, default as true, for controlling topic config update or delete (#535)
+  * add a method to fetch only non default configs from topics (#535)
+
 v4.2.9 / 2022-08-22
 ===================
 
