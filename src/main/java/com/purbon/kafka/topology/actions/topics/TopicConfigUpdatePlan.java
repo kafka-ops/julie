@@ -83,12 +83,14 @@ public class TopicConfigUpdatePlan {
     topicConfigs.forEach(
         (configKey, configValue) -> {
           ConfigEntry currentConfigEntry = currentKafkaConfigs.get(configKey);
-          if (!currentConfigEntry.value().equals(configValue)) {
+          if (currentConfigEntry != null && !currentConfigEntry.value().equals(configValue)) {
             if (isDynamicTopicConfig(currentConfigEntry)) {
               addConfigToUpdate(configKey, configValue);
             } else {
               addNewConfig(configKey, configValue);
             }
+          } else {
+            addNewConfig(configKey, configValue);
           }
         });
   }
