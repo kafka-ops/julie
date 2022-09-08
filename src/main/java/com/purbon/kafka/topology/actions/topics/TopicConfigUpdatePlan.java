@@ -1,13 +1,20 @@
 package com.purbon.kafka.topology.actions.topics;
 
 import com.purbon.kafka.topology.model.Topic;
+import org.apache.kafka.clients.admin.Config;
+import org.apache.kafka.clients.admin.ConfigEntry;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
-import org.apache.kafka.clients.admin.Config;
-import org.apache.kafka.clients.admin.ConfigEntry;
 
 public class TopicConfigUpdatePlan {
+
+  private static final Logger LOGGER = LogManager.getLogger(TopicConfigUpdatePlan.class);
+
+
   private final Topic topic;
   private boolean updatePartitionCount;
   private Map<String, String> newConfigValues = new HashMap<>();
@@ -83,7 +90,15 @@ public class TopicConfigUpdatePlan {
     topicConfigs.forEach(
         (configKey, configValue) -> {
           ConfigEntry currentConfigEntry = currentKafkaConfigs.get(configKey);
+          LOGGER.debug(
+                  String.format("addNewOrUpdatedConfigs compare: currentConfigEntryValue = %s and configValue = %s",
+                          currentConfigEntry.value(), configValue)
+          );
           if (!currentConfigEntry.value().equals(configValue)) {
+            LOGGER.debug(
+                    String.format("addNewOrUpdatedConfigs detected as different: currentConfigEntryValue = %s and configValue = %s",
+                            currentConfigEntry.value(), configValue)
+            );
             if (isDynamicTopicConfig(currentConfigEntry)) {
               addConfigToUpdate(configKey, configValue);
             } else {
