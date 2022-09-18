@@ -395,23 +395,15 @@ class TopicManagerIT {
     verifyTopics(topics, topics.size());
   }
 
-  private void verifyTopics(List<String> topics, int topicsCount)
+  private void verifyTopics(List<String> expectedTopics, int topicsCount)
       throws ExecutionException, InterruptedException {
 
-    Set<String> topicNames = kafkaAdminClient.listTopics().names().get();
-    topics.forEach(
-        topic -> assertTrue(topicNames.contains(topic), "Topic " + topic + " not found"));
-    boolean isInternal = false;
-    for (String topic : topicNames) {
-      if (topic.startsWith("_")) {
-        isInternal = true;
-        break;
-      }
-    }
+    Set<String> createdTopics = kafkaAdminClient.listTopics().names().get();
+    expectedTopics.forEach(
+        topic -> assertTrue(createdTopics.contains(topic), "Topic " + topic + " not found"));
     Set<String> nonInternalTopics =
-        topicNames.stream().filter(topic -> !topic.startsWith("_")).collect(Collectors.toSet());
+        createdTopics.stream().filter(topic -> !topic.startsWith("_")).collect(Collectors.toSet());
 
-    assertThat(topicsCount).isLessThanOrEqualTo(nonInternalTopics.size());
-    assertTrue(isInternal, "Internal topics not found");
+    assertThat(nonInternalTopics).hasSizeGreaterThanOrEqualTo(topicsCount);
   }
 }
