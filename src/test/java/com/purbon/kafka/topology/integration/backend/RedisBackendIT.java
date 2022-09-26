@@ -1,11 +1,7 @@
 package com.purbon.kafka.topology.integration.backend;
 
 import static com.purbon.kafka.topology.CommandLineInterface.BROKERS_OPTION;
-import static com.purbon.kafka.topology.Constants.ALLOW_DELETE_TOPICS;
-import static com.purbon.kafka.topology.Constants.REDIS_HOST_CONFIG;
-import static com.purbon.kafka.topology.Constants.REDIS_PORT_CONFIG;
-import static com.purbon.kafka.topology.Constants.STATE_PROCESSOR_IMPLEMENTATION_CLASS;
-import static com.purbon.kafka.topology.Constants.TOPOLOGY_TOPIC_STATE_FROM_CLUSTER;
+import static com.purbon.kafka.topology.Constants.*;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.purbon.kafka.topology.BackendController;
@@ -31,19 +27,10 @@ import io.confluent.kafka.schemaregistry.client.SchemaRegistryClient;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Properties;
+import java.util.*;
 import org.apache.kafka.clients.admin.AdminClient;
 import org.apache.kafka.common.resource.ResourceType;
-import org.junit.AfterClass;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.*;
 import org.mockito.junit.MockitoJUnit;
 import org.mockito.junit.MockitoRule;
 import org.testcontainers.containers.GenericContainer;
@@ -123,7 +110,7 @@ public class RedisBackendIT {
             ResourceType.TOPIC.name(), "foo", "*", "Write", "User:foo", "LITERAL");
 
     List<String> topics = Arrays.asList("foo", "bar");
-    var connector = new KafkaConnectArtefact("path", "label", "name");
+    var connector = new KafkaConnectArtefact("path", "label", "name", "some-hash");
     List<KafkaConnectArtefact> connectors = Arrays.asList(connector);
     BackendState state = new BackendState();
     state.addTopics(topics);

@@ -1,0 +1,13 @@
+---
+context: "context"
+projects:
+  - name: "projectA"
+    connectors:
+      artifacts:
+        - path: "connectors/source-jdbc-updated.json"
+          server: "connector0"
+          name: "source-jdbc"
+        - path: "connectors/sink-jdbc.json"
+          server: "connector0"
+          name: "sink-jdbc"
+    topics:

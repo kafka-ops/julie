@@ -1,5 +1,8 @@
 package com.purbon.kafka.topology.api.connect;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.google.common.collect.ImmutableList;
 import com.purbon.kafka.topology.Configuration;
 import com.purbon.kafka.topology.api.mds.Response;
 import com.purbon.kafka.topology.clients.ArtefactClient;
@@ -15,6 +18,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
 public class KConnectApiClient extends JulieHttpClient implements ArtefactClient {
 
@@ -46,14 +50,34 @@ public class KConnectApiClient extends JulieHttpClient implements ArtefactClient
   }
 
   public List<String> list() throws IOException {
-    Response response = doGet("/connectors");
-    return JSON.toArray(response.getResponseAsString());
+    JsonNode node = doList();
+    return ImmutableList.copyOf(node.fieldNames());
+  }
+
+  protected JsonNode doList() throws IOException {
+    Response response = doGet("/connectors?expand=info");
+    return JSON.toNode(response.getResponseAsString());
   }
 
   @Override
   public Collection<? extends Artefact> getClusterState() throws IOException {
-    return list().stream()
-        .map(connector -> new KafkaConnectArtefact("", server, connector))
+    JsonNode list = doList();
+    Iterable<Map.Entry<String, JsonNode>> fields = list::fields;
+    return StreamSupport.stream(fields.spliterator(), false)
+        .map(
+            entry -> {
+              JsonNode config =
+                  Optional.ofNullable(entry.getValue().get("info"))
+                      .map(i -> i.get("config"))
+                      .orElse(null);
+              String hash = null;
+              if (config instanceof ObjectNode) {
+                ObjectNode node = (ObjectNode) config;
+                node.remove("name");
+                hash = Integer.toHexString(node.hashCode());
+              }
+              return new KafkaConnectArtefact("", server, entry.getKey(), hash);
+            })
         .collect(Collectors.toList());
   }
 
@@ -96,6 +120,11 @@ public class KConnectApiClient extends JulieHttpClient implements ArtefactClient
 
   public void pause(String connectorName) throws IOException {
     doPut("/connectors/" + connectorName + "/pause");
+  }
+
+  @Override
+  public Map<String, Object> update(String name, String config) throws IOException {
+    return add(name, config);
   }
 
   @Override

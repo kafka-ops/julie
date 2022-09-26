@@ -1,6 +1,6 @@
 package com.purbon.kafka.topology.integration;
 
-import static com.purbon.kafka.topology.CommandLineInterface.*;
+import static com.purbon.kafka.topology.CommandLineInterface.BROKERS_OPTION;
 import static com.purbon.kafka.topology.Constants.*;
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -175,5 +175,44 @@ public class ConnectorManagerIT {
 
     ExecutionPlan newPlan = ExecutionPlan.init(new BackendController(), System.out);
     connectorManager.updatePlan(topology, newPlan);
+  }
+
+  @Test
+  public void testConnectorConfigUpdate() throws IOException, InterruptedException {
+    Properties props = new Properties();
+    props.put(TOPOLOGY_TOPIC_STATE_FROM_CLUSTER, "false");
+    props.put(ALLOW_DELETE_CONNECT_ARTEFACTS, "true");
+    props.put(PLATFORM_SERVERS_CONNECT + ".0", "connector0:" + connectContainer.getHttpsUrl());
+
+    File file = TestUtils.getResourceFile("/descriptor-connector-alone.yaml");
+
+    var topology = initTopology(props, file);
+
+    connectorManager.updatePlan(topology, plan);
+
+    assertThat(plan.getActions()).hasSize(2);
+
+    plan.run();
+    // we should wait a bit until the connector starts downstream
+    Thread.sleep(1000);
+
+    ExecutionPlan noopPlan = ExecutionPlan.init(new BackendController(), System.out);
+    connectorManager.updatePlan(topology, noopPlan);
+    assertThat(noopPlan.getActions()).hasSize(0);
+
+    file = TestUtils.getResourceFile("/descriptor-connector-alone-updated.yaml");
+    topology = initTopology(props, file);
+
+    ExecutionPlan updatePlan = ExecutionPlan.init(new BackendController(), System.out);
+    connectorManager.updatePlan(topology, updatePlan);
+    assertThat(updatePlan.getActions()).hasSize(1);
+
+    updatePlan.run();
+    // wait for changes to apply
+    Thread.sleep(1000);
+
+    ExecutionPlan noopPlan2 = ExecutionPlan.init(new BackendController(), System.out);
+    connectorManager.updatePlan(topology, noopPlan2);
+    assertThat(noopPlan2.getActions()).hasSize(0);
   }
 }

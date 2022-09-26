@@ -1,0 +1,6 @@
+{
+    "connector.class": "FileStreamSource",
+    "tasks.max": "1",
+    "file": "/tmp/test2.txt",
+    "topic": "connect-test"
+}

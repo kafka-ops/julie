@@ -2,6 +2,7 @@ package com.purbon.kafka.topology;
 
 import com.purbon.kafka.topology.actions.CreateArtefactAction;
 import com.purbon.kafka.topology.actions.DeleteArtefactAction;
+import com.purbon.kafka.topology.actions.SyncArtefactAction;
 import com.purbon.kafka.topology.clients.ArtefactClient;
 import com.purbon.kafka.topology.exceptions.RemoteValidationException;
 import com.purbon.kafka.topology.model.Artefact;
@@ -44,7 +45,9 @@ public abstract class ArtefactManager implements ExecutionPlanUpdater {
     for (Topology topology : topologies.values()) {
       Set<? extends Artefact> entryArtefacts = parseNewArtefacts(topology);
       for (Artefact artefact : entryArtefacts) {
-        if (!currentArtefacts.contains(artefact)) {
+        Optional<? extends Artefact> existingArtefactOpt =
+            currentArtefacts.stream().filter(ea -> ea.equals(artefact)).findAny();
+        if (existingArtefactOpt.isEmpty()) {
           ArtefactClient client = selectClient(artefact);
           if (client == null) {
             throw new IOException(
@@ -53,6 +56,18 @@ public abstract class ArtefactManager implements ExecutionPlanUpdater {
                     + " require a non configured client, please check our configuration");
           }
           plan.add(new CreateArtefactAction(client, rootPath(), currentArtefacts, artefact));
+        } else {
+          Artefact existingArtefact = existingArtefactOpt.get();
+          if (!Objects.equals(existingArtefact.getHash(), artefact.getHash())) {
+            ArtefactClient client = selectClient(artefact);
+            if (client == null) {
+              throw new IOException(
+                  "The Artefact "
+                      + artefact.getName()
+                      + " require a non configured client, please check our configuration");
+            }
+            plan.add(new SyncArtefactAction(client, rootPath(), artefact));
+          }
         }
         artefacts.add(artefact);
       }

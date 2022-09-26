@@ -16,19 +16,14 @@ import com.purbon.kafka.topology.model.artefact.KsqlTableArtefact;
 import com.purbon.kafka.topology.model.cluster.ServiceAccount;
 import com.purbon.kafka.topology.roles.TopologyAclBinding;
 import com.purbon.kafka.topology.utils.StreamUtils;
-import java.io.IOException;
-import java.io.PrintStream;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+
+import java.io.IOException;
+import java.io.PrintStream;
+import java.util.*;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class ExecutionPlan {
 
@@ -167,6 +162,14 @@ public class ExecutionPlan {
           ksqlStreams.add((KsqlStreamArtefact) artefact);
         } else if (artefact instanceof KsqlTableArtefact) {
           ksqlTables.add((KsqlTableArtefact) artefact);
+        }
+      } else if (action instanceof SyncArtefactAction) {
+        Artefact artefact = ((SyncArtefactAction) action).getArtefact();
+        if (artefact instanceof KafkaConnectArtefact) {
+          connectors =
+              new StreamUtils<>(connectors.stream())
+                  .filterAsSet(connector -> !connector.equals(artefact));
+          connectors.add((KafkaConnectArtefact) artefact);
         }
       } else if (action instanceof DeleteArtefactAction) {
         Artefact toBeDeleted = ((DeleteArtefactAction) action).getArtefact();

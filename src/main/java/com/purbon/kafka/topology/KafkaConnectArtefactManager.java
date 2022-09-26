@@ -1,17 +1,25 @@
 package com.purbon.kafka.topology;
 
+import static com.purbon.kafka.topology.utils.Utils.filePath;
+
+import com.fasterxml.jackson.databind.JsonNode;
 import com.purbon.kafka.topology.api.connect.KConnectApiClient;
 import com.purbon.kafka.topology.clients.ArtefactClient;
 import com.purbon.kafka.topology.model.Artefact;
 import com.purbon.kafka.topology.model.Topology;
 import com.purbon.kafka.topology.model.artefact.KafkaConnectArtefact;
 import com.purbon.kafka.topology.utils.Either;
+import com.purbon.kafka.topology.utils.JSON;
+import com.purbon.kafka.topology.utils.Utils;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.*;
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -78,7 +86,8 @@ public class KafkaConnectArtefactManager extends ArtefactManager {
                 new KafkaConnectArtefact(
                     artefact.getPath(),
                     reverseLookup(artefact.getServerLabel()),
-                    artefact.getName()))
+                    artefact.getName(),
+                    artefact.getHash()))
         .collect(Collectors.toSet());
   }
 
@@ -94,6 +103,19 @@ public class KafkaConnectArtefactManager extends ArtefactManager {
   Set<KafkaConnectArtefact> parseNewArtefacts(Topology topology) {
     return topology.getProjects().stream()
         .flatMap(project -> project.getConnectorArtefacts().getConnectors().stream())
+        .map(
+            artefact -> {
+              try {
+                String config = Utils.readFullFile(filePath(artefact.getPath(), rootPath()));
+                JsonNode configNode = JSON.toNode(config);
+                String hash = Integer.toHexString(configNode.hashCode());
+                return new KafkaConnectArtefact(
+                    artefact.getPath(), artefact.getServerLabel(), artefact.getName(), hash);
+              } catch (IOException e) {
+                LOGGER.warn("Failed to compute hash for artefact " + artefact.getName() + ".", e);
+                return artefact;
+              }
+            })
         .collect(Collectors.toSet());
   }
 
