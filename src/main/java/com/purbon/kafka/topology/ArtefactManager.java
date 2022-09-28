@@ -44,16 +44,14 @@ public abstract class ArtefactManager implements ExecutionPlanUpdater {
     for (Topology topology : topologies.values()) {
       Set<? extends Artefact> entryArtefacts = parseNewArtefacts(topology);
       for (Artefact artefact : entryArtefacts) {
-        if (!currentArtefacts.contains(artefact)) {
-          ArtefactClient client = selectClient(artefact);
-          if (client == null) {
-            throw new IOException(
-                "The Artefact "
-                    + artefact.getName()
-                    + " require a non configured client, please check our configuration");
-          }
-          plan.add(new CreateArtefactAction(client, rootPath(), currentArtefacts, artefact));
+        ArtefactClient client = selectClient(artefact);
+        if (client == null) {
+          throw new IOException(
+              "The Artefact "
+                  + artefact.getName()
+                  + " require a non configured client, please check our configuration");
         }
+        plan.add(new CreateArtefactAction(client, rootPath(), currentArtefacts, artefact));
         artefacts.add(artefact);
       }
     }

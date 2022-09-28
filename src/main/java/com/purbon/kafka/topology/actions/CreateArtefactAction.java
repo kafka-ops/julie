@@ -36,12 +36,10 @@ public class CreateArtefactAction extends BaseAction {
 
   @Override
   public void run() throws IOException {
-    if (!artefacts.contains(artefact)) {
-      LOGGER.info(
-          String.format(
-              "Creating artefact %s for client %s", artefact.getName(), client.getClass()));
-      client.add(artefact.getName(), content());
-    }
+    LOGGER.info(
+      String.format(
+          "Creating artefact %s for client %s", artefact.getName(), client.getClass()));
+    client.add(artefact.getName(), content());
   }
 
   public Artefact getArtefact() {
