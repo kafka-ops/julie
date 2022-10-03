@@ -1,21 +1,28 @@
 package com.purbon.kafka.topology.model.artefact;
 
 import com.purbon.kafka.topology.model.Artefacts;
-import java.util.ArrayList;
-import java.util.List;
+
+import java.util.*;
 
 public class KsqlArtefacts implements Artefacts {
 
   private List<KsqlStreamArtefact> streams;
   private List<KsqlTableArtefact> tables;
+  final private KsqlVarsArtefact vars;
 
   public KsqlArtefacts() {
-    this(new ArrayList<>(), new ArrayList<>());
+    this(new ArrayList<>(), new ArrayList<>(), new KsqlVarsArtefact(Collections.emptyMap()));
   }
 
-  public KsqlArtefacts(List<KsqlStreamArtefact> streams, List<KsqlTableArtefact> tables) {
+  public KsqlArtefacts(
+      List<KsqlStreamArtefact> streams, List<KsqlTableArtefact> tables, KsqlVarsArtefact vars) {
     this.streams = streams;
     this.tables = tables;
+    this.vars = vars;
+  }
+
+  public KsqlVarsArtefact getVars() {
+    return this.vars;
   }
 
   public List<KsqlStreamArtefact> getStreams() {

@@ -529,7 +529,7 @@
     <!-- dependencies -->
     <jackson.version>[2.12.6, 2.12.7)</jackson.version>
     <log4j.version>2.17.1</log4j.version>
-    <zookeeper.version>3.5.7</zookeeper.version>
+    <zookeeper.version>3.8.0</zookeeper.version>
     <commons.version>1.4</commons.version>
     <mockito.version>3.6.0</mockito.version>
     <junit.version>4.13.1</junit.version>
@@ -544,7 +544,8 @@
     <jinjava.version>2.5.4</jinjava.version>
     <aws.java.sdk.version>2.16.31</aws.java.sdk.version>
     <gcp.java.sdk.version>19.2.1</gcp.java.sdk.version>
-    <ksqldb.version>0.17.0</ksqldb.version>
+    <ksqldb.version>0.27.1</ksqldb.version>
+    <ksqldb.client.version>7.0.0</ksqldb.client.version>
     <typesafe.version>1.4.0</typesafe.version>
     <lombok.version>1.18.22</lombok.version>
   </properties>
@@ -626,7 +627,7 @@
     <dependency>
       <groupId>io.confluent.ksql</groupId>
       <artifactId>ksqldb-api-client</artifactId>
-      <version>${confluent.version}</version>
+      <version>${ksqldb.client.version}</version>
     </dependency>
     <dependency>
       <groupId>org.glassfish.jersey.core</groupId>

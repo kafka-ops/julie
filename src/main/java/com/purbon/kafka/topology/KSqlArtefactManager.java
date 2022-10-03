@@ -14,15 +14,7 @@ import java.io.IOException;
 import java.io.PrintStream;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.LinkedHashSet;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -140,7 +132,9 @@ public class KSqlArtefactManager extends ArtefactManager {
             (Function<Project, Stream<Artefact>>)
                 project -> {
                   KsqlArtefacts kSql = project.getKsqlArtefacts();
-                  return Stream.concat(kSql.getStreams().stream(), kSql.getTables().stream());
+                  return Stream.concat(
+                      Stream.concat(kSql.getStreams().stream(), kSql.getTables().stream()),
+                      Collections.singletonList(kSql.getVars()).stream());
                 })
         .sorted()
         .collect(Collectors.toCollection(LinkedHashSet::new));

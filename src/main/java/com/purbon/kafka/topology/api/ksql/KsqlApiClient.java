@@ -63,6 +63,11 @@ public class KsqlApiClient implements ArtefactClient {
   }
 
   @Override
+  public void addSessionVars(Map<String, String> vars) {
+    vars.forEach(this.client::define);
+  }
+
+  @Override
   public Map<String, Object> add(String sql) throws IOException {
     try {
       if (isCreateWithoutReplace(sql)) {
@@ -72,6 +77,7 @@ public class KsqlApiClient implements ArtefactClient {
                 + "- "
                 + sql.substring(0, 40));
       }
+
       var result = client.executeStatement(sql).get();
       return new QueryResponse(result).asMap();
     } catch (InterruptedException | ExecutionException e) {
