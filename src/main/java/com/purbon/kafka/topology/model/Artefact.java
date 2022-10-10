@@ -10,11 +10,17 @@ public abstract class Artefact {
 
   private final String serverLabel;
   private final String name;
+  private final String hash;
 
   public Artefact(String path, String serverLabel, String name) {
+    this(path, serverLabel, name, null);
+  }
+
+  public Artefact(String path, String serverLabel, String name, String hash) {
     this.path = path;
     this.serverLabel = serverLabel;
     this.name = name;
+    this.hash = hash;
   }
 
   public String getPath() {
@@ -27,6 +33,10 @@ public abstract class Artefact {
 
   public String getName() {
     return name;
+  }
+
+  public String getHash() {
+    return hash;
   }
 
   @Override
@@ -62,6 +72,9 @@ public abstract class Artefact {
         + '\''
         + ", name='"
         + name
+        + '\''
+        + ", hash='"
+        + hash
         + '\''
         + '}';
   }

@@ -1,6 +1,7 @@
 package com.purbon.kafka.topology.utils;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.type.CollectionType;
 import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
@@ -51,5 +52,9 @@ public class JSON {
   public static Object toObject(String jsonString, Class objectClazz)
       throws JsonProcessingException {
     return mapper.readValue(jsonString, objectClazz);
+  }
+
+  public static JsonNode toNode(String jsonString) throws JsonProcessingException {
+    return mapper.readTree(jsonString);
   }
 }

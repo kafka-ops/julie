@@ -14,13 +14,11 @@ import com.purbon.kafka.topology.clients.JulieHttpClient;
 import com.purbon.kafka.topology.model.cluster.ServiceAccount;
 import com.purbon.kafka.topology.roles.TopologyAclBinding;
 import java.io.IOException;
-import java.net.http.HttpResponse;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Properties;
 import java.util.Set;
-
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -130,70 +128,71 @@ public class CCloudApiTest {
   @Test
   public void listServiceAccountsShouldAcceptPage() throws IOException {
 
-    String body01 = "{\n" +
-            "  \"api_version\": \"iam/v2\",\n" +
-            "  \"kind\": \"ServiceAccountList\",\n" +
-            "  \"metadata\": {\n" +
-            "    \"first\": \"https://api.confluent.cloud/iam/v2/service-accounts\",\n" +
-            "    \"last\": \"https://api.confluent.cloud/iam/v2/service-accounts?page_token=bcAOehAY8F16YD84Z1wT\",\n" +
-            "    \"prev\": \"https://api.confluent.cloud/iam/v2/service-accounts?page_token=YIXRY97wWYmwzrax4dld\",\n" +
-            "    \"next\": \"https://api.confluent.cloud/iam/v2/service-accounts?page_token=UvmDWOB1iwfAIBPj6EYb\",\n" +
-            "    \"total_size\": 123\n" +
-            "  },\n" +
-            "  \"data\": [\n" +
-            "    {\n" +
-            "      \"api_version\": \"iam/v2\",\n" +
-            "      \"kind\": \"ServiceAccount\",\n" +
-            "      \"id\": \"dlz-f3a90de\",\n" +
-            "      \"metadata\": {\n" +
-            "        \"self\": \"https://api.confluent.cloud/iam/v2/service-accounts/sa-12345\",\n" +
-            "        \"resource_name\": \"crn://confluent.cloud/service-account=sa-12345\",\n" +
-            "        \"created_at\": \"2006-01-02T15:04:05-07:00\",\n" +
-            "        \"updated_at\": \"2006-01-02T15:04:05-07:00\",\n" +
-            "        \"deleted_at\": \"2006-01-02T15:04:05-07:00\"\n" +
-            "      },\n" +
-            "      \"display_name\": \"DeLorean_auto_repair\",\n" +
-            "      \"description\": \"Doc's repair bot for the DeLorean\"\n" +
-            "    }\n" +
-            "  ]\n" +
-            "}";
+    String body01 =
+        "{\n"
+            + "  \"api_version\": \"iam/v2\",\n"
+            + "  \"kind\": \"ServiceAccountList\",\n"
+            + "  \"metadata\": {\n"
+            + "    \"first\": \"https://api.confluent.cloud/iam/v2/service-accounts\",\n"
+            + "    \"last\": \"https://api.confluent.cloud/iam/v2/service-accounts?page_token=bcAOehAY8F16YD84Z1wT\",\n"
+            + "    \"prev\": \"https://api.confluent.cloud/iam/v2/service-accounts?page_token=YIXRY97wWYmwzrax4dld\",\n"
+            + "    \"next\": \"https://api.confluent.cloud/iam/v2/service-accounts?page_token=UvmDWOB1iwfAIBPj6EYb\",\n"
+            + "    \"total_size\": 123\n"
+            + "  },\n"
+            + "  \"data\": [\n"
+            + "    {\n"
+            + "      \"api_version\": \"iam/v2\",\n"
+            + "      \"kind\": \"ServiceAccount\",\n"
+            + "      \"id\": \"dlz-f3a90de\",\n"
+            + "      \"metadata\": {\n"
+            + "        \"self\": \"https://api.confluent.cloud/iam/v2/service-accounts/sa-12345\",\n"
+            + "        \"resource_name\": \"crn://confluent.cloud/service-account=sa-12345\",\n"
+            + "        \"created_at\": \"2006-01-02T15:04:05-07:00\",\n"
+            + "        \"updated_at\": \"2006-01-02T15:04:05-07:00\",\n"
+            + "        \"deleted_at\": \"2006-01-02T15:04:05-07:00\"\n"
+            + "      },\n"
+            + "      \"display_name\": \"DeLorean_auto_repair\",\n"
+            + "      \"description\": \"Doc's repair bot for the DeLorean\"\n"
+            + "    }\n"
+            + "  ]\n"
+            + "}";
 
     Response response01 = new Response(null, 200, body01);
 
     when(httpClient.doGet(String.format("%s?page_size=%d", V2_IAM_SERVICE_ACCOUNTS_URL, 1)))
-            .thenReturn(response01);
+        .thenReturn(response01);
 
-    String body02 = "{\n" +
-            "  \"api_version\": \"iam/v2\",\n" +
-            "  \"kind\": \"ServiceAccountList\",\n" +
-            "  \"metadata\": {\n" +
-            "    \"first\": \"https://api.confluent.cloud/iam/v2/service-accounts\",\n" +
-            "    \"last\": \"https://api.confluent.cloud/iam/v2/service-accounts?page_token=bcAOehAY8F16YD84Z1wT\",\n" +
-            "    \"prev\": \"https://api.confluent.cloud/iam/v2/service-accounts?page_token=YIXRY97wWYmwzrax4dld\",\n" +
-            "    \"total_size\": 123\n" +
-            "  },\n" +
-            "  \"data\": [\n" +
-            "    {\n" +
-            "      \"api_version\": \"iam/v2\",\n" +
-            "      \"kind\": \"ServiceAccount\",\n" +
-            "      \"id\": \"abc-f3a90de\",\n" +
-            "      \"metadata\": {\n" +
-            "        \"self\": \"https://api.confluent.cloud/iam/v2/service-accounts/sa-12345\",\n" +
-            "        \"resource_name\": \"crn://confluent.cloud/service-account=sa-12345\",\n" +
-            "        \"created_at\": \"2006-01-02T15:04:05-07:00\",\n" +
-            "        \"updated_at\": \"2006-01-02T15:04:05-07:00\",\n" +
-            "        \"deleted_at\": \"2006-01-02T15:04:05-07:00\"\n" +
-            "      },\n" +
-            "      \"display_name\": \"MacFly\",\n" +
-            "      \"description\": \"Doc's repair bot for the MacFly\"\n" +
-            "    }\n" +
-            "  ]\n" +
-            "}";
+    String body02 =
+        "{\n"
+            + "  \"api_version\": \"iam/v2\",\n"
+            + "  \"kind\": \"ServiceAccountList\",\n"
+            + "  \"metadata\": {\n"
+            + "    \"first\": \"https://api.confluent.cloud/iam/v2/service-accounts\",\n"
+            + "    \"last\": \"https://api.confluent.cloud/iam/v2/service-accounts?page_token=bcAOehAY8F16YD84Z1wT\",\n"
+            + "    \"prev\": \"https://api.confluent.cloud/iam/v2/service-accounts?page_token=YIXRY97wWYmwzrax4dld\",\n"
+            + "    \"total_size\": 123\n"
+            + "  },\n"
+            + "  \"data\": [\n"
+            + "    {\n"
+            + "      \"api_version\": \"iam/v2\",\n"
+            + "      \"kind\": \"ServiceAccount\",\n"
+            + "      \"id\": \"abc-f3a90de\",\n"
+            + "      \"metadata\": {\n"
+            + "        \"self\": \"https://api.confluent.cloud/iam/v2/service-accounts/sa-12345\",\n"
+            + "        \"resource_name\": \"crn://confluent.cloud/service-account=sa-12345\",\n"
+            + "        \"created_at\": \"2006-01-02T15:04:05-07:00\",\n"
+            + "        \"updated_at\": \"2006-01-02T15:04:05-07:00\",\n"
+            + "        \"deleted_at\": \"2006-01-02T15:04:05-07:00\"\n"
+            + "      },\n"
+            + "      \"display_name\": \"MacFly\",\n"
+            + "      \"description\": \"Doc's repair bot for the MacFly\"\n"
+            + "    }\n"
+            + "  ]\n"
+            + "}";
     Response response02 = new Response(null, 200, body02);
 
-
     when(httpClient.doGet("/iam/v2/service-accounts?page_token=UvmDWOB1iwfAIBPj6EYb"))
-            .thenReturn(response02);
+        .thenReturn(response02);
 
     Set<ServiceAccount> accounts = apiClient.listServiceAccounts();
     assertThat(accounts).hasSize(2);

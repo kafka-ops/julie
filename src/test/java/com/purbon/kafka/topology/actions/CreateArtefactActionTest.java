@@ -22,7 +22,7 @@ public class CreateArtefactActionTest {
   public void shouldComposeDetailedViewOfProperties() {
 
     var artefacts = new ArrayList<Artefact>();
-    var artefact = new KafkaConnectArtefact("path", "label", "name");
+    var artefact = new KafkaConnectArtefact("path", "label", "name", null);
 
     var action = new CreateArtefactAction(client, "/foo/bar", artefacts, artefact);
     var refs = action.refs();

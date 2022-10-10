@@ -10,7 +10,8 @@ public class KafkaConnectArtefact extends Artefact {
   public KafkaConnectArtefact(
       @JsonProperty("path") String path,
       @JsonProperty("server") String label,
-      @JsonProperty("name") String name) {
-    super(path, label, name);
+      @JsonProperty("name") String name,
+      @JsonProperty("hash") String hash) {
+    super(path, label, name, hash);
   }
 }

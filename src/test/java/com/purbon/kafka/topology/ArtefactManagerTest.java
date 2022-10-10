@@ -9,12 +9,7 @@ import com.purbon.kafka.topology.model.artefact.KafkaConnectArtefact;
 import com.purbon.kafka.topology.utils.TestUtils;
 import java.io.IOException;
 import java.io.PrintStream;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import org.junit.Rule;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -83,15 +78,15 @@ public class ArtefactManagerTest {
 
     MyArtefactManager artefactManager = new MyArtefactManager(clients, new Configuration(), file);
 
-    Artefact server0Artefact = new KafkaConnectArtefact("/path", "server0", "foo");
+    Artefact server0Artefact = new KafkaConnectArtefact("/path", "server0", "foo", null);
     ArtefactClient selectedClient = artefactManager.selectClient(server0Artefact);
     assertThat(selectedClient).isEqualTo(mockClient1);
 
-    Artefact server1Artefact = new KafkaConnectArtefact("/path", "server1", "foo");
+    Artefact server1Artefact = new KafkaConnectArtefact("/path", "server1", "foo", null);
     ArtefactClient selectedClient1 = artefactManager.selectClient(server1Artefact);
     assertThat(selectedClient1).isEqualTo(mockClient2);
 
-    Artefact serverBarArtefact = new KafkaConnectArtefact("/path", "bar", "foo");
+    Artefact serverBarArtefact = new KafkaConnectArtefact("/path", "bar", "foo", null);
     ArtefactClient selectedClientBar = artefactManager.selectClient(serverBarArtefact);
     assertThat(selectedClientBar).isNull();
   }
