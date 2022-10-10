@@ -17,7 +17,9 @@ public interface ArtefactClient {
   }
 
   default Map<String, Object> update(String name, String config) throws IOException {
-    throw new IOException("Not implemented");
+    // make update fallback to add, like this KsqlDB and other idempotent APIs will handle
+    // updates out of the box.
+    return add(name, config);
   }
 
   default void delete(String label) throws IOException {
