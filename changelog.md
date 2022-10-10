@@ -1,5 +1,5 @@
 
-v4.3.0 / 2022-10-10
+v4.4.1 / 2022-10-10
 ===================
 
   * Adds support for KSqlDB session variables (#544)
