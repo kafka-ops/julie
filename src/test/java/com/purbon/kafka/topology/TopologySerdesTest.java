@@ -317,6 +317,17 @@ public class TopologySerdesTest {
   }
 
   @Test
+  public void testKsqlWithVarsSerdes() {
+    Topology topology = parser.deserialise(TestUtils.getResourceFile("/descriptor.yaml"));
+    Project project = topology.getProjects().get(0);
+
+    KsqlArtefacts artefacts = project.getKsqlArtefacts();
+    assertThat(artefacts.getVars().getSessionVars()).hasSize(2);
+    String firstVar = artefacts.getVars().getSessionVars().get("foo");
+    assertThat(firstVar).isEqualTo("bar");
+  }
+
+  @Test
   public void testPlatformProcessing() {
     Topology topology = parser.deserialise(TestUtils.getResourceFile("/descriptor.yaml"));
 

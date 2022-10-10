@@ -8,6 +8,7 @@ import com.purbon.kafka.topology.api.ksql.KsqlApiClient;
 import com.purbon.kafka.topology.model.Artefact;
 import com.purbon.kafka.topology.model.PlanMap;
 import com.purbon.kafka.topology.model.Topology;
+import com.purbon.kafka.topology.model.artefact.TypeArtefact;
 import com.purbon.kafka.topology.serdes.TopologySerdes;
 import com.purbon.kafka.topology.utils.TestUtils;
 import java.util.Collections;
@@ -59,6 +60,10 @@ public class KsqlArtefactManagerTest {
     KSqlArtefactManager m = new KSqlArtefactManager(client, config, topologyFilePath);
 
     var artefacts = m.parseNewArtefacts(topology);
+    assertThat(
+            artefacts.removeIf(
+                x -> x.getClass().getAnnotation(TypeArtefact.class).name().equals("VARS")))
+        .isTrue();
 
     assertThat(artefacts).hasSize(4);
     var ksqlArtefacts = topology.getProjects().get(0).getKsqlArtefacts();
@@ -83,6 +88,10 @@ public class KsqlArtefactManagerTest {
     KSqlArtefactManager m = new KSqlArtefactManager(client, config, topologyFilePath);
 
     var artefacts = m.parseNewArtefacts(topology);
+    assertThat(
+            artefacts.removeIf(
+                x -> x.getClass().getAnnotation(TypeArtefact.class).name().equals("VARS")))
+        .isTrue();
 
     System.out.println(artefacts);
 

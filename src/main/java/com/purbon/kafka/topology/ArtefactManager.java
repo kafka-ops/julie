@@ -7,6 +7,8 @@ import com.purbon.kafka.topology.clients.ArtefactClient;
 import com.purbon.kafka.topology.exceptions.RemoteValidationException;
 import com.purbon.kafka.topology.model.Artefact;
 import com.purbon.kafka.topology.model.Topology;
+import com.purbon.kafka.topology.model.artefact.KsqlVarsArtefact;
+import com.purbon.kafka.topology.model.artefact.TypeArtefact;
 import java.io.IOException;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -36,6 +38,12 @@ public abstract class ArtefactManager implements ExecutionPlanUpdater {
     this.topologyFileOrDir = topologyFileOrDir;
   }
 
+  private boolean findKsqlVarsArtefact(Artefact artefact){
+    return Optional.ofNullable(artefact.getClass().getAnnotation(TypeArtefact.class))
+            .map(x -> x.name().equals("VARS"))
+            .orElse(false);
+  }
+
   @Override
   public void updatePlan(ExecutionPlan plan, Map<String, Topology> topologies) throws IOException {
     Collection<? extends Artefact> currentArtefacts = loadActualClusterStateIfAvailable(plan);
@@ -44,17 +52,28 @@ public abstract class ArtefactManager implements ExecutionPlanUpdater {
 
     for (Topology topology : topologies.values()) {
       Set<? extends Artefact> entryArtefacts = parseNewArtefacts(topology);
+
+      final var kSqlVarsArtefact =
+              ((Optional<KsqlVarsArtefact>)
+              entryArtefacts.stream()
+                      .filter(this::findKsqlVarsArtefact)
+                      .findFirst())
+                      .orElseGet(()->new KsqlVarsArtefact(Collections.emptyMap()));
+      entryArtefacts.removeIf(this::findKsqlVarsArtefact);
+
       for (Artefact artefact : entryArtefacts) {
         Optional<? extends Artefact> existingArtefactOpt =
             currentArtefacts.stream().filter(ea -> ea.equals(artefact)).findAny();
         if (existingArtefactOpt.isEmpty()) {
           ArtefactClient client = selectClient(artefact);
+
           if (client == null) {
             throw new IOException(
                 "The Artefact "
                     + artefact.getName()
                     + " require a non configured client, please check our configuration");
           }
+          client.addSessionVars(kSqlVarsArtefact.getSessionVars());
           plan.add(new CreateArtefactAction(client, rootPath(), currentArtefacts, artefact));
         } else {
           Artefact existingArtefact = existingArtefactOpt.get();

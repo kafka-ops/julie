@@ -12,6 +12,10 @@ public interface ArtefactClient {
 
   Map<String, Object> add(String content) throws IOException;
 
+  default void addSessionVars(Map<String, String> sessionVars) {
+    // empty body
+  }
+
   default Map<String, Object> add(String name, String config) throws IOException {
     throw new IOException("Not implemented");
   }

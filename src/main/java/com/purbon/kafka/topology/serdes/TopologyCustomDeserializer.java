@@ -16,11 +16,7 @@ import com.purbon.kafka.topology.exceptions.TopologyParsingException;
 import com.purbon.kafka.topology.model.*;
 import com.purbon.kafka.topology.model.Impl.ProjectImpl;
 import com.purbon.kafka.topology.model.Impl.TopologyImpl;
-import com.purbon.kafka.topology.model.artefact.KConnectArtefacts;
-import com.purbon.kafka.topology.model.artefact.KafkaConnectArtefact;
-import com.purbon.kafka.topology.model.artefact.KsqlArtefacts;
-import com.purbon.kafka.topology.model.artefact.KsqlStreamArtefact;
-import com.purbon.kafka.topology.model.artefact.KsqlTableArtefact;
+import com.purbon.kafka.topology.model.artefact.*;
 import com.purbon.kafka.topology.model.users.Connector;
 import com.purbon.kafka.topology.model.users.Consumer;
 import com.purbon.kafka.topology.model.users.KSqlApp;
@@ -73,6 +69,7 @@ public class TopologyCustomDeserializer extends StdDeserializer<Topology> {
   private static final String ARTIFACTS = "artifacts";
   private static final String STREAMS_NODE = "streams";
   private static final String TABLES_NODE = "tables";
+  private static final String VARS_NODE = "vars";
 
   private static final String SPECIAL_TOPICS_NODE = "special_topics";
 
@@ -380,6 +377,8 @@ public class TopologyCustomDeserializer extends StdDeserializer<Topology> {
         new JsonSerdesUtils<KSqlApp>().parseApplicationUser(parser, acNode, KSqlApp.class);
     List<KsqlStreamArtefact> streamArtefacts = new ArrayList<>();
     List<KsqlTableArtefact> tableArtefacts = new ArrayList<>();
+    KsqlVarsArtefact varsArtefacts = new KsqlVarsArtefact(Collections.emptyMap());
+
     if (node.has(ARTEFACTS) || node.has(ARTIFACTS)) {
       String key = node.has(ARTEFACTS) ? ARTEFACTS : ARTIFACTS;
       JsonNode artefactsNode = node.get(key);
@@ -396,10 +395,17 @@ public class TopologyCustomDeserializer extends StdDeserializer<Topology> {
                 .parseApplicationUser(
                     parser, artefactsNode.get(TABLES_NODE), KsqlTableArtefact.class);
       }
+
+      if (artefactsNode.has(VARS_NODE)) {
+        artefactsNode.get(VARS_NODE);
+        varsArtefacts.setSessionVars(
+                parser.getCodec().treeToValue(artefactsNode.get(VARS_NODE), Map.class));
+      }
     }
 
     return Optional.of(
-        new PlatformSystem(ksqls, new KsqlArtefacts(streamArtefacts, tableArtefacts)));
+        new PlatformSystem(
+            ksqls, new KsqlArtefacts(streamArtefacts, tableArtefacts, varsArtefacts)));
   }
 
   private Optional<PlatformSystem> doStreamsElements(JsonParser parser, JsonNode node)

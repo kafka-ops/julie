@@ -4,6 +4,8 @@ projects:
   - name: "foo"
     ksql:
       artefacts:
+        vars:
+          foo: "bar"
         streams:
           - path: "ksql-streams/riderlocations.sql"
             name: "riderLocations"

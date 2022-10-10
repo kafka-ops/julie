@@ -24,6 +24,9 @@ projects:
         idempotence: "true"
     ksql:
       artefacts:
+        vars:
+          foo: "bar"
+          lorem: "ipsum"
         streams:
           - path: "ksql-streams/riderlocations.sql"
             name: "riderLocations"
