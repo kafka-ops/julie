@@ -10,6 +10,10 @@ So, until new notice, or something change, you should take the project with care
 
 Thanks again to everyone who was, is or will be involved with the project life.
 
+<center>
+<img src="https://media.kidadl.com/Do_Pandas_Hibernate_Why_Are_They_More_Active_During_Winter_d5daed1b94.jpg" alt="panda" width="300"/>
+ </center>
+ 
 -- Pere
 
 ### README
