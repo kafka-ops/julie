@@ -1,5 +1,19 @@
 # An operational manager for Apache Kafka (Automation, GitOps, SelfService)
 
+## Note - Governance - Hibernation state
+
+I'm gratefuly of how many people the JulieOps project has helped during it existance, it is totally mind blowing to get more than 300 starts for a humble human like me, thanks everyone!!.
+
+Sadly this days, between my workload and personal arrangements, the project has been lacking proper mantainance and care, what honestly makes me very sad as I would love to see it grow and provide more and more people with such features, I'm a big beliver of self service and automation. 
+
+So, until new notice, or something change, you should take the project with care, as currently it is mostly on a long winter hibernation :-) I'm sorry for this, but I can't do more as a mostly sole mantainer.
+
+Thanks again to everyone who was, is or will be involved with the project life.
+
+-- Pere
+
+### README
+
 *NOTE*: This project was formally known as Kafka Topology Builder, old versions of this project can still be found under that name.
 
 <a href="https://codeclimate.com/github/purbon/kafka-topology-builder/maintainability"><img src="https://api.codeclimate.com/v1/badges/ef4bcda7d1b5fd0a4f1e/maintainability" /></a> ![CI tests](https://github.com/kafka-ops/kafka-topology-builder/workflows/CI%20tests/badge.svg?branch=master) [![Gitter](https://badges.gitter.im/kafka-topology-builder/community.svg)](https://gitter.im/kafka-topology-builder/community?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge) [![Documentation Status](https://readthedocs.org/projects/julieops/badge/?version=latest)](https://julieops.readthedocs.io/?badge=latest)
