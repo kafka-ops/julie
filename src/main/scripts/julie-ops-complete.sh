@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
-set -o errexit
-set -o nounset
-set -o pipefail
+#set -o errexit
+#set -o nounset
+#set -o pipefail
 
 function __julie-ops () {
 	local base_ops="--brokers|--clientConfig|--dryRun|--help|--overridingClientConfig|--plans|--quite|--topology|--validate|--version"
