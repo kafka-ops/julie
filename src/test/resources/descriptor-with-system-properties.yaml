@@ -1,0 +1,26 @@
+---
+context: ${env}
+source: ${source}
+projects:
+  - name: ${project}
+    consumers:
+      - principal: "User:App0"
+        metadata:
+          system: "OwnerSystem0"
+    producers:
+      - principal: "User:App1"
+        metadata:
+          contactInfo: "app1@company.com"
+    topics:
+      - name: "topicA"
+        consumers:
+          - principal: "User:App4"
+            metadata:
+              system: "OwnerSystem4"
+        config:
+          replication.factor: "1"
+          num.partitions: "1"
+      - name: "topicB"
+        dataType: "avro"
+        schemas:
+          value.schema.file: "schemas/bar-value.avsc"

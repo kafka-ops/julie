@@ -11,11 +11,14 @@ import com.purbon.kafka.topology.model.PlanMap;
 import com.purbon.kafka.topology.model.Topic;
 import com.purbon.kafka.topology.model.Topology;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 
 public class TopologySerdes {
 
-  private ObjectMapper mapper;
+  private final ObjectMapper mapper;
+  private final SystemPropertySubstitutor systemPropertySubstitutor;
 
   public enum FileType {
     JSON,
@@ -32,11 +35,13 @@ public class TopologySerdes {
 
   public TopologySerdes(Configuration config, FileType type, PlanMap plans) {
     mapper = ObjectMapperFactory.build(type, config, plans);
+    systemPropertySubstitutor = new SystemPropertySubstitutor();
   }
 
   public Topology deserialise(File file) {
-    try {
-      return mapper.readValue(file, Topology.class);
+    try (FileInputStream inputStream = new FileInputStream(file)) {
+      String content = new String(inputStream.readAllBytes(), StandardCharsets.UTF_8);
+      return deserialise(content);
     } catch (IOException e) {
       throw new TopologyParsingException(
           "Failed to deserialize topology from " + file.getPath(), e);
@@ -45,7 +50,8 @@ public class TopologySerdes {
 
   public Topology deserialise(String content) {
     try {
-      return mapper.readValue(content, Topology.class);
+      String substitutedContent = systemPropertySubstitutor.replace(content);
+      return mapper.readValue(substitutedContent, Topology.class);
     } catch (IOException e) {
       throw new TopologyParsingException("Failed to deserialize topology from " + content, e);
     }
