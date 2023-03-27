@@ -399,7 +399,7 @@ public class TopologyCustomDeserializer extends StdDeserializer<Topology> {
       if (artefactsNode.has(VARS_NODE)) {
         artefactsNode.get(VARS_NODE);
         varsArtefacts.setSessionVars(
-                parser.getCodec().treeToValue(artefactsNode.get(VARS_NODE), Map.class));
+            parser.getCodec().treeToValue(artefactsNode.get(VARS_NODE), Map.class));
       }
     }
 
