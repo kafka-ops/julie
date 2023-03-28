@@ -141,6 +141,10 @@ public abstract class ArtefactManager implements ExecutionPlanUpdater {
   }
 
   private void detectDivergencesInTheRemoteCluster(ExecutionPlan plan) throws IOException {
+    if (!config.isAllowDeleteTopics()) {
+      /* Assume topics are cleaned up by mechanisms outside JulieOps, and do not fail. */
+      return;
+    }
     var remoteArtefacts = getClustersState();
 
     var delta =
