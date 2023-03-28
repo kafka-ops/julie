@@ -38,10 +38,10 @@ public abstract class ArtefactManager implements ExecutionPlanUpdater {
     this.topologyFileOrDir = topologyFileOrDir;
   }
 
-  private boolean findKsqlVarsArtefact(Artefact artefact){
+  private boolean findKsqlVarsArtefact(Artefact artefact) {
     return Optional.ofNullable(artefact.getClass().getAnnotation(TypeArtefact.class))
-            .map(x -> x.name().equals("VARS"))
-            .orElse(false);
+        .map(x -> x.name().equals("VARS"))
+        .orElse(false);
   }
 
   @Override
@@ -54,11 +54,9 @@ public abstract class ArtefactManager implements ExecutionPlanUpdater {
       Set<? extends Artefact> entryArtefacts = parseNewArtefacts(topology);
 
       final var kSqlVarsArtefact =
-              ((Optional<KsqlVarsArtefact>)
-              entryArtefacts.stream()
-                      .filter(this::findKsqlVarsArtefact)
-                      .findFirst())
-                      .orElseGet(()->new KsqlVarsArtefact(Collections.emptyMap()));
+          ((Optional<KsqlVarsArtefact>)
+                  entryArtefacts.stream().filter(this::findKsqlVarsArtefact).findFirst())
+              .orElseGet(() -> new KsqlVarsArtefact(Collections.emptyMap()));
       entryArtefacts.removeIf(this::findKsqlVarsArtefact);
 
       for (Artefact artefact : entryArtefacts) {
