@@ -51,6 +51,7 @@
       <build>
         <plugins>
           <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-failsafe-plugin</artifactId>
             <version>${maven-failsafe-plugin.version}</version>
             <configuration>
@@ -76,6 +77,7 @@
       <build>
         <plugins>
           <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-surefire-plugin</artifactId>
             <version>${maven-surefire-plugin.version}</version>
             <executions>
@@ -112,6 +114,7 @@
       <build>
         <plugins>
           <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-surefire-plugin</artifactId>
             <version>${maven-surefire-plugin.version}</version>
             <executions>
@@ -166,7 +169,7 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-shade-plugin</artifactId>
-        <version>3.2.4</version>
+        <version>3.4.1</version>
         <configuration>
           <filters>
             <filter>
@@ -210,7 +213,9 @@
       </plugin>
 
       <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-assembly-plugin</artifactId>
+        <version>3.5.0</version>
         <configuration>
           <descriptors>
             <descriptor>assembly.xml</descriptor>
@@ -358,7 +363,7 @@
       <plugin>
         <groupId>org.vafer</groupId>
         <artifactId>jdeb</artifactId>
-        <version>1.8</version>
+        <version>1.10</version>
         <executions>
           <execution>
             <phase>package</phase>
@@ -425,6 +430,7 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-source-plugin</artifactId>
+        <version>3.2.1</version>
         <executions>
           <execution>
             <id>attach-sources</id>
@@ -438,7 +444,7 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-javadoc-plugin</artifactId>
-        <version>3.4.0</version>
+        <version>3.5.0</version>
         <executions>
           <execution>
             <id>attach-javadocs</id>
@@ -517,37 +523,37 @@
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <!-- plugins -->
-    <maven-pmd-plugin.version>3.12.0</maven-pmd-plugin.version>
-    <spotbugs-maven-plugin.version>3.1.12.2</spotbugs-maven-plugin.version>
-    <maven-site-plugin.version>3.9.0</maven-site-plugin.version>
-    <maven-project-info-reports-plugin.version>3.0.0</maven-project-info-reports-plugin.version>
-    <jacoco-maven-plugin.version>0.8.6</jacoco-maven-plugin.version>
+    <jacoco-maven-plugin.version>0.8.8</jacoco-maven-plugin.version>
+    <maven-compiler-plugin.version>3.11.0</maven-compiler-plugin.version>
+    <maven-failsafe-plugin.version>3.0.0</maven-failsafe-plugin.version>
+    <maven-pmd-plugin.version>3.20.0</maven-pmd-plugin.version>
+    <maven-project-info-reports-plugin.version>3.4.2</maven-project-info-reports-plugin.version>
+    <maven-site-plugin.version>3.12.1</maven-site-plugin.version>
+    <maven-surefire-plugin.version>3.0.0</maven-surefire-plugin.version>
     <rpm-maven-plugin.version>2.2.0</rpm-maven-plugin.version>
-    <maven-compiler-plugin.version>3.7.0</maven-compiler-plugin.version>
-    <maven-surefire-plugin.version>2.22.2</maven-surefire-plugin.version>
-    <maven-failsafe-plugin.version>2.22.2</maven-failsafe-plugin.version>
+    <spotbugs-maven-plugin.version>4.7.3.3</spotbugs-maven-plugin.version>
     <!-- dependencies -->
-    <jackson.version>2.13.4</jackson.version>
-    <log4j.version>2.17.1</log4j.version>
-    <zookeeper.version>3.8.0</zookeeper.version>
-    <commons.version>1.4</commons.version>
-    <mockito.version>3.6.0</mockito.version>
-    <junit.version>4.13.1</junit.version>
-    <testcontainers.version>1.15.3</testcontainers.version>
-    <jedis.version>3.2.0</jedis.version>
-    <confluent.version>6.1.0</confluent.version>
-    <confluent-ce.version>6.1.0-ce</confluent-ce.version>
-    <avro.version>1.9.2</avro.version>
-    <jersey.version>2.22.2</jersey.version>
+    <assertj.version>3.24.2</assertj.version>
+    <avro.version>1.11.1</avro.version>
+    <aws.java.sdk.version>2.20.33</aws.java.sdk.version>
+    <commons.version>1.5.0</commons.version>
+    <confluent-ce.version>7.3.2-ce</confluent-ce.version>
+    <confluent.version>7.3.2</confluent.version>
+    <gcp.java.sdk.version>26.11.0</gcp.java.sdk.version>
     <hamcrest.version>2.2</hamcrest.version>
-    <assertj.version>3.15.0</assertj.version>
-    <jinjava.version>2.5.4</jinjava.version>
-    <aws.java.sdk.version>2.16.31</aws.java.sdk.version>
-    <gcp.java.sdk.version>19.2.1</gcp.java.sdk.version>
-    <ksqldb.version>0.27.1</ksqldb.version>
+    <jackson.version>2.14.2</jackson.version>
+    <jedis.version>4.3.2</jedis.version>
+    <jersey.version>3.1.1</jersey.version>
+    <jinjava.version>2.7.0</jinjava.version>
+    <junit.version>4.13.2</junit.version>
     <ksqldb.client.version>7.0.0</ksqldb.client.version>
-    <typesafe.version>1.4.0</typesafe.version>
-    <lombok.version>1.18.22</lombok.version>
+    <ksqldb.version>0.27.1</ksqldb.version>
+    <log4j.version>2.20.0</log4j.version>
+    <lombok.version>1.18.26</lombok.version>
+    <mockito.version>5.2.0</mockito.version>
+    <testcontainers.version>1.17.6</testcontainers.version>
+    <typesafe.version>1.4.2</typesafe.version>
+    <zookeeper.version>3.8.1</zookeeper.version>
   </properties>
 
   <dependencies>
@@ -677,10 +683,12 @@
     <dependency>
       <groupId>software.amazon.awssdk</groupId>
       <artifactId>s3</artifactId>
+      <version>${aws.java.sdk.version}</version>
     </dependency>
     <dependency>
       <groupId>com.google.cloud</groupId>
       <artifactId>google-cloud-storage</artifactId>
+      <version>2.20.2</version>
     </dependency>
     <dependency>
       <groupId>org.hamcrest</groupId>
@@ -721,7 +729,7 @@
     <dependency>
       <groupId>org.awaitility</groupId>
       <artifactId>awaitility</artifactId>
-      <version>4.0.3</version>
+      <version>4.2.0</version>
       <scope>test</scope>
     </dependency>
     <dependency>
@@ -733,7 +741,7 @@
     <dependency>
       <groupId>com.github.tomakehurst</groupId>
       <artifactId>wiremock-jre8</artifactId>
-      <version>2.33.1</version>
+      <version>2.35.0</version>
       <scope>test</scope>
     </dependency>
 

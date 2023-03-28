@@ -76,7 +76,7 @@ public class RedisBackendIT {
     final SchemaRegistryManager schemaRegistryManager =
         new SchemaRegistryManager(schemaRegistryClient, System.getProperty("user.dir"));
 
-    this.jedis = new Jedis(redis.getContainerIpAddress(), redis.getFirstMappedPort());
+    this.jedis = new Jedis(redis.getHost(), redis.getFirstMappedPort());
     var backend = new RedisBackend(jedis, bucket);
 
     this.plan = ExecutionPlan.init(new BackendController(backend), System.out);
@@ -86,7 +86,7 @@ public class RedisBackendIT {
     props.put(ALLOW_DELETE_TOPICS, true);
     props.put(
         STATE_PROCESSOR_IMPLEMENTATION_CLASS, "com.purbon.kafka.topology.backend.RedisBackend");
-    props.put(REDIS_HOST_CONFIG, redis.getContainerIpAddress());
+    props.put(REDIS_HOST_CONFIG, redis.getHost());
     props.put(REDIS_PORT_CONFIG, redis.getFirstMappedPort());
 
     HashMap<String, String> cliOps = new HashMap<>();
@@ -100,7 +100,7 @@ public class RedisBackendIT {
   @Test
   public void testStoreAndFetch() throws IOException {
 
-    String host = redis.getContainerIpAddress();
+    String host = redis.getHost();
     int port = redis.getFirstMappedPort();
     RedisBackend rsp = new RedisBackend(host, port, bucket);
     rsp.load();

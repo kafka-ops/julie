@@ -695,7 +695,7 @@ public class TopologySerdesTest {
 
     assertEquals("contextOrg.source.foo.bar.avro", mainTopic.toString());
     assertEquals("contextOrg.source.foo.bar.avro.dlq", dlqTopic.toString());
-    assertThat(mainTopic.getConfig()).isEqualToComparingFieldByField(dlqTopic.getConfig());
+    assertThat(mainTopic.getConfig()).usingRecursiveComparison().isEqualTo(dlqTopic.getConfig());
   }
 
   @Test

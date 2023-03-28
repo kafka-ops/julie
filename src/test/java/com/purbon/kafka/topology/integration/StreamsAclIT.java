@@ -4,6 +4,7 @@ import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.awaitility.Awaitility.await;
 
+import ch.qos.logback.classic.Level;
 import com.purbon.kafka.topology.integration.containerutils.ContainerFactory;
 import com.purbon.kafka.topology.integration.containerutils.ContainerTestUtils;
 import com.purbon.kafka.topology.integration.containerutils.SaslPlaintextKafkaContainer;
@@ -16,6 +17,7 @@ import org.apache.kafka.streams.kstream.KStream;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.slf4j.LoggerFactory;
 
 public final class StreamsAclIT {
 
@@ -57,8 +59,20 @@ public final class StreamsAclIT {
     KStream<Object, Object> source = builder.stream(TOPIC_A);
     source.filter((key, val) -> true).to(TOPIC_C);
 
+    /* TODO: Remove this log level hack, introduced for Confluent Platform 7.3.2 on 2023-03-28.
+     * It will work around the bug https://issues.apache.org/jira/browse/KAFKA-14325
+     * that is present in Confluent Platform, although fixed in Apache Kafka. */
+    final ch.qos.logback.classic.Logger rootLogger =
+        (ch.qos.logback.classic.Logger)
+            LoggerFactory.getLogger(ch.qos.logback.classic.Logger.ROOT_LOGGER_NAME);
+    final Level oldLevel = rootLogger.getLevel();
+    rootLogger.setLevel(Level.INFO);
+
     final TestStreams streams =
         TestStreams.create(container, STREAMS_USERNAME, STREAMS_APP_ID, builder.build());
+
+    rootLogger.setLevel(oldLevel);
+
     streams.start();
 
     await()

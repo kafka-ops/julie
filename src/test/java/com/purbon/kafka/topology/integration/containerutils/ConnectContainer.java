@@ -8,7 +8,7 @@ import org.testcontainers.utility.DockerImageName;
 public class ConnectContainer extends GenericContainer<ConnectContainer> {
 
   private static final DockerImageName DEFAULT_IMAGE =
-      DockerImageName.parse("confluentinc/cp-kafka-connect").withTag("6.0.2");
+      DockerImageName.parse("confluentinc/cp-kafka-connect").withTag("7.3.2");
 
   private static int CONNECT_PORT = 8083;
   private static int CONNECT_SSL_PORT = 8084;
@@ -39,7 +39,7 @@ public class ConnectContainer extends GenericContainer<ConnectContainer> {
     withEnv("CONNECT_CONFIG_STORAGE_REPLICATION_FACTOR", "1");
     withEnv("CONNECT_OFFSET_STORAGE_REPLICATION_FACTOR", "1");
     withEnv("CONNECT_STATUS_STORAGE_REPLICATION_FACTOR", "1");
-    withEnv("CONNECT_PLUGIN_PATH", "/usr/share/java");
+    withEnv("CONNECT_PLUGIN_PATH", "/usr/share/java,/usr/share/filestream-connectors");
     withEnv(
         "CONNECT_LISTENERS",
         "http://0.0.0.0:" + CONNECT_PORT + ", https://0.0.0.0:" + CONNECT_SSL_PORT);
