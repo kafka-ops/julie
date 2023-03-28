@@ -33,6 +33,10 @@ public class CommandLineInterface {
   public static final String DRY_RUN_OPTION = "dryRun";
   public static final String DRY_RUN_DESC = "Print the execution plan without altering anything.";
 
+  public static final String RECURSIVE_OPTION = "recursive";
+  public static final String RECURSIVE_DESC =
+      "Recursively look for topology files below the given directory.";
+
   public static final String QUIET_OPTION = "quiet";
   public static final String QUIET_DESC = "Print minimum status update";
 
@@ -97,6 +101,14 @@ public class CommandLineInterface {
             .required(false)
             .build();
 
+    final Option recursiveOption =
+        Option.builder()
+            .longOpt(RECURSIVE_OPTION)
+            .hasArg(false)
+            .desc(RECURSIVE_DESC)
+            .required(false)
+            .build();
+
     final Option quietOption =
         Option.builder()
             .longOpt(QUIET_OPTION)
@@ -133,6 +145,7 @@ public class CommandLineInterface {
 
     options.addOption(overridingAdminClientConfigFileOption);
     options.addOption(dryRunOption);
+    options.addOption(recursiveOption);
     options.addOption(quietOption);
     options.addOption(validateOption);
     options.addOption(versionOption);
@@ -171,6 +184,7 @@ public class CommandLineInterface {
       config.put(BROKERS_OPTION, cmd.getOptionValue(BROKERS_OPTION));
     }
     config.put(DRY_RUN_OPTION, String.valueOf(cmd.hasOption(DRY_RUN_OPTION)));
+    config.put(RECURSIVE_OPTION, String.valueOf(cmd.hasOption(RECURSIVE_OPTION)));
     config.put(QUIET_OPTION, String.valueOf(cmd.hasOption(QUIET_OPTION)));
     config.put(VALIDATE_OPTION, String.valueOf(cmd.hasOption(VALIDATE_OPTION)));
     config.put(

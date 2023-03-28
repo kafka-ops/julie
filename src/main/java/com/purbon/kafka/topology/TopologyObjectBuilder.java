@@ -8,6 +8,7 @@ import com.purbon.kafka.topology.serdes.TopologySerdes;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -87,17 +88,34 @@ public class TopologyObjectBuilder {
       String fileOrDir, Configuration config, PlanMap plans) throws IOException {
     TopologySerdes parser = new TopologySerdes(config, plans);
     List<Topology> topologies = new ArrayList<>();
-    boolean isDir = Files.isDirectory(Paths.get(fileOrDir));
-    if (isDir) {
-      Files.list(Paths.get(fileOrDir))
+    final Path path = Paths.get(fileOrDir);
+    if (Files.isDirectory(path)) {
+      loadFromDirectory(path, config.isRecursive(), parser, topologies);
+    } else {
+      topologies.add(parser.deserialise(new File(fileOrDir)));
+    }
+    return topologies;
+  }
+
+  private static void loadFromDirectory(
+      final Path directory,
+      final boolean recursive,
+      final TopologySerdes parser,
+      final List<Topology> topologies) {
+    try {
+      Files.list(directory)
           .sorted()
           .filter(p -> !Files.isDirectory(p))
           .map(path -> parser.deserialise(path.toFile()))
-          .forEach(subTopology -> topologies.add(subTopology));
-    } else {
-      Topology firstTopology = parser.deserialise(new File(fileOrDir));
-      topologies.add(firstTopology);
+          .forEach(topologies::add);
+      if (recursive) {
+        Files.list(directory)
+            .sorted()
+            .filter(Files::isDirectory)
+            .forEach(p -> loadFromDirectory(p, recursive, parser, topologies));
+      }
+    } catch (final IOException e) {
+      throw new RuntimeException(e);
     }
-    return topologies;
   }
 }
