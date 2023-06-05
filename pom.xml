@@ -552,8 +552,8 @@
     <confluent.version>7.3.2</confluent.version>
     <gcp.java.sdk.version>26.11.0</gcp.java.sdk.version>
     <hamcrest.version>2.2</hamcrest.version>
-    <jackson.version>2.14.2</jackson.version>
-    <jedis.version>4.3.2</jedis.version>
+    <jackson.version>2.15.1</jackson.version>
+    <jedis.version>4.4.1</jedis.version>
     <jersey.version>3.1.1</jersey.version>
     <jinjava.version>2.7.0</jinjava.version>
     <junit.version>4.13.2</junit.version>
