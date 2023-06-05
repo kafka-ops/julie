@@ -153,7 +153,7 @@
       <plugin>
         <groupId>com.spotify.fmt</groupId>
         <artifactId>fmt-maven-plugin</artifactId>
-        <version>2.19</version>
+        <version>2.20</version>
         <configuration>
           <style>google</style>
         </configuration>
@@ -226,7 +226,7 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-assembly-plugin</artifactId>
-        <version>3.5.0</version>
+        <version>3.6.0</version>
         <configuration>
           <descriptors>
             <descriptor>assembly.xml</descriptor>
@@ -441,7 +441,7 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-source-plugin</artifactId>
-        <version>3.2.1</version>
+        <version>3.3.0</version>
         <executions>
           <execution>
             <id>attach-sources</id>
@@ -475,7 +475,7 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-gpg-plugin</artifactId>
-        <version>3.0.1</version>
+        <version>3.1.0</version>
         <executions>
           <execution>
             <id>sign-artifacts</id>
@@ -534,15 +534,15 @@
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <!-- plugins -->
-    <jacoco-maven-plugin.version>0.8.8</jacoco-maven-plugin.version>
+    <jacoco-maven-plugin.version>0.8.10</jacoco-maven-plugin.version>
     <maven-compiler-plugin.version>3.11.0</maven-compiler-plugin.version>
-    <maven-failsafe-plugin.version>3.0.0</maven-failsafe-plugin.version>
-    <maven-pmd-plugin.version>3.20.0</maven-pmd-plugin.version>
-    <maven-project-info-reports-plugin.version>3.4.2</maven-project-info-reports-plugin.version>
+    <maven-failsafe-plugin.version>3.1.0</maven-failsafe-plugin.version>
+    <maven-pmd-plugin.version>3.21.0</maven-pmd-plugin.version>
+    <maven-project-info-reports-plugin.version>3.4.4</maven-project-info-reports-plugin.version>
     <maven-site-plugin.version>3.12.1</maven-site-plugin.version>
-    <maven-surefire-plugin.version>3.0.0</maven-surefire-plugin.version>
+    <maven-surefire-plugin.version>3.1.0</maven-surefire-plugin.version>
     <rpm-maven-plugin.version>2.2.0</rpm-maven-plugin.version>
-    <spotbugs-maven-plugin.version>4.7.3.3</spotbugs-maven-plugin.version>
+    <spotbugs-maven-plugin.version>4.7.3.4</spotbugs-maven-plugin.version>
     <!-- dependencies -->
     <assertj.version>3.24.2</assertj.version>
     <avro.version>1.11.1</avro.version>
