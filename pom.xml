@@ -562,7 +562,7 @@
     <log4j.version>2.20.0</log4j.version>
     <lombok.version>1.18.26</lombok.version>
     <mockito.version>5.5.0</mockito.version>
-    <testcontainers.version>1.17.6</testcontainers.version>
+    <testcontainers.version>1.19.0</testcontainers.version>
     <typesafe.version>1.4.2</typesafe.version>
     <zookeeper.version>3.8.1</zookeeper.version>
   </properties>
