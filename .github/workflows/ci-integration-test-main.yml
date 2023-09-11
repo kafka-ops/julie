@@ -15,7 +15,7 @@ jobs:
       matrix:
         os: [ubuntu-latest]
         java: [11.0.x]
-        cpversion: [7.3.2]
+        cpversion: [7.5.0]
 
     runs-on: ${{ matrix.os }}
 

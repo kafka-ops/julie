@@ -17,7 +17,7 @@ import org.apache.kafka.clients.admin.AdminClient;
 
 public final class ContainerTestUtils {
 
-  static final String DEFAULT_CP_KAFKA_VERSION = "7.3.2";
+  static final String DEFAULT_CP_KAFKA_VERSION = "7.5.0";
 
   private ContainerTestUtils() {}
 

@@ -545,26 +545,26 @@
     <spotbugs-maven-plugin.version>4.7.3.5</spotbugs-maven-plugin.version>
     <!-- dependencies -->
     <assertj.version>3.24.2</assertj.version>
-    <avro.version>1.11.1</avro.version>
-    <aws.java.sdk.version>2.20.33</aws.java.sdk.version>
+    <avro.version>1.11.2</avro.version>
+    <aws.java.sdk.version>2.20.144</aws.java.sdk.version>
     <commons.version>1.5.0</commons.version>
-    <confluent-ce.version>7.3.2-ce</confluent-ce.version>
-    <confluent.version>7.3.2</confluent.version>
+    <confluent-ce.version>7.5.0-ce</confluent-ce.version>
+    <confluent.version>7.5.0</confluent.version>
     <gcp.java.sdk.version>26.22.0</gcp.java.sdk.version>
     <hamcrest.version>2.2</hamcrest.version>
     <jackson.version>2.15.2</jackson.version>
-    <jedis.version>4.4.1</jedis.version>
-    <jersey.version>3.1.1</jersey.version>
-    <jinjava.version>2.7.0</jinjava.version>
+    <jedis.version>4.4.4</jedis.version>
+    <jersey.version>3.1.3</jersey.version>
+    <jinjava.version>2.7.1</jinjava.version>
     <junit.version>4.13.2</junit.version>
     <ksqldb.client.version>7.0.0</ksqldb.client.version>
     <ksqldb.version>0.27.1</ksqldb.version>
     <log4j.version>2.20.0</log4j.version>
-    <lombok.version>1.18.26</lombok.version>
+    <lombok.version>1.18.28</lombok.version>
     <mockito.version>5.5.0</mockito.version>
     <testcontainers.version>1.19.0</testcontainers.version>
     <typesafe.version>1.4.2</typesafe.version>
-    <zookeeper.version>3.8.1</zookeeper.version>
+    <zookeeper.version>3.9.0</zookeeper.version>
   </properties>
 
   <dependencies>
@@ -710,7 +710,7 @@
     <dependency>
       <groupId>com.google.cloud</groupId>
       <artifactId>google-cloud-storage</artifactId>
-      <version>2.20.2</version>
+      <version>2.26.1</version>
     </dependency>
     <dependency>
       <groupId>org.hamcrest</groupId>
@@ -763,7 +763,7 @@
     <dependency>
       <groupId>com.github.tomakehurst</groupId>
       <artifactId>wiremock-jre8</artifactId>
-      <version>2.35.0</version>
+      <version>2.35.1</version>
       <scope>test</scope>
     </dependency>
 
