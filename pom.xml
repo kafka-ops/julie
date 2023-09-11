@@ -550,9 +550,9 @@
     <commons.version>1.5.0</commons.version>
     <confluent-ce.version>7.3.2-ce</confluent-ce.version>
     <confluent.version>7.3.2</confluent.version>
-    <gcp.java.sdk.version>26.11.0</gcp.java.sdk.version>
+    <gcp.java.sdk.version>26.22.0</gcp.java.sdk.version>
     <hamcrest.version>2.2</hamcrest.version>
-    <jackson.version>2.15.1</jackson.version>
+    <jackson.version>2.15.2</jackson.version>
     <jedis.version>4.4.1</jedis.version>
     <jersey.version>3.1.1</jersey.version>
     <jinjava.version>2.7.0</jinjava.version>
@@ -561,7 +561,7 @@
     <ksqldb.version>0.27.1</ksqldb.version>
     <log4j.version>2.20.0</log4j.version>
     <lombok.version>1.18.26</lombok.version>
-    <mockito.version>5.2.0</mockito.version>
+    <mockito.version>5.5.0</mockito.version>
     <testcontainers.version>1.17.6</testcontainers.version>
     <typesafe.version>1.4.2</typesafe.version>
     <zookeeper.version>3.8.1</zookeeper.version>
