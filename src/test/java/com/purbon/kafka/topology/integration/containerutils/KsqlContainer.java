@@ -7,7 +7,7 @@ import org.testcontainers.utility.DockerImageName;
 public class KsqlContainer extends GenericContainer<KsqlContainer> {
 
   private static final DockerImageName DEFAULT_IMAGE =
-      DockerImageName.parse("confluentinc/ksqldb-server").withTag("0.21.0");
+      DockerImageName.parse("confluentinc/ksqldb-server").withTag("0.26.0");
 
   public static final int KSQL_PORT = 8088;
 

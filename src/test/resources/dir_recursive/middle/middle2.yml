@@ -1,0 +1,6 @@
+---
+context: "context"
+projects:
+  - name: "middle-project2"
+    topics:
+      - name: "middle2"

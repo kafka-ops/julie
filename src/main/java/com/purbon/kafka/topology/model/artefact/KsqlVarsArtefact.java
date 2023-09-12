@@ -1,6 +1,5 @@
 package com.purbon.kafka.topology.model.artefact;
 
-
 import java.util.Map;
 
 @TypeArtefact(name = "VARS")

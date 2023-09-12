@@ -97,6 +97,10 @@ public class AccessControlManager implements ExecutionPlanUpdater {
 
   private void detectDivergencesInTheRemoteCluster(ExecutionPlan plan)
       throws RemoteValidationException {
+    if (!config.isAllowDeleteTopics()) {
+      /* Assume topics are cleaned up by mechanisms outside JulieOps, and do not fail. */
+      return;
+    }
     var remoteAcls = providerBindings();
 
     var delta =

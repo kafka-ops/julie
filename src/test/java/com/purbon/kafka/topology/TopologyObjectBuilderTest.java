@@ -1,6 +1,7 @@
 package com.purbon.kafka.topology;
 
 import static com.purbon.kafka.topology.CommandLineInterface.BROKERS_OPTION;
+import static com.purbon.kafka.topology.CommandLineInterface.RECURSIVE_OPTION;
 import static com.purbon.kafka.topology.Constants.JULIE_ENABLE_MULTIPLE_CONTEXT_PER_DIR;
 import static com.purbon.kafka.topology.Constants.PLATFORM_SERVERS_CONNECT;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -164,5 +165,20 @@ public class TopologyObjectBuilderTest {
   public void testInvalidTopologyFromDir() throws IOException {
     String dirPath = TestUtils.getResourceFilename("/errors_dir");
     TopologyObjectBuilder.build(dirPath);
+  }
+
+  @Test
+  public void shouldReadFilesRecursively() throws IOException {
+    Map<String, String> cliOps = new HashMap<>();
+    cliOps.put(BROKERS_OPTION, "");
+    cliOps.put(RECURSIVE_OPTION, "true");
+    var props = new Properties();
+    Configuration config = new Configuration(cliOps, props);
+
+    String fileOrDirPath = TestUtils.getResourceFilename("/dir_recursive");
+    var map = TopologyObjectBuilder.build(fileOrDirPath, config);
+    assertThat(map).hasSize(1);
+    final Topology topology = map.values().iterator().next();
+    assertThat(topology.getProjects()).hasSize(4);
   }
 }

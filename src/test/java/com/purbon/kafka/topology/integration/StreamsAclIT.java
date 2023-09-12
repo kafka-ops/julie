@@ -59,6 +59,7 @@ public final class StreamsAclIT {
 
     final TestStreams streams =
         TestStreams.create(container, STREAMS_USERNAME, STREAMS_APP_ID, builder.build());
+
     streams.start();
 
     await()

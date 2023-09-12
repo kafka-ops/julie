@@ -364,6 +364,10 @@ public class Configuration {
     return Boolean.parseBoolean(cliParams.getOrDefault(DRY_RUN_OPTION, "false"));
   }
 
+  public boolean isRecursive() {
+    return Boolean.parseBoolean(cliParams.getOrDefault(RECURSIVE_OPTION, "false"));
+  }
+
   public FileType getTopologyFileType() {
     return config.getEnum(FileType.class, TOPOLOGY_FILE_TYPE);
   }

@@ -6,6 +6,7 @@ logs/*
 .cluster-state
 *.iml
 _build
+*~
 
 dependency-reduced-pom.xml
 server-api/logs/

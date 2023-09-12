@@ -114,7 +114,7 @@ public class TopologyBuilderAdminClient {
   public int getPartitionCount(String topic) throws IOException {
     try {
       Map<String, TopicDescription> results =
-          adminClient.describeTopics(Collections.singletonList(topic)).all().get();
+          adminClient.describeTopics(Collections.singletonList(topic)).allTopicNames().get();
       return results.get(topic).partitions().size();
     } catch (InterruptedException | ExecutionException e) {
       LOGGER.error(e);

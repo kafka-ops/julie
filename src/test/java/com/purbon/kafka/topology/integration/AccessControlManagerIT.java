@@ -20,7 +20,6 @@ import com.purbon.kafka.topology.integration.containerutils.SaslPlaintextKafkaCo
 import com.purbon.kafka.topology.model.*;
 import com.purbon.kafka.topology.model.Impl.ProjectImpl;
 import com.purbon.kafka.topology.model.Impl.TopologyImpl;
-import com.purbon.kafka.topology.model.Topic;
 import com.purbon.kafka.topology.model.users.*;
 import com.purbon.kafka.topology.model.users.platform.*;
 import com.purbon.kafka.topology.roles.SimpleAclsProvider;
@@ -201,6 +200,7 @@ public class AccessControlManagerIT {
     Properties props = new Properties();
     props.put(ALLOW_DELETE_BINDINGS, true);
     props.put(JULIE_VERIFY_STATE_SYNC, true);
+    props.put(ALLOW_DELETE_TOPICS, true);
 
     HashMap<String, String> cliOps = new HashMap<>();
     cliOps.put(BROKERS_OPTION, "");
@@ -212,7 +212,7 @@ public class AccessControlManagerIT {
     TopologyBuilderAdminClient adminClient = new TopologyBuilderAdminClient(kafkaAdminClient);
 
     var topology =
-        TestTopologyBuilder.createProject()
+        TestTopologyBuilder.createProject(config)
             .addTopic("topic1")
             .addTopic("topic2")
             .addConsumer("User:foo")
