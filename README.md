@@ -4,7 +4,7 @@
 
 I'm gratefuly of how many people the JulieOps project has helped during it existance, it is totally mind blowing to get more than 300 starts for a humble human like me, thanks everyone!!.
 
-Sadly this days, between my workload and personal arrangements, the project has been lacking proper mantainance and care, what honestly makes me very sad as I would love to see it grow and provide more and more people with such features, I'm a big beliver of self service and automation. 
+Sadly this days, between my workload and personal arrangements, the project has been lacking proper mantainance and care, what honestly makes me very sad as I would love to see it grow and provide more and more people with such features, I'm a big beliver of self service and automation.
 
 So, until new notice, or something change, you should take the project with care, as currently it is mostly on a long winter hibernation :-) I'm sorry for this, but I can't do more as a mostly sole mantainer.
 
@@ -13,7 +13,7 @@ Thanks again to everyone who was, is or will be involved with the project life.
 <center>
 <img src="https://media.kidadl.com/Do_Pandas_Hibernate_Why_Are_They_More_Active_During_Winter_d5daed1b94.jpg" alt="panda" width="300"/>
  </center>
- 
+
 -- Pere
 
 ### README
@@ -23,21 +23,21 @@ Thanks again to everyone who was, is or will be involved with the project life.
 <a href="https://codeclimate.com/github/purbon/kafka-topology-builder/maintainability"><img src="https://api.codeclimate.com/v1/badges/ef4bcda7d1b5fd0a4f1e/maintainability" /></a> ![CI tests](https://github.com/kafka-ops/kafka-topology-builder/workflows/CI%20tests/badge.svg?branch=master) [![Gitter](https://badges.gitter.im/kafka-topology-builder/community.svg)](https://gitter.im/kafka-topology-builder/community?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge) [![Documentation Status](https://readthedocs.org/projects/julieops/badge/?version=latest)](https://julieops.readthedocs.io/?badge=latest)
 
 JulieOps helps you automate the management of your things within Apache Kafka, from Topics,
-Configuration to Metadata but as well Access Control, Schemas. 
-More items are plan, check [here](https://github.com/kafka-ops/julie/issues) for details. 
+Configuration to Metadata but as well Access Control, Schemas.
+More items are plan, check [here](https://github.com/kafka-ops/julie/issues) for details.
 
-## The motivation 
+## The motivation
 
-One of the typical questions while building an Apache Kafka infrastructure is how to handle topics, 
+One of the typical questions while building an Apache Kafka infrastructure is how to handle topics,
 configurations and the required permissions to use them (Access Control List).
 
-The JulieOps cli, in close collaboration with git and Jenkins (CI/CD) is here to help you setup an 
+The JulieOps cli, in close collaboration with git and Jenkins (CI/CD) is here to help you setup an
 organised and automated way of managing your Kafka Cluster.
- 
+
 ## Where's the docs?
 
 We recommend taking time to [read the docs](https://julieops.readthedocs.io/en/latest/).
-There's quite a bit of detailed information about GitOps, Apache Kafka and how this project can help you automate 
+There's quite a bit of detailed information about GitOps, Apache Kafka and how this project can help you automate
 the common operational tasks.
 
 ## Automating Management with CI/CD and GitOps
@@ -63,9 +63,9 @@ You might be wondering what is the usual workflow to implement this approach:
 
 Considerations:
 
-* Using webhooks, the git server (github, gitlab or bitbucket) will inform the CI/CD system changes had happened 
+* Using webhooks, the git server (github, gitlab or bitbucket) will inform the CI/CD system changes had happened
 and the need to apply them to the cluster.
-* All changes (git push) to master branch are disabled directly. 
+* All changes (git push) to master branch are disabled directly.
 Changes only can happen with a pull request. Providing a Change Management mechanism to fit into your org procedures.
 
 ## Help??
@@ -85,7 +85,7 @@ What can you achieve with this tool:
 * Automatically set access control rules for:
     * Kafka Consumers
     * Kafka Producers
-    * Kafka Connect 
+    * Kafka Connect
     * Kafka Streams applications ( microservices )
     * KSQL applications
     * Schema Registry instances
@@ -102,13 +102,13 @@ What can you achieve with this tool:
 * Manage your cluster schemas.
     - Support for Confluent Schema Registry
 
-Out of the box support for Confluent Cloud and other clouds that enable you to use the AdminClient API. 
+Out of the box support for Confluent Cloud and other clouds that enable you to use the AdminClient API.
 
 ### How can I run JulieOps directly?
 
 This tool is available in multiple formats:
 
-- As a Docker image, available from [docker hub](https://hub.docker.com/r/purbon/kafka-topology-builder) 
+- As a Docker image, available from [docker hub](https://hub.docker.com/r/purbon/kafka-topology-builder)
 - As an RPM package, for the RedHat alike distributions
 - As a DEB package, for Debian based distros
 - Directly as a fat jar (zip/tar.gz)
@@ -120,7 +120,7 @@ The latest version are available from the [releases](https://github.com/kafka-op
 
 This is how you can run the tool directly as a docker image:
 
-```bash 
+```bash
 docker run purbon/kafka-topology-builder:latest julie-ops-cli.sh  --help
 Parsing failed cause of Missing required options: topology, brokers, clientConfig
 usage: cli
@@ -142,7 +142,7 @@ usage: cli
 
 If you install the tool as rpm, you will have available in your $PATH the _julie-ops-cli.sh_.
 You can run this script with the same options observed earlier, however you will need to be using, or be in the group,
-for the user julie-kafka. 
+for the user julie-kafka.
 
 #### An example topology
 
@@ -193,10 +193,10 @@ projects:
       num.partitions: "3"
 ```
 
-more examples can be found at the [example/](example/) directory. 
+more examples can be found at the [example/](example/) directory.
 
 Also, please check, the documentation in [the docs](https://julieops.readthedocs.io/) for extra information and
-examples on managing ACLs, RBAC, Principales, Schemas and many others.  
+examples on managing ACLs, RBAC, Principales, Schemas and many others.
 
 ## Troubleshooting guides
 
@@ -213,7 +213,7 @@ Check our [contributing](CONTRIBUTING.md) doc for guidance.
 ## Building JulieOps from scratch (source code)
 
 The project is build using Java and Maven, so both are required if you aim to build the tool from scratch.
-The minimum version of Java supported is Java 8, note it soon will be deprecated here, it is only keep as supported 
+The minimum version of Java supported is Java 8, note it soon will be deprecated here, it is only keep as supported
 for very legacy environments.
 
 It is recommended to run JulieOps with Java 11 and an open JDK version.

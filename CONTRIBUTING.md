@@ -4,7 +4,7 @@
 
 Have a problem you want the Kafka health API to solve for you?
 
-* File a ticket on [GitHub](https://github.com/purbon/kafka-topology-builder/issues). 
+* File a ticket on [GitHub](https://github.com/purbon/kafka-topology-builder/issues).
 
 ## Something Not Working? Found a Bug? or a Security Issue?
 
@@ -15,7 +15,7 @@ If you think you found a bug, it probably is a bug.
 # Contributing Documentation and Code Changes
 
 If you have a bugfix or new feature that you would like to contribute, and you think it will take
-more than a few minutes to produce the fix (ie; write code), it is worth discussing the change. 
+more than a few minutes to produce the fix (ie; write code), it is worth discussing the change.
 You can reach us via [GitHub](https://github.com/purbon/kafka-topology-builder/issues).
 
 Please note that Pull Requests without tests and documentation may not be merged. If you would like to contribute but do not have
@@ -91,11 +91,11 @@ Example:
    request](https://help.github.com/articles/using-pull-requests). In the pull
    request, describe what your changes do and mention any bugs/issues related
    to the pull request.
-   
+
 # Pull Request Guidelines
 
 The following exists as a way to set expectations for yourself and for the review process. We *want* to merge fixes and features, so let's describe how we can achieve this:
-   
+
 ## Goals
 
 * To constantly make forward progress on PRs
