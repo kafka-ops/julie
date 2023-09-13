@@ -1,51 +1,30 @@
-Configuration:
+configuration:
   status: warn
 
   appenders:
-    Console:
-      name: LogToConsole
-      PatternLayout:
-        Pattern: "[%-5level] %d{yyyy-MM-dd HH:mm:ss.SSS} [%t] %c{1} - %msg%n"
+    console:
+      name: Console
+      patternLayout:
+        Pattern: "[%-5level] %d{HH:mm:ss.SSS} [%t] %c{1} - %msg%n"
 
-    #File:
-    #  name: File
-    #  fileName: logs/app.log
-    #  PatternLayout:
-    #    Pattern: "%d %p %C{1.} [%t] %m%n"
-
-    RollingFile:
-    - name: LogToRollingFile
-      fileName: logs/app.log
-      filePattern: "logs/$${date:yyyy-MM}/app-%d{MM-dd-yyyy}-%i.log.gz"
-      PatternLayout:
-        pattern: "[%-5level] %d{yyyy-MM-dd HH:mm:ss.SSS} [%t] %c{1} - %msg%n"
-      Policies:
-        SizeBasedTriggeringPolicy:
-          size: 10MB
-      DefaultRollOverStrategy:
-        max: 10
-
-  Loggers:
+  loggers:
     logger:
       - name: com.purbon.kafka
-        level: debug
-        additivity: false
-        AppenderRef:
-          - ref: LogToConsole
-          - ref: LogToRollingFile
+        level: info
       - name: com.purbon.kafka.topology
         level: info
-        additivity: true
-        AppenderRef:
-          - ref: LogToConsole
-          - ref: LogToRollingFile
       - name: com.purbon.kafka.topology.api.mds
         level: info
-        additivity: true
-        AppenderRef:
-          - ref: LogToConsole
-          - ref: LogToRollingFile
-    Root:
-      level: error
-      AppenderRef:
-        ref: LogToConsole
+      - name: org.apache.kafka
+        level: warn
+      - name: org.apache.kafka.clients.admin.AdminClientConfig
+        level: error
+      - name: org.apache.kafka.clients.producer.ProducerConfig
+        level: error
+      - name: org.apache.kafka.clients.consumer.ConsumerConfig
+        level: error
+
+    root:
+      level: info
+      appenderRef:
+        ref: Console
