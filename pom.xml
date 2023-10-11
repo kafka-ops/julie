@@ -564,7 +564,7 @@
     <mockito.version>5.5.0</mockito.version>
     <testcontainers.version>1.19.0</testcontainers.version>
     <typesafe.version>1.4.2</typesafe.version>
-    <zookeeper.version>3.9.0</zookeeper.version>
+    <zookeeper.version>3.9.1</zookeeper.version>
   </properties>
 
   <dependencies>
