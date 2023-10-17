@@ -560,7 +560,7 @@
     <ksqldb.client.version>7.0.0</ksqldb.client.version>
     <ksqldb.version>0.27.1</ksqldb.version>
     <log4j.version>2.20.0</log4j.version>
-    <lombok.version>1.18.28</lombok.version>
+    <lombok.version>1.18.30</lombok.version>
     <mockito.version>5.5.0</mockito.version>
     <slf4j.version>2.0.9</slf4j.version>
     <testcontainers.version>1.19.0</testcontainers.version>
