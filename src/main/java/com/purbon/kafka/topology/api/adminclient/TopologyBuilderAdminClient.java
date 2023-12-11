@@ -256,31 +256,31 @@ public class TopologyBuilderAdminClient {
 
   public void assignQuotasPrincipal(Collection<Quota> quotas) {
     List<ClientQuotaAlteration> lstQuotasAlteration =
-            quotas.stream()
-                    .map(f -> new QuotasClientBindingsBuilder(f).build())
-                    .collect(Collectors.toList());
+        quotas.stream()
+            .map(f -> new QuotasClientBindingsBuilder(f).build())
+            .collect(Collectors.toList());
 
     this.adminClient.alterClientQuotas(lstQuotasAlteration).all();
   }
 
   public void removeQuotasPrincipal(Collection<User> users) {
     List<ClientQuotaAlteration> lstQuotasRemove =
-            users.stream()
-                    .map(
-                            f ->
-                                    new QuotasClientBindingsBuilder(
-                                            new Quota(
-                                                    f.getPrincipal(),
-                                                    Optional.empty(),
-                                                    Optional.empty(),
-                                                    Optional.empty()))
-                                            .build())
-                    .collect(Collectors.toList());
+        users.stream()
+            .map(
+                f ->
+                    new QuotasClientBindingsBuilder(
+                            new Quota(
+                                f.getPrincipal(),
+                                Optional.empty(),
+                                Optional.empty(),
+                                Optional.empty()))
+                        .build())
+            .collect(Collectors.toList());
     this.adminClient.alterClientQuotas(lstQuotasRemove);
   }
 
-  // TODO: Use this function to manage quota deletion
-  public Map<ClientQuotaEntity, Map<String, Double>> describeClientQuotas() throws ExecutionException, InterruptedException {
+  public Map<ClientQuotaEntity, Map<String, Double>> describeClientQuotas()
+      throws ExecutionException, InterruptedException {
     return this.adminClient.describeClientQuotas(ClientQuotaFilter.all()).entities().get();
   }
 

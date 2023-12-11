@@ -2,7 +2,6 @@ package com.purbon.kafka.topology.model.users.platform;
 
 import com.purbon.kafka.topology.model.User;
 import com.purbon.kafka.topology.model.users.Quota;
-
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
