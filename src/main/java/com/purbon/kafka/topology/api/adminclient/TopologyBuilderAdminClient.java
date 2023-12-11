@@ -2,15 +2,12 @@ package com.purbon.kafka.topology.api.adminclient;
 
 import com.purbon.kafka.topology.actions.topics.TopicConfigUpdatePlan;
 import com.purbon.kafka.topology.model.Topic;
+import com.purbon.kafka.topology.model.User;
+import com.purbon.kafka.topology.model.users.Quota;
+import com.purbon.kafka.topology.quotas.QuotasClientBindingsBuilder;
 import com.purbon.kafka.topology.roles.TopologyAclBinding;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 import org.apache.kafka.clients.admin.AdminClient;
@@ -31,6 +28,9 @@ import org.apache.kafka.common.config.ConfigResource;
 import org.apache.kafka.common.config.ConfigResource.Type;
 import org.apache.kafka.common.errors.InvalidConfigurationException;
 import org.apache.kafka.common.errors.TopicExistsException;
+import org.apache.kafka.common.quota.ClientQuotaAlteration;
+import org.apache.kafka.common.quota.ClientQuotaEntity;
+import org.apache.kafka.common.quota.ClientQuotaFilter;
 import org.apache.kafka.common.resource.PatternType;
 import org.apache.kafka.common.resource.ResourcePatternFilter;
 import org.apache.kafka.common.resource.ResourceType;
@@ -252,6 +252,36 @@ public class TopologyBuilderAdminClient {
     } catch (ExecutionException | InterruptedException e) {
       LOGGER.error(e);
     }
+  }
+
+  public void assignQuotasPrincipal(Collection<Quota> quotas) {
+    List<ClientQuotaAlteration> lstQuotasAlteration =
+            quotas.stream()
+                    .map(f -> new QuotasClientBindingsBuilder(f).build())
+                    .collect(Collectors.toList());
+
+    this.adminClient.alterClientQuotas(lstQuotasAlteration).all();
+  }
+
+  public void removeQuotasPrincipal(Collection<User> users) {
+    List<ClientQuotaAlteration> lstQuotasRemove =
+            users.stream()
+                    .map(
+                            f ->
+                                    new QuotasClientBindingsBuilder(
+                                            new Quota(
+                                                    f.getPrincipal(),
+                                                    Optional.empty(),
+                                                    Optional.empty(),
+                                                    Optional.empty()))
+                                            .build())
+                    .collect(Collectors.toList());
+    this.adminClient.alterClientQuotas(lstQuotasRemove);
+  }
+
+  // TODO: Use this function to manage quota deletion
+  public Map<ClientQuotaEntity, Map<String, Double>> describeClientQuotas() throws ExecutionException, InterruptedException {
+    return this.adminClient.describeClientQuotas(ClientQuotaFilter.all()).entities().get();
   }
 
   public void close() {

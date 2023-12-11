@@ -83,7 +83,7 @@ public class QuotasManagerIT {
 
     this.topicManager = new TopicManager(topologyAdminClient, null, config);
     bindingsBuilder = new AclsBindingsBuilder(config);
-    quotasManager = new QuotasManager(kafkaAdminClient, config);
+    quotasManager = new QuotasManager(topologyAdminClient, config);
     aclsProvider = new SimpleAclsProvider(topologyAdminClient);
 
     accessControlManager = new AccessControlManager(aclsProvider, bindingsBuilder, config);
@@ -128,8 +128,7 @@ public class QuotasManagerIT {
     Quota quota = new Quota("user1", Optional.empty(), Optional.of(20.0));
     quotas.add(quota);
 
-    quotasManager.assignQuotasPrincipal(quotas);
-
+    topologyAdminClient.assignQuotasPrincipal(quotas);
     // Verify Quotas
     verifyQuotasOnlyUser(quotas);
   }
@@ -145,12 +144,12 @@ public class QuotasManagerIT {
     Quota quota = new Quota("user3", Optional.empty(), Optional.of(20.0));
     quotas.add(quota);
 
-    quotasManager.assignQuotasPrincipal(quotas);
+    topologyAdminClient.assignQuotasPrincipal(quotas);
     // Verify Quotas
     assertTrue(verifyQuotasOnlyUser(quotas).stream().allMatch(f -> f.equals(true)));
 
     // Remove quota
-    quotasManager.removeQuotasPrincipal(List.of(new User("user3")));
+    topologyAdminClient.removeQuotasPrincipal(List.of(new User("user3")));
     assertTrue(verifyQuotasOnlyUser(quotas).stream().allMatch(f -> f.equals(false)));
   }
 
@@ -165,7 +164,7 @@ public class QuotasManagerIT {
     List<Quota> quotas = new ArrayList<>();
     Quota quota = new Quota("user1", Optional.empty(), Optional.of(20.0));
     quotas.add(quota);
-    quotasManager.assignQuotasPrincipal(quotas);
+    topologyAdminClient.assignQuotasPrincipal(quotas);
     // Verify Quotas
     assertTrue(verifyQuotasOnlyUser(quotas).stream().allMatch(f -> f.equals(true)));
 
@@ -173,7 +172,7 @@ public class QuotasManagerIT {
     Quota quotaUpdate = new Quota("user1", Optional.of(150.0), Optional.of(250.0));
     quotas.clear();
     quotas.add(quotaUpdate);
-    quotasManager.assignQuotasPrincipal(quotas);
+    topologyAdminClient.assignQuotasPrincipal(quotas);
     assertTrue(verifyQuotasOnlyUser(quotas).stream().allMatch(f -> f.equals(true)));
   }
 
@@ -190,11 +189,11 @@ public class QuotasManagerIT {
     quotas.add(quota);
     Quota quota2 = new Quota("user2", Optional.of(300.0), Optional.of(100.0), Optional.of(50.0));
     quotas.add(quota2);
-    quotasManager.assignQuotasPrincipal(quotas);
+    topologyAdminClient.assignQuotasPrincipal(quotas);
     // Verify Quotas
     assertTrue(verifyQuotasOnlyUser(quotas).stream().allMatch(f -> f.equals(true)));
 
-    quotasManager.removeQuotasPrincipal(List.of(new User("user2")));
+    topologyAdminClient.removeQuotasPrincipal(List.of(new User("user2")));
     assertTrue(verifyQuotasOnlyUser(List.of(quota)).stream().allMatch(f -> f.equals(true)));
 
     assertTrue(verifyQuotasOnlyUser(List.of(quota2)).stream().allMatch(f -> f.equals(false)));
