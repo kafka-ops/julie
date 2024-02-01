@@ -549,7 +549,7 @@
     <aws.java.sdk.version>2.20.144</aws.java.sdk.version>
     <commons.version>1.5.0</commons.version>
     <confluent-ce.version>7.5.0-ce</confluent-ce.version>
-    <confluent.version>7.5.0</confluent.version>
+    <confluent.version>7.5.1</confluent.version>
     <gcp.java.sdk.version>26.22.0</gcp.java.sdk.version>
     <hamcrest.version>2.2</hamcrest.version>
     <jackson.version>2.15.2</jackson.version>
