@@ -90,7 +90,15 @@ public class TopicCustomDeserializer extends StdDeserializer<Topic> {
                 "Topic \"" + name + "\" references non-existing plan \"" + planLabel + "\"");
           }
         });
-    Topic topic = new Topic(name, producers, consumers, optionalDataType, config, this.config);
+    Topic topic =
+        new Topic(
+            name,
+            producers,
+            consumers,
+            optionalDataType,
+            config,
+            this.config,
+            optionalPlanLabel.isPresent() ? optionalPlanLabel.get().asText() : null);
 
     Optional<SubjectNameStrategy> subjectNameStrategy =
         Optional.ofNullable(rootNode.get("subject.name.strategy"))
