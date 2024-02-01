@@ -30,52 +30,52 @@ C3=c3-cluster
 ################################### SETUP SUPERUSER ###################################
 echo "Creating Super User role bindings"
 
-confluent iam rolebinding create \
+confluent iam rbac role-binding create \
     --principal $SUPER_USER_PRINCIPAL  \
     --role SystemAdmin \
-    --kafka-cluster-id $KAFKA_CLUSTER_ID
+    --kafka-cluster $KAFKA_CLUSTER_ID
 
-confluent iam rolebinding create \
+confluent iam rbac role-binding create \
     --principal $SUPER_USER_PRINCIPAL \
     --role SystemAdmin \
-    --kafka-cluster-id $KAFKA_CLUSTER_ID \
-    --schema-registry-cluster-id $SR
+    --kafka-cluster $KAFKA_CLUSTER_ID \
+    --schema-registry-cluster $SR
 
-confluent iam rolebinding create \
+confluent iam rbac role-binding create \
     --principal $SUPER_USER_PRINCIPAL \
     --role SystemAdmin \
-    --kafka-cluster-id $KAFKA_CLUSTER_ID \
-    --connect-cluster-id $CONNECT
+    --kafka-cluster $KAFKA_CLUSTER_ID \
+    --connect-cluster $CONNECT
 
 ################################### SCHEMA REGISTRY ###################################
 echo "Creating Schema Registry role bindings"
 
 # SecurityAdmin on SR cluster itself
-confluent iam rolebinding create \
+confluent iam rbac role-binding create \
     --principal $SR_PRINCIPAL \
     --role SecurityAdmin \
-    --kafka-cluster-id $KAFKA_CLUSTER_ID \
-    --schema-registry-cluster-id $SR
+    --kafka-cluster $KAFKA_CLUSTER_ID \
+    --schema-registry-cluster $SR
 
 # ResourceOwner for groups and topics on broker
 for resource in Topic:_schemas Group:schema-registry
 do
-    confluent iam rolebinding create \
+    confluent iam rbac role-binding create \
         --principal $SR_PRINCIPAL \
         --role ResourceOwner \
         --resource $resource \
-        --kafka-cluster-id $KAFKA_CLUSTER_ID
+        --kafka-cluster $KAFKA_CLUSTER_ID
 done
 
 ################################### CONNECT ###################################
 echo "Creating Connect role bindings"
 
 # SecurityAdmin on the connect cluster itself
-confluent iam rolebinding create \
+confluent iam rbac role-binding create \
     --principal $CONNECT_PRINCIPAL \
     --role SecurityAdmin \
-    --kafka-cluster-id $KAFKA_CLUSTER_ID \
-    --connect-cluster-id $CONNECT
+    --kafka-cluster $KAFKA_CLUSTER_ID \
+    --connect-cluster $CONNECT
 
 # ResourceOwner for groups and topics on broker
 declare -a ConnectResources=(
@@ -88,37 +88,37 @@ declare -a ConnectResources=(
 )
 for resource in ${ConnectResources[@]}
 do
-    confluent iam rolebinding create \
+    confluent iam rbac role-binding create \
         --principal $CONNECT_PRINCIPAL \
         --role ResourceOwner \
         --resource $resource \
-        --kafka-cluster-id $KAFKA_CLUSTER_ID
+        --kafka-cluster $KAFKA_CLUSTER_ID
 done
 
 ################################### C3 ###################################
 echo "Creating C3 role bindings"
 
 # C3 only needs SystemAdmin on the kafka cluster itself
-confluent iam rolebinding create \
+confluent iam rbac role-binding create \
     --principal $C3_PRINCIPAL \
     --role SystemAdmin \
-    --kafka-cluster-id $KAFKA_CLUSTER_ID
+    --kafka-cluster $KAFKA_CLUSTER_ID
 
 ################################### OTHER ROLE ###################################
 
-confluent iam rolebinding create \
+confluent iam rbac role-binding create \
     --principal $OTHER_PRINCIPAL \
     --role DeveloperWrite \
     --resource "Topic:connect-configs" \
-    --kafka-cluster-id $KAFKA_CLUSTER_ID
+    --kafka-cluster $KAFKA_CLUSTER_ID
 
 
-confluent iam rolebinding create \
+confluent iam rbac role-binding create \
     --principal $OTHER_PRINCIPAL \
     --role ResourceOwner \
     --resource "Topic:zaragoza." \
     --prefix \
-    --kafka-cluster-id $KAFKA_CLUSTER_ID
+    --kafka-cluster $KAFKA_CLUSTER_ID
 
 echo "Finished setting up role bindings"
 echo "    kafka cluster id: $KAFKA_CLUSTER_ID"
