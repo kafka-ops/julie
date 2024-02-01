@@ -55,8 +55,12 @@ public class KafkaBackendConsumer {
       for (ConsumerRecord<String, BackendState> record : records) {
         callback.apply(record);
       }
-      if (records.count() > 0 || times >= config.getKafkaBackendConsumerRetries()) {
+      if(records.count() > 0){
+        times = 0;
+      }
+      if (records.count() == 0 && times >= config.getKafkaBackendConsumerRetries()) {
         callback.initialLoadFinish();
+        break;
       }
       times += 1;
     }
