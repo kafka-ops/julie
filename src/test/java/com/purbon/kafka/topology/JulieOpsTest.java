@@ -140,7 +140,7 @@ public class JulieOpsTest {
     String clientConfigFile = TestUtils.getResourceFilename("/client-config.properties");
 
     Map<String, String> config = new HashMap<>();
-    config.put(BROKERS_OPTION, "localhost:9092");
+    config.put(BROKERS_OPTION, "localhost:9093");
     config.put(DRY_RUN_OPTION, "true");
     config.put(QUIET_OPTION, "false");
     config.put(CLIENT_CONFIG_OPTION, clientConfigFile);
@@ -206,7 +206,7 @@ public class JulieOpsTest {
     String clientConfigFile = TestUtils.getResourceFilename("/client-config-redis.properties");
 
     Map<String, String> config = new HashMap<>();
-    config.put(BROKERS_OPTION, "localhost:9092");
+    config.put(BROKERS_OPTION, "localhost:9093");
     config.put(DRY_RUN_OPTION, "true");
     config.put(QUIET_OPTION, "false");
     config.put(CLIENT_CONFIG_OPTION, clientConfigFile);
