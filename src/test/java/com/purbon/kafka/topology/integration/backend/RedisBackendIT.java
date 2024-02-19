@@ -41,7 +41,7 @@ public class RedisBackendIT {
 
   @Rule
   public GenericContainer redis =
-      new GenericContainer<>(DockerImageName.parse("redis:5.0.3-alpine")).withExposedPorts(6379);
+      new GenericContainer<>(DockerImageName.parse("redis:7.2.4")).withExposedPorts(6379);
 
   private static SaslPlaintextKafkaContainer container;
   private TopicManager topicManager;
