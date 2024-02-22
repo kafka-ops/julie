@@ -158,6 +158,6 @@ public class RedisBackendIT {
     String content = jedis.get(bucket);
     assertThat(content)
         .contains(
-            "\"topics\" : [ \"testTopicCreation.project.topicB\", \"testTopicCreation.project.topicA\" ]");
+            "\"topics\" : [\n    \"testTopicCreation.project.topicB\",\n    \"testTopicCreation.project.topicA\"\n  ]");
   }
 }

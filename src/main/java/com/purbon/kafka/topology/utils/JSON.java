@@ -1,8 +1,11 @@
 package com.purbon.kafka.topology.utils;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.util.DefaultIndenter;
+import com.fasterxml.jackson.core.util.DefaultPrettyPrinter;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.ObjectWriter;
 import com.fasterxml.jackson.databind.type.CollectionType;
 import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
 import java.util.List;
@@ -27,7 +30,7 @@ public class JSON {
   }
 
   public static String asPrettyString(Map map) throws JsonProcessingException {
-    return mapper.writerWithDefaultPrettyPrinter().writeValueAsString(map);
+    return getPrettyWriter().writeValueAsString(map);
   }
 
   public static List<String> toArray(String jsonString) throws JsonProcessingException {
@@ -39,7 +42,7 @@ public class JSON {
   }
 
   public static String asPrettyString(Object object) throws JsonProcessingException {
-    return mapper.writerWithDefaultPrettyPrinter().writeValueAsString(object);
+    return getPrettyWriter().writeValueAsString(object);
   }
 
   public static Object toObjectList(String jsonString, Class objectClazz)
@@ -56,5 +59,11 @@ public class JSON {
 
   public static JsonNode toNode(String jsonString) throws JsonProcessingException {
     return mapper.readTree(jsonString);
+  }
+
+  private static ObjectWriter getPrettyWriter() {
+    DefaultPrettyPrinter prettyPrinter = new DefaultPrettyPrinter();
+    prettyPrinter.indentArraysWith(DefaultIndenter.SYSTEM_LINEFEED_INSTANCE);
+    return mapper.writer(prettyPrinter);
   }
 }
