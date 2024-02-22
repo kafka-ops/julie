@@ -14,11 +14,15 @@ import java.util.Map;
 public class JSON {
 
   private static final ObjectMapper mapper;
+  private static final ObjectWriter prettyWriter;
 
   static {
     mapper = new ObjectMapper();
     mapper.registerModule(new Jdk8Module());
     mapper.findAndRegisterModules();
+    DefaultPrettyPrinter prettyPrinter = new DefaultPrettyPrinter();
+    prettyPrinter.indentArraysWith(DefaultIndenter.SYSTEM_LINEFEED_INSTANCE);
+    prettyWriter = mapper.writer(prettyPrinter);
   }
 
   public static Map<String, Object> toMap(String jsonString) throws JsonProcessingException {
@@ -30,7 +34,7 @@ public class JSON {
   }
 
   public static String asPrettyString(Map map) throws JsonProcessingException {
-    return getPrettyWriter().writeValueAsString(map);
+    return prettyWriter.writeValueAsString(map);
   }
 
   public static List<String> toArray(String jsonString) throws JsonProcessingException {
@@ -42,7 +46,7 @@ public class JSON {
   }
 
   public static String asPrettyString(Object object) throws JsonProcessingException {
-    return getPrettyWriter().writeValueAsString(object);
+    return prettyWriter.writeValueAsString(object);
   }
 
   public static Object toObjectList(String jsonString, Class objectClazz)
@@ -59,11 +63,5 @@ public class JSON {
 
   public static JsonNode toNode(String jsonString) throws JsonProcessingException {
     return mapper.readTree(jsonString);
-  }
-
-  private static ObjectWriter getPrettyWriter() {
-    DefaultPrettyPrinter prettyPrinter = new DefaultPrettyPrinter();
-    prettyPrinter.indentArraysWith(DefaultIndenter.SYSTEM_LINEFEED_INSTANCE);
-    return mapper.writer(prettyPrinter);
   }
 }
