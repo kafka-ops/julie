@@ -40,6 +40,9 @@ public class CommandLineInterface {
   public static final String QUIET_OPTION = "quiet";
   public static final String QUIET_DESC = "Print minimum status update";
 
+  public static final String DONT_WARN_FOR_READ_ONLY_STREAMS_OPTION = "accept-read-only-streams";
+  public static final String DONT_WARN_FOR_READ_ONLY_STREAMS_DESC =
+      "Don't warn for streams that only have readers. Use this if you abuse streams to have a lazy person's consumers with state.";
   public static final String VALIDATE_OPTION = "validate";
   public static final String VALIDATE_DESC = "Only run configured validations in your topology";
 
@@ -109,6 +112,14 @@ public class CommandLineInterface {
             .required(false)
             .build();
 
+    final Option dontWarnForReadOnlyStreamsOption =
+        Option.builder()
+            .longOpt(DONT_WARN_FOR_READ_ONLY_STREAMS_OPTION)
+            .hasArg(false)
+            .desc(DONT_WARN_FOR_READ_ONLY_STREAMS_DESC)
+            .required(false)
+            .build();
+
     final Option quietOption =
         Option.builder()
             .longOpt(QUIET_OPTION)
@@ -146,6 +157,7 @@ public class CommandLineInterface {
     options.addOption(overridingAdminClientConfigFileOption);
     options.addOption(dryRunOption);
     options.addOption(recursiveOption);
+    options.addOption(dontWarnForReadOnlyStreamsOption);
     options.addOption(quietOption);
     options.addOption(validateOption);
     options.addOption(versionOption);

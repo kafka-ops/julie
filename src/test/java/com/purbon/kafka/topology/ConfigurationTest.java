@@ -21,6 +21,7 @@ import java.io.IOException;
 import java.util.*;
 import java.util.stream.Collectors;
 import org.assertj.core.api.Condition;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -335,5 +336,19 @@ public class ConfigurationTest {
     props.put(SERVICE_ACCOUNT_MANAGED_PREFIXES + ".0", "");
     Configuration config = new Configuration(cliOps, props);
     config.validateWith(topology);
+  }
+
+  @Test
+  public void shouldWarnForReadOnlyStreamsByDefaultToKeepBackwardsCompatibility() {
+    Configuration config = new Configuration(cliOps, props);
+    Assert.assertTrue(config.isWarnIfReadOnlyStreams());
+  }
+
+  @Test
+  public void shouldOverrideWarnForReadOnlyStreamsFromCommandLine() {
+    Map<String, String> localCliOps = new HashMap<>();
+    localCliOps.put(CommandLineInterface.DONT_WARN_FOR_READ_ONLY_STREAMS_OPTION, "true");
+    Configuration config = new Configuration(localCliOps, props);
+    Assert.assertFalse(config.isWarnIfReadOnlyStreams());
   }
 }

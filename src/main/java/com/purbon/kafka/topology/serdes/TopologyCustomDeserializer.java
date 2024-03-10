@@ -423,15 +423,15 @@ public class TopologyCustomDeserializer extends StdDeserializer<Topology> {
 
     for (KStream ks : streams) {
       var topics = ks.getTopics();
-      if (topics.get(KStream.READ_TOPICS).isEmpty() || topics.get(KStream.WRITE_TOPICS).isEmpty()) {
+      if (topics.get(KStream.WRITE_TOPICS).isEmpty() && config.isWarnIfReadOnlyStreams()) {
         LOGGER.warn(
             "A Kafka Streams application with Id ("
                 + ks.getApplicationId()
                 + ") and Principal ("
                 + ks.getPrincipal()
                 + ")"
-                + " might require both read and write topics as per its "
-                + "nature it is always reading and writing into Apache Kafka, be aware if you notice problems.");
+                + " might require both read and write topics, as per its "
+                + "nature, it is always reading and writing into Apache Kafka.");
       }
       if (topics.get(KStream.READ_TOPICS).isEmpty()) {
         // should have at minimum read topics defined as we could think of write topics as internal

@@ -392,6 +392,12 @@ public class Configuration {
     return config.getBoolean(ALLOW_DELETE_KSQL_ARTEFACTS);
   }
 
+  public boolean isWarnIfReadOnlyStreams() {
+    return !Boolean.parseBoolean(
+            cliParams.getOrDefault(DONT_WARN_FOR_READ_ONLY_STREAMS_OPTION, "false"))
+        && config.getBoolean(STREAMS_WARN_IF_READ_ONLY);
+  }
+
   public boolean enabledPrincipalTranslation() {
     return config.getBoolean(TOPOLOGY_PRINCIPAL_TRANSLATION_ENABLED_CONFIG);
   }
