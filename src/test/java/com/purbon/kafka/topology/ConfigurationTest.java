@@ -351,4 +351,18 @@ public class ConfigurationTest {
     Configuration config = new Configuration(localCliOps, props);
     Assert.assertFalse(config.isWarnIfReadOnlyStreams());
   }
+
+  @Test
+  public void shouldWarnForProjectsWithoutTopicsToKeepBackwardsCompatibility() {
+    Configuration config = new Configuration(cliOps, props);
+    Assert.assertTrue(config.isWarnIfProjectsWithoutTopics());
+  }
+
+  @Test
+  public void shouldOverrideWarnForProjectsWithoutTopicsFromCommandLine() {
+    Map<String, String> localCliOps = new HashMap<>();
+    localCliOps.put(CommandLineInterface.DONT_WARN_FOR_PROJECTS_WITHOUT_TOPICS_OPTION, "true");
+    Configuration config = new Configuration(localCliOps, props);
+    Assert.assertFalse(config.isWarnIfProjectsWithoutTopics());
+  }
 }

@@ -398,6 +398,12 @@ public class Configuration {
         && config.getBoolean(STREAMS_WARN_IF_READ_ONLY);
   }
 
+  public boolean isWarnIfProjectsWithoutTopics() {
+    return !Boolean.parseBoolean(
+            cliParams.getOrDefault(DONT_WARN_FOR_PROJECTS_WITHOUT_TOPICS_OPTION, "false"))
+        && config.getBoolean(PROJECTS_WARN_IF_NO_TOPICS);
+  }
+
   public boolean enabledPrincipalTranslation() {
     return config.getBoolean(TOPOLOGY_PRINCIPAL_TRANSLATION_ENABLED_CONFIG);
   }

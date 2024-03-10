@@ -43,6 +43,12 @@ public class CommandLineInterface {
   public static final String DONT_WARN_FOR_READ_ONLY_STREAMS_OPTION = "accept-read-only-streams";
   public static final String DONT_WARN_FOR_READ_ONLY_STREAMS_DESC =
       "Don't warn for streams that only have readers. Use this if you abuse streams to have a lazy person's consumers with state.";
+
+  public static final String DONT_WARN_FOR_PROJECTS_WITHOUT_TOPICS_OPTION =
+      "accept-projects-without-topics";
+  public static final String DONT_WARN_FOR_PROJECTS_WITHOUT_TOPICS_DESC =
+      "Don't warn for projects without topics.";
+
   public static final String VALIDATE_OPTION = "validate";
   public static final String VALIDATE_DESC = "Only run configured validations in your topology";
 
@@ -120,6 +126,14 @@ public class CommandLineInterface {
             .required(false)
             .build();
 
+    final Option dontWarnForProjectsWithoutTopicsOption =
+        Option.builder()
+            .longOpt(DONT_WARN_FOR_PROJECTS_WITHOUT_TOPICS_OPTION)
+            .hasArg(false)
+            .desc(DONT_WARN_FOR_PROJECTS_WITHOUT_TOPICS_DESC)
+            .required(false)
+            .build();
+
     final Option quietOption =
         Option.builder()
             .longOpt(QUIET_OPTION)
@@ -158,6 +172,7 @@ public class CommandLineInterface {
     options.addOption(dryRunOption);
     options.addOption(recursiveOption);
     options.addOption(dontWarnForReadOnlyStreamsOption);
+    options.addOption(dontWarnForProjectsWithoutTopicsOption);
     options.addOption(quietOption);
     options.addOption(validateOption);
     options.addOption(versionOption);
@@ -197,6 +212,12 @@ public class CommandLineInterface {
     }
     config.put(DRY_RUN_OPTION, String.valueOf(cmd.hasOption(DRY_RUN_OPTION)));
     config.put(RECURSIVE_OPTION, String.valueOf(cmd.hasOption(RECURSIVE_OPTION)));
+    config.put(
+        DONT_WARN_FOR_READ_ONLY_STREAMS_OPTION,
+        String.valueOf(cmd.hasOption(DONT_WARN_FOR_READ_ONLY_STREAMS_OPTION)));
+    config.put(
+        DONT_WARN_FOR_PROJECTS_WITHOUT_TOPICS_OPTION,
+        String.valueOf(cmd.hasOption(DONT_WARN_FOR_PROJECTS_WITHOUT_TOPICS_OPTION)));
     config.put(QUIET_OPTION, String.valueOf(cmd.hasOption(QUIET_OPTION)));
     config.put(VALIDATE_OPTION, String.valueOf(cmd.hasOption(VALIDATE_OPTION)));
     config.put(

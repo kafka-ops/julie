@@ -252,11 +252,13 @@ public class TopologyCustomDeserializer extends StdDeserializer<Topology> {
 
     var topicsNode = rootNode.get(TOPICS_KEY);
     if (topicsNode == null) {
-      LOGGER.warn(
-          TOPICS_KEY
-              + " is missing for project: "
-              + project.getName()
-              + ", this might be a required field, be aware.");
+      if (config.isWarnIfProjectsWithoutTopics()) {
+        LOGGER.warn(
+            TOPICS_KEY
+                + " is missing for project: "
+                + project.getName()
+                + ", this might be a required field, be aware.");
+      }
     } else {
       var allowList =
           config.getDlqTopicsAllowList().stream()

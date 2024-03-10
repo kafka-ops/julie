@@ -38,12 +38,8 @@ public class CLITest {
 
     doNothing().when(cli).processTopology(eq("descriptor.yaml"), eq("default"), anyMap());
 
-    Map<String, String> config = new HashMap<>();
+    Map<String, String> config = getDefaultMap();
     config.put(BROKERS_OPTION, "localhost:9092");
-    config.put(DRY_RUN_OPTION, "false");
-    config.put(RECURSIVE_OPTION, "false");
-    config.put(QUIET_OPTION, "false");
-    config.put(VALIDATE_OPTION, "false");
     config.put(CLIENT_CONFIG_OPTION, "topology-builder-sasl-plain.properties");
     config.put(OVERRIDING_CLIENT_CONFIG_OPTION, null);
     cli.run(args);
@@ -63,16 +59,24 @@ public class CLITest {
 
     doNothing().when(cli).processTopology(eq("descriptor.yaml"), eq("default"), anyMap());
 
-    Map<String, String> config = new HashMap<>();
+    Map<String, String> config = getDefaultMap();
     config.put(BROKERS_OPTION, "localhost:9092");
     config.put(DRY_RUN_OPTION, "true");
-    config.put(RECURSIVE_OPTION, "false");
-    config.put(QUIET_OPTION, "false");
-    config.put(VALIDATE_OPTION, "false");
     config.put(CLIENT_CONFIG_OPTION, "topology-builder-sasl-plain.properties");
     config.put(OVERRIDING_CLIENT_CONFIG_OPTION, null);
     cli.run(args);
 
     verify(cli, times(1)).processTopology(eq("descriptor.yaml"), eq("default"), eq(config));
+  }
+
+  private Map<String, String> getDefaultMap() {
+    Map<String, String> map = new HashMap<>();
+    map.put(DRY_RUN_OPTION, "false");
+    map.put(RECURSIVE_OPTION, "false");
+    map.put(QUIET_OPTION, "false");
+    map.put(VALIDATE_OPTION, "false");
+    map.put(DONT_WARN_FOR_READ_ONLY_STREAMS_OPTION, "false");
+    map.put(DONT_WARN_FOR_PROJECTS_WITHOUT_TOPICS_OPTION, "false");
+    return map;
   }
 }

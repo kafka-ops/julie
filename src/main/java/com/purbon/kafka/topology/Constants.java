@@ -83,6 +83,7 @@ public class Constants {
   public static final String ALLOW_DELETE_CONNECT_ARTEFACTS = "allow.delete.artefacts.connect";
   public static final String ALLOW_DELETE_KSQL_ARTEFACTS = "allow.delete.artefacts.ksql";
   public static final String STREAMS_WARN_IF_READ_ONLY = "streams.warn-if.read-only";
+  public static final String PROJECTS_WARN_IF_NO_TOPICS = "projects.warn-if.no-topics";
   public static final String JULIE_ENABLE_PRINCIPAL_MANAGEMENT =
       "julie.enable.principal.management";
 
