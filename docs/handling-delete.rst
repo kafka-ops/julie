@@ -31,9 +31,17 @@ The user can control topic deletion by:
 - setting the *allow.delete.topics* configuration in the provided file to the tool.
 - set the ENV variable *ALLOW_DELETE_TOPICS* when calling the tool from the CLI.
 
+Quotas deletion flag
+^^^^^^^^^^^
+The user can control quota deletion by:
+
+- setting the *allow.delete.quotas* configuration in the provided file to the tool.
+- set the ENV variable *ALLOW_DELETE_QUOTAS* when calling the tool from the CLI.
+- **Warning**: no prefix management is implemented, therefore quotas must be managed in one unique file.
+
 Bindings deletion flag
 ^^^^^^^^^^^
-
+$
 The user can control bindings deletion by:
 
 - setting the *allow.delete.bindings* configuration in the provided file to the tool.

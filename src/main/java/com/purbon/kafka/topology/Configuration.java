@@ -376,6 +376,10 @@ public class Configuration {
     return config.getBoolean(ALLOW_DELETE_TOPICS);
   }
 
+  public boolean isAllowDeleteQuotas() {
+    return config.getBoolean(ALLOW_DELETE_QUOTAS);
+  }
+
   public boolean isAllowDeleteBindings() {
     return config.getBoolean(ALLOW_DELETE_BINDINGS);
   }

@@ -2,20 +2,21 @@ package com.purbon.kafka.topology.integration;
 
 import static com.purbon.kafka.topology.CommandLineInterface.BROKERS_OPTION;
 import static com.purbon.kafka.topology.Constants.*;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 import com.purbon.kafka.topology.*;
+import com.purbon.kafka.topology.actions.Action;
+import com.purbon.kafka.topology.actions.quotas.CreateQuotasAction;
+import com.purbon.kafka.topology.actions.quotas.DeleteQuotasAction;
 import com.purbon.kafka.topology.api.adminclient.TopologyBuilderAdminClient;
 import com.purbon.kafka.topology.integration.containerutils.*;
+import com.purbon.kafka.topology.model.*;
 import com.purbon.kafka.topology.model.Impl.ProjectImpl;
 import com.purbon.kafka.topology.model.Impl.TopologyImpl;
-import com.purbon.kafka.topology.model.Project;
-import com.purbon.kafka.topology.model.Topic;
-import com.purbon.kafka.topology.model.Topology;
-import com.purbon.kafka.topology.model.User;
 import com.purbon.kafka.topology.model.users.Consumer;
 import com.purbon.kafka.topology.model.users.Producer;
 import com.purbon.kafka.topology.model.users.Quota;
+import com.purbon.kafka.topology.model.users.platform.Kafka;
 import com.purbon.kafka.topology.quotas.QuotasManager;
 import com.purbon.kafka.topology.roles.SimpleAclsProvider;
 import com.purbon.kafka.topology.roles.acls.AclsBindingsBuilder;
@@ -41,6 +42,8 @@ public class QuotasManagerIT {
 
   private ExecutionPlan plan;
   private BackendController cs;
+
+  private Configuration config;
 
   private QuotasManager quotasManager;
   private AclsBindingsBuilder bindingsBuilder;
@@ -76,20 +79,87 @@ public class QuotasManagerIT {
     cliOps.put(BROKERS_OPTION, "");
     cliOps.put(CCLOUD_ENV_CONFIG, "");
 
-    Configuration config = new Configuration(cliOps, props);
+    config = new Configuration(cliOps, props);
 
     this.cs = new BackendController();
     this.plan = ExecutionPlan.init(cs, System.out);
 
     this.topicManager = new TopicManager(topologyAdminClient, null, config);
     bindingsBuilder = new AclsBindingsBuilder(config);
-    quotasManager = new QuotasManager(kafkaAdminClient, config);
+    quotasManager = new QuotasManager(topologyAdminClient, config);
     aclsProvider = new SimpleAclsProvider(topologyAdminClient);
 
     accessControlManager = new AccessControlManager(aclsProvider, bindingsBuilder, config);
   }
 
-  private Topology woldMSpecPattern() throws ExecutionException, InterruptedException, IOException {
+  private Topology woldMSpecPattern() {
+    List<Producer> producers = new ArrayList<>();
+    Producer producer = new Producer("User:user1");
+    producers.add(producer);
+    Producer producer2 = new Producer("User:user2");
+    producers.add(producer2);
+
+    List<Consumer> consumers = new ArrayList<>();
+    Consumer consumer = new Consumer("User:user1");
+    consumers.add(consumer);
+    Consumer consumer2 = new Consumer("User:user2");
+    consumers.add(consumer2);
+
+    Project project = new ProjectImpl("project");
+    project.setProducers(producers);
+    project.setConsumers(consumers);
+
+    Topic topicA = new Topic("topicA");
+    project.addTopic(topicA);
+
+    Topology topology = new TopologyImpl();
+    topology.setContext("integration-test");
+    topology.addOther("source", "producerAclsCreation");
+    topology.addProject(project);
+
+    return topology;
+  }
+
+  private Topology topologyWithQuotas() {
+    List<Producer> producers = new ArrayList<>();
+    Producer producer = new Producer("User:user1");
+    producers.add(producer);
+    Producer producer2 = new Producer("User:user2");
+    producers.add(producer2);
+
+    List<Consumer> consumers = new ArrayList<>();
+    Consumer consumer = new Consumer("User:user1");
+    consumers.add(consumer);
+    Consumer consumer2 = new Consumer("User:user2");
+    consumers.add(consumer2);
+
+    Project project = new ProjectImpl("project");
+    project.setProducers(producers);
+    project.setConsumers(consumers);
+
+    Topic topicA = new Topic("topicA");
+    project.addTopic(topicA);
+
+    Platform platform = new Platform();
+    Kafka kafka = new Kafka();
+    Quota quota = new Quota();
+    quota.setPrincipal("User:user1");
+    quota.setConsumer_byte_rate(Optional.of(1024d));
+    quota.setProducer_byte_rate(Optional.of(1024d));
+    quota.setRequest_percentage(Optional.of(80d));
+    kafka.setQuotas(Optional.of(List.of(quota)));
+    platform.setKafka(kafka);
+
+    Topology topology = new TopologyImpl();
+    topology.setContext("integration-test");
+    topology.addOther("source", "producerAclsCreation");
+    topology.addProject(project);
+    topology.setPlatform(platform);
+
+    return topology;
+  }
+
+  private Topology topologyWithoutQuotas() {
     List<Producer> producers = new ArrayList<>();
     Producer producer = new Producer("User:user1");
     producers.add(producer);
@@ -118,6 +188,66 @@ public class QuotasManagerIT {
   }
 
   @Test
+  public void planUpdateTesting() throws IOException {
+    // Test quota creation plan update
+    Topology topology = topologyWithQuotas();
+    quotasManager.updatePlan(topology, plan);
+    plan.run();
+
+    List<Action> actions = plan.getActions();
+
+    assertEquals(1, actions.size());
+    Action action = actions.get(0);
+    assertTrue(action instanceof CreateQuotasAction);
+
+    plan.getActions().clear();
+
+    // Test NOOP plan update
+    quotasManager.updatePlan(topology, plan);
+    plan.run();
+
+    actions = plan.getActions();
+
+    assertTrue(actions.isEmpty());
+
+    plan.getActions().clear();
+
+    // Test quota deletion plan update with deletion disabled
+    assertFalse(config.isAllowDeleteQuotas());
+    topology = topologyWithoutQuotas();
+    quotasManager.updatePlan(topology, plan);
+    plan.run();
+
+    actions = plan.getActions();
+    assertTrue(actions.isEmpty());
+
+    // Test quota deletion plan update with deletion enabled
+    // Enable quota deletion
+    Properties props = new Properties();
+    props.put(TOPOLOGY_TOPIC_STATE_FROM_CLUSTER, "false");
+    props.put(ALLOW_DELETE_TOPICS, true);
+    props.put(ALLOW_DELETE_BINDINGS, true);
+    props.put(ALLOW_DELETE_QUOTAS, true);
+
+    HashMap<String, String> cliOps = new HashMap<>();
+    cliOps.put(BROKERS_OPTION, "");
+    cliOps.put(CCLOUD_ENV_CONFIG, "");
+
+    config = new Configuration(cliOps, props);
+    quotasManager = new QuotasManager(topologyAdminClient, config);
+
+    assertTrue(config.isAllowDeleteQuotas());
+    topology = topologyWithoutQuotas();
+    quotasManager.updatePlan(topology, plan);
+    plan.run();
+
+    actions = plan.getActions();
+    assertEquals(1, actions.size());
+    action = actions.get(0);
+    assertTrue(action instanceof DeleteQuotasAction);
+  }
+
+  @Test
   public void quotaForUserCreation() throws ExecutionException, InterruptedException, IOException {
 
     Topology topology = woldMSpecPattern();
@@ -128,8 +258,7 @@ public class QuotasManagerIT {
     Quota quota = new Quota("user1", Optional.empty(), Optional.of(20.0));
     quotas.add(quota);
 
-    quotasManager.assignQuotasPrincipal(quotas);
-
+    topologyAdminClient.assignQuotasPrincipal(quotas);
     // Verify Quotas
     verifyQuotasOnlyUser(quotas);
   }
@@ -145,12 +274,12 @@ public class QuotasManagerIT {
     Quota quota = new Quota("user3", Optional.empty(), Optional.of(20.0));
     quotas.add(quota);
 
-    quotasManager.assignQuotasPrincipal(quotas);
+    topologyAdminClient.assignQuotasPrincipal(quotas);
     // Verify Quotas
     assertTrue(verifyQuotasOnlyUser(quotas).stream().allMatch(f -> f.equals(true)));
 
     // Remove quota
-    quotasManager.removeQuotasPrincipal(List.of(new User("user3")));
+    topologyAdminClient.removeQuotasPrincipal(List.of(new User("user3")));
     assertTrue(verifyQuotasOnlyUser(quotas).stream().allMatch(f -> f.equals(false)));
   }
 
@@ -165,7 +294,7 @@ public class QuotasManagerIT {
     List<Quota> quotas = new ArrayList<>();
     Quota quota = new Quota("user1", Optional.empty(), Optional.of(20.0));
     quotas.add(quota);
-    quotasManager.assignQuotasPrincipal(quotas);
+    topologyAdminClient.assignQuotasPrincipal(quotas);
     // Verify Quotas
     assertTrue(verifyQuotasOnlyUser(quotas).stream().allMatch(f -> f.equals(true)));
 
@@ -173,7 +302,7 @@ public class QuotasManagerIT {
     Quota quotaUpdate = new Quota("user1", Optional.of(150.0), Optional.of(250.0));
     quotas.clear();
     quotas.add(quotaUpdate);
-    quotasManager.assignQuotasPrincipal(quotas);
+    topologyAdminClient.assignQuotasPrincipal(quotas);
     assertTrue(verifyQuotasOnlyUser(quotas).stream().allMatch(f -> f.equals(true)));
   }
 
@@ -190,11 +319,11 @@ public class QuotasManagerIT {
     quotas.add(quota);
     Quota quota2 = new Quota("user2", Optional.of(300.0), Optional.of(100.0), Optional.of(50.0));
     quotas.add(quota2);
-    quotasManager.assignQuotasPrincipal(quotas);
+    topologyAdminClient.assignQuotasPrincipal(quotas);
     // Verify Quotas
     assertTrue(verifyQuotasOnlyUser(quotas).stream().allMatch(f -> f.equals(true)));
 
-    quotasManager.removeQuotasPrincipal(List.of(new User("user2")));
+    topologyAdminClient.removeQuotasPrincipal(List.of(new User("user2")));
     assertTrue(verifyQuotasOnlyUser(List.of(quota)).stream().allMatch(f -> f.equals(true)));
 
     assertTrue(verifyQuotasOnlyUser(List.of(quota2)).stream().allMatch(f -> f.equals(false)));
