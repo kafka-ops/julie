@@ -151,6 +151,7 @@ public class JulieOpsTest {
     builder.setAccessControlManager(accessControlManager);
     builder.setConnectorManager(connectorManager);
     builder.setKSqlArtefactManager(ksqlArtefactManager);
+    builder.setQuotasManager(quotasManager);
 
     doNothing().when(topicManager).updatePlan(any(ExecutionPlan.class), any(Map.class));
 
@@ -162,6 +163,7 @@ public class JulieOpsTest {
     verify(topicManager, times(1)).updatePlan(any(ExecutionPlan.class), any(Map.class));
     verify(accessControlManager, times(1)).updatePlan(any(ExecutionPlan.class), any(Map.class));
     verify(connectorManager, times(1)).updatePlan(any(ExecutionPlan.class), any(Map.class));
+    verify(quotasManager, times(1)).updatePlan(any(ExecutionPlan.class), any(Map.class));
   }
 
   @Test
@@ -217,6 +219,7 @@ public class JulieOpsTest {
     builder.setAccessControlManager(accessControlManager);
     builder.setConnectorManager(connectorManager);
     builder.setKSqlArtefactManager(ksqlArtefactManager);
+    builder.setQuotasManager(quotasManager);
 
     doNothing().when(topicManager).updatePlan(any(ExecutionPlan.class), any(Map.class));
 
@@ -228,6 +231,7 @@ public class JulieOpsTest {
     verify(stateProcessor, times(1)).createOrOpen();
     verify(topicManager, times(1)).updatePlan(any(ExecutionPlan.class), any(Map.class));
     verify(accessControlManager, times(1)).updatePlan(any(ExecutionPlan.class), any(Map.class));
+    verify(quotasManager, times(1)).updatePlan(any(ExecutionPlan.class), any(Map.class));
   }
 
   @Test
