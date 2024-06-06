@@ -137,9 +137,7 @@ public class TopicManager implements ExecutionPlanUpdater {
               + StringUtils.join(new ArrayList<>(listOfTopics), ","));
 
     if (!config.shouldVerifyRemoteState()) {
-      LOGGER.warn(
-          "Remote state verification disabled, this is not a good practice, be aware"
-              + "in future versions, this check is going to become mandatory.");
+      OnceOnlyWarningLogger.getInstance().logRemoteStateVerificationDisabledWarning();
     }
 
     if (config.shouldVerifyRemoteState() && !config.fetchStateFromTheCluster()) {

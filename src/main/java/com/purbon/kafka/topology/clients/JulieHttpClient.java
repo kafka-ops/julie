@@ -130,7 +130,10 @@ public class JulieHttpClient {
   }
 
   protected KeyManager[] getKeyManagersFromKeyStore(Configuration config)
-      throws NoSuchAlgorithmException, CertificateException, KeyStoreException, IOException,
+      throws NoSuchAlgorithmException,
+          CertificateException,
+          KeyStoreException,
+          IOException,
           UnrecoverableKeyException {
     KeyManagerFactory kmf = KeyManagerFactory.getInstance("PKIX");
     KeyStore ks = loadKeyStore(config.getSslKeyStoreLocation(), config.getSslKeyStorePassword());

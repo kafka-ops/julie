@@ -1,8 +1,11 @@
 package com.purbon.kafka.topology.utils;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.util.DefaultIndenter;
+import com.fasterxml.jackson.core.util.DefaultPrettyPrinter;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.ObjectWriter;
 import com.fasterxml.jackson.databind.type.CollectionType;
 import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
 import java.util.List;
@@ -11,11 +14,15 @@ import java.util.Map;
 public class JSON {
 
   private static final ObjectMapper mapper;
+  private static final ObjectWriter prettyWriter;
 
   static {
     mapper = new ObjectMapper();
     mapper.registerModule(new Jdk8Module());
     mapper.findAndRegisterModules();
+    DefaultPrettyPrinter prettyPrinter = new DefaultPrettyPrinter();
+    prettyPrinter.indentArraysWith(DefaultIndenter.SYSTEM_LINEFEED_INSTANCE);
+    prettyWriter = mapper.writer(prettyPrinter);
   }
 
   public static Map<String, Object> toMap(String jsonString) throws JsonProcessingException {
@@ -27,7 +34,7 @@ public class JSON {
   }
 
   public static String asPrettyString(Map map) throws JsonProcessingException {
-    return mapper.writerWithDefaultPrettyPrinter().writeValueAsString(map);
+    return prettyWriter.writeValueAsString(map);
   }
 
   public static List<String> toArray(String jsonString) throws JsonProcessingException {
@@ -39,7 +46,7 @@ public class JSON {
   }
 
   public static String asPrettyString(Object object) throws JsonProcessingException {
-    return mapper.writerWithDefaultPrettyPrinter().writeValueAsString(object);
+    return prettyWriter.writeValueAsString(object);
   }
 
   public static Object toObjectList(String jsonString, Class objectClazz)
