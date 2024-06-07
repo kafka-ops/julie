@@ -12,6 +12,7 @@ import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.common.errors.WakeupException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.jetbrains.annotations.NotNull;
 
 public class KafkaBackend implements Backend, RecordReceivedCallback {
 
@@ -56,8 +57,8 @@ public class KafkaBackend implements Backend, RecordReceivedCallback {
   public void configure(Configuration config) {
     instanceId = config.getJulieInstanceId();
     latest = new AtomicReference<>(new BackendState());
-    shouldWaitForLoad.set(true);
-    consumer = new KafkaBackendConsumer(config);
+    waitForLoad();
+    consumer = createConsumer(config);
     consumer.configure();
 
     var topics = consumer.listTopics();
@@ -67,12 +68,31 @@ public class KafkaBackend implements Backend, RecordReceivedCallback {
               + config.getJulieKafkaConfigTopic()
               + " should exist in the cluster");
     }
-    producer = new KafkaBackendProducer(config);
+    producer = createProducer(config);
     producer.configure();
 
-    thread = new Thread(new JulieKafkaConsumerThread(this, consumer), "kafkaJulieConsumer");
+    thread = createThread();
     thread.start();
     waitForCompletion();
+  }
+
+  void waitForLoad() {
+    shouldWaitForLoad.set(true);
+  }
+
+  @NotNull
+  Thread createThread() {
+    return new Thread(new JulieKafkaConsumerThread(this, consumer), "kafkaJulieConsumer");
+  }
+
+  @NotNull
+  KafkaBackendProducer createProducer(Configuration config) {
+    return new KafkaBackendProducer(config);
+  }
+
+  @NotNull
+  KafkaBackendConsumer createConsumer(Configuration config) {
+    return new KafkaBackendConsumer(config);
   }
 
   public synchronized void waitForCompletion() throws InterruptedException {
