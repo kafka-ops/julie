@@ -85,11 +85,6 @@ public class TopologySerdesTest {
     }
   }
 
-  @Test(expected = TopologyParsingException.class)
-  public void testStreamsParsingOnlyWriteTopicsShoulRaiseAnException() {
-    parser.deserialise(TestUtils.getResourceFile("/descriptor-streams-only-write.yaml"));
-  }
-
   @Test
   public void testDynamicFirstLevelAttributes() {
     Topology topology =

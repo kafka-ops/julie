@@ -435,17 +435,6 @@ public class TopologyCustomDeserializer extends StdDeserializer<Topology> {
                 + " might require both read and write topics, as per its "
                 + "nature, it is always reading and writing into Apache Kafka.");
       }
-      if (topics.get(KStream.READ_TOPICS).isEmpty()) {
-        // should have at minimum read topics defined as we could think of write topics as internal
-        // topics being
-        // auto created.
-        throw new IOException(
-            "Kafka Streams application with Id "
-                + ks.getApplicationId()
-                + " and principal "
-                + ks.getPrincipal()
-                + " have missing read topics. This field is required.");
-      }
     }
     return Optional.of(new PlatformSystem(streams));
   }
