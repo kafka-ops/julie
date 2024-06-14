@@ -2,7 +2,11 @@ package com.purbon.kafka.topology;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import com.purbon.kafka.topology.model.*;
+import com.purbon.kafka.topology.model.JulieRole;
+import com.purbon.kafka.topology.model.JulieRoleAcl;
+import com.purbon.kafka.topology.model.JulieRoles;
+import com.purbon.kafka.topology.model.PlanMap;
+import com.purbon.kafka.topology.model.Topology;
 import com.purbon.kafka.topology.model.users.Other;
 import com.purbon.kafka.topology.serdes.JulieRolesSerdes;
 import com.purbon.kafka.topology.serdes.TopologySerdes;
@@ -122,8 +126,7 @@ public class JulieRolesTest {
           "test-mm.checkpoints.internal"
         };
 
-    var mirrorMaker = (Other) topology.getProjects().get(0).getOthers().get("mirrorMaker").get(0);
-    // var other = (Other)mirrorMaker.getAccessControlLists().get(0);
+    var mirrorMaker = topology.getProjects().get(0).getOthers().get("mirrorMaker").get(0);
     var topics = mirrorMaker.asMap().values();
 
     for (String t : expected) {

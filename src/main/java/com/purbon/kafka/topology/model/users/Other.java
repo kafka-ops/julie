@@ -43,7 +43,6 @@ public class Other extends User {
     if (transactionId.isPresent()) {
       map.put("transactionId", transactionId.get());
     }
-
     return map;
   }
 
