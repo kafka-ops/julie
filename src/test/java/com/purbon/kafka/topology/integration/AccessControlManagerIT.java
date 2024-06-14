@@ -194,6 +194,46 @@ public class AccessControlManagerIT {
     verifyConsumerAcls(consumers);
   }
 
+  @Test
+  public void mirrorMakerAclsCreation()
+      throws ExecutionException, InterruptedException, IOException {
+    Project project = new ProjectImpl("project");
+
+    Topology topology = new TopologyImpl();
+    topology.setContext("integration-test");
+    topology.addOther("source", "testMirrorMakerAclsCreation");
+
+    var other = new Other();
+    other.setPrincipal("User:mm2");
+    other.setGroup(Optional.of("testgroup"));
+    other.setOtherField("statusTopic", "test-mirrormaker2-cluster-status");
+    other.setOtherField("offsetTopic", "test-mirrormaker2-cluster-offsets");
+    other.setOtherField("configTopic", "test-mirrormaker2-cluster-configs");
+    other.setOtherField("targetPrefix", "test-mm.");
+    other.setOtherField("offsetSyncTopic", "mm2-offset-syncs.test-mm.internal");
+    other.setOtherField("checkpointsTopic", "test-mm.checkpoints.internal");
+
+    project.setOthers(Collections.singletonMap("mirrorMaker", Collections.singletonList(other)));
+
+    topology.addProject(project);
+
+    Properties props = new Properties();
+    props.put(JULIE_ROLES, TestUtils.getResourceFilename("/roles-mirrormaker.yaml"));
+
+    Map<String, String> cliOps = new HashMap<>();
+
+    Configuration config = new Configuration(cliOps, props);
+
+    accessControlManager =
+        new AccessControlManager(
+            aclsProvider, new AclsBindingsBuilder(config), config.getJulieRoles(), config);
+
+    accessControlManager.updatePlan(topology, plan);
+    plan.run(false);
+
+    verifyMirrorMakerAcls(other);
+  }
+
   @Test(expected = IOException.class)
   public void shouldDetectChangesInTheRemoteClusterBetweenRuns() throws IOException {
 
@@ -745,5 +785,42 @@ public class AccessControlManagerIT {
       Assert.assertTrue(ops.contains(AclOperation.DESCRIBE));
       Assert.assertTrue(ops.contains(AclOperation.READ));
     }
+  }
+
+  private void verifyMirrorMakerAcls(Other other) throws InterruptedException, ExecutionException {
+    ResourcePatternFilter resourceFilter = ResourcePatternFilter.ANY;
+
+    AccessControlEntryFilter entryFilter =
+        new AccessControlEntryFilter(
+            other.getPrincipal(), null, AclOperation.ALL, AclPermissionType.ALLOW);
+
+    AclBindingFilter filter = new AclBindingFilter(resourceFilter, entryFilter);
+
+    Collection<AclBinding> acls = kafkaAdminClient.describeAcls(filter).values().get();
+
+    // 6 topics + 1 group with ALL operation
+    assertEquals(7, acls.size());
+
+    entryFilter =
+        new AccessControlEntryFilter(
+            other.getPrincipal(), null, AclOperation.DESCRIBE, AclPermissionType.ALLOW);
+
+    filter = new AclBindingFilter(resourceFilter, entryFilter);
+
+    acls = kafkaAdminClient.describeAcls(filter).values().get();
+
+    // 1 DESCRIBE permission for cluster
+    assertEquals(1, acls.size());
+
+    entryFilter =
+        new AccessControlEntryFilter(
+            other.getPrincipal(), null, AclOperation.DESCRIBE_CONFIGS, AclPermissionType.ALLOW);
+
+    filter = new AclBindingFilter(resourceFilter, entryFilter);
+
+    acls = kafkaAdminClient.describeAcls(filter).values().get();
+
+    // 1 DESCRIBE_CONFIGS permission for cluster
+    assertEquals(1, acls.size());
   }
 }

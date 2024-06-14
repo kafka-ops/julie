@@ -1,0 +1,14 @@
+---
+context: "contextOrg"
+source: "source"
+projects:
+  - name: "foo"
+    mirrorMaker:
+      - principal: "User:banana"
+        group: "test-group"
+        statusTopic: "test-cluster-status"
+        offsetTopic: "test-cluster-offsets"
+        configTopic: "test-cluster-configs"
+        targetPrefix: "target-prefix."
+        offsetSyncTopic: "mm2-offset-syncs.test-mm.internal"
+        checkpointsTopic: "test-mm.checkpoints.internal"
