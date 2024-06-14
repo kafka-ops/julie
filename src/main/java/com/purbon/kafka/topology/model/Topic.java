@@ -90,7 +90,8 @@ public class Topic implements Cloneable {
         dataType,
         config,
         appConfig,
-        appConfig.getTopicPrefixFormat());
+        appConfig.getTopicPrefixFormat(),
+        null);
   }
 
   public Topic(
@@ -100,7 +101,15 @@ public class Topic implements Cloneable {
       Optional<String> dataType,
       Map<String, String> config,
       Configuration appConfig) {
-    this(name, producers, consumers, dataType, config, appConfig, appConfig.getTopicPrefixFormat());
+    this(
+        name,
+        producers,
+        consumers,
+        dataType,
+        config,
+        appConfig,
+        appConfig.getTopicPrefixFormat(),
+        null);
   }
 
   public Topic(
@@ -110,7 +119,27 @@ public class Topic implements Cloneable {
       Optional<String> dataType,
       Map<String, String> config,
       Configuration appConfig,
-      String topicNamePattern) {
+      String plan) {
+    this(
+        name,
+        producers,
+        consumers,
+        dataType,
+        config,
+        appConfig,
+        appConfig.getTopicPrefixFormat(),
+        plan);
+  }
+
+  public Topic(
+      String name,
+      List<Producer> producers,
+      List<Consumer> consumers,
+      Optional<String> dataType,
+      Map<String, String> config,
+      Configuration appConfig,
+      String topicNamePattern,
+      String plan) {
     this.name = name;
     this.dlqPrefix = ""; // this topic is not a dlq topic
     this.producers = producers;
@@ -130,6 +159,8 @@ public class Topic implements Cloneable {
     }
     subjectNameStrategy = Optional.empty();
     this.topicNamePattern = topicNamePattern;
+
+    this.plan = plan;
   }
 
   public SubjectNameStrategy getSubjectNameStrategy() {
@@ -219,7 +250,8 @@ public class Topic implements Cloneable {
           getDataType(),
           getConfig(),
           getAppConfig(),
-          topicNamePattern);
+          topicNamePattern,
+          getPlan());
     }
   }
 }

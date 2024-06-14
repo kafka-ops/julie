@@ -131,6 +131,9 @@ public class TopologyObjectBuilderTest {
     config.put("bar", "3");
     assertThat(topic.getConfig()).containsAllEntriesOf(config);
 
+    // should include the name of the plan for validation uses
+    assertThat(topic.getPlan()).isEqualTo("gold");
+
     // should respect values from the original config if not present in the plan description
     topic = map.get("barFoo");
     assertThat(topic.getConfig()).containsEntry("replication.factor", "1");
