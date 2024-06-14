@@ -54,6 +54,11 @@ projects:
         config:
           replication.factor: "1"
           num.partitions: "1"
+      - name: "topic09"
+        dataType: "proto"
+        schemas:
+          value.schema.file: "schemas/test.proto"
+          value.format: "PROTOBUF"
   - name: "projectB"
     topics:
       - dataType: "avro"
