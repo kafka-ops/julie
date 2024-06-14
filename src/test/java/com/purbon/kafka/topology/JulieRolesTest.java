@@ -2,11 +2,7 @@ package com.purbon.kafka.topology;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import com.purbon.kafka.topology.model.JulieRole;
-import com.purbon.kafka.topology.model.JulieRoleAcl;
-import com.purbon.kafka.topology.model.JulieRoles;
-import com.purbon.kafka.topology.model.PlanMap;
-import com.purbon.kafka.topology.model.Topology;
+import com.purbon.kafka.topology.model.*;
 import com.purbon.kafka.topology.model.users.Other;
 import com.purbon.kafka.topology.serdes.JulieRolesSerdes;
 import com.purbon.kafka.topology.serdes.TopologySerdes;
@@ -17,6 +13,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 import org.junit.After;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -104,5 +101,33 @@ public class JulieRolesTest {
 
     Topology topology = topologySerdes.deserialise(TestUtils.getResourceFile("/descriptor.yaml"));
     roles.validateTopology(topology);
+  }
+
+  @Test
+  public void testMirrorMakerRole() throws IOException {
+    JulieRoles roles = parser.deserialise(TestUtils.getResourceFile("/roles-mirrormaker.yaml"));
+    TopologySerdes topologySerdes = new TopologySerdes();
+
+    Topology topology =
+        topologySerdes.deserialise(TestUtils.getResourceFile("/descriptor-mirrormaker.yaml"));
+    roles.validateTopology(topology);
+
+    var expected =
+        new String[] {
+          "test-cluster-status",
+          "test-cluster-offsets",
+          "test-cluster-configs",
+          "target-prefix.",
+          "mm2-offset-syncs.test-mm.internal",
+          "test-mm.checkpoints.internal"
+        };
+
+    var mirrorMaker = (Other) topology.getProjects().get(0).getOthers().get("mirrorMaker").get(0);
+    // var other = (Other)mirrorMaker.getAccessControlLists().get(0);
+    var topics = mirrorMaker.asMap().values();
+
+    for (String t : expected) {
+      Assert.assertTrue(topics.contains(t));
+    }
   }
 }

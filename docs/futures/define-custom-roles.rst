@@ -126,3 +126,95 @@ Your topology file could look like this:
         bar:
           - principal: "User:bandana"
             group: "bar"
+
+
+More generic usage of roles
+-----------
+
+Lets assume you need to deploy multiple instances of an application that is not willing to use julie topic hierarchy,
+requires multiple topics and custom acls. You could define a role for each instance, or for each group/topic,
+but that would clutter the roles file quickly. You would however like to have these topics in julie, for acl management
+and for documentation. For example kafka mirror maker needs many topics which would be nice to group together in julie
+config.
+
+For brevity example below gives too much permissions (ALL), but works as example how feature works.
+
+.. code-block:: YAML
+
+    roles:
+      - name: "mirrorMaker"
+        acls:
+          - resourceType: "Topic"
+            resourceName: "{{statusTopic}}"
+            patternType: "LITERAL"
+            host: "*"
+            operation: "ALL"
+            permissionType: "ALLOW"
+          - resourceType: "Topic"
+            resourceName: "{{offsetTopic}}"
+            patternType: "LITERAL"
+            host: "*"
+            operation: "ALL"
+            permissionType: "ALLOW"
+          - resourceType: "Topic"
+            resourceName: "{{configTopic}}"
+            patternType: "LITERAL"
+            host: "*"
+            operation: "ALL"
+            permissionType: "ALLOW"
+          - resourceType: "Topic"
+            resourceName: "{{targetPrefix}}"
+            patternType: "PREFIXED"
+            host: "*"
+            operation: "ALL"
+            permissionType: "ALLOW"
+          - resourceType: "Topic"
+            resourceName: "{{offsetSyncTopic}}"
+            patternType: "LITERAL"
+            host: "*"
+            operation: "ALL"
+            permissionType: "ALLOW"
+          - resourceType: "Topic"
+            resourceName: "{{checkpointsTopic}}"
+            patternType: "LITERAL"
+            host: "*"
+            operation: "ALL"
+            permissionType: "ALLOW"
+          - resourceType: "Cluster"
+            resourceName: "kafka-cluster"
+            patternType: "LITERAL"
+            host: "*"
+            operation: "DESCRIBE"
+            permissionType: "ALLOW"
+          - resourceType: "Cluster"
+            resourceName: "kafka-cluster"
+            patternType: "LITERAL"
+            host: "*"
+            operation: "DESCRIBE_CONFIGS"
+            permissionType: "ALLOW"
+          - resourceType: "Group"
+            resourceName: "{{group}}"
+            patternType: "LITERAL"
+            host: "*"
+            operation: "ALL"
+            permissionType: "ALLOW"
+
+With previous roles file mirror maker can be defined in a clutter free manner in a project.
+
+.. code-block:: YAML
+
+    context: "contextOrg"
+    source: "source"
+    projects:
+      - name: "foo"
+        mirrorMaker:
+          - principal: "User:banana"
+            group: "foo"
+            statusTopic: "test-cluster-status"
+            offsetTopic: "test-cluster-offsets"
+            configTopic: "test-cluster-configs"
+            targetPrefix: "target-prefix."
+            offsetSyncTopic: "mm2-offset-syncs.test-mm.internal"
+            checkpointsTopic: "test-mm.checkpoints.internal"
+
+Somewhat viable alternative to this would be to use special_topics, but they limit to topic and producer/consumer acl:s.
