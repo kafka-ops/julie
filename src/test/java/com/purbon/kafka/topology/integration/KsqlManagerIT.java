@@ -48,7 +48,7 @@ public class KsqlManagerIT {
     ksqlContainer = new KsqlContainer(container);
     ksqlContainer.start();
 
-    Files.deleteIfExists(Paths.get(".cluster-state"));
+    Files.deleteIfExists(Paths.get("/usr/local/state/.cluster-state"));
 
     KsqlClientConfig ksqlClientConfig =
         KsqlClientConfig.builder().setServer(ksqlContainer.getUrl()).build();

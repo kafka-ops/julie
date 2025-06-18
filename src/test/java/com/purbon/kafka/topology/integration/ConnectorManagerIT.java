@@ -53,7 +53,7 @@ public class ConnectorManagerIT {
     connectContainer = new ConnectContainer(container, TRUSTSTORE_JKS, KEYSTORE_JKS);
     connectContainer.start();
 
-    Files.deleteIfExists(Paths.get(".cluster-state"));
+    Files.deleteIfExists(Paths.get("/usr/local/state/.cluster-state"));
 
     this.plan = ExecutionPlan.init(new BackendController(), System.out);
   }

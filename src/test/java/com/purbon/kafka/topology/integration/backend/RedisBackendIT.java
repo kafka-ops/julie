@@ -67,7 +67,7 @@ public class RedisBackendIT {
 
   @Before
   public void before() throws IOException {
-    Files.deleteIfExists(Paths.get(".cluster-state"));
+    Files.deleteIfExists(Paths.get("/usr/local/state/.cluster-state"));
 
     kafkaAdminClient = ContainerTestUtils.getSaslAdminClient(container);
     TopologyBuilderAdminClient adminClient = new TopologyBuilderAdminClient(kafkaAdminClient);

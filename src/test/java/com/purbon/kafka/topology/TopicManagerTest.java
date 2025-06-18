@@ -51,7 +51,7 @@ public class TopicManagerTest {
   @Before
   public void setup() throws IOException {
 
-    Files.deleteIfExists(Paths.get(".cluster-state"));
+    Files.deleteIfExists(Paths.get("/usr/local/state/.cluster-state"));
     backendController = new BackendController();
 
     cliOps = new HashMap<>();

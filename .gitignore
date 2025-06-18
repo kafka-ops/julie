@@ -4,6 +4,7 @@ project/*
 target/*
 logs/*
 .cluster-state
+/usr/local/state/.cluster-state
 *.iml
 _build
 *~

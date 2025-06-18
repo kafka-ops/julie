@@ -57,7 +57,7 @@ public class PrincipalManagerTest {
   @Before
   public void before() throws IOException {
 
-    Files.deleteIfExists(Paths.get(".cluster-state"));
+    Files.deleteIfExists(Paths.get("/usr/local/state/.cluster-state"));
     backendController = new BackendController();
 
     cliOps = new HashMap<>();

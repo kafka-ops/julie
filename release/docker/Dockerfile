@@ -13,4 +13,6 @@ RUN mkdir -p /usr/local/julie-ops/bin && chmod 755 /usr/local/julie-ops
 COPY julie-ops.jar /usr/local/julie-ops/bin
 COPY julie-ops-cli.sh /usr/local/julie-ops
 
+RUN mkdir -p /usr/local/state && chmod 777 /usr/local/state
+
 CMD ["julie-ops-cli.sh"]

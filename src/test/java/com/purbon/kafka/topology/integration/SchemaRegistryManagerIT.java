@@ -59,7 +59,7 @@ public class SchemaRegistryManagerIT {
 
   @Before
   public void configure() throws IOException {
-    Files.deleteIfExists(Paths.get(".cluster-state"));
+    Files.deleteIfExists(Paths.get("/usr/local/state/.cluster-state"));
 
     parser = new TopologySerdes();
 
