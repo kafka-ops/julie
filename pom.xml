@@ -211,7 +211,7 @@
     <aws.java.sdk.version>2.59.2</aws.java.sdk.version>
     <commons.version>1.11.0</commons.version>
     <confluent.version>8.4.1</confluent.version>
-    <gcp.java.sdk.version>26.93.0</gcp.java.sdk.version>
+    <gcp.java.sdk.version>26.94.0</gcp.java.sdk.version>
     <jackson.version>2.23.0</jackson.version>
     <jedis.version>8.0.2</jedis.version>
     <jinjava.version>2.8.5</jinjava.version>
