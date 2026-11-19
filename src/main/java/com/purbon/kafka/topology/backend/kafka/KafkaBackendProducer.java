@@ -27,6 +27,9 @@ public class KafkaBackendProducer {
   }
 
   public void configure() {
+    if (config.isDryRun()) {
+      return;
+    }
     Properties props = config.asProperties();
     props.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
     props.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, ByteArraySerializer.class);
@@ -36,6 +39,9 @@ public class KafkaBackendProducer {
   }
 
   public void save(BackendState backendState) {
+    if (config.isDryRun()) {
+      return;
+    }
     List<byte[]> chunks = chunkify(backendState);
     int key = 1;
     for (byte[] chunk : chunks) {
@@ -64,6 +70,9 @@ public class KafkaBackendProducer {
   }
 
   public void stop() {
+    if (config.isDryRun()) {
+      return;
+    }
     producer.close();
   }
 }
